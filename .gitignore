@@ -1,7 +1,7 @@
 # dependencies / build
 node_modules/
-dist/
-coverage/
+/dist/
+/coverage/
 *.tsbuildinfo
 
 # research scratch — clones, master.mdb, personal exports (NEVER commit; contains friend viewer IDs)
