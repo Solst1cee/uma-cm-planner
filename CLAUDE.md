@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-**Phase 0 (research spikes) is DONE (2026-06-12); Phase 1 (scaffold + Module 4 core) is next.** No code yet. Key files:
+**Phase 0 (research) DONE; Phase 1 (scaffold + Module 4 core) in progress (2026-06-12).** Scaffold is committed (Vite+React+TS+Vitest, CI, GPL-3.0-only). Key files:
 - [uma-cm-planner-plan.md](uma-cm-planner-plan.md) — the full project plan and single source of truth (Phase 0 checklist annotated with outcomes; §14 decisions annotated).
 - [docs/provenance.md](docs/provenance.md) — engine vendor pin (umalator-global v0.14.2), licenses (clean GPL chain), all dataset sources/formats, UmaExtractor import spec, rental-site deep-link templates.
 - [docs/mechanics-notes.md](docs/mechanics-notes.md) — verified mechanics numbers (cite these in core tests); §10 lists what still needs in-game verification.
 - `spikes/` — scratch clones + research artifacts incl. a live Global master.mdb with extractions (`spikes/repos/umalator-global/db/`). **Gitignore this dir when scaffolding.** Structured agent findings: `spikes/phase0-results.json` + `spikes/phase0-completion-results.json`.
 
-Tooling note: git + Node 24 present; **pnpm not installed** (use `corepack enable` or `npm i -g pnpm` at Phase 1). Headless engine runs under plain Node need esbuild `define:{'import.meta.env':'{"DEV":false}','import.meta.main':'true'}` (see provenance §1.1).
+Tooling note: git, Node 24, pnpm 10 (npm-global) present. Headless engine runs under plain Node need esbuild `define:{'import.meta.env':'{"DEV":false}','import.meta.main':'true'}` (see provenance §1.1). User exports with personal data live under `spikes/samples/` — gitignored, never commit.
 
 The project: a local-first web app for Umamusume: Pretty Derby (Global) Champions Meeting build planning, with four modules — Skill Acquisition Planner (Module 4, build first), Inheritance Planner (Module 1), SP Purchase Optimizer (Module 2), and Meta Intel Workspace (Module 3).
 

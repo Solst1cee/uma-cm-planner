@@ -1,0 +1,200 @@
+/**
+ * Synthetic-but-realistic fixtures for unit tests and UI development.
+ * IDs are real master.mdb ids; numeric values are plausible, NOT pipeline
+ * output — production data comes from public/data/*.json. Do not use these
+ * to assert real-game values.
+ */
+import type { CmPlan, SkillRecord, SparkRates, SupportCardRecord } from '@/core/types';
+
+export const FIXTURE_SKILLS: SkillRecord[] = [
+  {
+    skillId: '200012',
+    nameEn: 'Right Turns ○',
+    nameJp: '右回り○',
+    baseSpCost: 90,
+    rarity: 'white',
+    conditions: 'rotation==1',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '200014',
+    nameEn: 'Right Turns ◎',
+    nameJp: '右回り◎',
+    baseSpCost: 110,
+    rarity: 'gold',
+    prereqSkillId: '200012',
+    conditions: 'rotation==1',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '200331',
+    nameEn: 'Professor of Curvature',
+    nameJp: '弧線のプロフェッサー',
+    baseSpCost: 160,
+    rarity: 'gold',
+    prereqSkillId: '200332',
+    conditions: 'corner_random==1',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '200332',
+    nameEn: 'Corner Adept ○',
+    nameJp: 'コーナー巧者○',
+    baseSpCost: 110,
+    rarity: 'white',
+    conditions: 'corner_random==1',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '210061',
+    nameEn: 'Shooting for the Top',
+    nameJp: '一番星',
+    baseSpCost: 0,
+    rarity: 'white',
+    scenarioId: 4, // Trackblazer (Climax) — internal id, see provenance §3.1
+    conditions: '',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '900021',
+    nameEn: "I'm Not Giving Up the Lead…! (inherited)",
+    nameJp: '先頭の景色は譲らない…！（継承）',
+    baseSpCost: 0,
+    rarity: 'inherited_unique',
+    conditions: 'is_lastspurt==1',
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    skillId: '201242',
+    nameEn: 'JP-Only Example ○',
+    nameJp: 'JP限定例○',
+    baseSpCost: 100,
+    rarity: 'white',
+    conditions: '',
+    server: 'jp', // must never appear in Global calculations (P4)
+    dataVersion: 'fixture',
+  },
+];
+
+export const FIXTURE_CARDS: SupportCardRecord[] = [
+  {
+    cardId: '30028',
+    nameEn: '[Feel the Burn, Princess!]',
+    charName: 'Kitasan Black',
+    rarity: 'SSR',
+    type: 'speed',
+    perLevel: [
+      { limitBreak: 0, hintFrequency: 30, hintLevels: 2, specialtyPriority: 50 },
+      { limitBreak: 1, hintFrequency: 33, hintLevels: 2, specialtyPriority: 65 },
+      { limitBreak: 2, hintFrequency: 36, hintLevels: 2, specialtyPriority: 80 },
+      { limitBreak: 3, hintFrequency: 40, hintLevels: 2, specialtyPriority: 100 },
+      { limitBreak: 4, hintFrequency: 40, hintLevels: 2, specialtyPriority: 120 },
+    ],
+    skills: [
+      { skillId: '200331', sourceType: 'chain' },
+      { skillId: '200332', sourceType: 'hint_pool' },
+      { skillId: '200012', sourceType: 'hint_pool' },
+      { skillId: '200014', sourceType: 'random_event' },
+    ],
+    hintPoolSize: 2,
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    cardId: '30016',
+    nameEn: '[Tracen Academy]',
+    charName: 'Tazuna Hayakawa',
+    rarity: 'SSR',
+    type: 'friend',
+    perLevel: [
+      { limitBreak: 0, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 1, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 2, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 3, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 4, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+    ],
+    skills: [{ skillId: '200012', sourceType: 'date_event' }],
+    hintPoolSize: 0,
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+  {
+    cardId: '10001',
+    nameEn: '[R Example]',
+    charName: 'Special Week',
+    rarity: 'R',
+    type: 'stamina',
+    perLevel: [
+      { limitBreak: 0, hintFrequency: 0, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 1, hintFrequency: 5, hintLevels: 0, specialtyPriority: 0 },
+      { limitBreak: 2, hintFrequency: 10, hintLevels: 1, specialtyPriority: 20 },
+      { limitBreak: 3, hintFrequency: 12, hintLevels: 1, specialtyPriority: 20 },
+      { limitBreak: 4, hintFrequency: 15, hintLevels: 1, specialtyPriority: 35 },
+    ],
+    skills: [
+      { skillId: '200332', sourceType: 'hint_pool' },
+      { skillId: '200012', sourceType: 'hint_pool' },
+      { skillId: '200014', sourceType: 'hint_pool' },
+      { skillId: '210061', sourceType: 'hint_pool' },
+      { skillId: '900021', sourceType: 'hint_pool' },
+      { skillId: '201242', sourceType: 'hint_pool' },
+      { skillId: '100151', sourceType: 'hint_pool' },
+      { skillId: '100152', sourceType: 'hint_pool' },
+      { skillId: '100153', sourceType: 'hint_pool' },
+      { skillId: '100154', sourceType: 'hint_pool' },
+      { skillId: '100155', sourceType: 'hint_pool' },
+      { skillId: '100156', sourceType: 'hint_pool' },
+    ],
+    hintPoolSize: 12,
+    server: 'global',
+    dataVersion: 'fixture',
+  },
+];
+
+/** Values from docs/mechanics-notes.md (verified 2026-06-12). */
+export const FIXTURE_SPARK_RATES: SparkRates = {
+  baseProcPctByStars: {
+    blue: [70, 80, 90],
+    pink: [1, 3, 5],
+    green: [5, 10, 15],
+    whiteSkill: [3, 6, 9],
+    whiteRace: [1, 2, 3],
+    whiteScenario: [3, 6, 9],
+  },
+  inspirationEvents: 2,
+  affinityScaling: 'per_member_multiplicative_pct',
+  pink: {
+    careerStartStepThresholds: [1, 4, 7, 10],
+    careerStartMaxSteps: 4,
+    careerStartCap: 'A',
+    sToSRequiresInRunProcAtA: true,
+  },
+  blueCareerStartByStars: [5, 12, 21],
+  blueInRunRollRange: { 1: [1, 10], 2: [1, 16], 3: [1, 28] },
+  blueInRunRollRangeProvisional: true,
+  hintDiscountCumulativePct: [10, 20, 30, 35, 40],
+  fastLearnerMultiplier: 0.9,
+  dataVersion: 'fixture',
+};
+
+export const FIXTURE_PLAN: CmPlan = {
+  id: 'fixture-plan',
+  name: 'Fixture Cup',
+  month: '2026-07',
+  scenario: { id: 4, isDefault: true },
+  race: { courseId: '10606', surface: 'turf', distance: 2400 },
+  requiredAptitudes: [{ kind: 'distance', key: 'long', target: 'A' }],
+  targetSkills: [
+    { skillId: '200331', priority: 1 },
+    { skillId: '200014', priority: 2 },
+    { skillId: '210061', priority: 3 },
+  ],
+  lockedDeckSlots: [],
+  chosenParents: [undefined, undefined],
+};
