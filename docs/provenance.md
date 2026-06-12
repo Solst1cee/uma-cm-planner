@@ -1,0 +1,201 @@
+# Provenance
+
+Where every dataset, algorithm, and external dependency comes from. Per plan §2 P1: every ported algorithm and borrowed dataset records its source URL and retrieval date here. Keep this file updated whenever something new is borrowed.
+
+All findings below: **Phase 0 spikes, retrieved/verified 2026-06-12** unless dated otherwise. Local scratch clones live in `spikes/repos/` (gitignored; re-clone shallowly if absent).
+
+---
+
+## 1. Simulation engine — jalbarrang/umalator-global
+
+- **Source:** https://github.com/jalbarrang/umalator-global ("Torena Sim"), **pin: tag `v0.14.2` = commit `c1fa2107b6a7be6283bf6414ebb7a23ea0c095ca`** (2026-06-05, latest of 19 release tags).
+- **Lineage:** alpha123/uma-skill-tools (pecan, 2022) → VFalator fork → jalbarrang. Engine heavily rewritten: lives in `src/lib/sunday-tools/` ("sunday-tools", renamed from uma-skill-tools); `Race`/`Runner` classes replace the old `RaceSolver`/`RaceSolverBuilder`.
+- **Why this one (vs alternatives):** alpha123 upstream uses JP-server data/mechanics and the older architecture; kachi-dev/uma-tools fork is older RaceSolver architecture with Preact UI, checked-in bundles, and (in our clone) a dangling `EnhancedHpPolicy` import. umalator-global has the modern Global data pipeline and proven headless usage in-repo (`scripts/run-skill-compare.ts` runs under Bun with no DOM; 4 web workers run it off-main-thread).
+
+### Entry points for our use case
+| Path (in upstream) | Use |
+|---|---|
+| `src/modules/simulation/simulators/skill-compare.ts` | **Primary:** `runSkillComparison` / `runSampling` — per-skill bashin deltas via Monte Carlo (two single-runner `Race` instances, identical per-sample seeds, bashin = positionDiff/2.5) |
+| `src/modules/simulation/simulators/vacuum-compare.ts` | `runComparison` — two-build compare (umalator classic mode) |
+| `src/lib/sunday-tools/common/race.ts` | `Race` core class (`prepareRound(masterSeed)` → `run()` ticks at 1/15s) |
+| `src/lib/sunday-tools/common/runner.ts` | `Runner`, `CreateRunner` input type (stats, strategy, aptitudes, skill id list) |
+| `src/lib/sunday-tools/common/race-observer.ts` | Output collectors (`BassinCollector`, `SkillCompareDataCollector`, per-frame data) |
+| `src/modules/simulation/simulators/shared.ts` | Glue: `createInitializedRace`, `toCreateRunner`, `toSundayRaceParameters` |
+| `src/lib/sunday-tools/runner/runner.utils.ts` | `buildSkillData` — skill condition DSL → simulation triggers (main data-injection seam) |
+
+### Known coupling caveats (verified by source reading; smoke test see §1.1)
+- Pervasive `@/*` tsconfig path alias (cheapest fix: replicate alias in our Vite/tsconfig).
+- Module-scope data singletons (`skillsService`, `coursesService`) statically import JSON — works headless but hard-codes the data source; prefer converting to injected params or precomputed merged JSON.
+- `common/runner.ts:43` imports `getUmaDisplayInfo` (pulls React into the closure; display-name only at line 1474) — stub when vendoring.
+- `common/race-observer.ts` imports from `modules/simulation` (circular engine↔app boundary) — relocate `compare.types.ts` into the vendored tree.
+- `import.meta.env?.DEV` Vite-ism in `runner/runner.utils.ts:68` (optional-chained, non-fatal).
+- Module-level mutable registry `registerAllDynamicConditions()`; `Race.onInitialize()` calls it — keep import side-effect ordering.
+- Runtime deps to carry: `prando`, `es-toolkit`. ES2023 array methods assumed (`src/polyfills.ts` pattern).
+- No DOM/window/fetch anywhere in `src/lib/sunday-tools` (verified by grep).
+
+### Vendor list (when Phase 4 lands)
+`src/lib/sunday-tools/**` (drop tests) + the 5 simulator/glue files + either the loader chain or (preferred) a build-time merged `skills.json` + `course_data.json` + `umas.json`. Also vendor `scripts/master-data/**` and `scripts/data-extract/{extract-skills,extract-course-data,extract-uma-info,gametora-client,sync-gametora}.ts` as our data-refresh pipeline (runs on Bun, hits the Global CDN).
+
+### 1.1 Headless-import smoke test — **PASSED** (adversarial verification, 2026-06-12)
+`runSkillComparison` executed end-to-end under plain Node v24 with no DOM: bundled via esbuild (`platform:'node'`, `define:{'import.meta.env':'{"DEV":false}'}`) and produced correct deterministic bashin output. Findings:
+- **The only real blocker** is `src/config/env.ts:1` (module-level `import.meta.env`, fatal under plain Node; fine under Bun/Vite — the repo's own `bun scripts/run-skill-compare.ts` needs zero shims). Exactly 3 `import.meta.env` sites in src/; the other two are dead-in-engine-graph or optional-chained.
+- The `@/*` alias caveat did NOT materialize under tsx (resolves tsconfig paths out of the box).
+- For the CLI/data pipeline under Node, also define `'import.meta.main': 'true'` or Bun-style CLI entries never run.
+- Repro artifacts: `spikes/repos/umalator-global/scripts/adversarial-smoke.ts` (+ `.bundle.cjs`).
+
+### Fidelity caveat (P3)
+Compare mode replaces multi-runner interactions (blocking, order conditions) with statistical distributions (`conditions/aproximate-conditions.ts`, upstream README disclaimers). Good for **relative** skill ranking; absolute bashin vs in-game behavior is unvalidated. Surface this in the UI.
+
+---
+
+## 2. Licensing
+
+**Decision input (plan §14.1): adopt GPL-3.0. Confirmed safe — no unlicensed link in the chain.**
+
+| Repo | License | Evidence |
+|---|---|---|
+| alpha123/uma-skill-tools | **GPL-3.0-or-later**, Copyright (C) 2022 pecan | LICENSE (verbatim GPLv3), package.json, README GPL notice |
+| alpha123/uma-tools | GPL-3.0-or-later (author pecan) | LICENSE, package.json |
+| kachi-dev/uma-tools | GPL-3.0-or-later (retains upstream LICENSE byte-identical) | LICENSE, package.json |
+| jalbarrang/umalator-global | **GPL-3.0-only** | LICENSE, package.json `"license": "GPL-3.0-only"` |
+
+- umalator-global demonstrably vendors alpha123 code (near-verbatim `ActivationSamplePolicy.ts` incl. comments) — legal: or-later code may be redistributed under v3-only. We inherit **GPL-3.0-only** if we vendor from jalbarrang.
+- Obligations when we distribute (a deployed static site = conveying): full GPLv3 text in LICENSE; NOTICE/CREDITS naming pecan/alpha123 (© 2022), VFalator contributors, jalbarrang, GameTora; modification notices on vendored files we change; published, buildable source.
+- **Game data is NOT covered by anyone's GPL grant** — master.mdb-derived JSON and icons are Cygames property; upstream can't license what they don't own. Keep data/assets outside our GPL grant; carry a Cygames fair-use disclaimer modeled on umalator-global README lines 118–128. Do not vendor uma-tools' 415MB icon dump wholesale.
+- GameTora-scraped JSON has no license statement; attribution + polite, hash-gated snapshot reuse (see §4) is the community norm. Open question: ask GameTora before long-term redistribution in our repo.
+
+---
+
+## 3. Game datasets (skills / courses / umas / support cards)
+
+**Decision confirmed: borrow, don't self-extract** (plan §3 "Data sources"). Best single source: **umalator-global's `src/modules/data/json/`** — two-layer model: master.mdb extract = "released on Global" cutover; `gametora/*.json` = full JP+Global catalog with per-server release dates.
+
+| Need | Source file (umalator-global unless noted) | Notes |
+|---|---|---|
+| Skills (conditions, effects) | `json/skills.json` (578 released) + `json/gametora/skills.json` (1802 catalog) | Condition DSL strings parsed by the engine. ⚠ ADR-0002: **101 skills have different activation conditions JP vs Global** — never assume JP conditions for Global sim |
+| Skill SP base cost | `skills.json` `baseCost` (also uma-tools `skill_meta.json`: `{baseCost, groupId, score, order}`) | = master.mdb `single_mode_skill_need_point`. Uniques are 0. Upstream even ships an SP cost calculator (`skill-planner/cost-calculator.ts`): hint discounts {1:10%,2:20%,3:30%,4:35%,5:40%}, Fast Learner ×0.9, ceil-after-sum, gold-bundles-white |
+| Rarity / gold↔white links | `skills.json` `versions`/`family` arrays; `skill-relationships.ts` documents family-ID patterns; inherited uniques = 9xxxxx ids, `gene_version`/`unique_version` fields | rarity: 1=white, 2=gold, 3–5=unique |
+| Courses | `json/course_data.json` (107 Global) | surface 1=Turf 2=Dirt; distanceType 1–4; corners/straights/slopes; `courseSetStatus` = stat-bonus stats |
+| Umas | `json/umas.json` (cutover) + `gametora/character-cards.json` (254, full: aptitude letters, base stats, growth %, skills) | aptitude ints: 1=G..7=A, 8=S |
+| Support cards | `json/support-cards.json` (217 Global: 93 SSR/46 SR/78 R) + `gametora/support-cards.json` (536 catalog with per-level passive matrices) | passive effect ids via `gametora/support-effects.json`: **17=Hint Levels, 18=Hint Frequency, 19=Specialty Priority**, 33=Hint Quantity Bonus |
+| EN names | All Global extracts carry official EN (master.mdb text_data); `name_en` (official, 517) vs `enname` (fan TL, all 1802) in gametora skills | JP-only content has fan-EN fallback only |
+| CM race definitions | `src/store/race/cm-presets.json` (31 presets: name/date/courseId/season/ground/weather/time); uma-skill-tools `cmdefs/*.cmdef.json` format (18 JP CMs, incl. presupposedSkills per strategy) | Direct input for our CmPlan race picker |
+
+### Regeneration pipeline (vendor in Phase 1 as `scripts/`)
+- `bun run db:fetch` → downloads **Global master.mdb from the official CDN** `assets-umamusume-en.akamaized.net` (manifest chain; version via `https://uma.moe/api/ver`).
+- `bun run extract:all` → SQL over master.mdb → skills/courses/umas/support-cards JSON.
+- `bun run sync:data` → snapshots GameTora's manifest API `https://gametora.com/data/manifests/umamusume.json` → `gametora/*.json` (hash-gated, cached, identifying UA).
+
+### Known data gaps (drive `data-overrides/`)
+1. ~~Scenario-exclusive tagging~~ **RESOLVED 2026-06-12** — see §3.1 below; encode the scenario map as a small hand-maintained data file (it changes ~2×/year).
+2. ~~Support-card passive matrix semantics~~ **RESOLVED 2026-06-12** — confirmed against live Global master.mdb, byte-identical for all 220 cards; per-LB derivation rule in `docs/mechanics-notes.md` §9.
+3. Per-event hint *levels* granted (e.g. "hint +1/+3") are embedded in `support-events.json` reward display strings — needs parsing (choice-level data also in Tachyons-lab).
+
+### 3.1 Scenario id map (resolved 2026-06-12)
+
+⚠ **Two numbering systems exist — never mix them:**
+- **Game-internal** `single_mode_scenario.id` (master.mdb; use this for `CmPlan.scenario.id`): **id 3 does not exist** (data skips 2→4).
+- **GameTora release-order numbering (GT#)** used by `sce_e` and `evo[].scenario_id` in gametora JSON: contiguous 1–13.
+
+| Internal id | GT# | Scenario | Global status (2026-06-12) |
+|---|---|---|---|
+| 1 | 1 | URA Finale ("The Beginning: URA Finale") | ✅ launch 2025-06-26 |
+| 2 | 2 | Aoharu Hai ("Unity Cup: Shine On, Team Spirit!") | ✅ 2025-11-06 |
+| 4 | 3 | Make a New Track!! / Climax ("Trackblazer: Start of the Climax") | ✅ 2026-03-12 — **current Global default (latest)** |
+| 5* | 4 | Grand Live | ❌ (likely next; ~4-month cadence → ~Jul 2026, speculative) |
+| 6* | 5 | Grand Masters | ❌ |
+| 7* | 6 | Project L'Arc ("Reach for the stars" — the perl list's "RFTS") | ❌ |
+| 8* | 7 | U.A.F. Ready GO! | ❌ |
+| 9* | 8 | Great Food Festival | ❌ |
+| 10* | 9 | Run! Mecha Umamusume | ❌ |
+| 11* | 10 | The Twinkle Legends | ❌ |
+| 12* | 11 | 無人島へようこそ (Design Your Island) | ❌ |
+| 13* | 12 | ごくらく♪ゆこま温泉郷 | ❌ |
+| 14* | 13 | Beyond Dreams (Breeders' Cup) | ❌ |
+
+\* Internal ids ≥5 inferred (GT#+1, single gap at 3) — verify against a JP master.mdb before hardcoding. Sources: Global master.mdb `single_mode_scenario` + `text_data` cats 119/237 (ids 1/2/4 authoritative); GameWith scenario timeline https://gamewith.jp/uma-musume/article/show/317671; skill-id anchors per scenario (evidence in `spikes/` agent output ae523ce1).
+
+**`sce_e` semantics** (inferred from membership): skill obtainable from that scenario's training events; multi-valued lists occur (e.g. `[1,8]`). UAF (GT#7) has zero entries in the current snapshot — unexplained, treat UAF skills via overrides if ever needed.
+
+**`l_0..l_3` tags decoded — NOT scenario-related:** they are race-phase filter tags (l_0 Opening Leg/phase 0, l_1 Middle Leg, l_2 Final Leg, l_3 Last Spurt) — established by condition-string correlation (e.g. 492/508 l_1 skills have `phase==1`-family conditions). Other tags in the same taxonomy: sho/mil/med/lng distance, run/ldr/btw/cha strategy, str/cor/f_s/f_c/slo geometry, dir/tur surface, dbf debuff.
+
+---
+
+## 4. Support-card skill sourceType (chain / hint_pool / random_event)
+
+**Solved — no bulk hand-curation needed.** master.mdb provably contains NO event-reward→skill relation (exhaustive negative result: umalator-global `docs/data-extraction/support-card-skill-sources.md`); hint pools come from master.mdb `single_mode_hint_gain`.
+
+- **Primary dataset:** `umalator-global/src/modules/data/json/gametora/event-skill-sources.json` — 532 cards → `{chain_event_skills, random_event_skills}` (GameTora per-card eventData: "arrows" = chain, "random" = random). Covers 213/217 Global cards (4 missing are R [Tracen Academy] cards with zero event skills). Refreshed 2026-06-05; re-runnable via `scripts/fetch-event-skill-sources.ts`.
+- **Runtime model to mirror:** upstream `attach-support-sources.ts` already tags skills `'hint' | 'chain-event' | 'random-event'` with a consistency test suite.
+- **Cross-validation oracle:** jechto/Tachyons-lab `front/src/app/data/data.json` (GPL-3.0, 217 Global cards, `all_events.{chain_events,random_events,dates}` + hints_table, updated 2026-06-09; local copy `spikes/tachyons-data.json`). All three pipelines agree on the Kitasan 30028 ground-truth trace (chain "We Walk Together" → skill 200331).
+- **Overrides workload estimate: ~15–20 card entries** — 14 Global cards where GameTora's flat event list disagrees with chain∪random (mostly friend/group cards: Tazuna, Aoi Kiryuin, Riko, Sasami, Team Sirius — their "date events" are neither chain nor random) + the dual-listed-skill card. Open product question: add a fourth sourceType (`date_event`) for friend/group cards.
+- Volume context: Global cards average 5.8 hint skills (1,263 rows) and 2.3 event skills (494 rows: 276 chain / 225 random).
+- Ruled out: urarawin/pretty-derby (flat lists, JP), umapyoi.net (redirects to GameTora), SimpleSandman API (inherits master.mdb gap).
+
+---
+
+## 5. UmaExtractor roster import (Module 1/3 input)
+
+- **Tool:** https://github.com/xancia/UmaExtractor (v2.1; uma.guide team; fork of rockisch/umadump). Frida-attaches to the running Global client on the Veteran List screen, memory-scans for the msgpack `trained_chara_array`, dumps `data.json` = **the game API's own trained-chara schema, raw master.mdb IDs, untransformed** (top-level `viewer_id`/`owner_viewer_id` scrubbed).
+- **Per-veteran fields:** `card_id`, stats (`speed/stamina/power/guts/wiz`), `rank` + `rank_score`, aptitudes as ints 1–8 (G..S; `proper_distance_*`, `proper_ground_*`, `proper_running_style_*`), `skill_array [{skill_id, level}]` (= master.mdb skill ids, same id-space as simulator data), `factor_id_array` (sparks), `succession_chara_array` (full legacy tree: position_id 10/11/12 = parent1+its parents, 20/21/22 = parent2 side).
+
+### Factor (spark) ID encoding — verified vs master.mdb succession_factor/_effect
+- Last 1–2 digits = star count (1–3), rest classifies:
+  - 3-digit `101–503`: **blue** stat spark; hundreds digit 1–5 = spd/sta/pow/gut/wit.
+  - 4-digit: **pink** aptitude; group 11/12 = turf/dirt, 21–24 = front/pace/late/end, 31–34 = sprint/mile/medium/long.
+  - 7-digit `1xxxxSS`: race spark (G1 win); `2xxxxSS`: **white skill spark**; `3xxxxSS`: scenario spark.
+  - 8-digit: **green** unique-skill spark; floor(id/100) = source card_id.
+- **Factor→skillId join (lookup table needed):** master.mdb `succession_factor.factor_group_id` → `succession_factor_effect` rows with `target_type=41`, `value_1` = granted skill id (white: ≈ group×10+2, the ○ variant; green: the **9xxxxx inherited-unique** id — store that + sourceCardId). Race sparks grant stats AND a lv1 skill; scenario sparks stats only. Table dumps: Apolexian/clairvoyance `masterdb_readable` (local: `spikes/repos/clairvoyance-masterdb/`); schemas: SimpleSandman/UmaMusumeAPI C# models.
+- **Format drift:** 2021 sample uses `factor_id_array` (flat ints) on parents; current Global export gives parents `factor_info_array` (objects) — importer must accept both (reference consumer: TheCing/uma-parent-viewer `enrich_data.py`).
+
+### Mapping → our `Parent` record
+`id ← trained_chara_id` (synthesize for legacy-tree nodes) · `umaId ← card_id` · `blueSpark/pinkSpark/greenSpark/whiteSparks ←` decoded factors per above · `grandparents ←` succession positions 10/20 (11/12/21/22 available if model ever extends) · `stats ← {spd:speed,…,wit:wiz}` · `rating ←` letter via single_mode_rank ladder (12=B+, 13=A …), keep `rank_score` · `source ← 'mine'` (export is always the player's own list) · `importSource ← 'umaextractor'`.
+
+**Gaps:** `affinityHint` not in export (computable later from `succession_relation`/`_member` tables — out of scope v1, manual entry per plan); mine-vs-rental not distinguishable for tree nodes; race/scenario sparks don't fit `whiteSparks` (product decision: extend model or drop with documented loss — they grant stats at inheritance); no name strings (master-data lookups; ready-made maps in uma-parent-viewer `data/*_global.json`).
+
+### Schema lock (adversarial follow-up, 2026-06-12 — corrections to the above)
+Five converging sources pin the **current v2.1 Global format** (Werseter's metadata-validated client layouts, UmamusumeResponseAnalyzer's Gallop response classes, uma.guide RosterViewer production bundle, uma.moe ingest service, hakuraku types):
+- Parents carry `factor_info_array` **in addition to** (not instead of) `factor_id_array`; entry shape exactly `{factor_id: int, level: int}` (level often 0; stars stay redundantly in `factor_id % 100`).
+- **No top-level `chara_id`** exists (the xancia README claim is a documentation error).
+- Nested `owner_viewer_id` / `succession_history_array[].viewer_id`/`rental_viewer_id` are **NOT scrubbed** — real friend viewer IDs survive (privacy note for any share feature; also a possible mine-vs-rental signal). Per xancia issue #1, a borrowed parent from the current run can appear in the extraction (mine-vs-rental noise).
+- Consumer acceptance rules to mirror (from uma.guide's bundle): accept bare array OR `{trained_chara_array: [...]}`; prefer `factor_info_array` with `factor_id_array` fallback at both veteran and parent levels; treat `level` outside 1–9 as absent; `pow/power` + `wiz/wisdom` key dualities.
+- JP-side future drift to watch: JP has already dropped `factor_id_array` and added `factor_extend_array` (+ a `hisotry_type` typo key); Global had not as of the May-2026 client layout.
+
+**Sample exports:** the umadump repo-root sample (`spikes/repos/umadump/data.json`, 180 veterans) is actually **Global-launch-era 2025-06-29** (not 2021 JP as first assessed) — it simply predates Global adding `factor_info_array` (added between Jul and Nov 2025). Two current-format Global fixtures recovered: `spikes/samples/werseter-umadump-rawdump-global-2025-11.json` and `spikes/samples/werseter-umadump2-memreader-global-2026-06.json` (the latter partially reconstructed/zero-filled).
+
+**✅ Schema CONFIRMED against the user's own current export (2026-06-12):** `spikes/samples/sun-umaextractor-global-2026-06.json` (4.2 MB, 235 veterans, bare array). Matches the locked spec exactly: top-level `viewer_id`/`owner_viewer_id` scrubbed; no `chara_id`; both `factor_id_array` + `factor_info_array {factor_id, level}` at veteran AND parent levels; succession positions 10/20/11/12/21/22; **`history_type` spelled correctly** (JP's `hisotry_type` typo absent); no `factor_extend_array` (Global has not adopted the JP format drift). Previously uncatalogued fields present: `arrive_route_race_id`, `owner_trained_chara_id`, `single_mode_chara_id` (importer should ignore unknown keys). ⚠ Privacy confirmed: parent `owner_viewer_id` and `succession_history_array[].viewer_id`/`rental_viewer_id` carry real friend IDs — **this file stays in gitignored `spikes/`, and any future share/export feature must strip these fields.**
+
+---
+
+## 6. Rental-site deep links (Module 1)
+
+**All three sites are deep-linkable.** Two-stage verification 2026-06-12: static bundle analysis, then **real-browser confirmation** (Playwright/Chromium: drive filter UI → capture URL → reload in fresh context → confirm filter rehydration). The Residual-Spec → pre-filled-search-URL feature (plan §7.4) is viable everywhere.
+
+| Site | Template | Verified behavior & caveats |
+|---|---|---|
+| ChronoGenesis | `https://chronogenesis.net/friend_search?query=<encodeURIComponent(base64(urlencoded inner querystring))>` | URL written on Search/pagination click (not live-synced); fresh-context reload restores spark buckets, counts, trainee portrait. Inner keys (browser-observed): spark buckets `leg_/sla_/slb_/tot_` + mode suffix `All\|Any\|Excl`, values = `factorId*10+stars`; plus `card_id, common_count, common_legacy_count, skill_count, g1_count, blue_count, race_bonus, page`. Factor IDs shared with uma.moe (Speed=10, Turf=110, Long=340…). Search execution gated by Cloudflare Turnstile for humans (sitekey in bundle) though headless automation saw no widget — deep links are for humans anyway. |
+| pure-db | `https://uma.pure-db.com/{locale}/search?searchInfo=<encodeURIComponent(base64(JSON))>` (also `/advanced-search`) | **Deep-linkable by design**: copy-share-link button + live `history.replaceState` sync. ⚠ Old `uma-global.pure-db.com/#/search` URLs are DEAD (301 → `uma.pure-db.com/{locale}/…`) — plan §3 link updated. Payload keys: `gameServerCode, partnerCardIds, supportCardId, blueFactors/redFactors/greenFactors/…` ; factor entries `{groupId, count(1-3), searchType:0\|1\|2, enabled}`; blue groupIds 1–5, red banded 11-12/21-24/31-34. Locales: en-us, ja-jp, ko-kr, zh-cn, zh-tw. |
+| uma.moe | `https://uma.moe/database?filters=<encodeURIComponent(base64(JSON))>[&page=N][&trainer_id=…]` | `/inheritance` client-redirects to `/database` **preserving** the param. Compact keys: `{"b":[[10,2,9]],"p":[[340,1,9]],"g":[[0,1,9]],"lb":4}` — triplets `[factorId, minStars, maxStars]`. Entire site open-source (uma-moe/umamoe-frontend → authoritative serialization spec) and has a JSON API (`/api/v3/search`, `/api/v4/...`) third parties already call. Custom anti-bot "browser check" can empty result rows in headless, but filter restoration still works. |
+
+- **ChronoGenesis API posture CONFIRMED verbatim** (footer bundle): no public API; scrapers blocked after an abuse incident; *"If you need any future datasets for your own use case, please email me and we'll see whether they can be provided"* — contact: **chronogenesis.net@protonmail.com**. → Plan §14.5 action: send that email early.
+- Build note: generate links with the sites' own value encodings above; for pure-db, links generated by its own copy button are the canonical form (hand-constructed payloads render but weren't fully verifiable server-side).
+
+---
+
+## 6b. Live GLOBAL master.mdb + supplementary extractions (2026-06-12)
+
+Fetched via umalator-global's own pipeline (`scripts/master-data/fetch-master-db.ts` + esbuild workaround): **resource_version 10006400, app 1.22.1** (updated 2026-06-11), 13.25 MB SQLite at `spikes/repos/umalator-global/db/master.mdb`; extractions in `db/extract/*.json` (hint effects, unique effects, succession factor/effect, white-spark skill map, relation tables, chara names). Key confirmations recorded in `docs/mechanics-notes.md` §8–§9 (GameTora effects-matrix semantics byte-identical for all 220 cards; rarity level-cap convention; factor→skill join with the 29-group shortcut-failure list; full affinity algorithm validated against Ice's sheet). Tested extraction SQL for the Phase 1 pipeline is in `spikes/phase0-completion-results.json` (follow-up 4, last finding).
+
+---
+
+## 7. Local spike artifacts (gitignored)
+
+| Path | What |
+|---|---|
+| `spikes/repos/{umalator-global, uma-tools, uma-skill-tools, kachi-uma-tools}` | Shallow clones, 2026-06-12 |
+| `spikes/repos/{UmaExtractor, umadump, uma-parent-viewer, clairvoyance-masterdb}` | Cloned/downloaded during spikes |
+| `spikes/repos/umalator-global/db/` | **Live GLOBAL master.mdb v10006400 + `extract/*.json`** (fetched 2026-06-12) |
+| `spikes/samples/werseter-*.json` | Current-format Global UmaExtractor fixtures (2025-11 raw dump; 2026-06 memreader) |
+| `spikes/tachyons-data.json`, `spikes/urarawin-db.json` | Downloaded validation datasets |
+| `spikes/phase0-results.json`, `spikes/phase0-completion-results.json` | Full structured findings of all Phase 0 spike + verification agents |
+| `spikes/repos/umalator-global/scripts/adversarial-smoke.ts` | Headless engine smoke-test repro |

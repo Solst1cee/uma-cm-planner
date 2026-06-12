@@ -1,0 +1,16 @@
+# dependencies / build
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# research scratch — clones, master.mdb, personal exports (NEVER commit; contains friend viewer IDs)
+spikes/
+
+# safety net: raw UmaExtractor exports dropped at root
+/data.json
+*.local
+
+# editor/os
+.DS_Store
+Thumbs.db
