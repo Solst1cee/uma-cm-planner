@@ -1,0 +1,76 @@
+{
+  "baseProcPctByStars": {
+    "blue": [
+      70,
+      80,
+      90
+    ],
+    "pink": [
+      1,
+      3,
+      5
+    ],
+    "green": [
+      5,
+      10,
+      15
+    ],
+    "whiteSkill": [
+      3,
+      6,
+      9
+    ],
+    "whiteRace": [
+      1,
+      2,
+      3
+    ],
+    "whiteScenario": [
+      3,
+      6,
+      9
+    ]
+  },
+  "inspirationEvents": 2,
+  "affinityScaling": "per_member_multiplicative_pct",
+  "pink": {
+    "careerStartStepThresholds": [
+      1,
+      4,
+      7,
+      10
+    ],
+    "careerStartMaxSteps": 4,
+    "careerStartCap": "A",
+    "sToSRequiresInRunProcAtA": true
+  },
+  "blueCareerStartByStars": [
+    5,
+    12,
+    21
+  ],
+  "blueInRunRollRange": {
+    "1": [
+      1,
+      10
+    ],
+    "2": [
+      1,
+      16
+    ],
+    "3": [
+      1,
+      28
+    ]
+  },
+  "blueInRunRollRangeProvisional": true,
+  "hintDiscountCumulativePct": [
+    10,
+    20,
+    30,
+    35,
+    40
+  ],
+  "fastLearnerMultiplier": 0.9,
+  "dataVersion": "global-2026-06"
+}

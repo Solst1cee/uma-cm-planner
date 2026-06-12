@@ -1,0 +1,18 @@
+{
+  "_target": "skills",
+  "_comment": "Hand-maintained scenario-exclusive tags (P5; provenance §3.1: encode the scenario map as a small hand-maintained data file). GameTora's sce_e does not tag the 21xxxx scenario-skill block at all, so the generator cannot derive these. scenarioId values are game-internal single_mode_scenario.id (1=URA, 2=Aoharu/Unity Cup, 4=Make a New Track/Trackblazer — id 3 does not exist). Skill-id ranges anchored by uma-skill-tools tools/make_skill_data.pl lines 20-37 (retrieved 2026-06-12). Extend by hand when a new scenario reaches Global (e.g. Grand Live's 210071/210072 → scenarioId 5).",
+  "records": {
+    "210011": { "_comment": "Burning Spirit SPD — Aoharu Hai (Unity Cup) scenario skill.", "scenarioId": 2 },
+    "210012": { "_comment": "Ignited Spirit SPD — Aoharu Hai.", "scenarioId": 2 },
+    "210021": { "_comment": "Burning Spirit STA — Aoharu Hai.", "scenarioId": 2 },
+    "210022": { "_comment": "Ignited Spirit STA — Aoharu Hai.", "scenarioId": 2 },
+    "210031": { "_comment": "Burning Spirit PWR — Aoharu Hai.", "scenarioId": 2 },
+    "210032": { "_comment": "Ignited Spirit PWR — Aoharu Hai.", "scenarioId": 2 },
+    "210041": { "_comment": "Burning Spirit GUTS — Aoharu Hai.", "scenarioId": 2 },
+    "210042": { "_comment": "Ignited Spirit GUTS — Aoharu Hai.", "scenarioId": 2 },
+    "210051": { "_comment": "Burning Spirit WIT — Aoharu Hai.", "scenarioId": 2 },
+    "210052": { "_comment": "Ignited Spirit WIT — Aoharu Hai.", "scenarioId": 2 },
+    "210061": { "_comment": "Radiant Star — Make a New Track (Trackblazer) scenario skill.", "scenarioId": 4 },
+    "210062": { "_comment": "Glittering Star — Make a New Track (Trackblazer).", "scenarioId": 4 }
+  }
+}

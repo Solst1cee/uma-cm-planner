@@ -1,0 +1,327 @@
+/**
+ * Single-blob JSON export/import for backup and device transfer (plan §4, P2).
+ *
+ * Validation is hand-rolled (no schema dep): required fields and discriminants
+ * are checked strictly; optional fields get top-level type checks. Errors name
+ * the offending path so the UI can show actionable messages.
+ *
+ * JSON caveat: `undefined` tuple slots serialize as `null`
+ * (e.g. CmPlan.chosenParents, Parent.grandparents), so the parser accepts
+ * `null` there and normalizes it back to `undefined`.
+ */
+import type { CmPlan, OwnedCard, Parent, ParentRef } from '@/core/types';
+import { db } from './db';
+import type { MatchLog, SettingRecord } from './types';
+
+export interface ExportBlobV1 {
+  version: 1;
+  /** ISO timestamp of the export. */
+  exportedAt: string;
+  ownedCards: OwnedCard[];
+  parents: Parent[];
+  cmPlans: CmPlan[];
+  matchLogs: MatchLog[];
+  settings: SettingRecord[];
+}
+
+export type ImportMode = 'replace' | 'merge';
+
+export interface ImportResult {
+  /** Rows written per table. */
+  imported: Record<string, number>;
+}
+
+export async function exportBlob(): Promise<ExportBlobV1> {
+  // Single read transaction so the snapshot is consistent across tables.
+  const [ownedCards, parents, cmPlans, matchLogs, settings] = await db.transaction(
+    'r',
+    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings],
+    () =>
+      Promise.all([
+        db.ownedCards.toArray(),
+        db.parents.toArray(),
+        db.cmPlans.toArray(),
+        db.matchLogs.toArray(),
+        db.settings.toArray(),
+      ]),
+  );
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    ownedCards,
+    parents,
+    cmPlans,
+    matchLogs,
+    settings,
+  };
+}
+
+export async function importBlob(data: unknown, mode: ImportMode): Promise<ImportResult> {
+  const blob = parseExportBlobV1(data);
+  await db.transaction(
+    'rw',
+    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings],
+    async () => {
+      if (mode === 'replace') {
+        await Promise.all([
+          db.ownedCards.clear(),
+          db.parents.clear(),
+          db.cmPlans.clear(),
+          db.matchLogs.clear(),
+          db.settings.clear(),
+        ]);
+      }
+      // bulkPut = upsert by primary key; auto-increment tables keep exported ids.
+      await Promise.all([
+        db.ownedCards.bulkPut(blob.ownedCards),
+        db.parents.bulkPut(blob.parents),
+        db.cmPlans.bulkPut(blob.cmPlans),
+        db.matchLogs.bulkPut(blob.matchLogs),
+        db.settings.bulkPut(blob.settings),
+      ]);
+    },
+  );
+  return {
+    imported: {
+      ownedCards: blob.ownedCards.length,
+      parents: blob.parents.length,
+      cmPlans: blob.cmPlans.length,
+      matchLogs: blob.matchLogs.length,
+      settings: blob.settings.length,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Structural validation (hand-rolled guards)
+// ---------------------------------------------------------------------------
+
+type Rec = Record<string, unknown>;
+
+function typeName(v: unknown): string {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'an array';
+  return `a ${typeof v}`;
+}
+
+function fail(path: string, expected: string, got: unknown): never {
+  throw new Error(`Malformed export blob: ${path} must be ${expected}, got ${typeName(got)}`);
+}
+
+function isRecord(v: unknown): v is Rec {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+function asRecord(v: unknown, path: string): Rec {
+  if (!isRecord(v)) fail(path, 'an object', v);
+  return v;
+}
+
+function asArray(v: unknown, path: string): unknown[] {
+  if (!Array.isArray(v)) fail(path, 'an array', v);
+  return v;
+}
+
+function reqString(row: Rec, key: string, path: string): string {
+  const v = row[key];
+  if (typeof v !== 'string') fail(`${path}.${key}`, 'a string', v);
+  return v;
+}
+
+function optString(row: Rec, key: string, path: string): void {
+  const v = row[key];
+  if (v !== undefined && typeof v !== 'string') fail(`${path}.${key}`, 'a string or absent', v);
+}
+
+function reqNumber(row: Rec, key: string, path: string): number {
+  const v = row[key];
+  if (typeof v !== 'number' || !Number.isFinite(v)) fail(`${path}.${key}`, 'a finite number', v);
+  return v;
+}
+
+function optNumber(row: Rec, key: string, path: string): void {
+  const v = row[key];
+  if (v !== undefined && typeof v !== 'number') fail(`${path}.${key}`, 'a number or absent', v);
+}
+
+/** Optional auto-increment id (present when re-importing an export). */
+function optId(row: Rec, path: string): void {
+  const v = row['id'];
+  if (v !== undefined && (typeof v !== 'number' || !Number.isInteger(v))) {
+    fail(`${path}.id`, 'an integer or absent', v);
+  }
+}
+
+function reqStars(row: Rec, path: string): 1 | 2 | 3 {
+  const v = row['stars'];
+  if (v !== 1 && v !== 2 && v !== 3) fail(`${path}.stars`, '1 | 2 | 3', v);
+  return v;
+}
+
+function reqOneOf<T extends string>(row: Rec, key: string, values: readonly T[], path: string): T {
+  const v = row[key];
+  if (typeof v !== 'string' || !(values as readonly string[]).includes(v)) {
+    fail(`${path}.${key}`, `one of ${values.map((x) => `'${x}'`).join(' | ')}`, v);
+  }
+  return v as T;
+}
+
+const STATS = ['spd', 'sta', 'pow', 'gut', 'wit'] as const;
+
+function parseOwnedCard(v: unknown, path: string): OwnedCard {
+  const row = asRecord(v, path);
+  optId(row, path);
+  reqString(row, 'cardId', path);
+  const lb = reqNumber(row, 'limitBreak', path);
+  if (!Number.isInteger(lb) || lb < 0 || lb > 4) fail(`${path}.limitBreak`, 'an integer 0–4', lb);
+  return row as unknown as OwnedCard;
+}
+
+function parseSkillSpark(v: unknown, path: string): { skillId: string; stars: 1 | 2 | 3 } {
+  const row = asRecord(v, path);
+  return { skillId: reqString(row, 'skillId', path), stars: reqStars(row, path) };
+}
+
+function parseParent(v: unknown, path: string): Parent {
+  const row = asRecord(v, path);
+  reqString(row, 'id', path);
+  reqString(row, 'umaId', path);
+
+  const blue = asRecord(row['blueSpark'], `${path}.blueSpark`);
+  reqOneOf(blue, 'stat', STATS, `${path}.blueSpark`);
+  reqStars(blue, `${path}.blueSpark`);
+
+  const pink = asRecord(row['pinkSpark'], `${path}.pinkSpark`);
+  reqString(pink, 'aptitude', `${path}.pinkSpark`);
+  reqStars(pink, `${path}.pinkSpark`);
+
+  if (row['greenSpark'] !== undefined) {
+    parseSkillSpark(row['greenSpark'], `${path}.greenSpark`);
+  }
+
+  asArray(row['whiteSparks'], `${path}.whiteSparks`).forEach((s, i) =>
+    parseSkillSpark(s, `${path}.whiteSparks[${i}]`),
+  );
+
+  reqOneOf(row, 'source', ['mine', 'friend_rental'] as const, path);
+  optString(row, 'notes', path);
+  optString(row, 'rating', path);
+  optNumber(row, 'affinityHint', path);
+
+  if (row['grandparents'] !== undefined) {
+    const gps = asArray(row['grandparents'], `${path}.grandparents`);
+    if (gps.length > 2) fail(`${path}.grandparents`, 'an array of at most 2 entries', gps);
+    // JSON turns undefined tuple slots into null — normalize back.
+    row['grandparents'] = gps.map((gp, i) => {
+      if (gp === null || gp === undefined) return undefined;
+      const ref = asRecord(gp, `${path}.grandparents[${i}]`);
+      reqString(ref, 'umaId', `${path}.grandparents[${i}]`);
+      return ref as unknown as ParentRef;
+    });
+  }
+
+  return row as unknown as Parent;
+}
+
+function parseCmPlan(v: unknown, path: string): CmPlan {
+  const row = asRecord(v, path);
+  reqString(row, 'id', path);
+  reqString(row, 'name', path);
+  reqString(row, 'month', path);
+
+  const scenario = asRecord(row['scenario'], `${path}.scenario`);
+  reqNumber(scenario, 'id', `${path}.scenario`);
+  if (typeof scenario['isDefault'] !== 'boolean') {
+    fail(`${path}.scenario.isDefault`, 'a boolean', scenario['isDefault']);
+  }
+
+  const race = asRecord(row['race'], `${path}.race`);
+  reqString(race, 'courseId', `${path}.race`);
+  reqOneOf(race, 'surface', ['turf', 'dirt'] as const, `${path}.race`);
+  reqNumber(race, 'distance', `${path}.race`);
+
+  asArray(row['requiredAptitudes'], `${path}.requiredAptitudes`).forEach((a, i) => {
+    const apt = asRecord(a, `${path}.requiredAptitudes[${i}]`);
+    reqOneOf(apt, 'kind', ['surface', 'distance', 'style'] as const, `${path}.requiredAptitudes[${i}]`);
+    reqString(apt, 'key', `${path}.requiredAptitudes[${i}]`);
+    reqOneOf(apt, 'target', ['A', 'S'] as const, `${path}.requiredAptitudes[${i}]`);
+  });
+
+  // Variable length 1–7+ by contract; priority drives weighting, not count.
+  asArray(row['targetSkills'], `${path}.targetSkills`).forEach((t, i) => {
+    const ts = asRecord(t, `${path}.targetSkills[${i}]`);
+    reqString(ts, 'skillId', `${path}.targetSkills[${i}]`);
+    const p = ts['priority'];
+    if (p !== 1 && p !== 2 && p !== 3) fail(`${path}.targetSkills[${i}].priority`, '1 | 2 | 3', p);
+  });
+
+  asArray(row['lockedDeckSlots'], `${path}.lockedDeckSlots`).forEach((s, i) => {
+    const slot = asRecord(s, `${path}.lockedDeckSlots[${i}]`);
+    const n = reqNumber(slot, 'slot', `${path}.lockedDeckSlots[${i}]`);
+    if (!Number.isInteger(n) || n < 0 || n > 5) {
+      fail(`${path}.lockedDeckSlots[${i}].slot`, 'an integer 0–5', n);
+    }
+    optString(slot, 'cardId', `${path}.lockedDeckSlots[${i}]`);
+  });
+
+  const chosen = asArray(row['chosenParents'], `${path}.chosenParents`);
+  if (chosen.length > 2) fail(`${path}.chosenParents`, 'an array of at most 2 entries', chosen);
+  row['chosenParents'] = chosen.map((p, i) => {
+    if (p === null || p === undefined) return undefined; // JSON null → undefined
+    if (typeof p !== 'string') fail(`${path}.chosenParents[${i}]`, 'a string, null or absent', p);
+    return p;
+  });
+
+  optString(row, 'targetUmaId', path);
+  optNumber(row, 'spBudgetEstimate', path);
+  return row as unknown as CmPlan;
+}
+
+function parseMatchLog(v: unknown, path: string): MatchLog {
+  const row = asRecord(v, path);
+  optId(row, path);
+  reqString(row, 'cmPlanId', path);
+  reqString(row, 'date', path);
+  optString(row, 'notes', path);
+  return row as unknown as MatchLog;
+}
+
+function parseSetting(v: unknown, path: string): SettingRecord {
+  const row = asRecord(v, path);
+  reqString(row, 'key', path);
+  // `value` may be absent: JSON.stringify drops undefined properties.
+  return { key: row['key'] as string, value: row['value'] };
+}
+
+/**
+ * Validate an unknown value as an ExportBlobV1, normalizing JSON artifacts
+ * (null tuple slots → undefined). Throws a descriptive Error on bad input.
+ */
+export function parseExportBlobV1(data: unknown): ExportBlobV1 {
+  const root = asRecord(data, 'blob');
+  if (root['version'] !== 1) {
+    throw new Error(
+      `Malformed export blob: unsupported version ${JSON.stringify(root['version'])} (expected 1)`,
+    );
+  }
+  reqString(root, 'exportedAt', 'blob');
+  return {
+    version: 1,
+    exportedAt: root['exportedAt'] as string,
+    ownedCards: asArray(root['ownedCards'], 'blob.ownedCards').map((r, i) =>
+      parseOwnedCard(r, `blob.ownedCards[${i}]`),
+    ),
+    parents: asArray(root['parents'], 'blob.parents').map((r, i) =>
+      parseParent(r, `blob.parents[${i}]`),
+    ),
+    cmPlans: asArray(root['cmPlans'], 'blob.cmPlans').map((r, i) =>
+      parseCmPlan(r, `blob.cmPlans[${i}]`),
+    ),
+    matchLogs: asArray(root['matchLogs'], 'blob.matchLogs').map((r, i) =>
+      parseMatchLog(r, `blob.matchLogs[${i}]`),
+    ),
+    settings: asArray(root['settings'], 'blob.settings').map((r, i) =>
+      parseSetting(r, `blob.settings[${i}]`),
+    ),
+  };
+}

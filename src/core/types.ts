@@ -118,6 +118,20 @@ export interface SparkRates {
   dataVersion: string;
 }
 
+/** Champions Meeting race preset (public/data/cm_presets.json), normalized from umalator cm-presets. */
+export interface CmPreset {
+  name: string;
+  /** ISO date of the CM (finals) or month, e.g. "2026-03". */
+  date: string;
+  courseId: string;
+  surface: 'turf' | 'dirt';
+  distance: number;
+  season?: string;
+  ground?: string;
+  weather?: string;
+  time?: string;
+}
+
 // ---------------------------------------------------------------------------
 // User data (Dexie)
 // ---------------------------------------------------------------------------

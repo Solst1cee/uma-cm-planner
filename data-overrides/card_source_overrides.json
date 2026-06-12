@@ -1,0 +1,50 @@
+{
+  "_target": "support_cards",
+  "_comment": "Hand-maintained skill-source corrections (P5; provenance §4). The master flat eventSkills list disagrees with GameTora's chain∪random eventData on these cards: each skill below is granted by a friend/group card's date (outing) events, which GameTora classifies as neither chain nor random, so the generator defaults them to 'random_event'. This file re-types them to 'date_event'. Computed from the pinned c1fa2107 data on 2026-06-12; re-verify when refreshing upstream. Related mismatches needing NO override: 4 R cards (10041, 10044, 10050, 10055) have zero event skills on both sides; 5 cards (20048, 30053, 30098, 30099, 30100) have event skills only in GameTora eventData, which the generator already classifies as chain/random; Twin Turbo 30026 dual-lists Early Lead (200532) as chain AND random — the generator counts it as chain.",
+  "records": {
+    "10021": {
+      "_comment": "Tazuna Hayakawa R [Tracen Academy] — Tail Held High comes from her date events.",
+      "skills": [{ "skillId": "201611", "sourceType": "date_event" }]
+    },
+    "10022": {
+      "_comment": "Aoi Kiryuin R [Tracen Academy] — Lay Low / Hesitant End Closers / Shake It Out come from her date events.",
+      "skills": [
+        { "skillId": "200442", "sourceType": "date_event" },
+        { "skillId": "200941", "sourceType": "date_event" },
+        { "skillId": "201621", "sourceType": "date_event" }
+      ]
+    },
+    "10060": {
+      "_comment": "Riko Kashimoto R [Tracen Academy] — Sympathy comes from her date events.",
+      "skills": [{ "skillId": "201631", "sourceType": "date_event" }]
+    },
+    "10074": {
+      "_comment": "Sasami Anshinzawa R [Tracen Academy] — Uma Stan comes from her date events.",
+      "skills": [{ "skillId": "201591", "sourceType": "date_event" }]
+    },
+    "20021": {
+      "_comment": "Aoi Kiryuin SR — same date-event skills as her R version.",
+      "skills": [
+        { "skillId": "200442", "sourceType": "date_event" },
+        { "skillId": "200941", "sourceType": "date_event" },
+        { "skillId": "201621", "sourceType": "date_event" }
+      ]
+    },
+    "30021": {
+      "_comment": "Tazuna Hayakawa SSR [Sunlight Bouquet] — Tail Held High comes from her date events.",
+      "skills": [{ "skillId": "201611", "sourceType": "date_event" }]
+    },
+    "30036": {
+      "_comment": "Riko Kashimoto SSR [Devoted Heart] — Sympathy comes from her date events.",
+      "skills": [{ "skillId": "201631", "sourceType": "date_event" }]
+    },
+    "30080": {
+      "_comment": "Sasami Anshinzawa SSR — Uma Stan comes from her date events.",
+      "skills": [{ "skillId": "201591", "sourceType": "date_event" }]
+    },
+    "30081": {
+      "_comment": "Team Sirius SSR (group) — Corner Recovery ○ comes from the group outing events.",
+      "skills": [{ "skillId": "200352", "sourceType": "date_event" }]
+    }
+  }
+}
