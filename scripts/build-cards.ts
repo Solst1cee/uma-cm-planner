@@ -1,16 +1,28 @@
 /**
- * public/data/support_cards.json — SupportCardRecord[] for the 217 Global
+ * public/data/support_cards.json — SupportCardRecord[] for the Global
  * support cards.
  *
- * Skill sources (provenance §4): hint pool = master hintSkills
- * (single_mode_hint_gain); chain/random = GameTora per-card eventData
- * (event-skill-sources.json). Skills that only appear in the master flat
- * eventSkills list (friend/group date events) default to 'random_event' here
- * and are patched to 'date_event' by data-overrides/card_source_overrides.json.
+ * Skill sources (provenance §4, §4.1):
+ * - hint pool = master hintSkills (single_mode_hint_gain), with per-skill
+ *   hint levels from Tachyons-lab hints_table (= hint_value_2);
+ * - event skills = UNION of master flat eventSkills, GameTora chain/random
+ *   (event-skill-sources.json) and Tachyons-lab all_events (chain_events →
+ *   'chain', dates → 'date_event', random_events → 'random_event', including
+ *   'sg' direct grants by category). Precedence when a skill appears in
+ *   several categories: chain > date_event > random_event.
+ * - Residual: skills only in the master flat list (Tachyons-lab classifies
+ *   them under bond-line special_events) default to 'random_event' here and
+ *   are re-typed to 'date_event' by data-overrides/card_source_overrides.json.
+ *
+ * After overrides, assertTachyonsParity() cross-checks the emitted records
+ * against the Tachyons-lab source so this class of gap (Phase 1 review
+ * critical finding: dropped chain choices / date events / grants) fails the
+ * build instead of shipping silently.
  */
-import type { CardSkill, CardType, SupportCardRecord } from '@/core/types';
+import type { CardSkill, CardType, SkillSourceType, SupportCardRecord } from '@/core/types';
 import { buildPerLevel } from './lib/lerp';
-import type { EventSkillSourcesJson, GtCard, MasterCardsJson } from './lib/upstream-types';
+import { extractTachyonsEventSkills, extractTachyonsHintLevels, indexTachyonsById } from './lib/tachyons';
+import type { EventSkillSourcesJson, GtCard, MasterCardsJson, TachyonsDataJson } from './lib/upstream-types';
 
 /** Verified against umalator support-card-loader.ts supportCardTypeMap (5 = "intelligence" = wit). */
 const CARD_TYPE: Record<number, CardType> = {
@@ -29,12 +41,14 @@ export function buildCards(inputs: {
   master: MasterCardsJson;
   gametoraCards: GtCard[];
   eventSources: EventSkillSourcesJson;
+  tachyons: TachyonsDataJson;
   /** Keys of the master skills extract — the Global-released cutover. */
   releasedSkillIds: ReadonlySet<string>;
   dataVersion: string;
 }): SupportCardRecord[] {
-  const { master, gametoraCards, eventSources, releasedSkillIds, dataVersion } = inputs;
+  const { master, gametoraCards, eventSources, tachyons, releasedSkillIds, dataVersion } = inputs;
   const gtById = new Map<number, GtCard>(gametoraCards.map((c) => [c.support_id, c]));
+  const tachyonsById = indexTachyonsById(tachyons);
 
   // P4: GameTora eventData spans JP+Global; skills missing from the Global
   // master extract are not obtainable on Global and must not slip in.
@@ -59,25 +73,45 @@ export function buildCards(inputs: {
     }
 
     const sources = eventSources[cardId];
-    const chain = new Set(sources?.chain_event_skills ?? []);
-    const random = new Set(sources?.random_event_skills ?? []);
+    const tachyonsCard = tachyonsById.get(card.id);
+    const tachyonsEvents = extractTachyonsEventSkills(tachyonsCard);
+    const hintLevelsBySkill = extractTachyonsHintLevels(tachyonsCard);
+
+    const chain = new Set<number>([...(sources?.chain_event_skills ?? []), ...tachyonsEvents.chain]);
+    const date = tachyonsEvents.date;
+    const random = new Set<number>([...(sources?.random_event_skills ?? []), ...tachyonsEvents.random]);
 
     const skills: CardSkill[] = [];
     for (const hint of [...card.hintSkills].sort((a, b) => a.id - b.id)) {
-      if (isReleased(hint.id)) skills.push({ skillId: String(hint.id), sourceType: 'hint_pool' });
+      if (!isReleased(hint.id)) continue;
+      const entry: CardSkill = { skillId: String(hint.id), sourceType: 'hint_pool' };
+      // hint_pool only (types.ts contract): hint levels granted per take,
+      // from Tachyons-lab hints_table = master.mdb hint_value_2.
+      const hintLevels = hintLevelsBySkill.get(hint.id);
+      if (hintLevels !== undefined) entry.hintLevels = hintLevels;
+      skills.push(entry);
     }
-    // Event skills = master flat list ∪ GameTora chain/random (GameTora's
-    // eventData is authoritative for classification; a skill listed as both
-    // chain and random — one card, Twin Turbo 30026 — counts as chain, the
-    // more reliable source).
+
+    // Event skills = master flat list ∪ GameTora chain/random ∪ Tachyons-lab
+    // chain/dates/random (incl. 'sg' direct grants). Precedence for skills in
+    // several categories: chain > date_event > random_event (chain is the
+    // most reliable source; e.g. Twin Turbo 30026 dual-lists 200532 as chain
+    // AND random — counted as chain).
     const eventIds = new Set<number>([
       ...card.eventSkills.map((s) => s.id),
       ...chain,
+      ...date,
       ...random,
     ]);
     for (const id of [...eventIds].sort((a, b) => a - b)) {
       if (!isReleased(id)) continue;
-      const sourceType = chain.has(id) ? 'chain' : 'random_event';
+      // Master-flat-only skills (Tachyons-lab special_events bond-line hints)
+      // fall through to 'random_event' — re-typed by card_source_overrides.
+      const sourceType: SkillSourceType = chain.has(id)
+        ? 'chain'
+        : date.has(id)
+          ? 'date_event'
+          : 'random_event';
       skills.push({ skillId: String(id), sourceType });
     }
 
@@ -110,5 +144,96 @@ export function buildCards(inputs: {
 export function recomputeHintPoolSizes(cards: SupportCardRecord[]): void {
   for (const card of cards) {
     card.hintPoolSize = card.skills.filter((s) => s.sourceType === 'hint_pool').length;
+  }
+}
+
+const EVENT_SOURCE_TYPES: ReadonlySet<SkillSourceType> = new Set(['chain', 'date_event', 'random_event']);
+
+/**
+ * Build-time oracle (run AFTER overrides, provenance §4.1): every Global-
+ * released skill the Tachyons-lab dataset attributes to a card must appear on
+ * the emitted record with a compatible sourceType, and the hint pool +
+ * per-skill hint levels must match hints_table exactly. The Phase 1 review
+ * proved the previous "no overrides needed" analysis was circular (both
+ * diffed sides shared the GameTora parser blind spot) — this assertion checks
+ * against an independent source so an upstream refresh that reopens the gap
+ * fails `pnpm data:build` instead of shipping an under-reporting matrix.
+ *
+ * Throws with the full mismatch list. Cards absent from Tachyons-lab (e.g.
+ * data-overrides/card_additions.json records newer than the Tachyons pin)
+ * are skipped.
+ */
+export function assertTachyonsParity(
+  cards: readonly SupportCardRecord[],
+  tachyons: TachyonsDataJson,
+  releasedSkillIds: ReadonlySet<string>,
+): void {
+  const cardsById = new Map(cards.map((c) => [c.cardId, c]));
+  const problems: string[] = [];
+
+  for (const tachyonsCard of indexTachyonsById(tachyons).values()) {
+    const record = cardsById.get(String(tachyonsCard.id));
+    if (record === undefined) {
+      problems.push(`card ${tachyonsCard.id}: in Tachyons-lab but missing from emitted data`);
+      continue;
+    }
+    // A skill can legitimately appear twice on a card — once in the hint pool
+    // and once as an event source (e.g. a chain event granting a hint for a
+    // pool skill) — so group entries by skillId rather than assuming one each.
+    const bySkillId = new Map<string, CardSkill[]>();
+    for (const entry of record.skills) {
+      const list = bySkillId.get(entry.skillId) ?? [];
+      list.push(entry);
+      bySkillId.set(entry.skillId, list);
+    }
+
+    // Hint pool: exact set + hint-level parity.
+    const tachyonsHints = extractTachyonsHintLevels(tachyonsCard);
+    const recordPool = record.skills.filter((s) => s.sourceType === 'hint_pool');
+    for (const [skillId, hintLevels] of tachyonsHints) {
+      if (!releasedSkillIds.has(String(skillId))) continue;
+      const entry = (bySkillId.get(String(skillId)) ?? []).find((s) => s.sourceType === 'hint_pool');
+      if (entry === undefined) {
+        problems.push(`card ${record.cardId}: hint-pool skill ${skillId} missing or not hint_pool`);
+      } else if (entry.hintLevels !== hintLevels) {
+        problems.push(
+          `card ${record.cardId}: skill ${skillId} hintLevels ${entry.hintLevels} != Tachyons ${hintLevels}`,
+        );
+      }
+    }
+    for (const entry of recordPool) {
+      if (!tachyonsHints.has(Number(entry.skillId))) {
+        problems.push(`card ${record.cardId}: hint-pool skill ${entry.skillId} not in Tachyons hints_table`);
+      }
+    }
+
+    // Event skills: membership for all four categories; chain must stay chain,
+    // dates must not degrade below date_event. special_events membership is
+    // satisfied via the master flat list + card_source_overrides re-typing.
+    const events = extractTachyonsEventSkills(tachyonsCard);
+    const expectType = (ids: Set<number>, allowed: readonly SkillSourceType[], label: string): void => {
+      for (const id of ids) {
+        if (!releasedSkillIds.has(String(id))) continue;
+        const entry = (bySkillId.get(String(id)) ?? []).find((s) => EVENT_SOURCE_TYPES.has(s.sourceType));
+        if (entry === undefined) {
+          problems.push(`card ${record.cardId}: ${label} skill ${id} missing from emitted event skills`);
+        } else if (!allowed.includes(entry.sourceType)) {
+          problems.push(
+            `card ${record.cardId}: ${label} skill ${id} emitted as ${entry.sourceType}, expected ${allowed.join('/')}`,
+          );
+        }
+      }
+    };
+    expectType(events.chain, ['chain'], 'chain-event');
+    expectType(events.date, ['chain', 'date_event'], 'date-event');
+    expectType(events.random, ['chain', 'date_event', 'random_event'], 'random-event');
+    expectType(events.special, ['chain', 'date_event', 'random_event'], 'special-event');
+  }
+
+  if (problems.length > 0) {
+    throw new Error(
+      `Tachyons-lab parity check failed (${problems.length} problem(s)) — emitted support cards ` +
+        `disagree with the independent event-reward source:\n  ${problems.join('\n  ')}`,
+    );
   }
 }

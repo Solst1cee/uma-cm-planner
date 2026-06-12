@@ -58,6 +58,8 @@ export interface CardSkill {
   skillId: string;
   /** Overrides-patchable; 'date_event' = friend/group card date events. */
   sourceType: SkillSourceType;
+  /** Hint levels granted per hint take (master.mdb hint_value_2), hint_pool only. */
+  hintLevels?: number;
 }
 
 export interface SupportCardRecord {
@@ -123,6 +125,9 @@ export interface CmPreset {
   name: string;
   /** ISO date of the CM (finals) or month, e.g. "2026-03". */
   date: string;
+  /** 'jp' = JP CM history (preview-only labeling per P4); 'global' = ran/announced on Global. */
+  server: Server;
+  dataVersion: string;
   courseId: string;
   surface: 'turf' | 'dirt';
   distance: number;
@@ -215,6 +220,10 @@ export type Tier =
 export interface CoverageSource {
   kind: Tier;
   cardId?: string;
+  /** Owning inventory row (OwnedCard.id) — disambiguates duplicate copies of a card. */
+  ownedId?: number;
+  /** The owning copy's limit break (denormalized for UI display). */
+  limitBreak?: LimitBreak;
   parentId?: string;
   /** Spark probability % — Phase 2 (sparkChance). */
   sparkPct?: number;

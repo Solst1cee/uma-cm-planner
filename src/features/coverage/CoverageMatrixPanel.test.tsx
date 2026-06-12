@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import type { CoverageRow, OwnedCard, SkillRecord } from '@/core/types';
+import type { CoverageRow, CoverageSource, OwnedCard, SkillRecord } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import { CoverageMatrixPanel } from '@/features/coverage/CoverageMatrixPanel';
 
@@ -17,6 +17,8 @@ vi.mock('@/features/data/gameData', async () => {
 
 const mocked = vi.hoisted(() => {
   // Rows deliberately NOT in priority order — the panel must sort them.
+  // Card sources carry ownedId + limitBreak (core sets both since the
+  // duplicate-copy fix); the panel must filter cells by ownedId.
   const rows = [
     {
       skillId: '210061', // Shooting for the Top
@@ -25,12 +27,14 @@ const mocked = vi.hoisted(() => {
       bestTier: 'uncovered',
     },
     {
-      skillId: '200331', // Professor of Curvature
+      skillId: '200331', // Professor of Curvature (gold; prereq 200332)
       priority: 1,
       sources: [
         {
           kind: 'chain',
           cardId: '30028',
+          ownedId: 1,
+          limitBreak: 3,
           detail: { hintPoolSize: 2, hintFrequency: 40, specialtyPriority: 100 },
         },
       ],
@@ -40,10 +44,24 @@ const mocked = vi.hoisted(() => {
       skillId: '200014', // Right Turns ◎
       priority: 2,
       sources: [
-        { kind: 'random', cardId: '30028' },
+        { kind: 'random', cardId: '30028', ownedId: 1, limitBreak: 3 },
         { kind: 'scenario' },
       ],
       bestTier: 'random',
+    },
+    {
+      skillId: '200332', // Corner Adept ○ (white; hint source)
+      priority: 2,
+      sources: [
+        {
+          kind: 'hint_strong',
+          cardId: '30028',
+          ownedId: 1,
+          limitBreak: 3,
+          detail: { hintPoolSize: 2, hintFrequency: 40, specialtyPriority: 100 },
+        },
+      ],
+      bestTier: 'hint_strong',
     },
   ];
   return { rows };
@@ -53,14 +71,22 @@ vi.mock('@/core/coverage', () => ({
   buildCoverageMatrix: vi.fn(() => mocked.rows as unknown as CoverageRow[]),
   classifyHintTier: vi.fn(() => 'hint_weak' as const),
   effectiveSpCost: vi.fn((skill: SkillRecord) => skill.baseSpCost),
+  // Core contract: >0 only for training-hint tiers; 0 for event-granted
+  // sources (chain/date/random/scenario) = show full cost.
+  expectedHintLevel: vi.fn((source: CoverageSource) =>
+    source.kind === 'hint_strong' || source.kind === 'hint_weak' ? 2 : 0,
+  ),
+  bundledSpCost: vi.fn(
+    (gold: SkillRecord, white: SkillRecord) => gold.baseSpCost + white.baseSpCost,
+  ),
 }));
 
 const INVENTORY: OwnedCard[] = [{ id: 1, cardId: '30028', limitBreak: 3 }];
 
 afterEach(cleanup);
 
-function renderPanel() {
-  return render(<CoverageMatrixPanel plan={FIXTURE_PLAN} inventory={INVENTORY} />);
+function renderPanel(inventory: OwnedCard[] = INVENTORY) {
+  return render(<CoverageMatrixPanel plan={FIXTURE_PLAN} inventory={inventory} />);
 }
 
 describe('CoverageMatrixPanel', () => {
@@ -70,6 +96,7 @@ describe('CoverageMatrixPanel', () => {
     expect(rowHeaders.map((h) => h.textContent)).toEqual([
       expect.stringContaining('Professor of Curvature'),
       expect.stringContaining('Right Turns ◎'),
+      expect.stringContaining('Corner Adept ○'),
       expect.stringContaining('Shooting for the Top'),
     ]);
 
@@ -105,7 +132,26 @@ describe('CoverageMatrixPanel', () => {
     ).toBeInTheDocument();
   });
 
-  it('opens a details drawer with evidence and effective SP cost on cell tap', async () => {
+  it('attributes cell sources to the owning copy, not every copy of the cardId', () => {
+    // Two copies of Kitasan (id 1 @ LB3, id 2 @ LB0); all mocked sources
+    // carry ownedId 1, so the LB0 column must stay empty.
+    renderPanel([
+      { id: 1, cardId: '30028', limitBreak: 3 },
+      { id: 2, cardId: '30028', limitBreak: 0 },
+    ]);
+    expect(
+      screen.getByRole('button', {
+        name: 'Professor of Curvature via Kitasan Black LB3: Chain',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: 'Professor of Curvature via Kitasan Black LB0: Chain',
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows full cost + unverified caveat and the white-prereq bundle for an event-granted gold', async () => {
     const user = userEvent.setup();
     renderPanel();
     await user.click(
@@ -121,14 +167,48 @@ describe('CoverageMatrixPanel', () => {
     expect(inDrawer.getByText('Hint frequency passive').nextElementSibling).toHaveTextContent(
       '40',
     );
-    // effectiveSpCost mocked to baseSpCost; Professor of Curvature = 160.
+    // expectedHintLevel = 0 for chain → full base cost (P3, unverified
+    // event-granted hint levels). effectiveSpCost mocked to baseSpCost = 160.
     expect(inDrawer.getByText('Effective SP cost').nextElementSibling).toHaveTextContent(
       '160 SP',
     );
-    expect(inDrawer.getByText(/Assumes one hint event/)).toBeInTheDocument();
+    expect(
+      inDrawer.getByText(/event-granted hint levels unverified — full SP cost shown/),
+    ).toBeInTheDocument();
+    expect(inDrawer.queryByText(/Assumes one hint event/)).not.toBeInTheDocument();
+    // Gold bundles its white prereq (Corner Adept ○, 110 SP) — bundledSpCost
+    // mocked to the plain sum 160 + 110 = 270.
+    expect(inDrawer.getByText('With white prereq').nextElementSibling).toHaveTextContent(
+      '270 SP',
+    );
+    expect(
+      inDrawer.getByText(/White prereq Corner Adept ○ assumed unhinted/),
+    ).toBeInTheDocument();
 
     await user.click(inDrawer.getByRole('button', { name: 'Close details' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('shows the hint-level assumption and discounted cost for a hint-pool source', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Corner Adept ○ via Kitasan Black LB3: Hint+',
+      }),
+    );
+    const drawer = screen.getByRole('dialog', {
+      name: 'Coverage details: Corner Adept ○',
+    });
+    const inDrawer = within(drawer);
+    // expectedHintLevel mocked to 2 for hint tiers; effectiveSpCost mocked to
+    // baseSpCost (110) — the assumption line carries the level.
+    expect(inDrawer.getByText('Effective SP cost').nextElementSibling).toHaveTextContent(
+      '110 SP',
+    );
+    expect(inDrawer.getByText(/Assumes one hint event taken at Lv 2/)).toBeInTheDocument();
+    // White skill, no prereq → no bundle row.
+    expect(inDrawer.queryByText('With white prereq')).not.toBeInTheDocument();
   });
 
   it('shows an empty-state prompt when the plan has no target skills', () => {

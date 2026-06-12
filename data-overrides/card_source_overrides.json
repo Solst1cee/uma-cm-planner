@@ -1,13 +1,13 @@
 {
   "_target": "support_cards",
-  "_comment": "Hand-maintained skill-source corrections (P5; provenance §4). The master flat eventSkills list disagrees with GameTora's chain∪random eventData on these cards: each skill below is granted by a friend/group card's date (outing) events, which GameTora classifies as neither chain nor random, so the generator defaults them to 'random_event'. This file re-types them to 'date_event'. Computed from the pinned c1fa2107 data on 2026-06-12; re-verify when refreshing upstream. Related mismatches needing NO override: 4 R cards (10041, 10044, 10050, 10055) have zero event skills on both sides; 5 cards (20048, 30053, 30098, 30099, 30100) have event skills only in GameTora eventData, which the generator already classifies as chain/random; Twin Turbo 30026 dual-lists Early Lead (200532) as chain AND random — the generator counts it as chain.",
+  "_comment": "Hand-maintained skill-source corrections (P5; provenance §4.1). RECOMPUTED 2026-06-12 after the event-skill derivation v2 (Tachyons-lab union): the generator now classifies chain choices, date events and direct grants automatically, so the only residual disagreement is the bond-line 'special' events on friend/group cards (Tachyons-lab all_events.special_events; GameTora category 'special') — those skills appear only in the master flat eventSkills list, default to 'random_event', and are re-typed to 'date_event' here because they come from the same outing/bond track as date events. Each entry cites its Tachyons-lab special event (pin 2ce0c8fe). The build-time oracle (assertTachyonsParity, scripts/build-cards.ts) fails the build if a special-event skill ever goes missing instead of merely mis-typed, so this file can no longer drift silently. Verified residual-only by recompute: every other master-flat/GameTora/Tachyons disagreement is resolved by the generator's chain > date_event > random_event precedence.",
   "records": {
     "10021": {
-      "_comment": "Tazuna Hayakawa R [Tracen Academy] — Tail Held High comes from her date events.",
+      "_comment": "Tazuna Hayakawa R [Tracen Academy] — Tail Held High 201611 from bond special 'A Bond with Tazuna: Aspirations Entrusted'.",
       "skills": [{ "skillId": "201611", "sourceType": "date_event" }]
     },
     "10022": {
-      "_comment": "Aoi Kiryuin R [Tracen Academy] — Lay Low / Hesitant End Closers / Shake It Out come from her date events.",
+      "_comment": "Aoi Kiryuin R [Tracen Academy] — Lay Low 200442 + Hesitant End Closers 200941 from bond special 'Gift of Words'; Shake It Out 201621 from 'A Bond with Aoi: Being a Good Mentor'.",
       "skills": [
         { "skillId": "200442", "sourceType": "date_event" },
         { "skillId": "200941", "sourceType": "date_event" },
@@ -15,15 +15,15 @@
       ]
     },
     "10060": {
-      "_comment": "Riko Kashimoto R [Tracen Academy] — Sympathy comes from her date events.",
+      "_comment": "Riko Kashimoto R [Tracen Academy] — Sympathy 201631 from bond special 'Bonding with Riko: No More Regrets'.",
       "skills": [{ "skillId": "201631", "sourceType": "date_event" }]
     },
     "10074": {
-      "_comment": "Sasami Anshinzawa R [Tracen Academy] — Uma Stan comes from her date events.",
+      "_comment": "Sasami Anshinzawa R [Tracen Academy] — Uma Stan 201591 from bond special 'A Bond Bolstered by Booze?'.",
       "skills": [{ "skillId": "201591", "sourceType": "date_event" }]
     },
     "20021": {
-      "_comment": "Aoi Kiryuin SR — same date-event skills as her R version.",
+      "_comment": "Aoi Kiryuin SR — same bond specials as her R version (200442/200941 'Gift of Words', 201621 'A Bond with Aoi').",
       "skills": [
         { "skillId": "200442", "sourceType": "date_event" },
         { "skillId": "200941", "sourceType": "date_event" },
@@ -31,19 +31,19 @@
       ]
     },
     "30021": {
-      "_comment": "Tazuna Hayakawa SSR [Sunlight Bouquet] — Tail Held High comes from her date events.",
+      "_comment": "Tazuna Hayakawa SSR [Sunlight Bouquet] — Tail Held High 201611 from 'A Bond with Tazuna: Aspirations Entrusted'.",
       "skills": [{ "skillId": "201611", "sourceType": "date_event" }]
     },
     "30036": {
-      "_comment": "Riko Kashimoto SSR [Devoted Heart] — Sympathy comes from her date events.",
+      "_comment": "Riko Kashimoto SSR [Devoted Heart] — Sympathy 201631 from 'Bonding with Riko: No More Regrets'.",
       "skills": [{ "skillId": "201631", "sourceType": "date_event" }]
     },
     "30080": {
-      "_comment": "Sasami Anshinzawa SSR — Uma Stan comes from her date events.",
+      "_comment": "Sasami Anshinzawa SSR — Uma Stan 201591 from 'A Bond Bolstered by Booze?'. (Her direct sg grants 200283/200353/200521 are random_event by category — generator handles them.)",
       "skills": [{ "skillId": "201591", "sourceType": "date_event" }]
     },
     "30081": {
-      "_comment": "Team Sirius SSR (group) — Corner Recovery ○ comes from the group outing events.",
+      "_comment": "Team Sirius SSR (group) — Corner Recovery ○ 200352 from bond special 'The Luckiest Racer in Japan'.",
       "skills": [{ "skillId": "200352", "sourceType": "date_event" }]
     }
   }

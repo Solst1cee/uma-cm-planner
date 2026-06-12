@@ -2,6 +2,8 @@
   {
     "name": "Pisces Cup",
     "date": "2022-03-22",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10914",
     "surface": "turf",
     "distance": 3200,
@@ -13,6 +15,8 @@
   {
     "name": "Aries Cup",
     "date": "2022-04-22",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10504",
     "surface": "turf",
     "distance": 2000,
@@ -24,6 +28,8 @@
   {
     "name": "Taurus Cup",
     "date": "2022-05-24",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10606",
     "surface": "turf",
     "distance": 2400,
@@ -35,6 +41,8 @@
   {
     "name": "Gemini Cup",
     "date": "2022-06-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10602",
     "surface": "turf",
     "distance": 1600,
@@ -46,6 +54,8 @@
   {
     "name": "Cancer Cup",
     "date": "2022-07-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10906",
     "surface": "turf",
     "distance": 2200,
@@ -57,6 +67,8 @@
   {
     "name": "Leo Cup",
     "date": "2022-08-13",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10501",
     "surface": "turf",
     "distance": 1200,
@@ -68,6 +80,8 @@
   {
     "name": "Virgo Cup",
     "date": "2022-09-15",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "11103",
     "surface": "dirt",
     "distance": 2000,
@@ -79,6 +93,8 @@
   {
     "name": "Libra Cup",
     "date": "2022-10-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10903",
     "surface": "turf",
     "distance": 1600,
@@ -90,6 +106,8 @@
   {
     "name": "Scorpio Cup",
     "date": "2022-11-13",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10808",
     "surface": "turf",
     "distance": 2200,
@@ -101,6 +119,8 @@
   {
     "name": "Sagittarius Cup",
     "date": "2022-12-15",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10506",
     "surface": "turf",
     "distance": 2500,
@@ -112,6 +132,8 @@
   {
     "name": "Capricorn Cup",
     "date": "2023-01-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10701",
     "surface": "turf",
     "distance": 1200,
@@ -123,6 +145,8 @@
   {
     "name": "Aquarius Cup",
     "date": "2023-02-17",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10611",
     "surface": "dirt",
     "distance": 1600,
@@ -134,6 +158,8 @@
   {
     "name": "Pisces Cup",
     "date": "2023-03-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10504",
     "surface": "turf",
     "distance": 2000,
@@ -145,6 +171,8 @@
   {
     "name": "Aries Cup",
     "date": "2023-04-13",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10811",
     "surface": "turf",
     "distance": 3200,
@@ -156,6 +184,8 @@
   {
     "name": "MILE",
     "date": "2023-06-13",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10602",
     "surface": "turf",
     "distance": 1600,
@@ -167,6 +197,8 @@
   {
     "name": "LONG",
     "date": "2023-12-14",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10506",
     "surface": "turf",
     "distance": 2500,
@@ -178,6 +210,8 @@
   {
     "name": "SPRINT",
     "date": "2024-02-18",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10902",
     "surface": "turf",
     "distance": 1400,
@@ -189,6 +223,8 @@
   {
     "name": "MILE",
     "date": "2024-04-13",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10903",
     "surface": "turf",
     "distance": 1600,
@@ -200,6 +236,8 @@
   {
     "name": "CLASSIC",
     "date": "2024-06-20",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10606",
     "surface": "turf",
     "distance": 2400,
@@ -211,6 +249,8 @@
   {
     "name": "DIRT",
     "date": "2024-08-25",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10708",
     "surface": "dirt",
     "distance": 1800,
@@ -222,6 +262,8 @@
   {
     "name": "CLASSIC",
     "date": "2024-10-23",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10604",
     "surface": "turf",
     "distance": 2000,
@@ -233,6 +275,8 @@
   {
     "name": "LONG",
     "date": "2024-12-22",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10506",
     "surface": "turf",
     "distance": 2500,
@@ -244,6 +288,8 @@
   {
     "name": "CLASSIC",
     "date": "2025-01-24",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10907",
     "surface": "turf",
     "distance": 2400,
@@ -255,6 +301,8 @@
   {
     "name": "MILE",
     "date": "2025-03-25",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10903",
     "surface": "turf",
     "distance": 1600,
@@ -266,6 +314,8 @@
   {
     "name": "LONG",
     "date": "2025-04-23",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10811",
     "surface": "turf",
     "distance": 3200,
@@ -277,6 +327,8 @@
   {
     "name": "CLASSIC",
     "date": "2025-06-21",
+    "server": "jp",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10606",
     "surface": "turf",
     "distance": 2400,
@@ -288,6 +340,8 @@
   {
     "name": "CLASSIC",
     "date": "2025-07-25",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10906",
     "surface": "turf",
     "distance": 2200,
@@ -299,6 +353,8 @@
   {
     "name": "CLASSIC",
     "date": "2025-09-22",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10807",
     "surface": "turf",
     "distance": 2000,
@@ -310,6 +366,8 @@
   {
     "name": "SPRINT",
     "date": "2025-10-23",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10302",
     "surface": "turf",
     "distance": 1200,
@@ -321,6 +379,8 @@
   {
     "name": "MILE",
     "date": "2025-12-21",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10903",
     "surface": "turf",
     "distance": 1600,
@@ -332,6 +392,8 @@
   {
     "name": "LONG",
     "date": "2026-01-22",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
     "courseId": "10506",
     "surface": "turf",
     "distance": 2500,

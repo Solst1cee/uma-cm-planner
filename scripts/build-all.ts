@@ -10,11 +10,12 @@
  */
 import { join } from 'node:path';
 import type { CmPreset, SkillRecord, SupportCardRecord } from '@/core/types';
-import { buildCards, recomputeHintPoolSizes } from './build-cards';
+import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
 import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
 import { borrowedFilesPresent, copyFromSpikes, UPSTREAM_COMMIT } from './fetch-borrowed';
+import { loadCardAdditions } from './lib/card-additions';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, writeJsonDeterministic } from './lib/io';
 import type {
   CourseDataJson,
@@ -23,6 +24,7 @@ import type {
   GtSkill,
   MasterCardsJson,
   MasterSkillsJson,
+  TachyonsDataJson,
   UpstreamCmPreset,
 } from './lib/upstream-types';
 import { applyOverrides, loadOverrideFiles } from './merge-overrides';
@@ -40,6 +42,8 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
   }
 
   const masterSkills = readBorrowedJson<MasterSkillsJson>('skills.json');
+  const releasedSkillIds = new Set(Object.keys(masterSkills));
+  const tachyons = readBorrowedJson<TachyonsDataJson>('tachyons-data.json');
   let skills = buildSkills({
     master: masterSkills,
     gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
@@ -49,12 +53,24 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
     master: readBorrowedJson<MasterCardsJson>('support-cards.json'),
     gametoraCards: readBorrowedJson<GtCard[]>('gametora/support-cards.json'),
     eventSources: readBorrowedJson<EventSkillSourcesJson>('gametora/event-skill-sources.json'),
-    releasedSkillIds: new Set(Object.keys(masterSkills)),
+    tachyons,
+    releasedSkillIds,
     dataVersion: DATA_VERSION,
   });
+  // Additions: full records for Global cards newer than the upstream pin
+  // (provenance §3.2) — inserted BEFORE overrides so overrides can patch them.
+  const additions = loadCardAdditions(join(OVERRIDES_DIR, 'card_additions.json'), {
+    existingCardIds: new Set(cards.map((c) => c.cardId)),
+    releasedSkillIds,
+  });
+  if (additions.length > 0) {
+    cards = [...cards, ...additions].sort((a, b) => Number(a.cardId) - Number(b.cardId));
+    console.log(`applied card_additions.json → ${additions.length} record(s): ${additions.map((c) => c.cardId).join(', ')}`);
+  }
   let presets = buildCmPresets({
     presets: readBorrowedJson<UpstreamCmPreset[]>('cm-presets.json'),
     courses: readBorrowedJson<CourseDataJson>('course_data.json'),
+    dataVersion: DATA_VERSION,
   });
   const sparkRates = buildSparkRates();
 
@@ -77,6 +93,11 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
     console.log(`applied ${override.fileName} → ${override._target}`);
   }
   recomputeHintPoolSizes(cards); // hintPoolSize is derived; overrides may re-type sources
+
+  // Build-time oracle (provenance §4.1): emitted cards must agree with the
+  // independent Tachyons-lab event-reward source — catches regressions of the
+  // Phase-1 critical finding (dropped chain choices / date events / grants).
+  assertTachyonsParity(cards, tachyons, releasedSkillIds);
 
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'skills.json'), skills);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'support_cards.json'), cards);

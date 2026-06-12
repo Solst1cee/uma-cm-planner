@@ -14,7 +14,12 @@ import type {
   SkillRecord,
   SupportCardRecord,
 } from '@/core/types';
-import { buildCoverageMatrix, effectiveSpCost, type HintLevel } from '@/core/coverage';
+import {
+  buildCoverageMatrix,
+  bundledSpCost,
+  effectiveSpCost,
+  expectedHintLevel,
+} from '@/core/coverage';
 import { useGameData } from '@/features/data/gameData';
 import { bestTierOf, TIER_DESCRIPTION, TIER_LABEL } from '@/features/coverage/tierMeta';
 
@@ -31,20 +36,16 @@ interface Selection {
 }
 
 /**
- * Expected hint level for the SP-cost estimate: one hint event at base Lv1
- * plus the card's Hint Lv passive (effect 17, mechanics-notes §9), capped at
- * the Lv5 discount schedule. Non-hint sources assume no hint (full cost).
+ * Does this source belong to this inventory copy? Match by the owning row's
+ * id when both sides carry one (duplicate copies of a card must show their
+ * own tiers/LB, not each other's); fall back to cardId for not-yet-persisted
+ * rows or older core output without ownedId.
  */
-function expectedHintLevel(source: CoverageSource, column: Column | null): HintLevel {
-  if (!column?.card) return 0;
-  if (source.kind !== 'chain' && source.kind !== 'hint_strong' && source.kind !== 'hint_weak') {
-    return 0;
+function sourceBelongsTo(source: CoverageSource, owned: OwnedCard): boolean {
+  if (source.ownedId !== undefined && owned.id !== undefined) {
+    return source.ownedId === owned.id;
   }
-  const perLevel = column.card.perLevel.find(
-    (p) => p.limitBreak === column.owned.limitBreak,
-  );
-  const lvl = 1 + (perLevel?.hintLevels ?? 0);
-  return (lvl >= 5 ? 5 : lvl) as HintLevel;
+  return source.cardId !== undefined && source.cardId === owned.cardId;
 }
 
 function TierChip({ tier }: { tier: CoverageSource['kind'] }) {
@@ -60,11 +61,21 @@ function DetailsDrawer({
   skill: SkillRecord | undefined;
   onClose: () => void;
 }) {
-  const { sparkRates } = useGameData();
+  const { sparkRates, skillById } = useGameData();
   const { row, source, column } = selection;
   const detail = source.detail;
-  const hintLevel = expectedHintLevel(source, column);
+  const card = column?.card;
+  const cardSkill = card?.skills.find((s) => s.skillId === row.skillId);
+  // Core model (mechanics-notes §9): >0 only for training-hint sources;
+  // 0 for event-granted sources (chain/date/random/scenario) = full cost,
+  // because event-reward hint levels are unverified (P3).
+  const hintLevel = expectedHintLevel(source, card, cardSkill);
   const spCost = skill ? effectiveSpCost(skill, hintLevel, sparkRates) : undefined;
+  // Gold skills bundle their white prereq (mechanics-notes §7) — this source
+  // covers the gold only, so the white is assumed unhinted (Lv0, full cost).
+  const prereq = skill?.prereqSkillId ? skillById.get(skill.prereqSkillId) : undefined;
+  const bundled =
+    skill && prereq ? bundledSpCost(skill, prereq, hintLevel, 0, sparkRates) : undefined;
   const skillName = skill?.nameEn ?? row.skillId;
   const sourceName = column
     ? `${column.card?.charName ?? column.owned.cardId} LB${column.owned.limitBreak}`
@@ -104,15 +115,34 @@ function DetailsDrawer({
         {spCost !== undefined && (
           <>
             <dt>Effective SP cost</dt>
-            <dd>{spCost} SP</dd>
+            <dd>
+              {spCost} SP
+              {skill?.prereqSkillId !== undefined && prereq === undefined && (
+                <span className="muted small"> (excludes white prereq)</span>
+              )}
+            </dd>
+          </>
+        )}
+        {bundled !== undefined && prereq !== undefined && (
+          <>
+            <dt>With white prereq</dt>
+            <dd>
+              {bundled} SP{' '}
+              <span className="muted small">
+                ({skillName} {spCost} SP + {prereq.nameEn} {prereq.baseSpCost} SP at full
+                cost, rounded once — mechanics-notes §7)
+              </span>
+            </dd>
           </>
         )}
       </dl>
       <p className="muted small">
         {hintLevel > 0
-          ? `Assumes one hint event taken at Lv ${hintLevel} (base 1 + card Hint Lv passive); ` +
+          ? `Assumes one hint event taken at Lv ${hintLevel} (hint grant + card Hint Lv passive); ` +
             'cumulative discount 10/20/30/35/40 % capped at 40 % (mechanics-notes §7). Estimate, not a guarantee.'
-          : 'No hint discount assumed — full SP cost shown.'}
+          : 'event-granted hint levels unverified — full SP cost shown.'}
+        {prereq !== undefined &&
+          ` White prereq ${prereq.nameEn} assumed unhinted (full cost).`}
       </p>
     </div>
   );
@@ -201,9 +231,7 @@ export function CoverageMatrixPanel({
                   </th>
                   {columns.map((col) => {
                     const source = bestTierOf(
-                      row.sources.filter(
-                        (s) => s.cardId !== undefined && s.cardId === col.owned.cardId,
-                      ),
+                      row.sources.filter((s) => sourceBelongsTo(s, col.owned)),
                     );
                     return (
                       <td key={col.key}>

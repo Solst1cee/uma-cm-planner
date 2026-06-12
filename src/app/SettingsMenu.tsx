@@ -2,8 +2,14 @@
  * Header settings menu: JSON export/import of all local data (P2 —
  * IndexedDB is the only store, so export is the user's backup path).
  * Import is destructive ('replace') and confirms first.
+ *
+ * Both paths flush the active plan's debounced save first: exportBlob reads
+ * Dexie directly, so an edit still inside the debounce window would
+ * otherwise be silently missing from the backup (and a pending save firing
+ * after an import would clobber the imported data).
  */
 import { useRef, useState } from 'react';
+import { useActivePlan } from '@/app/ActivePlanContext';
 import { exportBlob, importBlob } from '@/db';
 
 function message(err: unknown): string {
@@ -11,6 +17,7 @@ function message(err: unknown): string {
 }
 
 export function SettingsMenu() {
+  const { flushPendingSave } = useActivePlan();
   const fileInput = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +26,7 @@ export function SettingsMenu() {
     setError(null);
     setStatus(null);
     try {
+      await flushPendingSave(); // never snapshot mid-debounce (stale export)
       const data = await exportBlob();
       const file = new Blob([JSON.stringify(data, null, 2)], {
         type: 'application/json',
@@ -47,6 +55,9 @@ export function SettingsMenu() {
     }
     try {
       const data: unknown = JSON.parse(await file.text());
+      // Flush first: a debounced save firing after the replace would
+      // resurrect pre-import state on top of the imported data.
+      await flushPendingSave();
       await importBlob(data, 'replace');
       setStatus('Import complete — reloading…');
       window.location.reload();

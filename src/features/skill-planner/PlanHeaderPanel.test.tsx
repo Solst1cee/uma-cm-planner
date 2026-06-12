@@ -92,6 +92,66 @@ describe('PlanHeaderPanel priority stars', () => {
   });
 });
 
+describe('PlanHeaderPanel CM picker', () => {
+  // fixtureGameData has two presets sharing the plan's (courseId, surface,
+  // distance) key: 'Old JP Cup (2024-07-15)' [jp] and 'Fixture Cup (2026-07)'
+  // [global, matching FIXTURE_PLAN.month].
+
+  it('selects the preset matching plan.month, not an earlier race-key collision', () => {
+    renderPanel();
+    expect(screen.getByLabelText('Champions Meeting')).toHaveDisplayValue(
+      'Fixture Cup (2026-07)',
+    );
+  });
+
+  it('labels JP-history presets in the picker (P4)', () => {
+    renderPanel();
+    expect(
+      screen.getByRole('option', { name: 'Old JP Cup (2024-07-15) (JP history)' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'Fixture Cup (2026-07)' }),
+    ).toBeInTheDocument();
+  });
+
+  it('applying a preset writes month and race onto the plan', async () => {
+    const user = userEvent.setup();
+    const onChange = renderPanel();
+    // value '0' = Old JP Cup (2024-07-15).
+    await user.selectOptions(screen.getByLabelText('Champions Meeting'), '0');
+    const next = onChange.mock.lastCall?.[0];
+    expect(next?.month).toBe('2024-07');
+    expect(next?.race.courseId).toBe(FIXTURE_PLAN.race.courseId);
+  });
+
+  it('switches to editable race fields on "Custom race…" and stays there', async () => {
+    const user = userEvent.setup();
+    const onChange = renderPanel();
+    const select = screen.getByLabelText('Champions Meeting');
+
+    expect(screen.queryByLabelText('Course id')).not.toBeInTheDocument();
+    await user.selectOptions(select, 'custom');
+    // Mode change only — no plan mutation, and no snap-back to the matched preset.
+    expect(onChange).not.toHaveBeenCalled();
+    expect(select).toHaveDisplayValue('Custom race…');
+    expect(screen.getByLabelText('Course id')).toHaveValue(FIXTURE_PLAN.race.courseId);
+
+    // The custom fields actually edit plan.race.
+    await user.type(screen.getByLabelText('Course id'), '9');
+    expect(onChange.mock.lastCall?.[0]?.race.courseId).toBe(
+      `${FIXTURE_PLAN.race.courseId}9`,
+    );
+    await user.selectOptions(screen.getByLabelText('Surface'), 'dirt');
+    expect(onChange.mock.lastCall?.[0]?.race.surface).toBe('dirt');
+
+    // Still in custom mode until a preset is explicitly picked again.
+    expect(select).toHaveDisplayValue('Custom race…');
+    await user.selectOptions(select, '1'); // value '1' = Fixture Cup (2026-07)
+    expect(screen.queryByLabelText('Course id')).not.toBeInTheDocument();
+    expect(select).toHaveDisplayValue('Fixture Cup (2026-07)');
+  });
+});
+
 describe('PlanHeaderPanel scenario selector', () => {
   it('marks scenario 4 as the app default and others as overrides', async () => {
     const user = userEvent.setup();

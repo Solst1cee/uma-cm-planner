@@ -91,28 +91,81 @@ describe('export → clear → import (replace)', () => {
 });
 
 describe('import (merge)', () => {
-  it('upserts by primary key and keeps unrelated rows', async () => {
-    await seed();
-    const existingId = (await db.ownedCards.toArray())[0]?.id;
-    expect(existingId).toBeDefined();
+  // Merge NEVER deletes: rows absent from the blob are kept; string-keyed
+  // tables upsert by primary key; ownedCards dedupe by cardId (higher
+  // limitBreak wins); matchLogs append with fresh local ids.
+
+  it('upserts keyed tables and dedupes ownedCards by cardId, keeping the higher limitBreak', async () => {
+    await seed(); // ownedCards: 30028 LB3, 30016 LB4
 
     const blob: ExportBlobV1 = {
       ...emptyBlob(),
       ownedCards: [
-        { id: existingId, cardId: '30028', limitBreak: 4 }, // upsert existing
-        { cardId: '10001', limitBreak: 0 }, // new, id assigned
+        { cardId: '30028', limitBreak: 4 }, // already owned at LB3 → upgraded in place
+        { cardId: '10001', limitBreak: 0 }, // new card → added with a fresh local id
       ],
       cmPlans: [{ ...FIXTURE_PLAN, name: 'Merged Cup' }],
     };
     const { imported } = await importBlob(blob, 'merge');
-    expect(imported['ownedCards']).toBe(2);
+    expect(imported['ownedCards']).toBe(2); // 1 upgrade + 1 add
 
-    expect(await db.ownedCards.count()).toBe(3); // 2 seeded + 1 new
-    expect((await db.ownedCards.get(existingId as number))?.limitBreak).toBe(4);
+    const cards = await db.ownedCards.toArray();
+    expect(cards).toHaveLength(3); // 2 seeded + 1 new — merge never deletes
+    expect(cards.find((c) => c.cardId === '30028')?.limitBreak).toBe(4); // upgraded
+    expect(cards.find((c) => c.cardId === '30016')?.limitBreak).toBe(4); // untouched
     expect((await db.cmPlans.get(FIXTURE_PLAN.id))?.name).toBe('Merged Cup');
     // Tables absent from the blob are untouched in merge mode.
     expect(await db.parents.count()).toBe(1);
     expect((await db.settings.get('preferredServer'))?.value).toBe('global');
+  });
+
+  it('cross-device merge: colliding auto-increment ids never overwrite unrelated local rows', async () => {
+    // Device A (this db): seed assigns ownedCards ids 1 (30028 LB3) and
+    // 2 (30016 LB4), and matchLog id 1. Device B counted its OWN ids 1..2 —
+    // by-id upsert would clobber A's 30016 and A's match log.
+    await seed();
+
+    const deviceB: ExportBlobV1 = {
+      ...emptyBlob(),
+      ownedCards: [
+        { id: 1, cardId: '30028', limitBreak: 1 }, // collides with A's id 1; LOWER LB
+        { id: 2, cardId: '10001', limitBreak: 2 }, // collides with A's id 2 = 30016!
+      ],
+      matchLogs: [{ id: 1, cmPlanId: 'plan-from-device-B', date: '2026-08-01' }],
+    };
+    // Round-trip through JSON, like a real cross-device transfer file.
+    const { imported } = await importBlob(JSON.parse(JSON.stringify(deviceB)), 'merge');
+    expect(imported['ownedCards']).toBe(1); // only 10001 written (30028 keeps A's higher LB3)
+
+    const cards = await db.ownedCards.toArray();
+    expect(cards).toHaveLength(3);
+    expect(cards.find((c) => c.cardId === '30028')?.limitBreak).toBe(3); // local higher LB kept
+    expect(cards.find((c) => c.cardId === '30016')?.limitBreak).toBe(4); // NOT clobbered by B's id 2
+    const added = cards.find((c) => c.cardId === '10001');
+    expect(added?.limitBreak).toBe(2);
+    expect(added?.id).not.toBe(2); // exported id stripped, fresh local id assigned
+
+    // B's log appended under a fresh id; A's log id 1 untouched.
+    const logs = await db.matchLogs.toArray();
+    expect(logs).toHaveLength(2);
+    expect(logs.find((l) => l.id === 1)?.cmPlanId).toBe(FIXTURE_PLAN.id);
+    expect(logs.find((l) => l.cmPlanId === 'plan-from-device-B')?.id).not.toBe(1);
+  });
+
+  it('dedupes duplicate cardIds within the blob itself, keeping the higher limitBreak', async () => {
+    const blob: ExportBlobV1 = {
+      ...emptyBlob(),
+      ownedCards: [
+        { cardId: '30028', limitBreak: 1 },
+        { cardId: '30028', limitBreak: 3 },
+        { cardId: '30028', limitBreak: 2 },
+      ],
+    };
+    const { imported } = await importBlob(blob, 'merge');
+    expect(imported['ownedCards']).toBe(1);
+    expect(await db.ownedCards.toArray()).toEqual([
+      expect.objectContaining({ cardId: '30028', limitBreak: 3 }),
+    ]);
   });
 });
 

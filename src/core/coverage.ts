@@ -6,6 +6,7 @@
  * overrides merging (P5) happen upstream in the data layer.
  */
 import type {
+  CardSkill,
   CmPlan,
   CoverageRow,
   CoverageSource,
@@ -82,21 +83,31 @@ export function classifyHintTier(
 
 function cardSource(
   card: SupportCardRecord,
-  lb: LimitBreak,
+  owned: OwnedCard,
   sourceType: SkillSourceType,
 ): CoverageSource {
+  const lb = owned.limitBreak;
+  // Every card-derived source carries the owning inventory copy's identity
+  // (ownedId, when persisted) and limitBreak, so duplicate copies of the same
+  // cardId never show each other's tiers or feed the wrong LB into SP
+  // estimates (review 2026-06-12: duplicate-copy attribution).
+  const copy: Pick<CoverageSource, 'cardId' | 'ownedId' | 'limitBreak'> = {
+    cardId: card.cardId,
+    ...(owned.id !== undefined ? { ownedId: owned.id } : {}),
+    limitBreak: lb,
+  };
   switch (sourceType) {
     case 'chain':
-      return { kind: 'chain', cardId: card.cardId };
+      return { kind: 'chain', ...copy };
     case 'date_event':
-      return { kind: 'date_event', cardId: card.cardId };
+      return { kind: 'date_event', ...copy };
     case 'random_event':
-      return { kind: 'random', cardId: card.cardId };
+      return { kind: 'random', ...copy };
     case 'hint_pool': {
       const perLevel = card.perLevel.find((p) => p.limitBreak === lb);
       return {
         kind: classifyHintTier(card, lb),
-        cardId: card.cardId,
+        ...copy,
         // P3 evidence for the tier chip's detail popover.
         detail: {
           hintPoolSize: card.hintPoolSize,
@@ -142,7 +153,7 @@ export function buildCoverageMatrix(args: {
         if (!card) continue;
         for (const cardSkill of card.skills) {
           if (cardSkill.skillId === target.skillId) {
-            sources.push(cardSource(card, owned.limitBreak, cardSkill.sourceType));
+            sources.push(cardSource(card, owned, cardSkill.sourceType));
           }
         }
       }
@@ -163,6 +174,45 @@ export function buildCoverageMatrix(args: {
 // ---------------------------------------------------------------------------
 
 export type HintLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * Expected hint level a coverage source contributes when the user buys the
+ * skill — feeds effectiveSpCost/bundledSpCost for the UI's SP estimate.
+ *
+ * Model, per source kind:
+ *
+ * - 'hint_strong' / 'hint_weak' (training hints): base level per hint take is
+ *   the skill's master.mdb `single_mode_hint_gain.hint_value_2`
+ *   (CardSkill.hintLevels — currently 1 on every Global hint_gain_type=0 row,
+ *   verified against master.mdb v10006400, 2026-06-12), plus the card's Hint
+ *   Levels passive (effect 17, mechanics-notes §9) evaluated at the OWNING
+ *   COPY's limit break (source.limitBreak), clamped to the game's 0–5 range.
+ *
+ * - 'chain' / 'date_event' / 'random' / 'scenario' (and 'spark'/'uncovered'):
+ *   returns 0, i.e. estimate FULL SP cost. Event rewards carry their own
+ *   per-event hint levels which are embedded in unparsed reward strings
+ *   (provenance §3 open item 3), and no source supports applying the
+ *   effect-17 training-hint passive to event grants — that extension was an
+ *   unsourced heuristic (review 2026-06-12). Until the in-game verification
+ *   queue resolves it (mechanics-notes §10; P3 honest numbers), the UI shows
+ *   full cost with a caveat rather than a fabricated discount.
+ *
+ * Pure and total: missing card / perLevel row / skill metadata degrade to the
+ * 0-passive / base-1 defaults rather than throwing.
+ */
+export function expectedHintLevel(
+  source: CoverageSource,
+  card: SupportCardRecord | undefined,
+  skill: CardSkill | undefined,
+): HintLevel {
+  if (source.kind !== 'hint_strong' && source.kind !== 'hint_weak') return 0;
+  // Base hint levels granted per take (master.mdb hint_value_2; default 1).
+  const base = skill?.hintLevels ?? 1;
+  // Hint Levels passive (effect 17) at the owning copy's limit break.
+  const perLevel = card?.perLevel.find((p) => p.limitBreak === source.limitBreak);
+  const passive = perLevel?.hintLevels ?? 0;
+  return Math.min(5, Math.max(0, Math.floor(base + passive))) as HintLevel;
+}
 
 /**
  * Cumulative discount fraction at a hint level. Schedule is cumulative

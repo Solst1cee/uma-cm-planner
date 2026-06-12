@@ -41,6 +41,8 @@ const FIXTURE_CM_PRESETS: CmPreset[] = [
   {
     name: FIXTURE_PLAN.name,
     date: FIXTURE_PLAN.month,
+    server: 'global',
+    dataVersion: 'fixture',
     courseId: FIXTURE_PLAN.race.courseId,
     surface: FIXTURE_PLAN.race.surface,
     distance: FIXTURE_PLAN.race.distance,

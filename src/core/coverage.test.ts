@@ -10,6 +10,7 @@ import {
   bundledSpCost,
   classifyHintTier,
   effectiveSpCost,
+  expectedHintLevel,
   tierRank,
 } from '@/core/coverage';
 import {
@@ -18,7 +19,13 @@ import {
   FIXTURE_SKILLS,
   FIXTURE_SPARK_RATES,
 } from '@/core/fixtures';
-import type { CmPlan, LimitBreak, SkillRecord, SupportCardRecord } from '@/core/types';
+import type {
+  CmPlan,
+  CoverageSource,
+  LimitBreak,
+  SkillRecord,
+  SupportCardRecord,
+} from '@/core/types';
 
 // --- test helpers ----------------------------------------------------------
 
@@ -129,10 +136,10 @@ describe('buildCoverageMatrix', () => {
     expect(rows.map((r) => r.skillId)).toEqual(['200331', '200014', '210061']); // priority order
     // 200331 is Kitasan's chain skill.
     expect(rows[0]?.bestTier).toBe('chain');
-    expect(rows[0]?.sources).toEqual([{ kind: 'chain', cardId: '30028' }]);
+    expect(rows[0]?.sources).toEqual([{ kind: 'chain', cardId: '30028', limitBreak: 4 }]);
     // 200014 is only a random (non-chain) event on Kitasan.
     expect(rows[1]?.bestTier).toBe('random');
-    expect(rows[1]?.sources).toEqual([{ kind: 'random', cardId: '30028' }]);
+    expect(rows[1]?.sources).toEqual([{ kind: 'random', cardId: '30028', limitBreak: 4 }]);
     // 210061 is scenario-exclusive (scenarioId 4 === plan.scenario.id 4): no card needed.
     expect(rows[2]?.bestTier).toBe('scenario');
     expect(rows[2]?.sources).toEqual([{ kind: 'scenario' }]);
@@ -193,6 +200,7 @@ describe('buildCoverageMatrix', () => {
       {
         kind: 'hint_weak',
         cardId: '10001',
+        limitBreak: 4,
         detail: { hintPoolSize: 12, hintFrequency: 15, specialtyPriority: 35 },
       },
     ]);
@@ -210,6 +218,63 @@ describe('buildCoverageMatrix', () => {
     });
     expect(rows[0]?.sources).toHaveLength(2);
     expect(rows[0]?.sources.map((s) => s.detail?.hintFrequency)).toEqual([30, 40]);
+  });
+
+  it('attributes each card-derived source to its owning copy (ownedId + limitBreak)', () => {
+    // Duplicate copies of one cardId: each source must carry ITS copy's
+    // identity so the UI never shows one copy's tier/LB under the other's
+    // column (review 2026-06-12: duplicate-copy attribution).
+    const plan = makePlan({ targetSkills: [{ skillId: '200332', priority: 1 }] });
+    const rows = buildCoverageMatrix({
+      ...baseArgs,
+      plan,
+      inventory: [
+        { id: 7, cardId: '30028', limitBreak: 0 },
+        { id: 11, cardId: '30028', limitBreak: 4 },
+      ],
+    });
+    expect(rows[0]?.sources.map((s) => ({ ownedId: s.ownedId, limitBreak: s.limitBreak }))).toEqual(
+      [
+        { ownedId: 7, limitBreak: 0 },
+        { ownedId: 11, limitBreak: 4 },
+      ],
+    );
+  });
+
+  it('sets ownedId + limitBreak on chain/random/date_event sources too', () => {
+    const plan = makePlan({
+      targetSkills: [
+        { skillId: '200331', priority: 1 }, // chain on Kitasan
+        { skillId: '200014', priority: 2 }, // random on Kitasan
+        { skillId: '200012', priority: 3 }, // date_event on Tazuna
+      ],
+    });
+    const rows = buildCoverageMatrix({
+      ...baseArgs,
+      plan,
+      inventory: [
+        { id: 1, cardId: '30028', limitBreak: 2 },
+        { id: 2, cardId: '30016', limitBreak: 3 },
+      ],
+    });
+    expect(rows[0]?.sources).toEqual([
+      { kind: 'chain', cardId: '30028', ownedId: 1, limitBreak: 2 },
+    ]);
+    expect(rows[1]?.sources).toEqual([
+      { kind: 'random', cardId: '30028', ownedId: 1, limitBreak: 2 },
+    ]);
+    // 200012 is also a hint on Kitasan; the date_event source is Tazuna's copy.
+    const dateSource = rows[2]?.sources.find((s) => s.kind === 'date_event');
+    expect(dateSource).toMatchObject({ cardId: '30016', ownedId: 2, limitBreak: 3 });
+  });
+
+  it('omits ownedId (but keeps limitBreak) for unpersisted inventory rows', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
+    const source = rows[0]?.sources[0];
+    expect(source).toBeDefined();
+    expect(source && 'ownedId' in source).toBe(false);
+    expect(source?.limitBreak).toBe(4);
   });
 
   it('handles a 1-skill target list', () => {
@@ -242,6 +307,74 @@ describe('buildCoverageMatrix', () => {
       '210061',
       '900021',
     ]);
+  });
+});
+
+// --- expectedHintLevel -------------------------------------------------------
+
+describe('expectedHintLevel', () => {
+  const kitasan = FIXTURE_CARDS[0]; // Hint Levels passive (effect 17) = 2 at every LB
+  const hintSkill = { skillId: '200332', sourceType: 'hint_pool' } as const;
+
+  function hintSource(limitBreak?: LimitBreak): CoverageSource {
+    return {
+      kind: 'hint_strong',
+      cardId: '30028',
+      ...(limitBreak !== undefined ? { limitBreak } : {}),
+    };
+  }
+
+  it('hint source = base 1 + Hint Levels passive (effect 17, mechanics-notes §9) at the owned LB', () => {
+    // master.mdb single_mode_hint_gain hint_value_2 (base per take) defaults
+    // to 1 — verified: all Global hint_gain_type=0 rows grant 1 (2026-06-12).
+    expect(expectedHintLevel(hintSource(4), kitasan, hintSkill)).toBe(3); // 1 + 2
+  });
+
+  it('uses the OWNING copy\'s limitBreak from the source, not a global max', () => {
+    const card = makeCard({ hintFrequency: 30, hintPoolSize: 4 });
+    card.perLevel = card.perLevel.map((p) => ({ ...p, hintLevels: p.limitBreak })); // passive 0..4
+    expect(expectedHintLevel(hintSource(0), card, hintSkill)).toBe(1); // 1 + 0
+    expect(expectedHintLevel(hintSource(3), card, hintSkill)).toBe(4); // 1 + 3
+  });
+
+  it('honors a per-skill base > 1 (CardSkill.hintLevels = master.mdb hint_value_2)', () => {
+    const skill = { ...hintSkill, hintLevels: 2 };
+    expect(expectedHintLevel(hintSource(0), kitasan, skill)).toBe(4); // 2 + 2
+  });
+
+  it('caps at hint Lv5 (game range 0–5)', () => {
+    const card = makeCard({ hintFrequency: 30, hintPoolSize: 4 });
+    card.perLevel = card.perLevel.map((p) => ({ ...p, hintLevels: 4 }));
+    const skill = { ...hintSkill, hintLevels: 3 };
+    expect(expectedHintLevel(hintSource(4), card, skill)).toBe(5); // min(5, 3 + 4)
+  });
+
+  it.each(['chain', 'date_event', 'random', 'scenario'] as const)(
+    'returns 0 (full SP cost, P3) for %s sources — event hint levels are unparsed/unverified',
+    (kind) => {
+      // Event rewards embed their own hint levels in unparsed reward strings
+      // (provenance §3 open item 3); applying the effect-17 training passive
+      // to them is unsourced. In the mechanics-notes §10 verification queue —
+      // until resolved, the honest estimate is full cost with a UI caveat.
+      const source: CoverageSource = { kind, cardId: '30028', limitBreak: 4 };
+      expect(expectedHintLevel(source, kitasan, hintSkill)).toBe(0);
+    },
+  );
+
+  it.each(['spark', 'uncovered'] as const)('returns 0 for %s sources', (kind) => {
+    expect(expectedHintLevel({ kind }, undefined, undefined)).toBe(0);
+  });
+
+  it('degrades gracefully: missing card, perLevel row, or source LB → base only', () => {
+    expect(expectedHintLevel(hintSource(4), undefined, hintSkill)).toBe(1);
+    expect(expectedHintLevel(hintSource(), kitasan, hintSkill)).toBe(1); // no limitBreak on source
+    const sparse = makeCard({ hintFrequency: 30, hintPoolSize: 4 });
+    sparse.perLevel = sparse.perLevel.filter((p) => p.limitBreak !== 4);
+    expect(expectedHintLevel(hintSource(4), sparse, hintSkill)).toBe(1);
+  });
+
+  it('degrades gracefully: missing skill metadata → base 1', () => {
+    expect(expectedHintLevel(hintSource(4), kitasan, undefined)).toBe(3); // 1 + 2
   });
 });
 

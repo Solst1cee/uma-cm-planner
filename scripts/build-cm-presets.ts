@@ -2,9 +2,32 @@
  * public/data/cm_presets.json — CmPreset[] from umalator cm-presets.json
  * (31 CM race definitions, provenance §3) joined with course_data.json for
  * surface + distance.
+ *
+ * P4: the upstream list spans the JP CM history AND the Global rounds since
+ * launch. Each record carries `server` so JP-only rounds are labelable as
+ * preview-only and never silently feed Global plan defaults.
  */
-import type { CmPreset } from '@/core/types';
+import type { CmPreset, Server } from '@/core/types';
 import type { CourseDataJson, UpstreamCmPreset } from './lib/upstream-types';
+
+/**
+ * Global server launch (provenance §3.1, 2025-06-26). Derivation rule
+ * (Phase 1 review follow-up, 2026-06-12): presets dated on/after launch are
+ * the rounds umalator-global (a Global-focused tool) tracked live on Global
+ * (2025-07-25 … 2026-01-22, 5 records); everything earlier is JP CM history
+ * (the zodiac-named 2022-2023 rounds and the distance-class rounds up to
+ * 2025-06-21, which predates launch). ISO dates compare correctly as strings.
+ */
+const GLOBAL_LAUNCH_DATE = '2025-06-26';
+
+function serverFor(date: string): Server {
+  return date >= GLOBAL_LAUNCH_DATE ? 'global' : 'jp';
+}
+
+/** Deterministic code-point compare — locale-independent, unlike localeCompare (pipeline promise: io.ts). */
+function codePointCompare(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
 
 // Enum value names from umalator sunday-tools course/definitions.ts (engine
 // vocabulary; lowercased for our data files).
@@ -23,8 +46,9 @@ function mapEnum(table: Record<number, string>, value: number | undefined, what:
 export function buildCmPresets(inputs: {
   presets: UpstreamCmPreset[];
   courses: CourseDataJson;
+  dataVersion: string;
 }): CmPreset[] {
-  const { presets, courses } = inputs;
+  const { presets, courses, dataVersion } = inputs;
   const records: CmPreset[] = [];
 
   for (const preset of presets) {
@@ -38,6 +62,8 @@ export function buildCmPresets(inputs: {
     const record: CmPreset = {
       name: preset.name,
       date: preset.date,
+      server: serverFor(preset.date),
+      dataVersion,
       courseId: String(preset.courseId),
       surface: course.surface === 1 ? 'turf' : 'dirt', // course_data: 1=turf, 2=dirt (provenance §3)
       distance: course.distance,
@@ -53,6 +79,6 @@ export function buildCmPresets(inputs: {
     records.push(record);
   }
 
-  records.sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
+  records.sort((a, b) => codePointCompare(a.date, b.date) || codePointCompare(a.name, b.name));
   return records;
 }

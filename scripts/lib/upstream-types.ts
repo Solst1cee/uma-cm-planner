@@ -1,7 +1,8 @@
 /**
- * Minimal typings for the borrowed upstream JSON (jalbarrang/umalator-global,
- * pinned commit c1fa2107 — docs/provenance.md §3). Only the fields the
- * pipeline reads; shapes verified against the actual files on 2026-06-12.
+ * Minimal typings for the borrowed upstream JSON (jalbarrang/umalator-global
+ * pinned commit c1fa2107 — docs/provenance.md §3; jechto/Tachyons-lab pinned
+ * commit 2ce0c8fe — provenance §4.1). Only the fields the pipeline reads;
+ * shapes verified against the actual files on 2026-06-12.
  */
 
 // --- master.mdb extracts (Global-released cutover) -------------------------
@@ -108,6 +109,59 @@ export type EventSkillSourcesJson = Record<
   string,
   { chain_event_skills: number[]; random_event_skills: number[] }
 >;
+
+// --- Tachyons-lab event-reward dataset (jechto/Tachyons-lab data.json) ------
+
+/**
+ * One event reward. Skill-bearing reward types (verified against the pinned
+ * data, 2026-06-12): 'Skill Hint' (hint at `value` levels), 'Skill Choice'
+ * (chain-finale pick-one), 'sg' (direct skill grant, no SP purchase). All
+ * carry the skill id in `detail`; other reward types reuse `detail` for
+ * non-skill payloads (bond chara ids, energy, ...) — always check `type`.
+ */
+export interface TachyonsReward {
+  type: string;
+  value?: string | null;
+  detail?: number | null;
+}
+
+export interface TachyonsChoice {
+  option?: string;
+  rewards?: TachyonsReward[];
+}
+
+export interface TachyonsEvent {
+  name?: string;
+  choices?: TachyonsChoice[];
+  /** Pre-anniversary versions of the event — superseded; never read. */
+  history?: unknown;
+}
+
+export interface TachyonsHint {
+  type: string;
+  skill_id: number;
+  /** Hint levels granted per training-hint take (= master.mdb hint_value_2). */
+  hint_level?: number;
+}
+
+export interface TachyonsCard {
+  id: number;
+  rarity: number;
+  card_chara_name?: string;
+  /** Training hint pool with per-skill hint levels. */
+  hints_table?: TachyonsHint[];
+  all_events?: {
+    /** Friend/group date (outing) events. */
+    dates?: TachyonsEvent[];
+    chain_events?: TachyonsEvent[];
+    random_events?: TachyonsEvent[];
+    /** Bond-line specials (e.g. "A Bond with Tazuna") — residual overrides, see data-overrides/. */
+    special_events?: TachyonsEvent[];
+  };
+}
+
+/** data.json is an object keyed by array index ("0".."216"), NOT by card id. */
+export type TachyonsDataJson = Record<string, TachyonsCard>;
 
 // --- umalator race presets --------------------------------------------------
 

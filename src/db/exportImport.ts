@@ -1,6 +1,16 @@
 /**
  * Single-blob JSON export/import for backup and device transfer (plan §4, P2).
  *
+ * Import modes:
+ * - 'replace' restores the snapshot exactly (clears every table first;
+ *   auto-increment ids preserved).
+ * - 'merge' NEVER deletes: existing rows absent from the blob are kept.
+ *   String-keyed tables (parents, cmPlans, settings) upsert by primary key —
+ *   stable across devices. Auto-increment ids (ownedCards, matchLogs) are
+ *   device-local counters, so exported ids are STRIPPED on merge: ownedCards
+ *   are deduped by cardId (higher limitBreak wins), matchLogs are appended as
+ *   new rows (re-importing the same blob twice duplicates logs).
+ *
  * Validation is hand-rolled (no schema dep): required fields and discriminants
  * are checked strictly; optional fields get top-level type checks. Errors name
  * the offending path so the UI can show actionable messages.
@@ -9,7 +19,7 @@
  * (e.g. CmPlan.chosenParents, Parent.grandparents), so the parser accepts
  * `null` there and normalizes it back to `undefined`.
  */
-import type { CmPlan, OwnedCard, Parent, ParentRef } from '@/core/types';
+import type { CmPlan, LimitBreak, OwnedCard, Parent, ParentRef } from '@/core/types';
 import { db } from './db';
 import type { MatchLog, SettingRecord } from './types';
 
@@ -27,7 +37,11 @@ export interface ExportBlobV1 {
 export type ImportMode = 'replace' | 'merge';
 
 export interface ImportResult {
-  /** Rows written per table. */
+  /**
+   * Rows written per table. In merge mode, `ownedCards` counts actual writes
+   * (new cards + limit-break upgrades) — blob copies that lose the
+   * higher-limitBreak dedupe write nothing and are not counted.
+   */
   imported: Record<string, number>;
 }
 
@@ -56,8 +70,46 @@ export async function exportBlob(): Promise<ExportBlobV1> {
   };
 }
 
+/** Drop a device-local auto-increment id so the target db assigns a fresh one. */
+function stripId<T extends { id?: number }>(row: T): T {
+  if (row.id === undefined) return row;
+  const copy = { ...row };
+  delete copy.id;
+  return copy;
+}
+
+/**
+ * Merge-mode ownedCards reconciliation. Exported ids are per-device
+ * auto-increment counters (both devices count 1..n), so upserting by exported
+ * id would overwrite unrelated local rows — instead, dedupe by the natural
+ * key cardId, keeping the higher limitBreak (within the blob AND against the
+ * existing inventory). Never deletes. Returns rows written.
+ */
+async function mergeOwnedCards(incoming: OwnedCard[]): Promise<number> {
+  const bestIncoming = new Map<string, LimitBreak>();
+  for (const row of incoming) {
+    const prev = bestIncoming.get(row.cardId);
+    if (prev === undefined || row.limitBreak > prev) bestIncoming.set(row.cardId, row.limitBreak);
+  }
+  const existingByCardId = new Map((await db.ownedCards.toArray()).map((r) => [r.cardId, r]));
+  let written = 0;
+  for (const [cardId, limitBreak] of bestIncoming) {
+    const existing = existingByCardId.get(cardId);
+    if (existing === undefined) {
+      await db.ownedCards.add({ cardId, limitBreak }); // fresh local id
+      written += 1;
+    } else if (existing.id !== undefined && limitBreak > existing.limitBreak) {
+      await db.ownedCards.update(existing.id, { limitBreak }); // upgrade in place
+      written += 1;
+    }
+    // else: local copy already at >= limitBreak — keep it, write nothing.
+  }
+  return written;
+}
+
 export async function importBlob(data: unknown, mode: ImportMode): Promise<ImportResult> {
   const blob = parseExportBlobV1(data);
+  let ownedCardsWritten = blob.ownedCards.length;
   await db.transaction(
     'rw',
     [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings],
@@ -70,20 +122,28 @@ export async function importBlob(data: unknown, mode: ImportMode): Promise<Impor
           db.matchLogs.clear(),
           db.settings.clear(),
         ]);
+        // Exact snapshot restore: auto-increment tables keep exported ids.
+        await Promise.all([
+          db.ownedCards.bulkPut(blob.ownedCards),
+          db.matchLogs.bulkPut(blob.matchLogs),
+        ]);
+      } else {
+        // Merge never deletes. Auto-increment ids are device-local: strip
+        // them so cross-device merges union instead of clobbering by id.
+        ownedCardsWritten = await mergeOwnedCards(blob.ownedCards);
+        await db.matchLogs.bulkAdd(blob.matchLogs.map(stripId));
       }
-      // bulkPut = upsert by primary key; auto-increment tables keep exported ids.
+      // String-keyed tables: primary keys are stable across devices — upsert.
       await Promise.all([
-        db.ownedCards.bulkPut(blob.ownedCards),
         db.parents.bulkPut(blob.parents),
         db.cmPlans.bulkPut(blob.cmPlans),
-        db.matchLogs.bulkPut(blob.matchLogs),
         db.settings.bulkPut(blob.settings),
       ]);
     },
   );
   return {
     imported: {
-      ownedCards: blob.ownedCards.length,
+      ownedCards: ownedCardsWritten,
       parents: blob.parents.length,
       cmPlans: blob.cmPlans.length,
       matchLogs: blob.matchLogs.length,

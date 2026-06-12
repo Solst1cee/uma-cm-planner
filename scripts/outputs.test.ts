@@ -58,10 +58,30 @@ describe('public/data/skills.json', () => {
 });
 
 describe('public/data/support_cards.json', () => {
-  it('contains the 217 Global cards, all server=global', () => {
-    expect(cards).toHaveLength(217);
+  it('contains the 220 Global cards (217 pinned + 3 additions), all server=global', () => {
+    expect(cards).toHaveLength(220);
     expect(cards.every((c) => c.server === 'global')).toBe(true);
-    expect(cards.every((c) => c.dataVersion === 'global-c1fa2107')).toBe(true);
+    // 217 from the pinned upstream; 3 from data-overrides/card_additions.json
+    // (upstream-pin lag, provenance §3.2) carry the master.mdb dataVersion.
+    expect(cards.filter((c) => c.dataVersion === 'global-c1fa2107')).toHaveLength(217);
+    expect(cards.filter((c) => c.dataVersion === 'global-mdb-10006400').map((c) => c.cardId)).toEqual([
+      '30102',
+      '30103',
+      '30104',
+    ]);
+  });
+
+  it('carries the 2026-06-11 banner SSRs via card_additions.json (review: 3 missing SSRs)', () => {
+    const elCondor = cards.find((c) => c.cardId === '30102');
+    expect(elCondor?.charName).toBe('El Condor Pasa');
+    expect(elCondor?.rarity).toBe('SSR');
+    expect(elCondor?.type).toBe('guts');
+    expect(elCondor?.hintPoolSize).toBe(7);
+    expect(elCondor?.skills).toContainEqual({ skillId: '200581', sourceType: 'chain' });
+    // perLevel from master.mdb v10006400 under the §9 level-cap rule
+    expect(elCondor?.perLevel.map((p) => p.hintLevels)).toEqual([1, 1, 1, 2, 2]);
+    expect(cards.find((c) => c.cardId === '30103')?.type).toBe('wit');
+    expect(cards.find((c) => c.cardId === '30104')?.type).toBe('stamina');
   });
 
   it('Kitasan Black 30028 is an SSR speed card with chain skill 200331', () => {
@@ -91,6 +111,68 @@ describe('public/data/support_cards.json', () => {
     for (const card of cards) {
       expect(card.hintPoolSize).toBe(card.skills.filter((s) => s.sourceType === 'hint_pool').length);
     }
+  });
+
+  it('event-skill derivation v2 carries chain choices, date events and direct grants (review critical finding)', () => {
+    // The 16 entries named by the Phase 1 review + the sg grants decision +
+    // one extra chain choice surfaced by the recompute (30011). Sources:
+    // Tachyons-lab pin 2ce0c8fe (provenance §4.1), cross-checked against
+    // GameTora live by the review (2026-06-12).
+    const expected: Array<[cardId: string, skillId: string, sourceType: string]> = [
+      ['30010', '200581', 'chain'], // Speed Star (chain finale choice)
+      ['30010', '200582', 'chain'],
+      ['30018', '200361', 'chain'], // Beeline Burst
+      ['30018', '200362', 'chain'],
+      ['30040', '201261', 'chain'], // Sixth Sense
+      ['30040', '201262', 'chain'],
+      ['30011', '201282', 'chain'], // Ines Fujin finale choice (recompute bonus)
+      ['30021', '200431', 'date_event'], // Concentration
+      ['30021', '200432', 'date_event'],
+      ['30036', '200371', 'date_event'], // Rushing Gale!
+      ['30080', '202031', 'date_event'], // Nothing Ventured
+      ['30081', '202032', 'date_event'], // Risky Business
+      ['30081', '200292', 'date_event'],
+      ['30081', '202061', 'date_event'], // Best in Japan
+      ['10021', '200432', 'date_event'],
+      ['10022', '200831', 'date_event'],
+      ['10060', '200372', 'date_event'],
+      ['20021', '200831', 'date_event'],
+      // sg direct grants — included by decision (provenance §4.1): real
+      // obtainable skills, classified by their containing event category.
+      ['10074', '200283', 'random_event'], // Wallflower
+      ['10074', '200353', 'random_event'], // Corner Recovery ×
+      ['10074', '200521', 'random_event'], // Running Idle
+      ['30080', '200283', 'random_event'],
+      ['30080', '200353', 'random_event'],
+      ['30080', '200521', 'random_event'],
+      ['30042', '200521', 'chain'], // Bamboo Memory chain grant
+    ];
+    for (const [cardId, skillId, sourceType] of expected) {
+      const card = cards.find((c) => c.cardId === cardId);
+      expect(
+        card?.skills.some((s) => s.skillId === skillId && s.sourceType === sourceType),
+        `card ${cardId} should source skill ${skillId} as ${sourceType}`,
+      ).toBe(true);
+    }
+  });
+
+  it('hint_pool entries carry hintLevels (hint_value_2); event entries never do', () => {
+    for (const card of cards) {
+      for (const skill of card.skills) {
+        if (skill.sourceType === 'hint_pool') {
+          expect(skill.hintLevels, `card ${card.cardId} hint ${skill.skillId}`).toBeGreaterThanOrEqual(1);
+        } else {
+          expect(skill.hintLevels, `card ${card.cardId} event ${skill.skillId}`).toBeUndefined();
+        }
+      }
+    }
+    // Current pin: every Global pool hint grants exactly 1 level (verified
+    // against both Tachyons-lab hints_table and master.mdb hint_value_2,
+    // 1282 rows, 2026-06-12).
+    const kitasan = cards.find((c) => c.cardId === '30028');
+    const pool = kitasan?.skills.filter((s) => s.sourceType === 'hint_pool') ?? [];
+    expect(pool).toHaveLength(8);
+    expect(pool.every((s) => s.hintLevels === 1)).toBe(true);
   });
 
   it('every card skill id refers to a released Global skill', () => {
@@ -140,5 +222,26 @@ describe('public/data/cm_presets.json', () => {
       expect(preset.distance).toBeGreaterThan(0);
       expect(preset.courseId).toMatch(/^\d+$/);
     }
+  });
+
+  it('tags each preset with server (P4): JP CM history vs Global rounds since launch', () => {
+    // Derivation rule (build-cm-presets.ts): date >= 2025-06-26 (Global
+    // launch, provenance §3.1) → 'global'; earlier → 'jp'. Review fix for
+    // "cm_presets.json mixes JP CM definitions".
+    expect(presets.every((p) => p.dataVersion === 'global-c1fa2107')).toBe(true);
+    const global = presets.filter((p) => p.server === 'global');
+    const jp = presets.filter((p) => p.server === 'jp');
+    expect(global).toHaveLength(5);
+    expect(jp).toHaveLength(26);
+    expect(global.every((p) => p.date >= '2025-06-26')).toBe(true);
+    expect(jp.every((p) => p.date < '2025-06-26')).toBe(true);
+    // Boundary: the 2025-06-21 CLASSIC predates Global launch by 5 days — JP.
+    expect(presets.find((p) => p.date === '2025-06-21')?.server).toBe('jp');
+    expect(presets.find((p) => p.date === '2026-01-22')?.server).toBe('global');
+  });
+
+  it('is sorted by code-point date order (deterministic, locale-independent)', () => {
+    const dates = presets.map((p) => p.date);
+    expect(dates).toEqual([...dates].sort());
   });
 });

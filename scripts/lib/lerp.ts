@@ -20,7 +20,16 @@ export const LEVEL_CAPS: Record<'R' | 'SR' | 'SSR', readonly [number, number, nu
   SSR: [30, 35, 40, 45, 50],
 };
 
-/** Passive effect ids used by the hint model (mechanics-notes §9). */
+/**
+ * Passive effect ids used by the hint model (mechanics-notes §9).
+ *
+ * DELIBERATE Phase-1 omission (review follow-up, 2026-06-12): effect 30 =
+ * Skill Point Bonus (33 rows in the Global extract, listed as a model input
+ * in mechanics-notes §9) is NOT carried into CardPerLevel — Module 4 coverage
+ * doesn't use it. Module 2 (SP Purchase Optimizer, plan §8) must add a
+ * `skillPointBonus` field to CardPerLevel (types.ts) and evaluate it here
+ * with the same level-cap rule. Dated note: docs/provenance.md §3 known gaps.
+ */
 export const EFFECT_HINT_LEVELS = 17;
 export const EFFECT_HINT_FREQUENCY = 18;
 export const EFFECT_SPECIALTY_PRIORITY = 19;

@@ -21,7 +21,12 @@ const ACTIVE_PLAN_KEY = 'activePlanId';
 const SAVE_DEBOUNCE_MS = 400;
 
 export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
-  const latest = [...presets].sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+  // Code-point sort (not localeCompare) — deterministic on ISO dates.
+  const sorted = [...presets].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  // P4: default to the latest CM that actually ran on Global; JP-history
+  // presets are preview-only. Fall back to the latest overall (e.g. fixture
+  // data or a dataset that predates the server tag).
+  const latest = sorted.filter((p) => p.server === 'global').at(-1) ?? sorted.at(-1);
   return {
     id: crypto.randomUUID(),
     name: latest ? latest.name : 'New CM Plan',
@@ -49,6 +54,12 @@ interface ActivePlanValue {
   plan: CmPlan | null;
   /** Replace the active plan; persisted (debounced) on every call. */
   setPlan: (next: CmPlan) => void;
+  /**
+   * Persist any edit still sitting in the save debounce, immediately.
+   * Await before reading Dexie directly (export) or replacing it (import) —
+   * otherwise the snapshot can be up to SAVE_DEBOUNCE_MS stale.
+   */
+  flushPendingSave: () => Promise<void>;
   loadError: string | null;
 }
 
@@ -87,29 +98,48 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     };
   }, [status, cmPresets]);
 
+  // The edit not yet persisted (null = Dexie is up to date). Single source
+  // for every flush path: explicit flush, pagehide, unmount.
+  const pendingSave = useRef<CmPlan | null>(null);
+
   const setPlan = useCallback((next: CmPlan) => {
     setPlanState(next);
+    pendingSave.current = next;
     window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(() => {
+      pendingSave.current = null;
       savePlan(next).catch((err: unknown) => {
         setLoadError(err instanceof Error ? err.message : String(err));
       });
     }, SAVE_DEBOUNCE_MS);
   }, []);
 
-  // Flush a pending save on unmount so a quick navigation never loses edits.
-  const latest = useRef<CmPlan | null>(null);
-  latest.current = plan;
-  useEffect(
-    () => () => {
+  const flushPendingSave = useCallback(async () => {
+    window.clearTimeout(saveTimer.current);
+    const toSave = pendingSave.current;
+    pendingSave.current = null;
+    if (toSave) await savePlan(toSave);
+  }, []);
+
+  // Flush on pagehide (tab close / mobile background-kill — plan §6 says
+  // "mid-run on phone") and on unmount (quick navigation). Dexie's put is
+  // async but normally completes from pagehide.
+  useEffect(() => {
+    const flushSync = () => {
       window.clearTimeout(saveTimer.current);
-      if (latest.current) void savePlan(latest.current).catch(() => undefined);
-    },
-    [],
-  );
+      const toSave = pendingSave.current;
+      pendingSave.current = null;
+      if (toSave) void savePlan(toSave).catch(() => undefined);
+    };
+    window.addEventListener('pagehide', flushSync);
+    return () => {
+      window.removeEventListener('pagehide', flushSync);
+      flushSync(); // unmount flush
+    };
+  }, []);
 
   return (
-    <ActivePlanContext.Provider value={{ plan, setPlan, loadError }}>
+    <ActivePlanContext.Provider value={{ plan, setPlan, flushPendingSave, loadError }}>
       {children}
     </ActivePlanContext.Provider>
   );

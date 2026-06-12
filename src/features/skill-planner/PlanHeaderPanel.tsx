@@ -3,7 +3,7 @@
  * scenario selector, and the target-skill editor with priority stars.
  * Target lists are variable length (1–7+); nothing here enforces a count.
  */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { CmPlan, CmPreset, Priority } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
@@ -22,12 +22,25 @@ function nextPriority(p: Priority): Priority {
   return p === 3 ? 1 : ((p + 1) as Priority);
 }
 
-function presetMatchesRace(preset: CmPreset, race: CmPlan['race']): boolean {
+/**
+ * Identity match, not just race-shape: 12 of 31 presets share a
+ * (courseId, surface, distance) key with an earlier CM, so the month —
+ * which applyPreset/makeDefaultPlan always write from preset.date — is
+ * part of the identity. Without it the picker displays the wrong CM.
+ */
+function presetMatchesPlan(preset: CmPreset, plan: CmPlan): boolean {
   return (
-    preset.courseId === race.courseId &&
-    preset.surface === race.surface &&
-    preset.distance === race.distance
+    preset.date.slice(0, 7) === plan.month &&
+    preset.courseId === plan.race.courseId &&
+    preset.surface === plan.race.surface &&
+    preset.distance === plan.race.distance
   );
+}
+
+/** P4: JP CM history is shown, but never unlabeled. */
+function presetLabel(preset: CmPreset): string {
+  const base = `${preset.name} (${preset.date})`;
+  return preset.server === 'jp' ? `${base} (JP history)` : base;
 }
 
 export function PlanHeaderPanel({
@@ -39,10 +52,16 @@ export function PlanHeaderPanel({
 }) {
   const { cmPresets, skillById } = useGameData();
 
-  const selectedPreset = useMemo(
-    () => cmPresets.findIndex((p) => presetMatchesRace(p, plan.race)),
-    [cmPresets, plan.race],
+  // Picker mode is component state: the default plan's race always equals a
+  // preset, so deriving "custom" purely from race-shape equality made the
+  // option unreachable (the select snapped back to the matched preset).
+  const [customMode, setCustomMode] = useState(false);
+
+  const matchedPreset = useMemo(
+    () => cmPresets.findIndex((p) => presetMatchesPlan(p, plan)),
+    [cmPresets, plan],
   );
+  const showCustom = customMode || matchedPreset < 0;
 
   const addedSkillIds = useMemo(
     () => new Set(plan.targetSkills.map((t) => t.skillId)),
@@ -50,9 +69,15 @@ export function PlanHeaderPanel({
   );
 
   const applyPreset = (value: string) => {
-    if (value === 'custom') return; // keep current race values; fields below become editable
+    if (value === 'custom') {
+      // Keep current race values; the fields below become editable and stay
+      // visible until a preset is explicitly picked again.
+      setCustomMode(true);
+      return;
+    }
     const preset = cmPresets[Number(value)];
     if (!preset) return;
+    setCustomMode(false);
     onChange({
       ...plan,
       month: preset.date.slice(0, 7),
@@ -86,19 +111,19 @@ export function PlanHeaderPanel({
       <label className="field">
         <span>Champions Meeting</span>
         <select
-          value={selectedPreset >= 0 ? String(selectedPreset) : 'custom'}
+          value={showCustom ? 'custom' : String(matchedPreset)}
           onChange={(e) => applyPreset(e.target.value)}
         >
           {cmPresets.map((p, i) => (
             <option key={`${p.name}-${p.date}`} value={String(i)}>
-              {p.name} ({p.date})
+              {presetLabel(p)}
             </option>
           ))}
           <option value="custom">Custom race…</option>
         </select>
       </label>
 
-      {selectedPreset < 0 && (
+      {showCustom && (
         <div className="race-fields">
           <label className="field">
             <span>Course id</span>

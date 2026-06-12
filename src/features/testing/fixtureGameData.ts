@@ -10,8 +10,23 @@ export function fixtureGameData(): GameData {
     sparkRates: FIXTURE_SPARK_RATES,
     cmPresets: [
       {
+        // JP-history preset sharing the fixture plan's race key (courseId,
+        // surface, distance) but an earlier month — real cm_presets.json has
+        // 12 such collisions. Exercises identity matching (month is part of
+        // the preset identity) and the P4 '(JP history)' labeling.
+        name: 'Old JP Cup',
+        date: '2024-07-15',
+        server: 'jp',
+        dataVersion: 'fixture',
+        courseId: FIXTURE_PLAN.race.courseId,
+        surface: FIXTURE_PLAN.race.surface,
+        distance: FIXTURE_PLAN.race.distance,
+      },
+      {
         name: FIXTURE_PLAN.name,
         date: FIXTURE_PLAN.month,
+        server: 'global',
+        dataVersion: 'fixture',
         courseId: FIXTURE_PLAN.race.courseId,
         surface: FIXTURE_PLAN.race.surface,
         distance: FIXTURE_PLAN.race.distance,
