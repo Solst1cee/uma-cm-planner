@@ -225,10 +225,23 @@ export interface CoverageSource {
   /** The owning copy's limit break (denormalized for UI display). */
   limitBreak?: LimitBreak;
   parentId?: string;
-  /** Spark probability % — Phase 2 (sparkChance). */
+  /** Spark probability % (whole career, all opportunities combined). */
   sparkPct?: number;
+  /**
+   * True when the number rests on a documented approximation (e.g. grandparent
+   * affinity unknown — mechanics-notes §4 fallback). P3: render as "≈".
+   */
+  approximate?: boolean;
   /** Supporting evidence for the tier (P3): pool size, hint frequency, etc. */
-  detail?: { hintPoolSize?: number; hintFrequency?: number; specialtyPriority?: number };
+  detail?: {
+    hintPoolSize?: number;
+    hintFrequency?: number;
+    specialtyPriority?: number;
+    sparkStars?: number;
+    grandparent?: boolean;
+    /** Affinity score used in the spark math (per-member where known). */
+    affinityUsed?: number;
+  };
 }
 
 export interface CoverageRow {
@@ -236,4 +249,41 @@ export interface CoverageRow {
   priority: Priority;
   sources: CoverageSource[];
   bestTier: Tier;
+}
+
+// ---------------------------------------------------------------------------
+// Deck suggester + contingency (Module 4 steps 4–5)
+// ---------------------------------------------------------------------------
+
+export interface DeckSuggestion {
+  /** All 6 slots; locked slots echo their constraint, free slots get picks. */
+  deck: Array<{
+    slot: 0 | 1 | 2 | 3 | 4 | 5;
+    cardId?: string;
+    /** Why this slot is fixed, when it came from CmPlan.lockedDeckSlots. */
+    lockedBy?: 'cardId' | 'cardType';
+  }>;
+  /** Σ(priorityWeight × tierWeight) over target skills, for comparing decks. */
+  coverageScore: number;
+  /** Target skillIds with no source in the suggested deck (+ parents). */
+  uncovered: string[];
+  /** Human-readable: which target(s) each pick covers, and at what tier. */
+  rationale: string[];
+}
+
+/** Static contingency branch for a spark-covered target (plan §6, links M4→M2). */
+export interface SparkContingency {
+  skillId: string;
+  /** Career-long proc chance %, from sparkChance. */
+  sparkPct: number;
+  /** True when sparkPct includes documented approximations (P3: render ≈). */
+  approximate: boolean;
+  /** SP cost if the spark procs (bought at the proc-granted hint discount). */
+  spIfProc: number;
+  /** The hint-level assumption behind spIfProc, shown verbatim in UI (P3). */
+  spIfProcAssumption: string;
+  /** SP cost if it misses (card-derived hint level, else full price). */
+  spIfMiss: number;
+  /** spIfMiss − spIfProc: the SP you must budget for the miss branch. */
+  deltaSp: number;
 }
