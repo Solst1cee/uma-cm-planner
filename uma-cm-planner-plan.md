@@ -474,11 +474,11 @@ inheritance  coverage        SP knapsack        meta intel
 - [x] Rental sites: **all three deep-linkable, browser-verified templates** → `docs/provenance.md` §6. ChronoGenesis contact for datasets: chronogenesis.net@protonmail.com.
 - [x] UmaExtractor schema locked (5 converging sources) + Parent mapping spec → `docs/provenance.md` §5. Residual: one byte-exact current dump from Sun's device before the importer ships.
 
-**Phase 1 — Scaffold + Module 4 core (usable tool)**
-- [ ] Repo scaffold (stack per §4), CLAUDE.md with §2 rules, CI typecheck/test/deploy-pages.
-- [ ] Data pipeline → `public/data/` (skills, cards, spark_rates).
-- [ ] Dexie schema + export/import.
-- [ ] Inventory UI → coverage matrix (M4 steps 1–3). **Milestone: use it for the next CM.**
+**Phase 1 — Scaffold + Module 4 core (usable tool)** ✅ **DONE 2026-06-12** (5 commits; built by 4 parallel agents, adversarially reviewed by 3, fixes applied)
+- [x] Repo scaffold (Vite+React19+TS strict, pnpm, Vitest), CLAUDE.md updated, CI typecheck/test/build + Pages deploy, GPL-3.0-only + NOTICE.
+- [x] Data pipeline → `public/data/` (578 skills, 220 cards w/ chain/date/random sourcing + per-LB passives + hintLevels, spark_rates, 31 CM presets w/ server tags). Pinned: umalator-global c1fa2107 + Tachyons-lab 2ce0c8fe (build-time parity oracle).
+- [x] Dexie schema v1 + JSON export/import (replace + natural-key merge).
+- [x] Inventory UI → coverage matrix (M4 steps 1–3), browser-smoke-tested incl. 390px mobile. **Milestone reached: usable for the next CM.** (Deck suggester/sparkChance = Phase 2.)
 
 **Phase 2 — Module 4 complete:** parents entry, sparkChance, deck suggester, contingency view (static).
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-**Phase 0 (research) DONE; Phase 1 (scaffold + Module 4 core) in progress (2026-06-12).** Scaffold is committed (Vite+React+TS+Vitest, CI, GPL-3.0-only). Key files:
+**Phases 0–1 DONE (2026-06-12): the Skill Planner coverage matrix is usable end-to-end** (plan header + inventory + read-only matrix; data pipeline emits 578 skills / 220 cards). Phase 2 next: parents entry, `sparkChance`, deck suggester, contingency view. Key files:
 - [uma-cm-planner-plan.md](uma-cm-planner-plan.md) — the full project plan and single source of truth (Phase 0 checklist annotated with outcomes; §14 decisions annotated).
 - [docs/provenance.md](docs/provenance.md) — engine vendor pin (umalator-global v0.14.2), licenses (clean GPL chain), all dataset sources/formats, UmaExtractor import spec, rental-site deep-link templates.
 - [docs/mechanics-notes.md](docs/mechanics-notes.md) — verified mechanics numbers (cite these in core tests); §10 lists what still needs in-game verification.
