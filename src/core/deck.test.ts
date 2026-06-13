@@ -50,6 +50,7 @@ function syntheticSkill(skillId: string): SkillRecord {
     nameJp: skillId,
     baseSpCost: 100,
     rarity: 'white',
+    iconId: '10011',
     conditions: '',
     server: 'global',
     dataVersion: 'test',

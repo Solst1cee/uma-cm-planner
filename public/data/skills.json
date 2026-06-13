@@ -5,6 +5,7 @@
     "nameJp": "波乱注意砲！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&distance_rate<=60&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -15,6 +16,7 @@
     "nameJp": "アクセルX",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "order>=3&order_rate<=50&remain_distance<=200&bashin_diff_infront<=1@order>=3&order_rate<=50&remain_distance<=200&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -25,6 +27,7 @@
     "nameJp": "レッドエース",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order==1&bashin_diff_behind<=1@distance_rate>=50&order==2&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -35,6 +38,7 @@
     "nameJp": "精神一到",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -45,6 +49,7 @@
     "nameJp": "熱血☆アミーゴ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&hp_per>=30&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -55,6 +60,7 @@
     "nameJp": "エンプレス・プライド",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -65,6 +71,7 @@
     "nameJp": "勝利のキッス☆",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&blocked_side_continuetime>=2&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -75,6 +82,7 @@
     "nameJp": "燃えろ筋肉！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "phase>=2&corner!=0&order_rate>=65&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -85,6 +93,7 @@
     "nameJp": "introduction：My body",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "distance_rate>=50&corner!=0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -95,6 +104,7 @@
     "nameJp": "全力Vサインッ！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -105,6 +115,7 @@
     "nameJp": "学級委員長+速さ＝バクシン",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order<=3&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -115,6 +126,7 @@
     "nameJp": "クリアハート",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "phase_random==1&order>=2&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -125,6 +137,7 @@
     "nameJp": "ワクワクよーいドン",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "is_finalcorner==1&corner!=0&order_rate>50&near_count>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -135,6 +148,7 @@
     "nameJp": "来てください来てください！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&order>=3&blocked_front==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -145,6 +159,7 @@
     "nameJp": "アタシもたまには、ね？",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&order==3&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -155,6 +170,7 @@
     "nameJp": "Call me KING",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "temptation_count==0&remain_distance<=201&remain_distance>=199&order>=4&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -165,6 +181,7 @@
     "nameJp": "レディー、どんっ！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "distance_rate>=50&phase==1&order>=3&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -175,6 +192,7 @@
     "nameJp": "シューティングスター",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -185,6 +203,7 @@
     "nameJp": "先頭の景色は譲らない…！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order==1&bashin_diff_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -195,6 +214,7 @@
     "nameJp": "究極テイオーステップ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -205,6 +225,7 @@
     "nameJp": "紅焔ギア/LP1211-M",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "is_finalcorner==1&order<=5&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -215,6 +236,7 @@
     "nameJp": "煌星のヴォードヴィル",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -225,6 +247,7 @@
     "nameJp": "勝利の鼓動",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "order>=2&order<=5&order_rate<=50&remain_distance<=201&remain_distance>=199",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -235,6 +258,7 @@
     "nameJp": "不沈艦、抜錨ォッ！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&distance_rate<=60&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -245,6 +269,7 @@
     "nameJp": "カッティング×DRIVE！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "order>=3&order_rate<=50&remain_distance<=200&bashin_diff_infront<=1@order>=3&order_rate<=50&remain_distance<=200&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -255,6 +280,7 @@
     "nameJp": "ブリリアント・レッドエース",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order==1&bashin_diff_behind<=1@distance_rate>=50&order==2&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -265,6 +291,7 @@
     "nameJp": "ヴィクトリーショット！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "is_finalcorner_laterhalf==1&corner!=0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -275,6 +302,7 @@
     "nameJp": "精神一到何事か成らざらん",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -285,6 +313,7 @@
     "nameJp": "タイマン！デッドヒート！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -295,6 +324,7 @@
     "nameJp": "貴顕の使命を果たすべく",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -305,6 +335,7 @@
     "nameJp": "プランチャ☆ガナドール",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&hp_per>=30&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -315,6 +346,7 @@
     "nameJp": "ヴィットーリアに捧ぐ舞踏",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&bashin_diff_behind<=1&order<=4@is_finalcorner==1&bashin_diff_infront<=1&order<=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -325,6 +357,7 @@
     "nameJp": "Shadow Break",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&order>=2&order_rate<=75&is_behind_in==1&change_order_onetime<0@is_finalcorner==1&order>=2&order_rate<=75&is_behind_in==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -335,6 +368,7 @@
     "nameJp": "汝、皇帝の神威を見よ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&change_order_up_end_after>=3&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -345,6 +379,7 @@
     "nameJp": "ブレイズ・オブ・プライド",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -355,6 +390,7 @@
     "nameJp": "尊み☆ﾗｽﾄｽﾊﾟ—(ﾟ∀ﾟ)—ﾄ!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "change_order_up_end_after>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -365,6 +401,7 @@
     "nameJp": "アングリング×スキーミング",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "phase>=2&corner!=0&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -375,6 +412,7 @@
     "nameJp": "白い稲妻、見せたるで！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&corner==0&order_rate>=70&order_rate<=75&is_overtake==1@distance_rate>=50&corner==0&order_rate<=30&order_rate>=20",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -385,6 +423,7 @@
     "nameJp": "Fairy tale",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order>=2&order_rate<=40&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -395,6 +434,7 @@
     "nameJp": "∴win Q.E.D.",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order<=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -405,6 +445,7 @@
     "nameJp": "ひらめき☆ランディング",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&blocked_side_continuetime>=2&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -415,6 +456,7 @@
     "nameJp": "アナタヲ・オイカケテ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -425,6 +467,7 @@
     "nameJp": "G00 1st.F∞;",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -435,6 +478,7 @@
     "nameJp": "レッツ・アナボリック！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "phase>=2&corner!=0&order_rate>=65&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -445,6 +489,7 @@
     "nameJp": "I'M☆FULL☆SPEED!!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=45&distance_rate<=60&order>=3&order_rate<=50&hp_per<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -455,6 +500,7 @@
     "nameJp": "ブルーローズチェイサー",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -465,6 +511,7 @@
     "nameJp": "チャージ完了！全速前進！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=299&remain_distance>=295&order<=2&slope==0@remain_distance<=299&remain_distance>=295&order<=2&slope==2@remain_distance<=299&remain_distance>=295&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -475,6 +522,7 @@
     "nameJp": "U=ma2",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "distance_rate>=50&corner!=0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -485,6 +533,7 @@
     "nameJp": "ディオスクロイの流星",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate<80@is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate>=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -495,6 +544,7 @@
     "nameJp": "快走かな、快走かな！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "compete_fight_count>0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -505,6 +555,7 @@
     "nameJp": "勝利のチケットを、君にッ！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -515,6 +566,7 @@
     "nameJp": "Schwarzes Schwert",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -525,6 +577,7 @@
     "nameJp": "#LookatCurren",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=40&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -535,6 +588,7 @@
     "nameJp": "姫たるもの、勝利をこの手に",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -545,6 +599,7 @@
     "nameJp": "KEEP IT REAL.",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=70&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -555,6 +610,7 @@
     "nameJp": "優等生×バクシン＝大勝利ッ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order<=3&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -565,6 +621,7 @@
     "nameJp": "いただき☆ストレリチア！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=300",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -575,6 +632,7 @@
     "nameJp": "ピュリティオブハート",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "phase_random==1&order>=2&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -585,6 +643,7 @@
     "nameJp": "キラキラ☆STARDOM",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase==1&corner==0&order<=2&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -595,6 +654,7 @@
     "nameJp": "YEAH☆VIVID TIME!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -605,6 +665,7 @@
     "nameJp": "Nemesis",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&order_rate>=40&order_rate<=75&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -615,6 +676,7 @@
     "nameJp": "つぼみ、ほころぶ時",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "phase>=2&is_finalcorner_laterhalf==1&order>=3&order_rate<=40@phase>=2&is_finalcorner==1&corner==0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -625,6 +687,7 @@
     "nameJp": "ワクワククライマックス",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "is_finalcorner==1&corner!=0&order_rate>50&near_count>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -635,6 +698,7 @@
     "nameJp": "来ます来てます来させます！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&order>=3&blocked_front==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -645,6 +709,7 @@
     "nameJp": "I Never Goof Up!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -655,6 +720,7 @@
     "nameJp": "彼方、その先へ…",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "phase>=2&corner!=0&is_finalcorner==0&temptation_count==0&order_rate>=50&order_rate<=70@phase==1&corner!=0&is_finalcorner==1&temptation_count==0&order_rate>=50&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -665,6 +731,7 @@
     "nameJp": "きっとその先へ…！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&order==3&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -675,6 +742,7 @@
     "nameJp": "Pride of KING",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "temptation_count==0&remain_distance<=201&remain_distance>=199&order>=4&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -685,6 +753,7 @@
     "nameJp": "どんっ、パッ、むんっ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "distance_rate>=50&phase==1&order>=3&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -695,6 +764,7 @@
     "nameJp": "ぶっちぎりロード",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "distance_rate>=50&order_rate_in20_continue==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -705,6 +775,7 @@
     "nameJp": "晦冥を照らせ永遠の耀き",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_last_straight_onetime==1&order>=2&order<=5&distance_diff_top<=5@is_last_straight_onetime==1&order>=2&order<=5&distance_diff_top>5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -715,6 +786,7 @@
     "nameJp": "勝ち鬨ワッショイ！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase==2&straight_front_type==2&order<=2@distance_rate>=50&corner==3&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -725,6 +797,7 @@
     "nameJp": "憧れは桜を越える！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=300&order_rate<=40&bashin_diff_infront<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -735,6 +808,7 @@
     "nameJp": "一期の夢、刹那の飛翔",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -745,6 +819,7 @@
     "nameJp": "烈火繚乱、無敵之舞",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=300&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -755,6 +830,7 @@
     "nameJp": "麗しき花信風",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -765,6 +841,7 @@
     "nameJp": "わやかわ♪マリンダイヴ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "phase==1&order>=2&order_rate<=70&activate_count_middle>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -775,6 +852,7 @@
     "nameJp": "絶対は、ボクだ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -785,6 +863,7 @@
     "nameJp": "グッときて♪Chu",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&activate_count_heal>=1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -795,6 +874,7 @@
     "nameJp": "Ravissant",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -805,6 +885,7 @@
     "nameJp": "聖夜のミラクルラン！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "activate_count_heal>=3&distance_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -815,6 +896,7 @@
     "nameJp": "ゲインヒール・スペリアー",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "phase==1&change_order_onetime>0&order_rate>=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -825,6 +907,7 @@
     "nameJp": "最強の名を懸けて",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -835,6 +918,7 @@
     "nameJp": "コンドル猛撃波",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "is_finalcorner==1&corner!=0&is_overtake==1&order>=4&order_rate<=75",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -845,6 +929,7 @@
     "nameJp": "恵福バルカローレ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all>=7@remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all<=6",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -855,6 +940,7 @@
     "nameJp": "翳り退く、さざめきの矢",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -865,6 +951,7 @@
     "nameJp": "薫風、永遠なる瞬間を",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase==1&order>=3&order_rate<=50&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -875,6 +962,7 @@
     "nameJp": "Do Ya Breakin!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "phase>=2&corner==0&order<=2&straight_front_type==2@phase>=2&corner==0&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -885,6 +973,7 @@
     "nameJp": "Best day ever",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance>=401&phase>=2&is_finalcorner==1&order_rate>=20&order_rate<=40@phase>=2&is_finalcorner==1&order_rate>=20&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -895,6 +984,7 @@
     "nameJp": "Presents from X",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -905,6 +995,7 @@
     "nameJp": "フラワリー☆マニューバ",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -915,6 +1006,7 @@
     "nameJp": "オペレーション・Cacao",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "order<=4&phase==1&corner!=0&bashin_diff_behind<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -925,6 +1017,7 @@
     "nameJp": "Drain for rose",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20023",
     "conditions": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -935,6 +1028,7 @@
     "nameJp": "Guten Appetit♪",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -945,6 +1039,7 @@
     "nameJp": "One True Color",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "remain_distance<=350&order_rate<=40&order_rate>=20&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -955,6 +1050,7 @@
     "nameJp": "GET DOWN",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&order_rate>=30&order_rate<=70&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -965,6 +1061,7 @@
     "nameJp": "ぐるぐるマミートリック♡",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=4&bashin_diff_infront<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -975,6 +1072,7 @@
     "nameJp": "113転び114起き",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_top>=7",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -985,6 +1083,7 @@
     "nameJp": "禾スナハチ登ル",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "distance_rate>=50&order_rate>=40&overtake_target_time>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -995,6 +1094,7 @@
     "nameJp": "Go☆Go☆for it!",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity>=4@is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity<4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1005,6 +1105,7 @@
     "nameJp": "轟！トレセン応援団！！",
     "baseSpCost": 0,
     "rarity": "unique",
+    "iconId": "20043",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1015,6 +1116,7 @@
     "nameJp": "右回り◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "rotation==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1025,6 +1127,7 @@
     "nameJp": "右回り○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "rotation==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1035,6 +1138,7 @@
     "nameJp": "右回り×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "rotation==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1045,6 +1149,7 @@
     "nameJp": "右回りの鬼",
     "baseSpCost": 130,
     "rarity": "gold",
+    "iconId": "10012",
     "conditions": "rotation==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1056,6 +1161,7 @@
     "nameJp": "左回り◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "rotation==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1066,6 +1172,7 @@
     "nameJp": "左回り○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "rotation==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1076,6 +1183,7 @@
     "nameJp": "左回り×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "rotation==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1086,6 +1194,7 @@
     "nameJp": "東京レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10006",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1096,6 +1205,7 @@
     "nameJp": "東京レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10006",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1106,6 +1216,7 @@
     "nameJp": "東京レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10006",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1116,6 +1227,7 @@
     "nameJp": "中山レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10005",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1126,6 +1238,7 @@
     "nameJp": "中山レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10005",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1136,6 +1249,7 @@
     "nameJp": "中山レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10005",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1146,6 +1260,7 @@
     "nameJp": "阪神レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10009",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1156,6 +1271,7 @@
     "nameJp": "阪神レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10009",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1166,6 +1282,7 @@
     "nameJp": "阪神レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10009",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1176,6 +1293,7 @@
     "nameJp": "京都レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10008",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1186,6 +1304,7 @@
     "nameJp": "京都レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10008",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1196,6 +1315,7 @@
     "nameJp": "京都レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10008",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1206,6 +1326,7 @@
     "nameJp": "淀の申し子",
     "baseSpCost": 130,
     "rarity": "gold",
+    "iconId": "10022",
     "conditions": "track_id==10008",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1217,6 +1338,7 @@
     "nameJp": "中京レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10007",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1227,6 +1349,7 @@
     "nameJp": "中京レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10007",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1237,6 +1360,7 @@
     "nameJp": "中京レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10007",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1247,6 +1371,7 @@
     "nameJp": "札幌レース場◎",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10001",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1257,6 +1382,7 @@
     "nameJp": "札幌レース場○",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10001",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1267,6 +1393,7 @@
     "nameJp": "札幌レース場×",
     "baseSpCost": 40,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10001",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1277,6 +1404,7 @@
     "nameJp": "函館レース場◎",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10002",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1287,6 +1415,7 @@
     "nameJp": "函館レース場○",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10002",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1297,6 +1426,7 @@
     "nameJp": "函館レース場×",
     "baseSpCost": 40,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10002",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1307,6 +1437,7 @@
     "nameJp": "福島レース場◎",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10004",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1317,6 +1448,7 @@
     "nameJp": "福島レース場○",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10004",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1327,6 +1459,7 @@
     "nameJp": "福島レース場×",
     "baseSpCost": 40,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10004",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1337,6 +1470,7 @@
     "nameJp": "新潟レース場◎",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10003",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1347,6 +1481,7 @@
     "nameJp": "新潟レース場○",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10003",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1357,6 +1492,7 @@
     "nameJp": "新潟レース場×",
     "baseSpCost": 40,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10003",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1367,6 +1503,7 @@
     "nameJp": "小倉レース場◎",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10010",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1377,6 +1514,7 @@
     "nameJp": "小倉レース場○",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10010",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1387,6 +1525,7 @@
     "nameJp": "小倉レース場×",
     "baseSpCost": 40,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10010",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1397,6 +1536,7 @@
     "nameJp": "根幹距離◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "is_basis_distance==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1407,6 +1547,7 @@
     "nameJp": "根幹距離○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "is_basis_distance==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1417,6 +1558,7 @@
     "nameJp": "根幹距離×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "is_basis_distance==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1427,6 +1569,7 @@
     "nameJp": "非根幹距離◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "is_basis_distance==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1437,6 +1580,7 @@
     "nameJp": "非根幹距離○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "is_basis_distance==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1447,6 +1591,7 @@
     "nameJp": "非根幹距離×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "is_basis_distance==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1457,6 +1602,7 @@
     "nameJp": "良バ場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "ground_condition==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1467,6 +1613,7 @@
     "nameJp": "良バ場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "ground_condition==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1477,6 +1624,7 @@
     "nameJp": "良バ場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10034",
     "conditions": "ground_condition==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1487,6 +1635,7 @@
     "nameJp": "良バ場の鬼",
     "baseSpCost": 130,
     "rarity": "gold",
+    "iconId": "10032",
     "conditions": "ground_condition==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1498,6 +1647,7 @@
     "nameJp": "道悪◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "ground_condition==2@ground_condition==3@ground_condition==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1508,6 +1658,7 @@
     "nameJp": "道悪○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "ground_condition==2@ground_condition==3@ground_condition==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1518,6 +1669,7 @@
     "nameJp": "道悪×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10034",
     "conditions": "ground_condition==2@ground_condition==3@ground_condition==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1528,6 +1680,7 @@
     "nameJp": "春ウマ娘◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==1@season==5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1538,6 +1691,7 @@
     "nameJp": "春ウマ娘○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==1@season==5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1548,6 +1702,7 @@
     "nameJp": "春ウマ娘×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "season==1@season==5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1558,6 +1713,7 @@
     "nameJp": "春一番",
     "baseSpCost": 130,
     "rarity": "gold",
+    "iconId": "10012",
     "conditions": "season==1@season==5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1569,6 +1725,7 @@
     "nameJp": "夏ウマ娘◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1579,6 +1736,7 @@
     "nameJp": "夏ウマ娘○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1589,6 +1747,7 @@
     "nameJp": "夏ウマ娘×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "season==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1599,6 +1758,7 @@
     "nameJp": "秋ウマ娘◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1609,6 +1769,7 @@
     "nameJp": "秋ウマ娘○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1619,6 +1780,7 @@
     "nameJp": "秋ウマ娘×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "season==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1629,6 +1791,7 @@
     "nameJp": "初嵐",
     "baseSpCost": 130,
     "rarity": "gold",
+    "iconId": "10012",
     "conditions": "season==3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1640,6 +1803,7 @@
     "nameJp": "冬ウマ娘◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1650,6 +1814,7 @@
     "nameJp": "冬ウマ娘○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "season==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1660,6 +1825,7 @@
     "nameJp": "冬ウマ娘×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "season==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1670,6 +1836,7 @@
     "nameJp": "晴れの日◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1680,6 +1847,7 @@
     "nameJp": "晴れの日○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1690,6 +1858,7 @@
     "nameJp": "曇りの日◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1700,6 +1869,7 @@
     "nameJp": "曇りの日○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1710,6 +1880,7 @@
     "nameJp": "雨の日◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1720,6 +1891,7 @@
     "nameJp": "雨の日○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1730,6 +1902,7 @@
     "nameJp": "雨の日×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10044",
     "conditions": "weather==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1740,6 +1913,7 @@
     "nameJp": "雪の日◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1750,6 +1924,7 @@
     "nameJp": "雪の日○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "weather==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1760,6 +1935,7 @@
     "nameJp": "内枠得意◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "post_number<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1770,6 +1946,7 @@
     "nameJp": "内枠得意○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "post_number<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1780,6 +1957,7 @@
     "nameJp": "内枠苦手",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10054",
     "conditions": "post_number<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1790,6 +1968,7 @@
     "nameJp": "外枠得意◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "post_number>=6",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1800,6 +1979,7 @@
     "nameJp": "外枠得意○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "post_number>=6",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1810,6 +1990,7 @@
     "nameJp": "外枠苦手",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "post_number>=6",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1820,6 +2001,7 @@
     "nameJp": "おひとり様◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "running_style_count_same<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1830,6 +2012,7 @@
     "nameJp": "おひとり様○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "running_style_count_same<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1840,6 +2023,7 @@
     "nameJp": "対抗意識◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "running_style_count_same_rate>=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1850,6 +2034,7 @@
     "nameJp": "対抗意識○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10031",
     "conditions": "running_style_count_same_rate>=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1860,6 +2045,7 @@
     "nameJp": "引っ込み思案",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10034",
     "conditions": "running_style_count_same_rate>=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1870,6 +2056,7 @@
     "nameJp": "徹底マーク◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "running_style_equal_popularity_one==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1880,6 +2067,7 @@
     "nameJp": "徹底マーク○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10041",
     "conditions": "running_style_equal_popularity_one==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1890,6 +2078,7 @@
     "nameJp": "伏兵◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "popularity>=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1900,6 +2089,7 @@
     "nameJp": "伏兵○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "popularity>=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1910,6 +2100,7 @@
     "nameJp": "GⅠ苦手",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "grade==100",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1920,6 +2111,7 @@
     "nameJp": "小心者",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "popularity==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1930,6 +2122,7 @@
     "nameJp": "弧線のプロフェッサー",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1941,6 +2134,7 @@
     "nameJp": "コーナー巧者○",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1951,6 +2145,7 @@
     "nameJp": "コーナー巧者×",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20014",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1961,6 +2156,7 @@
     "nameJp": "曲線のソムリエ",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -1972,6 +2168,7 @@
     "nameJp": "コーナー加速○",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1982,6 +2179,7 @@
     "nameJp": "コーナー加速×",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20044",
     "conditions": "all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -1992,6 +2190,7 @@
     "nameJp": "円弧のマエストロ",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "corner_random==1@corner_random==2@corner_random==3@corner_random==4",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2003,6 +2202,7 @@
     "nameJp": "コーナー回復○",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "corner_random==1@corner_random==2@corner_random==3@corner_random==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2013,6 +2213,7 @@
     "nameJp": "コーナー回復×",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20024",
     "conditions": "corner_random==1@corner_random==2@corner_random==3@corner_random==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2023,6 +2224,7 @@
     "nameJp": "ハヤテ一文字",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2034,6 +2236,7 @@
     "nameJp": "直線巧者",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2044,6 +2247,7 @@
     "nameJp": "一陣の風",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2055,6 +2259,7 @@
     "nameJp": "直線加速",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2065,6 +2270,7 @@
     "nameJp": "好転一息",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2076,6 +2282,7 @@
     "nameJp": "直線回復",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2086,6 +2293,7 @@
     "nameJp": "坂苦手",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20024",
     "conditions": "up_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2096,6 +2304,7 @@
     "nameJp": "バ群嫌い",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20024",
     "conditions": "accumulatetime>=2&is_surrounded==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2106,6 +2315,7 @@
     "nameJp": "あきらめ癖",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20014",
     "conditions": "last_straight_random==1&distance_diff_rate>=75",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2116,6 +2326,7 @@
     "nameJp": "手抜き癖",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20014",
     "conditions": "remain_distance==200&order==1&bashin_diff_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2126,6 +2337,7 @@
     "nameJp": "コンセントレーション",
     "baseSpCost": 140,
     "rarity": "gold",
+    "iconId": "20062",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2137,6 +2349,7 @@
     "nameJp": "集中力",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20061",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2147,6 +2360,7 @@
     "nameJp": "ゲート難",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "20064",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2157,6 +2371,7 @@
     "nameJp": "鋼の意志",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "phase<=1&accumulatetime>=5&blocked_front_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2168,6 +2383,7 @@
     "nameJp": "隠れ蓑",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "phase<=1&accumulatetime>=5&blocked_front_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2178,6 +2394,7 @@
     "nameJp": "注目の踊り子",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2189,6 +2406,7 @@
     "nameJp": "ポジションセンス",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2199,6 +2417,7 @@
     "nameJp": "アガッてきた！",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "phase==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2210,6 +2429,7 @@
     "nameJp": "ペースアップ",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "phase==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2220,6 +2440,7 @@
     "nameJp": "不屈の心",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "phase==1&change_order_onetime>0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2231,6 +2452,7 @@
     "nameJp": "ペースキープ",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "phase==1&change_order_onetime>0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2241,6 +2463,7 @@
     "nameJp": "どこ吹く風",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "phase==1&is_surrounded==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2252,6 +2475,7 @@
     "nameJp": "ウマ込み冷静",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "phase==1&is_surrounded==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2262,6 +2486,7 @@
     "nameJp": "ノンストップガール",
     "baseSpCost": 150,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "infront_near_lane_time>=1&is_lastspurt==1&hp_per>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2273,6 +2498,7 @@
     "nameJp": "垂れウマ回避",
     "baseSpCost": 150,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "infront_near_lane_time>=1&is_lastspurt==1&hp_per>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2283,6 +2509,7 @@
     "nameJp": "レーンの魔術師",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2294,6 +2521,7 @@
     "nameJp": "臨機応変",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2304,6 +2532,7 @@
     "nameJp": "全身全霊",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "is_lastspurt==1&phase_random==3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2315,6 +2544,7 @@
     "nameJp": "末脚",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "is_lastspurt==1&phase_random==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2325,6 +2555,7 @@
     "nameJp": "空回り",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20024",
     "conditions": "accumulatetime>=2&order==1&bashin_diff_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2335,6 +2566,7 @@
     "nameJp": "先手必勝",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==1&phase==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2346,6 +2578,7 @@
     "nameJp": "先駆け",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==1&phase==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2356,6 +2589,7 @@
     "nameJp": "脱出術",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==1&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2367,6 +2601,7 @@
     "nameJp": "急ぎ足",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2377,6 +2612,7 @@
     "nameJp": "逃亡者",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==1&is_finalcorner_random==1&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2388,6 +2624,7 @@
     "nameJp": "押し切り準備",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==1&is_finalcorner_random==1&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2398,6 +2635,7 @@
     "nameJp": "余裕綽々",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==2&phase_laterhalf_random==0&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2409,6 +2647,7 @@
     "nameJp": "スタミナキープ",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==2&phase_laterhalf_random==0&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2419,6 +2658,7 @@
     "nameJp": "レースプランナー",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==2&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2430,6 +2670,7 @@
     "nameJp": "好位追走",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==2&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2440,6 +2681,7 @@
     "nameJp": "スピードスター",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==2&is_finalcorner_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2451,6 +2693,7 @@
     "nameJp": "抜け出し準備",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==2&is_finalcorner_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2461,6 +2704,7 @@
     "nameJp": "迅速果断",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==3&phase_random==1&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2472,6 +2716,7 @@
     "nameJp": "位置取り押し上げ",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&phase_random==1&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2482,6 +2727,7 @@
     "nameJp": "乗り換え上手",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2493,6 +2739,7 @@
     "nameJp": "差し切り体勢",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2503,6 +2750,7 @@
     "nameJp": "昇り龍",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==3&is_finalcorner==1&corner!=0&is_behind_in==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2514,6 +2762,7 @@
     "nameJp": "外差し準備",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&is_finalcorner==1&corner!=0&is_behind_in==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2524,6 +2773,7 @@
     "nameJp": "眠れる獅子",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==4&phase_random==1&distance_diff_rate>=75",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2535,6 +2785,7 @@
     "nameJp": "後方待機",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==4&phase_random==1&distance_diff_rate>=75",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2545,6 +2796,7 @@
     "nameJp": "疾風怒濤",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==4&phase_random==2&distance_diff_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2556,6 +2808,7 @@
     "nameJp": "仕掛け抜群",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&phase_random==2&distance_diff_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2566,6 +2819,7 @@
     "nameJp": "迫る影",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==4&is_lastspurt==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2577,6 +2831,7 @@
     "nameJp": "直線一気",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==4&is_lastspurt==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2587,6 +2842,7 @@
     "nameJp": "スプリントターボ",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "distance_type==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2598,6 +2854,7 @@
     "nameJp": "スプリントギア",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "distance_type==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2608,6 +2865,7 @@
     "nameJp": "様子見",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==1&phase_random==1&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2618,6 +2876,7 @@
     "nameJp": "電撃の煌めき",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==1&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2629,6 +2888,7 @@
     "nameJp": "詰め寄り",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2639,6 +2899,7 @@
     "nameJp": "マイルの支配者",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2650,6 +2911,7 @@
     "nameJp": "積極策",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2660,6 +2922,7 @@
     "nameJp": "慧眼",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2671,6 +2934,7 @@
     "nameJp": "展開窺い",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2681,6 +2945,7 @@
     "nameJp": "豪脚",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "distance_type==2&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2692,6 +2957,7 @@
     "nameJp": "上昇気流",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "distance_type==2&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2702,6 +2968,7 @@
     "nameJp": "切り開く者",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==3&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2713,6 +2980,7 @@
     "nameJp": "前途洋々",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==3&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2723,6 +2991,7 @@
     "nameJp": "キラーチューン",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2734,6 +3003,7 @@
     "nameJp": "テンポアップ",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2744,6 +3014,7 @@
     "nameJp": "勝利への執念",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2755,6 +3026,7 @@
     "nameJp": "食い下がり",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2765,6 +3037,7 @@
     "nameJp": "クールダウン",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2776,6 +3049,7 @@
     "nameJp": "深呼吸",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2786,6 +3060,7 @@
     "nameJp": "内的体験",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==4&is_finalcorner==1&corner!=0&lane_type==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2797,6 +3072,7 @@
     "nameJp": "内弁慶",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&is_finalcorner==1&corner!=0&lane_type==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2807,6 +3083,7 @@
     "nameJp": "火事場のバ鹿力",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==4&hp_per<=30",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2818,6 +3095,7 @@
     "nameJp": "別腹タンク",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==4&hp_per<=30",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2828,6 +3106,7 @@
     "nameJp": "トリック（前）",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "phase==1&order_rate<=50&temptation_count_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2838,6 +3117,7 @@
     "nameJp": "見惚れるトリック",
     "baseSpCost": 140,
     "rarity": "gold",
+    "iconId": "30052",
     "conditions": "phase==1&order_rate<=50&temptation_count_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -2849,6 +3129,7 @@
     "nameJp": "トリック（後）",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "phase==1&order_rate>50&temptation_count_infront>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2859,6 +3140,7 @@
     "nameJp": "逃げ駆け引き",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30041",
     "conditions": "running_style_temptation_count_nige>=1&is_temptation==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2869,6 +3151,7 @@
     "nameJp": "先行駆け引き",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30041",
     "conditions": "running_style_temptation_count_senko>=1&is_temptation==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2879,6 +3162,7 @@
     "nameJp": "差し駆け引き",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30041",
     "conditions": "running_style_temptation_count_sashi>=1&is_temptation==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2889,6 +3173,7 @@
     "nameJp": "追込駆け引き",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30041",
     "conditions": "running_style_temptation_count_oikomi>=1&is_temptation==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2899,6 +3184,7 @@
     "nameJp": "逃げけん制",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_nige_otherself>=1&phase_random==0&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2909,6 +3195,7 @@
     "nameJp": "逃げ焦り",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_nige_otherself>=1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2919,6 +3206,7 @@
     "nameJp": "逃げためらい",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "running_style_count_nige_otherself>=1&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2929,6 +3217,7 @@
     "nameJp": "先行けん制",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_senko_otherself>=1&phase_random==0&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2939,6 +3228,7 @@
     "nameJp": "先行焦り",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_senko_otherself>=1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2949,6 +3239,7 @@
     "nameJp": "先行ためらい",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "running_style_count_senko_otherself>=1&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2959,6 +3250,7 @@
     "nameJp": "差しけん制",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_sashi_otherself>=1&phase_random==0&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2969,6 +3261,7 @@
     "nameJp": "差し焦り",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_sashi_otherself>=1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2979,6 +3272,7 @@
     "nameJp": "差しためらい",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "running_style_count_sashi_otherself>=1&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2989,6 +3283,7 @@
     "nameJp": "追込けん制",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_oikomi_otherself>=1&phase_random==0&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -2999,6 +3294,7 @@
     "nameJp": "追込焦り",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style_count_oikomi_otherself>=1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3009,6 +3305,7 @@
     "nameJp": "追込ためらい",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "running_style_count_oikomi_otherself>=1&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3019,6 +3316,7 @@
     "nameJp": "大井レース場◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10101",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3029,6 +3327,7 @@
     "nameJp": "大井レース場○",
     "baseSpCost": 90,
     "rarity": "white",
+    "iconId": "10021",
     "conditions": "track_id==10101",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3039,6 +3338,7 @@
     "nameJp": "大井レース場×",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10024",
     "conditions": "track_id==10101",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3049,6 +3349,7 @@
     "nameJp": "短距離直線◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3059,6 +3360,7 @@
     "nameJp": "短距離直線○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3069,6 +3371,7 @@
     "nameJp": "短距離コーナー◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3079,6 +3382,7 @@
     "nameJp": "短距離コーナー○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3089,6 +3393,7 @@
     "nameJp": "圧倒的リード",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==1&phase==1&bashin_diff_behind>=3&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3100,6 +3405,7 @@
     "nameJp": "大きなリード",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&phase==1&bashin_diff_behind>=3&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3110,6 +3416,7 @@
     "nameJp": "プランX",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "distance_type==1&phase_laterhalf_random==1&order>=2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3121,6 +3428,7 @@
     "nameJp": "善後策",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "distance_type==1&phase_laterhalf_random==1&order>=2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3131,6 +3439,7 @@
     "nameJp": "準備万全！",
     "baseSpCost": 140,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "distance_type==1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3142,6 +3451,7 @@
     "nameJp": "仕掛け準備",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "distance_type==1&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3152,6 +3462,7 @@
     "nameJp": "悩殺術",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "30012",
     "conditions": "distance_type==1&phase_random==0&order_rate<=50&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3163,6 +3474,7 @@
     "nameJp": "後方釘付",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "distance_type==1&phase_random==0&order_rate<=50&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3173,6 +3485,7 @@
     "nameJp": "逃亡禁止令",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "30052",
     "conditions": "distance_type==1&phase_random==0&order_rate>50&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3184,6 +3497,7 @@
     "nameJp": "抜け駆け禁止",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "distance_type==1&phase_random==0&order_rate>50&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3194,6 +3508,7 @@
     "nameJp": "マイル直線◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3204,6 +3519,7 @@
     "nameJp": "マイル直線○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3214,6 +3530,7 @@
     "nameJp": "マイルコーナー◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3224,6 +3541,7 @@
     "nameJp": "マイルコーナー○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3234,6 +3552,7 @@
     "nameJp": "ギアチェンジ",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==2&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3245,6 +3564,7 @@
     "nameJp": "ギアシフト",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&phase_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3255,6 +3575,7 @@
     "nameJp": "アクセル全開！",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "distance_type==2&phase==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3266,6 +3587,7 @@
     "nameJp": "アクセラレーション",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "distance_type==2&phase==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3276,6 +3598,7 @@
     "nameJp": "姉御肌",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==2&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3287,6 +3610,7 @@
     "nameJp": "負けん気",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3297,6 +3621,7 @@
     "nameJp": "スピードグリード",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "30012",
     "conditions": "distance_type==2&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3308,6 +3633,7 @@
     "nameJp": "スピードイーター",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "distance_type==2&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3318,6 +3644,7 @@
     "nameJp": "布陣",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "30022",
     "conditions": "distance_type==2&phase_random==0&order_rate>50&accumulatetime>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3329,6 +3656,7 @@
     "nameJp": "布石",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "30021",
     "conditions": "distance_type==2&phase_random==0&order_rate>50&accumulatetime>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3339,6 +3667,7 @@
     "nameJp": "中距離直線◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3349,6 +3678,7 @@
     "nameJp": "中距離直線○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3359,6 +3689,7 @@
     "nameJp": "光芒一閃",
     "baseSpCost": 150,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3370,6 +3701,7 @@
     "nameJp": "中距離コーナー◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3380,6 +3712,7 @@
     "nameJp": "中距離コーナー○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3390,6 +3723,7 @@
     "nameJp": "千里眼",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "20092",
     "conditions": "distance_type==3&phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3401,6 +3735,7 @@
     "nameJp": "ホークアイ",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20091",
     "conditions": "distance_type==3&phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3411,6 +3746,7 @@
     "nameJp": "ライトニングステップ",
     "baseSpCost": 140,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "distance_type==3&phase_random==1&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3422,6 +3758,7 @@
     "nameJp": "イナズマステップ",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "distance_type==3&phase_random==1&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3432,6 +3769,7 @@
     "nameJp": "神業ステップ",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==3&is_move_lane==1&accumulatetime>=10@distance_type==3&is_move_lane==2&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3443,6 +3781,7 @@
     "nameJp": "軽やかステップ",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==3&is_move_lane==1&accumulatetime>=10@distance_type==3&is_move_lane==2&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3453,6 +3792,7 @@
     "nameJp": "独占力",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "30012",
     "conditions": "distance_type==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3464,6 +3804,7 @@
     "nameJp": "束縛",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "distance_type==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3474,6 +3815,7 @@
     "nameJp": "魅惑のささやき",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "30052",
     "conditions": "distance_type==3&phase==1&blocked_front_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3485,6 +3827,7 @@
     "nameJp": "ささやき",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "distance_type==3&phase==1&blocked_front_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3495,6 +3838,7 @@
     "nameJp": "長距離直線◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3505,6 +3849,7 @@
     "nameJp": "長距離直線○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3515,6 +3860,7 @@
     "nameJp": "烈風一閃",
     "baseSpCost": 150,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3526,6 +3872,7 @@
     "nameJp": "長距離コーナー◎",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3536,6 +3883,7 @@
     "nameJp": "長距離コーナー○",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3546,6 +3894,7 @@
     "nameJp": "先陣の心得",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==4&phase_random==1&bashin_diff_behind>=1&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3557,6 +3906,7 @@
     "nameJp": "リードキープ",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&phase_random==1&bashin_diff_behind>=1&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3567,6 +3917,7 @@
     "nameJp": "VIP顔パス",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==4&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3578,6 +3929,7 @@
     "nameJp": "パス上手",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==4&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3588,6 +3940,7 @@
     "nameJp": "怒涛の追い上げ",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==4&phase==2&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3599,6 +3952,7 @@
     "nameJp": "追い上げ",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&phase==2&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3609,6 +3963,7 @@
     "nameJp": "スタミナグリード",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "30052",
     "conditions": "distance_type==4&phase_random==1&order>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3620,6 +3975,7 @@
     "nameJp": "スタミナイーター",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "distance_type==4&phase_random==1&order>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3630,6 +3986,7 @@
     "nameJp": "奇術師",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "30072",
     "conditions": "distance_type==4&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3641,6 +3998,7 @@
     "nameJp": "目くらまし",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "30071",
     "conditions": "distance_type==4&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3651,6 +4009,7 @@
     "nameJp": "逃げ直線◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3661,6 +4020,7 @@
     "nameJp": "逃げ直線○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3671,6 +4031,7 @@
     "nameJp": "逃げコーナー◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3681,6 +4042,7 @@
     "nameJp": "逃げコーナー○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3691,6 +4053,7 @@
     "nameJp": "シックスセンス",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "running_style==1&phase==0&blocked_front_continuetime>=1@running_style==1&phase==0&blocked_side_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3702,6 +4065,7 @@
     "nameJp": "危険回避",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "running_style==1&phase==0&blocked_front_continuetime>=1@running_style==1&phase==0&blocked_side_continuetime>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3712,6 +4076,7 @@
     "nameJp": "トップランナー",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==1&phase<=1&change_order_onetime>0&accumulatetime>=5@running_style==1&phase<=1&blocked_side_continuetime>=2&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3723,6 +4088,7 @@
     "nameJp": "先頭プライド",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==1&phase<=1&change_order_onetime>0&accumulatetime>=5@running_style==1&phase<=1&blocked_side_continuetime>=2&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3733,6 +4099,7 @@
     "nameJp": "じゃじゃウマ娘",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==1&slope==1&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3744,6 +4111,7 @@
     "nameJp": "勢い任せ",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==1&slope==1&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3754,6 +4122,7 @@
     "nameJp": "再燃焼",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==1&phase_random==1&order>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3765,6 +4134,7 @@
     "nameJp": "二の矢",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==1&phase_random==1&order>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3775,6 +4145,7 @@
     "nameJp": "リスタート",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "30021",
     "conditions": "running_style==1&phase_random==0&order>=2&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3785,6 +4156,7 @@
     "nameJp": "先行直線◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==2&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3795,6 +4167,7 @@
     "nameJp": "先行直線○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==2&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3805,6 +4178,7 @@
     "nameJp": "先行コーナー◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==2&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3815,6 +4189,7 @@
     "nameJp": "先行コーナー○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==2&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3825,6 +4200,7 @@
     "nameJp": "技巧派",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==2&is_move_lane==1@running_style==2&is_move_lane==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3836,6 +4212,7 @@
     "nameJp": "巧みなステップ",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==2&is_move_lane==1@running_style==2&is_move_lane==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3846,6 +4223,7 @@
     "nameJp": "決意の直滑降",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==2&down_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3857,6 +4235,7 @@
     "nameJp": "直滑降",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==2&down_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3867,6 +4246,7 @@
     "nameJp": "食いしん坊",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==2&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3878,6 +4258,7 @@
     "nameJp": "栄養補給",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==2&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3888,6 +4269,7 @@
     "nameJp": "くじけぬ精神",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==2&phase_random==1&order_rate>40",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3899,6 +4281,7 @@
     "nameJp": "まき直し",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==2&phase_random==1&order_rate>40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3909,6 +4292,7 @@
     "nameJp": "幻惑のかく乱",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "30072",
     "conditions": "running_style==2&phase_random==2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3920,6 +4304,7 @@
     "nameJp": "かく乱",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "30071",
     "conditions": "running_style==2&phase_random==2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3930,6 +4315,7 @@
     "nameJp": "差し直線◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3940,6 +4326,7 @@
     "nameJp": "差し直線○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3950,6 +4337,7 @@
     "nameJp": "差しコーナー◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3960,6 +4348,7 @@
     "nameJp": "差しコーナー○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3970,6 +4359,7 @@
     "nameJp": "努力家",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==3&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -3981,6 +4371,7 @@
     "nameJp": "がんばり屋",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==3&is_overtake==1&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -3991,6 +4382,7 @@
     "nameJp": "百万バリキ",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==3&up_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4002,6 +4394,7 @@
     "nameJp": "十万バリキ",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&up_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4012,6 +4405,7 @@
     "nameJp": "リラックス",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==3&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4023,6 +4417,7 @@
     "nameJp": "小休憩",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==3&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4033,6 +4428,7 @@
     "nameJp": "大局観",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20092",
     "conditions": "running_style==3&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4044,6 +4440,7 @@
     "nameJp": "読解力",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20091",
     "conditions": "running_style==3&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4054,6 +4451,7 @@
     "nameJp": "八方にらみ",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "30052",
     "conditions": "running_style==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4065,6 +4463,7 @@
     "nameJp": "鋭い眼光",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "30051",
     "conditions": "running_style==3&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4075,6 +4474,7 @@
     "nameJp": "追込直線◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4085,6 +4485,7 @@
     "nameJp": "追込直線○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&straight_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4095,6 +4496,7 @@
     "nameJp": "追込コーナー◎",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4105,6 +4507,7 @@
     "nameJp": "追込コーナー○",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&all_corner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4115,6 +4518,7 @@
     "nameJp": "視界良好！異常なし！",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "20092",
     "conditions": "running_style==4&is_move_lane==1@running_style==4&is_move_lane==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4126,6 +4530,7 @@
     "nameJp": "お見通し",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20091",
     "conditions": "running_style==4&is_move_lane==1@running_style==4&is_move_lane==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4136,6 +4541,7 @@
     "nameJp": "下校後のスペシャリスト",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==4&slope==2&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4147,6 +4553,7 @@
     "nameJp": "下校の楽しみ",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==4&slope==2&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4157,6 +4564,7 @@
     "nameJp": "冷静沈着",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4168,6 +4576,7 @@
     "nameJp": "冷静",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4178,6 +4587,7 @@
     "nameJp": "天命士",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "20092",
     "conditions": "running_style==4&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4189,6 +4599,7 @@
     "nameJp": "策士",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "20091",
     "conditions": "running_style==4&phase_random==2&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4199,6 +4610,7 @@
     "nameJp": "熱いまなざし",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "30012",
     "conditions": "running_style==4&phase_random==2&order>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4210,6 +4622,7 @@
     "nameJp": "まなざし",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "30011",
     "conditions": "running_style==4&phase_random==2&order>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4220,6 +4633,7 @@
     "nameJp": "逃げのコツ◎",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4230,6 +4644,7 @@
     "nameJp": "逃げのコツ○",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4240,6 +4655,7 @@
     "nameJp": "先行のコツ◎",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4250,6 +4666,7 @@
     "nameJp": "先行のコツ○",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4260,6 +4677,7 @@
     "nameJp": "差しのコツ◎",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4270,6 +4688,7 @@
     "nameJp": "差しのコツ○",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4280,6 +4699,7 @@
     "nameJp": "追込のコツ◎",
     "baseSpCost": 130,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4290,6 +4710,7 @@
     "nameJp": "追込のコツ○",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "running_style==4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4300,6 +4721,7 @@
     "nameJp": "スーパーラッキーセブン",
     "baseSpCost": 110,
     "rarity": "gold",
+    "iconId": "10062",
     "conditions": "random_lot==50&post_number==7",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4311,6 +4733,7 @@
     "nameJp": "ラッキーセブン",
     "baseSpCost": 110,
     "rarity": "white",
+    "iconId": "10061",
     "conditions": "random_lot==50&post_number==7",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4321,6 +4744,7 @@
     "nameJp": "スリーセブン",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "remain_distance<=778&remain_distance>=776",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4331,6 +4755,7 @@
     "nameJp": "登山家",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "up_slope_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4341,6 +4766,7 @@
     "nameJp": "ウマ好み",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "near_count>=3&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4351,6 +4777,7 @@
     "nameJp": "ウママニア",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "near_count>=3&accumulatetime>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4362,6 +4789,7 @@
     "nameJp": "地固め",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "activate_count_start>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4372,6 +4800,7 @@
     "nameJp": "尻尾上がり",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "activate_count_middle>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4382,6 +4811,7 @@
     "nameJp": "尻尾の滝登り",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "activate_count_middle>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4393,6 +4823,7 @@
     "nameJp": "ふり絞り",
     "baseSpCost": 100,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "activate_count_end_after>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4403,6 +4834,7 @@
     "nameJp": "シンパシー",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "same_skill_horse_count>=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4413,6 +4845,7 @@
     "nameJp": "一匹狼",
     "baseSpCost": 70,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "same_skill_horse_count==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4423,6 +4856,7 @@
     "nameJp": "スリップストリーム",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "infront_near_lane_time>=3&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4433,6 +4867,7 @@
     "nameJp": "遊びはおしまいっ！",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "behind_near_lane_time>=3&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4443,6 +4878,7 @@
     "nameJp": "お先に失礼っ！",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "behind_near_lane_time>=3&accumulatetime>=10",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4454,6 +4890,7 @@
     "nameJp": "チャート急上昇！",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "ground_type==2&phase==1&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4465,6 +4902,7 @@
     "nameJp": "レコメンド",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "ground_type==2&phase==1&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4475,6 +4913,7 @@
     "nameJp": "狙うは最前列！",
     "baseSpCost": 140,
     "rarity": "gold",
+    "iconId": "20052",
     "conditions": "ground_type==2&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4486,6 +4925,7 @@
     "nameJp": "前列狙い",
     "baseSpCost": 140,
     "rarity": "white",
+    "iconId": "20051",
     "conditions": "ground_type==2&phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4496,6 +4936,7 @@
     "nameJp": "潜伏態勢",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4507,6 +4948,7 @@
     "nameJp": "静かな呼吸",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4517,6 +4959,7 @@
     "nameJp": "決死の覚悟",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4528,6 +4971,7 @@
     "nameJp": "ありったけ",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4538,6 +4982,7 @@
     "nameJp": "凸凹ネイル",
     "baseSpCost": 50,
     "rarity": "white",
+    "iconId": "10014",
     "conditions": "ground_condition==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4548,6 +4993,7 @@
     "nameJp": "鍔迫り合い",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "running_style==2&phase_random==2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4559,6 +5005,7 @@
     "nameJp": "真っ向勝負",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "running_style==2&phase_random==2&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4569,6 +5016,7 @@
     "nameJp": "砂の玄人",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "ground_type==2&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4580,6 +5028,7 @@
     "nameJp": "砂塵慣れ",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "ground_type==2&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4590,6 +5039,7 @@
     "nameJp": "真打",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==4&phase_laterhalf_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4601,6 +5051,7 @@
     "nameJp": "影打",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==4&phase_laterhalf_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4611,6 +5062,7 @@
     "nameJp": "強攻策",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==4&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4622,6 +5074,7 @@
     "nameJp": "早仕掛け",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==4&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4632,6 +5085,7 @@
     "nameJp": "博打うち",
     "baseSpCost": 120,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_rate_after_random==50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4642,6 +5096,7 @@
     "nameJp": "あやしげな作戦",
     "baseSpCost": 120,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_rate_after_random==50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4652,6 +5107,7 @@
     "nameJp": "意気衝天",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==1&phase_laterhalf_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4663,6 +5119,7 @@
     "nameJp": "軽い足取り",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==1&phase_laterhalf_random==1&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4673,6 +5130,7 @@
     "nameJp": "大逃げ",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "40012",
     "conditions": "running_style==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4683,6 +5141,7 @@
     "nameJp": "日本一のウマ娘",
     "baseSpCost": 360,
     "rarity": "gold",
+    "iconId": "2010010",
     "conditions": "distance_type==4&is_finalcorner_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4693,6 +5152,7 @@
     "nameJp": "泰然自若",
     "baseSpCost": 170,
     "rarity": "gold",
+    "iconId": "20022",
     "conditions": "distance_type==4&phase_firsthalf_random==1&order_rate>=40&order_rate<=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4703,6 +5163,7 @@
     "nameJp": "マイペース",
     "baseSpCost": 170,
     "rarity": "white",
+    "iconId": "20021",
     "conditions": "distance_type==4&phase_firsthalf_random==1&order_rate>=40&order_rate<=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4713,6 +5174,7 @@
     "nameJp": "起死回生",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20042",
     "conditions": "distance_type==3&phase_random==2&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4724,6 +5186,7 @@
     "nameJp": "ワンチャンス",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20041",
     "conditions": "distance_type==3&phase_random==2&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4734,6 +5197,7 @@
     "nameJp": "気炎万丈",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4745,6 +5209,7 @@
     "nameJp": "闘争心",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4755,6 +5220,7 @@
     "nameJp": "高揚感",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4766,6 +5232,7 @@
     "nameJp": "前のめり",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&phase_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4776,6 +5243,7 @@
     "nameJp": "破竹の勢い",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==2&is_finalcorner_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4787,6 +5255,7 @@
     "nameJp": "気合十分",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==2&is_finalcorner_random==1&order_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4797,6 +5266,7 @@
     "nameJp": "大胆不敵",
     "baseSpCost": 180,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4808,6 +5278,7 @@
     "nameJp": "恐れぬ心",
     "baseSpCost": 180,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4818,6 +5289,7 @@
     "nameJp": "荒ぶる旋風",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "distance_type==3&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4829,6 +5301,7 @@
     "nameJp": "気迫を込めて",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "distance_type==3&phase_random==1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4839,6 +5312,7 @@
     "nameJp": "アタシに指図しないで！！",
     "baseSpCost": 0,
     "rarity": "white",
+    "iconId": "20064",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4849,6 +5323,7 @@
     "nameJp": "勇往邁進",
     "baseSpCost": 160,
     "rarity": "gold",
+    "iconId": "20012",
     "conditions": "running_style==3&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4859,6 +5334,7 @@
     "nameJp": "フルスロットル",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "20011",
     "conditions": "running_style==3&phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4869,6 +5345,7 @@
     "nameJp": "自制心",
     "baseSpCost": 160,
     "rarity": "white",
+    "iconId": "10051",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -4879,6 +5356,7 @@
     "nameJp": "アオハル燃焼・速",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20102",
     "conditions": "phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4891,6 +5369,7 @@
     "nameJp": "アオハル点火・速",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20101",
     "conditions": "phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4902,6 +5381,7 @@
     "nameJp": "アオハル燃焼・体",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20112",
     "conditions": "phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4914,6 +5394,7 @@
     "nameJp": "アオハル点火・体",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20111",
     "conditions": "phase_random==1",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4925,6 +5406,7 @@
     "nameJp": "アオハル燃焼・力",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20122",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4937,6 +5419,7 @@
     "nameJp": "アオハル点火・力",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20121",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4948,6 +5431,7 @@
     "nameJp": "アオハル燃焼・根",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20102",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4960,6 +5444,7 @@
     "nameJp": "アオハル点火・根",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20101",
     "conditions": "phase_random==2",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4971,6 +5456,7 @@
     "nameJp": "アオハル燃焼・賢",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20132",
     "conditions": "phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4983,6 +5469,7 @@
     "nameJp": "アオハル点火・賢",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20131",
     "conditions": "phase_random==0",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -4994,6 +5481,7 @@
     "nameJp": "一番星",
     "baseSpCost": 200,
     "rarity": "gold",
+    "iconId": "20142",
     "conditions": "distance_rate_after_random==50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -5006,6 +5494,7 @@
     "nameJp": "綺羅星",
     "baseSpCost": 200,
     "rarity": "white",
+    "iconId": "20141",
     "conditions": "distance_rate_after_random==50",
     "server": "global",
     "dataVersion": "global-c1fa2107",
@@ -5017,6 +5506,7 @@
     "nameJp": "胸を張れダービーウマ娘",
     "baseSpCost": 0,
     "rarity": "white",
+    "iconId": "10011",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5027,6 +5517,7 @@
     "nameJp": "チームの一員として",
     "baseSpCost": 0,
     "rarity": "gold",
+    "iconId": "10022",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5037,6 +5528,7 @@
     "nameJp": "シューティングスター",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5047,6 +5539,7 @@
     "nameJp": "先頭の景色は譲らない…！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order==1&bashin_diff_behind>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5057,6 +5550,7 @@
     "nameJp": "究極テイオーステップ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5067,6 +5561,7 @@
     "nameJp": "紅焔ギア/LP1211-M",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "is_finalcorner==1&order<=5&order_rate<=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5077,6 +5572,7 @@
     "nameJp": "煌星のヴォードヴィル",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5087,6 +5583,7 @@
     "nameJp": "勝利の鼓動",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "order>=2&order<=5&order_rate<=50&remain_distance<=201&remain_distance>=199",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5097,6 +5594,7 @@
     "nameJp": "不沈艦、抜錨ォッ！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&distance_rate<=60&order_rate>50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5107,6 +5605,7 @@
     "nameJp": "カッティング×DRIVE！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "order>=3&order_rate<=50&remain_distance<=200&bashin_diff_infront<=1@order>=3&order_rate<=50&remain_distance<=200&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5117,6 +5616,7 @@
     "nameJp": "ブリリアント・レッドエース",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order==1&bashin_diff_behind<=1@distance_rate>=50&order==2&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5127,6 +5627,7 @@
     "nameJp": "ヴィクトリーショット！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "is_finalcorner_laterhalf==1&corner!=0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5137,6 +5638,7 @@
     "nameJp": "精神一到何事か成らざらん",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5147,6 +5649,7 @@
     "nameJp": "タイマン！デッドヒート！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5157,6 +5660,7 @@
     "nameJp": "貴顕の使命を果たすべく",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5167,6 +5671,7 @@
     "nameJp": "プランチャ☆ガナドール",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&hp_per>=30&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5177,6 +5682,7 @@
     "nameJp": "ヴィットーリアに捧ぐ舞踏",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&bashin_diff_behind<=1&order<=4@is_finalcorner==1&bashin_diff_infront<=1&order<=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5187,6 +5693,7 @@
     "nameJp": "Shadow Break",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&order>=2&order_rate<=75&is_behind_in==1&change_order_onetime<0@is_finalcorner==1&order>=2&order_rate<=75&is_behind_in==1&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5197,6 +5704,7 @@
     "nameJp": "汝、皇帝の神威を見よ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&change_order_up_end_after>=3&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5207,6 +5715,7 @@
     "nameJp": "ブレイズ・オブ・プライド",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5217,6 +5726,7 @@
     "nameJp": "尊み☆ﾗｽﾄｽﾊﾟ—(ﾟ∀ﾟ)—ﾄ!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "change_order_up_end_after>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5227,6 +5737,7 @@
     "nameJp": "アングリング×スキーミング",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "phase>=2&corner!=0&order==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5237,6 +5748,7 @@
     "nameJp": "白い稲妻、見せたるで！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&corner==0&order_rate>=70&order_rate<=75&is_overtake==1@distance_rate>=50&corner==0&order_rate<=30&order_rate>=20",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5247,6 +5759,7 @@
     "nameJp": "Fairy tale",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order>=2&order_rate<=40&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5257,6 +5770,7 @@
     "nameJp": "∴win Q.E.D.",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order<=4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5267,6 +5781,7 @@
     "nameJp": "ひらめき☆ランディング",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&blocked_side_continuetime>=2&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5277,6 +5792,7 @@
     "nameJp": "アナタヲ・オイカケテ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5287,6 +5803,7 @@
     "nameJp": "G00 1st.F∞;",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5297,6 +5814,7 @@
     "nameJp": "レッツ・アナボリック！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "phase>=2&corner!=0&order_rate>=65&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5307,6 +5825,7 @@
     "nameJp": "I'M☆FULL☆SPEED!!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=45&distance_rate<=60&order>=3&order_rate<=50&hp_per<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5317,6 +5836,7 @@
     "nameJp": "ブルーローズチェイサー",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5327,6 +5847,7 @@
     "nameJp": "チャージ完了！全速前進！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=299&remain_distance>=295&order<=2&slope==0@remain_distance<=299&remain_distance>=295&order<=2&slope==2@remain_distance<=299&remain_distance>=295&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5337,6 +5858,7 @@
     "nameJp": "U=ma2",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "distance_rate>=50&corner!=0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5347,6 +5869,7 @@
     "nameJp": "ディオスクロイの流星",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate<80@is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate>=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5357,6 +5880,7 @@
     "nameJp": "快走かな、快走かな！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "compete_fight_count>0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5367,6 +5891,7 @@
     "nameJp": "勝利のチケットを、君にッ！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order<=5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5377,6 +5902,7 @@
     "nameJp": "Schwarzes Schwert",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5387,6 +5913,7 @@
     "nameJp": "#LookatCurren",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=40&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5397,6 +5924,7 @@
     "nameJp": "姫たるもの、勝利をこの手に",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5407,6 +5935,7 @@
     "nameJp": "KEEP IT REAL.",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=70&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5417,6 +5946,7 @@
     "nameJp": "優等生×バクシン＝大勝利ッ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order<=3&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5427,6 +5957,7 @@
     "nameJp": "いただき☆ストレリチア！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=300",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5437,6 +5968,7 @@
     "nameJp": "ピュリティオブハート",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "phase_random==1&order>=2&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5447,6 +5979,7 @@
     "nameJp": "キラキラ☆STARDOM",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase==1&corner==0&order<=2&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5457,6 +5990,7 @@
     "nameJp": "YEAH☆VIVID TIME!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5467,6 +6001,7 @@
     "nameJp": "Nemesis",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&order_rate>=40&order_rate<=75&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5477,6 +6012,7 @@
     "nameJp": "つぼみ、ほころぶ時",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "phase>=2&is_finalcorner_laterhalf==1&order>=3&order_rate<=40@phase>=2&is_finalcorner==1&corner==0&order>=3&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5487,6 +6023,7 @@
     "nameJp": "ワクワククライマックス",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "is_finalcorner==1&corner!=0&order_rate>50&near_count>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5497,6 +6034,7 @@
     "nameJp": "来ます来てます来させます！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase>=2&order>=3&blocked_front==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5507,6 +6045,7 @@
     "nameJp": "I Never Goof Up!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase>=2&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5517,6 +6056,7 @@
     "nameJp": "彼方、その先へ…",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "phase>=2&corner!=0&is_finalcorner==0&temptation_count==0&order_rate>=50&order_rate<=70@phase==1&corner!=0&is_finalcorner==1&temptation_count==0&order_rate>=50&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5527,6 +6067,7 @@
     "nameJp": "きっとその先へ…！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase>=2&order==3&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5537,6 +6078,7 @@
     "nameJp": "Pride of KING",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "temptation_count==0&remain_distance<=201&remain_distance>=199&order>=4&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5547,6 +6089,7 @@
     "nameJp": "どんっ、パッ、むんっ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "distance_rate>=50&phase==1&order>=3&order_rate<=70",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5557,6 +6100,7 @@
     "nameJp": "ぶっちぎりロード",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "distance_rate>=50&order_rate_in20_continue==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5567,6 +6111,7 @@
     "nameJp": "晦冥を照らせ永遠の耀き",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_last_straight_onetime==1&order>=2&order<=5&distance_diff_top<=5@is_last_straight_onetime==1&order>=2&order<=5&distance_diff_top>5",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5577,6 +6122,7 @@
     "nameJp": "勝ち鬨ワッショイ！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase==2&straight_front_type==2&order<=2@distance_rate>=50&corner==3&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5587,6 +6133,7 @@
     "nameJp": "憧れは桜を越える！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=300&order_rate<=40&bashin_diff_infront<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5597,6 +6144,7 @@
     "nameJp": "一期の夢、刹那の飛翔",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5607,6 +6155,7 @@
     "nameJp": "烈火繚乱、無敵之舞",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=300&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5617,6 +6166,7 @@
     "nameJp": "麗しき花信風",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=80",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5627,6 +6177,7 @@
     "nameJp": "わやかわ♪マリンダイヴ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "phase==1&order>=2&order_rate<=70&activate_count_middle>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5637,6 +6188,7 @@
     "nameJp": "絶対は、ボクだ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5647,6 +6199,7 @@
     "nameJp": "グッときて♪Chu",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&activate_count_heal>=1&order<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5657,6 +6210,7 @@
     "nameJp": "Ravissant",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5667,6 +6221,7 @@
     "nameJp": "聖夜のミラクルラン！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "activate_count_heal>=3&distance_rate>=50",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5677,6 +6232,7 @@
     "nameJp": "ゲインヒール・スペリアー",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "phase==1&change_order_onetime>0&order_rate>=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5687,6 +6243,7 @@
     "nameJp": "最強の名を懸けて",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5697,6 +6254,7 @@
     "nameJp": "コンドル猛撃波",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "is_finalcorner==1&corner!=0&is_overtake==1&order>=4&order_rate<=75",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5707,6 +6265,7 @@
     "nameJp": "恵福バルカローレ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all>=7@remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all<=6",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5717,6 +6276,7 @@
     "nameJp": "翳り退く、さざめきの矢",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5727,6 +6287,7 @@
     "nameJp": "薫風、永遠なる瞬間を",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase==1&order>=3&order_rate<=50&is_overtake==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5737,6 +6298,7 @@
     "nameJp": "Do Ya Breakin!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "phase>=2&corner==0&order<=2&straight_front_type==2@phase>=2&corner==0&order<=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5747,6 +6309,7 @@
     "nameJp": "Best day ever",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance>=401&phase>=2&is_finalcorner==1&order_rate>=20&order_rate<=40@phase>=2&is_finalcorner==1&order_rate>=20&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5757,6 +6320,7 @@
     "nameJp": "Presents from X",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5767,6 +6331,7 @@
     "nameJp": "フラワリー☆マニューバ",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5777,6 +6342,7 @@
     "nameJp": "オペレーション・Cacao",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "order<=4&phase==1&corner!=0&bashin_diff_behind<=3",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5787,6 +6353,7 @@
     "nameJp": "Drain for rose",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20021",
     "conditions": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5797,6 +6364,7 @@
     "nameJp": "Guten Appetit♪",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5807,6 +6375,7 @@
     "nameJp": "One True Color",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "remain_distance<=350&order_rate<=40&order_rate>=20&bashin_diff_behind<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5817,6 +6386,7 @@
     "nameJp": "GET DOWN",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&order_rate>=30&order_rate<=70&blocked_side_continuetime>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5827,6 +6397,7 @@
     "nameJp": "ぐるぐるマミートリック♡",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order<=4&bashin_diff_infront<=1",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5837,6 +6408,7 @@
     "nameJp": "113転び114起き",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_top>=7",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5847,6 +6419,7 @@
     "nameJp": "禾スナハチ登ル",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "distance_rate>=50&order_rate>=40&overtake_target_time>=2",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5857,6 +6430,7 @@
     "nameJp": "Go☆Go☆for it!",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity>=4@is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity<4",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5867,6 +6441,7 @@
     "nameJp": "轟！トレセン応援団！！",
     "baseSpCost": 200,
     "rarity": "inherited_unique",
+    "iconId": "20041",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5877,6 +6452,7 @@
     "nameJp": "カーニバルボーナス",
     "baseSpCost": 0,
     "rarity": "white",
+    "iconId": "1010011",
     "conditions": "",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5887,6 +6463,7 @@
     "nameJp": "カーニバルボーナス",
     "baseSpCost": 0,
     "rarity": "white",
+    "iconId": "1010011",
     "conditions": "",
     "server": "global",
     "dataVersion": "global-c1fa2107"
@@ -5897,6 +6474,7 @@
     "nameJp": "超遊び癖",
     "baseSpCost": 0,
     "rarity": "white",
+    "iconId": "20064",
     "conditions": "always==1",
     "server": "global",
     "dataVersion": "global-c1fa2107"

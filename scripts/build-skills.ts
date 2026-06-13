@@ -180,6 +180,7 @@ export function buildSkills(inputs: {
       nameJp: resolveNameJp(skill.id),
       baseSpCost: skill.baseCost,
       rarity: mapRarity(skill),
+      iconId: skill.iconId,
       conditions,
       server: 'global',
       dataVersion,

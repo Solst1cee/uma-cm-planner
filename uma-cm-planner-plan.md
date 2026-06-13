@@ -114,6 +114,8 @@ This game has existed for 5+ years (JP). The community has built an enormous amo
 | [uma-moe org](https://github.com/uma-moe) (umamoe-frontend / -backend / -resources / -ingest) | Open-source spec for uma.moe deep links + **two reference affinity implementations** (`affinity.py`, `affinity.rs`) + battle-tested import optionality rules |
 | [hzyhhzy/UmaAi](https://github.com/hzyhhzy/UmaAi) | Career-sim-grade support-card models; candidate reference for hint-event proc mechanics |
 | [GameWith inheritance page](https://gamewith.jp/uma-musume/article/show/270279) (JP; also [Kamigame](https://kamigame.jp/umamusume/page/154134787475434233.html)) | Independent in-run inspiration empirical data — **conflicts with CrazyFellow's blue roll ranges**; basis for keeping them provisional (`docs/mechanics-notes.md` §6) |
+| [alpha123/uma-tools `icons/`](https://github.com/alpha123/uma-tools) (local: `spikes/repos/uma-tools/icons/`, 415MB) | **In-game image dump** — source for the curated bundled UI icon set (see §4 "Image assets"). Covers 578/578 skills (by `iconId`), 220/220 cards, 84/84 umas. |
+| [euophrys/uma-tiers](https://github.com/euophrys/uma-tiers), pretty-derby image set | Id-keyed community image CDNs (CORS-open, jsdelivr-mirrorable) — **fallback only** for not-yet-dumped cards; never the offline baseline (P2). Full image research: `spikes/image-ui-research.json` |
 
 ---
 
@@ -128,7 +130,10 @@ This game has existed for 5+ years (JP). The community has built an enormous amo
 - Deploy: GitHub Pages via Actions (same pattern as upstream and NightCalc)
 
 ### Licensing decision (resolve in Phase 0)
-jalbarrang/umalator-global is **GPL-3.0**. If we import its engine code, our repo must be GPL-3.0-compatible (practically: license the app GPL-3.0). Acceptable for a fan tool; decide consciously. Alternative if undesired: keep the optimizer app separate and *shell out* to their hosted sim via deep links (weaker integration). **Recommendation: adopt GPL-3.0.** Also verify alpha123/uma-tools and kachi-dev fork licenses during Phase 0 spike.
+jalbarrang/umalator-global is **GPL-3.0**. If we import its engine code, our repo must be GPL-3.0-compatible (practically: license the app GPL-3.0). Acceptable for a fan tool; decide consciously. Alternative if undesired: keep the optimizer app separate and *shell out* to their hosted sim via deep links (weaker integration). **Recommendation: adopt GPL-3.0.** Also verify alpha123/uma-tools and kachi-dev fork licenses during Phase 0 spike. → **DECIDED (Sun, 2026-06-13): GPL-3.0-only**; clean chain confirmed (`docs/provenance.md` §2).
+
+### Image assets — sourcing decision (Sun, 2026-06-13)
+The UI is **image-based, GameTora-style** (support-card chips, skill icons, uma portraits) for fast at-a-glance use mid-run. **Decision: BUNDLE a curated, Global-only icon subset — not hotlink, not the 415MB wholesale dump.** A build step copies ~360 files (56 skill icons + 220 `support_card_s` chips + 84 uma portraits) from the local `uma-tools/icons` dump, converts to **WebP (~5MB total)**, and writes them git-tracked under `public/data/icons/` with an `icon-manifest.json`. Carried under a **NOTICE that excludes all Cygames assets from our GPL-3.0 grant** (asset-exclusion model: pretty-derby/uma.moe; fair-use wording: umalator README). Rationale: **P2 (local-first/offline) forbids a hotlink primary** — every hotlink source shows broken images offline; and bundling is the **lowest legal-risk** option (curated subset under NOTICE; enforcement is narrow and targets fan-art, not tools). Resolution is deterministic and id-keyed: skill → `iconId` (now on `SkillRecord`, §5; 56 distinct, resolves `icons/skill/<iconId>.webp`), card → `cardId`, uma → `umaId` (17 alt-outfits fall back to the base character portrait). Hotlinking a community CDN stays a **lazy fallback only** for not-yet-dumped cards, never the offline baseline. Mirror into `docs/provenance.md` §2; full research in `spikes/image-ui-research.json`.
 
 ### Repo layout
 ```

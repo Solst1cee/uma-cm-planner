@@ -126,6 +126,7 @@ describe('computeContingencies', () => {
       nameJp: '',
       baseSpCost: 200,
       rarity: 'inherited_unique',
+      iconId: '20011',
       conditions: '',
       server: 'global',
       dataVersion: 'test',
@@ -145,6 +146,7 @@ describe('computeContingencies', () => {
       nameJp: '',
       baseSpCost: 120,
       rarity: 'gold',
+      iconId: '20011',
       prereqSkillId: '999000', // not in the dataset
       conditions: '',
       server: 'global',

@@ -9,6 +9,7 @@ import type { CmPlan, SkillRecord, SparkRates, SupportCardRecord } from '@/core/
 export const FIXTURE_SKILLS: SkillRecord[] = [
   {
     skillId: '200012',
+    iconId: '10011',
     nameEn: 'Right Turns ○',
     nameJp: '右回り○',
     baseSpCost: 90,
@@ -19,6 +20,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '200014',
+    iconId: '10012',
     nameEn: 'Right Turns ◎',
     nameJp: '右回り◎',
     baseSpCost: 110,
@@ -30,6 +32,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '200331',
+    iconId: '20012',
     nameEn: 'Professor of Curvature',
     nameJp: '弧線のプロフェッサー',
     baseSpCost: 160,
@@ -41,6 +44,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '200332',
+    iconId: '20011',
     nameEn: 'Corner Adept ○',
     nameJp: 'コーナー巧者○',
     baseSpCost: 110,
@@ -51,6 +55,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '210061',
+    iconId: '20142',
     nameEn: 'Shooting for the Top',
     nameJp: '一番星',
     baseSpCost: 0,
@@ -62,6 +67,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '900021',
+    iconId: '20011',
     nameEn: "I'm Not Giving Up the Lead…! (inherited)",
     nameJp: '先頭の景色は譲らない…！（継承）',
     baseSpCost: 0,
@@ -72,6 +78,7 @@ export const FIXTURE_SKILLS: SkillRecord[] = [
   },
   {
     skillId: '201242',
+    iconId: '20011',
     nameEn: 'JP-Only Example ○',
     nameJp: 'JP限定例○',
     baseSpCost: 100,

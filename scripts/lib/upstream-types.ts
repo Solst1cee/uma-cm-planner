@@ -26,6 +26,8 @@ export interface MasterSkill {
   /** Other skill ids in the same family (gold↔white links). */
   versions: number[];
   baseCost: number;
+  /** Shared skill-icon id (~56 distinct across all skills) → icons/skill/<iconId>.webp. */
+  iconId: string;
   /** Official EN name (Global master.mdb text_data). */
   name: string;
   alternatives: MasterSkillAlternative[];

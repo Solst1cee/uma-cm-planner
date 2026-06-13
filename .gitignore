@@ -14,3 +14,6 @@ spikes/
 # editor/os
 .DS_Store
 Thumbs.db
+
+# Forked plan dashboard — kept local, decision pending (commit to docs/ vs delete)
+/uma-cm-planner-plan.html

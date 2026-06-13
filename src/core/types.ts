@@ -24,6 +24,12 @@ export interface SkillRecord {
   /** SP shop cost before hint discounts; 0 for uniques. */
   baseSpCost: number;
   rarity: SkillRarity;
+  /**
+   * Shared skill-icon id (master.mdb / upstream skills.json `iconId`) — many
+   * skills map to one icon (~56 distinct). Resolves to icons/skill/<iconId>.webp.
+   * See plan §4 "Image assets" + docs/provenance.md §2.
+   */
+  iconId: string;
   /** Gold skills require their white base (counted/bundled by SP math). */
   prereqSkillId?: string;
   /**
