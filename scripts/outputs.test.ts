@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord } from '@/core/types';
+import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, UmaRecord } from '@/core/types';
 import { PUBLIC_DATA_DIR } from './lib/io';
 
 function readData<T>(name: string): T {
@@ -16,6 +16,7 @@ const skills = readData<SkillRecord[]>('skills.json');
 const cards = readData<SupportCardRecord[]>('support_cards.json');
 const sparkRates = readData<SparkRates>('spark_rates.json');
 const presets = readData<CmPreset[]>('cm_presets.json');
+const umas = readData<UmaRecord[]>('umas.json');
 
 describe('public/data/skills.json', () => {
   it('contains the 578 Global-released skills, all server=global with the pinned dataVersion', () => {
@@ -211,6 +212,45 @@ describe('public/data/spark_rates.json', () => {
       fastLearnerMultiplier: 0.9, // §7
       dataVersion: 'global-2026-06',
     } satisfies SparkRates);
+  });
+});
+
+describe('public/data/umas.json', () => {
+  it('contains the 84 Global-released outfits (59 characters), all server=global on the pinned dataVersion', () => {
+    expect(umas.length).toBeGreaterThan(0);
+    expect(umas).toHaveLength(84); // umalator cutover umas.json @ c1fa2107
+    expect(new Set(umas.map((u) => u.charaId)).size).toBe(59);
+    expect(umas.every((u) => u.server === 'global')).toBe(true);
+    expect(umas.every((u) => u.dataVersion === 'global-c1fa2107')).toBe(true);
+  });
+
+  it('Special Week 100101 carries the official EN name + epithet', () => {
+    const spe = umas.find((u) => u.umaId === '100101');
+    expect(spe).toBeDefined();
+    expect(spe?.charaId).toBe('1001');
+    expect(spe?.nameEn).toBe('Special Week');
+    expect(spe?.epithet).toBe('Special Dreamer');
+  });
+
+  it('uses official EN names where GameTora house style differs (T.M. Opera O, provenance §3 EN-names row)', () => {
+    expect(umas.find((u) => u.umaId === '101501')?.nameEn).toBe('T.M. Opera O');
+  });
+
+  it('follows the Parent.umaId convention: 6-digit card_data id, charaId = floor(umaId/100) (provenance §5)', () => {
+    for (const u of umas) {
+      expect(u.umaId, `umaId ${u.umaId}`).toMatch(/^\d{6}$/);
+      expect(u.charaId, `umaId ${u.umaId}`).toBe(String(Math.floor(Number(u.umaId) / 100)));
+      expect(u.nameEn.length, `umaId ${u.umaId}`).toBeGreaterThan(0);
+      // Epithets are picker display strings: bracket-free, trimmed.
+      expect(u.epithet, `umaId ${u.umaId}`).toMatch(/^\S(.*\S)?$/);
+      expect(u.epithet, `umaId ${u.umaId}`).not.toMatch(/[[\]]/);
+    }
+  });
+
+  it('is deterministically sorted by numeric umaId with no duplicates', () => {
+    const ids = umas.map((u) => Number(u.umaId));
+    expect(ids).toEqual([...ids].sort((a, b) => a - b));
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 

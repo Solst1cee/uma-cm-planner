@@ -120,6 +120,19 @@ export interface SparkRates {
   dataVersion: string;
 }
 
+/** Playable uma outfit (public/data/umas.json) — picker data for parents entry. */
+export interface UmaRecord {
+  /** Character card id (master.mdb card_data id, e.g. "100201") — matches Parent.umaId. */
+  umaId: string;
+  /** Character id (= floor(umaId/100) as string). */
+  charaId: string;
+  nameEn: string;
+  /** Outfit epithet, e.g. "Special Dreamer". */
+  epithet?: string;
+  server: Server;
+  dataVersion: string;
+}
+
 /** Champions Meeting race preset (public/data/cm_presets.json), normalized from umalator cm-presets. */
 export interface CmPreset {
   name: string;

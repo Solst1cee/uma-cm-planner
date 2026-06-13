@@ -1,0 +1,674 @@
+[
+  {
+    "umaId": "100101",
+    "charaId": "1001",
+    "nameEn": "Special Week",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Special Dreamer"
+  },
+  {
+    "umaId": "100102",
+    "charaId": "1001",
+    "nameEn": "Special Week",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Hopp'n♪Happy Heart"
+  },
+  {
+    "umaId": "100201",
+    "charaId": "1002",
+    "nameEn": "Silence Suzuka",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Innocent Silence"
+  },
+  {
+    "umaId": "100301",
+    "charaId": "1003",
+    "nameEn": "Tokai Teio",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Peak Joy"
+  },
+  {
+    "umaId": "100302",
+    "charaId": "1003",
+    "nameEn": "Tokai Teio",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Beyond the Horizon"
+  },
+  {
+    "umaId": "100401",
+    "charaId": "1004",
+    "nameEn": "Maruzensky",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Formula R"
+  },
+  {
+    "umaId": "100402",
+    "charaId": "1004",
+    "nameEn": "Maruzensky",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Hot☆Summer Night"
+  },
+  {
+    "umaId": "100501",
+    "charaId": "1005",
+    "nameEn": "Fuji Kiseki",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Shooting Star Revue"
+  },
+  {
+    "umaId": "100502",
+    "charaId": "1005",
+    "nameEn": "Fuji Kiseki",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Succès Étoilé"
+  },
+  {
+    "umaId": "100601",
+    "charaId": "1006",
+    "nameEn": "Oguri Cap",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Starlight Beat"
+  },
+  {
+    "umaId": "100602",
+    "charaId": "1006",
+    "nameEn": "Oguri Cap",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Ashen Miracle"
+  },
+  {
+    "umaId": "100701",
+    "charaId": "1007",
+    "nameEn": "Gold Ship",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Red Strife"
+  },
+  {
+    "umaId": "100801",
+    "charaId": "1008",
+    "nameEn": "Vodka",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Wild Top Gear"
+  },
+  {
+    "umaId": "100901",
+    "charaId": "1009",
+    "nameEn": "Daiwa Scarlet",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Peak Blue"
+  },
+  {
+    "umaId": "101001",
+    "charaId": "1010",
+    "nameEn": "Taiki Shuttle",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Wild Frontier"
+  },
+  {
+    "umaId": "101101",
+    "charaId": "1011",
+    "nameEn": "Grass Wonder",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Stone-Piercing Blue"
+  },
+  {
+    "umaId": "101102",
+    "charaId": "1011",
+    "nameEn": "Grass Wonder",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Saintly Jade Cleric"
+  },
+  {
+    "umaId": "101201",
+    "charaId": "1012",
+    "nameEn": "Hishi Amazon",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Azure Amazon"
+  },
+  {
+    "umaId": "101301",
+    "charaId": "1013",
+    "nameEn": "Mejiro McQueen",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Frontline Elegance"
+  },
+  {
+    "umaId": "101302",
+    "charaId": "1013",
+    "nameEn": "Mejiro McQueen",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "End of the Skies"
+  },
+  {
+    "umaId": "101401",
+    "charaId": "1014",
+    "nameEn": "El Condor Pasa",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "El☆Número 1"
+  },
+  {
+    "umaId": "101402",
+    "charaId": "1014",
+    "nameEn": "El Condor Pasa",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Kukulkan Warrior"
+  },
+  {
+    "umaId": "101501",
+    "charaId": "1015",
+    "nameEn": "T.M. Opera O",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "O Sole Suo!"
+  },
+  {
+    "umaId": "101502",
+    "charaId": "1015",
+    "nameEn": "T.M. Opera O",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "New Year, Same Radiance!"
+  },
+  {
+    "umaId": "101601",
+    "charaId": "1016",
+    "nameEn": "Narita Brian",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Maverick"
+  },
+  {
+    "umaId": "101701",
+    "charaId": "1017",
+    "nameEn": "Symboli Rudolf",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Emperor's Path"
+  },
+  {
+    "umaId": "101702",
+    "charaId": "1017",
+    "nameEn": "Symboli Rudolf",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Archer by Moonlight"
+  },
+  {
+    "umaId": "101801",
+    "charaId": "1018",
+    "nameEn": "Air Groove",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Empress Road"
+  },
+  {
+    "umaId": "101802",
+    "charaId": "1018",
+    "nameEn": "Air Groove",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Quercus Civilis"
+  },
+  {
+    "umaId": "101901",
+    "charaId": "1019",
+    "nameEn": "Agnes Digital",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Full-Color Fangirling"
+  },
+  {
+    "umaId": "102001",
+    "charaId": "1020",
+    "nameEn": "Seiun Sky",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Reeling in the Big One"
+  },
+  {
+    "umaId": "102002",
+    "charaId": "1020",
+    "nameEn": "Seiun Sky",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Soirée des Chatons"
+  },
+  {
+    "umaId": "102101",
+    "charaId": "1021",
+    "nameEn": "Tamamo Cross",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Fast as Lightning"
+  },
+  {
+    "umaId": "102201",
+    "charaId": "1022",
+    "nameEn": "Fine Motion",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Noble Seamair"
+  },
+  {
+    "umaId": "102202",
+    "charaId": "1022",
+    "nameEn": "Fine Motion",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Titania"
+  },
+  {
+    "umaId": "102301",
+    "charaId": "1023",
+    "nameEn": "Biwa Hayahide",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "pf. Winning Equation..."
+  },
+  {
+    "umaId": "102302",
+    "charaId": "1023",
+    "nameEn": "Biwa Hayahide",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Rouge Caroler"
+  },
+  {
+    "umaId": "102401",
+    "charaId": "1024",
+    "nameEn": "Mayano Top Gun",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Scramble☆Zone"
+  },
+  {
+    "umaId": "102402",
+    "charaId": "1024",
+    "nameEn": "Mayano Top Gun",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Sunlight Bouquet"
+  },
+  {
+    "umaId": "102501",
+    "charaId": "1025",
+    "nameEn": "Manhattan Cafe",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Creeping Shadow"
+  },
+  {
+    "umaId": "102601",
+    "charaId": "1026",
+    "nameEn": "Mihono Bourbon",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "MB-19890425"
+  },
+  {
+    "umaId": "102602",
+    "charaId": "1026",
+    "nameEn": "Mihono Bourbon",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "CODE: ICING"
+  },
+  {
+    "umaId": "102701",
+    "charaId": "1027",
+    "nameEn": "Mejiro Ryan",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Down the Line"
+  },
+  {
+    "umaId": "102801",
+    "charaId": "1028",
+    "nameEn": "Hishi Akebono",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Buono ☆ Alla Moda"
+  },
+  {
+    "umaId": "103001",
+    "charaId": "1030",
+    "nameEn": "Rice Shower",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Rosy Dreams"
+  },
+  {
+    "umaId": "103002",
+    "charaId": "1030",
+    "nameEn": "Rice Shower",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Vampire Makeover!"
+  },
+  {
+    "umaId": "103101",
+    "charaId": "1031",
+    "nameEn": "Ines Fujin",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Always Electrifying"
+  },
+  {
+    "umaId": "103201",
+    "charaId": "1032",
+    "nameEn": "Agnes Tachyon",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Tach-nology"
+  },
+  {
+    "umaId": "103301",
+    "charaId": "1033",
+    "nameEn": "Admire Vega",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Starry Nocturne"
+  },
+  {
+    "umaId": "103401",
+    "charaId": "1034",
+    "nameEn": "Inari One",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Edomurasaki"
+  },
+  {
+    "umaId": "103501",
+    "charaId": "1035",
+    "nameEn": "Winning Ticket",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Get to Winning!"
+  },
+  {
+    "umaId": "103701",
+    "charaId": "1037",
+    "nameEn": "Eishin Flash",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Meisterschaft"
+  },
+  {
+    "umaId": "103702",
+    "charaId": "1037",
+    "nameEn": "Eishin Flash",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Precise Chocolatier"
+  },
+  {
+    "umaId": "103801",
+    "charaId": "1038",
+    "nameEn": "Curren Chan",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Fille Éclair"
+  },
+  {
+    "umaId": "103802",
+    "charaId": "1038",
+    "nameEn": "Curren Chan",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Ma Chérie of the New Moon"
+  },
+  {
+    "umaId": "103901",
+    "charaId": "1039",
+    "nameEn": "Kawakami Princess",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Princess of Pink"
+  },
+  {
+    "umaId": "104001",
+    "charaId": "1040",
+    "nameEn": "Gold City",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Authentic / 1928"
+  },
+  {
+    "umaId": "104002",
+    "charaId": "1040",
+    "nameEn": "Gold City",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Autumn Cosmos"
+  },
+  {
+    "umaId": "104101",
+    "charaId": "1041",
+    "nameEn": "Sakura Bakushin O",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Blossom in Learning"
+  },
+  {
+    "umaId": "104401",
+    "charaId": "1044",
+    "nameEn": "Sweep Tosho",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Platanus Witch"
+  },
+  {
+    "umaId": "104501",
+    "charaId": "1045",
+    "nameEn": "Super Creek",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Murmuring Stream"
+  },
+  {
+    "umaId": "104502",
+    "charaId": "1045",
+    "nameEn": "Super Creek",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Chiffon-Wrapped Mummy"
+  },
+  {
+    "umaId": "104601",
+    "charaId": "1046",
+    "nameEn": "Smart Falcon",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "LOVE☆4EVER"
+  },
+  {
+    "umaId": "104801",
+    "charaId": "1048",
+    "nameEn": "Tosen Jordan",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Jokester ☆ Vibes"
+  },
+  {
+    "umaId": "105001",
+    "charaId": "1050",
+    "nameEn": "Narita Taishin",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Nevertheless"
+  },
+  {
+    "umaId": "105101",
+    "charaId": "1051",
+    "nameEn": "Nishino Flower",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Layered Petals"
+  },
+  {
+    "umaId": "105201",
+    "charaId": "1052",
+    "nameEn": "Haru Urara",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Bestest Prize ♪"
+  },
+  {
+    "umaId": "105202",
+    "charaId": "1052",
+    "nameEn": "Haru Urara",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "New Year ♪ New Urara!"
+  },
+  {
+    "umaId": "105601",
+    "charaId": "1056",
+    "nameEn": "Matikanefukukitaru",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Rising☆Fortune"
+  },
+  {
+    "umaId": "105602",
+    "charaId": "1056",
+    "nameEn": "Matikanefukukitaru",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Lucky Tidings"
+  },
+  {
+    "umaId": "105801",
+    "charaId": "1058",
+    "nameEn": "Meisho Doto",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Turbulent Blue"
+  },
+  {
+    "umaId": "105901",
+    "charaId": "1059",
+    "nameEn": "Mejiro Dober",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Off the Line"
+  },
+  {
+    "umaId": "106001",
+    "charaId": "1060",
+    "nameEn": "Nice Nature",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Poinsettia Ribbon"
+  },
+  {
+    "umaId": "106002",
+    "charaId": "1060",
+    "nameEn": "Nice Nature",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Run & Win"
+  },
+  {
+    "umaId": "106101",
+    "charaId": "1061",
+    "nameEn": "King Halo",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "King of Emeralds"
+  },
+  {
+    "umaId": "106102",
+    "charaId": "1061",
+    "nameEn": "King Halo",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Cheerleader in Noble White"
+  },
+  {
+    "umaId": "106201",
+    "charaId": "1062",
+    "nameEn": "Matikanetannhauser",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Clippety-Tippety-Clop"
+  },
+  {
+    "umaId": "106401",
+    "charaId": "1064",
+    "nameEn": "Mejiro Palmer",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Line Breakthrough"
+  },
+  {
+    "umaId": "106701",
+    "charaId": "1067",
+    "nameEn": "Satono Diamond",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Natural Brilliance"
+  },
+  {
+    "umaId": "106801",
+    "charaId": "1068",
+    "nameEn": "Kitasan Black",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Gilded Shrine to Glory"
+  },
+  {
+    "umaId": "106901",
+    "charaId": "1069",
+    "nameEn": "Sakura Chiyono O",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Strength in Full Bloom"
+  },
+  {
+    "umaId": "107101",
+    "charaId": "1071",
+    "nameEn": "Mejiro Ardan",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Crystalline"
+  },
+  {
+    "umaId": "107201",
+    "charaId": "1072",
+    "nameEn": "Yaeno Muteki",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Blazed Head, Covered Fists"
+  },
+  {
+    "umaId": "107401",
+    "charaId": "1074",
+    "nameEn": "Mejiro Bright",
+    "server": "global",
+    "dataVersion": "global-c1fa2107",
+    "epithet": "Brunissage Line"
+  }
+]

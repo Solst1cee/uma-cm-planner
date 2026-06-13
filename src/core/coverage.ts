@@ -1,10 +1,12 @@
 /**
- * Module 4 core — pure coverage functions (plan §6, build steps 1–3 scope).
- * No deck suggester, no sparkChance — those are Phase 2.
+ * Module 4 core — pure coverage functions (plan §6, build steps 1–4).
+ * Phase 2 added the parents/spark dimension (sparkChance lives in spark.ts;
+ * deck suggester in deck.ts; contingency view in contingency.ts).
  *
  * Operates strictly on the lists it is given; server filtering (P4) and
  * overrides merging (P5) happen upstream in the data layer.
  */
+import { sparkChance } from '@/core/spark';
 import type {
   CardSkill,
   CmPlan,
@@ -12,6 +14,7 @@ import type {
   CoverageSource,
   LimitBreak,
   OwnedCard,
+  Parent,
   SkillRecord,
   SkillSourceType,
   SparkRates,
@@ -81,6 +84,27 @@ export function classifyHintTier(
 // Coverage matrix
 // ---------------------------------------------------------------------------
 
+/**
+ * Tier a card grants for one of its skills, at the owned copy's LB. The single
+ * sourceType → Tier mapping — shared with the deck suggester's scoring.
+ */
+export function tierForCardSkill(
+  card: SupportCardRecord,
+  lb: LimitBreak,
+  sourceType: SkillSourceType,
+): Tier {
+  switch (sourceType) {
+    case 'chain':
+      return 'chain';
+    case 'date_event':
+      return 'date_event';
+    case 'random_event':
+      return 'random';
+    case 'hint_pool':
+      return classifyHintTier(card, lb);
+  }
+}
+
 function cardSource(
   card: SupportCardRecord,
   owned: OwnedCard,
@@ -96,27 +120,74 @@ function cardSource(
     ...(owned.id !== undefined ? { ownedId: owned.id } : {}),
     limitBreak: lb,
   };
-  switch (sourceType) {
-    case 'chain':
-      return { kind: 'chain', ...copy };
-    case 'date_event':
-      return { kind: 'date_event', ...copy };
-    case 'random_event':
-      return { kind: 'random', ...copy };
-    case 'hint_pool': {
-      const perLevel = card.perLevel.find((p) => p.limitBreak === lb);
-      return {
-        kind: classifyHintTier(card, lb),
-        ...copy,
-        // P3 evidence for the tier chip's detail popover.
-        detail: {
-          hintPoolSize: card.hintPoolSize,
-          hintFrequency: perLevel?.hintFrequency ?? 0,
-          specialtyPriority: perLevel?.specialtyPriority ?? 0,
-        },
-      };
-    }
+  const kind = tierForCardSkill(card, lb, sourceType);
+  if (sourceType === 'hint_pool') {
+    const perLevel = card.perLevel.find((p) => p.limitBreak === lb);
+    return {
+      kind,
+      ...copy,
+      // P3 evidence for the tier chip's detail popover.
+      detail: {
+        hintPoolSize: card.hintPoolSize,
+        hintFrequency: perLevel?.hintFrequency ?? 0,
+        specialtyPriority: perLevel?.specialtyPriority ?? 0,
+      },
+    };
   }
+  return { kind, ...copy };
+}
+
+/** Round to 1 decimal place — the display precision for spark % (P3). */
+function round1(pct: number): number {
+  return Math.round(pct * 10) / 10;
+}
+
+/**
+ * One 'spark' CoverageSource per parent whose lineage branch can grant the
+ * skill. sparkPct is that branch's combined whole-career chance (parent spark
+ * + that parent's grandparents' sparks), rounded to 1dp; detail describes the
+ * branch's strongest single contribution (highest pct; parent-held wins ties).
+ */
+function sparkSources(
+  parents: Parent[],
+  skillId: string,
+  rates: SparkRates,
+): CoverageSource[] {
+  const sources: CoverageSource[] = [];
+  for (const parent of parents) {
+    const result = sparkChance({ parents: [parent], skillId, rates });
+    const best = [...result.contributions].sort(
+      (a, b) => b.pct - a.pct || Number(a.grandparent) - Number(b.grandparent),
+    )[0];
+    if (!best) continue; // this parent's branch holds no matching spark
+    sources.push({
+      kind: 'spark',
+      parentId: parent.id,
+      sparkPct: round1(result.pct),
+      approximate: result.approximate,
+      detail: {
+        sparkStars: best.stars,
+        grandparent: best.grandparent,
+        affinityUsed: best.affinityUsed,
+      },
+    });
+  }
+  return sources;
+}
+
+/**
+ * Combined whole-career spark % across a row's 'spark' sources (independent
+ * branches: 1 − Π(1 − pct/100)). Operates on the already-1dp-rounded
+ * per-source sparkPct values — the UI's "all parents together" number, not a
+ * re-derivation. Non-spark sources are ignored; returns 0 when none. 1dp.
+ */
+export function combinedSparkPct(sources: CoverageSource[]): number {
+  let missAll = 1;
+  for (const source of sources) {
+    if (source.kind !== 'spark' || source.sparkPct === undefined) continue;
+    missAll *= 1 - source.sparkPct / 100;
+  }
+  return round1((1 - missAll) * 100);
 }
 
 /**
@@ -124,14 +195,23 @@ function cardSource(
  * in priority order — stable for equal priority. Scans ONLY owned cards.
  * Never throws on unknown ids: unknown inventory cardIds are skipped,
  * unknown target skillIds still emit an (uncovered) row for the UI.
+ *
+ * Phase 2: pass `parents` (the plan's resolved chosen parents) AND `rates`
+ * to add 'spark' tier sources — one per parent branch that can grant the
+ * target (see sparkSources). Spark sources rank below 'random' (Tier order).
+ * They are emitted even for skillIds missing from the dataset: the parent's
+ * recorded spark is itself the evidence, no SkillRecord needed.
  */
 export function buildCoverageMatrix(args: {
   plan: CmPlan;
   inventory: OwnedCard[];
   cards: SupportCardRecord[];
   skills: SkillRecord[];
+  parents?: Parent[];
+  /** Required for spark math; without it parents are ignored. */
+  rates?: SparkRates;
 }): CoverageRow[] {
-  const { plan, inventory, cards, skills } = args;
+  const { plan, inventory, cards, skills, parents, rates } = args;
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
   const cardById = new Map(cards.map((c) => [c.cardId, c]));
 
@@ -157,6 +237,10 @@ export function buildCoverageMatrix(args: {
           }
         }
       }
+    }
+
+    if (parents && rates) {
+      sources.push(...sparkSources(parents, target.skillId, rates));
     }
 
     sources.sort((a, b) => tierRank(a.kind) - tierRank(b.kind)); // best first

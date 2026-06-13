@@ -42,6 +42,10 @@ export const BORROWED_FILES: ReadonlyArray<BorrowedFile> = [
   { upstream: 'src/modules/data/json/umas.json', local: 'umas.json' },
   { upstream: 'src/modules/data/json/course_data.json', local: 'course_data.json' },
   { upstream: 'src/modules/data/json/gametora/skills.json', local: 'gametora/skills.json' },
+  {
+    upstream: 'src/modules/data/json/gametora/character-cards.json',
+    local: 'gametora/character-cards.json',
+  },
   { upstream: 'src/modules/data/json/gametora/support-cards.json', local: 'gametora/support-cards.json' },
   { upstream: 'src/modules/data/json/gametora/support-effects.json', local: 'gametora/support-effects.json' },
   {

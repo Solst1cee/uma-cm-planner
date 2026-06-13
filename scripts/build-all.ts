@@ -9,11 +9,12 @@
  *   pnpm data:build -- --from-spikes — (re)copy inputs from the local Phase-0 clone first
  */
 import { join } from 'node:path';
-import type { CmPreset, SkillRecord, SupportCardRecord } from '@/core/types';
+import type { CmPreset, SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
 import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
+import { buildUmas } from './build-umas';
 import { borrowedFilesPresent, copyFromSpikes, UPSTREAM_COMMIT } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, writeJsonDeterministic } from './lib/io';
@@ -21,10 +22,12 @@ import type {
   CourseDataJson,
   EventSkillSourcesJson,
   GtCard,
+  GtCharacterCard,
   GtSkill,
   MasterCardsJson,
   MasterSkillsJson,
   TachyonsDataJson,
+  UmalatorUmasJson,
   UpstreamCmPreset,
 } from './lib/upstream-types';
 import { applyOverrides, loadOverrideFiles } from './merge-overrides';
@@ -72,6 +75,11 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
     courses: readBorrowedJson<CourseDataJson>('course_data.json'),
     dataVersion: DATA_VERSION,
   });
+  let umas = buildUmas({
+    umas: readBorrowedJson<UmalatorUmasJson>('umas.json'),
+    gametoraChars: readBorrowedJson<GtCharacterCard[]>('gametora/character-cards.json'),
+    dataVersion: DATA_VERSION,
+  });
   const sparkRates = buildSparkRates();
 
   // Overrides win, applied LAST (P5). spark_rates is already hand-encoded
@@ -86,6 +94,9 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
         break;
       case 'cm_presets':
         presets = applyOverrides<CmPreset>(presets, override, 'name', override.fileName);
+        break;
+      case 'umas':
+        umas = applyOverrides<UmaRecord>(umas, override, 'umaId', override.fileName);
         break;
       default:
         throw new Error(`${override.fileName}: unknown _target "${override._target}"`);
@@ -103,10 +114,11 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'support_cards.json'), cards);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'spark_rates.json'), sparkRates);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'cm_presets.json'), presets);
+  writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'umas.json'), umas);
 
   console.log(
     `public/data written: ${skills.length} skills, ${cards.length} support cards, ` +
-      `${presets.length} cm presets, spark_rates (${sparkRates.dataVersion}).`,
+      `${presets.length} cm presets, ${umas.length} umas, spark_rates (${sparkRates.dataVersion}).`,
   );
 }
 

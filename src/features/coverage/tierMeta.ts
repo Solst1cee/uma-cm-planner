@@ -36,9 +36,19 @@ export const TIER_DESCRIPTION: Record<Tier, string> = {
   hint_strong: 'Hint pool, favorable odds (high hint frequency vs pool size).',
   hint_weak: 'Hint pool, unfavorable odds (low hint frequency or large pool).',
   random: 'Random (non-chain) event — never count on it for core skills.',
-  spark: 'Inheritance spark — probabilistic; spark math lands in Phase 2.',
+  spark:
+    'Inheritance spark — probabilistic; % = chance of at least one proc across both inspiration events (Classic + Senior April).',
   uncovered: 'No reliable source in the current inventory/scenario.',
 };
+
+/**
+ * Whole-number % for spark chips/lines; never rounds a real chance down to
+ * a bare "0" (P3 — a 0.4 % spark is not a 0 % spark).
+ */
+export function formatSparkPct(pct: number): string {
+  const rounded = Math.round(pct);
+  return rounded === 0 && pct > 0 ? '<1' : String(rounded);
+}
 
 export function tierRank(tier: Tier): number {
   const idx = TIER_ORDER.indexOf(tier);

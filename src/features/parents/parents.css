@@ -1,0 +1,177 @@
+/* Parents feature styles. Shared primitives (panel, field, picker, badge,
+   chip-sm, owned-* rows) live in src/styles/app.css — only feature-specific
+   additions belong here. Imported by ParentsPage / ChosenParentsPicker. */
+
+/* NavLink anchors reuse .nav-item; anchors need the link styling reset. */
+a.nav-item {
+  text-decoration: none;
+}
+
+textarea {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  resize: vertical;
+}
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Add/edit form ---- */
+
+.parent-form {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-0);
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.spark-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 0 0.6rem;
+}
+
+.selected-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.selected-row .field {
+  margin-bottom: 0;
+}
+
+.spark-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+.spark-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.spark-row:last-child {
+  border-bottom: none;
+}
+.spark-row select {
+  width: auto;
+}
+
+.gp-block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  margin: 0.5rem 0;
+}
+.gp-block > summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  min-height: 2rem; /* touch target */
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.gp-block[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+.source-toggle {
+  display: flex;
+  gap: 0.4rem;
+}
+.toggle-chip {
+  border-radius: 999px;
+  color: var(--fg-muted);
+  padding: 0.35rem 0.8rem;
+}
+.toggle-chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0c1020;
+  font-weight: 700;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* ---- Saved-parents list ---- */
+
+.parent-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+.parent-row {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.parent-row:last-child {
+  border-bottom: none;
+}
+.spark-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+.spark-blue {
+  color: #93c5fd;
+  border-color: #1e40af;
+}
+.spark-pink {
+  color: #f9a8d4;
+  border-color: #9d174d;
+}
+.spark-green {
+  color: #86efac;
+  border-color: #166534;
+}
+.source-friend_rental {
+  color: #fbbf24;
+  border-color: #6b5618;
+}
+.parent-notes {
+  margin: 0.3rem 0 0;
+}
+.confirm-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* ---- Chosen-parents picker (embeds in the planner page) ---- */
+
+.chosen-parents {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 560px) {
+  .chosen-parents {
+    grid-template-columns: 1fr 1fr;
+    gap: 0 0.6rem;
+  }
+}
+.chosen-parents .field {
+  margin-bottom: 0.4rem;
+}
+.chosen-parents-note {
+  grid-column: 1 / -1;
+  margin: 0.1rem 0 0.4rem;
+}

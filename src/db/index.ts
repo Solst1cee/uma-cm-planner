@@ -15,3 +15,5 @@ export {
 } from './api';
 export { exportBlob, importBlob, parseExportBlobV1 } from './exportImport';
 export type { ExportBlobV1, ImportMode, ImportResult } from './exportImport';
+export { listParents, getParent, saveParent, deleteParent } from './parentsApi';
+export type { ParentDraft } from './parentsApi';

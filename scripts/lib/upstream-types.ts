@@ -105,6 +105,21 @@ export interface GtCard {
   effects?: number[][];
 }
 
+/** gametora/character-cards.json — full JP+Global catalog (254 playable outfits). */
+export interface GtCharacterCard {
+  /** Character card id (master.mdb card_data id), e.g. 100101. */
+  card_id: number;
+  char_id: number;
+  /** GameTora house-style EN name — may differ from official ("TM Opera O" vs "T.M. Opera O"). */
+  name_en?: string;
+  /** Fan-TL outfit title (no brackets) — present for the whole catalog incl. JP-only. */
+  title?: string;
+  /** OFFICIAL Global EN outfit title incl. brackets, e.g. "[Special Dreamer]"; absent if not Global-released. */
+  title_en_gl?: string;
+  /** Global release date (ISO), absent if unreleased on Global. */
+  release_en?: string;
+}
+
 export type EventSkillSourcesJson = Record<
   string,
   { chain_event_skills: number[]; random_event_skills: number[] }
@@ -162,6 +177,16 @@ export interface TachyonsCard {
 
 /** data.json is an object keyed by array index ("0".."216"), NOT by card id. */
 export type TachyonsDataJson = Record<string, TachyonsCard>;
+
+/** umas.json (Global cutover) — charaId → character; outfit titles are official EN (master.mdb text_data). */
+export interface UmalatorUma {
+  /** [jp, en] — the jp slot is empty in the Global cutover extract. */
+  name: [string, string];
+  /** umaId ("100101", = master.mdb card_data id) → official EN outfit title incl. brackets. */
+  outfits: Record<string, string>;
+}
+
+export type UmalatorUmasJson = Record<string, UmalatorUma>;
 
 // --- umalator race presets --------------------------------------------------
 

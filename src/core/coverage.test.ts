@@ -9,6 +9,7 @@ import {
   buildCoverageMatrix,
   bundledSpCost,
   classifyHintTier,
+  combinedSparkPct,
   effectiveSpCost,
   expectedHintLevel,
   tierRank,
@@ -23,6 +24,7 @@ import type {
   CmPlan,
   CoverageSource,
   LimitBreak,
+  Parent,
   SkillRecord,
   SupportCardRecord,
 } from '@/core/types';
@@ -428,5 +430,199 @@ describe('bundledSpCost', () => {
   it('applies Fast Learner to the whole bundle', () => {
     // (71.5 + 58.5) × 0.9 = 117 → 117
     expect(bundledSpCost(gold, white, 4, 4, rates, { fastLearner: true })).toBe(117);
+  });
+});
+
+// --- spark sources (Phase 2: parents + rates) --------------------------------
+// Spark % values derive from sparkChance, golden-tested against Ice's sheet in
+// spark.test.ts (mechanics-notes §1–§4). Here we test the matrix integration:
+// per-parent sources, 1dp rounding, tier ranking, detail fields, combination.
+
+describe('buildCoverageMatrix — spark sources', () => {
+  const baseArgs = { cards: FIXTURE_CARDS, skills: FIXTURE_SKILLS, rates: FIXTURE_SPARK_RATES };
+
+  function makeParent(overrides: Partial<Parent> & Pick<Parent, 'id'>): Parent {
+    return {
+      umaId: '100201',
+      blueSpark: { stat: 'spd', stars: 3 },
+      pinkSpark: { aptitude: 'turf', stars: 3 },
+      whiteSparks: [],
+      source: 'mine',
+      ...overrides,
+    };
+  }
+
+  const parentA = makeParent({
+    id: 'parent-a',
+    whiteSparks: [{ skillId: '200014', stars: 1 }],
+    affinityHint: 95,
+  });
+  const parentB = makeParent({
+    id: 'parent-b',
+    whiteSparks: [{ skillId: '200014', stars: 2 }],
+    affinityHint: 95,
+  });
+
+  it('emits one spark source per covering parent, ranked below random (Tier order)', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const rows = buildCoverageMatrix({
+      ...baseArgs,
+      plan,
+      inventory: [KITASAN], // 200014 is a random event on Kitasan
+      parents: [parentA],
+    });
+    expect(rows[0]?.sources.map((s) => s.kind)).toEqual(['random', 'spark']);
+    expect(rows[0]?.bestTier).toBe('random'); // spark never outranks random
+    expect(tierRank('spark')).toBeGreaterThan(tierRank('random'));
+    // 1★ white at affinity 95 = 11.357775% (Ice AO1065) → 1dp.
+    expect(rows[0]?.sources[1]).toEqual({
+      kind: 'spark',
+      parentId: 'parent-a',
+      sparkPct: 11.4,
+      approximate: false,
+      detail: { sparkStars: 1, grandparent: false, affinityUsed: 95 },
+    });
+  });
+
+  it('two covering parents → one source each; combinedSparkPct combines them', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const rows = buildCoverageMatrix({
+      ...baseArgs,
+      plan,
+      inventory: [],
+      parents: [parentA, parentB],
+    });
+    const sources = rows[0]?.sources ?? [];
+    expect(sources.map((s) => [s.parentId, s.sparkPct])).toEqual([
+      ['parent-a', 11.4],
+      ['parent-b', 22], // 22.0311% (Ice AO1086) → 1dp
+    ]);
+    expect(rows[0]?.bestTier).toBe('spark');
+    // 1 − (1−0.114)(1−0.22) = 0.30892 → 30.9 (combines the rounded values).
+    expect(combinedSparkPct(sources)).toBe(30.9);
+  });
+
+  it('grandparent-only branch: conservative affinity-0 floor, approximate, gp detail', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const gpParent = makeParent({
+      id: 'parent-c',
+      affinityHint: 95,
+      grandparents: [
+        { umaId: '100101', whiteSparks: [{ skillId: '200014', stars: 1 }] },
+        undefined,
+      ],
+    });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [gpParent] });
+    // base-only 1★: 1 − 0.97² = 5.91% → 5.9 (no flat ×0.5, mechanics-notes §4).
+    expect(rows[0]?.sources).toEqual([
+      {
+        kind: 'spark',
+        parentId: 'parent-c',
+        sparkPct: 5.9,
+        approximate: true,
+        detail: { sparkStars: 1, grandparent: true, affinityUsed: 0 },
+      },
+    ]);
+  });
+
+  it('parent + own grandparent in one branch → ONE source with the branch-combined pct; detail = strongest contribution', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const branch = makeParent({
+      id: 'parent-d',
+      whiteSparks: [{ skillId: '200014', stars: 1 }],
+      affinityHint: 95,
+      grandparents: [
+        { umaId: '100101', whiteSparks: [{ skillId: '200014', stars: 1 }] },
+        undefined,
+      ],
+    });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [branch] });
+    // 1 − (1−0.11357775)(1−0.0591) = 16.5965…% → 16.6; parent-held contribution
+    // (11.36% > 5.91%) drives the detail; gp involvement makes it approximate.
+    expect(rows[0]?.sources).toEqual([
+      {
+        kind: 'spark',
+        parentId: 'parent-d',
+        sparkPct: 16.6,
+        approximate: true,
+        detail: { sparkStars: 1, grandparent: false, affinityUsed: 95 },
+      },
+    ]);
+  });
+
+  it('green spark covers its 9xxxxx inherited-unique target', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '900021', priority: 1 }] });
+    const green = makeParent({
+      id: 'parent-g',
+      greenSpark: { skillId: '900021', stars: 1 },
+      affinityHint: 95,
+    });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [green] });
+    // green 1★ at 95 = 18.549375% (Ice AO715) → 18.5.
+    expect(rows[0]?.sources).toEqual([
+      {
+        kind: 'spark',
+        parentId: 'parent-g',
+        sparkPct: 18.5,
+        approximate: false,
+        detail: { sparkStars: 1, grandparent: false, affinityUsed: 95 },
+      },
+    ]);
+    expect(rows[0]?.bestTier).toBe('spark');
+  });
+
+  it('emits spark sources even for a skillId missing from the dataset (the parent record is the evidence)', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '123456', priority: 1 }] });
+    const parent = makeParent({
+      id: 'parent-x',
+      whiteSparks: [{ skillId: '123456', stars: 1 }],
+      affinityHint: 95,
+    });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [parent] });
+    expect(rows[0]?.bestTier).toBe('spark');
+    expect(rows[0]?.sources).toHaveLength(1);
+  });
+
+  it('ignores parents when rates are not provided (spark math needs SparkRates)', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const rows = buildCoverageMatrix({
+      plan,
+      inventory: [],
+      cards: FIXTURE_CARDS,
+      skills: FIXTURE_SKILLS,
+      parents: [parentA],
+    });
+    expect(rows[0]?.sources).toEqual([]);
+    expect(rows[0]?.bestTier).toBe('uncovered');
+  });
+
+  it('non-covering parents emit nothing', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [parentA] });
+    expect(rows[0]?.sources).toEqual([]);
+  });
+});
+
+describe('combinedSparkPct', () => {
+  it('returns 0 for no spark sources and ignores non-spark sources', () => {
+    expect(combinedSparkPct([])).toBe(0);
+    expect(combinedSparkPct([{ kind: 'chain', cardId: '30028' }])).toBe(0);
+  });
+
+  it('passes a single spark source through unchanged', () => {
+    expect(combinedSparkPct([{ kind: 'spark', parentId: 'p', sparkPct: 11.4 }])).toBe(11.4);
+  });
+
+  it('combines independent branches: 1 − Π(1 − pct/100), 1dp', () => {
+    const sources: CoverageSource[] = [
+      { kind: 'spark', parentId: 'a', sparkPct: 11.4 },
+      { kind: 'spark', parentId: 'b', sparkPct: 22 },
+      { kind: 'random', cardId: '30028' }, // ignored
+    ];
+    expect(combinedSparkPct(sources)).toBe(30.9);
+  });
+
+  it('skips spark sources without a sparkPct', () => {
+    expect(combinedSparkPct([{ kind: 'spark', parentId: 'p' }])).toBe(0);
   });
 });

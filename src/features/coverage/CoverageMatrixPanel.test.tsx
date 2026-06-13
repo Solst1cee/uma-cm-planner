@@ -1,24 +1,29 @@
 /**
  * Coverage matrix rendering against the fixture plan, with deterministic
- * mocked core output (the core's own behavior is covered by coverage.test.ts).
+ * mocked core output (the core's own behavior is covered by coverage.test.ts
+ * / spark.test.ts) and a mocked db (parents resolution).
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import type { CoverageRow, CoverageSource, OwnedCard, SkillRecord } from '@/core/types';
+import type {
+  CmPlan,
+  CoverageRow,
+  CoverageSource,
+  OwnedCard,
+  Parent,
+  SkillRecord,
+} from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import { CoverageMatrixPanel } from '@/features/coverage/CoverageMatrixPanel';
-
-vi.mock('@/features/data/gameData', async () => {
-  const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
-  return { useGameData: () => fixtureGameData() };
-});
 
 const mocked = vi.hoisted(() => {
   // Rows deliberately NOT in priority order — the panel must sort them.
   // Card sources carry ownedId + limitBreak (core sets both since the
   // duplicate-copy fix); the panel must filter cells by ownedId.
+  // Spark sources carry parentId (+ sparkPct/approximate/detail) — the panel
+  // must route them to the chosen-parent columns, never to card columns.
   const rows = [
     {
       skillId: '210061', // Shooting for the Top
@@ -50,7 +55,7 @@ const mocked = vi.hoisted(() => {
       bestTier: 'random',
     },
     {
-      skillId: '200332', // Corner Adept ○ (white; hint source)
+      skillId: '200332', // Corner Adept ○ (white; hint + both parents' sparks)
       priority: 2,
       sources: [
         {
@@ -60,12 +65,67 @@ const mocked = vi.hoisted(() => {
           limitBreak: 3,
           detail: { hintPoolSize: 2, hintFrequency: 40, specialtyPriority: 100 },
         },
+        {
+          kind: 'spark',
+          parentId: 'p1',
+          sparkPct: 17.4,
+          detail: { sparkStars: 3, grandparent: false, affinityUsed: 102 },
+        },
+        {
+          kind: 'spark',
+          parentId: 'p2',
+          sparkPct: 9.6,
+          approximate: true,
+          detail: { sparkStars: 2, grandparent: true, affinityUsed: 51 },
+        },
       ],
       bestTier: 'hint_strong',
     },
   ];
-  return { rows };
+  const parents = [
+    {
+      id: 'p1',
+      umaId: '100201', // in the mocked uma list → column shows the uma name
+      blueSpark: { stat: 'spd', stars: 3 },
+      pinkSpark: { aptitude: 'turf', stars: 3 },
+      whiteSparks: [{ skillId: '200332', stars: 3 }],
+      source: 'mine',
+    },
+    {
+      id: 'p2',
+      umaId: '100999', // NOT in the uma list → column falls back to 'Parent 2'
+      blueSpark: { stat: 'sta', stars: 2 },
+      pinkSpark: { aptitude: 'long', stars: 1 },
+      whiteSparks: [{ skillId: '200332', stars: 2 }],
+      source: 'friend_rental',
+    },
+  ];
+  const umas = [
+    {
+      umaId: '100201',
+      charaId: '1002',
+      nameEn: 'Daiwa Scarlet',
+      server: 'global',
+      dataVersion: 'fixture',
+    },
+  ];
+  return { rows, parents, umas };
 });
+
+vi.mock('@/features/data/gameData', async () => {
+  const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
+  return {
+    useGameData: () => ({
+      ...fixtureGameData(),
+      umas: mocked.umas,
+      umaById: new Map(mocked.umas.map((u) => [u.umaId, u])),
+    }),
+  };
+});
+
+vi.mock('@/db', () => ({
+  listParents: vi.fn(async () => mocked.parents as unknown as Parent[]),
+}));
 
 vi.mock('@/core/coverage', () => ({
   buildCoverageMatrix: vi.fn(() => mocked.rows as unknown as CoverageRow[]),
@@ -79,14 +139,17 @@ vi.mock('@/core/coverage', () => ({
   bundledSpCost: vi.fn(
     (gold: SkillRecord, white: SkillRecord) => gold.baseSpCost + white.baseSpCost,
   ),
+  combinedSparkPct: vi.fn(() => 25.3),
 }));
 
 const INVENTORY: OwnedCard[] = [{ id: 1, cardId: '30028', limitBreak: 3 }];
 
+const PLAN_WITH_PARENTS: CmPlan = { ...FIXTURE_PLAN, chosenParents: ['p1', 'p2'] };
+
 afterEach(cleanup);
 
-function renderPanel(inventory: OwnedCard[] = INVENTORY) {
-  return render(<CoverageMatrixPanel plan={FIXTURE_PLAN} inventory={inventory} />);
+function renderPanel(inventory: OwnedCard[] = INVENTORY, plan: CmPlan = FIXTURE_PLAN) {
+  return render(<CoverageMatrixPanel plan={plan} inventory={inventory} />);
 }
 
 describe('CoverageMatrixPanel', () => {
@@ -219,5 +282,93 @@ describe('CoverageMatrixPanel', () => {
       />,
     );
     expect(screen.getByText('Add target skills above to see coverage.')).toBeInTheDocument();
+  });
+
+  describe('parent spark columns', () => {
+    it('renders no parent columns when no parents are chosen', () => {
+      renderPanel();
+      expect(
+        screen.queryByRole('columnheader', { name: /Parent \d/ }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/spark/)).not.toBeInTheDocument();
+    });
+
+    it('renders one column per chosen parent, named by uma when known', async () => {
+      renderPanel(INVENTORY, PLAN_WITH_PARENTS);
+      // p1's uma is in the dataset → uma name; p2's is not → positional label.
+      expect(
+        await screen.findByRole('columnheader', { name: /Daiwa Scarlet/ }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: 'Parent 2' })).toBeInTheDocument();
+    });
+
+    it('shows spark % chips, ≈-prefixed when the number is approximate', async () => {
+      renderPanel(INVENTORY, PLAN_WITH_PARENTS);
+      expect(
+        await screen.findByRole('button', {
+          name: 'Corner Adept ○ via Daiwa Scarlet: spark 17%',
+        }),
+      ).toHaveTextContent('spark 17%');
+      expect(
+        screen.getByRole('button', {
+          name: 'Corner Adept ○ via Parent 2: spark ≈10%',
+        }),
+      ).toHaveTextContent('spark ≈10%');
+    });
+
+    it('spark drawer shows stars, origin, affinity, combined % and the P3 caveat', async () => {
+      const user = userEvent.setup();
+      renderPanel(INVENTORY, PLAN_WITH_PARENTS);
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Corner Adept ○ via Daiwa Scarlet: spark 17%',
+        }),
+      );
+      const drawer = screen.getByRole('dialog', {
+        name: 'Coverage details: Corner Adept ○',
+      });
+      const inDrawer = within(drawer);
+      expect(inDrawer.getByText(/via Daiwa Scarlet/)).toBeInTheDocument();
+      expect(inDrawer.getByText('Spark stars').nextElementSibling).toHaveTextContent('3★');
+      expect(inDrawer.getByText('Origin').nextElementSibling).toHaveTextContent(/^Parent$/);
+      expect(inDrawer.getByText('Affinity used').nextElementSibling).toHaveTextContent('102');
+      expect(inDrawer.getByText('Chance (this line)').nextElementSibling).toHaveTextContent(
+        '17%',
+      );
+      // combinedSparkPct mocked to 25.3; ≈ because the p2 line is approximate.
+      expect(
+        inDrawer.getByText('Combined (all parents)').nextElementSibling,
+      ).toHaveTextContent('≈25%');
+      expect(
+        inDrawer.getByText(
+          /probability of the spark proccing at least once across both inspiration events — estimation, not a guarantee/,
+        ),
+      ).toBeInTheDocument();
+      // No hint-cost block for sparks: SP branches live in the contingency view.
+      expect(inDrawer.queryByText('Effective SP cost')).not.toBeInTheDocument();
+    });
+
+    it('marks grandparent-origin sparks and their approximate chance in the drawer', async () => {
+      const user = userEvent.setup();
+      renderPanel(INVENTORY, PLAN_WITH_PARENTS);
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Corner Adept ○ via Parent 2: spark ≈10%',
+        }),
+      );
+      const drawer = screen.getByRole('dialog', {
+        name: 'Coverage details: Corner Adept ○',
+      });
+      const inDrawer = within(drawer);
+      expect(inDrawer.getByText('Origin').nextElementSibling).toHaveTextContent(
+        /^Grandparent$/,
+      );
+      expect(inDrawer.getByText('Chance (this line)').nextElementSibling).toHaveTextContent(
+        '≈10%',
+      );
+      expect(
+        inDrawer.getByText(/grandparent affinity fallback — mechanics-notes §4/),
+      ).toBeInTheDocument();
+    });
   });
 });

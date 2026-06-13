@@ -132,6 +132,15 @@ The umalator pin (c1fa2107, data tag 2026-06-05) ships **217** support cards, bu
 
 Upstream `cm-presets.json` mixes the JP CM history with the rounds umalator-global tracked since Global launch (Phase 1 review finding). `CmPreset` now carries `server` + `dataVersion` (P4). **Derivation rule** (`scripts/build-cm-presets.ts`): `date >= 2025-06-26` (Global launch, §3.1) → `global` (5 rounds: 2025-07-25 … 2026-01-22), earlier → `jp` (26 rounds incl. the 2025-06-21 CLASSIC, which predates launch by 5 days). ⚠ Verification status (P3): rule is date-derived; the review's GameTora live checks support the split, but a quick news search (uma.guide CM schedule, namu.wiki CM list, 2026-06-12) suggests Global may ALSO reuse zodiac cup names — the preset *names* are the upstream author's labels, so trust the dates, not the names. Re-verify per-round against the in-game news archive when a preset is actually used for a plan; correct via a `cm_presets` override if a round is mis-tagged.
 
+### 3.4 umas.json — parents-entry picker dataset (added 2026-06-13)
+
+`public/data/umas.json` (= `UmaRecord[]`, built by `scripts/build-umas.ts`) ships one record per **Global-released playable outfit**: 84 outfits / 59 characters at the c1fa2107 pin.
+
+- **Released-set source:** umalator-global cutover `json/umas.json` (master.mdb extract, same pin) — presence there = released on Global. `nameEn` and the epithet come from this extract (official EN, master.mdb text_data per the §3 "EN names" row). Epithets are stored bracket-free + trimmed ("Special Dreamer", not "[Special Dreamer]").
+- **Cross-check + fallback:** `json/gametora/character-cards.json` (254-outfit JP+Global catalog, NEW borrowed file added to `scripts/fetch-borrowed.ts` at the same pin; raw URL verified 200 on 2026-06-13). Its `title_en_gl` is also official Global EN — the build **fails** if the two sources disagree on an epithet (drift oracle, same philosophy as `assertTachyonsParity`). Its `name_en` is GameTora *house style* and is deliberately NOT used ("TM Opera O" vs official "T.M. Opera O"); the fan-TL `title` field is never read, so **no fan translations are used** (all 84 released outfits carry `title_en_gl`).
+- **ID convention (provenance §5):** `umaId` = master.mdb `card_data` id as string, one per outfit — identical to what the UmaExtractor importer maps `card_id` → `Parent.umaId`; `charaId` = `floor(umaId/100)` as string, enforced at build time. Deterministic sort by numeric `umaId`.
+- Override-targetable as `_target: "umas"` keyed by `umaId` (build-all wiring; no overrides file exists yet — create `data-overrides/umas_overrides.json` when first needed, P5).
+
 ---
 
 ## 4. Support-card skill sourceType (chain / hint_pool / random_event)

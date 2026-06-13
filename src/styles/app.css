@@ -541,7 +541,98 @@ button:disabled {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- Wider screens: side-by-side plan + inventory ---- */
+/* ---- Deck suggester ---- */
+
+.deck-slots {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  /* 390px viewport → two columns; slots wrap instead of overflowing */
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.5rem;
+}
+.deck-slot {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.deck-slot .field {
+  margin-bottom: 0.25rem;
+}
+.slot-lock-card {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+}
+.slot-card-picker {
+  margin-top: 0.3rem;
+}
+
+.deck-result {
+  list-style: none;
+  margin: 0.6rem 0;
+  padding: 0;
+}
+.deck-result > li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.deck-result > li:last-child {
+  border-bottom: none;
+}
+.deck-slot-no {
+  min-width: 3.2rem;
+}
+.deck-card-name {
+  flex: 1;
+  min-width: 0;
+}
+.locked-badge {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.rationale {
+  margin: 0.4rem 0;
+  padding-left: 1.1rem;
+}
+.rationale > li {
+  margin: 0.15rem 0;
+}
+
+.missing-list {
+  margin: 0.3rem 0;
+  padding-left: 1.1rem;
+  color: var(--tier-uncovered);
+  font-weight: 600;
+}
+
+/* ---- Spark contingency view ---- */
+
+details.panel > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.contingency-list {
+  list-style: none;
+  margin: 0.6rem 0;
+  padding: 0;
+}
+.contingency-list > li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.contingency-list > li:last-child {
+  border-bottom: none;
+}
+.contingency-line {
+  margin: 0;
+}
+
+/* ---- Wider screens: side-by-side plan + parents ---- */
 
 @media (min-width: 760px) {
   .page {
@@ -549,7 +640,9 @@ button:disabled {
     grid-template-columns: 1fr 1fr;
     align-items: start;
   }
-  .page > section:nth-child(3) {
+  /* Plan header + parents picker share the top row; inventory, matrix,
+     suggester and contingencies span full width. */
+  .page > :nth-child(n + 3) {
     grid-column: 1 / -1;
   }
   .drawer {

@@ -2,14 +2,18 @@
  * App shell: header (name, module nav, settings), fixture-data banner,
  * routes, and the persistent P3 honesty footer.
  */
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
+import { ParentsPage } from '@/features/parents/ParentsPage';
 import { SkillPlannerPage } from '@/features/skill-planner/SkillPlannerPage';
 
 // Modules 1–3 land in later phases; nav shows them as disabled stubs.
 const STUB_MODULES = ['Inheritance', 'SP Optimizer', 'Meta Intel'] as const;
+
+const navItemClass = ({ isActive }: { isActive: boolean }) =>
+  isActive ? 'nav-item active' : 'nav-item';
 
 function FixtureBanner() {
   const { status } = useGameData();
@@ -31,9 +35,12 @@ function Shell() {
           <SettingsMenu />
         </div>
         <nav aria-label="Modules">
-          <span className="nav-item active" aria-current="page">
+          <NavLink to="/" end className={navItemClass}>
             Skill Planner
-          </span>
+          </NavLink>
+          <NavLink to="/parents" className={navItemClass}>
+            Parents
+          </NavLink>
           {STUB_MODULES.map((name) => (
             <button key={name} type="button" className="nav-item" disabled>
               {name}
@@ -45,6 +52,7 @@ function Shell() {
       <main>
         <Routes>
           <Route path="/" element={<SkillPlannerPage />} />
+          <Route path="/parents" element={<ParentsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
