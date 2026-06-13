@@ -487,6 +487,8 @@ inheritance  coverage        SP knapsack        meta intel
 
 **Phase 2 — Module 4 complete** ✅ **DONE 2026-06-13** (4-agent build + 3-reviewer adversarial pass + fixes; 252 tests): parents entry (`/parents` CRUD over 84-uma picker), `sparkChance` (Ice-sheet goldens to 8–9 decimals; per-member affinity model, no flat gp multiplier; total-affinity entries flagged ≈ until Module 1 computes per-member), deck suggester (greedy + 1-swap, lock invariants, no card twice), contingency view (static; proc cost floored ≤ miss; inherited-unique = "not obtainable"). Honesty fixes: gold skills can't be white sparks (mechanics §8); stale suggestions invalidated on input change.
 
+**Image-UI prep** ✅ **DONE 2026-06-13** (between Phases 2 and 3; 4 commits, browser-verified, 275 tests): GameTora-style image UI per the §4 "Image assets" decision — curated Global-only WebP icon bundle (`public/data/icons/`: 56 skill icons + 220 card chips + 84 uma portraits, ~5MB, `build-icons.ts` atomic build), pure resolver `src/core/icons.ts` + `<GameIcon>`, icons retrofitted across the matrix/inventory/pickers/parents (augmenting text, never replacing). `iconId` now on `SkillRecord`.
+
 **Phase 3 — Module 1:** inheritance math + UI + inverse mode; UmaExtractor roster import; Residual Spec builder + deep links + pairwise own×borrow compare table; validation suite vs umamily.
 
 **Phase 4 — Module 2:** vendor engine, worker harness, single-skill deltas, knapsack, caveat UI.

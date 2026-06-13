@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Uma CM Planner — Plan</title>
+<style>
+  :root {
+    --bg: #0e1014;
+    --bg-2: #151922;
+    --panel: #1a1f2b;
+    --panel-2: #20263400;
+    --line: #2a3142;
+    --text: #e7eaf0;
+    --muted: #9aa6ba;
+    --faint: #6b7689;
+    --pink: #ff5fa2;
+    --pink-dim: #b13a6e;
+    --teal: #2dd4bf;
+    --teal-dim: #1d8a7d;
+    --done: #3fb950;
+    --prog: #e3b341;
+    --pend: #56607a;
+    --blue: #58a6ff;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 24px rgba(0,0,0,.28);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,95,162,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(45,212,191,.08), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    font-size: .86em;
+    background: rgba(255,255,255,.06);
+    padding: .1em .4em;
+    border-radius: 5px;
+    color: #d7e2f1;
+  }
+
+  /* ---------- top bar ---------- */
+  header.bar {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(14,16,20,.78);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-inner {
+    max-width: 1080px; margin: 0 auto; padding: 10px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo { font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
+  .logo .dot { color: var(--pink); }
+  .bar-prog { flex: 1; min-width: 80px; }
+  .bar-prog .track { height: 7px; background: var(--bg-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+  .bar-prog .fill { height: 100%; width: 0; border-radius: 99px;
+    background: linear-gradient(90deg, var(--teal), var(--pink));
+    transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .bar-prog .lbl { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  nav.tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+  nav.tabs a {
+    color: var(--muted); font-size: 13px; padding: 5px 9px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  nav.tabs a:hover { color: var(--text); background: rgba(255,255,255,.05); text-decoration: none; }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 0 20px 100px; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 54px 0 28px; }
+  .kicker { color: var(--teal); font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+  h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.08; margin: 10px 0 6px; letter-spacing: -.5px; }
+  h1 .accent { background: linear-gradient(90deg, var(--pink), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .subtitle { color: var(--muted); font-size: 17px; max-width: 720px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip {
+    font-size: 12.5px; padding: 5px 11px; border-radius: 99px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--muted);
+  }
+  .chip b { color: var(--text); font-weight: 600; }
+
+  section { padding: 30px 0 8px; scroll-margin-top: 76px; }
+  h2 { font-size: 22px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  h2 .n { color: var(--pink); font-variant-numeric: tabular-nums; font-size: 15px; opacity: .8; }
+  .section-sub { color: var(--faint); margin: 0 0 18px; font-size: 13.5px; }
+
+  .grid { display: grid; gap: 14px; }
+  .panel {
+    background: linear-gradient(180deg, var(--panel), #161b25);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---------- module cards ---------- */
+  .modules { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .mod { position: relative; overflow: hidden; }
+  .mod::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent, var(--pink)); }
+  .mod h3 { margin: 0 0 2px; font-size: 16px; }
+  .mod .mtag { font-size: 11.5px; color: var(--faint); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+  .mod p { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+  .mod .badge { margin-top: 12px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    border: 1px solid;
+  }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: currentColor; }
+  .b-done { color: var(--done); border-color: rgba(63,185,80,.35); background: rgba(63,185,80,.10); }
+  .b-prog { color: var(--prog); border-color: rgba(227,179,65,.35); background: rgba(227,179,65,.10); }
+  .b-pend { color: #aab4c8; border-color: var(--line); background: rgba(255,255,255,.03); }
+
+  /* ---------- phase timeline ---------- */
+  .timeline { position: relative; margin-top: 6px; }
+  .timeline::before {
+    content: ""; position: absolute; left: 19px; top: 8px; bottom: 8px; width: 2px;
+    background: linear-gradient(var(--done) 0%, var(--done) 50%, var(--line) 50%);
+  }
+  .phase { position: relative; padding: 0 0 16px 52px; }
+  .phase .marker {
+    position: absolute; left: 8px; top: 2px; width: 24px; height: 24px; border-radius: 99px;
+    display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    background: var(--bg-2); border: 2px solid var(--pend); color: var(--muted); z-index: 1;
+  }
+  .phase.done .marker { border-color: var(--done); color: var(--done); background: rgba(63,185,80,.12); }
+  .phase.next .marker { border-color: var(--prog); color: var(--prog); background: rgba(227,179,65,.12); }
+  .phase .pcard {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px;
+  }
+  .phase.done .pcard { border-color: rgba(63,185,80,.22); }
+  .phase.next .pcard { border-color: rgba(227,179,65,.30); box-shadow: 0 0 0 1px rgba(227,179,65,.10); }
+  .phase .ptitle { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .phase .ptitle strong { font-size: 15px; }
+  .phase .pdate { font-size: 12px; color: var(--faint); }
+  .phase ul { margin: 9px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .phase ul li { margin: 3px 0; }
+  .phase ul li::marker { color: var(--teal-dim); }
+
+  /* ---------- principles ---------- */
+  .principles { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .pr { display: flex; gap: 12px; }
+  .pr .tag { flex: none; font-weight: 800; color: var(--teal); font-size: 14px; width: 26px; }
+  .pr h4 { margin: 0 0 2px; font-size: 14px; }
+  .pr p { margin: 0; color: var(--muted); font-size: 13px; }
+
+  /* ---------- architecture ---------- */
+  .arch { grid-template-columns: 1fr 1fr; }
+  .stack-list { list-style: none; margin: 0; padding: 0; }
+  .stack-list li { padding: 7px 0; border-bottom: 1px dashed var(--line); display: flex; gap: 10px; font-size: 13.5px; }
+  .stack-list li:last-child { border-bottom: 0; }
+  .stack-list .k { color: var(--teal); font-weight: 600; flex: none; width: 92px; }
+  .stack-list .v { color: var(--muted); }
+  pre.tree {
+    margin: 0; font-family: ui-monospace, Consolas, monospace; font-size: 12px; line-height: 1.5;
+    color: var(--muted); white-space: pre; overflow-x: auto;
+  }
+  pre.tree .c { color: var(--faint); }
+  pre.tree .d { color: var(--pink); }
+
+  /* ---------- integration diagram ---------- */
+  .integ { text-align: center; }
+  .hub {
+    display: inline-block; padding: 12px 22px; border-radius: 12px; font-weight: 700;
+    background: linear-gradient(90deg, rgba(255,95,162,.18), rgba(45,212,191,.18));
+    border: 1px solid var(--line); margin-bottom: 6px;
+  }
+  .hub small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+  .connector { color: var(--faint); font-size: 20px; line-height: 1; margin: 4px 0; }
+  .integ-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px; }
+  .integ-row .node { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 6px; }
+  .integ-row .node b { display: block; font-size: 13px; }
+  .integ-row .node small { color: var(--faint); font-size: 11px; }
+  .flow-note { color: var(--faint); font-size: 12.5px; margin-top: 14px; font-style: italic; }
+
+  /* ---------- decisions ---------- */
+  .dec { display: flex; gap: 12px; align-items: flex-start; }
+  .dec .num { flex: none; width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
+    background: rgba(88,166,255,.12); color: var(--blue); font-weight: 700; font-size: 12px; border: 1px solid rgba(88,166,255,.25); }
+  .dec h4 { margin: 0 0 3px; font-size: 14px; }
+  .dec p { margin: 0; color: var(--muted); font-size: 13px; }
+  .dec .resolved { color: var(--done); font-weight: 600; }
+
+  /* ---------- collapsibles ---------- */
+  details.coll { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  details.coll + details.coll { margin-top: 10px; }
+  details.coll > summary {
+    cursor: pointer; padding: 14px 16px; font-weight: 600; list-style: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  details.coll > summary::-webkit-details-marker { display: none; }
+  details.coll > summary .arrow { color: var(--faint); transition: transform .2s; }
+  details.coll[open] > summary .arrow { transform: rotate(90deg); }
+  details.coll > summary:hover { background: rgba(255,255,255,.03); }
+  .coll-body { padding: 0 16px 16px; }
+
+  table.res { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.res td { padding: 7px 8px; border-top: 1px solid var(--line); vertical-align: top; color: var(--muted); }
+  table.res td:first-child { color: var(--text); white-space: nowrap; font-weight: 500; }
+  .res-group { color: var(--teal); font-weight: 700; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; padding: 14px 8px 4px; }
+
+  .risk { display: grid; grid-template-columns: 1fr 1fr; gap: 0; font-size: 13px; }
+  .risk > div { padding: 9px 10px; border-top: 1px solid var(--line); }
+  .risk .rh { color: var(--faint); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-top: 0; }
+  .risk .r { color: var(--text); }
+  .risk .m { color: var(--muted); }
+
+  footer { text-align: center; color: var(--faint); font-size: 12.5px; padding: 30px 0 0; border-top: 1px solid var(--line); margin-top: 40px; }
+
+  @media (max-width: 760px) {
+    .arch, .risk { grid-template-columns: 1fr; }
+    .integ-row { grid-template-columns: 1fr 1fr; }
+    nav.tabs { display: none; }
+    .hero { padding: 36px 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-inner">
+    <span class="logo">Uma CM Planner<span class="dot">.</span></span>
+    <div class="bar-prog">
+      <div class="track"><div class="fill" id="progFill"></div></div>
+      <div class="lbl"><b id="progPct">0%</b> — Phases 0–2 + Image-UI prep done · Phase 3 next</div>
+    </div>
+    <nav class="tabs">
+      <a href="#vision">Vision</a>
+      <a href="#modules">Modules</a>
+      <a href="#phases">Roadmap</a>
+      <a href="#principles">Principles</a>
+      <a href="#arch">Architecture</a>
+      <a href="#integration">Integration</a>
+      <a href="#decisions">Decisions</a>
+      <a href="#resources">Resources</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero" id="vision">
+    <div class="kicker">Project Plan · Umamusume Global</div>
+    <h1>A local-first planner for the<br><span class="accent">monthly Champions Meeting</span></h1>
+    <p class="subtitle">
+      Solve the whole CM build cycle end-to-end — which cards &amp; parents cover your target skills,
+      what aptitude sparks you need, which skills to buy under an SP budget, and how Global meta diverges from JP.
+    </p>
+    <div class="meta-row">
+      <span class="chip">Target: <b>Global server</b></span>
+      <span class="chip"><b>Zero backend</b> · IndexedDB · JSON export</span>
+      <span class="chip">Stack: <b>Vite · React 19 · TS · Dexie</b></span>
+      <span class="chip">License: <b>GPL-3.0-only</b></span>
+      <span class="chip">Tests: <b>275 passing</b></span>
+      <span class="chip">Working name: <b>uma-cm-planner</b></span>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <section id="modules">
+    <h2><span class="n">§1</span> The four modules</h2>
+    <p class="section-sub">Built in value-first order — the Skill Planner ships first because it's usable every single CM.</p>
+    <div class="grid modules">
+      <div class="panel mod" style="--accent:var(--pink)">
+        <span class="mtag">Module 4 · build first</span>
+        <h3>Skill Acquisition Planner</h3>
+        <p>Given a CM's target skill list (1–7, priority-weighted), solve <em>coverage</em>: which cards + parents get each skill, what's missing, what to match. Now with an image-based, GameTora-style UI — card chips, skill icons &amp; uma portraits across the coverage matrix, deck suggester, spark columns, contingency view, and <code>/parents</code> CRUD.</p>
+        <span class="badge b-done mod-badge">Complete</span>
+      </div>
+      <div class="panel mod" style="--accent:var(--teal)">
+        <span class="mtag">Module 1</span>
+        <h3>Inheritance Planner</h3>
+        <p>Target aptitude → pink-spark stars needed across parents/grandparents to hit A/S, with P(S) and pairwise rental-candidate compare.</p>
+        <span class="badge b-prog mod-badge">Next — Phase 3</span>
+      </div>
+      <div class="panel mod" style="--accent:var(--blue)">
+        <span class="mtag">Module 2</span>
+        <h3>SP Purchase Optimizer</h3>
+        <p>End-of-run knapsack: maximise expected bashin per SP under budget, with prereqs and hint discounts, via the vendored umalator engine.</p>
+        <span class="badge b-pend mod-badge">Planned — Phase 4</span>
+      </div>
+      <div class="panel mod" style="--accent:#c08cff">
+        <span class="mtag">Module 3</span>
+        <h3>Meta Intel Workspace</h3>
+        <p>JP/TW prior vs Global observed vs sim calculation, side by side, with disagreements flagged for room-match testing.</p>
+        <span class="badge b-pend mod-badge">Planned — Phase 5</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASES -->
+  <section id="phases">
+    <h2><span class="n">§2</span> Roadmap</h2>
+    <p class="section-sub">Each phase ends in a usable artifact. Built by parallel agents, adversarially reviewed, then fixed.</p>
+    <div class="timeline">
+
+      <div class="phase done">
+        <div class="marker">✓</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 0 — Spikes</strong> <span class="badge b-done">Done</span> <span class="pdate">2026-06-12</span></div>
+          <ul>
+            <li>Engine mapped &amp; headless import smoke-tested under plain Node — vendor pin <code>v0.14.2 / c1fa2107</code>.</li>
+            <li>Data formats documented; clean GPL chain confirmed; mechanics reconciled (8/9 verified, blue roll ranges provisional).</li>
+            <li>Chain/random card data found machine-readable; rental sites all deep-linkable; UmaExtractor schema locked.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase done">
+        <div class="marker">✓</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 1 — Scaffold + Module 4 core</strong> <span class="badge b-done">Done</span> <span class="pdate">2026-06-12</span></div>
+          <ul>
+            <li>Repo scaffold (Vite + React 19 + TS strict + Vitest), CI typecheck/test/build + Pages deploy, GPL-3.0-only + NOTICE.</li>
+            <li>Data pipeline → <code>public/data/</code>: 578 skills, 220 cards, spark rates, 31 CM presets — with a build-time parity oracle.</li>
+            <li>Dexie schema v1 + JSON export/import; inventory UI → read-only coverage matrix. <strong>Usable for the next CM.</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase done">
+        <div class="marker">✓</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 2 — Module 4 complete</strong> <span class="badge b-done">Done</span> <span class="pdate">2026-06-13</span></div>
+          <ul>
+            <li>Parents entry (<code>/parents</code> CRUD over 84-uma picker); <code>sparkChance</code> reproduces Ice-sheet goldens to 8–9 decimals (per-member affinity, no flat grandparent multiplier).</li>
+            <li>Deck suggester (greedy + 1-swap, lock invariants, never the same card twice); static contingency view (if-procs / if-miss SP branches, proc cost floored ≤ miss).</li>
+            <li>Honesty fixes: gold skills can't be white sparks; total-affinity entries flagged ≈ until per-member math lands; inherited-uniques marked "not obtainable"; stale suggestions invalidated on input change. <strong>252 tests.</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase done">
+        <div class="marker">✓</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Image-UI prep</strong> <span class="badge b-done">Done</span> <span class="pdate">2026-06-13</span></div>
+          <ul>
+            <li>GameTora-style image UI per the §4 "Image assets" decision — curated <strong>Global-only WebP icon bundle</strong> under <code>public/data/icons/</code>: 56 skill icons + 220 card chips + 84 uma portraits (~5MB), built atomically by <code>build-icons.ts</code>.</li>
+            <li>Pure resolver <code>src/core/icons.ts</code> + a <code>&lt;GameIcon&gt;</code> component; icons retrofitted across matrix / inventory / pickers / parents — augmenting text, never replacing it.</li>
+            <li><code>iconId</code> added to <code>SkillRecord</code>; browser-verified across 4 commits. <strong>275 tests.</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase next">
+        <div class="marker">3</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 3 — Module 1: Inheritance Planner</strong> <span class="badge b-prog">Next</span></div>
+          <ul>
+            <li>Inheritance math + UI + inverse mode ("need 6 more dirt ★ → farming targets").</li>
+            <li>UmaExtractor roster import; Residual Spec builder + rental deep links + pairwise own×borrow compare table.</li>
+            <li>Validation suite reproducing umamily / Ice-sheet results.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker">4</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 4 — Module 2: SP Optimizer</strong> <span class="badge b-pend">Planned</span></div>
+          <ul><li>Vendor the umalator engine, Web Worker harness, single-skill bashin deltas, knapsack solver, P3 caveat UI.</li></ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker">5</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 5 — Module 3: Meta Intel</strong> <span class="badge b-pend">Planned</span></div>
+          <ul><li>MetaIntel forms, 10-second match logger, sim re-parameterization loop driven by observed Global style distribution.</li></ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker">6</div>
+        <div class="pcard">
+          <div class="ptitle"><strong>Phase 6 — Polish</strong> <span class="badge b-pend">Planned</span></div>
+          <ul><li>PWA/offline, OCR import spike, branding/naming session, public-hosting hardening + disclaimer page.</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PRINCIPLES -->
+  <section id="principles">
+    <h2><span class="n">§3</span> Guiding principles</h2>
+    <p class="section-sub">Standing rules for every implementation session — mirrored into <code>CLAUDE.md</code>.</p>
+    <div class="grid principles">
+      <div class="panel pr"><span class="tag">P1</span><div><h4>Reuse first</h4><p>5+ years of community tooling exists. Import &gt; borrow data &gt; port with attribution &gt; build from scratch. Keep the Resource Map alive.</p></div></div>
+      <div class="panel pr"><span class="tag">P2</span><div><h4>Local-first, zero backend</h4><p>Static site, data baked at build time, user data in IndexedDB, one-click JSON export/import. No server-side anything.</p></div></div>
+      <div class="panel pr"><span class="tag">P3</span><div><h4>Honest numbers</h4><p>Real numbers where calculable; reliability tiers + evidence where it's RNG. Sims are estimations, not verdicts — surface caveats.</p></div></div>
+      <div class="panel pr"><span class="tag">P4</span><div><h4>Server-versioned data</h4><p>Every record carries <code>server</code> + <code>dataVersion</code>. JP-ahead content is preview-only, never silently mixed into Global math.</p></div></div>
+      <div class="panel pr"><span class="tag">P5</span><div><h4>Hand-patchable data</h4><p>Every generated dataset has a sibling <code>*_overrides.json</code> merged last, maintained by hand. Never edit generated files.</p></div></div>
+      <div class="panel pr"><span class="tag">P6</span><div><h4>Pure-function core</h4><p>All mechanics live in <code>src/core/</code> as pure, unit-tested TypeScript validated against community references. UI is thin.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section id="arch">
+    <h2><span class="n">§4</span> Architecture</h2>
+    <p class="section-sub">Matches umalator-global's stack to ease engine reuse.</p>
+    <div class="grid arch">
+      <div class="panel">
+        <h4 style="margin:0 0 10px">Tech stack</h4>
+        <ul class="stack-list">
+          <li><span class="k">Frontend</span><span class="v">TypeScript + Vite + React 19</span></li>
+          <li><span class="k">Packages</span><span class="v">pnpm workspaces</span></li>
+          <li><span class="k">Storage</span><span class="v">Dexie (IndexedDB); localStorage for UI prefs</span></li>
+          <li><span class="k">Sim</span><span class="v">Web Worker · Monte Carlo (Module 2)</span></li>
+          <li><span class="k">Tests</span><span class="v">Vitest (jsdom) — 275 passing</span></li>
+          <li><span class="k">Icons</span><span class="v">Bundled Global-only WebP subset (P2-offline)</span></li>
+          <li><span class="k">Deploy</span><span class="v">GitHub Pages via Actions</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 10px">Repo layout</h4>
+<pre class="tree"><span class="d">docs/</span>              <span class="c"># provenance + mechanics-notes</span>
+<span class="d">scripts/</span>           <span class="c"># data pipeline + build-icons.ts</span>
+<span class="d">data-overrides/</span>    <span class="c"># hand-patches, merged last (P5)</span>
+<span class="d">public/data/</span>       <span class="c"># generated, git-tracked</span>
+<span class="d">public/data/icons/</span> <span class="c"># curated WebP bundle (~5MB)</span>
+<span class="d">src/core/</span>          <span class="c"># pure mechanics + tests (P6)</span>
+<span class="d">src/core/icons.ts</span>  <span class="c"># pure id→icon resolver</span>
+<span class="d">src/sim/</span>           <span class="c"># vendored umalator engine</span>
+<span class="d">src/db/</span>            <span class="c"># Dexie schema, export/import</span>
+<span class="d">src/features/</span>      <span class="c"># one folder per module's UI</span>
+<span class="d">src/app/</span>           <span class="c"># shell, routing, CmPlan context</span></pre>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h4 style="margin:0 0 6px">Image assets — sourcing decision <span class="badge b-done" style="vertical-align:middle">Decided · 2026-06-13</span></h4>
+      <p style="margin:0;color:var(--muted);font-size:13px">
+        The UI is image-based (GameTora-style) for fast at-a-glance use mid-run. <strong>Bundle a curated, Global-only icon subset</strong> — not a hotlink, not the 415MB wholesale dump.
+        A build step copies ~360 files (56 skill icons + 220 <code>support_card_s</code> chips + 84 uma portraits) from the local <code>uma-tools/icons</code> dump,
+        converts to <strong>WebP (~5MB total)</strong> under <code>public/data/icons/</code> with an <code>icon-manifest.json</code>.
+        <strong>P2 (local-first/offline) forbids a hotlink primary</strong>; bundling is also lowest legal-risk under a NOTICE excluding all Cygames assets from the GPL grant.
+        Resolution is deterministic &amp; id-keyed (skill → <code>iconId</code>, card → <code>cardId</code>, uma → <code>umaId</code>, alt-outfits fall back to the base portrait). Community CDN hotlinking stays a lazy fallback only.
+      </p>
+    </div>
+  </section>
+
+  <!-- INTEGRATION -->
+  <section id="integration">
+    <h2><span class="n">§5</span> Cross-module integration</h2>
+    <p class="section-sub">One shared source of truth threads all four modules together.</p>
+    <div class="panel integ">
+      <div class="hub">CmPlan <small>race · targets · deck locks · parents</small></div>
+      <div class="connector">┴</div>
+      <div class="integ-row">
+        <div class="node"><b style="color:var(--teal)">Module 1</b><small>inheritance</small></div>
+        <div class="node"><b style="color:var(--pink)">Module 4</b><small>coverage</small></div>
+        <div class="node"><b style="color:var(--blue)">Module 2</b><small>SP knapsack</small></div>
+        <div class="node"><b style="color:#c08cff">Module 3</b><small>meta intel</small></div>
+      </div>
+      <p class="flow-note">Parent picker shows skill-coverage side-score · spark outcomes branch the SP plan · observed meta re-parameterizes the sim.</p>
+    </div>
+  </section>
+
+  <!-- DECISIONS -->
+  <section id="decisions">
+    <h2><span class="n">§6</span> Open decisions</h2>
+    <p class="section-sub">For Sun — annotated with Phase 0 findings.</p>
+    <div class="grid" style="gap:12px">
+      <div class="panel dec"><span class="num">1</span><div><h4>Adopt GPL-3.0 for the repo <span class="resolved">✓ Decided</span></h4><p><span class="resolved">Decided (Sun, 2026-06-13): GPL-3.0-only.</span> Clean GPL chain confirmed; declared <code>GPL-3.0-only</code> with NOTICE + Cygames fair-use disclaimer. Game data stays outside the grant.</p></div></div>
+      <div class="panel dec"><span class="num">2</span><div><h4>React vs Preact <span class="resolved">✓ Decided</span></h4><p><span class="resolved">React</span> — matches the modern umalator engine repo, reduces friction.</p></div></div>
+      <div class="panel dec"><span class="num">3</span><div><h4>App name / branding</h4><p>Naming session <strong>still pending</strong> (NightCalc precedent). Placeholder <code>uma-cm-planner</code> stands.</p></div></div>
+      <div class="panel dec"><span class="num">4</span><div><h4>Affinity: manual vs computed <span class="resolved">✓ Decided</span></h4><p><span class="resolved">Now computable / computed v1.</span> Phase 0 found the algorithm is two small functions (aff2/aff3) over two master.mdb tables, validated exactly vs Ice's sheet, with two open-source reference impls. Static tables baked at build time; manual override kept. Only the dynamic win-saddle bonus stays out of scope.</p></div></div>
+      <div class="panel dec"><span class="num">5</span><div><h4>Email ChronoGenesis for dataset access</h4><p><strong>Pending.</strong> Recommended, early — invitation confirmed (<code>chronogenesis.net@protonmail.com</code>). Deep links already work without it, so it's for existence-checks / auto-search only.</p></div></div>
+      <div class="panel dec"><span class="num">6</span><div><h4>GameTora-derived JSON redistribution</h4><p>No ToS found, robots.txt permissive. Lean: keep reusing committed snapshots with attribution (master.mdb provably lacks the chain/random event data) vs. ask GameTora vs. rebuild from master.mdb.</p></div></div>
+      <div class="panel dec"><span class="num">7</span><div><h4>Image-UI asset sourcing <span class="resolved">✓ Decided</span></h4><p><span class="resolved">Decided (Sun, 2026-06-13): bundle a curated, Global-only WebP icon subset.</span> Not a hotlink (breaks offline — violates P2), not the 415MB wholesale dump. ~360 files (~5MB) under a NOTICE excluding Cygames assets from the GPL grant; CDN hotlink stays a lazy fallback only.</p></div></div>
+    </div>
+  </section>
+
+  <!-- RESOURCES + RISKS (collapsible) -->
+  <section id="resources">
+    <h2><span class="n">§7</span> Reference</h2>
+    <p class="section-sub">The living Resource Map (P1) and the risk register.</p>
+
+    <details class="coll" open>
+      <summary><span>Resource Map — consult before building anything</span><span class="arrow">›</span></summary>
+      <div class="coll-body">
+        <table class="res">
+          <tr><td class="res-group" colspan="2">Simulators / engines</td></tr>
+          <tr><td><a href="https://github.com/jalbarrang/umalator-global">jalbarrang/umalator-global</a></td><td>The engine to reuse (Module 2). Pinned v0.14.2 / c1fa2107.</td></tr>
+          <tr><td><a href="https://kachi-dev.github.io/uma-tools/umalator-global/">kachi-dev VFalator</a></td><td>Reference behaviour; wit-variance, spurt-rate accuracy cross-check.</td></tr>
+          <tr><td><a href="https://github.com/alpha123/uma-tools">alpha123/uma-tools</a></td><td>Original engine lineage; data file formats.</td></tr>
+
+          <tr><td class="res-group" colspan="2">Inheritance / mechanics</td></tr>
+          <tr><td><a href="https://docs.google.com/spreadsheets/d/1mT_uH79lZwEth6qGvjBOvrRKxwfKixr6vfhgzoW1s-U/">Ice's Affinity sheet</a></td><td>Primary validation target for spark/affinity math.</td></tr>
+          <tr><td><a href="https://www.umareference.com/guide/legacies/chance-of-inheriting-sparks">umareference</a></td><td>Spark inheritance chance tables, support-card passives.</td></tr>
+          <tr><td><a href="https://altema.jp/umamusume/hint">Altema</a> · uma.guide · umamusu.wiki</td><td>Hint discount schedule (10/20/30/35/40%), spark rules.</td></tr>
+
+          <tr><td class="res-group" colspan="2">Data sources</td></tr>
+          <tr><td>umalator <code>event-skill-sources.json</code></td><td>Chain-vs-random dataset (532 cards).</td></tr>
+          <tr><td><a href="https://github.com/jechto/Tachyons-lab">jechto/Tachyons-lab</a></td><td>Independent chain/random/hint dataset — cross-validation oracle.</td></tr>
+          <tr><td>master.mdb CDN + <a href="https://uma.moe/api/ver">uma.moe/api/ver</a></td><td>Authoritative Global game DB download path.</td></tr>
+
+          <tr><td class="res-group" colspan="2">Roster import / parents</td></tr>
+          <tr><td><a href="https://github.com/xancia/UmaExtractor">xancia/UmaExtractor</a></td><td>The roster-export tool — schema locked Phase 0.</td></tr>
+          <tr><td><a href="https://github.com/Apolexian/clairvoyance/tree/main/masterdb_readable">clairvoyance masterdb</a></td><td>succession_factor/relation table dumps (spark→skill join, affinity).</td></tr>
+          <tr><td><a href="https://github.com/uma-moe">uma-moe org</a></td><td>uma.moe deep-link spec + two reference affinity implementations.</td></tr>
+
+          <tr><td class="res-group" colspan="2">Rental search (Module 1) · all deep-linkable</td></tr>
+          <tr><td><a href="https://chronogenesis.net/friend_search">ChronoGenesis</a></td><td>No API; operator invites email for datasets.</td></tr>
+          <tr><td><a href="https://uma.pure-db.com/en-us/search">Pure-DB</a> · <a href="https://uma.moe/database">uma.moe</a></td><td>URL-encoded filter state (verified in-browser); uma.moe has a public JSON API.</td></tr>
+
+          <tr><td class="res-group" colspan="2">Image assets (UI icons)</td></tr>
+          <tr><td><a href="https://github.com/alpha123/uma-tools">alpha123/uma-tools <code>icons/</code></a></td><td>In-game image dump — source for the curated bundled WebP icon set. Covers 578 skills (by <code>iconId</code>), 220 cards, 84 umas.</td></tr>
+          <tr><td><a href="https://github.com/euophrys/uma-tiers">euophrys/uma-tiers</a> · pretty-derby</td><td>Id-keyed community image CDNs (CORS-open, jsdelivr-mirrorable) — <strong>fallback only</strong> for not-yet-dumped cards, never the offline baseline (P2).</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="coll">
+      <summary><span>Risks &amp; mitigations</span><span class="arrow">›</span></summary>
+      <div class="coll-body">
+        <div class="risk">
+          <div class="rh">Risk</div><div class="rh">Mitigation</div>
+          <div class="r">Engine tightly coupled to its UI</div><div class="m">Phase-0 spike (passed); fallback alpha123 engine or deep-link out.</div>
+          <div class="r">Borrowed data lags Global patches</div><div class="m">Pin commits + documented refresh; fallback self-extraction.</div>
+          <div class="r">chain/random classification incomplete</div><div class="m">Overrides file + "unknown" tier rendered honestly.</div>
+          <div class="r">Mechanics numbers wrong (conflicting sources)</div><div class="m">Phase-0 reconciliation + golden tests + in-game spot checks.</div>
+          <div class="r">GPL-3.0 obligations if hosted publicly</div><div class="m">Publish source (planned) + keep license headers.</div>
+          <div class="r">Scope creep (it's 4 apps)</div><div class="m">Each phase ends in a usable artifact; M4 first.</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    Generated from <code>uma-cm-planner-plan.md</code> · self-contained, works offline ·
+    a static visual companion to the source-of-truth plan.
+  </footer>
+
+</main>
+
+<script>
+  // Animate the overall progress: 3 of 7 numbered phases done + the Image-UI prep
+  // milestone = 4 of 8 completed units.
+  var pct = Math.round(4 / 8 * 100);
+  requestAnimationFrame(function () {
+    setTimeout(function () {
+      document.getElementById('progFill').style.width = pct + '%';
+      document.getElementById('progPct').textContent = pct + '%';
+    }, 150);
+  });
+
+  // Scrollspy: highlight the active tab.
+  var tabLinks = Array.prototype.slice.call(document.querySelectorAll('nav.tabs a'));
+  var sections = tabLinks.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + 100, active = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= y) active = i;
+    }
+    tabLinks.forEach(function (a, i) {
+      a.style.color = i === active ? 'var(--text)' : '';
+      a.style.background = i === active ? 'rgba(255,255,255,.06)' : '';
+    });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+</script>
+</body>
+</html>
