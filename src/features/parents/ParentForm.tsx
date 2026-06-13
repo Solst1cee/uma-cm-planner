@@ -251,7 +251,7 @@ function GrandparentFieldset({
           />
           <SearchPicker
             label={`Add grandparent ${index} white spark`}
-            placeholder="Search white/gold skills…"
+            placeholder="Search white skills…"
             items={whiteItems.map((i) => ({
               ...i,
               disabled: value.whiteSparks.some((s) => s.skillId === i.id),
@@ -325,10 +325,14 @@ export function ParentForm({
         .map((u) => ({ id: u.umaId, name: u.nameEn, sub: u.epithet })),
     [umas],
   );
+  // FINDING 1: white sparks are white-skill ONLY. Gold/unique skills are not
+  // white-spark inheritance targets (mechanics-notes §8; white_spark_skills.json
+  // carries white ids exclusively); offering+pricing a gold as a white spark
+  // fabricates an inheritance % for an event that cannot occur (P3).
   const whiteItems = useMemo<SearchItem[]>(
     () =>
       skills
-        .filter((s) => s.server === 'global' && (s.rarity === 'white' || s.rarity === 'gold'))
+        .filter((s) => s.server === 'global' && s.rarity === 'white')
         .map((s) => ({
           id: s.skillId,
           name: s.nameEn,
@@ -469,7 +473,7 @@ export function ParentForm({
       />
       <SearchPicker
         label="Add white spark"
-        placeholder="Search white/gold skills…"
+        placeholder="Search white skills…"
         items={whiteItems.map((i) => ({
           ...i,
           disabled: whiteSparks.some((s) => s.skillId === i.id),

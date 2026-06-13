@@ -11,9 +11,21 @@
  *   UNVERIFIED (mechanics-notes §6; verification queue §10 item 4). We assume
  *   Lv1 — the worst case — and surface that assumption verbatim in the UI
  *   via spIfProcAssumption.
- * - deltaSp = spIfMiss − spIfProc (the SP to budget for the miss branch). It
- *   can be NEGATIVE when a strong hint card already gives a deeper discount
- *   than the assumed Lv1 proc — that sign is honest, not a bug.
+ * - deltaSp = spIfMiss − spIfProc (the SP to budget for the miss branch). In-game
+ *   hint levels only ACCUMULATE: a spark proc grants the skill at Lv1+, and any
+ *   card hint takes the user gets stack on top — so a proc can never leave the
+ *   skill MORE expensive than a miss. We therefore price spIfProc at the
+ *   conservative floor effectiveHintLevel = max(PROC_HINT_LEVEL, missHintLevel),
+ *   guaranteeing spIfProc <= spIfMiss (deltaSp >= 0). The verbatim Lv1
+ *   assumption string is still shown for the spark's own grant, but the SP uses
+ *   the floor (review finding: "Contingency proc branch can cost more than miss").
+ * - inherited_unique targets (green sparks, all baseSpCost 200 in shipped data)
+ *   are obtainable ONLY via inheritance — there is no SP purchase path
+ *   (mechanics-notes §8). For such a row the MISS branch is "not obtainable":
+ *   spIfMiss and deltaSp are set to Infinity (the frozen type has number fields
+ *   only; the UI renders Infinity as not-obtainable). spIfProc stays a real
+ *   number — the proc is the only way in (review finding: "Contingency miss
+ *   branch prices an inherited-unique skill that cannot be bought").
  * - Gold targets with a white prereq price BOTH branches with bundledSpCost
  *   (components summed before one ceil — mechanics-notes §7). The prereq's
  *   own hint level is taken from the prereq's coverage row when it is also a
@@ -90,6 +102,11 @@ export function computeContingencies(args: {
     if (!skill) continue; // unknown skill: cannot price either branch
 
     const missLevel = bestCardHintLevel(row, cardById);
+    // Hint levels only accumulate in-game: the proc grants Lv1, then any card
+    // hint takes stack on top. Price the proc at the conservative floor so it
+    // can never cost MORE than the miss (deltaSp >= 0). The displayed
+    // assumption string still names the Lv1 spark grant; only the SP uses this.
+    const procLevel = Math.max(PROC_HINT_LEVEL, missLevel) as HintLevel;
     const prereq =
       skill.prereqSkillId !== undefined ? skillById.get(skill.prereqSkillId) : undefined;
 
@@ -99,11 +116,19 @@ export function computeContingencies(args: {
       // Gold + white prereq bought together (mechanics-notes §7 bundling).
       const prereqRow = rowBySkillId.get(prereq.skillId);
       const prereqLevel = prereqRow ? bestCardHintLevel(prereqRow, cardById) : 0;
-      spIfProc = bundledSpCost(skill, prereq, PROC_HINT_LEVEL, prereqLevel, rates);
+      spIfProc = bundledSpCost(skill, prereq, procLevel, prereqLevel, rates);
       spIfMiss = bundledSpCost(skill, prereq, missLevel, prereqLevel, rates);
     } else {
-      spIfProc = effectiveSpCost(skill, PROC_HINT_LEVEL, rates);
+      spIfProc = effectiveSpCost(skill, procLevel, rates);
       spIfMiss = effectiveSpCost(skill, missLevel, rates);
+    }
+
+    // inherited_unique skills (green sparks) cannot be bought — inheritance is
+    // the only path (mechanics-notes §8). The miss branch is not obtainable:
+    // render it as Infinity (the frozen type is number-only; UI shows ∞ / "not
+    // obtainable"). spIfProc stays the real number — the proc is the only way in.
+    if (skill.rarity === 'inherited_unique') {
+      spIfMiss = Infinity;
     }
 
     out.push({
@@ -113,7 +138,8 @@ export function computeContingencies(args: {
       spIfProc,
       spIfProcAssumption: SPARK_PROC_ASSUMPTION,
       spIfMiss,
-      // Type docblock contract: deltaSp = spIfMiss − spIfProc.
+      // Type docblock contract: deltaSp = spIfMiss − spIfProc. Infinity when the
+      // miss branch is not obtainable (inherited_unique).
       deltaSp: spIfMiss - spIfProc,
     });
   }

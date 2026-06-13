@@ -21,10 +21,25 @@
  * is the user-entered TOTAL displayed vs the target (= sum of all 6 member
  * scores), so using it for a single member OVERESTIMATES that member's chance;
  * the min(1, …) clamp mitigates the worst of it. Per-member scores land with
- * Module 1's computed affinity (plan §14.4) — until then results that lean on
- * fallbacks are flagged `approximate`.
+ * Module 1's computed affinity (plan §14.4) — until then ANY parent contribution
+ * scaled by a positive `affinityHint` is flagged `approximate` (review finding:
+ * "Affinity total used as per-member overestimates"): a confident un-flagged
+ * percent must not rest on the total-as-member assumption (P3). An
+ * `affinityHint === 0` parent contribution applies NO scaling — it is the honest
+ * base-rate floor and stays non-approximate. (Other approximate triggers below:
+ * a grandparent contributed, or a contributing parent had no affinityHint.)
+ *
+ * White-skill spark families map ONLY to white skills (mechanics-notes §8; the
+ * extraction `white_spark_skills.json` carries white ids exclusively). Gold /
+ * unique / inherited_unique skills are not white-spark targets, so pricing a
+ * `whiteSparks` entry whose skill is non-white fabricates an inheritance percent
+ * for an event that cannot occur. When a rarity lookup is supplied (review
+ * finding: "Gold skills priced as white sparks"), such entries are SKIPPED;
+ * green sparks keep their separate green-base path. Without a rarity lookup the
+ * function falls back to pricing every recorded whiteSparks entry — the data
+ * layer is then responsible for not recording non-white white-sparks.
  */
-import type { Parent, SparkRates } from '@/core/types';
+import type { Parent, SkillRarity, SparkRates } from '@/core/types';
 
 export interface SparkContribution {
   /** The Parent (lineage branch) this contribution belongs to. */
@@ -36,6 +51,13 @@ export interface SparkContribution {
   affinityUsed: number;
   /** This member's own whole-career proc chance %, before combining members. */
   pct: number;
+  /**
+   * True when THIS contribution rests on a documented approximation — a
+   * grandparent (gp affinity is a degraded-mode floor, mechanics-notes §4), a
+   * parent with no affinityHint entered, or a parent scaled by a positive
+   * affinityHint (the total-as-member overestimate, see module docblock).
+   */
+  approximate: boolean;
 }
 
 export interface SparkChanceResult {
@@ -76,11 +98,21 @@ function perCareerChance(pEvent: number, rates: SparkRates): number {
  * Affinity inputs:
  * - Parent-held sparks scale by `Parent.affinityHint ?? 0` (see module
  *   docblock for the total-vs-per-member caveat). A contributing parent with
- *   no affinityHint falls back to 0 (conservative) and flags `approximate`.
+ *   no affinityHint falls back to 0 (conservative) and flags `approximate`; a
+ *   parent with a POSITIVE affinityHint also flags `approximate` because the
+ *   total is fed in as a member score (overestimate). A parent with
+ *   affinityHint === 0 applies no scaling — the honest base floor, NOT flagged.
  * - Grandparent-held sparks scale by `opts.grandparentAffinity ?? 0` — a
  *   conservative floor; any grandparent contribution flags `approximate`
  *   (mechanics-notes §4: no flat multiplier exists, so without the member's
  *   real score we under-promise rather than fabricate).
+ *
+ * Rarity safety (mechanics-notes §8): pass `opts.skillRarity` (a Map or a
+ * lookup fn) so the function can SKIP a `whiteSparks` entry whose skill is
+ * gold/unique/inherited_unique — those are not white-spark targets and pricing
+ * them with the whiteSkill base table fabricates an impossible percent. The
+ * green path is unaffected (it grants the 9xxxxx inherited-unique id directly).
+ * Without the lookup every recorded whiteSparks entry is priced (fallback).
  *
  * Parents with no matching spark contribute nothing and do NOT affect the
  * `approximate` flag. Returns pct 0 with empty contributions when nothing
@@ -90,18 +122,41 @@ export function sparkChance(args: {
   parents: Parent[];
   skillId: string;
   rates: SparkRates;
-  opts?: { grandparentAffinity?: number };
+  opts?: {
+    grandparentAffinity?: number;
+    /** Resolve a skillId → rarity to gate white-spark pricing (finding 2). */
+    skillRarity?: ReadonlyMap<string, SkillRarity> | ((skillId: string) => SkillRarity | undefined);
+  };
 }): SparkChanceResult {
   const { parents, skillId, rates, opts } = args;
   const contributions: SparkContribution[] = [];
   let approximate = false;
 
+  // A whiteSparks entry only prices when the target skill is white (or its
+  // rarity is unknown — fallback). Gold/unique/inherited_unique are skipped.
+  const rarityOf = (id: string): SkillRarity | undefined => {
+    const lookup = opts?.skillRarity;
+    if (!lookup) return undefined;
+    return typeof lookup === 'function' ? lookup(id) : lookup.get(id);
+  };
+  const isWhiteSparkTarget = (id: string): boolean => {
+    const rarity = rarityOf(id);
+    return rarity === undefined || rarity === 'white';
+  };
+
   for (const parent of parents) {
     // --- sparks held by the parent itself ---------------------------------
     const parentAffinity = parent.affinityHint ?? 0;
+    // A positive affinity feeds the lineage TOTAL as a member score (module
+    // docblock overestimate); a missing hint falls back to 0. Either way the
+    // resulting number is approximate. affinityHint === 0 is the honest floor.
+    const parentApprox = parent.affinityHint === undefined || parentAffinity > 0;
     const matching: Array<{ family: SparkFamily; stars: 1 | 2 | 3 }> = [];
     for (const spark of parent.whiteSparks) {
-      if (spark.skillId === skillId) matching.push({ family: 'whiteSkill', stars: spark.stars });
+      if (spark.skillId !== skillId) continue;
+      // mechanics-notes §8: white-spark factors map only to white skills.
+      if (!isWhiteSparkTarget(spark.skillId)) continue;
+      matching.push({ family: 'whiteSkill', stars: spark.stars });
     }
     // Green spark grants the 9xxxxx inherited-unique id (mechanics-notes §8);
     // Parent.greenSpark.skillId is already that id, so a plain match works.
@@ -116,8 +171,9 @@ export function sparkChance(args: {
         stars: spark.stars,
         affinityUsed: parentAffinity,
         pct: perCareerChance(pEvent, rates) * 100,
+        approximate: parentApprox,
       });
-      if (parent.affinityHint === undefined) approximate = true;
+      if (parentApprox) approximate = true;
     }
 
     // --- sparks held by this parent's grandparents (ParentRef) ------------
@@ -127,6 +183,7 @@ export function sparkChance(args: {
     for (const gp of parent.grandparents ?? []) {
       for (const spark of gp?.whiteSparks ?? []) {
         if (spark.skillId !== skillId) continue;
+        if (!isWhiteSparkTarget(spark.skillId)) continue;
         const pEvent = perEventChance(baseProcPct(rates, 'whiteSkill', spark.stars), gpAffinity);
         contributions.push({
           parentId: parent.id,
@@ -134,6 +191,7 @@ export function sparkChance(args: {
           stars: spark.stars,
           affinityUsed: gpAffinity,
           pct: perCareerChance(pEvent, rates) * 100,
+          approximate: true,
         });
         approximate = true;
       }
@@ -143,6 +201,38 @@ export function sparkChance(args: {
   // Independent members: P(≥1 proc) = 1 − Π(1 − pCareer_i).
   const missAll = contributions.reduce((acc, c) => acc * (1 - c.pct / 100), 1);
   return { pct: (1 - missAll) * 100, approximate, contributions };
+}
+
+/**
+ * Combined whole-career spark % across ALL given parents for `skillId`, in a
+ * single raw-float pass (review finding: "combinedSparkPct double-rounds").
+ *
+ * `sparkChance` already does 1 − Π(1 − pCareer_i) over every contribution from
+ * every parent, so this is just that function rounded ONCE at the end — no
+ * per-parent intermediate rounding. Prefer this for the "all parents together"
+ * figure and the contingency sparkPct; `combinedSparkPct(sources)` in
+ * coverage.ts stays the back-compat chip-combine variant (documented there).
+ *
+ * Returns `pct` (rounded to `opts.dp` decimals, default 1) and the `approximate`
+ * flag from the same single-pass result. Same affinity/rarity opts as
+ * `sparkChance`.
+ */
+export function combinedSparkChance(args: {
+  parents: Parent[];
+  skillId: string;
+  rates: SparkRates;
+  opts?: {
+    grandparentAffinity?: number;
+    skillRarity?: ReadonlyMap<string, SkillRarity> | ((skillId: string) => SkillRarity | undefined);
+    /** Display precision in decimal places (default 1). */
+    dp?: number;
+  };
+}): { pct: number; approximate: boolean } {
+  const { parents, skillId, rates, opts } = args;
+  const result = sparkChance({ parents, skillId, rates, opts });
+  const dp = opts?.dp ?? 1;
+  const factor = 10 ** dp;
+  return { pct: Math.round(result.pct * factor) / factor, approximate: result.approximate };
 }
 
 /**

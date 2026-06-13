@@ -11,16 +11,19 @@ import type {
   CoverageRow,
   CoverageSource,
   OwnedCard,
+  Parent,
+  SkillRarity,
   SkillRecord,
+  SparkRates,
   SupportCardRecord,
 } from '@/core/types';
 import {
   buildCoverageMatrix,
   bundledSpCost,
-  combinedSparkPct,
   effectiveSpCost,
   expectedHintLevel,
 } from '@/core/coverage';
+import { combinedSparkChance } from '@/core/spark';
 import { useGameData } from '@/features/data/gameData';
 import { useChosenParents } from '@/features/coverage/useChosenParents';
 import {
@@ -81,14 +84,34 @@ function bestSpark(sources: CoverageSource[]): CoverageSource | undefined {
 }
 
 /**
- * Chip text for one parent's cell. A parent can contribute several lineage
- * lines for the same skill (own spark + grandparent sparks share parentId) —
- * combine them; a single line shows its own %.
+ * FINDING 4(a): combine a parent's lineage lines for a skill in a single
+ * raw-float pass via core combinedSparkChance, instead of re-combining the
+ * already-1dp-rounded chip values (which double-rounds). `parent` is the
+ * resolved record for this column; falls back to the rounded chip combine only
+ * when the record is still loading.
  */
-function sparkChipText(sources: CoverageSource[]): string {
-  const first = sources[0];
-  const pct = sources.length > 1 ? combinedSparkPct(sources) : (first?.sparkPct ?? 0);
-  const approx = sources.some((s) => s.approximate === true);
+function sparkChipText(
+  sources: CoverageSource[],
+  parent: Parent | undefined,
+  skillId: string,
+  rates: SparkRates,
+  rarityById: ReadonlyMap<string, SkillRarity>,
+): string {
+  let pct: number;
+  let approx: boolean;
+  if (parent !== undefined) {
+    const combined = combinedSparkChance({
+      parents: [parent],
+      skillId,
+      rates,
+      opts: { skillRarity: rarityById },
+    });
+    pct = combined.pct;
+    approx = combined.approximate;
+  } else {
+    pct = sources[0]?.sparkPct ?? 0;
+    approx = sources.some((s) => s.approximate === true);
+  }
   return `spark ${approx ? '≈' : ''}${formatSparkPct(pct)}%`;
 }
 
@@ -96,12 +119,44 @@ function TierChip({ tier }: { tier: CoverageSource['kind'] }) {
   return <span className={`chip tier-${tier}`}>{TIER_LABEL[tier]}</span>;
 }
 
-function SparkDetails({ row, source }: { row: CoverageRow; source: CoverageSource }) {
+function SparkDetails({
+  row,
+  source,
+  parents,
+  rates,
+  rarityById,
+}: {
+  row: CoverageRow;
+  source: CoverageSource;
+  parents: Parent[];
+  rates: SparkRates;
+  rarityById: ReadonlyMap<string, SkillRarity>;
+}) {
   const detail = source.detail;
-  // All spark sources on the row — the combined line is the cross-parent
-  // "at least one of these procs" number (core combinedSparkPct).
+  // All spark sources on the row, and the DISTINCT parents that contribute one.
   const rowSparkSources = row.sources.filter((s) => s.kind === 'spark');
-  const anyApprox = rowSparkSources.some((s) => s.approximate === true);
+  const contributingParentIds = new Set(
+    rowSparkSources.map((s) => s.parentId).filter((id): id is string => id !== undefined),
+  );
+  const contributingParents = parents.filter((p) => contributingParentIds.has(p.id));
+  // FINDING 4(a): cross-parent "at least one procs" number in a single
+  // raw-float pass (core combinedSparkChance), not re-combined rounded chips.
+  const combined =
+    contributingParents.length > 0
+      ? combinedSparkChance({
+          parents: contributingParents,
+          skillId: row.skillId,
+          rates,
+          opts: { skillRarity: rarityById },
+        })
+      : undefined;
+  // FINDING 4(b): a positive affinity means the parent line used the entered
+  // TOTAL affinity as a per-member upper bound (overestimate) — disclose it.
+  const usedAffinityHint =
+    source.detail?.grandparent !== true &&
+    source.detail?.affinityUsed !== undefined &&
+    source.detail.affinityUsed > 0;
+  const multiParent = contributingParents.length > 1;
   return (
     <>
       <dl className="detail-list">
@@ -124,12 +179,12 @@ function SparkDetails({ row, source }: { row: CoverageRow; source: CoverageSourc
           {source.approximate === true ? '≈' : ''}
           {formatSparkPct(source.sparkPct ?? 0)}%
         </dd>
-        {rowSparkSources.length > 1 && (
+        {multiParent && combined !== undefined && (
           <>
             <dt>Combined (all parents)</dt>
             <dd>
-              {anyApprox ? '≈' : ''}
-              {formatSparkPct(combinedSparkPct(rowSparkSources))}%
+              {combined.approximate ? '≈' : ''}
+              {formatSparkPct(combined.pct)}%
             </dd>
           </>
         )}
@@ -137,6 +192,10 @@ function SparkDetails({ row, source }: { row: CoverageRow; source: CoverageSourc
       <p className="muted small">
         Spark % is the probability of the spark proccing at least once across both
         inspiration events — estimation, not a guarantee.
+        {usedAffinityHint &&
+          ' This line uses the entered TOTAL affinity as a per-member upper bound — refined by Module 1; shown as approximately.'}
+        {multiParent &&
+          ' Combined across the contributing parents = the chance at least one procs.'}
         {source.approximate === true &&
           ' ≈ marks a documented approximation (e.g. grandparent affinity fallback — mechanics-notes §4).'}{' '}
         SP-cost branches for spark coverage are in the contingency view below.
@@ -148,10 +207,14 @@ function SparkDetails({ row, source }: { row: CoverageRow; source: CoverageSourc
 function DetailsDrawer({
   selection,
   skill,
+  parents,
+  rarityById,
   onClose,
 }: {
   selection: Selection;
   skill: SkillRecord | undefined;
+  parents: Parent[];
+  rarityById: ReadonlyMap<string, SkillRarity>;
   onClose: () => void;
 }) {
   const { sparkRates, skillById } = useGameData();
@@ -188,7 +251,13 @@ function DetailsDrawer({
       </p>
       <p className="muted">{TIER_DESCRIPTION[source.kind]}</p>
       {isSpark ? (
-        <SparkDetails row={row} source={source} />
+        <SparkDetails
+          row={row}
+          source={source}
+          parents={parents}
+          rates={sparkRates}
+          rarityById={rarityById}
+        />
       ) : (
         <>
           <dl className="detail-list">
@@ -270,6 +339,17 @@ export function CoverageMatrixPanel({
     });
     return [...built].sort((a, b) => a.priority - b.priority); // stable: keeps plan order within a priority
   }, [plan, inventory, cards, skills, parents, sparkRates]);
+
+  // skillId → rarity, so the combined-spark math gates white-spark pricing the
+  // same way the core matrix does (FINDING 4 / mechanics-notes §8).
+  const rarityById = useMemo<ReadonlyMap<string, SkillRarity>>(
+    () => new Map(skills.map((s) => [s.skillId, s.rarity])),
+    [skills],
+  );
+  const parentById = useMemo(
+    () => new Map(parents.map((p) => [p.id, p])),
+    [parents],
+  );
 
   const columns = useMemo<Column[]>(
     () =>
@@ -396,7 +476,13 @@ export function CoverageMatrixPanel({
                         </td>
                       );
                     }
-                    const text = sparkChipText(sparkSources);
+                    const text = sparkChipText(
+                      sparkSources,
+                      parentById.get(col.parentId),
+                      row.skillId,
+                      sparkRates,
+                      rarityById,
+                    );
                     return (
                       <td key={col.key}>
                         <button
@@ -443,6 +529,8 @@ export function CoverageMatrixPanel({
         <DetailsDrawer
           selection={selection}
           skill={skillById.get(selection.row.skillId)}
+          parents={parents}
+          rarityById={rarityById}
           onClose={() => setSelection(null)}
         />
       )}

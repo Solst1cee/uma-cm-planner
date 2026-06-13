@@ -179,6 +179,19 @@ export function suggestDeck(args: {
   const used = new Set<string>();
   for (const state of slots) {
     if (state.lockedBy !== 'cardId' || state.cardId === undefined) continue;
+    // A card appears at most once in a deck (in-game rule). If an earlier slot
+    // already locked this cardId, leave THIS slot empty and note the conflict
+    // rather than duplicate the card (review finding: "Same cardId locked to
+    // two slots duplicates the card into both slots"). The slot stays
+    // lockedBy:'cardId' with no occupant — honest about the impossible lock.
+    if (used.has(state.cardId)) {
+      const dupCard = cardById.get(state.cardId);
+      lockNotes.push(
+        `slot ${state.slot}: locked card ${dupCard?.nameEn ?? state.cardId} is already locked to an earlier slot — left empty (a card can appear only once)`,
+      );
+      state.cardId = undefined;
+      continue;
+    }
     const card = cardById.get(state.cardId);
     const owned = bestCopy.get(state.cardId);
     const lb: LimitBreak = owned?.limitBreak ?? 0;
@@ -324,4 +337,52 @@ export function suggestDeck(args: {
     uncovered,
     rationale,
   };
+}
+
+/**
+ * Target skillIds whose ONLY coverage is a parent spark — no card source in the
+ * suggested deck and not scenario-exclusive (review finding: "spark-only targets
+ * excluded from What am I missing"). These never appear in DeckSuggestion.uncovered
+ * (a spark counts as covered), yet they rest on RNG inheritance and contribute 0
+ * to the coverage score, so the UI surfaces them in a distinct bucket.
+ *
+ * Does NOT change the frozen DeckSuggestion type; this is a separate, additive
+ * export. Pass the suggested deck plus the same inventory/cards/skills/parents
+ * the suggester used. A target is spark-only when (a) some parent can spark-cover
+ * it AND (b) no card in the deck grants it AND (c) it is not scenario-covered.
+ * Returned in plan priority order (stable for equal priority).
+ */
+export function sparkOnlyTargets(args: {
+  plan: CmPlan;
+  deck: DeckSuggestion;
+  cards: SupportCardRecord[];
+  skills: SkillRecord[];
+  parents?: Parent[];
+}): string[] {
+  const { plan, deck, cards, skills, parents } = args;
+  const cardById = new Map(cards.map((c) => [c.cardId, c]));
+  const skillById = new Map(skills.map((s) => [s.skillId, s]));
+  const targets = [...plan.targetSkills].sort((a, b) => a.priority - b.priority);
+
+  // Cards actually placed in the suggested deck (locked + picked).
+  const deckCardIds = new Set(
+    deck.deck.map((d) => d.cardId).filter((id): id is string => id !== undefined),
+  );
+
+  const out: string[] = [];
+  for (const target of targets) {
+    const skill = skillById.get(target.skillId);
+    // Scenario-exclusive coverage is a real (non-spark) source — not spark-only.
+    if (skill?.scenarioId !== undefined && skill.scenarioId === plan.scenario.id) continue;
+    // Any deck card that lists this skill (at any sourceType) is a card source.
+    const cardCovers = [...deckCardIds].some((cardId) =>
+      cardById.get(cardId)?.skills.some((cs) => cs.skillId === target.skillId),
+    );
+    if (cardCovers) continue;
+    // No card / scenario source: spark-only iff a parent can spark-cover it.
+    if ((parents ?? []).some((p) => parentCoversSkill(p, target.skillId))) {
+      out.push(target.skillId);
+    }
+  }
+  return out;
 }

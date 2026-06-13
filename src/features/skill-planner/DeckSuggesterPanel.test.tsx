@@ -4,13 +4,14 @@
  * the coverage score and the uncovered ("what am I missing") list.
  * suggestDeck itself is mocked — its math is covered by core deck tests.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan, DeckSuggestion, OwnedCard } from '@/core/types';
+import type { CmPlan, DeckSuggestion, OwnedCard, Parent } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
-import { suggestDeck } from '@/core/deck';
+import { listParents } from '@/db';
+import { sparkOnlyTargets, suggestDeck } from '@/core/deck';
 import { DeckSuggesterPanel } from '@/features/skill-planner/DeckSuggesterPanel';
 
 vi.mock('@/features/data/gameData', async () => {
@@ -39,16 +40,25 @@ const mocked = vi.hoisted(() => ({
       'Slot 3 Tazuna Hayakawa: covers Right Turns ○ (date event)',
     ],
   },
+  /** sparkOnlyTargets() return; tests mutate before render. */
+  sparkOnly: [] as string[],
 }));
 
 vi.mock('@/core/deck', () => ({
   suggestDeck: vi.fn(() => mocked.suggestion as unknown as DeckSuggestion),
+  // FINDING 5: spark-only targets bucket. Default none; tests override.
+  sparkOnlyTargets: vi.fn(() => mocked.sparkOnly),
 }));
 
 const INVENTORY: OwnedCard[] = [
   { id: 1, cardId: '30028', limitBreak: 3 }, // Kitasan Black
   { id: 2, cardId: '30016', limitBreak: 0 }, // Tazuna Hayakawa
 ];
+
+beforeEach(() => {
+  mocked.sparkOnly = [];
+  vi.mocked(sparkOnlyTargets).mockImplementation(() => mocked.sparkOnly);
+});
 
 afterEach(cleanup);
 
@@ -143,6 +153,65 @@ describe('DeckSuggesterPanel', () => {
     expect(screen.getByRole('list', { name: 'Suggested deck' })).toBeInTheDocument();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Slot 1 lock' }), 'speed');
     expect(screen.queryByRole('list', { name: 'Suggested deck' })).not.toBeInTheDocument();
+  });
+
+  it('FINDING 2: invalidates the suggestion when target skills change', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <DeckSuggesterPanel plan={FIXTURE_PLAN} onChange={vi.fn()} inventory={INVENTORY} />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Suggest deck' }));
+    expect(screen.getByRole('list', { name: 'Suggested deck' })).toBeInTheDocument();
+    // A target edit (PlanHeaderPanel) produces a new plan with a new
+    // targetSkills array — the displayed deck no longer matches it (P3).
+    rerender(
+      <DeckSuggesterPanel
+        plan={{ ...FIXTURE_PLAN, targetSkills: [{ skillId: '200332', priority: 1 }] }}
+        onChange={vi.fn()}
+        inventory={INVENTORY}
+      />,
+    );
+    expect(screen.queryByRole('list', { name: 'Suggested deck' })).not.toBeInTheDocument();
+  });
+
+  it('FINDING 2: disables Suggest deck while chosen parents are still loading', async () => {
+    // A never-resolving listParents keeps useChosenParents().loading true, so a
+    // suggestion built with parents=[] (which would mis-list parent-spark
+    // targets as missing) cannot be requested.
+    vi.mocked(listParents).mockReturnValueOnce(new Promise<Parent[]>(() => {}));
+    render(
+      <DeckSuggesterPanel
+        plan={{ ...FIXTURE_PLAN, chosenParents: ['p1', undefined] }}
+        onChange={vi.fn()}
+        inventory={INVENTORY}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Suggest deck' })).toBeDisabled();
+    expect(screen.getByText('Loading chosen parents…')).toBeInTheDocument();
+  });
+
+  it('FINDING 5: renders spark-only targets as a distinct bucket in "what am I missing"', async () => {
+    const user = userEvent.setup();
+    // Corner Adept ○ (200332) is covered ONLY by a parent spark — it is not in
+    // `uncovered` but must still surface as spark-only (RNG, no deck source).
+    mocked.sparkOnly = ['200332'];
+    render(
+      <DeckSuggesterPanel plan={FIXTURE_PLAN} onChange={vi.fn()} inventory={INVENTORY} />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Suggest deck' }));
+
+    const sparkBucket = screen.getByRole('list', { name: 'Spark-only target skills' });
+    expect(within(sparkBucket).getByText('Corner Adept ○')).toBeInTheDocument();
+    expect(screen.getByText(/Spark-only \(RNG inheritance, no deck source\)/)).toBeInTheDocument();
+    // It is visually distinct from the hard-uncovered list.
+    expect(sparkBucket).toHaveClass('spark-only-list');
+    expect(screen.getByRole('list', { name: 'Uncovered target skills' })).toHaveClass(
+      'missing-list',
+    );
+    // Not a "nothing missing" state.
+    expect(
+      screen.queryByText('Nothing — every target has at least one source.'),
+    ).not.toBeInTheDocument();
   });
 
   it('disables Suggest deck when the plan has no target skills', () => {

@@ -152,10 +152,14 @@ function sparkSources(
   parents: Parent[],
   skillId: string,
   rates: SparkRates,
+  skillRarity: ReadonlyMap<string, SkillRecord['rarity']>,
 ): CoverageSource[] {
   const sources: CoverageSource[] = [];
   for (const parent of parents) {
-    const result = sparkChance({ parents: [parent], skillId, rates });
+    // Pass the rarity lookup so a gold/unique whiteSparks entry is not priced
+    // as a white spark (mechanics-notes §8; review finding "Gold skills priced
+    // as white sparks"). Without it sparkChance would fabricate a percent.
+    const result = sparkChance({ parents: [parent], skillId, rates, opts: { skillRarity } });
     const best = [...result.contributions].sort(
       (a, b) => b.pct - a.pct || Number(a.grandparent) - Number(b.grandparent),
     )[0];
@@ -180,6 +184,13 @@ function sparkSources(
  * branches: 1 − Π(1 − pct/100)). Operates on the already-1dp-rounded
  * per-source sparkPct values — the UI's "all parents together" number, not a
  * re-derivation. Non-spark sources are ignored; returns 0 when none. 1dp.
+ *
+ * BACK-COMPAT chip variant: this re-combines per-source CHIPS that were each
+ * rounded to 1dp, so it can drift from a single raw-float pass across many
+ * parents (review finding: "combinedSparkPct double-rounds"). For the precise
+ * "all parents together" figure prefer spark.ts `combinedSparkChance`, which
+ * rounds ONCE over raw floats. Kept here for callers that only have the
+ * rounded CoverageSource chips (e.g. a row already built without the parents).
  */
 export function combinedSparkPct(sources: CoverageSource[]): number {
   let missAll = 1;
@@ -214,6 +225,8 @@ export function buildCoverageMatrix(args: {
   const { plan, inventory, cards, skills, parents, rates } = args;
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
   const cardById = new Map(cards.map((c) => [c.cardId, c]));
+  // skillId → rarity, so sparkSources can gate white-spark pricing (finding 2).
+  const rarityById = new Map(skills.map((s) => [s.skillId, s.rarity]));
 
   // Array.prototype.sort is stable (ES2019+): insertion order breaks ties.
   const targets = [...plan.targetSkills].sort((a, b) => a.priority - b.priority);
@@ -240,7 +253,7 @@ export function buildCoverageMatrix(args: {
     }
 
     if (parents && rates) {
-      sources.push(...sparkSources(parents, target.skillId, rates));
+      sources.push(...sparkSources(parents, target.skillId, rates, rarityById));
     }
 
     sources.sort((a, b) => tierRank(a.kind) - tierRank(b.kind)); // best first

@@ -60,9 +60,12 @@ describe('computeContingencies', () => {
     expect(result[0]?.spIfProc).toBe(effectiveSpCost(getSkill('200012'), 1, rates));
   });
 
-  it('NEGATIVE deltaSp is honest: a strong hint card can out-discount the assumed Lv1 proc', () => {
-    // Kitasan hint on 200012 at LB4: base 1 + effect-17 passive 2 = Lv3 → 30%
-    // off: miss = ceil(90×0.7) = 63 < proc 81 → delta = −18.
+  it('proc is priced at the conservative hint floor so spIfProc <= spIfMiss (finding)', () => {
+    // Finding "Contingency proc branch can cost more than miss": hint levels only
+    // accumulate, so a proc can never cost MORE than a miss. Kitasan hint on
+    // 200012 at LB4 = Lv3 (base 1 + effect-17 passive 2). The miss branch buys at
+    // Lv3 → ceil(90×0.7)=63. The proc branch floors at max(Lv1, Lv3)=Lv3 too →
+    // 63, so deltaSp = 0 (>= 0), never the old impossible −18.
     const hint: CoverageSource = { kind: 'hint_strong', cardId: '30028', limitBreak: 4 };
     const rows = [row('200012', [hint, sparkSource()])];
     const result = computeContingencies({
@@ -72,8 +75,11 @@ describe('computeContingencies', () => {
       cards: FIXTURE_CARDS,
     });
     expect(result[0]?.spIfMiss).toBe(63);
-    expect(result[0]?.spIfProc).toBe(81);
-    expect(result[0]?.deltaSp).toBe(-18);
+    expect(result[0]?.spIfProc).toBe(63);
+    expect(result[0]?.deltaSp).toBe(0);
+    // The core invariant the finding demands: proc never costs more than miss.
+    expect(result[0]?.spIfProc).toBeLessThanOrEqual(result[0]!.spIfMiss);
+    expect(result[0]?.deltaSp).toBeGreaterThanOrEqual(0);
   });
 
   it('gold with prereq: BOTH branches use bundledSpCost (mechanics-notes §7 — sum before one ceil)', () => {
@@ -107,6 +113,29 @@ describe('computeContingencies', () => {
     expect(result[0]?.spIfProc).toBe(162);
     expect(result[0]?.spIfMiss).toBe(173);
     expect(result[0]?.deltaSp).toBe(11);
+  });
+
+  it('inherited_unique target: miss branch is not obtainable (Infinity), proc stays real (finding)', () => {
+    // Finding "Contingency miss branch prices an inherited-unique skill that
+    // cannot be bought": inherited_unique skills are obtainable ONLY via
+    // inheritance (mechanics-notes §8). The shipped data prices them at 200 SP,
+    // but that price is unreachable on a miss — so spIfMiss/deltaSp are Infinity.
+    const greenUnique: SkillRecord = {
+      skillId: '900099',
+      nameEn: 'Inherited Unique (200 SP shape)',
+      nameJp: '',
+      baseSpCost: 200,
+      rarity: 'inherited_unique',
+      conditions: '',
+      server: 'global',
+      dataVersion: 'test',
+    };
+    const rows = [row('900099', [sparkSource()])];
+    const result = computeContingencies({ rows, skills: [greenUnique], rates });
+    // proc floor Lv1 → ceil(200×0.9)=180; miss is not obtainable.
+    expect(result[0]?.spIfProc).toBe(180);
+    expect(result[0]?.spIfMiss).toBe(Infinity);
+    expect(result[0]?.deltaSp).toBe(Infinity);
   });
 
   it('gold whose prereq is missing from the dataset degrades to pricing the gold alone', () => {
@@ -177,11 +206,13 @@ describe('computeContingencies', () => {
       {
         skillId: '200012',
         sparkPct: 11.4, // Ice AO1065, 1dp
-        approximate: false,
-        spIfProc: 81,
+        // Finding: positive affinityHint (95) → the spark % is an overestimate,
+        // so the contingency carries the approximate flag too.
+        approximate: true,
+        spIfProc: 63, // floored at max(Lv1, Kitasan Lv3) — proc never costs more
         spIfProcAssumption: SPARK_PROC_ASSUMPTION,
         spIfMiss: 63, // Kitasan hint Lv3
-        deltaSp: -18,
+        deltaSp: 0,
       },
     ]);
   });

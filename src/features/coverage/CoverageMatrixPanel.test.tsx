@@ -139,7 +139,21 @@ vi.mock('@/core/coverage', () => ({
   bundledSpCost: vi.fn(
     (gold: SkillRecord, white: SkillRecord) => gold.baseSpCost + white.baseSpCost,
   ),
-  combinedSparkPct: vi.fn(() => 25.3),
+}));
+
+// FINDING 4(a): the panel combines spark % via core combinedSparkChance (raw
+// float, single pass). Mock it deterministically — the real math is covered by
+// spark.test.ts. Per-parent for the chip; both parents together for the drawer.
+vi.mock('@/core/spark', () => ({
+  combinedSparkChance: vi.fn(
+    (args: { parents: Array<{ id: string }> }): { pct: number; approximate: boolean } => {
+      const ids = args.parents.map((p) => p.id).sort();
+      if (ids.length === 1 && ids[0] === 'p1') return { pct: 17.4, approximate: false };
+      if (ids.length === 1 && ids[0] === 'p2') return { pct: 9.6, approximate: true };
+      // [p1, p2] together — the cross-parent combined figure.
+      return { pct: 25.3, approximate: true };
+    },
+  ),
 }));
 
 const INVENTORY: OwnedCard[] = [{ id: 1, cardId: '30028', limitBreak: 3 }];
@@ -335,7 +349,7 @@ describe('CoverageMatrixPanel', () => {
       expect(inDrawer.getByText('Chance (this line)').nextElementSibling).toHaveTextContent(
         '17%',
       );
-      // combinedSparkPct mocked to 25.3; ≈ because the p2 line is approximate.
+      // combinedSparkChance([p1,p2]) mocked to 25.3; ≈ because it's approximate.
       expect(
         inDrawer.getByText('Combined (all parents)').nextElementSibling,
       ).toHaveTextContent('≈25%');
@@ -368,6 +382,29 @@ describe('CoverageMatrixPanel', () => {
       );
       expect(
         inDrawer.getByText(/grandparent affinity fallback — mechanics-notes §4/),
+      ).toBeInTheDocument();
+    });
+
+    it('FINDING 4: drawer discloses the total-affinity upper bound and the multi-parent combination', async () => {
+      const user = userEvent.setup();
+      renderPanel(INVENTORY, PLAN_WITH_PARENTS);
+      // p1's line used a positive total affinity (affinityUsed 102) as a
+      // per-member upper bound — the drawer must disclose that (FINDING 4b).
+      await user.click(
+        await screen.findByRole('button', {
+          name: 'Corner Adept ○ via Daiwa Scarlet: spark 17%',
+        }),
+      );
+      const drawer = screen.getByRole('dialog', {
+        name: 'Coverage details: Corner Adept ○',
+      });
+      const inDrawer = within(drawer);
+      expect(
+        inDrawer.getByText(/entered TOTAL affinity as a per-member upper bound/),
+      ).toBeInTheDocument();
+      // Two parents contribute → the cross-parent combination is explained (4c).
+      expect(
+        inDrawer.getByText(/Combined across the contributing parents/),
       ).toBeInTheDocument();
     });
   });

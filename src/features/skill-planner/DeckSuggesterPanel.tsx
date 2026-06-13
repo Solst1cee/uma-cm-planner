@@ -6,9 +6,9 @@
  * invalidated by any lock edit — showing a deck computed under constraints
  * that no longer hold would be a fabricated answer (P3).
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CardType, CmPlan, DeckSuggestion, OwnedCard } from '@/core/types';
-import { suggestDeck } from '@/core/deck';
+import { sparkOnlyTargets, suggestDeck } from '@/core/deck';
 import { useGameData } from '@/features/data/gameData';
 import { useChosenParents } from '@/features/coverage/useChosenParents';
 
@@ -41,8 +41,18 @@ export function DeckSuggesterPanel({
   inventory: OwnedCard[];
 }) {
   const { skills, cards, skillById, cardById } = useGameData();
-  const { parents } = useChosenParents(plan);
+  const { parents, loading: parentsLoading } = useChosenParents(plan);
   const [suggestion, setSuggestion] = useState<DeckSuggestion | null>(null);
+
+  // FINDING 2: a suggestion is computed from plan.targetSkills, the resolved
+  // parents (and plan.chosenParents that drive them), and inventory. If ANY of
+  // those change after a suggestion is shown, the displayed deck/score/missing
+  // list describes a plan that no longer holds — a fabricated answer (P3). Lock
+  // edits already clear via applyLock; this covers the rest by clearing whenever
+  // a suggester input changes.
+  useEffect(() => {
+    setSuggestion(null);
+  }, [plan.targetSkills, plan.chosenParents, inventory, parents]);
   /** Slot whose card-lock picker is open (transient; nothing in plan yet). */
   const [picking, setPicking] = useState<Slot | null>(null);
   const [query, setQuery] = useState('');
@@ -202,7 +212,7 @@ export function DeckSuggesterPanel({
 
       <button
         type="button"
-        disabled={!hasTargets}
+        disabled={!hasTargets || parentsLoading}
         onClick={() =>
           setSuggestion(suggestDeck({ plan, inventory, cards, skills, parents }))
         }
@@ -212,60 +222,91 @@ export function DeckSuggesterPanel({
       {!hasTargets && (
         <p className="muted small">Add target skills above to get a suggestion.</p>
       )}
-
-      {suggestion && (
-        <div className="suggestion">
-          <ol className="deck-result" aria-label="Suggested deck">
-            {suggestion.deck.map((d) => {
-              const card = d.cardId !== undefined ? cardById.get(d.cardId) : undefined;
-              return (
-                <li key={d.slot}>
-                  <span className="deck-slot-no muted small">Slot {d.slot + 1}</span>
-                  <span className="deck-card-name">
-                    {d.cardId === undefined ? (
-                      <span className="muted">— empty —</span>
-                    ) : card ? (
-                      `${card.charName} ${card.nameEn}`
-                    ) : (
-                      d.cardId
-                    )}
-                  </span>
-                  {d.lockedBy !== undefined && (
-                    <span className="badge locked-badge">
-                      {d.lockedBy === 'cardType' ? 'locked: type' : 'locked: card'}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-          <p>
-            Coverage score: <strong>{formatScore(suggestion.coverageScore)}</strong>{' '}
-            <span className="muted small">
-              (Σ priority × tier weight — for comparing decks, not a probability)
-            </span>
-          </p>
-          {suggestion.rationale.length > 0 && (
-            <ul className="rationale" aria-label="Why these picks">
-              {suggestion.rationale.map((line, i) => (
-                <li key={i} className="muted small">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          )}
-          <h3>What am I missing</h3>
-          {suggestion.uncovered.length === 0 ? (
-            <p className="muted">Nothing — every target has at least one source.</p>
-          ) : (
-            <ul className="missing-list" aria-label="Uncovered target skills">
-              {suggestion.uncovered.map((skillId) => (
-                <li key={skillId}>{skillById.get(skillId)?.nameEn ?? skillId}</li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {hasTargets && parentsLoading && (
+        // FINDING 2: suggesting with parents=[] (still loading) lists
+        // parent-spark-covered targets as missing — wait for the Dexie read.
+        <p className="muted small">Loading chosen parents…</p>
       )}
+
+      {suggestion &&
+        (() => {
+          // FINDING 5: targets covered ONLY by a parent spark (RNG inheritance,
+          // tier weight 0) are not in `uncovered`, so they'd silently read as
+          // "not missing". Surface them as a distinct bucket so the user knows
+          // they rest on RNG, not a deck source.
+          const sparkOnly = sparkOnlyTargets({
+            plan,
+            deck: suggestion,
+            cards,
+            skills,
+            parents,
+          });
+          const nothingMissing = suggestion.uncovered.length === 0 && sparkOnly.length === 0;
+          return (
+            <div className="suggestion">
+              <ol className="deck-result" aria-label="Suggested deck">
+                {suggestion.deck.map((d) => {
+                  const card = d.cardId !== undefined ? cardById.get(d.cardId) : undefined;
+                  return (
+                    <li key={d.slot}>
+                      <span className="deck-slot-no muted small">Slot {d.slot + 1}</span>
+                      <span className="deck-card-name">
+                        {d.cardId === undefined ? (
+                          <span className="muted">— empty —</span>
+                        ) : card ? (
+                          `${card.charName} ${card.nameEn}`
+                        ) : (
+                          d.cardId
+                        )}
+                      </span>
+                      {d.lockedBy !== undefined && (
+                        <span className="badge locked-badge">
+                          {d.lockedBy === 'cardType' ? 'locked: type' : 'locked: card'}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+              <p>
+                Coverage score: <strong>{formatScore(suggestion.coverageScore)}</strong>{' '}
+                <span className="muted small">
+                  (Σ priority × tier weight — for comparing decks, not a probability)
+                </span>
+              </p>
+              {suggestion.rationale.length > 0 && (
+                <ul className="rationale" aria-label="Why these picks">
+                  {suggestion.rationale.map((line, i) => (
+                    <li key={i} className="muted small">
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <h3>What am I missing</h3>
+              {nothingMissing && (
+                <p className="muted">Nothing — every target has at least one source.</p>
+              )}
+              {suggestion.uncovered.length > 0 && (
+                <ul className="missing-list" aria-label="Uncovered target skills">
+                  {suggestion.uncovered.map((skillId) => (
+                    <li key={skillId}>{skillById.get(skillId)?.nameEn ?? skillId}</li>
+                  ))}
+                </ul>
+              )}
+              {sparkOnly.length > 0 && (
+                <div className="spark-only-bucket">
+                  <h4 className="spark-only-h">Spark-only (RNG inheritance, no deck source)</h4>
+                  <ul className="spark-only-list" aria-label="Spark-only target skills">
+                    {sparkOnly.map((skillId) => (
+                      <li key={skillId}>{skillById.get(skillId)?.nameEn ?? skillId}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })()}
     </section>
   );
 }

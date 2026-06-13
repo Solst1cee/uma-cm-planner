@@ -610,6 +610,27 @@ button:disabled {
   font-weight: 600;
 }
 
+/* Spark-only bucket: covered only by an RNG parent spark, no deck source.
+   Purple (spark tier), visually distinct from the red hard-uncovered list. */
+.spark-only-bucket {
+  margin: 0.3rem 0;
+}
+.spark-only-h {
+  margin: 0.4rem 0 0.2rem;
+  font-size: 0.85rem;
+  color: var(--tier-spark);
+}
+.spark-only-list {
+  margin: 0.2rem 0;
+  padding-left: 1.1rem;
+  color: var(--tier-spark);
+  font-weight: 600;
+}
+.not-obtainable {
+  color: var(--tier-uncovered);
+  font-weight: 600;
+}
+
 /* ---- Spark contingency view ---- */
 
 details.panel > summary {

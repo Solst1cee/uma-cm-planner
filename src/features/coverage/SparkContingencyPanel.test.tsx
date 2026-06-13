@@ -29,6 +29,8 @@ const mocked = vi.hoisted(() => ({
     },
   ],
   contingencies: [] as unknown[],
+  /** Rows feed the panel's per-skill contributing-parent count (FINDING 4c). */
+  rows: [] as unknown[],
 }));
 
 vi.mock('@/db', () => ({
@@ -36,7 +38,7 @@ vi.mock('@/db', () => ({
 }));
 
 vi.mock('@/core/coverage', () => ({
-  buildCoverageMatrix: vi.fn(() => []),
+  buildCoverageMatrix: vi.fn(() => mocked.rows),
 }));
 
 vi.mock('@/core/contingency', () => ({
@@ -58,6 +60,7 @@ const PLAN: CmPlan = { ...FIXTURE_PLAN, chosenParents: ['p1', undefined] };
 
 beforeEach(() => {
   mocked.contingencies = [CONTINGENCY];
+  mocked.rows = [];
 });
 
 afterEach(cleanup);
@@ -111,5 +114,45 @@ describe('SparkContingencyPanel', () => {
     mocked.contingencies = [];
     render(<SparkContingencyPanel plan={PLAN} inventory={[]} />);
     expect(await screen.findByText(/No spark-covered targets/)).toBeInTheDocument();
+  });
+
+  it('FINDING 6: renders an inherited-unique miss branch as "not obtainable", not a number', async () => {
+    // Core returns Infinity for spIfMiss/deltaSp when the skill cannot be bought
+    // (green/inherited_unique). The panel must show "not obtainable", not "∞ SP".
+    mocked.contingencies = [
+      {
+        ...CONTINGENCY,
+        skillId: '900021', // inherited unique in the fixture skills
+        spIfProc: 180,
+        spIfMiss: Infinity,
+        deltaSp: Infinity,
+      },
+    ];
+    render(<SparkContingencyPanel plan={PLAN} inventory={[]} />);
+    const line = await screen.findByText(
+      (_, el) => el?.classList.contains('contingency-line') === true,
+    );
+    expect(line).toHaveTextContent('if procs: 180 SP');
+    expect(line).toHaveTextContent('not obtainable without the proc');
+    expect(line.textContent).not.toMatch(/Infinity|∞/);
+  });
+
+  it('FINDING 4: notes the cross-parent combination when more than one parent contributes', async () => {
+    // Two parents each spark-cover 200332 → the combined % spans 2 parents.
+    mocked.rows = [
+      {
+        skillId: '200332',
+        priority: 1,
+        bestTier: 'spark',
+        sources: [
+          { kind: 'spark', parentId: 'p1', sparkPct: 17.4 },
+          { kind: 'spark', parentId: 'p2', sparkPct: 9.6 },
+        ],
+      },
+    ];
+    render(<SparkContingencyPanel plan={PLAN} inventory={[]} />);
+    expect(
+      await screen.findByText(/combined across 2 parents — chance at least one procs/),
+    ).toBeInTheDocument();
   });
 });

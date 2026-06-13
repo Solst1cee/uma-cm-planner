@@ -452,40 +452,66 @@ describe('buildCoverageMatrix — spark sources', () => {
     };
   }
 
+  // Use white skill 200012 — white-spark factors map ONLY to white skills
+  // (mechanics-notes §8). A gold skillId like 200014 is filtered (covered by a
+  // dedicated test below: "gold whiteSparks entry filtered").
   const parentA = makeParent({
     id: 'parent-a',
-    whiteSparks: [{ skillId: '200014', stars: 1 }],
+    whiteSparks: [{ skillId: '200012', stars: 1 }],
     affinityHint: 95,
   });
   const parentB = makeParent({
     id: 'parent-b',
-    whiteSparks: [{ skillId: '200014', stars: 2 }],
+    whiteSparks: [{ skillId: '200012', stars: 2 }],
     affinityHint: 95,
   });
 
-  it('emits one spark source per covering parent, ranked below random (Tier order)', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+  it('emits one spark source per covering parent, ranked below a card source (Tier order)', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
-      inventory: [KITASAN], // 200014 is a random event on Kitasan
+      inventory: [KITASAN], // 200012 is a hint_pool skill on Kitasan
       parents: [parentA],
     });
-    expect(rows[0]?.sources.map((s) => s.kind)).toEqual(['random', 'spark']);
-    expect(rows[0]?.bestTier).toBe('random'); // spark never outranks random
+    // Kitasan's hint source (hint_strong/weak) ranks above the spark.
+    const kinds = rows[0]?.sources.map((s) => s.kind) ?? [];
+    expect(kinds[kinds.length - 1]).toBe('spark'); // spark is always last
+    expect(rows[0]?.bestTier).not.toBe('spark'); // a card source outranks it
     expect(tierRank('spark')).toBeGreaterThan(tierRank('random'));
-    // 1★ white at affinity 95 = 11.357775% (Ice AO1065) → 1dp.
-    expect(rows[0]?.sources[1]).toEqual({
+    const sparkSource = rows[0]?.sources.find((s) => s.kind === 'spark');
+    // 1★ white at affinity 95 = 11.357775% (Ice AO1065) → 1dp; finding:
+    // positive affinity is the lineage total used per-member → approximate.
+    expect(sparkSource).toEqual({
       kind: 'spark',
       parentId: 'parent-a',
       sparkPct: 11.4,
-      approximate: false,
+      approximate: true,
       detail: { sparkStars: 1, grandparent: false, affinityUsed: 95 },
     });
   });
 
-  it('two covering parents → one source each; combinedSparkPct combines them', () => {
+  it('gold whiteSparks entry is filtered — not priced as a white spark (finding)', () => {
+    // 200014 is gold in fixtures; recording it as a white spark must NOT
+    // produce a spark source (mechanics-notes §8). Only Kitasan's random_event
+    // covers it here.
+    const goldSparkParent = makeParent({
+      id: 'parent-gold',
+      whiteSparks: [{ skillId: '200014', stars: 3 }],
+      affinityHint: 95,
+    });
     const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const rows = buildCoverageMatrix({
+      ...baseArgs,
+      plan,
+      inventory: [KITASAN],
+      parents: [goldSparkParent],
+    });
+    expect(rows[0]?.sources.map((s) => s.kind)).toEqual(['random']); // no spark
+  });
+
+  it('two covering parents → one source each; combinedSparkPct combines them', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -503,12 +529,12 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('grandparent-only branch: conservative affinity-0 floor, approximate, gp detail', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
     const gpParent = makeParent({
       id: 'parent-c',
       affinityHint: 95,
       grandparents: [
-        { umaId: '100101', whiteSparks: [{ skillId: '200014', stars: 1 }] },
+        { umaId: '100101', whiteSparks: [{ skillId: '200012', stars: 1 }] },
         undefined,
       ],
     });
@@ -526,13 +552,13 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('parent + own grandparent in one branch → ONE source with the branch-combined pct; detail = strongest contribution', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
     const branch = makeParent({
       id: 'parent-d',
-      whiteSparks: [{ skillId: '200014', stars: 1 }],
+      whiteSparks: [{ skillId: '200012', stars: 1 }],
       affinityHint: 95,
       grandparents: [
-        { umaId: '100101', whiteSparks: [{ skillId: '200014', stars: 1 }] },
+        { umaId: '100101', whiteSparks: [{ skillId: '200012', stars: 1 }] },
         undefined,
       ],
     });
@@ -558,13 +584,14 @@ describe('buildCoverageMatrix — spark sources', () => {
       affinityHint: 95,
     });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [green] });
-    // green 1★ at 95 = 18.549375% (Ice AO715) → 18.5.
+    // green 1★ at 95 = 18.549375% (Ice AO715) → 18.5; positive affinity →
+    // approximate (lineage total used per-member, finding).
     expect(rows[0]?.sources).toEqual([
       {
         kind: 'spark',
         parentId: 'parent-g',
         sparkPct: 18.5,
-        approximate: false,
+        approximate: true,
         detail: { sparkStars: 1, grandparent: false, affinityUsed: 95 },
       },
     ]);

@@ -16,9 +16,9 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { parentCoversSkill, sparkChance } from '@/core/spark';
+import { combinedSparkChance, parentCoversSkill, sparkChance } from '@/core/spark';
 import { FIXTURE_SPARK_RATES } from '@/core/fixtures';
-import type { Parent } from '@/core/types';
+import type { Parent, SkillRarity } from '@/core/types';
 
 const rates = FIXTURE_SPARK_RATES;
 const SKILL = '200012';
@@ -45,13 +45,17 @@ describe('sparkChance — Ice sheet goldens (Complete Distribution Table)', () =
     });
     const result = sparkChance({ parents: [parent], skillId: SKILL, rates });
     expect(result.pct).toBeCloseTo(11.357775, 9);
-    expect(result.approximate).toBe(false);
+    // Finding "Affinity total used as per-member overestimates": a positive
+    // affinityHint is the lineage TOTAL fed in as a member score, so the % is
+    // an overestimate → approximate (pct math unchanged, only the flag).
+    expect(result.approximate).toBe(true);
     expect(result.contributions).toHaveLength(1);
     expect(result.contributions[0]).toMatchObject({
       parentId: 'p1',
       grandparent: false,
       stars: 1,
       affinityUsed: 95,
+      approximate: true,
     });
     expect(result.contributions[0]?.pct).toBeCloseTo(11.357775, 9);
   });
@@ -123,7 +127,8 @@ describe('sparkChance — Ice sheet goldens (Complete Distribution Table)', () =
     });
     const result = sparkChance({ parents: [parent], skillId: '900021', rates });
     expect(result.pct).toBeCloseTo(18.549375, 9);
-    expect(result.approximate).toBe(false);
+    // Positive affinityHint → overestimate flagged approximate (green path too).
+    expect(result.approximate).toBe(true);
   });
 
   it('AO736: green 2★ on a parent at affinity 95 → 35.1975%', () => {
@@ -172,9 +177,11 @@ describe('sparkChance — model behavior', () => {
   });
 
   it('missing affinityHint on a NON-contributing parent does not flag approximate', () => {
+    // The contributing parent uses the honest affinity-0 floor (non-approx);
+    // the bystander's missing hint must not flip the flag.
     const parents = [
       makeParent({ id: 'bystander' }), // no sparks, no hint
-      makeParent({ id: 'p1', whiteSparks: [{ skillId: SKILL, stars: 1 }], affinityHint: 95 }),
+      makeParent({ id: 'p1', whiteSparks: [{ skillId: SKILL, stars: 1 }], affinityHint: 0 }),
     ];
     const result = sparkChance({ parents, skillId: SKILL, rates });
     expect(result.approximate).toBe(false);
@@ -207,6 +214,112 @@ describe('sparkChance — model behavior', () => {
   });
 });
 
+// --- finding: "Affinity total used as per-member overestimates" --------------
+
+describe('sparkChance — affinity-total overestimate is flagged approximate (finding)', () => {
+  it('positive-affinity parent contribution → approximate true (pct unchanged)', () => {
+    const parent = makeParent({
+      id: 'p1',
+      whiteSparks: [{ skillId: SKILL, stars: 1 }],
+      affinityHint: 95,
+    });
+    const result = sparkChance({ parents: [parent], skillId: SKILL, rates });
+    expect(result.pct).toBeCloseTo(11.357775, 9); // pct math unchanged
+    expect(result.approximate).toBe(true);
+    expect(result.contributions[0]?.approximate).toBe(true);
+  });
+
+  it('zero-affinity parent-only contribution → approximate false (honest base floor, no scaling)', () => {
+    const parent = makeParent({
+      id: 'p1',
+      whiteSparks: [{ skillId: SKILL, stars: 1 }],
+      affinityHint: 0,
+    });
+    const result = sparkChance({ parents: [parent], skillId: SKILL, rates });
+    // affinity 0 → base-only 1★: 1 − (1 − 0.03)² = 5.91%, no overestimate.
+    expect(result.pct).toBeCloseTo(5.91, 10);
+    expect(result.approximate).toBe(false);
+    expect(result.contributions[0]?.approximate).toBe(false);
+    expect(result.contributions[0]?.affinityUsed).toBe(0);
+  });
+
+  it('absent-affinity parent contribution → approximate true (0 fallback is itself a guess)', () => {
+    const parent = makeParent({ id: 'p1', whiteSparks: [{ skillId: SKILL, stars: 1 }] });
+    const result = sparkChance({ parents: [parent], skillId: SKILL, rates });
+    expect(result.approximate).toBe(true);
+    expect(result.contributions[0]?.approximate).toBe(true);
+  });
+});
+
+// --- finding: "Gold skills priced as white sparks" ---------------------------
+
+describe('sparkChance — gold whiteSparks entry is skipped when rarity is known (finding)', () => {
+  const rarity = new Map<string, SkillRarity>([
+    [SKILL, 'white'],
+    ['200331', 'gold'],
+    ['900021', 'inherited_unique'],
+  ]);
+
+  it('a GOLD skillId recorded as a white spark contributes 0 when rarity lookup is supplied', () => {
+    const parent = makeParent({
+      id: 'p1',
+      whiteSparks: [{ skillId: '200331', stars: 3 }], // gold — not a white-spark target
+      affinityHint: 95,
+    });
+    const result = sparkChance({
+      parents: [parent],
+      skillId: '200331',
+      rates,
+      opts: { skillRarity: rarity },
+    });
+    expect(result.pct).toBe(0);
+    expect(result.contributions).toEqual([]);
+  });
+
+  it('a WHITE skillId recorded as a white spark still contributes with the rarity lookup', () => {
+    const parent = makeParent({
+      id: 'p1',
+      whiteSparks: [{ skillId: SKILL, stars: 1 }],
+      affinityHint: 0,
+    });
+    const result = sparkChance({
+      parents: [parent],
+      skillId: SKILL,
+      rates,
+      opts: { skillRarity: rarity },
+    });
+    expect(result.pct).toBeCloseTo(5.91, 10);
+    expect(result.contributions).toHaveLength(1);
+  });
+
+  it('a grandparent GOLD white-spark entry is also skipped (mechanics-notes §8)', () => {
+    const parent = makeParent({
+      id: 'p1',
+      affinityHint: 0,
+      grandparents: [{ umaId: '100101', whiteSparks: [{ skillId: '200331', stars: 2 }] }, undefined],
+    });
+    const result = sparkChance({
+      parents: [parent],
+      skillId: '200331',
+      rates,
+      opts: { skillRarity: rarity },
+    });
+    expect(result.contributions).toEqual([]);
+  });
+
+  it('without a rarity lookup, falls back to pricing the entry (documented risk)', () => {
+    const parent = makeParent({
+      id: 'p1',
+      whiteSparks: [{ skillId: '200331', stars: 3 }],
+      affinityHint: 0,
+    });
+    const result = sparkChance({ parents: [parent], skillId: '200331', rates });
+    // No lookup → priced as a white 3★ spark (base 9): 1 − (1 − 0.09)² = 17.19%.
+    expect(result.pct).toBeCloseTo(17.19, 10);
+    expect(result.contributions).toHaveLength(1);
+  });
+});
+
 // --- parentCoversSkill --------------------------------------------------------
 
 describe('parentCoversSkill', () => {
@@ -233,5 +346,31 @@ describe('parentCoversSkill', () => {
 
   it('false when no lineage member holds the spark', () => {
     expect(parentCoversSkill(makeParent({ id: 'p' }), SKILL)).toBe(false);
+  });
+});
+
+// --- finding: "combinedSparkPct double-rounds" -------------------------------
+
+describe('combinedSparkChance — single raw-float pass (finding)', () => {
+  it('agrees with sparkChance combination to <0.05pp on a 2-parent case', () => {
+    const parents = [
+      makeParent({ id: 'p1', whiteSparks: [{ skillId: SKILL, stars: 1 }], affinityHint: 95 }),
+      makeParent({ id: 'p2', whiteSparks: [{ skillId: SKILL, stars: 2 }], affinityHint: 0 }),
+    ];
+    const raw = sparkChance({ parents, skillId: SKILL, rates });
+    const combined = combinedSparkChance({ parents, skillId: SKILL, rates });
+    // Rounds the SAME single-pass raw float once at 1dp.
+    expect(Math.abs(combined.pct - raw.pct)).toBeLessThan(0.05);
+    expect(combined.pct).toBe(Math.round(raw.pct * 10) / 10);
+    // approximate carries through (p1 has positive affinity).
+    expect(combined.approximate).toBe(true);
+  });
+
+  it('returns 0/false when no parent holds the spark', () => {
+    const parents = [makeParent({ id: 'p1' })];
+    expect(combinedSparkChance({ parents, skillId: SKILL, rates })).toEqual({
+      pct: 0,
+      approximate: false,
+    });
   });
 });

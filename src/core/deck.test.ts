@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { DECK_TUNABLES, suggestDeck } from '@/core/deck';
+import { DECK_TUNABLES, sparkOnlyTargets, suggestDeck } from '@/core/deck';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,
@@ -220,6 +220,29 @@ describe('suggestDeck — locked slots are never violated', () => {
     expect(result.deck[3]).toEqual({ slot: 3, lockedBy: 'cardType' });
   });
 
+  it('same cardId locked to two slots appears once; the later slot is left empty (finding)', () => {
+    // Finding "Same cardId locked to two slots duplicates the card into both
+    // slots": a card may appear at most once. Slot 0 keeps Kitasan; slot 1's
+    // duplicate lock is dropped (empty) with a rationale note.
+    const plan = makePlan({
+      lockedDeckSlots: [
+        { slot: 0, cardId: '30028' },
+        { slot: 1, cardId: '30028' },
+      ],
+    });
+    const result = suggestDeck({ ...fixtureArgs, plan, inventory: [KITASAN, R_EXAMPLE] });
+    expect(result.deck.filter((d) => d.cardId === '30028')).toHaveLength(1);
+    expect(result.deck[0]).toEqual({ slot: 0, cardId: '30028', lockedBy: 'cardId' });
+    // Slot 1 is still flagged as a cardId lock but has no occupant.
+    expect(result.deck[1]?.cardId).toBeUndefined();
+    expect(result.deck[1]?.lockedBy).toBe('cardId');
+    expect(
+      result.rationale.some(
+        (line) => line.includes('already locked to an earlier slot') && line.includes('once'),
+      ),
+    ).toBe(true);
+  });
+
   it('locked deck entries echo lockedBy for the UI', () => {
     const plan = makePlan({
       lockedDeckSlots: [
@@ -341,5 +364,55 @@ describe('suggestDeck — uncovered and parents', () => {
     // Tazuna covers nothing for this target: no pick, target stays covered by spark.
     expect(result.deck.every((d) => d.cardId === undefined)).toBe(true);
     expect(result.uncovered).toEqual([]);
+  });
+});
+
+// --- sparkOnlyTargets (finding: spark-only targets excluded from "missing") ---
+
+describe('sparkOnlyTargets', () => {
+  it('lists a target whose ONLY source is a parent spark (no card, no scenario)', () => {
+    // 900021 is spark-covered by the green parent; Tazuna has no skill for it
+    // and it is not scenario-exclusive → spark-only. 200331 is left uncovered
+    // (no parent, no card) so it is NOT spark-only.
+    const plan = makePlan({
+      scenario: { id: 1, isDefault: false },
+      targetSkills: [
+        { skillId: '900021', priority: 1 },
+        { skillId: '200331', priority: 2 },
+      ],
+    });
+    const parent = makeParent({
+      id: 'p',
+      greenSpark: { skillId: '900021', stars: 3 },
+      affinityHint: 95,
+    });
+    const deck = suggestDeck({ ...fixtureArgs, plan, inventory: [TAZUNA], parents: [parent] });
+    expect(sparkOnlyTargets({ plan, deck, ...fixtureArgs, parents: [parent] })).toEqual(['900021']);
+  });
+
+  it('excludes a target a deck card covers, and one with no parent spark at all', () => {
+    // 200331 is chained by Kitasan (a card source) → not spark-only even though
+    // a parent also sparks it. 210061 is scenario-exclusive (id 4) → not
+    // spark-only. 999999 has no source at all → not spark-only (it is uncovered).
+    const plan = makePlan({
+      targetSkills: [
+        { skillId: '200331', priority: 1 },
+        { skillId: '210061', priority: 2 },
+        { skillId: '999999', priority: 3 },
+      ],
+    });
+    const parent = makeParent({
+      id: 'p',
+      whiteSparks: [{ skillId: '200331', stars: 3 }], // gold-as-white, but card covers it anyway
+      affinityHint: 95,
+    });
+    const deck = suggestDeck({ ...fixtureArgs, plan, inventory: [KITASAN], parents: [parent] });
+    expect(sparkOnlyTargets({ plan, deck, ...fixtureArgs, parents: [parent] })).toEqual([]);
+  });
+
+  it('returns [] when no parents are given', () => {
+    const plan = makePlan({ targetSkills: [{ skillId: '900021', priority: 1 }] });
+    const deck = suggestDeck({ ...fixtureArgs, plan, inventory: [TAZUNA] });
+    expect(sparkOnlyTargets({ plan, deck, ...fixtureArgs })).toEqual([]);
   });
 });

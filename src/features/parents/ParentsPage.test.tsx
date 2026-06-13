@@ -136,6 +136,42 @@ describe('ParentsPage form', () => {
     expect(saveParent).not.toHaveBeenCalled();
   });
 
+  it('FINDING 1: gold skills are not offered as white sparks', async () => {
+    const user = userEvent.setup();
+    await openForm(user);
+
+    // 'Professor of Curvature' (200331) is a GOLD skill — it must NOT appear in
+    // the white-spark picker (white sparks map to white skills only; pricing a
+    // gold as a white spark fabricates an inheritance %, P3).
+    await user.type(screen.getByLabelText('Add white spark'), 'professor');
+    expect(
+      within(screen.getByRole('list', { name: 'Add white spark results' })).getByText(
+        'No matches.',
+      ),
+    ).toBeInTheDocument();
+
+    // The white skill 'Corner Adept ○' (200332) IS still offered — sanity check
+    // that the filter did not over-restrict.
+    await user.clear(screen.getByLabelText('Add white spark'));
+    await user.type(screen.getByLabelText('Add white spark'), 'corner');
+    expect(
+      within(screen.getByRole('list', { name: 'Add white spark results' })).getByRole(
+        'button',
+        { name: /Corner Adept ○/ },
+      ),
+    ).toBeInTheDocument();
+
+    // Same restriction on the grandparent white-spark picker.
+    await user.type(screen.getByLabelText('Grandparent 1 uma'), 'special week');
+    await user.click(screen.getByRole('button', { name: /Special Week/ }));
+    await user.type(screen.getByLabelText('Add grandparent 1 white spark'), 'professor');
+    expect(
+      within(
+        screen.getByRole('list', { name: 'Add grandparent 1 white spark results' }),
+      ).getByText('No matches.'),
+    ).toBeInTheDocument();
+  });
+
   it('green spark picker only offers inherited uniques; white picker hides JP skills (P4)', async () => {
     const user = userEvent.setup();
     await openForm(user);

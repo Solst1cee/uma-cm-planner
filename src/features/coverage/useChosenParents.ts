@@ -1,13 +1,16 @@
 /**
  * Resolve CmPlan.chosenParents (Parent ids) against the Dexie parents store.
  *
- * The effect depends on the plan OBJECT IDENTITY, not just the two ids: the
- * parents picker persists every edit through setPlan (its contract), so any
- * spark/affinity edit produces a new plan object and re-resolves here. The
- * re-fetch is a tiny indexed-table read — cheap insurance against showing
- * stale spark data after an in-place parent edit.
+ * Freshness contract (FINDING 3): parent spark/affinity edits happen on the
+ * /parents route via saveParent (Dexie) and do NOT produce a new plan object —
+ * ChosenParentsPicker only writes the two parent IDs into the plan. So a plan
+ * identity change alone would not reflect an in-place parent edit. We therefore
+ * re-query listParents() (a) when the chosen ids change, and (b) whenever the
+ * document becomes visible again — returning to the planner from /parents (or
+ * from another tab) re-reads the store and shows the fresh sparks. The re-fetch
+ * is a tiny indexed-table read; cheap insurance against stale spark data.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CmPlan, Parent } from '@/core/types';
 import { listParents } from '@/db';
 
@@ -29,14 +32,17 @@ const EMPTY: ChosenParents = {
 
 export function useChosenParents(plan: CmPlan): ChosenParents {
   const [state, setState] = useState<ChosenParents>({ ...EMPTY, loading: true });
+  const [id0, id1] = plan.chosenParents;
 
-  useEffect(() => {
-    const [id0, id1] = plan.chosenParents;
+  // Resolve the two chosen ids against the current store contents. Returns a
+  // cleanup that cancels the in-flight read so a stale resolve can't land.
+  const resolve = useCallback(() => {
     if (id0 === undefined && id1 === undefined) {
       setState(EMPTY);
-      return;
+      return () => {};
     }
     let cancelled = false;
+    setState((prev) => (prev.loading ? prev : { ...prev, loading: true }));
     listParents()
       .then((all) => {
         if (cancelled) return;
@@ -60,7 +66,21 @@ export function useChosenParents(plan: CmPlan): ChosenParents {
     return () => {
       cancelled = true;
     };
-  }, [plan]);
+  }, [id0, id1]);
+
+  // Re-resolve when the chosen ids change (and on mount).
+  useEffect(() => resolve(), [resolve]);
+
+  // FINDING 3: also re-resolve when the page becomes visible again, so an
+  // in-place parent edit made on /parents (which never touches the plan) shows
+  // fresh sparks on return without needing a remount.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') resolve();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [resolve]);
 
   return state;
 }

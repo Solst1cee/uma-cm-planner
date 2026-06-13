@@ -36,6 +36,10 @@ export function buildSparkRates(): SparkRates {
     hintDiscountCumulativePct: [10, 20, 30, 35, 40],
     // mechanics-notes §7 — Fast Learner ×0.9.
     fastLearnerMultiplier: 0.9,
+    // INTENTIONALLY a mechanics-verification version, NOT the upstream data
+    // commit ('global-c1fa2107' on skills/cards/umas): these constants come from
+    // community research (docs/mechanics-notes.md), not the borrowed dataset, so
+    // they version on the date they were verified. Bump when mechanics change.
     dataVersion: 'global-2026-06',
   };
 }
