@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { Parent, UmaRecord } from '@/core/types';
 import type { ParentDraft } from '@/db';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 import { ParentForm } from './ParentForm';
 import { useParents } from './useParents';
 import { useUmas } from './useUmas';
@@ -38,6 +39,7 @@ function ParentListItem({
   return (
     <li className="parent-row">
       <div className="owned-main">
+        <GameIcon kind="uma" id={parent.umaId} size={36} alt="" />
         <span className="owned-name">
           {name}
           {uma?.epithet !== undefined && <span className="muted small"> {uma.epithet}</span>}

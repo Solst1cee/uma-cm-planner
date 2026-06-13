@@ -17,3 +17,5 @@ Card/skill catalog snapshots derive from **GameTora** (https://gametora.com) —
 ## Game data & assets — NOT covered by our GPL grant
 
 Game data extracted from *Umamusume: Pretty Derby* (skill parameters, course geometry, names, etc.) and any game imagery are the property of **Cygames, Inc.** This project is an unofficial fan tool, not affiliated with or endorsed by Cygames. Game-derived data is included under fair-use rationale for interoperability and analysis; the GPL license applies to this repository's **code only**, not to Cygames-owned data. No copyright infringement is intended; rights holders may contact the maintainer for removal.
+
+The image files under `public/data/icons/` (a curated, Global-only WebP subset of skill icons, support-card chips, and uma portraits — see [docs/provenance.md](docs/provenance.md) §2.1) are likewise Cygames game art, included under the same fair-use / asset-exclusion rationale and **not covered by the GPL grant**.

@@ -361,6 +361,59 @@ button:disabled {
   color: #fff;
 }
 
+/* ---- Bundled game icons (plan §4 "Image assets") ---- */
+
+/* Square, never-shrinking, crisp. flex: none keeps the icon from being
+   squeezed in flex rows (picker-row, owned-main, target-row, skill-name),
+   so it can't collapse the sticky matrix column or push tap targets <24px.
+   object-fit: contain because chips/portraits aren't all the same aspect. */
+.game-icon {
+  flex: none;
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
+  border-radius: 5px;
+  background: var(--bg-2);
+}
+img.game-icon {
+  /* image-rendering keeps small WebP icons from looking mushy when scaled */
+  image-rendering: auto;
+}
+/* Neutral placeholder shown for a missing id / load failure (never a broken
+   image glyph). Subtle dashed box keeps row rhythm + the tap target. */
+.game-icon-ph {
+  border: 1px dashed var(--border);
+  background: var(--bg-2);
+  opacity: 0.55;
+}
+
+/* Inline skill icon inside the matrix sticky first column + target list:
+   nudge it to sit on the text baseline-ish without stretching the row. */
+.skill-name .game-icon {
+  margin-right: 0.35rem;
+}
+/* The skill-name span wraps; keep the icon from being pulled to its own line. */
+.skill-name {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.col-parent .game-icon {
+  margin-right: 0.3rem;
+}
+
+/* Chosen-parents portrait sits left of the select. */
+.parent-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.parent-slot-row select {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ---- Target skill list ---- */
 
 .target-list {
@@ -493,6 +546,14 @@ button:disabled {
   max-width: 7rem;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* Parent columns carry a portrait + label + 'parent' marker — lay them out as
+   a flex row so the portrait isn't clipped by col-card's overflow:hidden. */
+.col-parent {
+  display: inline-flex;
+  align-items: center;
+  max-width: 9rem;
+  overflow: visible;
 }
 .cell-btn {
   background: transparent;

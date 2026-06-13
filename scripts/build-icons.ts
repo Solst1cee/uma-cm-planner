@@ -1,0 +1,218 @@
+/**
+ * public/data/icons/ — a curated, Global-only WebP icon subset (plan §4
+ * "Image assets" sourcing decision; docs/provenance.md §2). Bundled for full
+ * offline use (P2); NOT hotlinked, NOT the 415 MB wholesale dump.
+ *
+ * Source dump: spikes/repos/uma-tools/icons/ (GITIGNORED — present only on a
+ * local dev machine, never in CI). The icon PNGs are Cygames property included
+ * under the fair-use/asset-exclusion notice (NOTICE.md), outside the GPL grant.
+ *
+ * Inputs (read AFTER skills/cards/umas JSON are written by build-all):
+ *   public/data/skills.json   → iconId (deduped; ~56 distinct cover all 578)
+ *   public/data/support_cards.json → cardId
+ *   public/data/umas.json     → umaId + charaId
+ *
+ * Outputs (git-tracked, generated — never hand-edit, P5):
+ *   public/data/icons/skill/<iconId>.webp     (56)
+ *   public/data/icons/support/<cardId>.webp   (220)
+ *   public/data/icons/uma/<umaId>.webp        (84)
+ *   public/data/icons/icon-manifest.json      (contract, below)
+ *
+ * Filename templates in the source dump (provenance §2 / spikes/image-ui-research.json):
+ *   skill   → skill/utx_ico_skill_<iconId.padStart(5,'0')>.png
+ *   support → support/support_card_s_<cardId>.png   (256px, has rarity badge)
+ *             ⚠ 30024 / 30061 ship ONLY as uppercase `Support_card_s_…` →
+ *             lowercase on output (case-sensitive-host 404 hazard).
+ *   uma     → chara/trained_chr_icon_<charaId>_<umaId>_02.png (gold frame) when
+ *             present, else fall back to chara/chr_icon_<charaId>.png (base
+ *             portrait). 17 alt-outfit (xxxx02) umas use the fallback.
+ *
+ * GUARD: if the spikes dump is absent (CI), LOG a warning and SKIP — existing
+ * committed public/data/icons/ stays intact, and data:build's other 5 outputs
+ * still build. Regeneration requires the local dump.
+ */
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import sharp from 'sharp';
+import type { SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
+import { PUBLIC_DATA_DIR, readJson, REPO_ROOT, writeJsonDeterministic } from './lib/io';
+
+/** Source PNG dump (gitignored). See docs/provenance.md §2 + §7. */
+export const ICON_DUMP_DIR = join(REPO_ROOT, 'spikes', 'repos', 'uma-tools', 'icons');
+const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
+
+/** WebP quality (plan §4: sharp q80, visually near-lossless on flat game art). */
+const WEBP_QUALITY = 80;
+
+/** Cards that exist in the dump ONLY as uppercase `Support_card_s_…` (provenance §2). */
+const UPPERCASE_SUPPORT_CARD_IDS: ReadonlySet<string> = new Set(['30024', '30061']);
+
+export interface IconManifest {
+  dataVersion: string;
+  format: 'webp';
+  /** Available skill iconIds (sorted). */
+  skill: string[];
+  /** Available support cardIds (sorted). */
+  card: string[];
+  /** Available uma umaIds (sorted). */
+  uma: string[];
+  /** umaIds that fell back to the base chr_icon (no outfit-specific trained icon). */
+  _fallbackUmas: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Pure source-filename resolvers (unit-tested in build-icons.test.ts)
+// ---------------------------------------------------------------------------
+
+/** skill/utx_ico_skill_<iconId padded to ≥5>.png (the two 7-digit ids are a no-op pad). */
+export function skillSourceFile(iconId: string): string {
+  return `skill/utx_ico_skill_${iconId.padStart(5, '0')}.png`;
+}
+
+/**
+ * support/support_card_s_<cardId>.png — but 30024 / 30061 only exist uppercase
+ * in the dump, so resolve those to the capital-S filename (output is always
+ * lowercased by the caller).
+ */
+export function supportSourceFile(cardId: string): string {
+  const stem = UPPERCASE_SUPPORT_CARD_IDS.has(cardId)
+    ? `Support_card_s_${cardId}`
+    : `support_card_s_${cardId}`;
+  return `support/${stem}.png`;
+}
+
+/**
+ * uma source resolver with the trained → base fallback. `trainedExists` answers
+ * "does chara/trained_chr_icon_<charaId>_<umaId>_02.png exist?" (injected so
+ * this stays pure/testable). Returns the relative source path + whether the
+ * base chr_icon fallback was used.
+ */
+export function umaSourceFile(
+  umaId: string,
+  charaId: string,
+  trainedExists: (relPath: string) => boolean,
+): { source: string; fallback: boolean } {
+  const trained = `chara/trained_chr_icon_${charaId}_${umaId}_02.png`;
+  if (trainedExists(trained)) return { source: trained, fallback: false };
+  return { source: `chara/chr_icon_${charaId}.png`, fallback: true };
+}
+
+// ---------------------------------------------------------------------------
+// Build (impure: reads the dump, converts via sharp, writes WebP + manifest)
+// ---------------------------------------------------------------------------
+
+/** Convert one source PNG → WebP at the given output path (deterministic given same input). */
+async function convertToWebp(sourceAbs: string, outAbs: string): Promise<void> {
+  await sharp(sourceAbs).webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
+}
+
+/** Remove + recreate an output kind dir so a rebuild can't leave stale icons behind. */
+function freshDir(abs: string): void {
+  rmSync(abs, { recursive: true, force: true });
+  mkdirSync(abs, { recursive: true });
+}
+
+export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
+  if (!existsSync(ICON_DUMP_DIR)) {
+    console.warn(
+      `build-icons: source dump ${ICON_DUMP_DIR} is absent — SKIPPING icon regeneration. ` +
+        'CI/Pages builds use the committed public/data/icons/; regeneration needs the local ' +
+        'uma-tools dump (gitignored, provenance §2/§7). The other public/data outputs are unaffected.',
+    );
+    return;
+  }
+
+  const skills = readJson<SkillRecord[]>(join(PUBLIC_DATA_DIR, 'skills.json'));
+  const cards = readJson<SupportCardRecord[]>(join(PUBLIC_DATA_DIR, 'support_cards.json'));
+  const umas = readJson<UmaRecord[]>(join(PUBLIC_DATA_DIR, 'umas.json'));
+
+  const trainedExists = (relPath: string): boolean => existsSync(join(ICON_DUMP_DIR, relPath));
+  const srcAbs = (relPath: string): string => join(ICON_DUMP_DIR, relPath);
+
+  // --- skill icons (dedup by iconId; ~56 distinct, not 578) -----------------
+  const skillIconIds = [...new Set(skills.map((s) => s.iconId))].sort(
+    (a, b) => Number(a) - Number(b),
+  );
+  freshDir(join(ICONS_OUT_DIR, 'skill'));
+  for (const iconId of skillIconIds) {
+    const src = srcAbs(skillSourceFile(iconId));
+    if (!existsSync(src)) {
+      throw new Error(`build-icons: missing skill icon source ${src} (iconId ${iconId}).`);
+    }
+    await convertToWebp(src, join(ICONS_OUT_DIR, 'skill', `${iconId}.webp`));
+  }
+
+  // --- support card chips (keyed by cardId; lowercase the 2 case-variants) --
+  const cardIds = [...new Set(cards.map((c) => c.cardId))].sort((a, b) => Number(a) - Number(b));
+  freshDir(join(ICONS_OUT_DIR, 'support'));
+  for (const cardId of cardIds) {
+    const src = srcAbs(supportSourceFile(cardId));
+    if (!existsSync(src)) {
+      throw new Error(`build-icons: missing support card source ${src} (cardId ${cardId}).`);
+    }
+    // Output is always lowercase <cardId>.webp regardless of source case.
+    await convertToWebp(src, join(ICONS_OUT_DIR, 'support', `${cardId}.webp`));
+  }
+
+  // --- uma portraits (trained _02 → base chr_icon fallback) -----------------
+  const umaIds = [...new Set(umas.map((u) => u.umaId))].sort((a, b) => Number(a) - Number(b));
+  const charaByUmaId = new Map(umas.map((u) => [u.umaId, u.charaId]));
+  const fallbackUmas: string[] = [];
+  freshDir(join(ICONS_OUT_DIR, 'uma'));
+  for (const umaId of umaIds) {
+    const charaId = charaByUmaId.get(umaId);
+    if (charaId === undefined) {
+      throw new Error(`build-icons: uma ${umaId} has no charaId in umas.json.`);
+    }
+    const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
+    const src = srcAbs(source);
+    if (!existsSync(src)) {
+      throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+    }
+    if (fallback) fallbackUmas.push(umaId);
+    await convertToWebp(src, join(ICONS_OUT_DIR, 'uma', `${umaId}.webp`));
+  }
+
+  const manifest: IconManifest = {
+    dataVersion: opts.dataVersion,
+    format: 'webp',
+    skill: skillIconIds,
+    card: cardIds,
+    uma: umaIds,
+    _fallbackUmas: fallbackUmas,
+  };
+  writeJsonDeterministic(join(ICONS_OUT_DIR, 'icon-manifest.json'), manifest);
+
+  const onDiskBytes = dirBytes(ICONS_OUT_DIR);
+  console.log(
+    `public/data/icons written: ${skillIconIds.length} skill, ${cardIds.length} support, ` +
+      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ` +
+      `${(onDiskBytes / 1024 / 1024).toFixed(2)} MB total.`,
+  );
+  if (fallbackUmas.length > 0) {
+    console.log(`  fallback umas (no trained _02 icon): ${fallbackUmas.join(', ')}`);
+  }
+}
+
+/** Recursive on-disk byte size of a directory (for the build summary). */
+function dirBytes(dir: string): number {
+  let total = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const abs = join(dir, entry.name);
+    total += entry.isDirectory() ? dirBytes(abs) : statSync(abs).size;
+  }
+  return total;
+}
+
+const isMain = (process.argv[1] ?? '').replace(/\\/g, '/').endsWith('scripts/build-icons.ts');
+if (isMain) {
+  // Standalone run uses the same dataVersion convention as build-all.
+  import('./fetch-borrowed')
+    .then(({ UPSTREAM_COMMIT }) =>
+      buildIcons({ dataVersion: `global-${UPSTREAM_COMMIT.slice(0, 8)}` }),
+    )
+    .catch((err: unknown) => {
+      console.error(err);
+      process.exitCode = 1;
+    });
+}

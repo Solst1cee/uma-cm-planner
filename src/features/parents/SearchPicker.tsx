@@ -4,7 +4,7 @@
  * pick. The caller supplies the already-filtered item universe — P4 server
  * gating happens before items reach this component.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
 export interface SearchItem {
   id: string;
@@ -16,6 +16,8 @@ export interface SearchItem {
   badgeClass?: string;
   /** Disabled rows render with an "added" marker. */
   disabled?: boolean;
+  /** Optional leading visual (e.g. a <GameIcon> portrait), decorative. */
+  icon?: ReactNode;
 }
 
 const MAX_RESULTS = 30;
@@ -69,6 +71,7 @@ export function SearchPicker({
                   setQuery('');
                 }}
               >
+                {item.icon}
                 <span className="picker-name">
                   {item.name}
                   {item.sub !== undefined && (

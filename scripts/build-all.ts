@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import type { CmPreset, SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
+import { buildIcons } from './build-icons';
 import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
 import { buildUmas } from './build-umas';
@@ -34,7 +35,7 @@ import { applyOverrides, loadOverrideFiles } from './merge-overrides';
 
 const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`; // "global-c1fa2107"
 
-export function buildAll(opts: { fromSpikes: boolean }): void {
+export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   if (opts.fromSpikes) {
     copyFromSpikes();
   } else if (!borrowedFilesPresent()) {
@@ -120,14 +121,17 @@ export function buildAll(opts: { fromSpikes: boolean }): void {
     `public/data written: ${skills.length} skills, ${cards.length} support cards, ` +
       `${presets.length} cm presets, ${umas.length} umas, spark_rates (${sparkRates.dataVersion}).`,
   );
+
+  // Icons run LAST — they read the id lists from the JSON just written above.
+  // Self-skips with a warning if the gitignored source dump is absent (CI):
+  // the 5 outputs above must still build (provenance §2/§7).
+  await buildIcons({ dataVersion: DATA_VERSION });
 }
 
 const isMain = (process.argv[1] ?? '').replace(/\\/g, '/').endsWith('scripts/build-all.ts');
 if (isMain) {
-  try {
-    buildAll({ fromSpikes: process.argv.includes('--from-spikes') });
-  } catch (err) {
+  buildAll({ fromSpikes: process.argv.includes('--from-spikes') }).catch((err: unknown) => {
     console.error(err);
     process.exitCode = 1;
-  }
+  });
 }

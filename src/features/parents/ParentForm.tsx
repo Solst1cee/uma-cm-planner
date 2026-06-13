@@ -8,6 +8,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import type { Parent, ParentRef, SkillRecord, Stat } from '@/core/types';
 import type { ParentDraft } from '@/db';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 import { SearchPicker, type SearchItem } from './SearchPicker';
 import { useUmas, umaName } from './useUmas';
 import {
@@ -189,6 +190,7 @@ function GrandparentFieldset({
         />
       ) : (
         <div className="selected-row">
+          <GameIcon kind="uma" id={value.umaId} size={32} alt="" />
           <span className="owned-name">{umaName(umaById, value.umaId)}</span>
           <button type="button" onClick={() => onChange(emptyGrandparent())}>
             Clear grandparent {index}
@@ -322,7 +324,12 @@ export function ParentForm({
     () =>
       umas
         .filter((u) => u.server === 'global')
-        .map((u) => ({ id: u.umaId, name: u.nameEn, sub: u.epithet })),
+        .map((u) => ({
+          id: u.umaId,
+          name: u.nameEn,
+          sub: u.epithet,
+          icon: <GameIcon kind="uma" id={u.umaId} size={32} alt="" />,
+        })),
     [umas],
   );
   // FINDING 1: white sparks are white-skill ONLY. Gold/unique skills are not
@@ -338,6 +345,7 @@ export function ParentForm({
           name: s.nameEn,
           badge: RARITY_BADGE[s.rarity],
           badgeClass: `rarity-${s.rarity}`,
+          icon: <GameIcon kind="skill" id={s.iconId} size={24} alt="" />,
         })),
     [skills],
   );
@@ -351,6 +359,7 @@ export function ParentForm({
           name: s.nameEn,
           badge: RARITY_BADGE[s.rarity],
           badgeClass: `rarity-${s.rarity}`,
+          icon: <GameIcon kind="skill" id={s.iconId} size={24} alt="" />,
         })),
     [skills],
   );
@@ -401,6 +410,7 @@ export function ParentForm({
         />
       ) : (
         <div className="selected-row">
+          <GameIcon kind="uma" id={umaId} size={36} alt="" />
           <span className="owned-name">{umaName(umaById, umaId)}</span>
           {umaById.get(umaId)?.epithet !== undefined && (
             <span className="muted small">{umaById.get(umaId)?.epithet}</span>

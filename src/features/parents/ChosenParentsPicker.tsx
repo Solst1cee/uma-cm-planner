@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import type { Parent, UmaRecord } from '@/core/types';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { listParents } from '@/db';
+import { GameIcon } from '@/features/data/GameIcon';
 import { sparkSummary } from './sparkMeta';
 import { useUmas, umaName } from './useUmas';
 import './parents.css';
@@ -62,22 +63,28 @@ export function ChosenParentsPicker() {
         const value = chosen[slot] ?? '';
         const known = value === '' || (parents?.some((p) => p.id === value) ?? true);
         const otherValue = chosen[slot === 0 ? 1 : 0];
+        const selectedUmaId = parents?.find((p) => p.id === value)?.umaId;
         return (
           <label className="field" key={slot}>
             <span>Parent {slot + 1}</span>
-            <select
-              value={value}
-              disabled={parents === null}
-              onChange={(e) => setSlot(slot, e.target.value === '' ? undefined : e.target.value)}
-            >
-              <option value="">— none —</option>
-              {!known && <option value={value}>(missing parent)</option>}
-              {(parents ?? []).map((p) => (
-                <option key={p.id} value={p.id} disabled={otherValue === p.id}>
-                  {optionLabel(p, umaById)}
-                </option>
-              ))}
-            </select>
+            <div className="parent-slot-row">
+              {selectedUmaId !== undefined && (
+                <GameIcon kind="uma" id={selectedUmaId} size={32} alt="" />
+              )}
+              <select
+                value={value}
+                disabled={parents === null}
+                onChange={(e) => setSlot(slot, e.target.value === '' ? undefined : e.target.value)}
+              >
+                <option value="">— none —</option>
+                {!known && <option value={value}>(missing parent)</option>}
+                {(parents ?? []).map((p) => (
+                  <option key={p.id} value={p.id} disabled={otherValue === p.id}>
+                    {optionLabel(p, umaById)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </label>
         );
       })}

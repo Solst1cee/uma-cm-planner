@@ -6,6 +6,7 @@
 import { useMemo, useState } from 'react';
 import type { SkillRecord } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 
 const MAX_RESULTS = 30;
 
@@ -61,6 +62,7 @@ export function SkillPicker({
                     setQuery('');
                   }}
                 >
+                  <GameIcon kind="skill" id={skill.iconId} size={24} alt="" />
                   <span className="picker-name">{skill.nameEn}</span>
                   <span className={`badge rarity-${skill.rarity}`}>
                     {RARITY_LABEL[skill.rarity]}

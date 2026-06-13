@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import type { LimitBreak, OwnedCard, SupportCardRecord } from '@/core/types';
 import { classifyHintTier } from '@/core/coverage';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 import { TIER_LABEL } from '@/features/coverage/tierMeta';
 
 const MAX_RESULTS = 30;
@@ -88,6 +89,7 @@ export function InventoryPanel({
                     setQuery('');
                   }}
                 >
+                  <GameIcon kind="card" id={card.cardId} size={32} alt="" />
                   <span className="picker-name">
                     {card.charName} <span className="muted small">{card.nameEn}</span>
                   </span>
@@ -112,6 +114,7 @@ export function InventoryPanel({
             return (
               <li key={owned.id ?? `i${i}`} className="owned-row">
                 <div className="owned-main">
+                  <GameIcon kind="card" id={owned.cardId} size={32} alt="" />
                   <span className="owned-name">{name}</span>
                   {card && (
                     <>

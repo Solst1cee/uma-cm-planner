@@ -17,12 +17,20 @@ import {
   type ReactNode,
 } from 'react';
 import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, UmaRecord } from '@/core/types';
+import type { IconManifest } from '@/core/icons';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,
   FIXTURE_SKILLS,
   FIXTURE_SPARK_RATES,
 } from '@/core/fixtures';
+
+/**
+ * App base path (Vite injects '/' in dev, '/<repo>/' on Pages, '/' under
+ * Vitest). Components build a full icon src as `BASE_URL + relativePath`,
+ * mirroring the loader's own fetch base.
+ */
+export const BASE_URL: string = import.meta.env.BASE_URL;
 
 export type GameDataStatus = 'loading' | 'ready' | 'fixture';
 
@@ -41,6 +49,15 @@ export interface GameData {
    * TODO(phase2-cleanup): make required once fixtureGameData.ts gains umas.
    */
   umas?: UmaRecord[];
+  /**
+   * Bundled-icon manifest (plan §4). `null` when icon-manifest.json is
+   * missing/broken — like umas.json, that failure alone NEVER flips the
+   * provider to fixture mode (icons augment the text UI; their absence just
+   * means GameIcon degrades to its placeholder). Optional in the type so
+   * pre-icon GameData literals (test fixtures) keep compiling — consumers
+   * should treat `undefined`/`null` the same (no icons).
+   */
+  iconManifest?: IconManifest | null;
   skillById: Map<string, SkillRecord>;
   cardById: Map<string, SupportCardRecord>;
   umaById?: Map<string, UmaRecord>;
@@ -65,6 +82,7 @@ interface Datasets {
   sparkRates: SparkRates;
   cmPresets: CmPreset[];
   umas: UmaRecord[];
+  iconManifest: IconManifest | null;
 }
 
 const FIXTURE_DATASETS: Datasets = {
@@ -75,6 +93,8 @@ const FIXTURE_DATASETS: Datasets = {
   // fixtures.ts is frozen and has no uma fixture; in fixture mode the parent
   // pickers degrade to raw ids, same as a missing umas.json.
   umas: [],
+  // No bundled icons in fixture mode — GameIcon falls back to its placeholder.
+  iconManifest: null,
 };
 
 async function fetchJson<T>(file: string): Promise<T> {
@@ -99,7 +119,17 @@ async function loadDatasets(): Promise<Datasets> {
     console.warn('[gameData] umas.json unavailable — parent pickers fall back to raw ids.', err);
     return [];
   });
-  return { skills, cards, sparkRates, cmPresets, umas };
+  // icon-manifest.json is an optional augmentation (plan §4). Like umas.json it
+  // must NOT throw into the whole-set fixture fallback: a missing/broken
+  // manifest only means GameIcon renders its placeholder. `data/icons/...` not
+  // `data/...`, so fetch the nested path directly rather than via fetchJson.
+  const iconManifest: IconManifest | null = await fetchJson<IconManifest>(
+    'icons/icon-manifest.json',
+  ).catch((err: unknown) => {
+    console.warn('[gameData] icon-manifest.json unavailable — icons fall back to text.', err);
+    return null;
+  });
+  return { skills, cards, sparkRates, cmPresets, umas, iconManifest };
 }
 
 const GameDataContext = createContext<GameData | null>(null);
@@ -127,7 +157,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<GameData>(() => {
-    const { skills, cards, sparkRates, cmPresets, umas } = state.data;
+    const { skills, cards, sparkRates, cmPresets, umas, iconManifest } = state.data;
     return {
       status: state.status,
       skills,
@@ -135,6 +165,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       sparkRates,
       cmPresets,
       umas,
+      iconManifest,
       skillById: new Map(skills.map((s) => [s.skillId, s])),
       cardById: new Map(cards.map((c) => [c.cardId, c])),
       umaById: new Map(umas.map((u) => [u.umaId, u])),

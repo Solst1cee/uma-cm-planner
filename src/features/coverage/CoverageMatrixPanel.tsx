@@ -25,6 +25,7 @@ import {
 } from '@/core/coverage';
 import { combinedSparkChance } from '@/core/spark';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 import { useChosenParents } from '@/features/coverage/useChosenParents';
 import {
   bestTierOf,
@@ -47,6 +48,8 @@ interface ParentColumn {
   label: string;
   /** True when label is a real uma name (gets the small 'parent' marker). */
   named: boolean;
+  /** The parent's umaId for the portrait, when the record has resolved. */
+  umaId?: string;
 }
 
 interface Selection {
@@ -372,6 +375,7 @@ export function CoverageMatrixPanel({
         parentId,
         label: name ?? `Parent ${slot + 1}`,
         named: name !== undefined,
+        umaId: parent?.umaId,
       });
     });
     return cols;
@@ -410,6 +414,9 @@ export function CoverageMatrixPanel({
               {parentColumns.map((col) => (
                 <th scope="col" key={col.key}>
                   <span className="col-card col-parent">
+                    {col.umaId !== undefined && (
+                      <GameIcon kind="uma" id={col.umaId} size={24} alt="" />
+                    )}
                     {col.label}
                     {col.named && <span className="muted small"> parent</span>}
                   </span>
@@ -431,6 +438,9 @@ export function CoverageMatrixPanel({
                         <span className="flag" role="img" aria-label="uncovered">
                           ⚑
                         </span>
+                      )}
+                      {skill && (
+                        <GameIcon kind="skill" id={skill.iconId} size={22} alt="" />
                       )}
                       {name}
                     </span>

@@ -6,6 +6,7 @@
 import { useMemo, useState } from 'react';
 import type { CmPlan, CmPreset, Priority } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
+import { GameIcon } from '@/features/data/GameIcon';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
 
 // Game-internal scenario ids (provenance §3.1 — id 3 does not exist).
@@ -203,6 +204,7 @@ export function PlanHeaderPanel({
               >
                 {PRIORITY_STARS[target.priority]}
               </button>
+              {skill && <GameIcon kind="skill" id={skill.iconId} size={22} alt="" />}
               <span className="target-name">{name}</span>
               {skill && <span className="muted small">{skill.baseSpCost} SP</span>}
               <button
