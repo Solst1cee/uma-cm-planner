@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-**Phases 0–1 DONE (2026-06-12): the Skill Planner coverage matrix is usable end-to-end** (plan header + inventory + read-only matrix; data pipeline emits 578 skills / 220 cards). Phase 2 next: parents entry, `sparkChance`, deck suggester, contingency view. Key files:
+**Phases 0–2 DONE: Module 4 (Skill Acquisition Planner) is complete** (2026-06-13). Plan header + inventory + coverage matrix with parent **spark columns**, **deck suggester**, and static **contingency view**; `/parents` CRUD. Data: 578 skills / 220 cards / 84 umas / spark_rates. 252 tests. Phase 3 next: Module 1 (Inheritance Planner) — UmaExtractor roster import (sample ready at `spikes/samples/`), residual-spec builder, pairwise own×borrow compare, computed affinity (algorithm verified in `docs/mechanics-notes.md` §3). Key files:
 - [uma-cm-planner-plan.md](uma-cm-planner-plan.md) — the full project plan and single source of truth (Phase 0 checklist annotated with outcomes; §14 decisions annotated).
 - [docs/provenance.md](docs/provenance.md) — engine vendor pin (umalator-global v0.14.2), licenses (clean GPL chain), all dataset sources/formats, UmaExtractor import spec, rental-site deep-link templates.
 - [docs/mechanics-notes.md](docs/mechanics-notes.md) — verified mechanics numbers (cite these in core tests); §10 lists what still needs in-game verification.

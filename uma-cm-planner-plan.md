@@ -480,7 +480,7 @@ inheritance  coverage        SP knapsack        meta intel
 - [x] Dexie schema v1 + JSON export/import (replace + natural-key merge).
 - [x] Inventory UI → coverage matrix (M4 steps 1–3), browser-smoke-tested incl. 390px mobile. **Milestone reached: usable for the next CM.** (Deck suggester/sparkChance = Phase 2.)
 
-**Phase 2 — Module 4 complete:** parents entry, sparkChance, deck suggester, contingency view (static).
+**Phase 2 — Module 4 complete** ✅ **DONE 2026-06-13** (4-agent build + 3-reviewer adversarial pass + fixes; 252 tests): parents entry (`/parents` CRUD over 84-uma picker), `sparkChance` (Ice-sheet goldens to 8–9 decimals; per-member affinity model, no flat gp multiplier; total-affinity entries flagged ≈ until Module 1 computes per-member), deck suggester (greedy + 1-swap, lock invariants, no card twice), contingency view (static; proc cost floored ≤ miss; inherited-unique = "not obtainable"). Honesty fixes: gold skills can't be white sparks (mechanics §8); stale suggestions invalidated on input change.
 
 **Phase 3 — Module 1:** inheritance math + UI + inverse mode; UmaExtractor roster import; Residual Spec builder + deep links + pairwise own×borrow compare table; validation suite vs umamily.
 
