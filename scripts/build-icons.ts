@@ -31,7 +31,7 @@
  * committed public/data/icons/ stays intact, and data:build's other 5 outputs
  * still build. Regeneration requires the local dump.
  */
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import type { SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
@@ -40,6 +40,9 @@ import { PUBLIC_DATA_DIR, readJson, REPO_ROOT, writeJsonDeterministic } from './
 /** Source PNG dump (gitignored). See docs/provenance.md §2 + §7. */
 export const ICON_DUMP_DIR = join(REPO_ROOT, 'spikes', 'repos', 'uma-tools', 'icons');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
+// Build into a sibling staging dir and swap on success, so a partial/corrupt
+// dump that throws mid-build can never destroy the committed icons.
+const ICONS_STAGING_DIR = join(PUBLIC_DATA_DIR, 'icons.staging');
 
 /** WebP quality (plan §4: sharp q80, visually near-lossless on flat game art). */
 const WEBP_QUALITY = 80;
@@ -133,32 +136,33 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const skillIconIds = [...new Set(skills.map((s) => s.iconId))].sort(
     (a, b) => Number(a) - Number(b),
   );
-  freshDir(join(ICONS_OUT_DIR, 'skill'));
+  freshDir(ICONS_STAGING_DIR);
+  mkdirSync(join(ICONS_STAGING_DIR, 'skill'), { recursive: true });
   for (const iconId of skillIconIds) {
     const src = srcAbs(skillSourceFile(iconId));
     if (!existsSync(src)) {
       throw new Error(`build-icons: missing skill icon source ${src} (iconId ${iconId}).`);
     }
-    await convertToWebp(src, join(ICONS_OUT_DIR, 'skill', `${iconId}.webp`));
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'skill', `${iconId}.webp`));
   }
 
   // --- support card chips (keyed by cardId; lowercase the 2 case-variants) --
   const cardIds = [...new Set(cards.map((c) => c.cardId))].sort((a, b) => Number(a) - Number(b));
-  freshDir(join(ICONS_OUT_DIR, 'support'));
+  mkdirSync(join(ICONS_STAGING_DIR, 'support'), { recursive: true });
   for (const cardId of cardIds) {
     const src = srcAbs(supportSourceFile(cardId));
     if (!existsSync(src)) {
       throw new Error(`build-icons: missing support card source ${src} (cardId ${cardId}).`);
     }
     // Output is always lowercase <cardId>.webp regardless of source case.
-    await convertToWebp(src, join(ICONS_OUT_DIR, 'support', `${cardId}.webp`));
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'support', `${cardId}.webp`));
   }
 
   // --- uma portraits (trained _02 → base chr_icon fallback) -----------------
   const umaIds = [...new Set(umas.map((u) => u.umaId))].sort((a, b) => Number(a) - Number(b));
   const charaByUmaId = new Map(umas.map((u) => [u.umaId, u.charaId]));
   const fallbackUmas: string[] = [];
-  freshDir(join(ICONS_OUT_DIR, 'uma'));
+  mkdirSync(join(ICONS_STAGING_DIR, 'uma'), { recursive: true });
   for (const umaId of umaIds) {
     const charaId = charaByUmaId.get(umaId);
     if (charaId === undefined) {
@@ -170,7 +174,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
       throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
     }
     if (fallback) fallbackUmas.push(umaId);
-    await convertToWebp(src, join(ICONS_OUT_DIR, 'uma', `${umaId}.webp`));
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`));
   }
 
   const manifest: IconManifest = {
@@ -181,7 +185,12 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     uma: umaIds,
     _fallbackUmas: fallbackUmas,
   };
-  writeJsonDeterministic(join(ICONS_OUT_DIR, 'icon-manifest.json'), manifest);
+  writeJsonDeterministic(join(ICONS_STAGING_DIR, 'icon-manifest.json'), manifest);
+
+  // Atomic swap: only now, with every file converted and the manifest written,
+  // do we replace the committed icons. A throw above leaves them untouched.
+  rmSync(ICONS_OUT_DIR, { recursive: true, force: true });
+  renameSync(ICONS_STAGING_DIR, ICONS_OUT_DIR);
 
   const onDiskBytes = dirBytes(ICONS_OUT_DIR);
   console.log(

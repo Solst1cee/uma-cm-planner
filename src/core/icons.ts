@@ -27,6 +27,11 @@ export interface IconManifest {
   card: string[];
   /** Available uma ids (UmaRecord.umaId). */
   uma: string[];
+  /**
+   * umaIds whose portrait fell back to the base character icon (no alt-outfit
+   * trained icon in the dump). Informational; these still appear in `uma`.
+   */
+  _fallbackUmas?: string[];
 }
 
 /** Membership lookup that tolerates a missing/partial array on the manifest. */

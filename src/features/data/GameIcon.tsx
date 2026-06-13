@@ -62,7 +62,9 @@ export function GameIcon({
 
   if (relative === undefined || broken) {
     // Neutral placeholder: keeps row rhythm + tap-target size without a broken
-    // image. aria-hidden because the adjacent text label already names it.
+    // image. aria-hidden by design — every GameIcon augments an adjacent visible
+    // text label (the P3 "images augment, never replace" contract), so a missing
+    // icon never drops the only accessible name. Callers pass alt="" accordingly.
     return (
       <span
         className={`game-icon game-icon-ph ${className ?? ''}`.trim()}
