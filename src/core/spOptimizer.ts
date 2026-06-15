@@ -86,43 +86,55 @@ export function basketSpCost(skillIds: string[], candidates: BuyableSkill[]): nu
 
 // --- enumeration (exact branch) ---
 
+export function enumerateFeasibleBaskets(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+): string[][];
+export function enumerateFeasibleBaskets(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+  abortOver: number,
+): string[][] | null;
 /**
  * Every prereq-closed subset of `candidates` whose total on-screen cost fits
  * `budget`, with `pinned` (+ their prereqs) forced into each. Returned baskets
- * are arrays of skill ids that INCLUDE the pinned set. Pure and total.
+ * INCLUDE the pinned set and are deduped. Pure and total.
  *
- * Cost is bounded by the lock-threshold in practice (spec §4 step 2): the
- * caller only enumerates when the optional skill count is small.
+ * When `abortOver` is given, returns `null` as soon as more than `abortOver`
+ * distinct feasible baskets are found, so the caller can bail to the shortlist
+ * branch without paying the full 2^n cost (spec §4 step 2).
  */
 export function enumerateFeasibleBaskets(
   candidates: BuyableSkill[],
   budget: number,
   pinned: string[],
-): string[][] {
+  abortOver?: number,
+): string[][] | null {
   const pinnedClosed = prereqClosure(pinned, candidates);
   const pinnedCost = basketSpCost(pinnedClosed, candidates);
   const pinnedSet = new Set(pinnedClosed);
-  // Optional skills are the non-pinned candidates; golds carry their prereq.
   const optional = candidates.filter((c) => !pinnedSet.has(c.skillId));
 
   const out: string[][] = [];
+  const seen = new Set<string>();
   const n = optional.length;
   for (let mask = 0; mask < 1 << n; mask++) {
     const picked: string[] = [];
     for (let i = 0; i < n; i++) if (mask & (1 << i)) picked.push(optional[i]!.skillId);
     const closed = prereqClosure(picked, candidates);
-    const totalCost = pinnedCost + basketSpCost(closed.filter((id) => !pinnedSet.has(id)), candidates);
+    const totalCost =
+      pinnedCost + basketSpCost(closed.filter((id) => !pinnedSet.has(id)), candidates);
     if (totalCost > budget) continue;
-    out.push([...new Set([...pinnedClosed, ...closed])]);
-  }
-  // Dedupe baskets (closures can collapse two masks to the same set).
-  const seen = new Set<string>();
-  return out.filter((b) => {
-    const key = b.slice().sort().join(',');
-    if (seen.has(key)) return false;
+    const basket = [...new Set([...pinnedClosed, ...closed])];
+    const key = basket.slice().sort().join(',');
+    if (seen.has(key)) continue;
     seen.add(key);
-    return true;
-  });
+    out.push(basket);
+    if (abortOver !== undefined && out.length > abortOver) return null;
+  }
+  return out;
 }
 
 // --- diversity + selection ---
@@ -200,7 +212,9 @@ export function shortlistByProxy(
   const pinnedClosed = prereqClosure(pinned, candidates);
   const pinnedCost = basketSpCost(pinnedClosed, candidates);
   const pinnedSet = new Set(pinnedClosed);
-  const residual = Math.max(0, budget - pinnedCost);
+  // The DP indexes by integer SP, so round to integers (in-game costs are
+  // already integers; this guards against fractional estimate inputs).
+  const residual = Math.floor(Math.max(0, budget - pinnedCost));
 
   const items = candidates
     .filter((c) => !pinnedSet.has(c.skillId))
@@ -209,7 +223,7 @@ export function shortlistByProxy(
       return {
         id: c.skillId,
         members: closed,
-        cost: basketSpCost(closed, candidates),
+        cost: Math.ceil(basketSpCost(closed, candidates)),
         value: closed.reduce((s, id) => s + (deltaLById[id] ?? 0), 0),
       };
     })
@@ -222,12 +236,16 @@ export function shortlistByProxy(
   items.forEach((it, idx) => {
     for (let sp = residual; sp >= it.cost; sp--) {
       const cand = best[sp - it.cost]!;
-      if (cand.value + it.value > best[sp]!.value && !cand.picked.includes(idx)) {
+      // Backward SP sweep guarantees 0/1 semantics (an item is never revisited).
+      if (cand.value + it.value > best[sp]!.value) {
         best[sp] = { value: cand.value + it.value, picked: [...cand.picked, idx] };
       }
     }
   });
 
+  // Collect the optimum at each SP level for a diverse spread. Low-SP cells can
+  // under-spend the budget; acceptable in v1 — the sim re-ranks, and the
+  // value-desc sort + diversity filter below keep the best baskets first.
   const raw: string[][] = best
     .map((cell) => [...pinnedClosed, ...cell.picked.flatMap((i) => items[i]!.members)])
     .map((b) => [...new Set(b)]);
@@ -248,8 +266,9 @@ export function shortlistByProxy(
 
 // --- branch chooser ---
 
-/** Above this many OPTIONAL candidates, never attempt exact (2^n) enumeration. */
-const MAX_EXACT_BITS = 20;
+/** Above this many OPTIONAL candidates, never attempt exact (2^n) enumeration
+ *  (2^16 masks is the worst-case bound on the exact branch). */
+const MAX_EXACT_BITS = 16;
 
 export interface ChooseOpts {
   /** Max feasible subsets to allow the exact (sim-everything) branch. */
@@ -264,23 +283,23 @@ export interface ChooseResult {
   baskets: string[][];
 }
 
-/**
- * Decide the exact vs shortlist branch (spec §4 steps 2–3). The exact branch
- * is gated TWICE so it never explodes: first by the optional-candidate bit
- * count (`MAX_EXACT_BITS`, to avoid even building 2^n masks), then by the
- * feasible-subset count (`exactThreshold`). Otherwise return a Δ-L proxy
- * shortlist. Pure and total — no simulation here.
- */
 export function chooseBasketsToScore(
   ctx: Pick<BuildContext, 'candidates' | 'spBudget' | 'pinned'>,
   deltaLById: Record<string, number>,
   opts: ChooseOpts,
 ): ChooseResult {
   const pinnedClosed = prereqClosure(ctx.pinned, ctx.candidates);
-  const optionalCount = ctx.candidates.filter((c) => !pinnedClosed.includes(c.skillId)).length;
+  // Must-buys that exceed the budget are a real, actionable state — surface the
+  // forced (over-budget) basket rather than silently returning nothing.
+  if (basketSpCost(pinnedClosed, ctx.candidates) > ctx.spBudget) {
+    return { mode: 'exact', baskets: [pinnedClosed] };
+  }
+  const pinnedSet = new Set(pinnedClosed);
+  const optionalCount = ctx.candidates.filter((c) => !pinnedSet.has(c.skillId)).length;
   if (optionalCount <= MAX_EXACT_BITS) {
-    const feasible = enumerateFeasibleBaskets(ctx.candidates, ctx.spBudget, ctx.pinned);
-    if (feasible.length <= opts.exactThreshold) {
+    // Early-abort once feasible exceeds the exact-branch threshold.
+    const feasible = enumerateFeasibleBaskets(ctx.candidates, ctx.spBudget, ctx.pinned, opts.exactThreshold);
+    if (feasible) {
       return { mode: 'exact', baskets: feasible };
     }
   }

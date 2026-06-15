@@ -128,13 +128,15 @@ describe('shortlistByProxy', () => {
     expect(['a,c', 'b,c']).toContain(top);
   });
 
-  it('beats naive greedy-by-cost: a knapsack counterexample', () => {
-    const kn: BuyableSkill[] = [buy('x', 2), buy('y', 1), buy('z', 2)];
-    const d: Record<string, number> = { x: 3, y: 2, z: 2.9 };
-    const lists = shortlistByProxy(kn, 3, [], d, { limit: 10, minDistance: 1 });
+  it('beats greedy-by-density on a knapsack counterexample (finds the optimum)', () => {
+    // budget 4; a:cost3/val5, b:cost2/val3, c:cost2/val3.
+    // greedy-by-density picks a (5/3≈1.67) first → cost3, nothing else fits → val5.
+    // optimal is b+c (cost4, val6); the exact DP must find 6.
+    const kn: BuyableSkill[] = [buy('a', 3), buy('b', 2), buy('c', 2)];
+    const d: Record<string, number> = { a: 5, b: 3, c: 3 };
+    const lists = shortlistByProxy(kn, 4, [], d, { limit: 10, minDistance: 1 });
     const proxySum = (b: string[]) => b.reduce((s, id) => s + (d[id] ?? 0), 0);
-    const best = Math.max(...lists.map(proxySum));
-    expect(best).toBe(5); // x+y, not the greedy-ratio trap
+    expect(Math.max(...lists.map(proxySum))).toBe(6); // b+c, not greedy's a=5
   });
 
   it('respects pins and the shortlist limit', () => {
@@ -180,5 +182,14 @@ describe('chooseBasketsToScore', () => {
     );
     expect(r.mode).toBe('shortlist'); // returns fast, never enumerates 2^24
     expect(r.baskets.length).toBeLessThanOrEqual(5);
+  });
+
+  it('surfaces the forced pinned basket when must-buys exceed the budget', () => {
+    const r = chooseBasketsToScore(
+      { candidates: cands, spBudget: 150, pinned: ['a', 'b'] }, // 100 + 100 = 200 > 150
+      {},
+      { exactThreshold: 100, shortlistLimit: 5, minDistance: 1 },
+    );
+    expect(r.baskets).toEqual([['a', 'b']]);
   });
 });
