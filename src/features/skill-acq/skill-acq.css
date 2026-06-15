@@ -1,0 +1,4 @@
+.m4-grid { display: grid; grid-template-columns: minmax(280px, 26%) 1fr; gap: 1rem; align-items: start; }
+.m4-left { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 1rem; }
+.m4-right { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+@media (max-width: 820px) { .m4-grid { grid-template-columns: 1fr; } .m4-left { position: static; } }
