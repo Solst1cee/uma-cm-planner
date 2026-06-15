@@ -6,7 +6,21 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { basketSpCost, prereqClosure, type BuyableSkill } from '@/core/spOptimizer';
+import {
+  basketSpCost,
+  chooseBasketsToScore,
+  enumerateFeasibleBaskets,
+  parseCaptureBundle,
+  prereqClosure,
+  selectTopDiverse,
+  shortlistByProxy,
+  skillSetDistance,
+  wishlistToCandidates,
+  type BuyableSkill,
+  type ScoredBasket,
+} from '@/core/spOptimizer';
+import { FIXTURE_SKILLS } from '@/core/fixtures';
+import type { WishlistItem } from '@/core/types';
 
 // --- test helpers ---
 function buy(skillId: string, screenSpCost: number, prereqSkillId?: string): BuyableSkill {
@@ -21,7 +35,7 @@ const CANDS: BuyableSkill[] = [
 
 // --- prereqClosure ---
 describe('prereqClosure', () => {
-  it('adds a gold skill’s white prereq when present in candidates', () => {
+  it("adds a gold skill's white prereq when present in candidates", () => {
     expect(prereqClosure(['g1'], CANDS).sort()).toEqual(['g1', 'w1']);
   });
 
@@ -50,8 +64,6 @@ describe('basketSpCost', () => {
     expect(basketSpCost(['w1', 'owned'], CANDS)).toBe(100);
   });
 });
-
-import { enumerateFeasibleBaskets } from '@/core/spOptimizer';
 
 // --- enumerateFeasibleBaskets ---
 describe('enumerateFeasibleBaskets', () => {
@@ -83,8 +95,6 @@ describe('enumerateFeasibleBaskets', () => {
   });
 });
 
-import { type ScoredBasket, selectTopDiverse, skillSetDistance } from '@/core/spOptimizer';
-
 // --- skillSetDistance ---
 describe('skillSetDistance', () => {
   it('counts symmetric-difference size', () => {
@@ -112,8 +122,6 @@ describe('selectTopDiverse', () => {
     expect(top.length).toBeLessThanOrEqual(3);
   });
 });
-
-import { shortlistByProxy } from '@/core/spOptimizer';
 
 // --- shortlistByProxy ---
 describe('shortlistByProxy', () => {
@@ -145,8 +153,6 @@ describe('shortlistByProxy', () => {
     expect(lists.every((b) => b.includes('a'))).toBe(true);
   });
 });
-
-import { chooseBasketsToScore } from '@/core/spOptimizer';
 
 // --- chooseBasketsToScore ---
 describe('chooseBasketsToScore', () => {
@@ -194,8 +200,6 @@ describe('chooseBasketsToScore', () => {
   });
 });
 
-import { parseCaptureBundle } from '@/core/spOptimizer';
-
 describe('parseCaptureBundle', () => {
   const valid = {
     schemaVersion: 1, source: 'ocr', capturedAt: '2026-06-15T00:00:00.000Z',
@@ -236,11 +240,22 @@ describe('parseCaptureBundle', () => {
     bad.context.candidates[0].rarity = 'legendary';
     expect(() => parseCaptureBundle(bad)).toThrow(/rarity/);
   });
-});
 
-import { wishlistToCandidates } from '@/core/spOptimizer';
-import { FIXTURE_SKILLS } from '@/core/fixtures';
-import type { WishlistItem } from '@/core/types';
+  it('rejects a non-finite cost (Infinity)', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].screenSpCost = Infinity;
+    expect(() => parseCaptureBundle(bad)).toThrow(/finite/);
+  });
+
+  it('rejects an invalid strategy, aptitude grade, and server', () => {
+    const badStrat = JSON.parse(JSON.stringify(valid)); badStrat.context.strategy = 'sprint';
+    expect(() => parseCaptureBundle(badStrat)).toThrow(/strategy/);
+    const badGrade = JSON.parse(JSON.stringify(valid)); badGrade.context.aptitudes.distance = 'Z';
+    expect(() => parseCaptureBundle(badGrade)).toThrow(/aptitudes\.distance/);
+    const badServer = JSON.parse(JSON.stringify(valid)); badServer.server = 'tw';
+    expect(() => parseCaptureBundle(badServer)).toThrow(/server/);
+  });
+});
 
 const SKILL_BY_ID = new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s]));
 const wl = (skillId: string): WishlistItem => ({ skillId, priority: 1, source: 'targeted' });

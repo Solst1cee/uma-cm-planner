@@ -278,7 +278,7 @@ function asString(v: unknown, name: string): string {
   return v;
 }
 function asNumber(v: unknown, name: string): number {
-  if (typeof v !== 'number' || Number.isNaN(v)) fail(`${name} must be a number`);
+  if (typeof v !== 'number' || !Number.isFinite(v)) fail(`${name} must be a finite number`);
   return v;
 }
 function asArray(v: unknown, name: string): unknown[] {
@@ -286,16 +286,25 @@ function asArray(v: unknown, name: string): unknown[] {
   return v;
 }
 
-const SOURCES = ['manual', 'ocr', 'video'];
+function asEnum<T extends string>(v: unknown, allowed: readonly T[], name: string): T {
+  const s = asString(v, name);
+  if (!(allowed as readonly string[]).includes(s)) fail(`${name} must be one of ${allowed.join('|')}`);
+  return s as T;
+}
+
+const SOURCES = ['manual', 'ocr', 'video'] as const;
 const STAT_KEYS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
-const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'];
+const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'] as const;
+const STRATEGIES = ['front', 'pace', 'late', 'end'] as const;
+const GRADES = ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+const SERVERS = ['global', 'jp'] as const;
+const MATCH_TIERS = ['exact', 'fuzzy', 'manual'] as const;
 
 /** Validate + normalize an imported value into a CaptureBundle. Throws a descriptive Error otherwise. */
 export function parseCaptureBundle(data: unknown): CaptureBundle {
   const root = asObject(data, 'bundle');
   if (root['schemaVersion'] !== 1) fail('schemaVersion must be 1');
-  const source = asString(root['source'], 'source');
-  if (!SOURCES.includes(source)) fail(`source must be one of ${SOURCES.join('|')}`);
+  const source = asEnum(root['source'], SOURCES, 'source');
 
   const ctx = asObject(root['context'], 'context');
   const statsObj = asObject(ctx['stats'], 'context.stats');
@@ -304,22 +313,20 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
 
   const apt = asObject(ctx['aptitudes'], 'context.aptitudes');
   const aptitudes = {
-    distance: asString(apt['distance'], 'context.aptitudes.distance') as Grade,
-    surface: asString(apt['surface'], 'context.aptitudes.surface') as Grade,
-    strategy: asString(apt['strategy'], 'context.aptitudes.strategy') as Grade,
+    distance: asEnum(apt['distance'], GRADES, 'context.aptitudes.distance'),
+    surface: asEnum(apt['surface'], GRADES, 'context.aptitudes.surface'),
+    strategy: asEnum(apt['strategy'], GRADES, 'context.aptitudes.strategy'),
   };
 
   const candidates: BuyableSkill[] = asArray(ctx['candidates'], 'context.candidates').map((c, i) => {
     const o = asObject(c, `context.candidates[${i}]`);
-    const rarity = asString(o['rarity'], `context.candidates[${i}].rarity`);
-    if (!RARITIES.includes(rarity)) fail(`context.candidates[${i}].rarity must be a skill rarity`);
     const bs: BuyableSkill = {
       skillId: asString(o['skillId'], `context.candidates[${i}].skillId`),
-      rarity: rarity as SkillRarity,
+      rarity: asEnum(o['rarity'], RARITIES, `context.candidates[${i}].rarity`),
       screenSpCost: asNumber(o['screenSpCost'], `context.candidates[${i}].screenSpCost`),
     };
     if (o['prereqSkillId'] !== undefined) bs.prereqSkillId = asString(o['prereqSkillId'], `context.candidates[${i}].prereqSkillId`);
-    if (o['matchTier'] !== undefined) bs.matchTier = asString(o['matchTier'], `context.candidates[${i}].matchTier`) as BuyableSkill['matchTier'];
+    if (o['matchTier'] !== undefined) bs.matchTier = asEnum(o['matchTier'], MATCH_TIERS, `context.candidates[${i}].matchTier`);
     return bs;
   });
 
@@ -327,7 +334,7 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
     umaId: asString(ctx['umaId'], 'context.umaId'),
     stats,
     aptitudes,
-    strategy: asString(ctx['strategy'], 'context.strategy') as Strategy,
+    strategy: asEnum(ctx['strategy'], STRATEGIES, 'context.strategy'),
     courseId: asString(ctx['courseId'], 'context.courseId'),
     spBudget: asNumber(ctx['spBudget'], 'context.spBudget'),
     ownedSkills: asArray(ctx['ownedSkills'], 'context.ownedSkills').map((s, i) => asString(s, `context.ownedSkills[${i}]`)),
@@ -337,9 +344,9 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
 
   const bundle: CaptureBundle = {
     schemaVersion: 1,
-    source: source as CaptureBundle['source'],
+    source,
     capturedAt: asString(root['capturedAt'], 'capturedAt'),
-    server: asString(root['server'], 'server') as Server,
+    server: asEnum(root['server'], SERVERS, 'server'),
     dataVersion: asString(root['dataVersion'], 'dataVersion'),
     context,
   };
