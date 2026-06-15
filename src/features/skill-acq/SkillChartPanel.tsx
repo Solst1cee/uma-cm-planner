@@ -31,7 +31,7 @@ export function SkillChartPanel({ plan, onChange, deps }: SkillChartPanelProps) 
   const catalog = useMemo(() => acquirableSkills(skills, plan.server), [skills, plan.server]);
   const ids = useMemo(() => catalog.map((s) => s.skillId), [catalog]);
   const build = useMemo(() => planToSimBuild(plan), [plan]); // identity changes each plan edit — acceptable
-  const race = { courseId: plan.cmRef.courseId };
+  const race = useMemo(() => ({ courseId: plan.cmRef.courseId }), [plan.cmRef.courseId]);
 
   const { rows, status, done, total } = useSkillChart(build, race, ids, deps);
 
@@ -105,11 +105,24 @@ export function SkillChartPanel({ plan, onChange, deps }: SkillChartPanelProps) 
           const isExpanded = expanded.has(row.skillId);
 
           return (
-            <li key={row.skillId} className="skill-chart-row" aria-label={skill.nameEn}>
+            <li
+              key={row.skillId}
+              className="skill-chart-row"
+              aria-label={skill.rarity === 'gold' ? `${skill.nameEn}, gold skill` : skill.nameEn}
+            >
+              {skill.rarity === 'gold' && (
+                <span className="gold-star" title="Gold skill" aria-hidden="true">
+                  ★
+                </span>
+              )}
               <span className={skill.rarity === 'gold' ? 'sk-gold' : 'sk-white'}>{skill.nameEn}</span>
 
               {row.status === 'na' ? (
-                <span className="na" title="engine can't simulate this effect">
+                <span
+                  className="na"
+                  title="engine can't simulate this effect"
+                  aria-label="not applicable — the engine can't simulate this effect"
+                >
                   n/a
                 </span>
               ) : (
