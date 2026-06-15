@@ -33,13 +33,13 @@
  *   otherwise 0. A prereq missing from the dataset degrades to pricing the
  *   gold alone rather than fabricating a bundle.
  */
+import { combinedSparkPct } from '@/core/coverage';
 import {
   bundledSpCost,
-  combinedSparkPct,
   effectiveSpCost,
   expectedHintLevel,
   type HintLevel,
-} from '@/core/coverage';
+} from '@/core/cost';
 import type {
   CoverageRow,
   SkillRecord,

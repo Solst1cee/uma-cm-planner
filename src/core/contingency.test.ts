@@ -7,7 +7,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { SPARK_PROC_ASSUMPTION, computeContingencies } from '@/core/contingency';
-import { buildCoverageMatrix, bundledSpCost, effectiveSpCost } from '@/core/coverage';
+import { buildCoverageMatrix } from '@/core/coverage';
+import { bundledSpCost, effectiveSpCost } from '@/core/cost';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,

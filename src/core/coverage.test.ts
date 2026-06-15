@@ -7,13 +7,11 @@ import { describe, expect, it } from 'vitest';
 import {
   HINT_TIER_THRESHOLDS,
   buildCoverageMatrix,
-  bundledSpCost,
   classifyHintTier,
   combinedSparkPct,
-  effectiveSpCost,
-  expectedHintLevel,
   tierRank,
 } from '@/core/coverage';
+import { bundledSpCost, effectiveSpCost, expectedHintLevel } from '@/core/cost';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,
@@ -402,10 +400,11 @@ describe('effectiveSpCost', () => {
     expect(effectiveSpCost(gold110, 5, rates)).toBe(66);
   });
 
-  it('Fast Learner is a further ×0.9 before the single ceil (mechanics-notes §7)', () => {
-    // 110 × 0.65 × 0.9 = 64.35 → 65
-    expect(effectiveSpCost(gold110, 4, rates, { fastLearner: true })).toBe(65);
-    // No hint discount: 110 × 0.9 = 99
+  it('Fast Learner stacks ADDITIVELY with hint discount (mechanics-notes §7/§10 item 7; 2026-06-15 screenshot)', () => {
+    // additive FL: hint% + 10% (mechanics-notes §7/§10 item 7; 2026-06-15 screenshot)
+    // 110 × (1 - 0.35 - 0.10) = 110 × 0.55 = 60.5 → ceil = 61
+    expect(effectiveSpCost(gold110, 4, rates, { fastLearner: true })).toBe(61);
+    // No hint discount: 110 × (1 - 0 - 0.10) = 110 × 0.90 = 99
     expect(effectiveSpCost(gold110, 0, rates, { fastLearner: true })).toBe(99);
   });
 });
@@ -427,9 +426,10 @@ describe('bundledSpCost', () => {
     expect(bundledSpCost(gold, white, 2, 4, rates)).toBe(147);
   });
 
-  it('applies Fast Learner to the whole bundle', () => {
-    // (71.5 + 58.5) × 0.9 = 117 → 117
-    expect(bundledSpCost(gold, white, 4, 4, rates, { fastLearner: true })).toBe(117);
+  it('applies Fast Learner additively to the whole bundle', () => {
+    // additive FL: hint% + 10% (mechanics-notes §7/§10 item 7; 2026-06-15 screenshot)
+    // ceil(110×0.55 + 90×0.55) = ceil(110) = 111 (floating-point: 0.35+0.1 not exact → sum ~110.0…1)
+    expect(bundledSpCost(gold, white, 4, 4, rates, { fastLearner: true })).toBe(111);
   });
 });
 

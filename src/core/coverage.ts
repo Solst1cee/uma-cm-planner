@@ -7,8 +7,10 @@
  * overrides merging (P5) happen upstream in the data layer.
  */
 import { sparkChance } from '@/core/spark';
+// Back-compat: existing importers of these from '@/core/coverage' keep working.
+export { expectedHintLevel, effectiveSpCost, bundledSpCost } from '@/core/cost';
+export type { HintLevel } from '@/core/cost';
 import type {
-  CardSkill,
   CmPlan,
   CoverageRow,
   CoverageSource,
@@ -267,101 +269,6 @@ export function buildCoverageMatrix(args: {
 }
 
 // ---------------------------------------------------------------------------
-// SP cost (hint discount) — feeds Module 2
+// SP cost (hint discount) — moved to src/core/cost.ts
+// Back-compat re-exports are at the top of this file (import block).
 // ---------------------------------------------------------------------------
-
-export type HintLevel = 0 | 1 | 2 | 3 | 4 | 5;
-
-/**
- * Expected hint level a coverage source contributes when the user buys the
- * skill — feeds effectiveSpCost/bundledSpCost for the UI's SP estimate.
- *
- * Model, per source kind:
- *
- * - 'hint_strong' / 'hint_weak' (training hints): base level per hint take is
- *   the skill's master.mdb `single_mode_hint_gain.hint_value_2`
- *   (CardSkill.hintLevels — currently 1 on every Global hint_gain_type=0 row,
- *   verified against master.mdb v10006400, 2026-06-12), plus the card's Hint
- *   Levels passive (effect 17, mechanics-notes §9) evaluated at the OWNING
- *   COPY's limit break (source.limitBreak), clamped to the game's 0–5 range.
- *
- * - 'chain' / 'date_event' / 'random' / 'scenario' (and 'spark'/'uncovered'):
- *   returns 0, i.e. estimate FULL SP cost. Event rewards carry their own
- *   per-event hint levels which are embedded in unparsed reward strings
- *   (provenance §3 open item 3), and no source supports applying the
- *   effect-17 training-hint passive to event grants — that extension was an
- *   unsourced heuristic (review 2026-06-12). Until the in-game verification
- *   queue resolves it (mechanics-notes §10; P3 honest numbers), the UI shows
- *   full cost with a caveat rather than a fabricated discount.
- *
- * Pure and total: missing card / perLevel row / skill metadata degrade to the
- * 0-passive / base-1 defaults rather than throwing.
- */
-export function expectedHintLevel(
-  source: CoverageSource,
-  card: SupportCardRecord | undefined,
-  skill: CardSkill | undefined,
-): HintLevel {
-  if (source.kind !== 'hint_strong' && source.kind !== 'hint_weak') return 0;
-  // Base hint levels granted per take (master.mdb hint_value_2; default 1).
-  const base = skill?.hintLevels ?? 1;
-  // Hint Levels passive (effect 17) at the owning copy's limit break.
-  const perLevel = card?.perLevel.find((p) => p.limitBreak === source.limitBreak);
-  const passive = perLevel?.hintLevels ?? 0;
-  return Math.min(5, Math.max(0, Math.floor(base + passive))) as HintLevel;
-}
-
-/**
- * Cumulative discount fraction at a hint level. Schedule is cumulative
- * [10,20,30,35,40]% at Lv1–5, cap 40% (mechanics-notes §7, CONFIRMED).
- */
-function hintDiscountFraction(level: HintLevel, rates: SparkRates): number {
-  if (level === 0) return 0;
-  return (rates.hintDiscountCumulativePct[level - 1] ?? 0) / 100;
-}
-
-/** Discounted cost BEFORE rounding — components are summed pre-ceil when bundling. */
-function discountedComponent(
-  skill: SkillRecord,
-  level: HintLevel,
-  rates: SparkRates,
-  opts?: { fastLearner?: boolean },
-): number {
-  // Fast Learner (切れ者) is a further multiplicative ×0.9 (mechanics-notes §7).
-  const fastLearner = opts?.fastLearner ? rates.fastLearnerMultiplier : 1;
-  return skill.baseSpCost * (1 - hintDiscountFraction(level, rates)) * fastLearner;
-}
-
-/**
- * SP cost after hint discount and optional Fast Learner. Rounding: CEIL
- * after the multiply — umalator-global cost-calculator behavior; ceil vs
- * floor is the open in-game rounding question in mechanics-notes §7, we
- * encode ceil.
- */
-export function effectiveSpCost(
-  skill: SkillRecord,
-  expectedHintLevel: HintLevel,
-  rates: SparkRates,
-  opts?: { fastLearner?: boolean },
-): number {
-  return Math.ceil(discountedComponent(skill, expectedHintLevel, rates, opts));
-}
-
-/**
- * Gold skill + its white prereq bought together: sum both discounted
- * components BEFORE a single ceil (umalator cost-calculator behavior,
- * mechanics-notes §7) — can be 1 SP under ceiling each part separately.
- */
-export function bundledSpCost(
-  gold: SkillRecord,
-  whitePrereq: SkillRecord,
-  hintLevelGold: HintLevel,
-  hintLevelWhite: HintLevel,
-  rates: SparkRates,
-  opts?: { fastLearner?: boolean },
-): number {
-  return Math.ceil(
-    discountedComponent(gold, hintLevelGold, rates, opts) +
-      discountedComponent(whitePrereq, hintLevelWhite, rates, opts),
-  );
-}
