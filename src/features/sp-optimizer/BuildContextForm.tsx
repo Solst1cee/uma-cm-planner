@@ -21,11 +21,9 @@ export function BuildContextForm({ onAnalyze, dataVersion = 'global-c1fa2107', n
   const [draftCost, setDraftCost] = useState('');
 
   function addCandidate() {
-    if (!draftId.trim()) return;
-    setCandidates((prev) => [
-      ...prev,
-      { skillId: draftId.trim(), rarity: 'white', screenSpCost: Number(draftCost) || 0 },
-    ]);
+    const id = draftId.trim();
+    if (!id || candidates.some((c) => c.skillId === id)) return; // ignore blank/duplicate ids
+    setCandidates((prev) => [...prev, { skillId: id, rarity: 'white', screenSpCost: Number(draftCost) || 0 }]);
     setDraftId('');
     setDraftCost('');
   }

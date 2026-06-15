@@ -22,6 +22,10 @@ export function SpOptimizerPage() {
     }
   }
 
+  if (status === 'loading') {
+    return <p className="muted">Loading…</p>;
+  }
+
   return (
     <div className="page">
       <section className="panel" aria-labelledby="sp-h">
