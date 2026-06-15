@@ -11,7 +11,7 @@ import './cm-planner.css';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { useGameData } from '@/features/data/gameData';
 import { SelectedSkillProvider } from './useSelectedSkill';
-import { TrackDiagramPanel } from './TrackDiagramPanel';
+import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
 
 export function CmPlannerPage() {
   const { status } = useGameData();
@@ -55,7 +55,7 @@ export function CmPlannerPage() {
           </p>
         </section>
 
-        <TrackDiagramPanel plan={plan} />
+        <RaceTrackView plan={plan} />
       </div>
     </SelectedSkillProvider>
   );

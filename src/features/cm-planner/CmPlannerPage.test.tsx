@@ -18,21 +18,11 @@ const h = vi.hoisted(() => {
     ['u', skill('u', 'Victory Cheer!', 'phase>=2')],
     ['a', skill('a', 'Escape Artist', 'distance_rate>=50')],
   ]);
-  const geom = {
-    distance: 2200,
-    turn: 1,
-    corners: [
-      { start: 520, length: 190 },
-      { start: 710, length: 190 },
-      { start: 1250, length: 300 },
-      { start: 1550, length: 300 },
-    ],
-    straights: [
-      { start: 0, end: 520 },
-      { start: 900, end: 1250 },
-      { start: 1850, end: 2200 },
-    ],
-    slopes: [] as Array<{ start: number; length: number; slope: number }>,
+  const courseData = {
+    courseId: 10906, distance: 2200, surface: 1, turn: 1,
+    corners: [{ start: 520, length: 190 }, { start: 710, length: 190 }, { start: 1250, length: 300 }, { start: 1550, length: 300 }],
+    straights: [{ start: 0, end: 520, frontType: 1 }, { start: 900, end: 1250, frontType: 2 }, { start: 1850, end: 2200, frontType: 1 }],
+    slopes: [{ start: 0, length: 290, slope: -10000 }, { start: 295, length: 125, slope: 20000 }, { start: 1400, length: 595, slope: -10000 }, { start: 2000, length: 125, slope: 20000 }],
   };
   const plan = {
     id: 'p',
@@ -52,10 +42,10 @@ const h = vi.hoisted(() => {
     server: 'global',
     dataVersion: 't',
   };
-  return { skillById, geom, plan };
+  return { skillById, courseData, plan };
 });
 
-vi.mock('@/sim/courseGeometry', () => ({ courseGeometryFor: () => h.geom }));
+vi.mock('@/sim/courseData', () => ({ courseDataFor: () => h.courseData }));
 vi.mock('@/features/data/gameData', () => ({
   useGameData: () => ({ status: 'ready', skillById: h.skillById }),
 }));
@@ -75,6 +65,6 @@ describe('CmPlannerPage', () => {
 
   it('renders the §0 track for the active plan', async () => {
     render(<CmPlannerPage />);
-    await waitFor(() => expect(document.querySelectorAll('.tseg')).toHaveLength(7));
+    await waitFor(() => expect(document.querySelector('#race-phases')).toBeInTheDocument());
   });
 });
