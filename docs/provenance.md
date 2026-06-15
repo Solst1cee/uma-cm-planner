@@ -34,7 +34,7 @@ All findings below: **Phase 0 spikes, retrieved/verified 2026-06-12** unless dat
 - No DOM/window/fetch anywhere in `src/lib/sunday-tools` (verified by grep).
 
 ### Vendor list (when Phase 4 lands)
-`src/lib/sunday-tools/**` (drop tests) + the 5 simulator/glue files + either the loader chain or (preferred) a build-time merged `skills.json` + `course_data.json` + `umas.json`. Also vendor `scripts/master-data/**` and `scripts/data-extract/{extract-skills,extract-course-data,extract-uma-info,gametora-client,sync-gametora}.ts` as our data-refresh pipeline (runs on Bun, hits the Global CDN).
+`src/lib/sunday-tools/**` (drop tests) + the simulator/glue files (incl. `skill-planner-compare.ts` / `runPlannerComparison` for combined-L + basket eval — see shared-data-model §7) + either the loader chain or (preferred) a build-time merged `skills.json` + `course_data.json` + `umas.json`. Also vendor `scripts/master-data/**` and `scripts/data-extract/{extract-skills,extract-course-data,extract-uma-info,gametora-client,sync-gametora}.ts` as our data-refresh pipeline (runs on Bun, hits the Global CDN).
 
 ### 1.1 Headless-import smoke test — **PASSED** (adversarial verification, 2026-06-12)
 `runSkillComparison` executed end-to-end under plain Node v24 with no DOM: bundled via esbuild (`platform:'node'`, `define:{'import.meta.env':'{"DEV":false}'}`) and produced correct deterministic bashin output. Findings:
@@ -249,3 +249,25 @@ Fetched via umalator-global's own pipeline (`scripts/master-data/fetch-master-db
 | `spikes/tachyons-data.json`, `spikes/urarawin-db.json` | Downloaded validation datasets |
 | `spikes/phase0-results.json`, `spikes/phase0-completion-results.json` | Full structured findings of all Phase 0 spike + verification agents |
 | `spikes/repos/umalator-global/scripts/adversarial-smoke.ts` | Headless engine smoke-test repro |
+| `spikes/ocr/` | OCR skill-screen spike (tesseract.js + sharp), 2026-06-15 — see §8.2 |
+
+---
+
+## 8. Brainstorm-session research (2026-06-14/15)
+
+Module design specs in `docs/superpowers/specs/` (M4/M3/M1/M2); decisions also in memory + plan §3. New external findings + borrowed deps, per P1:
+
+### 8.1 M2 input — post-run skill screen is NOT file-extractable (verified ON-DISK, 2026-06-15)
+Direct inspection of the Global client's local data (`%USERPROFILE%\AppData\LocalLow\Cygames\Umamusume`): the only save `d/SaveData.db` is a single **211-row obfuscated key-value `AppSetting` table** (~35 KB) — settings only; `master\master.mdb` is the 338-table static game DB; `dat/` are content-addressed asset bundles. **No veteran/run/skill-menu state on disk.** **Re-verified after a completed run (2026-06-15): no new file or table appeared; `SaveData.db` is still the 211-row `AppSetting` store (only ~900 B of updated setting values), confirming a finished run persists NO skill-screen state.** Packet tools (CarrotJuicer → ResponseAnalyzer/hakuraku/UmaLauncher) are DMM/JP-only; Steam/Global adds **CrackProof** kernel anti-cheat. **UmaExtractor** (live process-memory scan, works on Global) yields only the *finished-uma* record (→ M1 roster), not the in-career menu. ⇒ M2 input = Carry-from-M4 + manual; OCR deferred.
+
+### 8.2 OCR spike (deferred M2 path) — `spikes/ocr/` (built 2026-06-15)
+**New dep:** `tesseract.js` (Apache-2.0) in `spikes/ocr/` (isolated; `sharp` already a root dep). Approach: OCR the skill **name** → fuzzy-match (Sørensen–Dice bigrams) to the 578-skill dataset → **cost from the dataset, not OCR'd digits**; only available-SP is read + human-confirmed. **Validated on 16 real Global Steam screenshots of the in-career "Learn" screen (1573×855, 2026-06-15):** available-SP **16/16 correct** (`2285`, 96% conf) via a dedicated SP-pill crop (greyscale → `threshold(185)` → PSM 6 + digit whitelist — plain greyscale fails on orange-on-white); skill **names matched across the whole scrollable list** (high/med tier, incl. `◎`/`○` aptitude variants). Crops are **proportional** (fractions of W/H) so they track resolution; full-image OCR without cropping invents false rows (the right-panel "Item Request" button → "Restart"). Matcher 10/10 on mangled names; pipeline 5/5 on a synthetic screen earlier. **Resolved by a verification workflow (vs live `master.mdb`, 2026-06-15):** our `baseSpCost` is **CORRECT** (`single_mode_skill_need_point` = 160/200/200, matches our dataset). Whites reconcile at ×0.8 because **Fast Learner is active** (hint 10% + FL 10%, applied *additively* — refuting umalator's multiplicative ×0.81). Gold Radiant Star's stored 200 is the white-equivalent base; its 320 on-screen is the gold 2× premium (umalator bundles the white prereq). Two real, non-data follow-ups → `mechanics-notes §7/§10`: (i) make Fast Learner additive in our cost model, (ii) apply the gold premium in `coverage.ts` cost derivation. Reference patterns (NOT vendored): UmaTools (GPL-3.0) preprocess + fuzzy-matcher; Magody/Umaplay (PaddleOCR+YOLO — automation/ToS); `lt900ed/receipt_factor` = inspiration only (JP-hardcoded, unlicensed, reads factors not skills).
+
+### 8.3 M1 rental-parent search feasibility (researched 2026-06-14)
+**uma.moe inheritance API** (`/api/v3/search` + `/api/v4/user/profile/{id}`) — the only live, CORS-open, residual-spec-matching rental-parent source (per-color spark filters, server-side affinity, `follower_num=999`=open; spark int = `factorId×10+star`). **Auth-gated** (per-user `X-API-Key` or Turnstile; no self-serve key → operator email). Backend open-source but **AGPL-3.0** → port affinity (`affinity.py`) with attribution, don't vendor. P3: a record ≠ a borrowable rental. ⇒ M1 v1 = paste-parser + deep-links; native search deferred. ChronoGenesis = email-invite only (bot-blocked); Pure-DB = deep-link only.
+
+### 8.4 M3 timeline sources (researched 2026-06-14)
+Full classified list in plan §3 ("Timeline / schedule / banner / patch sources"). Authority = `umamusume.com/news/` (cite the `/news/<id>/` permalink). Auto-import forecasts: Game8 Upcoming Banners, SoulEC/Phoenix Google-Sheets CSV exports, uma.guide CM schedule. GameTora (Foresight Timeline / CM Viewer / Gacha History) = cite-only (ToS). Datamined via vendored umalator `sync:data` (server='jp' preview, P4).
+
+### 8.5 Affinity — refinements (verified; `mechanics-notes.md` §3)
++3 affinity per G1 won by **both** members of a compared pair (post-2nd-anniversary; G2/G3 now 0), `dataVersion`-gated. Grandparent weakness is **emergent** from a smaller per-member score (no flat ×0.5 — myth). Never feed the ◎/◯/△ rank or the displayed *sum* into the proc formula — use each member's individual score. Cross-ref uma-moe `affinity.py`.
