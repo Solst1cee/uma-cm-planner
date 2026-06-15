@@ -48,20 +48,14 @@ export function synthesizeUpcomingCms(
   }
   if (anchor === null) return [];
 
+  // Predict `horizon` CMs beyond the latest confirmed CM (the anchor). The window
+  // slides forward as CMs are confirmed, so it always shows the next `horizon`
+  // ahead. `present` skips any number already on the timeline — a duplicate of the
+  // anchor, or a numbered-but-undated CM that falls in range (never overwrite real
+  // data; "overrides win"). Dates are measured from the anchor's (latest) finals.
   const byIndex = new Map(tracks.map((t) => [t.index, t]));
-
-  // The horizon counts CM *slots* (not fresh predictions) forward from the start
-  // of the confirmed run within the rotation — so manually overriding a later CM
-  // (CM16) does NOT slide the window outward; the override is subtracted from the
-  // prediction set, never extends it ("overrides win"). `base` is the lowest
-  // present CM that exists in the rotation; the window is (anchor, base+horizon].
-  let base = anchor.num;
-  for (const n of present) {
-    if (byIndex.has(n) && n < base) base = n;
-  }
-
   const out: TimelineEntry[] = [];
-  for (let n = anchor.num + 1; n <= base + horizon; n++) {
+  for (let n = anchor.num + 1; n <= anchor.num + horizon; n++) {
     if (present.has(n)) continue;
     const track = byIndex.get(n);
     if (track === undefined) continue;

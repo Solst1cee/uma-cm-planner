@@ -154,10 +154,24 @@ describe('synthesizeUpcomingCms', () => {
     expect(e.cm?.trackSummary).toBe('Nakayama turf 1200m (sprint)');
   });
 
-  it('skips CM numbers already present (overrides win)', () => {
-    const withCm16 = [cm(15, '2026-06-30'), cm(16, '2026-07-25')];
-    const out = synthesizeUpcomingCms(withCm16, TRACKS, { dataVersion: 'test', horizon: 3 });
-    expect(out.map((e) => e.cm?.cmNumber)).toEqual([17, 18]);
+  it('slides the window forward — confirming CM16 predicts the next 3 (17,18,19)', () => {
+    const out = synthesizeUpcomingCms([cm(15, '2026-06-30'), cm(16, '2026-07-25')], TRACKS, {
+      dataVersion: 'test', horizon: 3,
+    });
+    expect(out.map((e) => e.cm?.cmNumber)).toEqual([17, 18, 19]);
+    expect(out[0]!.dates.finals).toBe('2026-08-25'); // measured from latest confirmed (CM16)
+  });
+
+  it('skips numbers already on the timeline, even undated ones (overrides win)', () => {
+    const cm17NoDate: TimelineEntry = {
+      id: 'cm17', type: 'cm', title: 'CM17 TBD', dates: {},
+      cm: { cmNumber: 17 }, tier: 'official', status: 'confirmed',
+      source: { kind: 'manual', url: '' }, server: 'global', dataVersion: 'test',
+    };
+    const out = synthesizeUpcomingCms([cm(15, '2026-06-30'), cm17NoDate], TRACKS, {
+      dataVersion: 'test', horizon: 3,
+    });
+    expect(out.map((e) => e.cm?.cmNumber)).toEqual([16, 18]); // anchor CM15; CM17 present-but-undated → skipped
   });
 
   it('skips gaps in the track list', () => {
