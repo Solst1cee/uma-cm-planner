@@ -1,87 +1,105 @@
-# M2 · F1 — OCR-assist Input: Design Spec
+# M2 · F1 — Capture Import (CaptureBundle JSON) + native-companion contract
 
-**Status:** Approved (2026-06-15) · **Owner:** Sun
-**Origin:** Brainstorm (superpowers:brainstorming), implementing follow-up **F1** of [`2026-06-14-m2-sp-optimizer-design.md`](2026-06-14-m2-sp-optimizer-design.md) §3.3. Builds on the validated spike `spikes/ocr/` (gitignored). **An optional image → pre-filled-form path** for the M2 SP optimizer: drop a screenshot of the post-run "Learn" screen; OCR matches skill *names* to the dataset and reads *available SP*; it pre-fills the existing manual form; you confirm/correct every value and Analyze.
+**Status:** Approved (rev. 2026-06-15b — re-architected: web imports a CaptureBundle JSON; OCR/capture/resize/scroll move to a separate native companion) · **Owner:** Sun
+**Origin:** Brainstorm (superpowers:brainstorming), follow-up **F1** of [`2026-06-14-m2-sp-optimizer-design.md`](2026-06-14-m2-sp-optimizer-design.md) §3.3. Earlier rev designed in-browser OCR; revised because a browser **cannot resize or scroll the game window**, so the real capture convenience belongs in a native PC companion (UmaExtractor pattern) that emits a **`CaptureBundle` JSON** this web app imports.
 
 ---
 
 ## 1. Problem & boundary
-The M2 MVP requires typing every learnable skill + SP by hand. F1 removes most of that typing for users who can screenshot the in-career skill-purchase screen — **without** trusting OCR'd numbers. It is **assistive and optional**: the manual path (M2 MVP) always remains; OCR is a pre-fill front-end to the same form, and **every value is confirm-on-entry**.
+The M2 MVP requires typing the post-run skill screen by hand. F1 adds a **file-import path**: a `CaptureBundle` JSON (produced by a native companion — or any source) is dropped into the app, which validates it and pre-fills the editable form for confirm-on-entry, then Analyze.
 
-**Reconciling the spike with the M2 cost rule.** The spike takes skill *cost from the dataset* (to dodge digit-OCR); the M2 spec §2 locks *cost from the screen*. F1 bridges them: OCR yields the **name** → the dataset gives a **base-cost estimate** as the editable starting value → **you correct it to the real on-screen cost** before Analyze. OCR never reads cost digits.
+**Why a native companion, not in-browser OCR.** A browser web app is sandboxed: it cannot **resize the game window to a fixed preset** (which is what makes crops consistent) nor **auto-scroll** the skill list (needed to capture the full list) — `getDisplayMedia` is capture-only and there is no web API to control another app's window/input. Those are exactly the conveniences worth having, and they are only possible in a **native program** (like UmaExtractor). So:
+- **The native companion** (a *separate project/repo*, not this web app) owns: window-resize-to-preset → capture (single-shot or scroll-sync) → OCR names + available SP → name→skill match → **emit a `CaptureBundle` JSON**.
+- **This web app** owns: **import + validate that JSON → editable form → Analyze.** No OCR, no canvas, no WASM in the web bundle.
+- **Manual entry (M2 MVP)** remains the zero-install baseline.
 
-**Single-shot only.** Scroll-sync video capture is **F4** (M2 spec §3.4), out of scope here.
+The three M2-spec follow-ups F1 (this), and the capture conveniences formerly in **F4 (video-sync)**, now converge inside the **one native companion**; the web app's only job is to consume its `CaptureBundle` output.
 
 ## 2. Decisions (locked)
-- **Names, not numbers.** OCR reads skill names (fuzzy-matched to the 578-skill dataset) and the *one* number it's good at after preprocessing — **available SP** — which is human-confirmed. Costs are never OCR'd.
-- **Pre-fill the existing form.** OCR is a front-end that populates the existing `BuildContextForm`'s candidate rows + available SP; the user reviews/corrects in that same form (single confirm surface). F1 upgrades the form to **editable, named candidate rows** (name via `skillById`, editable cost, remove button, OCR confidence-tier badge) — which also closes the "no remove button / no name display" gaps the M2 review flagged.
-- **Cost pre-fill = dataset base, flagged.** Each matched skill's editable cost is pre-filled with its dataset `baseSpCost`, labelled an *estimate to correct against the screen*. **No hint / Fast-Learner UI in v1**; the `effectiveSpCost` smarter estimate is deferred.
-- **Both platforms.** Ship landscape (Steam) + portrait (mobile) **crop profiles**, auto-selected by image aspect ratio. Each is manually re-validated against its `shots/` during the build.
-- **tesseract.js WASM, in-browser, lazy, local-first.** Run OCR in a Web Worker; **dynamic-import** the engine only on first OCR use (it's a multi-MB WASM bundle) so the main bundle isn't bloated; **host the WASM + `eng` traineddata locally** (no CDN fetch — P2).
-- **Matcher fix: preserve aptitude marks.** The spike's matcher strips `○`/`◎`/`●`, collapsing distinct same-base-name skills (e.g. `Tokyo Racecourse ○` ≠ `◎`). F1's matcher keeps the mark as a disambiguator.
+- **Web = JSON-import only.** No in-browser OCR (`tesseract.js`/canvas dropped). The web F1 deliverable is: import a `CaptureBundle` JSON, validate it, pre-fill the editable form, confirm-on-entry, Analyze.
+- **`CaptureBundle` JSON is the contract** (§4). Any producer (native companion, a future tool, a hand-authored file, the app's own export) that emits a valid `CaptureBundle` can feed M2. This is the UmaExtractor → JSON → web-app role, reusing the existing artifact (M2 spec §3).
+- **Auto-resize + auto-scroll live in the native companion**, which is **out of scope for this repo** (separate project, native stack). We define its output contract; we don't build it here. (This also absorbs the old F4 video-sync conveniences.)
+- **Confirm-on-entry.** Imported candidate rows are editable (name shown, editable cost, remove); the user reviews before Analyze. The companion's matches/costs are best-effort.
+- **The validated `spikes/ocr/` approach is the companion's reference design** (§6 appendix), preserved so whoever builds the companion has it — not web-app code.
 
-## 3. Architecture — units with clear boundaries
+## 3. Web architecture — units with clear boundaries (all CI-tested)
 
-### 3.1 Pure core (CI-tested, P6)
-- **`src/core/skillMatch.ts`** — port of `spikes/ocr/lib/match.mjs`. `normalize(s)` + `matchSkill(text, skills, opts?) → { query, best, tier: 'high'|'med'|'low', candidates }` (Sørensen–Dice on character bigrams). **Takes the skills array as an argument** (no JSON read — pure core; the data layer supplies `useGameData().skills`). Tiers: high ≥ 0.85, med ≥ 0.6, low < 0.6 (reject low). **Aptitude-mark handling:** `normalize` maps `○`/`◎`/`●`/`◯` to distinct tokens (not stripped) so same-base skills are distinguishable; mark agreement breaks near-ties.
-- **`src/core/cropProfiles.ts`** — proportional region math. `selectProfile(width, height) → 'landscape' | 'portrait'` by orientation: `width ≥ height` → landscape, else portrait (Steam landscape ≈ 1573×855; mobile portrait ≈ 1206×2622). `regionsFor(width, height, profile) → { panel: Rect, sp: Rect }` where `Rect = { left, top, width, height }` in pixels, computed from per-profile W/H fractions. Pure, unit-tested (assert rects for known resolutions).
+### 3.1 Pure core
+- **`parseCaptureBundle(data: unknown): CaptureBundle`** (in `src/core/spOptimizer.ts`, beside the `CaptureBundle` type) — validates an imported JSON is a well-formed `CaptureBundle`: `schemaVersion === 1`, `source ∈ {manual,ocr,video}`, a `context` with `umaId/stats{spd,sta,pow,gut,wit}/aptitudes/strategy/courseId/spBudget/ownedSkills[]/pinned[]/candidates[]`, each candidate a valid `BuyableSkill` (`skillId:string`, `rarity`, `screenSpCost:number`, optional `prereqSkillId`/`hintLevel`/`matchTier`). Throws a descriptive `Error` on malformed input (mirrors `src/db/exportImport.ts`'s `asArray`/typed-parse discipline). Pure and total otherwise. **This also closes the M2-review "captures import lacks per-field validation" follow-up.**
 
-### 3.2 OCR pipeline (`src/features/sp-optimizer/ocr/`, browser; manual-validated)
-- **`imagePrep.ts`** — Canvas 2D replacements for `sharp` (the spike's `preprocessPanel`/`readSp`): `cropToCanvas(img, rect)`, `greyscale(imgData)`, `upscale(canvas, factor)`, `normalise(imgData)`, `contrast(imgData, mul, add)`, `threshold(imgData, t)`. Pure `ImageData` transforms where possible (greyscale/normalise/contrast/threshold are unit-testable on synthetic `ImageData`).
-- **`ocrEngine.ts`** — lazy `import('tesseract.js')`, a reusable Worker, `recognize(source, { psm, whitelist }) → { text, words, lines, confidence }`. Disposes the worker when idle.
-- **`readSkillScreen.ts`** — the orchestrator (port of `analyze.mjs`): `readSkillScreen(image, deps) → Promise<OcrResult>` where `OcrResult = { availableSp: number | null, spConfidence: number, matches: OcrMatch[] }` and `OcrMatch = { skillId, nameEn, baseSpCost, rarity, tier, ocrText }`. Steps: decode image → `(W,H)` → `selectProfile` → `regionsFor` → crop panel + SP → preprocess → OCR (panel: PSM 3; SP: PSM 6 + digit whitelist on a `threshold(185)` crop) → `lineify` → strip stray digits/`sp` tokens → `matchSkill` per line (keep high/med) → assemble. `deps` (the OCR + match fns) are injectable for tests.
+### 3.2 UI
+- **`BuildContextForm` enhancement** — accept `initialCandidates?: BuyableSkill[]` + `initialSpBudget?: number` + `initialCourseId?: string`; render **editable named candidate rows** (name via `useGameData().skillById` + `GameIcon`, editable cost input, remove button, and a `matchTier` badge when present). Manual add still works. `source` is `'ocr'`/`'video'`/`'manual'` per provenance. (Closes the M2-review "no remove button / no name display" form gaps.)
+- **Import control on `SpOptimizerPage`** — a file input ("Import capture (.json)"): read the file → `JSON.parse` → `parseCaptureBundle` → pre-fill the form via `initialCandidates`/`initialSpBudget`/`initialCourseId` + a remount `key` (the form is uncontrolled). Show a clear error on a malformed/incompatible file. The page already holds `analyze()`, save/load, etc.
 
-### 3.3 UI
-- **`OcrDropZone.tsx`** — a drag-drop / file-input zone on the SP-optimizer page. On a dropped image: shows a spinner, runs `readSkillScreen`, then calls `onResult({ candidates: BuyableSkill[], availableSp })`. Renders per-skill confidence tiers and an overall "review every value" note.
-- **`BuildContextForm` enhancement** — accept optional `initialCandidates` + `initialSpBudget`; render each candidate as an **editable row**: resolved name (`skillById.get(id)?.nameEn`), editable cost input (flagged "base — set to screen value"), remove button, and (for OCR-sourced rows) a tier badge. Manual add still works. The OCR result simply seeds these rows.
+> The imported bundle's `context.candidates` + `spBudget` (+ `courseId`) pre-fill the form. The bundle's other context fields (`stats`/`aptitudes`/`strategy`) are **not** editable in the MVP form, so they fall to the form's defaults — the companion can't read those off the skill screen anyway. Honoring a fuller imported context (real stats/aptitudes) is **F3 (pre-fill)** territory, not F1.
 
-## 4. Data flow
-`drop image → readSkillScreen → { availableSp, matches[] } → onResult → BuildContextForm pre-filled (named rows + base-cost estimates + SP) → user confirms/corrects every value → emit CaptureBundle (source: 'ocr') → rankBaskets` (the M2 core/orchestrator are **unchanged**; only `source` differs).
+## 4. The `CaptureBundle` JSON contract (for the native companion)
+The contract is the **existing `CaptureBundle`** (M2 spec §3; `src/core/spOptimizer.ts`). A companion producing OCR output sets:
+```jsonc
+{
+  "schemaVersion": 1,
+  "source": "ocr",              // or "video" for scroll-sync capture
+  "capturedAt": "<ISO 8601>",
+  "server": "global",
+  "dataVersion": "<dataset version it matched against>",
+  "seed": 12345,
+  "context": {
+    "umaId": "",                // unknown from the skill screen → "" (user/F3 supplies)
+    "stats":  { "spd": 0, "sta": 0, "pow": 0, "gut": 0, "wit": 0 },  // unknown → 0/defaults
+    "aptitudes": { "distance": "A", "surface": "A", "strategy": "A" }, // unknown → "A"
+    "strategy": "pace",         // unknown → a default; user confirms
+    "courseId": "10101",        // the CM course if known, else a default
+    "spBudget": 2285,           // available SP read off the SP pill (REQUIRED, real)
+    "ownedSkills": [],
+    "pinned": [],
+    "candidates": [             // one per learnable skill the companion matched
+      { "skillId": "200332", "rarity": "white", "screenSpCost": 110, "matchTier": "exact" },
+      { "skillId": "200331", "rarity": "gold",  "screenSpCost": 160, "prereqSkillId": "200332", "matchTier": "fuzzy" }
+    ]
+  }
+}
+```
+- **What the companion CAN read off the skill screen:** the learnable skill **names** (→ `skillId` via fuzzy match) + their **on-screen SP costs** (or dataset base as a fallback) + **available SP**. These populate `candidates` + `spBudget`.
+- **What it CANNOT** (the skill screen doesn't show them): final **stats/aptitudes/strategy/course** — left at defaults; the user confirms/edits (or F3 supplies). `matchTier` records the companion's match confidence for the UI badge.
+- `parseCaptureBundle` (web) is the **authoritative validator** of this contract; the companion targets whatever it accepts.
 
-## 5. Crop profiles
-Proportional regions = fractions of (W, H), so they track resolution (validated HDR/non-HDR identical on landscape). Constants:
-- **Landscape** (validated, from `analyze.mjs`, calibrated on 1573×855): `panel = (0.140, 0.368, 0.292, 0.404)`, `sp = (0.346, 0.306, 0.086, 0.051)` as `(fLeft, fTop, fWidth, fHeight)`.
-- **Portrait** (mobile): the spike confirmed names read 93–95% on iPhone 1206×2622 with a portrait profile, **but the exact fractions must be calibrated from `spikes/ocr/shots/iPhone/` during implementation** (validated-to-work, constants TBD-by-calibration — a build task, not a design gap).
-- `--crop` override (spike) → a manual region override is a nice-to-have, not required for v1.
+## 5. The native companion (separate project — out of scope here, documented)
+Not built in this repo. Documented so it can be built (by Sun or a contributor) to target §4. Its design = the **validated `spikes/ocr/` approach** (§6), now with the two browser-impossible conveniences it can natively do:
+- **Resize the game window to a fixed preset** before capture (consistent, calibrated crops — removes the aspect/letterbox fragility).
+- **Single-shot OCR** (the validated `analyze.mjs` pipeline) and/or **scroll-sync** (auto-scroll the skill list, stitch frames — the former F4).
+- **Emit a `CaptureBundle` JSON** per §4.
+Stack is its own choice (Electron/Tauri/.NET/Python+tesseract). License note: tesseract is Apache-2.0 (clean). This app stays local-first and never bundles OCR.
 
-## 6. Preprocessing (sharp → Canvas)
-Per the spike, accuracy depends on preprocessing. Canvas equivalents to port + their validated params:
-- **Panel (names):** crop → greyscale → upscale ×3 (width) → normalise → contrast `linear(1.2, −12)` → sharpen (3×3) → OCR PSM 3.
-- **SP pill (digits):** crop → greyscale → upscale ×7 → normalise → **`threshold(185)`** → OCR PSM 6 + whitelist `0123456789` → first `\d{3,5}` match.
-**Risk:** Canvas won't be byte-identical to `sharp` (esp. `sharpen`/`normalise`); re-validate per profile and tune. `sharpen` may be approximated or dropped if it doesn't move accuracy.
+## 6. Appendix — validated `spikes/ocr/` reference design (for the companion)
+Preserved from the spike (gitignored `spikes/ocr/`, validated 2026-06-15) so the companion has a proven starting point:
+- **Names, not numbers:** OCR the skill name → fuzzy-match (Sørensen–Dice on character bigrams, `lib/match.mjs`, 10/10 mangled names) to the 578-skill dataset; **keep aptitude marks** `○/◎/●` (they distinguish same-base skills). Take cost from the dataset/screen, never from OCR'd cost digits.
+- **Available SP** is the one digit-OCR: a tight crop on the orange "Skill Points" pill, greyscale → `threshold(185)` → PSM6 + digit whitelist → 16/16 correct.
+- **Proportional crops** (fractions of W/H): landscape `panel=(0.140,0.368,0.292,0.404)`, `sp=(0.346,0.306,0.086,0.051)` (validated 1573×855, HDR/non-HDR identical); a portrait profile for mobile (needs calibration). With native window-resize-to-preset, the companion can pin one known resolution and skip aspect fragility entirely.
+- Preprocessing (the spike used `sharp`): greyscale → upscale → normalise → contrast → (sharpen) for names; greyscale → upscale → `threshold(185)` for SP.
 
-## 7. Testing
-- **CI (pure, committed):** `skillMatch` (the spike's 10 OCR-mangled-name cases reproduced + the aptitude-mark disambiguation + garbage→`low` rejected), `cropProfiles` (region math + aspect-ratio selection at known resolutions), `imagePrep` (greyscale/threshold/normalise on synthetic `ImageData`), and the form pre-fill wiring (RTL; mock the OCR service so no WASM/image is needed).
-- **Manual (not CI, documented):** the full WASM + Canvas pipeline re-validated against the gitignored `spikes/ocr/shots/` (landscape + portrait) — reproduce the spike's reads (SP `2285`; the matched skill set per scroll). **Personal screenshots are never committed.** Procedure + acceptance recorded in `docs/mechanics-notes.md` (or a sibling validation note).
+## 7. Data flow
+`companion (separate) → CaptureBundle JSON file → [web] import → parseCaptureBundle (validate) → pre-fill editable form (candidates + SP + course) → user confirms/corrects → emit CaptureBundle (source preserved) → rankBaskets` (M2 core/orchestrator unchanged).
 
-## 8. Local-first & dependencies (P2)
-- Add **`tesseract.js`** (^5) to the app. **Host its assets locally:** the WASM core + `eng.traineddata` (gzipped) served from `public/` (or bundled), with the worker configured to load from those local paths — **no runtime CDN fetch** (P2). Document the asset-vendoring step (a `scripts/` copy or a build step), and that this adds ~a few MB of static assets fetched **only when OCR is first used** (lazy).
-- No other new runtime deps; Canvas + `FileReader`/`createImageBitmap` are browser built-ins.
+## 8. Testing (all CI — no WASM/canvas in the web app)
+- `parseCaptureBundle`: valid bundle round-trips; each malformed case (wrong `schemaVersion`, missing `context`, bad `candidates`, non-string `skillId`, etc.) throws a descriptive error; tolerant where the M2 spec allows.
+- `BuildContextForm`: `initialCandidates`/`initialSpBudget` pre-fill + editable rows + remove + `source` provenance (extends the existing tests).
+- Import UI on `SpOptimizerPage`: a dropped valid JSON pre-fills the form; a malformed JSON shows an error (mock the file read; RTL).
+- **No manual-validation gate** (the OCR pipeline is not in this repo).
 
-## 9. Honest numbers (P3)
-- OCR is assistive; **everything is confirm-on-entry.** Names carry confidence tiers (low rejected, med/high shown with the badge). Available-SP is human-confirmed (portrait SP read is fragile → flagged low-confidence). Costs are dataset-base **estimates** you correct to the screen.
-- The matcher can mis-match a med-tier name → the editable named row + the dataset autocomplete let you fix it.
+## 9. Honest notes (P3)
+- Imported names/costs are **confirm-on-entry** (companion matches are best-effort; the `matchTier` badge flags fuzzy ones).
+- The companion can't read sim-context (stats/aptitudes/strategy/course) off the skill screen → those stay at form defaults until the user edits them (or F3). available-SP is the one real number it captures.
 
 ## 10. Out of scope (F1)
-- **Scroll-sync video capture** → **F4** (M2 §3.4).
-- **`effectiveSpCost` smarter cost estimate** (hint/Fast-Learner-aware) — deferred; v1 pre-fills raw base.
-- **Auto-detecting hint levels** from row icons.
-- **`--crop` manual override UI**, camera-photo deskew/tone-normalise (only screen captures in v1).
-- The M2 core/orchestrator/persistence — **unchanged** by F1.
+- **In-browser OCR** (tesseract.js/canvas) — moved to the native companion.
+- **The native companion itself** — separate project/repo (§5); we publish the contract only.
+- **Scroll-sync video** — also the companion's job (was F4).
+- **Full context pre-fill** (stats/aptitudes editing) — **F3**.
 
-## 11. Risks
-- **Canvas ≠ sharp preprocessing** → accuracy regression; mitigated by per-profile manual re-validation + tuning (§6).
-- **tesseract.js bundle/asset weight** → mitigated by lazy dynamic-import + local asset hosting; OCR users pay the download once.
-- **Portrait calibration** → the exact crop fractions need extracting from the iPhone shots; the approach is validated, the constants aren't yet pinned.
-- **Aptitude-mark OCR reliability** → the mark itself may mis-read; treated as a tie-breaker, not a hard filter, and the user can correct the row.
+## 11. Milestones (for writing-plans)
+1. **`parseCaptureBundle`** validator (pure) + tests.
+2. **`BuildContextForm`** editable named rows + `initialCandidates`/`initialSpBudget`/`initialCourseId` + remove + `matchTier` badge + `source` provenance; update/extend tests.
+3. **Import control** on `SpOptimizerPage` (file → parse → pre-fill via remount key) + tests; CSS.
+4. **Document the companion contract** (§4) in `docs/provenance.md` or a sibling `docs/capture-bundle-contract.md` so the separate companion project can target it.
 
-## 12. Milestones (for writing-plans)
-1. **`skillMatch.ts`** (port + aptitude-mark fix) + tests.
-2. **`cropProfiles.ts`** (landscape constants + aspect selection) + tests.
-3. **`imagePrep.ts`** Canvas ops + `ImageData` tests.
-4. **`ocrEngine.ts`** (lazy tesseract worker) + **local asset vendoring**.
-5. **`readSkillScreen.ts`** orchestrator (injectable deps) + a unit test with a fake OCR/match.
-6. **`OcrDropZone.tsx`** + **`BuildContextForm` editable-rows enhancement** + tests; wire into `SpOptimizerPage` (source: 'ocr').
-7. **Portrait calibration** (extract fractions from iPhone shots) + **manual validation** against `shots/` (both profiles); record the procedure + results.
-
-> F1 ships the OCR-assist input. F2 (compare-vs-veteran), F3 (pre-fill), F4 (video-sync) remain separate follow-ups.
+> F1 ships the JSON-import path + the contract. The native companion is a separate effort. F2 (compare-vs-veteran), F3 (pre-fill incl. stats) remain follow-ups.
