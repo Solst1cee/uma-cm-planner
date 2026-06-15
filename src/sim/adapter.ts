@@ -1,5 +1,6 @@
-import type { IRunnerState } from '@/sim/vendor/umalator.bundle.mjs';
-import type { SimBuild, Strategy } from './types';
+import { coursesService } from '@/sim/vendor/umalator.bundle.mjs';
+import type { IRunnerState, CourseData, RaceDef, SkillComparisonResult, PlannerCompareResult } from '@/sim/vendor/umalator.bundle.mjs';
+import type { SimBuild, Strategy, SimRaceParams, BashinStats } from './types';
 
 export const STRATEGY_LABEL: Record<Strategy, IRunnerState['strategy']> = {
   front: 'Front Runner',
@@ -24,4 +25,29 @@ export function toRunnerState(build: SimBuild): IRunnerState {
     mood: build.mood ?? 2,
     skills: [...build.skills],
   };
+}
+
+export function toRaceDef(race: SimRaceParams): RaceDef {
+  return {
+    ground: race.ground ?? 1,
+    weather: race.weather ?? 1,
+    season: race.season ?? 3,
+    time: race.time ?? 2,
+    grade: race.grade ?? 100,
+  };
+}
+
+/** Resolve our string courseId to the engine's CourseData. Throws if unknown. */
+export function resolveCourse(courseId: string): CourseData {
+  const numeric = Number(courseId);
+  const course = coursesService.getSimCourse(numeric);
+  if (!course || typeof course.distance !== 'number') {
+    throw new Error(`Unknown course: ${courseId}`);
+  }
+  return course;
+}
+
+/** Project an engine skill/planner result onto our honest BashinStats. */
+export function bashinStatsFrom(r: SkillComparisonResult | PlannerCompareResult): BashinStats {
+  return { mean: r.mean, median: r.median, min: r.min, max: r.max, nsamples: r.results.length, results: r.results };
 }

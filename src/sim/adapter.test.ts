@@ -34,3 +34,35 @@ describe('toRunnerState', () => {
     expect(STRATEGY_LABEL).toEqual({ front: 'Front Runner', pace: 'Pace Chaser', late: 'Late Surger', end: 'End Closer' });
   });
 });
+
+import { toRaceDef, resolveCourse, bashinStatsFrom } from './adapter';
+
+describe('toRaceDef', () => {
+  it('applies sensible defaults (firm/sunny/G1)', () => {
+    const d = toRaceDef({ courseId: '10101' });
+    expect(d).toEqual({ ground: 1, weather: 1, season: 3, time: 2, grade: 100 });
+  });
+  it('lets callers override conditions', () => {
+    const d = toRaceDef({ courseId: '10101', ground: 2, grade: 999 });
+    expect(d.ground).toBe(2);
+    expect(d.grade).toBe(999);
+  });
+});
+
+describe('resolveCourse', () => {
+  it('looks up real engine course geometry by string courseId', () => {
+    const c = resolveCourse('10101'); // Sapporo turf 1200m in the engine data
+    expect(c.distance).toBe(1200);
+    expect(c.surface).toBe(1); // turf
+  });
+  it('throws a clear error for an unknown course', () => {
+    expect(() => resolveCourse('99999999')).toThrow(/course/i);
+  });
+});
+
+describe('bashinStatsFrom', () => {
+  it('projects the engine result onto our BashinStats', () => {
+    const stats = bashinStatsFrom({ results: [1, 2, 3], min: 1, max: 3, mean: 2, median: 2, skillActivations: {}, runData: null });
+    expect(stats).toEqual({ mean: 2, median: 2, min: 1, max: 3, nsamples: 3, results: [1, 2, 3] });
+  });
+});
