@@ -1,0 +1,5407 @@
+{
+  "server": "global",
+  "dataVersion": "global-c1fa2107",
+  "groups": [
+    {
+      "relationType": 101,
+      "point": 2,
+      "members": [
+        1024,
+        1044,
+        1051,
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 102,
+      "point": 2,
+      "members": [
+        1003,
+        1008,
+        1009,
+        1013,
+        1019,
+        1038
+      ]
+    },
+    {
+      "relationType": 103,
+      "point": 2,
+      "members": [
+        1001,
+        1011,
+        1014,
+        1015,
+        1020,
+        1028,
+        1039,
+        1052,
+        1058,
+        1060,
+        1061,
+        1062
+      ]
+    },
+    {
+      "relationType": 104,
+      "point": 2,
+      "members": [
+        1002,
+        1010,
+        1022,
+        1025,
+        1026,
+        1030,
+        1032,
+        1040,
+        1041,
+        1048,
+        1056,
+        1059,
+        1069,
+        1074
+      ]
+    },
+    {
+      "relationType": 105,
+      "point": 2,
+      "members": [
+        1005,
+        1007,
+        1012,
+        1016,
+        1018,
+        1023,
+        1027,
+        1031,
+        1033,
+        1035,
+        1037,
+        1046,
+        1050,
+        1064,
+        1072
+      ]
+    },
+    {
+      "relationType": 106,
+      "point": 2,
+      "members": [
+        1004,
+        1006,
+        1017,
+        1021,
+        1034,
+        1045,
+        1071
+      ]
+    },
+    {
+      "relationType": 201,
+      "point": 2,
+      "members": [
+        1010,
+        1011,
+        1012,
+        1014,
+        1017,
+        1020,
+        1025,
+        1027,
+        1030,
+        1031,
+        1034,
+        1041,
+        1059,
+        1069,
+        1071
+      ]
+    },
+    {
+      "relationType": 202,
+      "point": 2,
+      "members": [
+        1001,
+        1002,
+        1003,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1013,
+        1015,
+        1016,
+        1018,
+        1019,
+        1021,
+        1022,
+        1023,
+        1024,
+        1026,
+        1028,
+        1032,
+        1033,
+        1035,
+        1037,
+        1038,
+        1039,
+        1040,
+        1044,
+        1045,
+        1046,
+        1048,
+        1050,
+        1051,
+        1052,
+        1056,
+        1058,
+        1060,
+        1061,
+        1062,
+        1064,
+        1067,
+        1068,
+        1072,
+        1074
+      ]
+    },
+    {
+      "relationType": 301,
+      "point": 2,
+      "members": [
+        1001,
+        1002
+      ]
+    },
+    {
+      "relationType": 302,
+      "point": 2,
+      "members": [
+        1006,
+        1021
+      ]
+    },
+    {
+      "relationType": 303,
+      "point": 2,
+      "members": [
+        1008,
+        1009
+      ]
+    },
+    {
+      "relationType": 304,
+      "point": 2,
+      "members": [
+        1010,
+        1059
+      ]
+    },
+    {
+      "relationType": 305,
+      "point": 2,
+      "members": [
+        1011,
+        1014
+      ]
+    },
+    {
+      "relationType": 306,
+      "point": 2,
+      "members": [
+        1015,
+        1023
+      ]
+    },
+    {
+      "relationType": 307,
+      "point": 2,
+      "members": [
+        1018,
+        1022
+      ]
+    },
+    {
+      "relationType": 308,
+      "point": 2,
+      "members": [
+        1003,
+        1024
+      ]
+    },
+    {
+      "relationType": 310,
+      "point": 2,
+      "members": [
+        1026,
+        1051
+      ]
+    },
+    {
+      "relationType": 311,
+      "point": 2,
+      "members": [
+        1027,
+        1031
+      ]
+    },
+    {
+      "relationType": 314,
+      "point": 2,
+      "members": [
+        1019,
+        1032
+      ]
+    },
+    {
+      "relationType": 315,
+      "point": 2,
+      "members": [
+        1033,
+        1038
+      ]
+    },
+    {
+      "relationType": 316,
+      "point": 2,
+      "members": [
+        1035,
+        1048
+      ]
+    },
+    {
+      "relationType": 318,
+      "point": 2,
+      "members": [
+        1037,
+        1046
+      ]
+    },
+    {
+      "relationType": 321,
+      "point": 2,
+      "members": [
+        1045,
+        1050
+      ]
+    },
+    {
+      "relationType": 322,
+      "point": 2,
+      "members": [
+        1052,
+        1061
+      ]
+    },
+    {
+      "relationType": 324,
+      "point": 2,
+      "members": [
+        1069,
+        1071
+      ]
+    },
+    {
+      "relationType": 327,
+      "point": 2,
+      "members": [
+        1056,
+        1062
+      ]
+    },
+    {
+      "relationType": 332,
+      "point": 2,
+      "members": [
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 401,
+      "point": 2,
+      "members": [
+        1001,
+        1011,
+        1014,
+        1020,
+        1061
+      ]
+    },
+    {
+      "relationType": 402,
+      "point": 2,
+      "members": [
+        1002,
+        1010,
+        1041,
+        1056
+      ]
+    },
+    {
+      "relationType": 403,
+      "point": 2,
+      "members": [
+        1003,
+        1008,
+        1009,
+        1013
+      ]
+    },
+    {
+      "relationType": 404,
+      "point": 2,
+      "members": [
+        1023,
+        1035,
+        1050
+      ]
+    },
+    {
+      "relationType": 501,
+      "point": 2,
+      "members": [
+        1016,
+        1017,
+        1018
+      ]
+    },
+    {
+      "relationType": 502,
+      "point": 2,
+      "members": [
+        1001,
+        1011,
+        1014,
+        1020
+      ]
+    },
+    {
+      "relationType": 503,
+      "point": 2,
+      "members": [
+        1013,
+        1027,
+        1059,
+        1064,
+        1071,
+        1074
+      ]
+    },
+    {
+      "relationType": 504,
+      "point": 2,
+      "members": [
+        1013,
+        1022,
+        1061
+      ]
+    },
+    {
+      "relationType": 505,
+      "point": 2,
+      "members": [
+        1005,
+        1012
+      ]
+    },
+    {
+      "relationType": 506,
+      "point": 2,
+      "members": [
+        1006,
+        1021,
+        1034,
+        1045
+      ]
+    },
+    {
+      "relationType": 507,
+      "point": 2,
+      "members": [
+        1023,
+        1035,
+        1050
+      ]
+    },
+    {
+      "relationType": 508,
+      "point": 2,
+      "members": [
+        1030,
+        1052
+      ]
+    },
+    {
+      "relationType": 509,
+      "point": 2,
+      "members": [
+        1041,
+        1052
+      ]
+    },
+    {
+      "relationType": 510,
+      "point": 2,
+      "members": [
+        1001,
+        1052
+      ]
+    },
+    {
+      "relationType": 511,
+      "point": 2,
+      "members": [
+        1041,
+        1069
+      ]
+    },
+    {
+      "relationType": 512,
+      "point": 2,
+      "members": [
+        1028,
+        1069
+      ]
+    },
+    {
+      "relationType": 513,
+      "point": 2,
+      "members": [
+        1060,
+        1062
+      ]
+    },
+    {
+      "relationType": 515,
+      "point": 2,
+      "members": [
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 516,
+      "point": 2,
+      "members": [
+        1013,
+        1067
+      ]
+    },
+    {
+      "relationType": 517,
+      "point": 2,
+      "members": [
+        1003,
+        1068
+      ]
+    },
+    {
+      "relationType": 2001,
+      "point": 1,
+      "members": [
+        1001,
+        1002,
+        1005,
+        1025,
+        1032
+      ]
+    },
+    {
+      "relationType": 2002,
+      "point": 1,
+      "members": [
+        1018,
+        1035
+      ]
+    },
+    {
+      "relationType": 2004,
+      "point": 1,
+      "members": [
+        1059,
+        1074
+      ]
+    },
+    {
+      "relationType": 2101,
+      "point": 1,
+      "members": [
+        1007,
+        1009,
+        1046
+      ]
+    },
+    {
+      "relationType": 2102,
+      "point": 1,
+      "members": [
+        1001,
+        1035
+      ]
+    },
+    {
+      "relationType": 2103,
+      "point": 1,
+      "members": [
+        1011,
+        1024
+      ]
+    },
+    {
+      "relationType": 2104,
+      "point": 1,
+      "members": [
+        1015,
+        1024
+      ]
+    },
+    {
+      "relationType": 2105,
+      "point": 1,
+      "members": [
+        1031,
+        1040
+      ]
+    },
+    {
+      "relationType": 2106,
+      "point": 1,
+      "members": [
+        1009,
+        1018,
+        1041,
+        1048
+      ]
+    },
+    {
+      "relationType": 2201,
+      "point": 1,
+      "members": [
+        1003,
+        1017
+      ]
+    },
+    {
+      "relationType": 2202,
+      "point": 1,
+      "members": [
+        1004,
+        1069
+      ]
+    },
+    {
+      "relationType": 2203,
+      "point": 1,
+      "members": [
+        1041,
+        1068
+      ]
+    },
+    {
+      "relationType": 2204,
+      "point": 1,
+      "members": [
+        1027,
+        1074
+      ]
+    },
+    {
+      "relationType": 2205,
+      "point": 1,
+      "members": [
+        1004,
+        1074
+      ]
+    },
+    {
+      "relationType": 2301,
+      "point": 1,
+      "members": [
+        1001,
+        1004
+      ]
+    },
+    {
+      "relationType": 2302,
+      "point": 1,
+      "members": [
+        1004,
+        1035
+      ]
+    },
+    {
+      "relationType": 2303,
+      "point": 1,
+      "members": [
+        1007,
+        1013
+      ]
+    },
+    {
+      "relationType": 2403,
+      "point": 1,
+      "members": [
+        1006,
+        1045,
+        1069,
+        1071,
+        1072
+      ]
+    },
+    {
+      "relationType": 2404,
+      "point": 1,
+      "members": [
+        1003,
+        1013,
+        1027,
+        1030,
+        1031,
+        1041,
+        1051,
+        1060,
+        1062,
+        1064
+      ]
+    },
+    {
+      "relationType": 2405,
+      "point": 1,
+      "members": [
+        1024,
+        1035
+      ]
+    },
+    {
+      "relationType": 2406,
+      "point": 1,
+      "members": [
+        1001,
+        1002,
+        1010,
+        1011,
+        1014,
+        1018,
+        1056,
+        1061,
+        1074
+      ]
+    },
+    {
+      "relationType": 2407,
+      "point": 1,
+      "members": [
+        1032,
+        1052
+      ]
+    },
+    {
+      "relationType": 2408,
+      "point": 1,
+      "members": [
+        1022,
+        1044
+      ]
+    },
+    {
+      "relationType": 2409,
+      "point": 1,
+      "members": [
+        1008,
+        1009
+      ]
+    },
+    {
+      "relationType": 2502,
+      "point": 1,
+      "members": [
+        1038,
+        1061
+      ]
+    },
+    {
+      "relationType": 2504,
+      "point": 1,
+      "members": [
+        1009,
+        1051
+      ]
+    },
+    {
+      "relationType": 2505,
+      "point": 1,
+      "members": [
+        1003,
+        1007,
+        1015,
+        1016,
+        1017,
+        1020,
+        1026,
+        1032,
+        1050,
+        1072
+      ]
+    },
+    {
+      "relationType": 2506,
+      "point": 1,
+      "members": [
+        1001,
+        1007,
+        1013,
+        1015,
+        1017,
+        1021,
+        1023,
+        1024,
+        1025,
+        1030,
+        1034,
+        1045,
+        1068,
+        1074
+      ]
+    },
+    {
+      "relationType": 2509,
+      "point": 1,
+      "members": [
+        1018,
+        1039,
+        1059
+      ]
+    },
+    {
+      "relationType": 2510,
+      "point": 1,
+      "members": [
+        1001,
+        1003,
+        1008,
+        1016,
+        1017,
+        1026,
+        1031,
+        1033,
+        1035,
+        1037,
+        1069
+      ]
+    },
+    {
+      "relationType": 2511,
+      "point": 1,
+      "members": [
+        1006,
+        1008,
+        1010,
+        1019
+      ]
+    },
+    {
+      "relationType": 2512,
+      "point": 1,
+      "members": [
+        1002,
+        1007,
+        1011,
+        1013,
+        1015,
+        1021,
+        1023,
+        1024,
+        1027,
+        1034,
+        1044,
+        1058,
+        1064
+      ]
+    },
+    {
+      "relationType": 2513,
+      "point": 1,
+      "members": [
+        1010,
+        1028,
+        1038,
+        1041,
+        1051
+      ]
+    },
+    {
+      "relationType": 2514,
+      "point": 1,
+      "members": [
+        1009,
+        1022,
+        1039,
+        1044,
+        1059
+      ]
+    },
+    {
+      "relationType": 2515,
+      "point": 1,
+      "members": [
+        1007,
+        1013,
+        1016,
+        1017,
+        1020,
+        1023,
+        1024,
+        1025,
+        1030,
+        1045,
+        1056,
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 2516,
+      "point": 1,
+      "members": [
+        1001,
+        1008,
+        1015,
+        1018,
+        1019,
+        1021,
+        1037,
+        1045,
+        1048,
+        1068,
+        1072
+      ]
+    },
+    {
+      "relationType": 2517,
+      "point": 1,
+      "members": [
+        1009,
+        1012,
+        1022,
+        1044,
+        1059
+      ]
+    },
+    {
+      "relationType": 2518,
+      "point": 1,
+      "members": [
+        1006,
+        1010,
+        1019
+      ]
+    },
+    {
+      "relationType": 2519,
+      "point": 1,
+      "members": [
+        1001,
+        1003,
+        1008,
+        1014,
+        1015,
+        1017,
+        1068
+      ]
+    },
+    {
+      "relationType": 2521,
+      "point": 1,
+      "members": [
+        1008,
+        1012,
+        1051,
+        1059
+      ]
+    },
+    {
+      "relationType": 2522,
+      "point": 1,
+      "members": [
+        1004,
+        1005,
+        1011,
+        1016,
+        1026,
+        1031,
+        1069
+      ]
+    },
+    {
+      "relationType": 2523,
+      "point": 1,
+      "members": [
+        1003,
+        1006,
+        1007,
+        1009,
+        1011,
+        1015,
+        1016,
+        1017,
+        1024,
+        1025,
+        1034,
+        1064,
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 2530,
+      "point": 1,
+      "members": [
+        1034,
+        1046
+      ]
+    },
+    {
+      "relationType": 2601,
+      "point": 1,
+      "members": [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1010,
+        1011,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1019,
+        1020,
+        1021,
+        1023,
+        1024,
+        1025,
+        1026,
+        1027,
+        1028,
+        1030,
+        1031,
+        1032,
+        1033,
+        1034,
+        1035,
+        1037,
+        1040,
+        1041,
+        1045,
+        1046,
+        1048,
+        1050,
+        1056,
+        1058,
+        1060,
+        1061,
+        1062,
+        1064,
+        1067,
+        1068,
+        1069,
+        1071,
+        1072,
+        1074
+      ]
+    },
+    {
+      "relationType": 2602,
+      "point": 1,
+      "members": [
+        1008,
+        1009,
+        1012,
+        1018,
+        1022,
+        1038,
+        1039,
+        1044,
+        1051,
+        1052,
+        1059
+      ]
+    },
+    {
+      "relationType": 2603,
+      "point": 1,
+      "members": [
+        1001,
+        1002,
+        1006,
+        1007,
+        1013,
+        1024,
+        1027,
+        1031,
+        1035,
+        1041,
+        1044,
+        1045,
+        1052,
+        1056,
+        1060,
+        1064,
+        1067,
+        1071,
+        1074
+      ]
+    },
+    {
+      "relationType": 2604,
+      "point": 1,
+      "members": [
+        1003,
+        1004,
+        1008,
+        1009,
+        1010,
+        1011,
+        1014,
+        1017,
+        1018,
+        1030,
+        1032,
+        1061,
+        1062,
+        1068,
+        1069,
+        1072
+      ]
+    },
+    {
+      "relationType": 2701,
+      "point": 1,
+      "members": [
+        1006,
+        1037
+      ]
+    },
+    {
+      "relationType": 2702,
+      "point": 1,
+      "members": [
+        1015,
+        1017
+      ]
+    },
+    {
+      "relationType": 2703,
+      "point": 1,
+      "members": [
+        1023,
+        1068
+      ]
+    },
+    {
+      "relationType": 2704,
+      "point": 1,
+      "members": [
+        1025,
+        1030
+      ]
+    },
+    {
+      "relationType": 2705,
+      "point": 1,
+      "members": [
+        1008,
+        1046
+      ]
+    },
+    {
+      "relationType": 2706,
+      "point": 1,
+      "members": [
+        1007,
+        1060
+      ]
+    },
+    {
+      "relationType": 2801,
+      "point": 1,
+      "members": [
+        1021,
+        1034,
+        1040
+      ]
+    },
+    {
+      "relationType": 2802,
+      "point": 1,
+      "members": [
+        1006,
+        1045,
+        1069,
+        1071,
+        1072
+      ]
+    },
+    {
+      "relationType": 2803,
+      "point": 1,
+      "members": [
+        1013,
+        1027,
+        1031,
+        1064
+      ]
+    },
+    {
+      "relationType": 2804,
+      "point": 1,
+      "members": [
+        1003,
+        1060
+      ]
+    },
+    {
+      "relationType": 2805,
+      "point": 1,
+      "members": [
+        1026,
+        1030,
+        1041,
+        1051,
+        1062
+      ]
+    },
+    {
+      "relationType": 2806,
+      "point": 1,
+      "members": [
+        1023,
+        1035,
+        1050
+      ]
+    },
+    {
+      "relationType": 2807,
+      "point": 1,
+      "members": [
+        1012,
+        1016
+      ]
+    },
+    {
+      "relationType": 2808,
+      "point": 1,
+      "members": [
+        1005,
+        1024,
+        1028
+      ]
+    },
+    {
+      "relationType": 2810,
+      "point": 1,
+      "members": [
+        1002,
+        1010,
+        1056,
+        1059,
+        1074
+      ]
+    },
+    {
+      "relationType": 2811,
+      "point": 1,
+      "members": [
+        1001,
+        1011,
+        1014,
+        1020,
+        1061
+      ]
+    },
+    {
+      "relationType": 2812,
+      "point": 1,
+      "members": [
+        1015,
+        1033,
+        1052,
+        1058
+      ]
+    },
+    {
+      "relationType": 2814,
+      "point": 1,
+      "members": [
+        1025,
+        1032
+      ]
+    },
+    {
+      "relationType": 2815,
+      "point": 1,
+      "members": [
+        1008,
+        1009
+      ]
+    },
+    {
+      "relationType": 2817,
+      "point": 1,
+      "members": [
+        1037,
+        1038
+      ]
+    },
+    {
+      "relationType": 2824,
+      "point": 1,
+      "members": [
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 2901,
+      "point": 7,
+      "members": [
+        1002,
+        1004,
+        1020,
+        1024,
+        1026,
+        1031,
+        1046,
+        1064,
+        1068
+      ]
+    },
+    {
+      "relationType": 2902,
+      "point": 7,
+      "members": [
+        1003,
+        1005,
+        1009,
+        1010,
+        1013,
+        1014,
+        1015,
+        1017,
+        1018,
+        1019,
+        1022,
+        1023,
+        1028,
+        1030,
+        1038,
+        1040,
+        1041,
+        1045,
+        1048,
+        1051,
+        1058,
+        1069,
+        1071,
+        1072
+      ]
+    },
+    {
+      "relationType": 2903,
+      "point": 7,
+      "members": [
+        1001,
+        1006,
+        1008,
+        1011,
+        1016,
+        1025,
+        1027,
+        1032,
+        1035,
+        1037,
+        1039,
+        1056,
+        1059,
+        1060,
+        1061,
+        1062,
+        1067,
+        1074
+      ]
+    },
+    {
+      "relationType": 2904,
+      "point": 7,
+      "members": [
+        1007,
+        1012,
+        1021,
+        1033,
+        1034,
+        1044,
+        1050,
+        1052
+      ]
+    },
+    {
+      "relationType": 3001,
+      "point": 7,
+      "members": [
+        1004,
+        1010,
+        1026,
+        1028,
+        1038,
+        1041,
+        1051,
+        1052,
+        1061
+      ]
+    },
+    {
+      "relationType": 3002,
+      "point": 7,
+      "members": [
+        1004,
+        1005,
+        1006,
+        1008,
+        1009,
+        1010,
+        1011,
+        1014,
+        1019,
+        1026,
+        1031,
+        1039,
+        1040,
+        1046,
+        1051,
+        1059,
+        1069
+      ]
+    },
+    {
+      "relationType": 3003,
+      "point": 7,
+      "members": [
+        1001,
+        1002,
+        1003,
+        1006,
+        1007,
+        1008,
+        1009,
+        1011,
+        1012,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1018,
+        1019,
+        1020,
+        1021,
+        1022,
+        1023,
+        1024,
+        1026,
+        1027,
+        1030,
+        1031,
+        1032,
+        1033,
+        1034,
+        1035,
+        1037,
+        1039,
+        1044,
+        1045,
+        1046,
+        1048,
+        1050,
+        1056,
+        1058,
+        1059,
+        1060,
+        1064,
+        1068,
+        1069,
+        1071,
+        1072
+      ]
+    },
+    {
+      "relationType": 3004,
+      "point": 7,
+      "members": [
+        1001,
+        1007,
+        1013,
+        1015,
+        1016,
+        1017,
+        1020,
+        1021,
+        1023,
+        1024,
+        1025,
+        1030,
+        1034,
+        1045,
+        1060,
+        1062,
+        1064,
+        1067,
+        1068,
+        1074
+      ]
+    },
+    {
+      "relationType": 3101,
+      "point": 7,
+      "members": [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1018,
+        1019,
+        1020,
+        1021,
+        1022,
+        1023,
+        1024,
+        1025,
+        1026,
+        1027,
+        1028,
+        1030,
+        1031,
+        1032,
+        1033,
+        1034,
+        1035,
+        1037,
+        1038,
+        1039,
+        1040,
+        1041,
+        1044,
+        1045,
+        1048,
+        1050,
+        1051,
+        1056,
+        1058,
+        1059,
+        1060,
+        1061,
+        1062,
+        1064,
+        1067,
+        1068,
+        1069,
+        1071,
+        1072,
+        1074
+      ]
+    },
+    {
+      "relationType": 3102,
+      "point": 7,
+      "members": [
+        1019,
+        1034,
+        1046,
+        1052
+      ]
+    },
+    {
+      "relationType": 3201,
+      "point": 1,
+      "members": [
+        1022,
+        1028,
+        1033,
+        1034,
+        1038,
+        1039,
+        1044,
+        1048,
+        1051,
+        1058,
+        1059,
+        1067
+      ]
+    },
+    {
+      "relationType": 3202,
+      "point": 1,
+      "members": [
+        1011,
+        1052,
+        1069
+      ]
+    },
+    {
+      "relationType": 3203,
+      "point": 1,
+      "members": [
+        1006,
+        1007,
+        1010,
+        1012,
+        1014,
+        1015,
+        1017,
+        1023,
+        1024,
+        1025,
+        1030,
+        1035,
+        1037,
+        1064,
+        1068,
+        1071
+      ]
+    },
+    {
+      "relationType": 3204,
+      "point": 1,
+      "members": [
+        1003,
+        1005,
+        1008,
+        1013,
+        1018,
+        1020,
+        1026,
+        1027,
+        1031,
+        1032,
+        1040,
+        1041,
+        1046,
+        1060,
+        1061,
+        1072,
+        1074
+      ]
+    },
+    {
+      "relationType": 3205,
+      "point": 1,
+      "members": [
+        1001,
+        1002,
+        1004,
+        1009,
+        1016,
+        1019,
+        1021,
+        1045,
+        1056,
+        1062
+      ]
+    },
+    {
+      "relationType": 7000,
+      "point": 1,
+      "members": [
+        1002,
+        1014
+      ]
+    },
+    {
+      "relationType": 7001,
+      "point": 1,
+      "members": [
+        1002,
+        1018
+      ]
+    },
+    {
+      "relationType": 7002,
+      "point": 1,
+      "members": [
+        1002,
+        1056
+      ]
+    },
+    {
+      "relationType": 7003,
+      "point": 1,
+      "members": [
+        1001,
+        1011
+      ]
+    },
+    {
+      "relationType": 7004,
+      "point": 1,
+      "members": [
+        1001,
+        1014
+      ]
+    },
+    {
+      "relationType": 7005,
+      "point": 1,
+      "members": [
+        1001,
+        1015
+      ]
+    },
+    {
+      "relationType": 7006,
+      "point": 1,
+      "members": [
+        1001,
+        1020
+      ]
+    },
+    {
+      "relationType": 7007,
+      "point": 1,
+      "members": [
+        1001,
+        1061
+      ]
+    },
+    {
+      "relationType": 7008,
+      "point": 1,
+      "members": [
+        1003,
+        1013
+      ]
+    },
+    {
+      "relationType": 7009,
+      "point": 1,
+      "members": [
+        1006,
+        1021
+      ]
+    },
+    {
+      "relationType": 7010,
+      "point": 1,
+      "members": [
+        1006,
+        1027
+      ]
+    },
+    {
+      "relationType": 7011,
+      "point": 1,
+      "members": [
+        1006,
+        1045
+      ]
+    },
+    {
+      "relationType": 7012,
+      "point": 1,
+      "members": [
+        1008,
+        1009
+      ]
+    },
+    {
+      "relationType": 7013,
+      "point": 1,
+      "members": [
+        1002,
+        1011
+      ]
+    },
+    {
+      "relationType": 7015,
+      "point": 1,
+      "members": [
+        1002,
+        1012
+      ]
+    },
+    {
+      "relationType": 7016,
+      "point": 1,
+      "members": [
+        1007,
+        1013
+      ]
+    },
+    {
+      "relationType": 7017,
+      "point": 1,
+      "members": [
+        1021,
+        1045
+      ]
+    },
+    {
+      "relationType": 7018,
+      "point": 1,
+      "members": [
+        1023,
+        1035
+      ]
+    },
+    {
+      "relationType": 7019,
+      "point": 1,
+      "members": [
+        1023,
+        1050
+      ]
+    },
+    {
+      "relationType": 7020,
+      "point": 1,
+      "members": [
+        1027,
+        1031
+      ]
+    },
+    {
+      "relationType": 7021,
+      "point": 1,
+      "members": [
+        1035,
+        1050
+      ]
+    },
+    {
+      "relationType": 7022,
+      "point": 1,
+      "members": [
+        1003,
+        1060
+      ]
+    },
+    {
+      "relationType": 7023,
+      "point": 1,
+      "members": [
+        1011,
+        1061
+      ]
+    },
+    {
+      "relationType": 7024,
+      "point": 1,
+      "members": [
+        1020,
+        1061
+      ]
+    },
+    {
+      "relationType": 7025,
+      "point": 1,
+      "members": [
+        1069,
+        1071
+      ]
+    },
+    {
+      "relationType": 7026,
+      "point": 1,
+      "members": [
+        1069,
+        1072
+      ]
+    },
+    {
+      "relationType": 7027,
+      "point": 1,
+      "members": [
+        1071,
+        1072
+      ]
+    },
+    {
+      "relationType": 7029,
+      "point": 1,
+      "members": [
+        1067,
+        1068
+      ]
+    },
+    {
+      "relationType": 7030,
+      "point": 1,
+      "members": [
+        1059,
+        1074
+      ]
+    },
+    {
+      "relationType": 8001,
+      "point": 1,
+      "members": [
+        1001,
+        1003
+      ]
+    },
+    {
+      "relationType": 8002,
+      "point": 1,
+      "members": [
+        1001,
+        1004
+      ]
+    },
+    {
+      "relationType": 8003,
+      "point": 1,
+      "members": [
+        1001,
+        1013
+      ]
+    },
+    {
+      "relationType": 8004,
+      "point": 1,
+      "members": [
+        1001,
+        1015
+      ]
+    },
+    {
+      "relationType": 8005,
+      "point": 1,
+      "members": [
+        1001,
+        1017
+      ]
+    },
+    {
+      "relationType": 8006,
+      "point": 1,
+      "members": [
+        1001,
+        1022
+      ]
+    },
+    {
+      "relationType": 8007,
+      "point": 1,
+      "members": [
+        1001,
+        1027
+      ]
+    },
+    {
+      "relationType": 8008,
+      "point": 1,
+      "members": [
+        1001,
+        1038
+      ]
+    },
+    {
+      "relationType": 8009,
+      "point": 1,
+      "members": [
+        1001,
+        1040
+      ]
+    },
+    {
+      "relationType": 8011,
+      "point": 1,
+      "members": [
+        1001,
+        1045
+      ]
+    },
+    {
+      "relationType": 8013,
+      "point": 1,
+      "members": [
+        1001,
+        1056
+      ]
+    },
+    {
+      "relationType": 8014,
+      "point": 1,
+      "members": [
+        1001,
+        1058
+      ]
+    },
+    {
+      "relationType": 8015,
+      "point": 1,
+      "members": [
+        1001,
+        1059
+      ]
+    },
+    {
+      "relationType": 8016,
+      "point": 1,
+      "members": [
+        1001,
+        1060
+      ]
+    },
+    {
+      "relationType": 8017,
+      "point": 1,
+      "members": [
+        1002,
+        1003
+      ]
+    },
+    {
+      "relationType": 8018,
+      "point": 1,
+      "members": [
+        1002,
+        1004
+      ]
+    },
+    {
+      "relationType": 8019,
+      "point": 1,
+      "members": [
+        1002,
+        1013
+      ]
+    },
+    {
+      "relationType": 8020,
+      "point": 1,
+      "members": [
+        1002,
+        1015
+      ]
+    },
+    {
+      "relationType": 8021,
+      "point": 1,
+      "members": [
+        1002,
+        1017
+      ]
+    },
+    {
+      "relationType": 8022,
+      "point": 1,
+      "members": [
+        1002,
+        1022
+      ]
+    },
+    {
+      "relationType": 8023,
+      "point": 1,
+      "members": [
+        1002,
+        1027
+      ]
+    },
+    {
+      "relationType": 8024,
+      "point": 1,
+      "members": [
+        1002,
+        1038
+      ]
+    },
+    {
+      "relationType": 8025,
+      "point": 1,
+      "members": [
+        1002,
+        1040
+      ]
+    },
+    {
+      "relationType": 8027,
+      "point": 1,
+      "members": [
+        1002,
+        1045
+      ]
+    },
+    {
+      "relationType": 8029,
+      "point": 1,
+      "members": [
+        1002,
+        1056
+      ]
+    },
+    {
+      "relationType": 8030,
+      "point": 1,
+      "members": [
+        1002,
+        1058
+      ]
+    },
+    {
+      "relationType": 8031,
+      "point": 1,
+      "members": [
+        1002,
+        1059
+      ]
+    },
+    {
+      "relationType": 8032,
+      "point": 1,
+      "members": [
+        1002,
+        1060
+      ]
+    },
+    {
+      "relationType": 8033,
+      "point": 1,
+      "members": [
+        1003,
+        1007
+      ]
+    },
+    {
+      "relationType": 8034,
+      "point": 1,
+      "members": [
+        1003,
+        1009
+      ]
+    },
+    {
+      "relationType": 8035,
+      "point": 1,
+      "members": [
+        1003,
+        1018
+      ]
+    },
+    {
+      "relationType": 8036,
+      "point": 1,
+      "members": [
+        1003,
+        1021
+      ]
+    },
+    {
+      "relationType": 8037,
+      "point": 1,
+      "members": [
+        1003,
+        1023
+      ]
+    },
+    {
+      "relationType": 8038,
+      "point": 1,
+      "members": [
+        1003,
+        1035
+      ]
+    },
+    {
+      "relationType": 8039,
+      "point": 1,
+      "members": [
+        1003,
+        1046
+      ]
+    },
+    {
+      "relationType": 8040,
+      "point": 1,
+      "members": [
+        1003,
+        1048
+      ]
+    },
+    {
+      "relationType": 8042,
+      "point": 1,
+      "members": [
+        1003,
+        1050
+      ]
+    },
+    {
+      "relationType": 8043,
+      "point": 1,
+      "members": [
+        1004,
+        1007
+      ]
+    },
+    {
+      "relationType": 8044,
+      "point": 1,
+      "members": [
+        1004,
+        1009
+      ]
+    },
+    {
+      "relationType": 8045,
+      "point": 1,
+      "members": [
+        1004,
+        1018
+      ]
+    },
+    {
+      "relationType": 8046,
+      "point": 1,
+      "members": [
+        1004,
+        1021
+      ]
+    },
+    {
+      "relationType": 8047,
+      "point": 1,
+      "members": [
+        1004,
+        1023
+      ]
+    },
+    {
+      "relationType": 8048,
+      "point": 1,
+      "members": [
+        1004,
+        1035
+      ]
+    },
+    {
+      "relationType": 8049,
+      "point": 1,
+      "members": [
+        1004,
+        1046
+      ]
+    },
+    {
+      "relationType": 8050,
+      "point": 1,
+      "members": [
+        1004,
+        1048
+      ]
+    },
+    {
+      "relationType": 8052,
+      "point": 1,
+      "members": [
+        1003,
+        1005
+      ]
+    },
+    {
+      "relationType": 8053,
+      "point": 1,
+      "members": [
+        1004,
+        1005
+      ]
+    },
+    {
+      "relationType": 8054,
+      "point": 1,
+      "members": [
+        1005,
+        1013
+      ]
+    },
+    {
+      "relationType": 8055,
+      "point": 1,
+      "members": [
+        1005,
+        1015
+      ]
+    },
+    {
+      "relationType": 8056,
+      "point": 1,
+      "members": [
+        1005,
+        1017
+      ]
+    },
+    {
+      "relationType": 8057,
+      "point": 1,
+      "members": [
+        1005,
+        1022
+      ]
+    },
+    {
+      "relationType": 8058,
+      "point": 1,
+      "members": [
+        1005,
+        1027
+      ]
+    },
+    {
+      "relationType": 8059,
+      "point": 1,
+      "members": [
+        1005,
+        1038
+      ]
+    },
+    {
+      "relationType": 8060,
+      "point": 1,
+      "members": [
+        1005,
+        1040
+      ]
+    },
+    {
+      "relationType": 8062,
+      "point": 1,
+      "members": [
+        1005,
+        1045
+      ]
+    },
+    {
+      "relationType": 8064,
+      "point": 1,
+      "members": [
+        1005,
+        1056
+      ]
+    },
+    {
+      "relationType": 8065,
+      "point": 1,
+      "members": [
+        1005,
+        1058
+      ]
+    },
+    {
+      "relationType": 8066,
+      "point": 1,
+      "members": [
+        1005,
+        1059
+      ]
+    },
+    {
+      "relationType": 8067,
+      "point": 1,
+      "members": [
+        1005,
+        1060
+      ]
+    },
+    {
+      "relationType": 8068,
+      "point": 1,
+      "members": [
+        1004,
+        1006
+      ]
+    },
+    {
+      "relationType": 8069,
+      "point": 1,
+      "members": [
+        1006,
+        1022
+      ]
+    },
+    {
+      "relationType": 8070,
+      "point": 1,
+      "members": [
+        1006,
+        1045
+      ]
+    },
+    {
+      "relationType": 8072,
+      "point": 1,
+      "members": [
+        1007,
+        1018
+      ]
+    },
+    {
+      "relationType": 8073,
+      "point": 1,
+      "members": [
+        1007,
+        1021
+      ]
+    },
+    {
+      "relationType": 8074,
+      "point": 1,
+      "members": [
+        1007,
+        1023
+      ]
+    },
+    {
+      "relationType": 8075,
+      "point": 1,
+      "members": [
+        1007,
+        1035
+      ]
+    },
+    {
+      "relationType": 8076,
+      "point": 1,
+      "members": [
+        1007,
+        1048
+      ]
+    },
+    {
+      "relationType": 8077,
+      "point": 1,
+      "members": [
+        1009,
+        1018
+      ]
+    },
+    {
+      "relationType": 8078,
+      "point": 1,
+      "members": [
+        1009,
+        1021
+      ]
+    },
+    {
+      "relationType": 8079,
+      "point": 1,
+      "members": [
+        1009,
+        1023
+      ]
+    },
+    {
+      "relationType": 8080,
+      "point": 1,
+      "members": [
+        1009,
+        1035
+      ]
+    },
+    {
+      "relationType": 8081,
+      "point": 1,
+      "members": [
+        1009,
+        1048
+      ]
+    },
+    {
+      "relationType": 8082,
+      "point": 1,
+      "members": [
+        1003,
+        1010
+      ]
+    },
+    {
+      "relationType": 8083,
+      "point": 1,
+      "members": [
+        1004,
+        1010
+      ]
+    },
+    {
+      "relationType": 8084,
+      "point": 1,
+      "members": [
+        1010,
+        1013
+      ]
+    },
+    {
+      "relationType": 8085,
+      "point": 1,
+      "members": [
+        1010,
+        1015
+      ]
+    },
+    {
+      "relationType": 8086,
+      "point": 1,
+      "members": [
+        1010,
+        1017
+      ]
+    },
+    {
+      "relationType": 8087,
+      "point": 1,
+      "members": [
+        1010,
+        1022
+      ]
+    },
+    {
+      "relationType": 8088,
+      "point": 1,
+      "members": [
+        1010,
+        1027
+      ]
+    },
+    {
+      "relationType": 8089,
+      "point": 1,
+      "members": [
+        1010,
+        1038
+      ]
+    },
+    {
+      "relationType": 8090,
+      "point": 1,
+      "members": [
+        1010,
+        1040
+      ]
+    },
+    {
+      "relationType": 8092,
+      "point": 1,
+      "members": [
+        1010,
+        1045
+      ]
+    },
+    {
+      "relationType": 8094,
+      "point": 1,
+      "members": [
+        1010,
+        1056
+      ]
+    },
+    {
+      "relationType": 8095,
+      "point": 1,
+      "members": [
+        1010,
+        1058
+      ]
+    },
+    {
+      "relationType": 8096,
+      "point": 1,
+      "members": [
+        1010,
+        1059
+      ]
+    },
+    {
+      "relationType": 8097,
+      "point": 1,
+      "members": [
+        1010,
+        1060
+      ]
+    },
+    {
+      "relationType": 8098,
+      "point": 1,
+      "members": [
+        1007,
+        1013
+      ]
+    },
+    {
+      "relationType": 8099,
+      "point": 1,
+      "members": [
+        1009,
+        1013
+      ]
+    },
+    {
+      "relationType": 8100,
+      "point": 1,
+      "members": [
+        1013,
+        1018
+      ]
+    },
+    {
+      "relationType": 8101,
+      "point": 1,
+      "members": [
+        1013,
+        1021
+      ]
+    },
+    {
+      "relationType": 8102,
+      "point": 1,
+      "members": [
+        1013,
+        1023
+      ]
+    },
+    {
+      "relationType": 8103,
+      "point": 1,
+      "members": [
+        1013,
+        1035
+      ]
+    },
+    {
+      "relationType": 8104,
+      "point": 1,
+      "members": [
+        1013,
+        1046
+      ]
+    },
+    {
+      "relationType": 8105,
+      "point": 1,
+      "members": [
+        1013,
+        1048
+      ]
+    },
+    {
+      "relationType": 8107,
+      "point": 1,
+      "members": [
+        1013,
+        1050
+      ]
+    },
+    {
+      "relationType": 8108,
+      "point": 1,
+      "members": [
+        1004,
+        1014
+      ]
+    },
+    {
+      "relationType": 8109,
+      "point": 1,
+      "members": [
+        1007,
+        1014
+      ]
+    },
+    {
+      "relationType": 8110,
+      "point": 1,
+      "members": [
+        1009,
+        1014
+      ]
+    },
+    {
+      "relationType": 8111,
+      "point": 1,
+      "members": [
+        1014,
+        1022
+      ]
+    },
+    {
+      "relationType": 8112,
+      "point": 1,
+      "members": [
+        1014,
+        1045
+      ]
+    },
+    {
+      "relationType": 8113,
+      "point": 1,
+      "members": [
+        1014,
+        1046
+      ]
+    },
+    {
+      "relationType": 8116,
+      "point": 1,
+      "members": [
+        1006,
+        1015
+      ]
+    },
+    {
+      "relationType": 8117,
+      "point": 1,
+      "members": [
+        1015,
+        1050
+      ]
+    },
+    {
+      "relationType": 8118,
+      "point": 1,
+      "members": [
+        1003,
+        1016
+      ]
+    },
+    {
+      "relationType": 8119,
+      "point": 1,
+      "members": [
+        1004,
+        1016
+      ]
+    },
+    {
+      "relationType": 8120,
+      "point": 1,
+      "members": [
+        1013,
+        1016
+      ]
+    },
+    {
+      "relationType": 8121,
+      "point": 1,
+      "members": [
+        1015,
+        1016
+      ]
+    },
+    {
+      "relationType": 8122,
+      "point": 1,
+      "members": [
+        1016,
+        1017
+      ]
+    },
+    {
+      "relationType": 8123,
+      "point": 1,
+      "members": [
+        1016,
+        1022
+      ]
+    },
+    {
+      "relationType": 8124,
+      "point": 1,
+      "members": [
+        1016,
+        1027
+      ]
+    },
+    {
+      "relationType": 8125,
+      "point": 1,
+      "members": [
+        1016,
+        1038
+      ]
+    },
+    {
+      "relationType": 8126,
+      "point": 1,
+      "members": [
+        1016,
+        1040
+      ]
+    },
+    {
+      "relationType": 8128,
+      "point": 1,
+      "members": [
+        1016,
+        1045
+      ]
+    },
+    {
+      "relationType": 8130,
+      "point": 1,
+      "members": [
+        1016,
+        1056
+      ]
+    },
+    {
+      "relationType": 8131,
+      "point": 1,
+      "members": [
+        1016,
+        1058
+      ]
+    },
+    {
+      "relationType": 8132,
+      "point": 1,
+      "members": [
+        1016,
+        1059
+      ]
+    },
+    {
+      "relationType": 8133,
+      "point": 1,
+      "members": [
+        1016,
+        1060
+      ]
+    },
+    {
+      "relationType": 8134,
+      "point": 1,
+      "members": [
+        1007,
+        1017
+      ]
+    },
+    {
+      "relationType": 8135,
+      "point": 1,
+      "members": [
+        1009,
+        1017
+      ]
+    },
+    {
+      "relationType": 8136,
+      "point": 1,
+      "members": [
+        1017,
+        1018
+      ]
+    },
+    {
+      "relationType": 8137,
+      "point": 1,
+      "members": [
+        1017,
+        1021
+      ]
+    },
+    {
+      "relationType": 8138,
+      "point": 1,
+      "members": [
+        1017,
+        1023
+      ]
+    },
+    {
+      "relationType": 8139,
+      "point": 1,
+      "members": [
+        1017,
+        1035
+      ]
+    },
+    {
+      "relationType": 8140,
+      "point": 1,
+      "members": [
+        1017,
+        1046
+      ]
+    },
+    {
+      "relationType": 8141,
+      "point": 1,
+      "members": [
+        1017,
+        1048
+      ]
+    },
+    {
+      "relationType": 8143,
+      "point": 1,
+      "members": [
+        1017,
+        1050
+      ]
+    },
+    {
+      "relationType": 8144,
+      "point": 1,
+      "members": [
+        1004,
+        1019
+      ]
+    },
+    {
+      "relationType": 8145,
+      "point": 1,
+      "members": [
+        1007,
+        1019
+      ]
+    },
+    {
+      "relationType": 8146,
+      "point": 1,
+      "members": [
+        1009,
+        1019
+      ]
+    },
+    {
+      "relationType": 8147,
+      "point": 1,
+      "members": [
+        1019,
+        1022
+      ]
+    },
+    {
+      "relationType": 8148,
+      "point": 1,
+      "members": [
+        1019,
+        1045
+      ]
+    },
+    {
+      "relationType": 8149,
+      "point": 1,
+      "members": [
+        1019,
+        1046
+      ]
+    },
+    {
+      "relationType": 8152,
+      "point": 1,
+      "members": [
+        1004,
+        1020
+      ]
+    },
+    {
+      "relationType": 8153,
+      "point": 1,
+      "members": [
+        1015,
+        1020
+      ]
+    },
+    {
+      "relationType": 8154,
+      "point": 1,
+      "members": [
+        1020,
+        1027
+      ]
+    },
+    {
+      "relationType": 8155,
+      "point": 1,
+      "members": [
+        1020,
+        1038
+      ]
+    },
+    {
+      "relationType": 8156,
+      "point": 1,
+      "members": [
+        1020,
+        1040
+      ]
+    },
+    {
+      "relationType": 8158,
+      "point": 1,
+      "members": [
+        1020,
+        1045
+      ]
+    },
+    {
+      "relationType": 8159,
+      "point": 1,
+      "members": [
+        1020,
+        1058
+      ]
+    },
+    {
+      "relationType": 8160,
+      "point": 1,
+      "members": [
+        1020,
+        1059
+      ]
+    },
+    {
+      "relationType": 8161,
+      "point": 1,
+      "members": [
+        1020,
+        1060
+      ]
+    },
+    {
+      "relationType": 8162,
+      "point": 1,
+      "members": [
+        1003,
+        1025
+      ]
+    },
+    {
+      "relationType": 8163,
+      "point": 1,
+      "members": [
+        1004,
+        1025
+      ]
+    },
+    {
+      "relationType": 8164,
+      "point": 1,
+      "members": [
+        1013,
+        1025
+      ]
+    },
+    {
+      "relationType": 8165,
+      "point": 1,
+      "members": [
+        1015,
+        1025
+      ]
+    },
+    {
+      "relationType": 8166,
+      "point": 1,
+      "members": [
+        1017,
+        1025
+      ]
+    },
+    {
+      "relationType": 8167,
+      "point": 1,
+      "members": [
+        1022,
+        1025
+      ]
+    },
+    {
+      "relationType": 8168,
+      "point": 1,
+      "members": [
+        1025,
+        1027
+      ]
+    },
+    {
+      "relationType": 8169,
+      "point": 1,
+      "members": [
+        1025,
+        1038
+      ]
+    },
+    {
+      "relationType": 8170,
+      "point": 1,
+      "members": [
+        1025,
+        1040
+      ]
+    },
+    {
+      "relationType": 8172,
+      "point": 1,
+      "members": [
+        1025,
+        1045
+      ]
+    },
+    {
+      "relationType": 8174,
+      "point": 1,
+      "members": [
+        1025,
+        1056
+      ]
+    },
+    {
+      "relationType": 8175,
+      "point": 1,
+      "members": [
+        1025,
+        1058
+      ]
+    },
+    {
+      "relationType": 8176,
+      "point": 1,
+      "members": [
+        1025,
+        1059
+      ]
+    },
+    {
+      "relationType": 8177,
+      "point": 1,
+      "members": [
+        1025,
+        1060
+      ]
+    },
+    {
+      "relationType": 8178,
+      "point": 1,
+      "members": [
+        1006,
+        1027
+      ]
+    },
+    {
+      "relationType": 8179,
+      "point": 1,
+      "members": [
+        1027,
+        1050
+      ]
+    },
+    {
+      "relationType": 8180,
+      "point": 1,
+      "members": [
+        1004,
+        1028
+      ]
+    },
+    {
+      "relationType": 8181,
+      "point": 1,
+      "members": [
+        1007,
+        1028
+      ]
+    },
+    {
+      "relationType": 8182,
+      "point": 1,
+      "members": [
+        1009,
+        1028
+      ]
+    },
+    {
+      "relationType": 8183,
+      "point": 1,
+      "members": [
+        1022,
+        1028
+      ]
+    },
+    {
+      "relationType": 8184,
+      "point": 1,
+      "members": [
+        1028,
+        1045
+      ]
+    },
+    {
+      "relationType": 8185,
+      "point": 1,
+      "members": [
+        1028,
+        1046
+      ]
+    },
+    {
+      "relationType": 8203,
+      "point": 1,
+      "members": [
+        1003,
+        1030
+      ]
+    },
+    {
+      "relationType": 8204,
+      "point": 1,
+      "members": [
+        1004,
+        1030
+      ]
+    },
+    {
+      "relationType": 8205,
+      "point": 1,
+      "members": [
+        1013,
+        1030
+      ]
+    },
+    {
+      "relationType": 8206,
+      "point": 1,
+      "members": [
+        1015,
+        1030
+      ]
+    },
+    {
+      "relationType": 8207,
+      "point": 1,
+      "members": [
+        1017,
+        1030
+      ]
+    },
+    {
+      "relationType": 8208,
+      "point": 1,
+      "members": [
+        1022,
+        1030
+      ]
+    },
+    {
+      "relationType": 8209,
+      "point": 1,
+      "members": [
+        1027,
+        1030
+      ]
+    },
+    {
+      "relationType": 8210,
+      "point": 1,
+      "members": [
+        1030,
+        1038
+      ]
+    },
+    {
+      "relationType": 8211,
+      "point": 1,
+      "members": [
+        1030,
+        1040
+      ]
+    },
+    {
+      "relationType": 8213,
+      "point": 1,
+      "members": [
+        1030,
+        1045
+      ]
+    },
+    {
+      "relationType": 8215,
+      "point": 1,
+      "members": [
+        1030,
+        1056
+      ]
+    },
+    {
+      "relationType": 8216,
+      "point": 1,
+      "members": [
+        1030,
+        1058
+      ]
+    },
+    {
+      "relationType": 8217,
+      "point": 1,
+      "members": [
+        1030,
+        1059
+      ]
+    },
+    {
+      "relationType": 8218,
+      "point": 1,
+      "members": [
+        1030,
+        1060
+      ]
+    },
+    {
+      "relationType": 8219,
+      "point": 1,
+      "members": [
+        1003,
+        1032
+      ]
+    },
+    {
+      "relationType": 8220,
+      "point": 1,
+      "members": [
+        1004,
+        1032
+      ]
+    },
+    {
+      "relationType": 8221,
+      "point": 1,
+      "members": [
+        1013,
+        1032
+      ]
+    },
+    {
+      "relationType": 8222,
+      "point": 1,
+      "members": [
+        1015,
+        1032
+      ]
+    },
+    {
+      "relationType": 8223,
+      "point": 1,
+      "members": [
+        1017,
+        1032
+      ]
+    },
+    {
+      "relationType": 8224,
+      "point": 1,
+      "members": [
+        1022,
+        1032
+      ]
+    },
+    {
+      "relationType": 8225,
+      "point": 1,
+      "members": [
+        1027,
+        1032
+      ]
+    },
+    {
+      "relationType": 8226,
+      "point": 1,
+      "members": [
+        1032,
+        1038
+      ]
+    },
+    {
+      "relationType": 8227,
+      "point": 1,
+      "members": [
+        1032,
+        1040
+      ]
+    },
+    {
+      "relationType": 8229,
+      "point": 1,
+      "members": [
+        1032,
+        1045
+      ]
+    },
+    {
+      "relationType": 8231,
+      "point": 1,
+      "members": [
+        1032,
+        1056
+      ]
+    },
+    {
+      "relationType": 8232,
+      "point": 1,
+      "members": [
+        1032,
+        1058
+      ]
+    },
+    {
+      "relationType": 8233,
+      "point": 1,
+      "members": [
+        1032,
+        1059
+      ]
+    },
+    {
+      "relationType": 8234,
+      "point": 1,
+      "members": [
+        1032,
+        1060
+      ]
+    },
+    {
+      "relationType": 8235,
+      "point": 1,
+      "members": [
+        1003,
+        1033
+      ]
+    },
+    {
+      "relationType": 8236,
+      "point": 1,
+      "members": [
+        1004,
+        1033
+      ]
+    },
+    {
+      "relationType": 8237,
+      "point": 1,
+      "members": [
+        1013,
+        1033
+      ]
+    },
+    {
+      "relationType": 8238,
+      "point": 1,
+      "members": [
+        1015,
+        1033
+      ]
+    },
+    {
+      "relationType": 8239,
+      "point": 1,
+      "members": [
+        1017,
+        1033
+      ]
+    },
+    {
+      "relationType": 8240,
+      "point": 1,
+      "members": [
+        1022,
+        1033
+      ]
+    },
+    {
+      "relationType": 8241,
+      "point": 1,
+      "members": [
+        1027,
+        1033
+      ]
+    },
+    {
+      "relationType": 8242,
+      "point": 1,
+      "members": [
+        1033,
+        1038
+      ]
+    },
+    {
+      "relationType": 8243,
+      "point": 1,
+      "members": [
+        1033,
+        1040
+      ]
+    },
+    {
+      "relationType": 8245,
+      "point": 1,
+      "members": [
+        1033,
+        1045
+      ]
+    },
+    {
+      "relationType": 8247,
+      "point": 1,
+      "members": [
+        1033,
+        1056
+      ]
+    },
+    {
+      "relationType": 8248,
+      "point": 1,
+      "members": [
+        1033,
+        1058
+      ]
+    },
+    {
+      "relationType": 8249,
+      "point": 1,
+      "members": [
+        1033,
+        1059
+      ]
+    },
+    {
+      "relationType": 8250,
+      "point": 1,
+      "members": [
+        1033,
+        1060
+      ]
+    },
+    {
+      "relationType": 8267,
+      "point": 1,
+      "members": [
+        1004,
+        1037
+      ]
+    },
+    {
+      "relationType": 8268,
+      "point": 1,
+      "members": [
+        1007,
+        1037
+      ]
+    },
+    {
+      "relationType": 8269,
+      "point": 1,
+      "members": [
+        1009,
+        1037
+      ]
+    },
+    {
+      "relationType": 8270,
+      "point": 1,
+      "members": [
+        1022,
+        1037
+      ]
+    },
+    {
+      "relationType": 8271,
+      "point": 1,
+      "members": [
+        1037,
+        1045
+      ]
+    },
+    {
+      "relationType": 8272,
+      "point": 1,
+      "members": [
+        1037,
+        1046
+      ]
+    },
+    {
+      "relationType": 8275,
+      "point": 1,
+      "members": [
+        1006,
+        1038
+      ]
+    },
+    {
+      "relationType": 8276,
+      "point": 1,
+      "members": [
+        1038,
+        1050
+      ]
+    },
+    {
+      "relationType": 8277,
+      "point": 1,
+      "members": [
+        1003,
+        1039
+      ]
+    },
+    {
+      "relationType": 8278,
+      "point": 1,
+      "members": [
+        1007,
+        1039
+      ]
+    },
+    {
+      "relationType": 8279,
+      "point": 1,
+      "members": [
+        1009,
+        1039
+      ]
+    },
+    {
+      "relationType": 8280,
+      "point": 1,
+      "members": [
+        1013,
+        1039
+      ]
+    },
+    {
+      "relationType": 8281,
+      "point": 1,
+      "members": [
+        1017,
+        1039
+      ]
+    },
+    {
+      "relationType": 8282,
+      "point": 1,
+      "members": [
+        1039,
+        1046
+      ]
+    },
+    {
+      "relationType": 8284,
+      "point": 1,
+      "members": [
+        1039,
+        1050
+      ]
+    },
+    {
+      "relationType": 8285,
+      "point": 1,
+      "members": [
+        1006,
+        1040
+      ]
+    },
+    {
+      "relationType": 8286,
+      "point": 1,
+      "members": [
+        1040,
+        1050
+      ]
+    },
+    {
+      "relationType": 8287,
+      "point": 1,
+      "members": [
+        1004,
+        1041
+      ]
+    },
+    {
+      "relationType": 8288,
+      "point": 1,
+      "members": [
+        1015,
+        1041
+      ]
+    },
+    {
+      "relationType": 8289,
+      "point": 1,
+      "members": [
+        1018,
+        1041
+      ]
+    },
+    {
+      "relationType": 8290,
+      "point": 1,
+      "members": [
+        1021,
+        1041
+      ]
+    },
+    {
+      "relationType": 8291,
+      "point": 1,
+      "members": [
+        1023,
+        1041
+      ]
+    },
+    {
+      "relationType": 8292,
+      "point": 1,
+      "members": [
+        1027,
+        1041
+      ]
+    },
+    {
+      "relationType": 8293,
+      "point": 1,
+      "members": [
+        1035,
+        1041
+      ]
+    },
+    {
+      "relationType": 8294,
+      "point": 1,
+      "members": [
+        1038,
+        1041
+      ]
+    },
+    {
+      "relationType": 8295,
+      "point": 1,
+      "members": [
+        1040,
+        1041
+      ]
+    },
+    {
+      "relationType": 8297,
+      "point": 1,
+      "members": [
+        1041,
+        1045
+      ]
+    },
+    {
+      "relationType": 8298,
+      "point": 1,
+      "members": [
+        1041,
+        1048
+      ]
+    },
+    {
+      "relationType": 8299,
+      "point": 1,
+      "members": [
+        1041,
+        1058
+      ]
+    },
+    {
+      "relationType": 8300,
+      "point": 1,
+      "members": [
+        1041,
+        1059
+      ]
+    },
+    {
+      "relationType": 8301,
+      "point": 1,
+      "members": [
+        1041,
+        1060
+      ]
+    },
+    {
+      "relationType": 8312,
+      "point": 1,
+      "members": [
+        1004,
+        1044
+      ]
+    },
+    {
+      "relationType": 8313,
+      "point": 1,
+      "members": [
+        1007,
+        1044
+      ]
+    },
+    {
+      "relationType": 8314,
+      "point": 1,
+      "members": [
+        1009,
+        1044
+      ]
+    },
+    {
+      "relationType": 8315,
+      "point": 1,
+      "members": [
+        1022,
+        1044
+      ]
+    },
+    {
+      "relationType": 8316,
+      "point": 1,
+      "members": [
+        1044,
+        1045
+      ]
+    },
+    {
+      "relationType": 8317,
+      "point": 1,
+      "members": [
+        1044,
+        1046
+      ]
+    },
+    {
+      "relationType": 8320,
+      "point": 1,
+      "members": [
+        1007,
+        1045
+      ]
+    },
+    {
+      "relationType": 8321,
+      "point": 1,
+      "members": [
+        1009,
+        1045
+      ]
+    },
+    {
+      "relationType": 8322,
+      "point": 1,
+      "members": [
+        1018,
+        1045
+      ]
+    },
+    {
+      "relationType": 8323,
+      "point": 1,
+      "members": [
+        1021,
+        1045
+      ]
+    },
+    {
+      "relationType": 8324,
+      "point": 1,
+      "members": [
+        1023,
+        1045
+      ]
+    },
+    {
+      "relationType": 8325,
+      "point": 1,
+      "members": [
+        1035,
+        1045
+      ]
+    },
+    {
+      "relationType": 8326,
+      "point": 1,
+      "members": [
+        1045,
+        1046
+      ]
+    },
+    {
+      "relationType": 8327,
+      "point": 1,
+      "members": [
+        1045,
+        1048
+      ]
+    },
+    {
+      "relationType": 8329,
+      "point": 1,
+      "members": [
+        1018,
+        1046
+      ]
+    },
+    {
+      "relationType": 8330,
+      "point": 1,
+      "members": [
+        1021,
+        1046
+      ]
+    },
+    {
+      "relationType": 8331,
+      "point": 1,
+      "members": [
+        1023,
+        1046
+      ]
+    },
+    {
+      "relationType": 8332,
+      "point": 1,
+      "members": [
+        1035,
+        1046
+      ]
+    },
+    {
+      "relationType": 8333,
+      "point": 1,
+      "members": [
+        1046,
+        1048
+      ]
+    },
+    {
+      "relationType": 8355,
+      "point": 1,
+      "members": [
+        1004,
+        1050
+      ]
+    },
+    {
+      "relationType": 8356,
+      "point": 1,
+      "members": [
+        1045,
+        1050
+      ]
+    },
+    {
+      "relationType": 8357,
+      "point": 1,
+      "members": [
+        1012,
+        1051
+      ]
+    },
+    {
+      "relationType": 8358,
+      "point": 1,
+      "members": [
+        1015,
+        1051
+      ]
+    },
+    {
+      "relationType": 8359,
+      "point": 1,
+      "members": [
+        1027,
+        1051
+      ]
+    },
+    {
+      "relationType": 8360,
+      "point": 1,
+      "members": [
+        1031,
+        1051
+      ]
+    },
+    {
+      "relationType": 8361,
+      "point": 1,
+      "members": [
+        1038,
+        1051
+      ]
+    },
+    {
+      "relationType": 8362,
+      "point": 1,
+      "members": [
+        1039,
+        1051
+      ]
+    },
+    {
+      "relationType": 8363,
+      "point": 1,
+      "members": [
+        1040,
+        1051
+      ]
+    },
+    {
+      "relationType": 8365,
+      "point": 1,
+      "members": [
+        1050,
+        1051
+      ]
+    },
+    {
+      "relationType": 8366,
+      "point": 1,
+      "members": [
+        1051,
+        1052
+      ]
+    },
+    {
+      "relationType": 8368,
+      "point": 1,
+      "members": [
+        1051,
+        1058
+      ]
+    },
+    {
+      "relationType": 8369,
+      "point": 1,
+      "members": [
+        1051,
+        1059
+      ]
+    },
+    {
+      "relationType": 8370,
+      "point": 1,
+      "members": [
+        1051,
+        1060
+      ]
+    },
+    {
+      "relationType": 8371,
+      "point": 1,
+      "members": [
+        1051,
+        1061
+      ]
+    },
+    {
+      "relationType": 8372,
+      "point": 1,
+      "members": [
+        1003,
+        1052
+      ]
+    },
+    {
+      "relationType": 8373,
+      "point": 1,
+      "members": [
+        1007,
+        1052
+      ]
+    },
+    {
+      "relationType": 8374,
+      "point": 1,
+      "members": [
+        1009,
+        1052
+      ]
+    },
+    {
+      "relationType": 8375,
+      "point": 1,
+      "members": [
+        1013,
+        1052
+      ]
+    },
+    {
+      "relationType": 8376,
+      "point": 1,
+      "members": [
+        1017,
+        1052
+      ]
+    },
+    {
+      "relationType": 8377,
+      "point": 1,
+      "members": [
+        1046,
+        1052
+      ]
+    },
+    {
+      "relationType": 8379,
+      "point": 1,
+      "members": [
+        1050,
+        1052
+      ]
+    },
+    {
+      "relationType": 8396,
+      "point": 1,
+      "members": [
+        1004,
+        1056
+      ]
+    },
+    {
+      "relationType": 8397,
+      "point": 1,
+      "members": [
+        1045,
+        1056
+      ]
+    },
+    {
+      "relationType": 8413,
+      "point": 1,
+      "members": [
+        1006,
+        1058
+      ]
+    },
+    {
+      "relationType": 8414,
+      "point": 1,
+      "members": [
+        1050,
+        1058
+      ]
+    },
+    {
+      "relationType": 8415,
+      "point": 1,
+      "members": [
+        1006,
+        1059
+      ]
+    },
+    {
+      "relationType": 8416,
+      "point": 1,
+      "members": [
+        1050,
+        1059
+      ]
+    },
+    {
+      "relationType": 8417,
+      "point": 1,
+      "members": [
+        1006,
+        1060
+      ]
+    },
+    {
+      "relationType": 8418,
+      "point": 1,
+      "members": [
+        1050,
+        1060
+      ]
+    },
+    {
+      "relationType": 8419,
+      "point": 1,
+      "members": [
+        1003,
+        1061
+      ]
+    },
+    {
+      "relationType": 8420,
+      "point": 1,
+      "members": [
+        1007,
+        1061
+      ]
+    },
+    {
+      "relationType": 8421,
+      "point": 1,
+      "members": [
+        1009,
+        1061
+      ]
+    },
+    {
+      "relationType": 8422,
+      "point": 1,
+      "members": [
+        1013,
+        1061
+      ]
+    },
+    {
+      "relationType": 8423,
+      "point": 1,
+      "members": [
+        1017,
+        1061
+      ]
+    },
+    {
+      "relationType": 8424,
+      "point": 1,
+      "members": [
+        1046,
+        1061
+      ]
+    },
+    {
+      "relationType": 8426,
+      "point": 1,
+      "members": [
+        1050,
+        1061
+      ]
+    },
+    {
+      "relationType": 8427,
+      "point": 1,
+      "members": [
+        1018,
+        1069
+      ]
+    },
+    {
+      "relationType": 8428,
+      "point": 1,
+      "members": [
+        1021,
+        1069
+      ]
+    },
+    {
+      "relationType": 8429,
+      "point": 1,
+      "members": [
+        1023,
+        1069
+      ]
+    },
+    {
+      "relationType": 8430,
+      "point": 1,
+      "members": [
+        1035,
+        1069
+      ]
+    },
+    {
+      "relationType": 8431,
+      "point": 1,
+      "members": [
+        1048,
+        1069
+      ]
+    },
+    {
+      "relationType": 8432,
+      "point": 1,
+      "members": [
+        1007,
+        1069
+      ]
+    },
+    {
+      "relationType": 8433,
+      "point": 1,
+      "members": [
+        1009,
+        1069
+      ]
+    },
+    {
+      "relationType": 8434,
+      "point": 1,
+      "members": [
+        1046,
+        1069
+      ]
+    },
+    {
+      "relationType": 8436,
+      "point": 1,
+      "members": [
+        1006,
+        1069
+      ]
+    },
+    {
+      "relationType": 8437,
+      "point": 1,
+      "members": [
+        1050,
+        1069
+      ]
+    },
+    {
+      "relationType": 8438,
+      "point": 1,
+      "members": [
+        1020,
+        1069
+      ]
+    },
+    {
+      "relationType": 8439,
+      "point": 1,
+      "members": [
+        1056,
+        1069
+      ]
+    },
+    {
+      "relationType": 8441,
+      "point": 1,
+      "members": [
+        1041,
+        1069
+      ]
+    },
+    {
+      "relationType": 8443,
+      "point": 1,
+      "members": [
+        1001,
+        1069
+      ]
+    },
+    {
+      "relationType": 8444,
+      "point": 1,
+      "members": [
+        1002,
+        1069
+      ]
+    },
+    {
+      "relationType": 8445,
+      "point": 1,
+      "members": [
+        1005,
+        1069
+      ]
+    },
+    {
+      "relationType": 8446,
+      "point": 1,
+      "members": [
+        1010,
+        1069
+      ]
+    },
+    {
+      "relationType": 8447,
+      "point": 1,
+      "members": [
+        1016,
+        1069
+      ]
+    },
+    {
+      "relationType": 8448,
+      "point": 1,
+      "members": [
+        1025,
+        1069
+      ]
+    },
+    {
+      "relationType": 8449,
+      "point": 1,
+      "members": [
+        1030,
+        1069
+      ]
+    },
+    {
+      "relationType": 8450,
+      "point": 1,
+      "members": [
+        1032,
+        1069
+      ]
+    },
+    {
+      "relationType": 8451,
+      "point": 1,
+      "members": [
+        1033,
+        1069
+      ]
+    },
+    {
+      "relationType": 8455,
+      "point": 1,
+      "members": [
+        1014,
+        1069
+      ]
+    },
+    {
+      "relationType": 8456,
+      "point": 1,
+      "members": [
+        1019,
+        1069
+      ]
+    },
+    {
+      "relationType": 8457,
+      "point": 1,
+      "members": [
+        1028,
+        1069
+      ]
+    },
+    {
+      "relationType": 8458,
+      "point": 1,
+      "members": [
+        1037,
+        1069
+      ]
+    },
+    {
+      "relationType": 8460,
+      "point": 1,
+      "members": [
+        1044,
+        1069
+      ]
+    },
+    {
+      "relationType": 8472,
+      "point": 1,
+      "members": [
+        1006,
+        1071
+      ]
+    },
+    {
+      "relationType": 8473,
+      "point": 1,
+      "members": [
+        1050,
+        1071
+      ]
+    },
+    {
+      "relationType": 8474,
+      "point": 1,
+      "members": [
+        1020,
+        1071
+      ]
+    },
+    {
+      "relationType": 8476,
+      "point": 1,
+      "members": [
+        1041,
+        1071
+      ]
+    },
+    {
+      "relationType": 8478,
+      "point": 1,
+      "members": [
+        1064,
+        1071
+      ]
+    },
+    {
+      "relationType": 8479,
+      "point": 1,
+      "members": [
+        1001,
+        1071
+      ]
+    },
+    {
+      "relationType": 8480,
+      "point": 1,
+      "members": [
+        1002,
+        1071
+      ]
+    },
+    {
+      "relationType": 8481,
+      "point": 1,
+      "members": [
+        1005,
+        1071
+      ]
+    },
+    {
+      "relationType": 8482,
+      "point": 1,
+      "members": [
+        1010,
+        1071
+      ]
+    },
+    {
+      "relationType": 8483,
+      "point": 1,
+      "members": [
+        1016,
+        1071
+      ]
+    },
+    {
+      "relationType": 8484,
+      "point": 1,
+      "members": [
+        1025,
+        1071
+      ]
+    },
+    {
+      "relationType": 8485,
+      "point": 1,
+      "members": [
+        1030,
+        1071
+      ]
+    },
+    {
+      "relationType": 8486,
+      "point": 1,
+      "members": [
+        1032,
+        1071
+      ]
+    },
+    {
+      "relationType": 8487,
+      "point": 1,
+      "members": [
+        1033,
+        1071
+      ]
+    },
+    {
+      "relationType": 8491,
+      "point": 1,
+      "members": [
+        1051,
+        1071
+      ]
+    },
+    {
+      "relationType": 8492,
+      "point": 1,
+      "members": [
+        1018,
+        1072
+      ]
+    },
+    {
+      "relationType": 8493,
+      "point": 1,
+      "members": [
+        1021,
+        1072
+      ]
+    },
+    {
+      "relationType": 8494,
+      "point": 1,
+      "members": [
+        1023,
+        1072
+      ]
+    },
+    {
+      "relationType": 8495,
+      "point": 1,
+      "members": [
+        1035,
+        1072
+      ]
+    },
+    {
+      "relationType": 8496,
+      "point": 1,
+      "members": [
+        1048,
+        1072
+      ]
+    },
+    {
+      "relationType": 8497,
+      "point": 1,
+      "members": [
+        1007,
+        1072
+      ]
+    },
+    {
+      "relationType": 8498,
+      "point": 1,
+      "members": [
+        1009,
+        1072
+      ]
+    },
+    {
+      "relationType": 8499,
+      "point": 1,
+      "members": [
+        1046,
+        1072
+      ]
+    },
+    {
+      "relationType": 8501,
+      "point": 1,
+      "members": [
+        1067,
+        1072
+      ]
+    },
+    {
+      "relationType": 8502,
+      "point": 1,
+      "members": [
+        1068,
+        1072
+      ]
+    },
+    {
+      "relationType": 8503,
+      "point": 1,
+      "members": [
+        1006,
+        1072
+      ]
+    },
+    {
+      "relationType": 8504,
+      "point": 1,
+      "members": [
+        1050,
+        1072
+      ]
+    },
+    {
+      "relationType": 8505,
+      "point": 1,
+      "members": [
+        1020,
+        1072
+      ]
+    },
+    {
+      "relationType": 8506,
+      "point": 1,
+      "members": [
+        1056,
+        1072
+      ]
+    },
+    {
+      "relationType": 8508,
+      "point": 1,
+      "members": [
+        1041,
+        1072
+      ]
+    },
+    {
+      "relationType": 8510,
+      "point": 1,
+      "members": [
+        1064,
+        1072
+      ]
+    },
+    {
+      "relationType": 8511,
+      "point": 1,
+      "members": [
+        1001,
+        1072
+      ]
+    },
+    {
+      "relationType": 8512,
+      "point": 1,
+      "members": [
+        1002,
+        1072
+      ]
+    },
+    {
+      "relationType": 8513,
+      "point": 1,
+      "members": [
+        1005,
+        1072
+      ]
+    },
+    {
+      "relationType": 8514,
+      "point": 1,
+      "members": [
+        1010,
+        1072
+      ]
+    },
+    {
+      "relationType": 8515,
+      "point": 1,
+      "members": [
+        1016,
+        1072
+      ]
+    },
+    {
+      "relationType": 8516,
+      "point": 1,
+      "members": [
+        1025,
+        1072
+      ]
+    },
+    {
+      "relationType": 8517,
+      "point": 1,
+      "members": [
+        1030,
+        1072
+      ]
+    },
+    {
+      "relationType": 8518,
+      "point": 1,
+      "members": [
+        1032,
+        1072
+      ]
+    },
+    {
+      "relationType": 8519,
+      "point": 1,
+      "members": [
+        1033,
+        1072
+      ]
+    },
+    {
+      "relationType": 8523,
+      "point": 1,
+      "members": [
+        1014,
+        1072
+      ]
+    },
+    {
+      "relationType": 8524,
+      "point": 1,
+      "members": [
+        1019,
+        1072
+      ]
+    },
+    {
+      "relationType": 8525,
+      "point": 1,
+      "members": [
+        1028,
+        1072
+      ]
+    },
+    {
+      "relationType": 8526,
+      "point": 1,
+      "members": [
+        1037,
+        1072
+      ]
+    },
+    {
+      "relationType": 8528,
+      "point": 1,
+      "members": [
+        1044,
+        1072
+      ]
+    },
+    {
+      "relationType": 8529,
+      "point": 1,
+      "members": [
+        1006,
+        1062
+      ]
+    },
+    {
+      "relationType": 8530,
+      "point": 1,
+      "members": [
+        1050,
+        1062
+      ]
+    },
+    {
+      "relationType": 8531,
+      "point": 1,
+      "members": [
+        1020,
+        1062
+      ]
+    },
+    {
+      "relationType": 8533,
+      "point": 1,
+      "members": [
+        1041,
+        1062
+      ]
+    },
+    {
+      "relationType": 8535,
+      "point": 1,
+      "members": [
+        1062,
+        1064
+      ]
+    },
+    {
+      "relationType": 8536,
+      "point": 1,
+      "members": [
+        1001,
+        1062
+      ]
+    },
+    {
+      "relationType": 8537,
+      "point": 1,
+      "members": [
+        1002,
+        1062
+      ]
+    },
+    {
+      "relationType": 8538,
+      "point": 1,
+      "members": [
+        1005,
+        1062
+      ]
+    },
+    {
+      "relationType": 8539,
+      "point": 1,
+      "members": [
+        1010,
+        1062
+      ]
+    },
+    {
+      "relationType": 8540,
+      "point": 1,
+      "members": [
+        1016,
+        1062
+      ]
+    },
+    {
+      "relationType": 8541,
+      "point": 1,
+      "members": [
+        1025,
+        1062
+      ]
+    },
+    {
+      "relationType": 8542,
+      "point": 1,
+      "members": [
+        1030,
+        1062
+      ]
+    },
+    {
+      "relationType": 8543,
+      "point": 1,
+      "members": [
+        1032,
+        1062
+      ]
+    },
+    {
+      "relationType": 8544,
+      "point": 1,
+      "members": [
+        1033,
+        1062
+      ]
+    },
+    {
+      "relationType": 8548,
+      "point": 1,
+      "members": [
+        1051,
+        1062
+      ]
+    },
+    {
+      "relationType": 8555,
+      "point": 1,
+      "members": [
+        1004,
+        1064
+      ]
+    },
+    {
+      "relationType": 8556,
+      "point": 1,
+      "members": [
+        1045,
+        1064
+      ]
+    },
+    {
+      "relationType": 8557,
+      "point": 1,
+      "members": [
+        1064,
+        1069
+      ]
+    },
+    {
+      "relationType": 8559,
+      "point": 1,
+      "members": [
+        1015,
+        1064
+      ]
+    },
+    {
+      "relationType": 8560,
+      "point": 1,
+      "members": [
+        1038,
+        1064
+      ]
+    },
+    {
+      "relationType": 8561,
+      "point": 1,
+      "members": [
+        1040,
+        1064
+      ]
+    },
+    {
+      "relationType": 8563,
+      "point": 1,
+      "members": [
+        1058,
+        1064
+      ]
+    },
+    {
+      "relationType": 8564,
+      "point": 1,
+      "members": [
+        1060,
+        1064
+      ]
+    },
+    {
+      "relationType": 8565,
+      "point": 1,
+      "members": [
+        1027,
+        1064
+      ]
+    },
+    {
+      "relationType": 8566,
+      "point": 1,
+      "members": [
+        1059,
+        1064
+      ]
+    },
+    {
+      "relationType": 8570,
+      "point": 1,
+      "members": [
+        1041,
+        1064
+      ]
+    },
+    {
+      "relationType": 8587,
+      "point": 1,
+      "members": [
+        1018,
+        1068
+      ]
+    },
+    {
+      "relationType": 8588,
+      "point": 1,
+      "members": [
+        1021,
+        1068
+      ]
+    },
+    {
+      "relationType": 8589,
+      "point": 1,
+      "members": [
+        1023,
+        1068
+      ]
+    },
+    {
+      "relationType": 8590,
+      "point": 1,
+      "members": [
+        1035,
+        1068
+      ]
+    },
+    {
+      "relationType": 8591,
+      "point": 1,
+      "members": [
+        1048,
+        1068
+      ]
+    },
+    {
+      "relationType": 8592,
+      "point": 1,
+      "members": [
+        1004,
+        1068
+      ]
+    },
+    {
+      "relationType": 8593,
+      "point": 1,
+      "members": [
+        1045,
+        1068
+      ]
+    },
+    {
+      "relationType": 8594,
+      "point": 1,
+      "members": [
+        1068,
+        1069
+      ]
+    },
+    {
+      "relationType": 8596,
+      "point": 1,
+      "members": [
+        1003,
+        1068
+      ]
+    },
+    {
+      "relationType": 8597,
+      "point": 1,
+      "members": [
+        1013,
+        1068
+      ]
+    },
+    {
+      "relationType": 8598,
+      "point": 1,
+      "members": [
+        1017,
+        1068
+      ]
+    },
+    {
+      "relationType": 8599,
+      "point": 1,
+      "members": [
+        1014,
+        1068
+      ]
+    },
+    {
+      "relationType": 8600,
+      "point": 1,
+      "members": [
+        1019,
+        1068
+      ]
+    },
+    {
+      "relationType": 8601,
+      "point": 1,
+      "members": [
+        1028,
+        1068
+      ]
+    },
+    {
+      "relationType": 8602,
+      "point": 1,
+      "members": [
+        1037,
+        1068
+      ]
+    },
+    {
+      "relationType": 8604,
+      "point": 1,
+      "members": [
+        1044,
+        1068
+      ]
+    },
+    {
+      "relationType": 8605,
+      "point": 1,
+      "members": [
+        1039,
+        1068
+      ]
+    },
+    {
+      "relationType": 8606,
+      "point": 1,
+      "members": [
+        1052,
+        1068
+      ]
+    },
+    {
+      "relationType": 8607,
+      "point": 1,
+      "members": [
+        1061,
+        1068
+      ]
+    },
+    {
+      "relationType": 8610,
+      "point": 1,
+      "members": [
+        1018,
+        1067
+      ]
+    },
+    {
+      "relationType": 8611,
+      "point": 1,
+      "members": [
+        1021,
+        1067
+      ]
+    },
+    {
+      "relationType": 8612,
+      "point": 1,
+      "members": [
+        1023,
+        1067
+      ]
+    },
+    {
+      "relationType": 8613,
+      "point": 1,
+      "members": [
+        1035,
+        1067
+      ]
+    },
+    {
+      "relationType": 8614,
+      "point": 1,
+      "members": [
+        1048,
+        1067
+      ]
+    },
+    {
+      "relationType": 8615,
+      "point": 1,
+      "members": [
+        1004,
+        1067
+      ]
+    },
+    {
+      "relationType": 8616,
+      "point": 1,
+      "members": [
+        1045,
+        1067
+      ]
+    },
+    {
+      "relationType": 8617,
+      "point": 1,
+      "members": [
+        1067,
+        1069
+      ]
+    },
+    {
+      "relationType": 8619,
+      "point": 1,
+      "members": [
+        1003,
+        1067
+      ]
+    },
+    {
+      "relationType": 8620,
+      "point": 1,
+      "members": [
+        1013,
+        1067
+      ]
+    },
+    {
+      "relationType": 8621,
+      "point": 1,
+      "members": [
+        1017,
+        1067
+      ]
+    },
+    {
+      "relationType": 8622,
+      "point": 1,
+      "members": [
+        1014,
+        1067
+      ]
+    },
+    {
+      "relationType": 8623,
+      "point": 1,
+      "members": [
+        1019,
+        1067
+      ]
+    },
+    {
+      "relationType": 8624,
+      "point": 1,
+      "members": [
+        1028,
+        1067
+      ]
+    },
+    {
+      "relationType": 8625,
+      "point": 1,
+      "members": [
+        1037,
+        1067
+      ]
+    },
+    {
+      "relationType": 8627,
+      "point": 1,
+      "members": [
+        1044,
+        1067
+      ]
+    },
+    {
+      "relationType": 8628,
+      "point": 1,
+      "members": [
+        1039,
+        1067
+      ]
+    },
+    {
+      "relationType": 8629,
+      "point": 1,
+      "members": [
+        1052,
+        1067
+      ]
+    },
+    {
+      "relationType": 8630,
+      "point": 1,
+      "members": [
+        1061,
+        1067
+      ]
+    },
+    {
+      "relationType": 8633,
+      "point": 1,
+      "members": [
+        1006,
+        1074
+      ]
+    },
+    {
+      "relationType": 8634,
+      "point": 1,
+      "members": [
+        1050,
+        1074
+      ]
+    },
+    {
+      "relationType": 8635,
+      "point": 1,
+      "members": [
+        1020,
+        1074
+      ]
+    },
+    {
+      "relationType": 8637,
+      "point": 1,
+      "members": [
+        1041,
+        1074
+      ]
+    },
+    {
+      "relationType": 8639,
+      "point": 1,
+      "members": [
+        1064,
+        1074
+      ]
+    },
+    {
+      "relationType": 8640,
+      "point": 1,
+      "members": [
+        1001,
+        1074
+      ]
+    },
+    {
+      "relationType": 8641,
+      "point": 1,
+      "members": [
+        1002,
+        1074
+      ]
+    },
+    {
+      "relationType": 8642,
+      "point": 1,
+      "members": [
+        1005,
+        1074
+      ]
+    },
+    {
+      "relationType": 8643,
+      "point": 1,
+      "members": [
+        1010,
+        1074
+      ]
+    },
+    {
+      "relationType": 8644,
+      "point": 1,
+      "members": [
+        1016,
+        1074
+      ]
+    },
+    {
+      "relationType": 8645,
+      "point": 1,
+      "members": [
+        1025,
+        1074
+      ]
+    },
+    {
+      "relationType": 8646,
+      "point": 1,
+      "members": [
+        1030,
+        1074
+      ]
+    },
+    {
+      "relationType": 8647,
+      "point": 1,
+      "members": [
+        1032,
+        1074
+      ]
+    },
+    {
+      "relationType": 8648,
+      "point": 1,
+      "members": [
+        1033,
+        1074
+      ]
+    },
+    {
+      "relationType": 8652,
+      "point": 1,
+      "members": [
+        1051,
+        1074
+      ]
+    }
+  ]
+}

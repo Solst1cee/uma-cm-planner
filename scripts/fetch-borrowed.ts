@@ -53,6 +53,8 @@ export const BORROWED_FILES: ReadonlyArray<BorrowedFile> = [
     local: 'gametora/event-skill-sources.json',
   },
   { upstream: 'src/store/race/cm-presets.json', local: 'cm-presets.json' },
+  { upstream: 'db/extract/relation.json', local: 'relation.json' },
+  { upstream: 'db/extract/relation_member.json', local: 'relation_member.json' },
   {
     upstream: 'front/src/app/data/data.json',
     local: 'tachyons-data.json',

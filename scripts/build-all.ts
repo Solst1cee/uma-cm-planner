@@ -10,6 +10,7 @@
  */
 import { join } from 'node:path';
 import type { CmPreset, SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
+import { buildAffinity } from './build-affinity';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
 import { buildIcons } from './build-icons';
@@ -82,6 +83,9 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     dataVersion: DATA_VERSION,
   });
   const sparkRates = buildSparkRates();
+  const relation = readBorrowedJson<{ relation_type: number; relation_point: number }[]>('relation.json');
+  const relationMember = readBorrowedJson<{ id: number; relation_type: number; chara_id: number }[]>('relation_member.json');
+  const affinity = buildAffinity({ relation, relationMember, dataVersion: DATA_VERSION });
 
   // Overrides win, applied LAST (P5). spark_rates is already hand-encoded
   // (mechanics-notes) and is not override-targetable.
@@ -116,10 +120,12 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'spark_rates.json'), sparkRates);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'cm_presets.json'), presets);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'umas.json'), umas);
+  writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'affinity.json'), affinity);
 
   console.log(
     `public/data written: ${skills.length} skills, ${cards.length} support cards, ` +
-      `${presets.length} cm presets, ${umas.length} umas, spark_rates (${sparkRates.dataVersion}).`,
+      `${presets.length} cm presets, ${umas.length} umas, spark_rates (${sparkRates.dataVersion}), ` +
+      `${affinity.groups.length} affinity groups.`,
   );
 
   // Icons run LAST — they read the id lists from the JSON just written above.

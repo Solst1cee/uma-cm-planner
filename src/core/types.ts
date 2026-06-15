@@ -68,6 +68,9 @@ export interface WishlistItem {
 // Generated datasets (public/data/*.json)
 // ---------------------------------------------------------------------------
 
+/** A succession_relation group: the umas (by charaId) sharing one relation_type, worth `point` each. */
+export interface AffinityGroup { relationType: number; point: number; members: number[] }
+
 export type SkillRarity = 'white' | 'gold' | 'unique' | 'inherited_unique';
 
 export interface SkillRecord {
