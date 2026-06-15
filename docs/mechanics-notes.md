@@ -107,3 +107,17 @@ Semantics: per individual spark, per lineage member, independent rolls each even
 6. Patent JP-2022-018121 original text (j-platpat) would harden §2–§4 — currently second-hand via herohero note.
 7. **Fast Learner stacking → ADDITIVE (CODE/DOC FIX — affects M4 coverage SP costs).** Verified vs live `master.mdb` + a real Global screenshot (2026-06-15, `spikes/ocr/`): our `baseSpCost` values are **CORRECT** (`single_mode_skill_need_point.need_skill_point`: Full Throttle 160, Glittering Star 200, Radiant Star 200 — match our dataset exactly; the earlier "gold data bug" suspicion was **wrong**). Whites at Hint Lv1 + Fast Learner show base×0.8 (160→128, 200→160), proving FL stacks **additively** (hint 10% + FL 10% = 20%), refuting the multiplicative ×0.81 in umalator's `cost-calculator.ts:31-34` and §7's old wording. **Action:** make our cost model additive (see §7); confirm with one more Lv2+/FL shot.
 8. **Gold-skill cost derivation (CODE — affects M4 coverage + M2 knapsack).** `master.mdb` stores gold skills at their *white-equivalent* base (gold Radiant Star = its white Glittering Star = 200), but the gold's on-screen cost is ~2× (320 at Lv1+FL = 200 × **2** × 0.8). The 2× must be applied in **derivation**, not the stored base. umalator does it by **bundling the white prerequisite** (`cost-calculator.ts:142`), which the M2 spec already adopts (`cost = gold + white`). `coverage.ts:332` currently has no rarity/bundle term → under-prices golds ~2×; add it. **Disambiguate** bundle-vs-flat-×2 with a screenshot of a gold whose white-prereq base ≠ the gold's stored base (both coincide at 200 here, so this one shot can't tell them apart).
+
+## 11. M2 SP-optimizer validation (Plan #1 gate)
+
+- **Automated (`rankBaskets.validation.test.ts`):** deterministic output for a
+  fixed seed; ≤3 baskets; each within budget; ranked on simulated combined Δ-L;
+  the pure core's exact branch == brute-force enumeration (`spOptimizer.test.ts`).
+- **Manual vs VFalator (≥3 skills):** for the fixture build, run VFalator on the
+  same course/strategy/stats and compare single-skill Δ-lengths against
+  `evalSkillDelta` for ≥3 spot-checked skills; record date + numbers here.
+  Within Monte-Carlo noise = pass.
+- **Deferred (needs adapter telemetry):** per-basket phase profile (early/mid/late,
+  stamina margin) — the adapter currently exposes only BashinStats, so v1 shows a
+  distribution descriptor (Δ-lengths + spread), not a phase profile.
+

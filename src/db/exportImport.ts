@@ -21,7 +21,8 @@
  */
 import type { CmPlan, LimitBreak, OwnedCard, Parent, ParentRef } from '@/core/types';
 import { db } from './db';
-import type { MatchLog, SettingRecord } from './types';
+import type { MatchLog, SettingRecord, StoredCapture } from './types';
+import { listCaptures } from '@/db/capturesApi';
 
 export interface ExportBlobV2 {
   version: 2;
@@ -32,6 +33,7 @@ export interface ExportBlobV2 {
   cmPlans: CmPlan[];
   matchLogs: MatchLog[];
   settings: SettingRecord[];
+  captures: StoredCapture[];
 }
 
 /** @deprecated Use ExportBlobV2. v1 blobs have the old CmPlan shape (month/race/targetSkills). */
@@ -50,9 +52,9 @@ export interface ImportResult {
 
 export async function exportBlob(): Promise<ExportBlobV2> {
   // Single read transaction so the snapshot is consistent across tables.
-  const [ownedCards, parents, cmPlans, matchLogs, settings] = await db.transaction(
+  const [ownedCards, parents, cmPlans, matchLogs, settings, captures] = await db.transaction(
     'r',
-    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings],
+    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings, db.captures],
     () =>
       Promise.all([
         db.ownedCards.toArray(),
@@ -60,6 +62,7 @@ export async function exportBlob(): Promise<ExportBlobV2> {
         db.cmPlans.toArray(),
         db.matchLogs.toArray(),
         db.settings.toArray(),
+        listCaptures(),
       ]),
   );
   return {
@@ -70,6 +73,7 @@ export async function exportBlob(): Promise<ExportBlobV2> {
     cmPlans,
     matchLogs,
     settings,
+    captures,
   };
 }
 
@@ -115,7 +119,7 @@ export async function importBlob(data: unknown, mode: ImportMode): Promise<Impor
   let ownedCardsWritten = blob.ownedCards.length;
   await db.transaction(
     'rw',
-    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings],
+    [db.ownedCards, db.parents, db.cmPlans, db.matchLogs, db.settings, db.captures],
     async () => {
       if (mode === 'replace') {
         await Promise.all([
@@ -124,6 +128,7 @@ export async function importBlob(data: unknown, mode: ImportMode): Promise<Impor
           db.cmPlans.clear(),
           db.matchLogs.clear(),
           db.settings.clear(),
+          db.captures.clear(),
         ]);
         // Exact snapshot restore: auto-increment tables keep exported ids.
         await Promise.all([
@@ -141,6 +146,7 @@ export async function importBlob(data: unknown, mode: ImportMode): Promise<Impor
         db.parents.bulkPut(blob.parents),
         db.cmPlans.bulkPut(blob.cmPlans),
         db.settings.bulkPut(blob.settings),
+        db.captures.bulkPut(blob.captures),
       ]);
     },
   );
@@ -151,6 +157,7 @@ export async function importBlob(data: unknown, mode: ImportMode): Promise<Impor
       cmPlans: blob.cmPlans.length,
       matchLogs: blob.matchLogs.length,
       settings: blob.settings.length,
+      captures: blob.captures.length,
     },
   };
 }
@@ -395,6 +402,7 @@ export function parseExportBlobV2(data: unknown): ExportBlobV2 {
     settings: asArray(root['settings'], 'blob.settings').map((r, i) =>
       parseSetting(r, `blob.settings[${i}]`),
     ),
+    captures: asArray(root['captures'] ?? [], 'blob.captures') as StoredCapture[],
   };
 }
 

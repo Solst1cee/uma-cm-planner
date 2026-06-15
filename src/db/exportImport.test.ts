@@ -5,6 +5,8 @@ import { FIXTURE_PLAN } from '@/core/fixtures';
 import { db } from './db';
 import { exportBlob, importBlob, type ExportBlobV2 } from './exportImport';
 import type { MatchLog } from './types';
+import type { CaptureBundle } from '@/core/spOptimizer';
+import { saveCapture } from '@/db';
 
 const PARENT: Parent = {
   id: 'parent-1',
@@ -22,6 +24,25 @@ const MATCH_LOG: Omit<MatchLog, 'id'> = {
   notes: 'lost to a closer',
 };
 
+const BUNDLE_FIXTURE: CaptureBundle = {
+  schemaVersion: 1,
+  source: 'manual',
+  capturedAt: '2026-06-15T00:00:00.000Z',
+  server: 'global',
+  dataVersion: 'global-c1fa2107',
+  context: {
+    umaId: '',
+    stats: { spd: 1, sta: 1, pow: 1, gut: 1, wit: 1 },
+    aptitudes: { distance: 'A', surface: 'A', strategy: 'A' },
+    strategy: 'pace',
+    courseId: '10101',
+    spBudget: 300,
+    ownedSkills: [],
+    pinned: [],
+    candidates: [],
+  },
+};
+
 function emptyBlob(): ExportBlobV2 {
   return {
     version: 2,
@@ -31,6 +52,7 @@ function emptyBlob(): ExportBlobV2 {
     cmPlans: [],
     matchLogs: [],
     settings: [],
+    captures: [],
   };
 }
 
@@ -68,7 +90,7 @@ describe('export → clear → import (replace)', () => {
     expect(await db.cmPlans.count()).toBe(0);
 
     const { imported } = await importBlob(wire, 'replace');
-    expect(imported).toEqual({ ownedCards: 2, parents: 1, cmPlans: 1, matchLogs: 1, settings: 1 });
+    expect(imported).toEqual({ ownedCards: 2, parents: 1, cmPlans: 1, matchLogs: 1, settings: 1, captures: 0 });
 
     expect(await db.ownedCards.toArray()).toEqual(blob.ownedCards); // ids preserved
     expect(await db.parents.get('parent-1')).toEqual(PARENT);
@@ -207,5 +229,18 @@ describe('malformed input', () => {
     await expect(importBlob({ version: 3 }, 'replace')).rejects.toThrow(/Malformed/);
     expect(await db.ownedCards.count()).toBe(2);
     expect(await db.cmPlans.count()).toBe(1);
+  });
+});
+
+describe('export/import captures', () => {
+  it('round-trips captures and tolerates an absent captures key', async () => {
+    await saveCapture({ label: 'roundtrip', bundle: BUNDLE_FIXTURE });
+    const blob = await exportBlob();
+    expect(blob.captures).toHaveLength(1);
+
+    const { captures, ...legacy } = JSON.parse(JSON.stringify(blob));
+    await db.delete(); await db.open();
+    const result = await importBlob(legacy, 'replace');
+    expect(result.imported.captures ?? 0).toBe(0);
   });
 });

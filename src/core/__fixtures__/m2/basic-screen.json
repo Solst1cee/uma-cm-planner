@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "source": "manual",
+  "capturedAt": "2026-06-15T00:00:00.000Z",
+  "server": "global",
+  "dataVersion": "global-c1fa2107",
+  "seed": 12345,
+  "context": {
+    "umaId": "",
+    "stats": { "spd": 1150, "sta": 800, "pow": 1000, "gut": 500, "wit": 850 },
+    "aptitudes": { "distance": "A", "surface": "A", "strategy": "A" },
+    "strategy": "pace",
+    "courseId": "10101",
+    "spBudget": 300,
+    "ownedSkills": [],
+    "pinned": [],
+    "candidates": [
+      { "skillId": "200332", "rarity": "white", "screenSpCost": 120 },
+      { "skillId": "200331", "rarity": "white", "screenSpCost": 160 },
+      { "skillId": "200342", "rarity": "white", "screenSpCost": 180 }
+    ]
+  }
+}
