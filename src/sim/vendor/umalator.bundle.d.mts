@@ -19,11 +19,20 @@ export interface IRunnerState {
   linkedRunnerId?: string;
 }
 
-/** Opaque course geometry; only ever produced by coursesService.getSimCourse. */
+/**
+ * Course geometry produced by coursesService.getSimCourse. The named fields are
+ * the ones we read for the §0 track diagram (verified present at runtime; the
+ * bundle ships no .d.ts so these are hand-declared). The index signature keeps
+ * the rest of the engine's record reachable as `unknown`.
+ */
 export interface CourseData {
   readonly courseId: number;
   readonly distance: number;
   readonly surface: number; // 1=Turf, 2=Dirt
+  readonly turn: number; // 1=right-handed, 2=left-handed
+  readonly corners: ReadonlyArray<{ readonly start: number; readonly length: number }>;
+  readonly straights: ReadonlyArray<{ readonly start: number; readonly end: number }>;
+  readonly slopes: ReadonlyArray<{ readonly start: number; readonly length: number; readonly slope: number }>;
   readonly [key: string]: unknown;
 }
 

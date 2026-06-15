@@ -1,0 +1,111 @@
+/* M4 rebuild — new main page (cm-planner). §0 race-track diagram styles,
+   ported from the mockup (.superpowers/brainstorm/.../m4-current.html) onto the
+   project's design tokens (--border / --accent / --fg-muted). */
+
+/* ---- §0 track diagram ---- */
+.track {
+  position: relative;
+  height: 34px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  margin-top: 8px;
+}
+.tseg {
+  height: 100%;
+}
+.tstraight {
+  background: #1b2230;
+}
+.tcorner {
+  background: #33283f;
+}
+
+/* activation bands are <button>s overlaid on the track */
+.act {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  background: rgba(176, 139, 255, 0.16);
+  border: 0;
+  border-left: 1px solid rgba(176, 139, 255, 0.55);
+  border-right: 1px solid rgba(176, 139, 255, 0.55);
+  cursor: pointer;
+}
+.act > b {
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #cfe0ff;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.act.hot {
+  background: rgba(122, 162, 247, 0.32);
+  border-left: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+  z-index: 2;
+}
+.act:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  z-index: 3;
+}
+.fin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 3px;
+  background: #57c98a;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--fg-muted);
+  margin-top: 2px;
+}
+.tracklegend {
+  display: flex;
+  gap: 11px;
+  flex-wrap: wrap;
+  font-size: 10px;
+  color: var(--fg-muted);
+  margin-top: 6px;
+}
+.tracklegend .k {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tracklegend i {
+  width: 13px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.leg-straight {
+  background: #1b2230;
+}
+.leg-corner {
+  background: #33283f;
+}
+.leg-sel {
+  background: rgba(122, 162, 247, 0.5);
+  border: 1px solid var(--accent);
+}
+.leg-other {
+  background: rgba(176, 139, 255, 0.25);
+  border: 1px solid #6a5a9e;
+}
+.leg-fin {
+  background: #57c98a;
+}

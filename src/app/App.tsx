@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-do
 import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
+import { CmPlannerPage } from '@/features/cm-planner/CmPlannerPage';
 import { ParentsPage } from '@/features/parents/ParentsPage';
 import { SkillAcquisitionPage } from '@/features/skill-acq/SkillAcquisitionPage';
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
@@ -47,6 +48,9 @@ function Shell() {
           <NavLink to="/meta-intel" className={navItemClass}>
             Meta Intel
           </NavLink>
+          <NavLink to="/legacy" className={navItemClass}>
+            Legacy
+          </NavLink>
           {STUB_MODULES.map((name) => (
             <button key={name} type="button" className="nav-item" disabled>
               {name}
@@ -57,7 +61,8 @@ function Shell() {
       <FixtureBanner />
       <main>
         <Routes>
-          <Route path="/" element={<SkillAcquisitionPage />} />
+          <Route path="/" element={<CmPlannerPage />} />
+          <Route path="/legacy" element={<SkillAcquisitionPage />} />
           <Route path="/parents" element={<ParentsPage />} />
           <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
           <Route path="/meta-intel" element={<TimelinePage />} />
