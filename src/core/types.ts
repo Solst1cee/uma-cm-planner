@@ -11,6 +11,60 @@ export type Server = 'global' | 'jp';
 export type Stat = 'spd' | 'sta' | 'pow' | 'gut' | 'wit';
 
 // ---------------------------------------------------------------------------
+// Canonical primitive tokens + forward types (shared-types-reconciliation)
+// ---------------------------------------------------------------------------
+
+export type Grade = 'G' | 'F' | 'E' | 'D' | 'C' | 'B' | 'A' | 'S';
+export type Role = 'ace' | 'debuffer' | 'hybrid';
+export type Strategy = 'front' | 'pace' | 'late' | 'end';
+export type Mood = -2 | -1 | 0 | 1 | 2;
+export type AptKey =
+  | { kind: 'distance'; key: 'short' | 'mile' | 'medium' | 'long' }
+  | { kind: 'surface'; key: 'turf' | 'dirt' }
+  | { kind: 'strategy'; key: Strategy };
+export type CmId = `CM${number}`;
+export interface CmRef {
+  cmId: CmId;
+  cmNumber: number;
+  courseId: string;
+  // Superset of the minimal spec CmRef: geometry carried until M3's cm_schedule derives it.
+  surface: 'turf' | 'dirt';
+  distance: number;
+  condition?: string;
+  season?: string;
+}
+export interface ParentSparks {
+  pink: Array<{ aptKey: AptKey; stars: 1 | 2 | 3 }>;
+  blue: Array<{ stat: Stat; stars: 1 | 2 | 3 }>;
+  green: Array<{ uniqueSkillId: string; stars: 1 | 2 | 3 }>;
+  white: Array<{ skillId: string; stars: 1 | 2 | 3 }>;
+}
+/** UmaExtractor roster target — M1-owned (its Dexie store + the nested Parent land in Plan 2). Forward type. */
+export interface RosterEntry {
+  id: string;
+  umaId: string;
+  stats: Record<Stat, number>;
+  aptitudes: Array<{ aptKey: AptKey; grade: Grade }>;
+  learnedSkills: string[];
+  sparks: ParentSparks;
+  tags: string[];
+  source: 'mine' | 'friend_rental' | 'dummy';
+  importSource: 'umaextractor' | 'paste' | 'roster' | 'dummy';
+  trainerId?: string;
+}
+/** M4 wishlist item. `priority` retained (reconciliation: shared-data-model §4 omitted it but M4 weights by it). */
+export interface WishlistItem {
+  skillId: string;
+  priority: Priority;
+  source: 'targeted';
+  projectedL?: number;
+  projectedLStale?: boolean;
+  needsInheriting?: boolean;
+  doubleUp?: boolean;
+  manualAdd?: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Generated datasets (public/data/*.json)
 // ---------------------------------------------------------------------------
 
