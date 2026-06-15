@@ -29,7 +29,9 @@ export function SkillChartPanel({ plan, onChange, deps }: SkillChartPanelProps) 
   const { skills, skillById, sparkRates } = useGameData();
 
   const catalog = useMemo(() => acquirableSkills(skills, plan.server), [skills, plan.server]);
-  const ids = useMemo(() => catalog.map((s) => s.skillId), [catalog]);
+  // The engine can't race a 0-speed runner; don't sim until the user has stats.
+  const hasSpeed = plan.statProfile.stats.spd > 0;
+  const ids = useMemo(() => (hasSpeed ? catalog.map((s) => s.skillId) : []), [catalog, hasSpeed]);
   const build = useMemo(() => planToSimBuild(plan), [plan]); // identity changes each plan edit — acceptable
   const race = useMemo(() => ({ courseId: plan.cmRef.courseId }), [plan.cmRef.courseId]);
 
@@ -93,6 +95,13 @@ export function SkillChartPanel({ plan, onChange, deps }: SkillChartPanelProps) 
         </label>
       </div>
 
+      {!hasSpeed && (
+        <p className="muted">
+          Enter your runner's stats (Speed is required) in the Runner panel to rank skills.
+        </p>
+      )}
+
+      {hasSpeed && (
       <ul className="skill-chart-list" aria-label="Skill chart">
         {rows.map((row) => {
           const skill = skillById.get(row.skillId);
@@ -170,6 +179,7 @@ export function SkillChartPanel({ plan, onChange, deps }: SkillChartPanelProps) 
           );
         })}
       </ul>
+      )}
     </section>
   );
 }
