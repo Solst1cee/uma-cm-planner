@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ChosenParentsPicker: two plan slots backed by saved parents; writes
  * plan.chosenParents ids via setPlan. '@/db', useActivePlan and useGameData
  * are mocked.
@@ -54,7 +54,7 @@ const P2: Parent = {
 };
 
 beforeEach(() => {
-  active.plan = { ...FIXTURE_PLAN, chosenParents: [undefined, undefined] };
+  active.plan = { ...FIXTURE_PLAN, parents: {} };
 });
 
 afterEach(cleanup);
@@ -72,23 +72,23 @@ describe('ChosenParentsPicker', () => {
     await user.selectOptions(screen.getByLabelText('Parent 1'), 'p1');
     expect(active.setPlan).toHaveBeenCalledWith({
       ...active.plan,
-      chosenParents: ['p1', undefined],
+      parents: { a: 'p1' },
     });
   });
 
   it('writes slot 2 independently and clears a slot back to empty', async () => {
     const user = userEvent.setup();
-    active.plan = { ...FIXTURE_PLAN, chosenParents: ['p1', undefined] };
+    active.plan = { ...FIXTURE_PLAN, parents: { a: 'p1' } };
     await renderLoaded();
 
     await user.selectOptions(screen.getByLabelText('Parent 2'), 'p2');
     expect(active.setPlan).toHaveBeenCalledWith(
-      expect.objectContaining({ chosenParents: ['p1', 'p2'] }),
+      expect.objectContaining({ parents: { a: 'p1', b: 'p2' } }),
     );
 
     await user.selectOptions(screen.getByLabelText('Parent 1'), '');
     expect(active.setPlan).toHaveBeenCalledWith(
-      expect.objectContaining({ chosenParents: [undefined, undefined] }),
+      expect.objectContaining({ parents: {} }),
     );
   });
 
@@ -107,7 +107,7 @@ describe('ChosenParentsPicker', () => {
   });
 
   it('disables a parent already used in the other slot', async () => {
-    active.plan = { ...FIXTURE_PLAN, chosenParents: ['p1', undefined] };
+    active.plan = { ...FIXTURE_PLAN, parents: { a: 'p1' } };
     await renderLoaded();
     const slot2 = screen.getByLabelText('Parent 2');
     const opt = Array.from(slot2.querySelectorAll('option')).find((o) => o.value === 'p1');
@@ -115,7 +115,7 @@ describe('ChosenParentsPicker', () => {
   });
 
   it('keeps a stale id selectable as "(missing parent)" instead of mis-rendering', async () => {
-    active.plan = { ...FIXTURE_PLAN, chosenParents: ['ghost', undefined] };
+    active.plan = { ...FIXTURE_PLAN, parents: { a: 'ghost' } };
     await renderLoaded([P1]);
     expect(screen.getByLabelText('Parent 1')).toHaveDisplayValue('(missing parent)');
   });

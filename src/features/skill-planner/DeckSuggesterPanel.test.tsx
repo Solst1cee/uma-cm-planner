@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Deck suggester rendering contract: the locked-slot editor persists to
  * plan.lockedDeckSlots; suggestions render locked badges, rationale lines,
  * the coverage score and the uncovered ("what am I missing") list.
@@ -166,7 +166,7 @@ describe('DeckSuggesterPanel', () => {
     // targetSkills array — the displayed deck no longer matches it (P3).
     rerender(
       <DeckSuggesterPanel
-        plan={{ ...FIXTURE_PLAN, targetSkills: [{ skillId: '200332', priority: 1 }] }}
+        plan={{ ...FIXTURE_PLAN, wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] }}
         onChange={vi.fn()}
         inventory={INVENTORY}
       />,
@@ -181,7 +181,7 @@ describe('DeckSuggesterPanel', () => {
     vi.mocked(listParents).mockReturnValueOnce(new Promise<Parent[]>(() => {}));
     render(
       <DeckSuggesterPanel
-        plan={{ ...FIXTURE_PLAN, chosenParents: ['p1', undefined] }}
+        plan={{ ...FIXTURE_PLAN, parents: { a: 'p1' } }}
         onChange={vi.fn()}
         inventory={INVENTORY}
       />,
@@ -217,7 +217,7 @@ describe('DeckSuggesterPanel', () => {
   it('disables Suggest deck when the plan has no target skills', () => {
     render(
       <DeckSuggesterPanel
-        plan={{ ...FIXTURE_PLAN, targetSkills: [] }}
+        plan={{ ...FIXTURE_PLAN, wishlist: [] }}
         onChange={vi.fn()}
         inventory={INVENTORY}
       />,

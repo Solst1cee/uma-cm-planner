@@ -44,15 +44,15 @@ export function DeckSuggesterPanel({
   const { parents, loading: parentsLoading } = useChosenParents(plan);
   const [suggestion, setSuggestion] = useState<DeckSuggestion | null>(null);
 
-  // FINDING 2: a suggestion is computed from plan.targetSkills, the resolved
-  // parents (and plan.chosenParents that drive them), and inventory. If ANY of
+  // FINDING 2: a suggestion is computed from plan.wishlist, the resolved
+  // parents (and plan.parents that drive them), and inventory. If ANY of
   // those change after a suggestion is shown, the displayed deck/score/missing
   // list describes a plan that no longer holds — a fabricated answer (P3). Lock
   // edits already clear via applyLock; this covers the rest by clearing whenever
   // a suggester input changes.
   useEffect(() => {
     setSuggestion(null);
-  }, [plan.targetSkills, plan.chosenParents, inventory, parents]);
+  }, [plan.wishlist, plan.parents, inventory, parents]);
   /** Slot whose card-lock picker is open (transient; nothing in plan yet). */
   const [picking, setPicking] = useState<Slot | null>(null);
   const [query, setQuery] = useState('');
@@ -110,7 +110,7 @@ export function DeckSuggesterPanel({
     }
   }
 
-  const hasTargets = plan.targetSkills.length > 0;
+  const hasTargets = plan.wishlist.length > 0;
 
   return (
     <section className="panel" aria-labelledby="suggester-h">

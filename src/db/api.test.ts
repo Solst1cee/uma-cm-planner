@@ -54,9 +54,9 @@ describe('plan helpers', () => {
     expect(await listPlans()).toHaveLength(1);
   });
 
-  it('listPlans sorts by month', async () => {
-    const later: CmPlan = { ...FIXTURE_PLAN, id: 'plan-later', month: '2026-09' };
-    const earlier: CmPlan = { ...FIXTURE_PLAN, id: 'plan-earlier', month: '2026-05' };
+  it('listPlans sorts by name', async () => {
+    const later: CmPlan = { ...FIXTURE_PLAN, id: 'plan-later', name: 'Z Cup' };
+    const earlier: CmPlan = { ...FIXTURE_PLAN, id: 'plan-earlier', name: 'A Cup' };
     await savePlan(later);
     await savePlan(earlier);
     expect((await listPlans()).map((p) => p.id)).toEqual(['plan-earlier', 'plan-later']);

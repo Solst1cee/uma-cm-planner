@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Active-plan persistence: the debounced save must be flushable (export/import
  * snapshot Dexie directly — review 2026-06-12: stale export within the 400ms
  * window) and must flush on pagehide (tab close / mobile background-kill).
@@ -102,8 +102,7 @@ describe('makeDefaultPlan preset preference (P4)', () => {
       preset({ name: 'Global Older', date: '2025-12-22' }),
     ]);
     expect(plan.name).toBe('Global Latest');
-    expect(plan.month).toBe('2026-04');
-    expect(plan.race.courseId).toBe('10811');
+    expect(plan.cmRef.courseId).toBe('10811');
   });
 
   it('falls back to the latest preset overall when none are Global', () => {
@@ -112,12 +111,11 @@ describe('makeDefaultPlan preset preference (P4)', () => {
       preset({ name: 'JP New', date: '2026-02-02', server: 'jp' }),
     ]);
     expect(plan.name).toBe('JP New');
-    expect(plan.month).toBe('2026-02');
   });
 
   it('still produces a usable plan with no presets at all', () => {
     const plan = makeDefaultPlan([]);
     expect(plan.name).toBe('New CM Plan');
-    expect(plan.targetSkills).toEqual([]);
+    expect(plan.wishlist).toEqual([]);
   });
 });

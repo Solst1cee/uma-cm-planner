@@ -231,7 +231,7 @@ export function buildCoverageMatrix(args: {
   const rarityById = new Map(skills.map((s) => [s.skillId, s.rarity]));
 
   // Array.prototype.sort is stable (ES2019+): insertion order breaks ties.
-  const targets = [...plan.targetSkills].sort((a, b) => a.priority - b.priority);
+  const targets = [...plan.wishlist].sort((a, b) => a.priority - b.priority);
 
   return targets.map((target): CoverageRow => {
     const sources: CoverageSource[] = [];
@@ -240,7 +240,7 @@ export function buildCoverageMatrix(args: {
     if (skill) {
       // Scenario-exclusive skill, coverable only when the plan runs that
       // scenario (plan §6 scenario dimension); no card needed.
-      if (skill.scenarioId !== undefined && skill.scenarioId === plan.scenario.id) {
+      if (skill.scenarioId !== undefined && skill.scenarioId === plan.scenarioId) {
         sources.push({ kind: 'scenario' });
       }
       for (const owned of inventory) {

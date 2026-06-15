@@ -15,7 +15,7 @@ import type { CmPlan, Parent } from '@/core/types';
 import { listParents } from '@/db';
 
 export interface ChosenParents {
-  /** Index-aligned with plan.chosenParents; undefined = empty slot, missing record, or still loading. */
+  /** Index-aligned with plan.parents [a, b]; undefined = empty slot, missing record, or still loading. */
   slots: [Parent | undefined, Parent | undefined];
   /** Resolved records only — the shape the core functions take. */
   parents: Parent[];
@@ -32,7 +32,8 @@ const EMPTY: ChosenParents = {
 
 export function useChosenParents(plan: CmPlan): ChosenParents {
   const [state, setState] = useState<ChosenParents>({ ...EMPTY, loading: true });
-  const [id0, id1] = plan.chosenParents;
+  const id0 = plan.parents.a;
+  const id1 = plan.parents.b;
 
   // Resolve the two chosen ids against the current store contents. Returns a
   // cleanup that cancels the in-flight read so a stale resolve can't land.

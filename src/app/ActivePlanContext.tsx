@@ -20,33 +20,40 @@ import { useGameData } from '@/features/data/gameData';
 const ACTIVE_PLAN_KEY = 'activePlanId';
 const SAVE_DEBOUNCE_MS = 400;
 
+const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
+
+function cmNumberFromName(name: string): number {
+  const m = name.match(/CM\s*0*(\d+)/i);
+  return m ? Number(m[1]) : 0;
+}
+
 export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
-  // Code-point sort (not localeCompare) — deterministic on ISO dates.
   const sorted = [...presets].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   // P4: default to the latest CM that actually ran on Global; JP-history
   // presets are preview-only. Fall back to the latest overall (e.g. fixture
   // data or a dataset that predates the server tag).
   const latest = sorted.filter((p) => p.server === 'global').at(-1) ?? sorted.at(-1);
+  const cmNumber = latest ? cmNumberFromName(latest.name) : 0;
   return {
     id: crypto.randomUUID(),
     name: latest ? latest.name : 'New CM Plan',
-    month: latest ? latest.date.slice(0, 7) : new Date().toISOString().slice(0, 7),
-    // id 4 = Trackblazer, the latest Global scenario (provenance §3.1);
-    // isDefault marks "following the app-level latest-scenario default".
-    scenario: { id: 4, isDefault: true },
-    race: latest
-      ? {
-          courseId: latest.courseId,
-          surface: latest.surface,
-          distance: latest.distance,
-          season: latest.season,
-          condition: latest.ground,
-        }
-      : { courseId: '', surface: 'turf', distance: 1600 },
-    requiredAptitudes: [],
-    targetSkills: [],
+    planNumber: 1,
+    cmRef: latest
+      ? { cmId: `CM${cmNumber}`, cmNumber, courseId: latest.courseId, surface: latest.surface, distance: latest.distance, season: latest.season, condition: latest.ground }
+      : { cmId: 'CM0', cmNumber: 0, courseId: '', surface: 'turf', distance: 1600 },
+    scenarioId: 4,
+    umaId: '',
+    uniqueSkillId: '',
+    role: 'ace',
+    strategy: 'pace',
+    statProfile: { stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 }, mood: 0 },
+    sparkGoals: { pink: [], blue: {} },
+    wishlist: [],
     lockedDeckSlots: [],
-    chosenParents: [undefined, undefined],
+    parents: {},
+    patch: { version: DATA_VERSION },
+    server: 'global',
+    dataVersion: DATA_VERSION,
   };
 }
 

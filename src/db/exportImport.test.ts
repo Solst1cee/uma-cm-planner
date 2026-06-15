@@ -1,9 +1,9 @@
-import 'fake-indexeddb/auto'; // must precede any dexie import
+﻿import 'fake-indexeddb/auto'; // must precede any dexie import
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Parent } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import { db } from './db';
-import { exportBlob, importBlob, type ExportBlobV1 } from './exportImport';
+import { exportBlob, importBlob, type ExportBlobV2 } from './exportImport';
 import type { MatchLog } from './types';
 
 const PARENT: Parent = {
@@ -22,9 +22,9 @@ const MATCH_LOG: Omit<MatchLog, 'id'> = {
   notes: 'lost to a closer',
 };
 
-function emptyBlob(): ExportBlobV1 {
+function emptyBlob(): ExportBlobV2 {
   return {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     ownedCards: [],
     parents: [],
@@ -58,7 +58,7 @@ describe('export → clear → import (replace)', () => {
   it('preserves all tables through a JSON round-trip', async () => {
     await seed();
     const blob = await exportBlob();
-    expect(blob.version).toBe(1);
+    expect(blob.version).toBe(2);
     expect(new Date(blob.exportedAt).getTime()).not.toBeNaN();
 
     // The real flow serializes to a downloadable JSON file — undefined tuple
@@ -74,7 +74,7 @@ describe('export → clear → import (replace)', () => {
     expect(await db.parents.get('parent-1')).toEqual(PARENT);
     const plan = await db.cmPlans.get(FIXTURE_PLAN.id);
     expect(plan).toEqual(FIXTURE_PLAN);
-    expect(plan?.chosenParents).toEqual([undefined, undefined]); // not [null, null]
+    expect(plan?.parents).toEqual({});
     expect(await db.matchLogs.toArray()).toEqual(blob.matchLogs);
     expect((await db.settings.get('preferredServer'))?.value).toBe('global');
   });
@@ -98,7 +98,7 @@ describe('import (merge)', () => {
   it('upserts keyed tables and dedupes ownedCards by cardId, keeping the higher limitBreak', async () => {
     await seed(); // ownedCards: 30028 LB3, 30016 LB4
 
-    const blob: ExportBlobV1 = {
+    const blob: ExportBlobV2 = {
       ...emptyBlob(),
       ownedCards: [
         { cardId: '30028', limitBreak: 4 }, // already owned at LB3 → upgraded in place
@@ -125,7 +125,7 @@ describe('import (merge)', () => {
     // by-id upsert would clobber A's 30016 and A's match log.
     await seed();
 
-    const deviceB: ExportBlobV1 = {
+    const deviceB: ExportBlobV2 = {
       ...emptyBlob(),
       ownedCards: [
         { id: 1, cardId: '30028', limitBreak: 1 }, // collides with A's id 1; LOWER LB
@@ -153,7 +153,7 @@ describe('import (merge)', () => {
   });
 
   it('dedupes duplicate cardIds within the blob itself, keeping the higher limitBreak', async () => {
-    const blob: ExportBlobV1 = {
+    const blob: ExportBlobV2 = {
       ...emptyBlob(),
       ownedCards: [
         { cardId: '30028', limitBreak: 1 },
@@ -173,8 +173,8 @@ describe('malformed input', () => {
   it.each([
     [null, /blob must be an object/],
     ['{}', /blob must be an object/],
-    [{ ...emptyBlob(), version: 2 }, /unsupported version 2/],
-    [{ version: 1, exportedAt: 'now' }, /blob\.ownedCards must be an array/],
+    [{ ...emptyBlob(), version: 1 }, /unsupported version 1/],
+    [{ version: 2, exportedAt: 'now' }, /blob\.ownedCards must be an array/],
     [
       { ...emptyBlob(), ownedCards: [{ cardId: 30028, limitBreak: 1 }] },
       /blob\.ownedCards\[0\]\.cardId must be a string/,
@@ -190,9 +190,9 @@ describe('malformed input', () => {
     [
       {
         ...emptyBlob(),
-        cmPlans: [{ ...FIXTURE_PLAN, targetSkills: [{ skillId: '200331', priority: 0 }] }],
+        cmPlans: [{ ...FIXTURE_PLAN, wishlist: [{ skillId: '200331', priority: 0, source: 'targeted' }] }],
       },
-      /blob\.cmPlans\[0\]\.targetSkills\[0\]\.priority must be 1 \| 2 \| 3/,
+      /blob\.cmPlans\[0\]\.wishlist\[0\]\.priority must be 1 \| 2 \| 3/,
     ],
     [
       { ...emptyBlob(), matchLogs: [{ cmPlanId: 'p', date: 20260730 }] },
@@ -204,7 +204,7 @@ describe('malformed input', () => {
 
   it('leaves existing data untouched when validation fails', async () => {
     await seed();
-    await expect(importBlob({ version: 1 }, 'replace')).rejects.toThrow(/Malformed/);
+    await expect(importBlob({ version: 3 }, 'replace')).rejects.toThrow(/Malformed/);
     expect(await db.ownedCards.count()).toBe(2);
     expect(await db.cmPlans.count()).toBe(1);
   });

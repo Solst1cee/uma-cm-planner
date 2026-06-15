@@ -158,7 +158,7 @@ vi.mock('@/core/spark', () => ({
 
 const INVENTORY: OwnedCard[] = [{ id: 1, cardId: '30028', limitBreak: 3 }];
 
-const PLAN_WITH_PARENTS: CmPlan = { ...FIXTURE_PLAN, chosenParents: ['p1', 'p2'] };
+const PLAN_WITH_PARENTS: CmPlan = { ...FIXTURE_PLAN, parents: { a: 'p1', b: 'p2' } };
 
 afterEach(cleanup);
 
@@ -291,7 +291,7 @@ describe('CoverageMatrixPanel', () => {
   it('shows an empty-state prompt when the plan has no target skills', () => {
     render(
       <CoverageMatrixPanel
-        plan={{ ...FIXTURE_PLAN, targetSkills: [] }}
+        plan={{ ...FIXTURE_PLAN, wishlist: [] }}
         inventory={INVENTORY}
       />,
     );

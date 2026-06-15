@@ -119,7 +119,7 @@ export function suggestDeck(args: {
 
   // Targets in priority order (stable for equal priority) — drives rationale
   // and uncovered ordering. Variable length; priority drives weighting.
-  const targets = [...plan.targetSkills].sort((a, b) => a.priority - b.priority);
+  const targets = [...plan.wishlist].sort((a, b) => a.priority - b.priority);
   const targetIds = new Set(targets.map((t) => t.skillId));
 
   // --- deck-independent baseline tier per target ---------------------------
@@ -129,7 +129,7 @@ export function suggestDeck(args: {
   for (const target of targets) {
     let tier: Tier = 'uncovered';
     const skill = skillById.get(target.skillId);
-    if (skill?.scenarioId !== undefined && skill.scenarioId === plan.scenario.id) {
+    if (skill?.scenarioId !== undefined && skill.scenarioId === plan.scenarioId) {
       tier = betterTier(tier, 'scenario');
     }
     if ((parents ?? []).some((p) => parentCoversSkill(p, target.skillId))) {
@@ -362,7 +362,7 @@ export function sparkOnlyTargets(args: {
   const { plan, deck, cards, skills, parents } = args;
   const cardById = new Map(cards.map((c) => [c.cardId, c]));
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
-  const targets = [...plan.targetSkills].sort((a, b) => a.priority - b.priority);
+  const targets = [...plan.wishlist].sort((a, b) => a.priority - b.priority);
 
   // Cards actually placed in the suggested deck (locked + picked).
   const deckCardIds = new Set(
@@ -373,7 +373,7 @@ export function sparkOnlyTargets(args: {
   for (const target of targets) {
     const skill = skillById.get(target.skillId);
     // Scenario-exclusive coverage is a real (non-spark) source — not spark-only.
-    if (skill?.scenarioId !== undefined && skill.scenarioId === plan.scenario.id) continue;
+    if (skill?.scenarioId !== undefined && skill.scenarioId === plan.scenarioId) continue;
     // Any deck card that lists this skill (at any sourceType) is a card source.
     const cardCovers = [...deckCardIds].some((cardId) =>
       cardById.get(cardId)?.skills.some((cs) => cs.skillId === target.skillId),

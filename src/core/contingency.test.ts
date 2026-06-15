@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for the static spark contingency view (Module 4, plan §6 step 5,
  * M4→M2 link). SP math citations: docs/mechanics-notes.md §7 (cumulative
  * 10/20/30/35/40% hint discount, ceil after summing bundled components);
@@ -192,7 +192,7 @@ describe('computeContingencies', () => {
       source: 'mine',
     };
     const rows = buildCoverageMatrix({
-      plan: { ...FIXTURE_PLAN, targetSkills: [{ skillId: '200012', priority: 1 }] },
+      plan: { ...FIXTURE_PLAN, wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] },
       inventory: [{ cardId: '30028', limitBreak: 4 }],
       cards: FIXTURE_CARDS,
       skills: FIXTURE_SKILLS,

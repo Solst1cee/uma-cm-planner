@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for the deck suggester (Module 4, plan §6 build step 5).
  *
  * Acceptance criteria under test (plan §6): the suggester NEVER violates
@@ -145,7 +145,7 @@ describe('suggestDeck — greedy fill', () => {
       skills: [{ skillId: '100001', sourceType: 'hint_pool' }],
       hintFrequency: [10, 10, 10, 10, 40],
     });
-    const plan = makePlan({ targetSkills: [{ skillId: '100001', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '100001', priority: 1, source: 'targeted' }] });
     const result = suggestDeck({
       plan,
       inventory: [
@@ -287,11 +287,11 @@ describe('suggestDeck — 1-swap refinement pass', () => {
       skills: [{ skillId: '100003', sourceType: 'chain' }],
     });
     const plan = makePlan({
-      scenario: { id: 1, isDefault: false },
-      targetSkills: [
-        { skillId: '100001', priority: 1 },
-        { skillId: '100002', priority: 1 },
-        { skillId: '100003', priority: 2 },
+      scenarioId: 1,
+      wishlist: [
+        { skillId: '100001', priority: 1, source: 'targeted' },
+        { skillId: '100002', priority: 1, source: 'targeted' },
+        { skillId: '100003', priority: 2, source: 'targeted' },
       ],
       lockedDeckSlots: [
         { slot: 0, cardType: 'stamina' },
@@ -324,10 +324,10 @@ describe('suggestDeck — 1-swap refinement pass', () => {
 describe('suggestDeck — uncovered and parents', () => {
   it('lists targets with no source across deck + parents; spark coverage removes them but scores 0', () => {
     const plan = makePlan({
-      scenario: { id: 1, isDefault: false },
-      targetSkills: [
-        { skillId: '200331', priority: 1 },
-        { skillId: '900021', priority: 2 },
+      scenarioId: 1,
+      wishlist: [
+        { skillId: '200331', priority: 1, source: 'targeted' },
+        { skillId: '900021', priority: 2, source: 'targeted' },
       ],
     });
     const noParents = suggestDeck({ ...fixtureArgs, plan, inventory: [TAZUNA] });
@@ -354,7 +354,7 @@ describe('suggestDeck — uncovered and parents', () => {
     // 900021 is spark-covered by the parent; Tazuna offers nothing for it, so
     // no slot is spent — yet the target is not "uncovered" (the spark counts).
     const plan = makePlan({
-      targetSkills: [{ skillId: '900021', priority: 1 }],
+      wishlist: [{ skillId: '900021', priority: 1, source: 'targeted' }],
     });
     const parent = makeParent({
       id: 'p',
@@ -376,10 +376,10 @@ describe('sparkOnlyTargets', () => {
     // and it is not scenario-exclusive → spark-only. 200331 is left uncovered
     // (no parent, no card) so it is NOT spark-only.
     const plan = makePlan({
-      scenario: { id: 1, isDefault: false },
-      targetSkills: [
-        { skillId: '900021', priority: 1 },
-        { skillId: '200331', priority: 2 },
+      scenarioId: 1,
+      wishlist: [
+        { skillId: '900021', priority: 1, source: 'targeted' },
+        { skillId: '200331', priority: 2, source: 'targeted' },
       ],
     });
     const parent = makeParent({
@@ -396,10 +396,10 @@ describe('sparkOnlyTargets', () => {
     // a parent also sparks it. 210061 is scenario-exclusive (id 4) → not
     // spark-only. 999999 has no source at all → not spark-only (it is uncovered).
     const plan = makePlan({
-      targetSkills: [
-        { skillId: '200331', priority: 1 },
-        { skillId: '210061', priority: 2 },
-        { skillId: '999999', priority: 3 },
+      wishlist: [
+        { skillId: '200331', priority: 1, source: 'targeted' },
+        { skillId: '210061', priority: 2, source: 'targeted' },
+        { skillId: '999999', priority: 3, source: 'targeted' },
       ],
     });
     const parent = makeParent({
@@ -412,7 +412,7 @@ describe('sparkOnlyTargets', () => {
   });
 
   it('returns [] when no parents are given', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '900021', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '900021', priority: 1, source: 'targeted' }] });
     const deck = suggestDeck({ ...fixtureArgs, plan, inventory: [TAZUNA] });
     expect(sparkOnlyTargets({ plan, deck, ...fixtureArgs })).toEqual([]);
   });

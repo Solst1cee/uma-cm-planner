@@ -29,9 +29,10 @@ export function removeOwnedCard(id: number): Promise<void> {
 
 // --- CM plans ---------------------------------------------------------------
 
-/** Sorted by month (indexed) so the UI lists upcoming CMs in order. */
-export function listPlans(): Promise<CmPlan[]> {
-  return db.cmPlans.orderBy('month').toArray();
+/** Sorted by name (in-memory) — month field removed in v2. */
+export async function listPlans(): Promise<CmPlan[]> {
+  const plans = await db.cmPlans.toArray();
+  return plans.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
 export function getPlan(id: string): Promise<CmPlan | undefined> {

@@ -26,7 +26,7 @@ export function SparkContingencyPanel({
   const { parents } = useChosenParents(plan);
 
   const { contingencies, parentCountBySkill } = useMemo(() => {
-    if (parents.length === 0 || plan.targetSkills.length === 0) {
+    if (parents.length === 0 || plan.wishlist.length === 0) {
       return { contingencies: [], parentCountBySkill: new Map<string, number>() };
     }
     const rows = buildCoverageMatrix({

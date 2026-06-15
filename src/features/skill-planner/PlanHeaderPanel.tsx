@@ -23,18 +23,22 @@ function nextPriority(p: Priority): Priority {
   return p === 3 ? 1 : ((p + 1) as Priority);
 }
 
+function cmNumberFromName(name: string): number {
+  const m = name.match(/CM\s*0*(\d+)/i);
+  return m ? Number(m[1]) : 0;
+}
+
 /**
- * Identity match, not just race-shape: 12 of 31 presets share a
- * (courseId, surface, distance) key with an earlier CM, so the month —
- * which applyPreset/makeDefaultPlan always write from preset.date — is
- * part of the identity. Without it the picker displays the wrong CM.
+ * Identity match: presets sharing a (courseId, surface, distance) key exist,
+ * so we also match on name to disambiguate (the preset name is written onto
+ * the plan when applyPreset is called).
  */
 function presetMatchesPlan(preset: CmPreset, plan: CmPlan): boolean {
   return (
-    preset.date.slice(0, 7) === plan.month &&
-    preset.courseId === plan.race.courseId &&
-    preset.surface === plan.race.surface &&
-    preset.distance === plan.race.distance
+    preset.name === plan.name &&
+    preset.courseId === plan.cmRef.courseId &&
+    preset.surface === plan.cmRef.surface &&
+    preset.distance === plan.cmRef.distance
   );
 }
 
@@ -65,8 +69,8 @@ export function PlanHeaderPanel({
   const showCustom = customMode || matchedPreset < 0;
 
   const addedSkillIds = useMemo(
-    () => new Set(plan.targetSkills.map((t) => t.skillId)),
-    [plan.targetSkills],
+    () => new Set(plan.wishlist.map((t) => t.skillId)),
+    [plan.wishlist],
   );
 
   const applyPreset = (value: string) => {
@@ -78,11 +82,14 @@ export function PlanHeaderPanel({
     }
     const preset = cmPresets[Number(value)];
     if (!preset) return;
+    const cmNumber = cmNumberFromName(preset.name);
     setCustomMode(false);
     onChange({
       ...plan,
-      month: preset.date.slice(0, 7),
-      race: {
+      name: preset.name,
+      cmRef: {
+        cmId: `CM${cmNumber}`,
+        cmNumber,
         courseId: preset.courseId,
         surface: preset.surface,
         distance: preset.distance,
@@ -92,8 +99,8 @@ export function PlanHeaderPanel({
     });
   };
 
-  const setRace = (patch: Partial<CmPlan['race']>) => {
-    onChange({ ...plan, race: { ...plan.race, ...patch } });
+  const setCmRef = (patch: Partial<CmPlan['cmRef']>) => {
+    onChange({ ...plan, cmRef: { ...plan.cmRef, ...patch } });
   };
 
   return (
@@ -131,15 +138,15 @@ export function PlanHeaderPanel({
             <input
               type="text"
               inputMode="numeric"
-              value={plan.race.courseId}
-              onChange={(e) => setRace({ courseId: e.target.value })}
+              value={plan.cmRef.courseId}
+              onChange={(e) => setCmRef({ courseId: e.target.value })}
             />
           </label>
           <label className="field">
             <span>Surface</span>
             <select
-              value={plan.race.surface}
-              onChange={(e) => setRace({ surface: e.target.value as 'turf' | 'dirt' })}
+              value={plan.cmRef.surface}
+              onChange={(e) => setCmRef({ surface: e.target.value as 'turf' | 'dirt' })}
             >
               <option value="turf">Turf</option>
               <option value="dirt">Dirt</option>
@@ -152,8 +159,8 @@ export function PlanHeaderPanel({
               min={1000}
               max={4000}
               step={100}
-              value={plan.race.distance}
-              onChange={(e) => setRace({ distance: Number(e.target.value) })}
+              value={plan.cmRef.distance}
+              onChange={(e) => setCmRef({ distance: Number(e.target.value) })}
             />
           </label>
         </div>
@@ -162,11 +169,9 @@ export function PlanHeaderPanel({
       <label className="field">
         <span>Scenario</span>
         <select
-          value={String(plan.scenario.id)}
+          value={String(plan.scenarioId ?? '')}
           onChange={(e) => {
-            const id = Number(e.target.value);
-            // isDefault tracks "following the app-level latest-scenario default"
-            onChange({ ...plan, scenario: { id, isDefault: id === 4 } });
+            onChange({ ...plan, scenarioId: Number(e.target.value) });
           }}
         >
           {SCENARIOS.map((s) => (
@@ -178,11 +183,11 @@ export function PlanHeaderPanel({
       </label>
 
       <h3>Target skills</h3>
-      {plan.targetSkills.length === 0 && (
+      {plan.wishlist.length === 0 && (
         <p className="muted">No target skills yet — search below to add (1–7+ is fine).</p>
       )}
       <ul className="target-list" aria-label="Target skills">
-        {plan.targetSkills.map((target) => {
+        {plan.wishlist.map((target) => {
           const skill = skillById.get(target.skillId);
           const name = skill?.nameEn ?? target.skillId;
           return (
@@ -194,7 +199,7 @@ export function PlanHeaderPanel({
                 onClick={() =>
                   onChange({
                     ...plan,
-                    targetSkills: plan.targetSkills.map((t) =>
+                    wishlist: plan.wishlist.map((t) =>
                       t.skillId === target.skillId
                         ? { ...t, priority: nextPriority(t.priority) }
                         : t,
@@ -214,7 +219,7 @@ export function PlanHeaderPanel({
                 onClick={() =>
                   onChange({
                     ...plan,
-                    targetSkills: plan.targetSkills.filter(
+                    wishlist: plan.wishlist.filter(
                       (t) => t.skillId !== target.skillId,
                     ),
                   })
@@ -232,7 +237,7 @@ export function PlanHeaderPanel({
         onPick={(skillId) =>
           onChange({
             ...plan,
-            targetSkills: [...plan.targetSkills, { skillId, priority: 1 }],
+            wishlist: [...plan.wishlist, { skillId, priority: 1, source: 'targeted', manualAdd: true }],
           })
         }
       />

@@ -191,17 +191,17 @@ export const FIXTURE_SPARK_RATES: SparkRates = {
 };
 
 export const FIXTURE_PLAN: CmPlan = {
-  id: 'fixture-plan',
-  name: 'Fixture Cup',
-  month: '2026-07',
-  scenario: { id: 4, isDefault: true },
-  race: { courseId: '10606', surface: 'turf', distance: 2400 },
-  requiredAptitudes: [{ kind: 'distance', key: 'long', target: 'A' }],
-  targetSkills: [
-    { skillId: '200331', priority: 1 },
-    { skillId: '200014', priority: 2 },
-    { skillId: '210061', priority: 3 },
+  id: 'fixture-plan', name: 'Fixture Cup', planNumber: 1,
+  cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10606', surface: 'turf', distance: 2400 },
+  scenarioId: 4, umaId: '100201', uniqueSkillId: '',
+  role: 'ace', strategy: 'late',
+  statProfile: { stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 }, mood: 0 },
+  sparkGoals: { pink: [{ aptKey: { kind: 'distance', key: 'long' }, target: 'A' }], blue: {} },
+  wishlist: [
+    { skillId: '200331', priority: 1, source: 'targeted' },
+    { skillId: '200014', priority: 2, source: 'targeted' },
+    { skillId: '210061', priority: 3, source: 'targeted' },
   ],
-  lockedDeckSlots: [],
-  chosenParents: [undefined, undefined],
+  lockedDeckSlots: [], parents: {},
+  patch: { version: 'test' }, server: 'global', dataVersion: 'test',
 };

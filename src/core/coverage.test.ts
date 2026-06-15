@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests for the Module 4 coverage core. Mechanics assertions cite
  * docs/mechanics-notes.md §7 (hint SP discount schedule, retrieved 2026-06-12).
  */
@@ -146,7 +146,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('drops the scenario source when the plan runs a different scenario', () => {
-    const plan = makePlan({ scenario: { id: 1, isDefault: false } });
+    const plan = makePlan({ scenarioId: 1 });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
     expect(rows[2]?.skillId).toBe('210061');
     expect(rows[2]?.bestTier).toBe('uncovered');
@@ -154,7 +154,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('marks a target with no owner sources uncovered', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '900021', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '900021', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
     expect(rows).toEqual([
       { skillId: '900021', priority: 1, sources: [], bestTier: 'uncovered' },
@@ -162,7 +162,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('skips unknown inventory cardIds gracefully', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200331', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -173,9 +173,9 @@ describe('buildCoverageMatrix', () => {
 
   it('emits an uncovered row for a target skillId missing from the dataset', () => {
     const plan = makePlan({
-      targetSkills: [
-        { skillId: '123456', priority: 1 }, // not in FIXTURE_SKILLS
-        { skillId: '200331', priority: 2 },
+      wishlist: [
+        { skillId: '123456', priority: 1, source: 'targeted' }, // not in FIXTURE_SKILLS
+        { skillId: '200331', priority: 2, source: 'targeted' },
       ],
     });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
@@ -185,7 +185,7 @@ describe('buildCoverageMatrix', () => {
 
   it('picks the best tier across sources and sorts sources best-first', () => {
     // 200012: hint on Kitasan (strong), date event on Tazuna — date_event wins.
-    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN, TAZUNA] });
     expect(rows[0]?.bestTier).toBe('date_event');
     expect(rows[0]?.sources.map((s) => s.kind)).toEqual(['date_event', 'hint_strong']);
@@ -193,7 +193,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('fills hint detail (pool size, frequency, specialty priority) at the owned LB', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200332', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [R_EXAMPLE] });
     expect(rows[0]?.bestTier).toBe('hint_weak');
     expect(rows[0]?.sources).toEqual([
@@ -207,7 +207,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('emits one source per owned copy (different LBs can differ in tier detail)', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200332', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -224,7 +224,7 @@ describe('buildCoverageMatrix', () => {
     // Duplicate copies of one cardId: each source must carry ITS copy's
     // identity so the UI never shows one copy's tier/LB under the other's
     // column (review 2026-06-12: duplicate-copy attribution).
-    const plan = makePlan({ targetSkills: [{ skillId: '200332', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -243,10 +243,10 @@ describe('buildCoverageMatrix', () => {
 
   it('sets ownedId + limitBreak on chain/random/date_event sources too', () => {
     const plan = makePlan({
-      targetSkills: [
-        { skillId: '200331', priority: 1 }, // chain on Kitasan
-        { skillId: '200014', priority: 2 }, // random on Kitasan
-        { skillId: '200012', priority: 3 }, // date_event on Tazuna
+      wishlist: [
+        { skillId: '200331', priority: 1, source: 'targeted' }, // chain on Kitasan
+        { skillId: '200014', priority: 2, source: 'targeted' }, // random on Kitasan
+        { skillId: '200012', priority: 3, source: 'targeted' }, // date_event on Tazuna
       ],
     });
     const rows = buildCoverageMatrix({
@@ -269,7 +269,7 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('omits ownedId (but keeps limitBreak) for unpersisted inventory rows', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200331', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
     const source = rows[0]?.sources[0];
     expect(source).toBeDefined();
@@ -278,21 +278,21 @@ describe('buildCoverageMatrix', () => {
   });
 
   it('handles a 1-skill target list', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200331', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
     expect(rows).toHaveLength(1);
   });
 
   it('handles a 7-skill target list (variable length, priority drives order)', () => {
     const plan = makePlan({
-      targetSkills: [
-        { skillId: '200014', priority: 2 },
-        { skillId: '200331', priority: 1 },
-        { skillId: '210061', priority: 3 },
-        { skillId: '200012', priority: 2 },
-        { skillId: '200332', priority: 1 },
-        { skillId: '900021', priority: 3 },
-        { skillId: '201242', priority: 2 },
+      wishlist: [
+        { skillId: '200014', priority: 2, source: 'targeted' },
+        { skillId: '200331', priority: 1, source: 'targeted' },
+        { skillId: '210061', priority: 3, source: 'targeted' },
+        { skillId: '200012', priority: 2, source: 'targeted' },
+        { skillId: '200332', priority: 1, source: 'targeted' },
+        { skillId: '900021', priority: 3, source: 'targeted' },
+        { skillId: '201242', priority: 2, source: 'targeted' },
       ],
     });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [KITASAN] });
@@ -468,7 +468,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('emits one spark source per covering parent, ranked below a card source (Tier order)', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -501,7 +501,7 @@ describe('buildCoverageMatrix — spark sources', () => {
       whiteSparks: [{ skillId: '200014', stars: 3 }],
       affinityHint: 95,
     });
-    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200014', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -512,7 +512,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('two covering parents → one source each; combinedSparkPct combines them', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       ...baseArgs,
       plan,
@@ -530,7 +530,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('grandparent-only branch: conservative affinity-0 floor, approximate, gp detail', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] });
     const gpParent = makeParent({
       id: 'parent-c',
       affinityHint: 95,
@@ -553,7 +553,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('parent + own grandparent in one branch → ONE source with the branch-combined pct; detail = strongest contribution', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200012', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }] });
     const branch = makeParent({
       id: 'parent-d',
       whiteSparks: [{ skillId: '200012', stars: 1 }],
@@ -578,7 +578,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('green spark covers its 9xxxxx inherited-unique target', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '900021', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '900021', priority: 1, source: 'targeted' }] });
     const green = makeParent({
       id: 'parent-g',
       greenSpark: { skillId: '900021', stars: 1 },
@@ -600,7 +600,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('emits spark sources even for a skillId missing from the dataset (the parent record is the evidence)', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '123456', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '123456', priority: 1, source: 'targeted' }] });
     const parent = makeParent({
       id: 'parent-x',
       whiteSparks: [{ skillId: '123456', stars: 1 }],
@@ -612,7 +612,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('ignores parents when rates are not provided (spark math needs SparkRates)', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200014', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200014', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({
       plan,
       inventory: [],
@@ -625,7 +625,7 @@ describe('buildCoverageMatrix — spark sources', () => {
   });
 
   it('non-covering parents emit nothing', () => {
-    const plan = makePlan({ targetSkills: [{ skillId: '200331', priority: 1 }] });
+    const plan = makePlan({ wishlist: [{ skillId: '200331', priority: 1, source: 'targeted' }] });
     const rows = buildCoverageMatrix({ ...baseArgs, plan, inventory: [], parents: [parentA] });
     expect(rows[0]?.sources).toEqual([]);
   });

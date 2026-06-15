@@ -44,12 +44,16 @@ export function ChosenParentsPicker() {
   }, []);
 
   if (plan === null) return null;
-  const chosen = plan.chosenParents;
+  const chosenA = plan.parents.a;
+  const chosenB = plan.parents.b;
 
   const setSlot = (slot: 0 | 1, id: string | undefined) => {
-    const next: [string?, string?] = [chosen[0], chosen[1]];
-    next[slot] = id;
-    setPlan({ ...plan, chosenParents: next });
+    const newA = slot === 0 ? id : chosenA;
+    const newB = slot === 1 ? id : chosenB;
+    const parents: { a?: string; b?: string } = {};
+    if (newA !== undefined) parents.a = newA;
+    if (newB !== undefined) parents.b = newB;
+    setPlan({ ...plan, parents });
   };
 
   return (
@@ -60,9 +64,9 @@ export function ChosenParentsPicker() {
         </p>
       )}
       {SLOTS.map((slot) => {
-        const value = chosen[slot] ?? '';
+        const value = (slot === 0 ? chosenA : chosenB) ?? '';
         const known = value === '' || (parents?.some((p) => p.id === value) ?? true);
-        const otherValue = chosen[slot === 0 ? 1 : 0];
+        const otherValue = (slot === 0 ? chosenB : chosenA);
         const selectedUmaId = parents?.find((p) => p.id === value)?.umaId;
         return (
           <label className="field" key={slot}>

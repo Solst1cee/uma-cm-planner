@@ -56,7 +56,7 @@ const CONTINGENCY: SparkContingency = {
   deltaSp: 33,
 };
 
-const PLAN: CmPlan = { ...FIXTURE_PLAN, chosenParents: ['p1', undefined] };
+const PLAN: CmPlan = { ...FIXTURE_PLAN, parents: { a: 'p1' } };
 
 beforeEach(() => {
   mocked.contingencies = [CONTINGENCY];

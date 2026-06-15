@@ -366,7 +366,7 @@ export function CoverageMatrixPanel({
 
   const parentColumns = useMemo<ParentColumn[]>(() => {
     const cols: ParentColumn[] = [];
-    plan.chosenParents.forEach((parentId, slot) => {
+    ([plan.parents.a, plan.parents.b] as const).forEach((parentId, slot) => {
       if (parentId === undefined) return;
       const parent = parentSlots[slot];
       const name = parent !== undefined ? umaById?.get(parent.umaId)?.nameEn : undefined;
@@ -379,9 +379,9 @@ export function CoverageMatrixPanel({
       });
     });
     return cols;
-  }, [plan.chosenParents, parentSlots, umaById]);
+  }, [plan.parents, parentSlots, umaById]);
 
-  if (plan.targetSkills.length === 0) {
+  if (plan.wishlist.length === 0) {
     return (
       <section className="panel" aria-labelledby="coverage-h">
         <h2 id="coverage-h">Coverage</h2>

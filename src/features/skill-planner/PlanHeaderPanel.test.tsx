@@ -1,4 +1,4 @@
-/** Plan header: skill search filtering, add, priority cycling, remove. */
+﻿/** Plan header: skill search filtering, add, priority cycling, remove. */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -43,8 +43,8 @@ describe('PlanHeaderPanel skill search', () => {
     await user.type(screen.getByLabelText('Add target skill'), 'corner');
     await user.click(screen.getByRole('button', { name: /Corner Adept ○/ }));
     const next = onChange.mock.lastCall?.[0];
-    expect(next?.targetSkills).toContainEqual({ skillId: '200332', priority: 1 });
-    expect(next?.targetSkills).toHaveLength(FIXTURE_PLAN.targetSkills.length + 1);
+    expect(next?.wishlist).toContainEqual(expect.objectContaining({ skillId: '200332', priority: 1 }));
+    expect(next?.wishlist).toHaveLength(FIXTURE_PLAN.wishlist.length + 1);
   });
 
   it('disables results that are already targets', async () => {
@@ -68,7 +68,7 @@ describe('PlanHeaderPanel priority stars', () => {
       }),
     );
     const next = onChange.mock.lastCall?.[0];
-    expect(next?.targetSkills).toContainEqual({ skillId: '200331', priority: 2 });
+    expect(next?.wishlist).toContainEqual(expect.objectContaining({ skillId: '200331', priority: 2 }));
   });
 
   it('wraps priority 3 → 1', async () => {
@@ -80,7 +80,7 @@ describe('PlanHeaderPanel priority stars', () => {
       }),
     );
     const next = onChange.mock.lastCall?.[0];
-    expect(next?.targetSkills).toContainEqual({ skillId: '210061', priority: 1 });
+    expect(next?.wishlist).toContainEqual(expect.objectContaining({ skillId: '210061', priority: 1 }));
   });
 
   it('removes a target skill', async () => {
@@ -88,7 +88,7 @@ describe('PlanHeaderPanel priority stars', () => {
     const onChange = renderPanel();
     await user.click(screen.getByRole('button', { name: 'Remove Right Turns ◎' }));
     const next = onChange.mock.lastCall?.[0];
-    expect(next?.targetSkills.map((t) => t.skillId)).toEqual(['200331', '210061']);
+    expect(next?.wishlist.map((t) => t.skillId)).toEqual(['200331', '210061']);
   });
 });
 
@@ -120,8 +120,8 @@ describe('PlanHeaderPanel CM picker', () => {
     // value '0' = Old JP Cup (2024-07-15).
     await user.selectOptions(screen.getByLabelText('Champions Meeting'), '0');
     const next = onChange.mock.lastCall?.[0];
-    expect(next?.month).toBe('2024-07');
-    expect(next?.race.courseId).toBe(FIXTURE_PLAN.race.courseId);
+    expect(next?.name).toBe('Old JP Cup');
+    expect(next?.cmRef.courseId).toBe(FIXTURE_PLAN.cmRef.courseId);
   });
 
   it('switches to editable race fields on "Custom race…" and stays there', async () => {
@@ -134,15 +134,15 @@ describe('PlanHeaderPanel CM picker', () => {
     // Mode change only — no plan mutation, and no snap-back to the matched preset.
     expect(onChange).not.toHaveBeenCalled();
     expect(select).toHaveDisplayValue('Custom race…');
-    expect(screen.getByLabelText('Course id')).toHaveValue(FIXTURE_PLAN.race.courseId);
+    expect(screen.getByLabelText('Course id')).toHaveValue(FIXTURE_PLAN.cmRef.courseId);
 
-    // The custom fields actually edit plan.race.
+    // The custom fields actually edit plan.cmRef.
     await user.type(screen.getByLabelText('Course id'), '9');
-    expect(onChange.mock.lastCall?.[0]?.race.courseId).toBe(
-      `${FIXTURE_PLAN.race.courseId}9`,
+    expect(onChange.mock.lastCall?.[0]?.cmRef.courseId).toBe(
+      `${FIXTURE_PLAN.cmRef.courseId}9`,
     );
     await user.selectOptions(screen.getByLabelText('Surface'), 'dirt');
-    expect(onChange.mock.lastCall?.[0]?.race.surface).toBe('dirt');
+    expect(onChange.mock.lastCall?.[0]?.cmRef.surface).toBe('dirt');
 
     // Still in custom mode until a preset is explicitly picked again.
     expect(select).toHaveDisplayValue('Custom race…');
@@ -153,12 +153,12 @@ describe('PlanHeaderPanel CM picker', () => {
 });
 
 describe('PlanHeaderPanel scenario selector', () => {
-  it('marks scenario 4 as the app default and others as overrides', async () => {
+  it('updates scenarioId when scenario is changed', async () => {
     const user = userEvent.setup();
     const onChange = renderPanel();
     await user.selectOptions(screen.getByLabelText('Scenario'), '1');
-    expect(onChange.mock.lastCall?.[0]?.scenario).toEqual({ id: 1, isDefault: false });
+    expect(onChange.mock.lastCall?.[0]?.scenarioId).toBe(1);
     await user.selectOptions(screen.getByLabelText('Scenario'), '4');
-    expect(onChange.mock.lastCall?.[0]?.scenario).toEqual({ id: 4, isDefault: true });
+    expect(onChange.mock.lastCall?.[0]?.scenarioId).toBe(4);
   });
 });

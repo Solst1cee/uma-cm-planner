@@ -16,15 +16,15 @@
  * the offending path so the UI can show actionable messages.
  *
  * JSON caveat: `undefined` tuple slots serialize as `null`
- * (e.g. CmPlan.chosenParents, Parent.grandparents), so the parser accepts
+ * (e.g. Parent.grandparents), so the parser accepts
  * `null` there and normalizes it back to `undefined`.
  */
 import type { CmPlan, LimitBreak, OwnedCard, Parent, ParentRef } from '@/core/types';
 import { db } from './db';
 import type { MatchLog, SettingRecord } from './types';
 
-export interface ExportBlobV1 {
-  version: 1;
+export interface ExportBlobV2 {
+  version: 2;
   /** ISO timestamp of the export. */
   exportedAt: string;
   ownedCards: OwnedCard[];
@@ -33,6 +33,9 @@ export interface ExportBlobV1 {
   matchLogs: MatchLog[];
   settings: SettingRecord[];
 }
+
+/** @deprecated Use ExportBlobV2. v1 blobs have the old CmPlan shape (month/race/targetSkills). */
+export type ExportBlobV1 = ExportBlobV2;
 
 export type ImportMode = 'replace' | 'merge';
 
@@ -45,7 +48,7 @@ export interface ImportResult {
   imported: Record<string, number>;
 }
 
-export async function exportBlob(): Promise<ExportBlobV1> {
+export async function exportBlob(): Promise<ExportBlobV2> {
   // Single read transaction so the snapshot is consistent across tables.
   const [ownedCards, parents, cmPlans, matchLogs, settings] = await db.transaction(
     'r',
@@ -60,7 +63,7 @@ export async function exportBlob(): Promise<ExportBlobV1> {
       ]),
   );
   return {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     ownedCards,
     parents,
@@ -108,7 +111,7 @@ async function mergeOwnedCards(incoming: OwnedCard[]): Promise<number> {
 }
 
 export async function importBlob(data: unknown, mode: ImportMode): Promise<ImportResult> {
-  const blob = parseExportBlobV1(data);
+  const blob = parseExportBlobV2(data);
   let ownedCardsWritten = blob.ownedCards.length;
   await db.transaction(
     'rw',
@@ -287,32 +290,42 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   const row = asRecord(v, path);
   reqString(row, 'id', path);
   reqString(row, 'name', path);
-  reqString(row, 'month', path);
+  reqNumber(row, 'planNumber', path);
+  optString(row, 'remark', path);
 
-  const scenario = asRecord(row['scenario'], `${path}.scenario`);
-  reqNumber(scenario, 'id', `${path}.scenario`);
-  if (typeof scenario['isDefault'] !== 'boolean') {
-    fail(`${path}.scenario.isDefault`, 'a boolean', scenario['isDefault']);
+  const cmRef = asRecord(row['cmRef'], `${path}.cmRef`);
+  reqString(cmRef, 'cmId', `${path}.cmRef`);
+  reqNumber(cmRef, 'cmNumber', `${path}.cmRef`);
+  reqString(cmRef, 'courseId', `${path}.cmRef`);
+  reqOneOf(cmRef, 'surface', ['turf', 'dirt'] as const, `${path}.cmRef`);
+  reqNumber(cmRef, 'distance', `${path}.cmRef`);
+  optString(cmRef, 'condition', `${path}.cmRef`);
+  optString(cmRef, 'season', `${path}.cmRef`);
+
+  optNumber(row, 'scenarioId', path);
+  reqString(row, 'umaId', path);
+  reqString(row, 'uniqueSkillId', path);
+  reqOneOf(row, 'role', ['ace', 'debuffer', 'hybrid'] as const, path);
+  reqOneOf(row, 'strategy', ['front', 'pace', 'late', 'end'] as const, path);
+
+  const statProfile = asRecord(row['statProfile'], `${path}.statProfile`);
+  asRecord(statProfile['stats'], `${path}.statProfile.stats`);
+  const mood = statProfile['mood'];
+  if (mood !== -2 && mood !== -1 && mood !== 0 && mood !== 1 && mood !== 2) {
+    fail(`${path}.statProfile.mood`, '-2 | -1 | 0 | 1 | 2', mood);
   }
 
-  const race = asRecord(row['race'], `${path}.race`);
-  reqString(race, 'courseId', `${path}.race`);
-  reqOneOf(race, 'surface', ['turf', 'dirt'] as const, `${path}.race`);
-  reqNumber(race, 'distance', `${path}.race`);
-
-  asArray(row['requiredAptitudes'], `${path}.requiredAptitudes`).forEach((a, i) => {
-    const apt = asRecord(a, `${path}.requiredAptitudes[${i}]`);
-    reqOneOf(apt, 'kind', ['surface', 'distance', 'style'] as const, `${path}.requiredAptitudes[${i}]`);
-    reqString(apt, 'key', `${path}.requiredAptitudes[${i}]`);
-    reqOneOf(apt, 'target', ['A', 'S'] as const, `${path}.requiredAptitudes[${i}]`);
-  });
+  const sparkGoals = asRecord(row['sparkGoals'], `${path}.sparkGoals`);
+  asArray(sparkGoals['pink'], `${path}.sparkGoals.pink`);
+  asRecord(sparkGoals['blue'], `${path}.sparkGoals.blue`);
 
   // Variable length 1–7+ by contract; priority drives weighting, not count.
-  asArray(row['targetSkills'], `${path}.targetSkills`).forEach((t, i) => {
-    const ts = asRecord(t, `${path}.targetSkills[${i}]`);
-    reqString(ts, 'skillId', `${path}.targetSkills[${i}]`);
+  asArray(row['wishlist'], `${path}.wishlist`).forEach((t, i) => {
+    const ts = asRecord(t, `${path}.wishlist[${i}]`);
+    reqString(ts, 'skillId', `${path}.wishlist[${i}]`);
     const p = ts['priority'];
-    if (p !== 1 && p !== 2 && p !== 3) fail(`${path}.targetSkills[${i}].priority`, '1 | 2 | 3', p);
+    if (p !== 1 && p !== 2 && p !== 3) fail(`${path}.wishlist[${i}].priority`, '1 | 2 | 3', p);
+    reqOneOf(ts, 'source', ['targeted'] as const, `${path}.wishlist[${i}]`);
   });
 
   asArray(row['lockedDeckSlots'], `${path}.lockedDeckSlots`).forEach((s, i) => {
@@ -324,16 +337,15 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
     optString(slot, 'cardId', `${path}.lockedDeckSlots[${i}]`);
   });
 
-  const chosen = asArray(row['chosenParents'], `${path}.chosenParents`);
-  if (chosen.length > 2) fail(`${path}.chosenParents`, 'an array of at most 2 entries', chosen);
-  row['chosenParents'] = chosen.map((p, i) => {
-    if (p === null || p === undefined) return undefined; // JSON null → undefined
-    if (typeof p !== 'string') fail(`${path}.chosenParents[${i}]`, 'a string, null or absent', p);
-    return p;
-  });
+  const parents = asRecord(row['parents'], `${path}.parents`);
+  optString(parents, 'a', `${path}.parents`);
+  optString(parents, 'b', `${path}.parents`);
 
-  optString(row, 'targetUmaId', path);
-  optNumber(row, 'spBudgetEstimate', path);
+  const patch = asRecord(row['patch'], `${path}.patch`);
+  reqString(patch, 'version', `${path}.patch`);
+  reqOneOf(row, 'server', ['global', 'jp'] as const, path);
+  reqString(row, 'dataVersion', path);
+
   return row as unknown as CmPlan;
 }
 
@@ -354,19 +366,19 @@ function parseSetting(v: unknown, path: string): SettingRecord {
 }
 
 /**
- * Validate an unknown value as an ExportBlobV1, normalizing JSON artifacts
- * (null tuple slots → undefined). Throws a descriptive Error on bad input.
+ * Validate an unknown value as an ExportBlobV2, normalizing JSON artifacts.
+ * Throws a descriptive Error on bad input.
  */
-export function parseExportBlobV1(data: unknown): ExportBlobV1 {
+export function parseExportBlobV2(data: unknown): ExportBlobV2 {
   const root = asRecord(data, 'blob');
-  if (root['version'] !== 1) {
+  if (root['version'] !== 2) {
     throw new Error(
-      `Malformed export blob: unsupported version ${JSON.stringify(root['version'])} (expected 1)`,
+      `Malformed export blob: unsupported version ${JSON.stringify(root['version'])} (expected 2)`,
     );
   }
   reqString(root, 'exportedAt', 'blob');
   return {
-    version: 1,
+    version: 2,
     exportedAt: root['exportedAt'] as string,
     ownedCards: asArray(root['ownedCards'], 'blob.ownedCards').map((r, i) =>
       parseOwnedCard(r, `blob.ownedCards[${i}]`),
@@ -385,3 +397,6 @@ export function parseExportBlobV1(data: unknown): ExportBlobV1 {
     ),
   };
 }
+
+/** @deprecated Use parseExportBlobV2. */
+export const parseExportBlobV1 = parseExportBlobV2;

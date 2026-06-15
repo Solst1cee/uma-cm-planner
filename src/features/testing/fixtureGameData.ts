@@ -11,25 +11,25 @@ export function fixtureGameData(): GameData {
     cmPresets: [
       {
         // JP-history preset sharing the fixture plan's race key (courseId,
-        // surface, distance) but an earlier month — real cm_presets.json has
-        // 12 such collisions. Exercises identity matching (month is part of
-        // the preset identity) and the P4 '(JP history)' labeling.
+        // surface, distance) — real cm_presets.json has 12 such collisions.
+        // Exercises identity matching (name is part of the preset identity)
+        // and the P4 '(JP history)' labeling.
         name: 'Old JP Cup',
         date: '2024-07-15',
         server: 'jp',
         dataVersion: 'fixture',
-        courseId: FIXTURE_PLAN.race.courseId,
-        surface: FIXTURE_PLAN.race.surface,
-        distance: FIXTURE_PLAN.race.distance,
+        courseId: FIXTURE_PLAN.cmRef.courseId,
+        surface: FIXTURE_PLAN.cmRef.surface,
+        distance: FIXTURE_PLAN.cmRef.distance,
       },
       {
         name: FIXTURE_PLAN.name,
-        date: FIXTURE_PLAN.month,
+        date: '2026-07',
         server: 'global',
         dataVersion: 'fixture',
-        courseId: FIXTURE_PLAN.race.courseId,
-        surface: FIXTURE_PLAN.race.surface,
-        distance: FIXTURE_PLAN.race.distance,
+        courseId: FIXTURE_PLAN.cmRef.courseId,
+        surface: FIXTURE_PLAN.cmRef.surface,
+        distance: FIXTURE_PLAN.cmRef.distance,
       },
     ],
     skillById: new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s])),

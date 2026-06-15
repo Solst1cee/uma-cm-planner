@@ -67,12 +67,12 @@ export interface GameData {
 const FIXTURE_CM_PRESETS: CmPreset[] = [
   {
     name: FIXTURE_PLAN.name,
-    date: FIXTURE_PLAN.month,
+    date: '2026-07',
     server: 'global',
     dataVersion: 'fixture',
-    courseId: FIXTURE_PLAN.race.courseId,
-    surface: FIXTURE_PLAN.race.surface,
-    distance: FIXTURE_PLAN.race.distance,
+    courseId: FIXTURE_PLAN.cmRef.courseId,
+    surface: FIXTURE_PLAN.cmRef.surface,
+    distance: FIXTURE_PLAN.cmRef.distance,
   },
 ];
 

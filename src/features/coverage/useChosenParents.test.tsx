@@ -27,7 +27,7 @@ function parent(id: string, whiteSparkStars: 1 | 2 | 3): Parent {
   };
 }
 
-const PLAN: CmPlan = { ...FIXTURE_PLAN, chosenParents: ['p1', undefined] };
+const PLAN: CmPlan = { ...FIXTURE_PLAN, parents: { a: 'p1' } };
 
 afterEach(() => {
   cleanup();

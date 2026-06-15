@@ -66,7 +66,7 @@ const { CoverageMatrixPanel } = await import('@/features/coverage/CoverageMatrix
 const { InventoryPanel } = await import('@/features/inventory/InventoryPanel');
 
 const INVENTORY: OwnedCard[] = [{ id: 1, cardId: '30028', limitBreak: 3 }];
-const PLAN: CmPlan = { ...FIXTURE_PLAN, targetSkills: [{ skillId: '200331', priority: 1 }] };
+const PLAN: CmPlan = { ...FIXTURE_PLAN, wishlist: [{ skillId: '200331', priority: 1, source: 'targeted' }] };
 
 afterEach(cleanup);
 

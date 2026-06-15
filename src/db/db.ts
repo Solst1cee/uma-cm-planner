@@ -29,6 +29,14 @@ export class UmaCmPlannerDb extends Dexie {
       matchLogs: '++id, cmPlanId, date',
       settings: 'key',
     });
+    // v2: drop the `month` index from cmPlans (month field removed from CmPlan).
+    this.version(2).stores({
+      ownedCards: '++id, cardId',
+      parents: 'id, umaId',
+      cmPlans: 'id, name',
+      matchLogs: '++id, cmPlanId, date',
+      settings: 'key',
+    });
   }
 }
 

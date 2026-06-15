@@ -251,28 +251,27 @@ export type Priority = 1 | 2 | 3; // 1 = core target
 export interface CmPlan {
   id: string;
   name: string;
-  /** e.g. "2026-07" */
-  month: string;
-  scenario: {
-    /** Game-internal id (1 URA, 2 Unity Cup, 4 Trackblazer — see provenance §3.1). */
-    id: number;
-    /** True when following the app-level "latest Global scenario" default. */
-    isDefault: boolean;
+  planNumber: number;
+  remark?: string;
+  cmRef: CmRef;
+  scenarioId?: number;
+  umaId: string;
+  uniqueSkillId: string;
+  uniqueIsInherited?: boolean;
+  role: Role;
+  strategy: Strategy;
+  statProfile: { stats: Record<Stat, number>; mood: Mood };
+  sparkGoals: {
+    pink: Array<{ aptKey: AptKey; target: Grade }>;
+    blue: Partial<Record<Stat, number>>;
   };
-  race: {
-    courseId: string;
-    surface: 'turf' | 'dirt';
-    distance: number;
-    condition?: string;
-    season?: string;
-  };
-  targetUmaId?: string;
-  requiredAptitudes: Array<{ kind: 'surface' | 'distance' | 'style'; key: string; target: 'A' | 'S' }>;
-  /** Variable length 1–7+; priority drives weighting, never list size. */
-  targetSkills: Array<{ skillId: string; priority: Priority }>;
+  wishlist: WishlistItem[];
   lockedDeckSlots: Array<{ slot: 0 | 1 | 2 | 3 | 4 | 5; cardType?: CardType; cardId?: string }>;
-  chosenParents: [string?, string?];
-  spBudgetEstimate?: number;
+  parents: { a?: string; b?: string };
+  inheritanceStopgap?: { inheritedSkills: string[]; sparks: ParentSparks };
+  patch: { version: string; source?: string };
+  server: Server;
+  dataVersion: string;
 }
 
 // ---------------------------------------------------------------------------
