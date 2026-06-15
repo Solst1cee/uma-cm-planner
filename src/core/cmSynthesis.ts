@@ -7,6 +7,7 @@
  */
 import type { CmTrack, TimelineEntry } from './types';
 import { addMonths } from './timeline';
+import { slug } from './slug';
 
 export interface SynthesizeOpts {
   /** Months between consecutive CMs (Global runs ~one zodiac cup/month). Default 1. */
@@ -19,10 +20,6 @@ export interface SynthesizeOpts {
 }
 
 const UMA_GUIDE_URL = 'https://uma.guide/cm-schedule/';
-
-function slug(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
 
 export function synthesizeUpcomingCms(
   merged: TimelineEntry[],

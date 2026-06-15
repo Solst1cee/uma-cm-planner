@@ -1,10 +1,7 @@
 import { mergeTimeline, sortTimeline } from '@/core/timeline';
 import { synthesizeUpcomingCms } from '@/core/cmSynthesis';
+import { slug } from '@/core/slug';
 import type { CmPreset, CmTrack, TimelineEntry } from '@/core/types';
-
-function slug(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
 
 /**
  * Each cm_preset → a `cm` TimelineEntry (real data; tier/status by server, P4),
