@@ -5,6 +5,16 @@ import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 
 export const DEAD_L = 0.1;
 
+/**
+ * Default sample count for the DISCOVERY chart. The chart ranks the whole
+ * acquirable catalog (~477 skills) serially on one worker: at 200 samples that
+ * is ~3.3 min, at 30 it is ~36 s with the top rows streaming in within ~1-2 s.
+ * Discovery trades precision for speed (rows are badged "refining / RNG estimate",
+ * P3); M2's purchase optimizer sets its own higher count for precision.
+ * TODO(slice-1b): progressive refine — re-sim the surviving top-N at higher samples.
+ */
+export const DISCOVERY_NSAMPLES = 30;
+
 export interface SkillChartRow {
   skillId: string;
   /** mean bashin; null when not simulatable ('na'). */
@@ -40,7 +50,7 @@ export async function rankSkillChart(
   deps: RankSkillChartDeps,
   onRow?: (row: SkillChartRow) => void,
 ): Promise<SkillChartRow[]> {
-  const n = deps.nsamples ?? 200;
+  const n = deps.nsamples ?? DISCOVERY_NSAMPLES;
   const rows: SkillChartRow[] = [];
   for (const skillId of skillIds) {
     const s = await deps.skillDelta(build, race, skillId, n, deps.seed);
