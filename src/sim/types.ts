@@ -1,0 +1,58 @@
+// The typed contract between src/sim and its callers (features/core).
+import type { Stat } from '@/core/types';
+
+/** Our strategy labels (shared-data-model §2). */
+export type Strategy = 'front' | 'pace' | 'late' | 'end';
+
+/** A runner build expressed in OUR domain terms. */
+export interface SimBuild {
+  umaId: string;
+  stats: Record<Stat, number>;        // spd/sta/pow/gut/wit
+  strategy: Strategy;
+  /** Aptitude grades as letters, e.g. { distance: 'A', surface: 'A', strategy: 'A' }. */
+  aptitudes: { distance: string; surface: string; strategy: string };
+  /** Owned/learned skill ids (master.mdb string ids — same as the engine's). */
+  skills: string[];
+  /** -2..2; defaults to 2 (Great) at the adapter. */
+  mood?: -2 | -1 | 0 | 1 | 2;
+}
+
+/** Race conditions in OUR terms; the adapter maps to the engine's numeric racedef. */
+export interface SimRaceParams {
+  courseId: string;            // matches CmPlan.race.courseId
+  ground?: number;             // default 1 (firm)
+  weather?: number;            // default 1 (sunny)
+  season?: number;             // default 3
+  time?: number;               // default 2
+  grade?: number;              // default 100 (G1)
+}
+
+/** Bashin (horse-length) summary — the honest-numbers output (P3). */
+export interface BashinStats {
+  mean: number;
+  median: number;
+  min: number;
+  max: number;
+  nsamples: number;
+  /** Full per-sample distribution (for histograms / convergence display). */
+  results: number[];
+}
+
+/** Worker request/response unions. */
+export type SimRequest =
+  | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
+  | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number }
+  | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number };
+
+export interface VacuumResult extends BashinStats {
+  /** Win-rate of A vs B and stamina survival, for the M2 compare panel. */
+  aFirstPlaceRate: number;
+  bFirstPlaceRate: number;
+  aStaminaSurvival: number;
+  bStaminaSurvival: number;
+}
+
+export type SimResponse =
+  | { id: number; ok: true; kind: 'skillDelta' | 'planner'; stats: BashinStats }
+  | { id: number; ok: true; kind: 'vacuum'; stats: VacuumResult }
+  | { id: number; ok: false; error: string };
