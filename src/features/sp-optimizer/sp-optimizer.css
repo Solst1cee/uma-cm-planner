@@ -9,3 +9,10 @@
 .sp-rank { font-weight: 700; }
 .sp-card-skills { list-style: none; padding: 0; margin: 0.4rem 0; display: grid; gap: 0.2rem; }
 .sp-card-skills li { display: flex; align-items: center; gap: 0.35rem; }
+
+.sp-over { color: var(--danger, #c0392b); font-weight: 600; }
+.sp-save { display: flex; gap: 0.5rem; align-items: end; margin-top: 0.75rem; }
+.sp-save label { display: grid; gap: 0.15rem; }
+.sp-saved { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.25rem; }
+.sp-saved li { display: flex; gap: 0.5rem; align-items: center; }
+.sp-load { flex: 1; text-align: left; }

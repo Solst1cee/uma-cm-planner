@@ -35,7 +35,14 @@ export function BuildCards({ result }: BuildCardsProps) {
               );
             })}
           </ul>
-          <footer className="small">{b.spUsed} SP used · {b.spLeft} SP left</footer>
+          <footer className="small">
+            {b.spUsed} SP used ·{' '}
+            {b.spLeft < 0 ? (
+              <span className="sp-over">over budget by {-b.spLeft} SP</span>
+            ) : (
+              `${b.spLeft} SP left`
+            )}
+          </footer>
         </article>
       ))}
     </div>

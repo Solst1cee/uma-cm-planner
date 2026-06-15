@@ -81,7 +81,9 @@ export function BuildContextForm({ onAnalyze, dataVersion = 'global-c1fa2107', n
         ))}
       </ul>
 
-      <button type="button" className="sp-analyze" onClick={analyze}>Analyze</button>
+      <button type="button" className="sp-analyze" onClick={analyze} disabled={candidates.length === 0}>
+        Analyze
+      </button>
     </div>
   );
 }
