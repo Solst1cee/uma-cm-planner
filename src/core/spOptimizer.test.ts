@@ -32,6 +32,11 @@ describe('prereqClosure', () => {
   it('dedupes when the prereq is already selected', () => {
     expect(prereqClosure(['g1', 'w1'], CANDS).sort()).toEqual(['g1', 'w1']);
   });
+
+  it('adds a prereq id even when that prereq is absent from candidates', () => {
+    const orphan: BuyableSkill[] = [buy('g_orphan', 200, 'w_missing')];
+    expect(prereqClosure(['g_orphan'], orphan)).toContain('w_missing');
+  });
 });
 
 // --- basketSpCost ---

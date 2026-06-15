@@ -6,9 +6,8 @@
  * on-screen effective costs (no cost calculation here — spec §2/§4).
  */
 import type { HintLevel } from '@/core/coverage';
-import type { SkillRarity, Stat } from '@/core/types';
-import type { Strategy } from '@/sim';
-import type { Grade } from '@/sim/types';
+import type { Server, SkillRarity, Stat } from '@/core/types';
+import type { Grade, Strategy } from '@/sim';
 
 /** One buyable skill row on the post-run screen (M2-local). */
 export interface BuyableSkill {
@@ -46,7 +45,7 @@ export interface CaptureBundle {
   source: 'manual' | 'ocr' | 'video';
   /** ISO timestamp; supplied by the caller (core stays clock-free). */
   capturedAt: string;
-  server: string;
+  server: Server;
   dataVersion: string;
   /** Fixed seed → deterministic sim (reproducible baskets). */
   seed?: number;
@@ -62,13 +61,19 @@ export interface Basket {
 
 // --- feasibility helpers ---
 
-/** Expand a skill-id set to include any gold prereqs found in `candidates`. */
+/** Expand a skill-id set to include any prereqs found in `candidates`
+ *  (transitively — resolves prereq chains, not just one level). */
 export function prereqClosure(skillIds: string[], candidates: BuyableSkill[]): string[] {
   const byId = new Map(candidates.map((c) => [c.skillId, c]));
   const out = new Set(skillIds);
-  for (const id of skillIds) {
+  const worklist = [...skillIds];
+  while (worklist.length) {
+    const id = worklist.pop()!;
     const prereq = byId.get(id)?.prereqSkillId;
-    if (prereq) out.add(prereq);
+    if (prereq && !out.has(prereq)) {
+      out.add(prereq);
+      worklist.push(prereq);
+    }
   }
   return [...out];
 }
