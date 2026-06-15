@@ -113,7 +113,7 @@
 }
 .tl-badge.confirmed {
   color: #7ee787;
-  border-color: #2ea04326;
+  border-color: rgb(46 160 67 / 0.15);
 }
 .tl-badge.datamined {
   border-style: dashed;

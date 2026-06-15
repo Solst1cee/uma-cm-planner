@@ -44,7 +44,8 @@ export function partitionByLane(entries: TimelineEntry[]): Record<LaneKey, Timel
 /**
  * Index in a date-sorted lane where the "now" marker belongs: the first entry
  * whose effective date is >= nowISO (the next upcoming entry). Returns
- * entries.length when every entry is in the past.
+ * entries.length when every entry is in the past. Undated entries
+ * (effectiveDate '') sort before all dated ones, so they fall before the marker.
  */
 export function nowIndex(sorted: TimelineEntry[], nowISO: string): number {
   const i = sorted.findIndex((e) => effectiveDate(e) >= nowISO);

@@ -93,4 +93,13 @@ describe('TimelinePage', () => {
     render(<TimelinePage now="2026-06-15" />);
     expect(screen.getByText(/No timeline data/)).toBeInTheDocument();
   });
+
+  it('does not fade an undated (TBD) entry as past', () => {
+    mockGameData.mockReturnValue({
+      status: 'ready',
+      timeline: [te({ id: 'cm-tbd', type: 'cm', title: 'Future Cup', dates: {} })],
+    });
+    render(<TimelinePage now="2026-06-15" />);
+    expect(screen.getByRole('button', { name: /Future Cup/ })).not.toHaveClass('past');
+  });
 });

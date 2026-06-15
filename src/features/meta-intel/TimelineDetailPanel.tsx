@@ -97,7 +97,12 @@ export function TimelineDetailPanel({ entry }: { entry: TimelineEntry | null }) 
       {entry.source.url !== '' ? (
         <p className="tl-detail-source small">
           Source:{' '}
-          <a href={entry.source.url} target="_blank" rel="noreferrer">
+          <a
+            href={entry.source.url}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`${entry.source.kind} — opens in a new tab`}
+          >
             {entry.source.kind} ↗
           </a>
         </p>

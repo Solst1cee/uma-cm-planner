@@ -49,6 +49,8 @@ export function TimelinePage({ now }: { now?: string } = {}) {
     });
 
   const jumpToNow = () => {
+    // Lanes scroll independently; this targets the first (topmost = CM) lane's
+    // now-marker by design — that's the "now" a viewer cares about most.
     const marker = lanesRef.current?.querySelector('[data-now]');
     (marker as HTMLElement | null)?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
   };
@@ -121,7 +123,7 @@ export function TimelinePage({ now }: { now?: string } = {}) {
                         <TimelineEntryCard
                           entry={entry}
                           selected={entry.id === selectedId}
-                          past={effectiveDate(entry) < nowISO}
+                          past={effectiveDate(entry) !== '' && effectiveDate(entry) < nowISO}
                           current={entry.id === currentCmId}
                           onSelect={() => setSelectedId(entry.id)}
                         />
