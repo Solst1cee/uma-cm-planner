@@ -9,7 +9,7 @@ import { type RankResult, rankBaskets } from '@/features/sp-optimizer/rankBasket
 import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 import './sp-optimizer.css';
 
-interface Seed { candidates: BuyableSkill[]; sp?: number; courseId?: string; }
+interface Seed { candidates: BuyableSkill[]; sp?: number; courseId?: string; source: CaptureBundle['source']; }
 
 export function SpOptimizerPage() {
   const { status, skillById } = useGameData();
@@ -31,8 +31,11 @@ export function SpOptimizerPage() {
 
   async function importFile(file: File) {
     try {
-      const parsed = parseCaptureBundle(JSON.parse(await file.text()));
-      applySeed({ candidates: parsed.context.candidates, sp: parsed.context.spBudget, courseId: parsed.context.courseId });
+      const text = await file.text();
+      let data: unknown;
+      try { data = JSON.parse(text); } catch { throw new Error('Not valid JSON'); }
+      const parsed = parseCaptureBundle(data);
+      applySeed({ candidates: parsed.context.candidates, sp: parsed.context.spBudget, courseId: parsed.context.courseId, source: parsed.source });
     } catch (err) {
       setImportError(err instanceof Error ? err.message : String(err));
     }
@@ -40,7 +43,7 @@ export function SpOptimizerPage() {
 
   function copyWishlist() {
     if (!plan) return;
-    applySeed({ candidates: wishlistToCandidates(plan.wishlist, skillById) });
+    applySeed({ candidates: wishlistToCandidates(plan.wishlist, skillById), source: 'manual' });
   }
 
   function analyze(b: CaptureBundle) {
@@ -102,6 +105,7 @@ export function SpOptimizerPage() {
           initialCandidates={seed?.candidates}
           initialSpBudget={seed?.sp}
           initialCourseId={seed?.courseId}
+          initialSource={seed?.source}
         />
         {error && <p className="error" role="alert">Could not analyze: {error}</p>}
       </section>

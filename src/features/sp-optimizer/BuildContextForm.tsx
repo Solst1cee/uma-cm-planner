@@ -13,13 +13,14 @@ export interface BuildContextFormProps {
   initialCandidates?: BuyableSkill[];
   initialSpBudget?: number;
   initialCourseId?: string;
+  initialSource?: CaptureBundle['source'];
   dataVersion?: string;
   /** Clock injected so the component stays testable/deterministic. */
   now?: () => string;
 }
 
 export function BuildContextForm({
-  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, dataVersion = 'global-c1fa2107', now,
+  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-c1fa2107', now,
 }: BuildContextFormProps) {
   const { skillById } = useGameData();
   const [spBudget, setSpBudget] = useState(initialSpBudget ?? 1000);
@@ -27,8 +28,8 @@ export function BuildContextForm({
   const [candidates, setCandidates] = useState<BuyableSkill[]>(initialCandidates ?? []);
   const [draftId, setDraftId] = useState('');
   const [draftCost, setDraftCost] = useState('');
-  const [source] = useState<'manual' | 'ocr'>(
-    initialCandidates && initialCandidates.length > 0 ? 'ocr' : 'manual',
+  const [source] = useState<CaptureBundle['source']>(
+    initialSource ?? (initialCandidates && initialCandidates.length > 0 ? 'ocr' : 'manual'),
   );
 
   function addCandidate() {

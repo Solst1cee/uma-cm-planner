@@ -48,6 +48,15 @@ describe('BuildContextForm', () => {
     expect(bundle.context.candidates[0].skillId).toBe('200332');
   });
 
+  it('respects an explicit initialSource (wishlist seed → manual)', async () => {
+    const user = userEvent.setup();
+    const onAnalyze = vi.fn();
+    const seed: BuyableSkill[] = [{ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'manual' }];
+    render(<BuildContextForm onAnalyze={onAnalyze} initialCandidates={seed} initialSource="manual" />);
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    expect(onAnalyze.mock.calls[0]![0].source).toBe('manual');
+  });
+
   it('lets you correct a candidate cost and remove a row', async () => {
     const user = userEvent.setup();
     const onAnalyze = vi.fn();
