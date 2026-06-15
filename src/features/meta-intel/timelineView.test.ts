@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TimelineEntry } from '@/core/types';
-import { currentCm, filterTimeline, nowIndex, partitionByLane } from './timelineView';
+import { currentCm, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
 
 /** Minimal TimelineEntry builder — override only what a test cares about. */
 function entry(over: Partial<TimelineEntry> & { id: string }): TimelineEntry {
@@ -85,5 +85,28 @@ describe('currentCm', () => {
 
   it('returns null for an empty list', () => {
     expect(currentCm([], '2026-06-15')).toBeNull();
+  });
+});
+
+describe('windowTimeline', () => {
+  const entries = [
+    entry({ id: 'ancient', dates: { finals: '2025-06-15' } }), // >1y ago
+    entry({ id: 'recent', dates: { finals: '2026-05-15' } }),
+    entry({ id: 'soon', dates: { finals: '2026-07-15' } }),
+    entry({ id: 'far', dates: { finals: '2027-09-15' } }),     // >1y ahead
+    entry({ id: 'undated', dates: {} }),
+  ];
+  const now = '2026-06-15';
+
+  it('all → everything, order preserved', () => {
+    expect(windowTimeline(entries, now, 'all').map((e) => e.id)).toEqual([
+      'ancient', 'recent', 'soon', 'far', 'undated',
+    ]);
+  });
+  it('upcoming → effective date on/after now (undated excluded)', () => {
+    expect(windowTimeline(entries, now, 'upcoming').map((e) => e.id)).toEqual(['soon', 'far']);
+  });
+  it('year → [now-6mo, now+12mo], undated excluded', () => {
+    expect(windowTimeline(entries, now, 'year').map((e) => e.id)).toEqual(['recent', 'soon']);
   });
 });

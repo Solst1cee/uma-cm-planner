@@ -5,7 +5,7 @@
  * @/core/timeline; nothing game-rule lives here.
  */
 import type { TimelineEntry } from '@/core/types';
-import { effectiveDate } from '@/core/timeline';
+import { addMonths, effectiveDate } from '@/core/timeline';
 
 export type LaneKey = TimelineEntry['type']; // 'cm' | 'banner' | 'patch'
 
@@ -58,4 +58,27 @@ export function currentCm(cmEntries: TimelineEntry[], nowISO: string): TimelineE
   const sorted = [...cmEntries].sort(byDateAsc);
   const upcoming = sorted.find((e) => effectiveDate(e) >= nowISO);
   return upcoming ?? sorted[sorted.length - 1] ?? null;
+}
+
+export type RangeKey = 'upcoming' | 'year' | 'all';
+
+export const RANGES: readonly { key: RangeKey; label: string }[] = [
+  { key: 'upcoming', label: 'Upcoming' },
+  { key: 'year', label: '±1 year' },
+  { key: 'all', label: 'All' },
+];
+
+/**
+ * Restrict entries to a date window around `nowISO`. Undated entries (effectiveDate
+ * '') appear only under 'all'. Order is preserved (caller sorts per lane).
+ */
+export function windowTimeline(entries: TimelineEntry[], nowISO: string, range: RangeKey): TimelineEntry[] {
+  if (range === 'all') return entries;
+  if (range === 'upcoming') return entries.filter((e) => effectiveDate(e) >= nowISO);
+  const lo = addMonths(nowISO, -6);
+  const hi = addMonths(nowISO, 12);
+  return entries.filter((e) => {
+    const d = effectiveDate(e);
+    return d !== '' && d >= lo && d <= hi;
+  });
 }
