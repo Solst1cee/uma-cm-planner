@@ -29,4 +29,14 @@ describe('rankSkillChart', () => {
   });
 
   it('DEAD_L threshold is 0.1', () => { expect(DEAD_L).toBe(0.1); });
+
+  it('treats a skill the engine throws on as n/a, without crashing the stream', async () => {
+    const dep = vi.fn((_b, _r, id: string) => {
+      if (id === 'boom') throw new Error('Cannot set properties of undefined');
+      return stats(1.5);
+    });
+    const rows = await rankSkillChart(build, race, ['a', 'boom', 'b'], { skillDelta: dep, nsamples: 10 });
+    expect(rows.find((r) => r.skillId === 'boom')).toMatchObject({ status: 'na', L: null });
+    expect(rows.filter((r) => r.status === 'live').map((r) => r.skillId).sort()).toEqual(['a', 'b']);
+  });
 });

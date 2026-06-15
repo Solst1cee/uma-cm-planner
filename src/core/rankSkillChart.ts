@@ -53,7 +53,15 @@ export async function rankSkillChart(
   const n = deps.nsamples ?? DISCOVERY_NSAMPLES;
   const rows: SkillChartRow[] = [];
   for (const skillId of skillIds) {
-    const s = await deps.skillDelta(build, race, skillId, n, deps.seed);
+    let s: BashinStats;
+    try {
+      s = await deps.skillDelta(build, race, skillId, n, deps.seed);
+    } catch {
+      // The engine can't evaluate this skill on this build (e.g. an unmodeled
+      // effect, or a degenerate runner) — surface it as not-simulatable rather
+      // than letting one throw crash the whole chart stream (P3).
+      s = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
+    }
     const row = rowFrom(skillId, s);
     rows.push(row);
     onRow?.(row);

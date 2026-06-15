@@ -46,7 +46,10 @@ export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
     uniqueSkillId: '',
     role: 'ace',
     strategy: 'pace',
-    statProfile: { stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 }, mood: 0 },
+    // §5.2 auto-seed (cm_stat_targets) is deferred; start from a plausible
+    // mid-game build so the §1 skill chart can sim immediately (the engine can't
+    // race a 0-speed runner). Fully user-editable in the Runner panel.
+    statProfile: { stats: { spd: 1000, sta: 600, pow: 600, gut: 400, wit: 400 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} },
     wishlist: [],
     lockedDeckSlots: [],
