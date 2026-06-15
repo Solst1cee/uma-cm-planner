@@ -8,8 +8,9 @@
  *   pnpm data:build                  — requires scripts/borrowed/ (pnpm data:fetch)
  *   pnpm data:build -- --from-spikes — (re)copy inputs from the local Phase-0 clone first
  */
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { CmPreset, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
+import type { CmPreset, CmTrack, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { buildAffinity } from './build-affinity';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
@@ -113,7 +114,13 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   // Timeline: built after cm_preset overrides are applied so patched presets flow in.
   // Read directly (not via loadOverrideFiles) — timeline_overrides.json is insert-capable.
   const timelineOverrides = (readJson<{ entries?: Array<Partial<TimelineEntry> & { id: string }> }>(join(OVERRIDES_DIR, 'timeline_overrides.json')).entries ?? []);
-  const timeline = buildTimeline({ presets, overrides: timelineOverrides, dataVersion: DATA_VERSION });
+  // cm_tracks.json is generated out-of-band by `pnpm timeline:import`; read it if
+  // present so synthesis can append predicted CMs (empty → no predictions).
+  const cmTracksPath = join(PUBLIC_DATA_DIR, 'cm_tracks.json');
+  const tracks = existsSync(cmTracksPath)
+    ? readJson<{ tracks: CmTrack[] }>(cmTracksPath).tracks
+    : [];
+  const timeline = buildTimeline({ presets, overrides: timelineOverrides, tracks, dataVersion: DATA_VERSION });
 
   // Build-time oracle (provenance §4.1): emitted cards must agree with the
   // independent Tachyons-lab event-reward source — catches regressions of the

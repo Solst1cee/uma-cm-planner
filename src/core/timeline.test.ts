@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mergeTimeline, projectCmSchedule, predictGlobalDate, timelineBadge, sortTimeline } from './timeline';
+import { mergeTimeline, projectCmSchedule, predictGlobalDate, timelineBadge, sortTimeline, addMonths } from './timeline';
 import type { TimelineEntry } from './types';
 
 const base: TimelineEntry[] = [
@@ -65,5 +65,22 @@ describe('pace calibration', () => {
     const d = predictGlobalDateDefault('2025-01-16'); // ~1422 JP days after launch
     expect(d > '2025-06-26').toBe(true);
     expect(predictGlobalDateDefault('2025-01-16')).toBe(d); // deterministic
+  });
+});
+
+describe('addMonths', () => {
+  it('adds whole months', () => {
+    expect(addMonths('2026-06-30', 1)).toBe('2026-07-30');
+    expect(addMonths('2026-06-30', 3)).toBe('2026-09-30');
+  });
+  it('rolls over the year', () => {
+    expect(addMonths('2026-11-15', 3)).toBe('2027-02-15');
+  });
+  it('clamps to the last day when the target month is shorter', () => {
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonths('2026-03-31', 1)).toBe('2026-04-30');
+  });
+  it('handles negative months (windowing lower bound)', () => {
+    expect(addMonths('2026-06-15', -6)).toBe('2025-12-15');
   });
 });

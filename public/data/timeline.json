@@ -643,6 +643,66 @@
       },
       "server": "global",
       "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm16-leo-cup-predicted",
+      "type": "cm",
+      "title": "Leo Cup",
+      "dates": {
+        "finals": "2026-07-30"
+      },
+      "cm": {
+        "cmNumber": 16,
+        "trackSummary": "Nakayama turf 1200m (sprint)"
+      },
+      "tier": "prediction",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umaguide",
+        "url": "https://uma.guide/cm-schedule/"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm17-virgo-cup-predicted",
+      "type": "cm",
+      "title": "Virgo Cup",
+      "dates": {
+        "finals": "2026-08-30"
+      },
+      "cm": {
+        "cmNumber": 17,
+        "trackSummary": "Oi dirt 2000m (medium)"
+      },
+      "tier": "prediction",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umaguide",
+        "url": "https://uma.guide/cm-schedule/"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm18-libra-cup-predicted",
+      "type": "cm",
+      "title": "Libra Cup",
+      "dates": {
+        "finals": "2026-09-30"
+      },
+      "cm": {
+        "cmNumber": 18,
+        "trackSummary": "Hanshin turf 1600m (mile)"
+      },
+      "tier": "prediction",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umaguide",
+        "url": "https://uma.guide/cm-schedule/"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
     }
   ]
 }
