@@ -1,0 +1,12 @@
+/* Container + theme bridge for the vendored umalator racetrack (M4 §0).
+   The vendored XAxis uses var(--color-foreground); map it to our token. */
+.rt-view {
+  --color-foreground: var(--fg);
+  width: 100%;
+  overflow-x: auto;
+}
+.rt-view .racetrackView {
+  width: 100%;
+  height: auto;
+  display: block;
+}

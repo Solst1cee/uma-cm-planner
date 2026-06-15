@@ -1,0 +1,28 @@
+import type * as React from 'react';
+import i18n from '../../shims/labels';
+type SectionTextProps = {
+  w: number;
+  id: string;
+  fields?: Record<string, string | number>;
+
+  y?: number | string;
+};
+
+export const SectionText: React.FC<SectionTextProps> = (props) => {
+  const { y = '50%', w, id, fields } = props;
+
+  const translationKey = w < 10 ? `racetrack.short.${id}` : `racetrack.${id}`;
+
+  return (
+    <text
+      className="sectionText text-[10px]!"
+      x="50%"
+      y={y}
+      height="100%"
+      width="100%"
+      fill="rgb(121,64,22)"
+    >
+      {i18n.t(translationKey, fields)}
+    </text>
+  );
+};

@@ -1,0 +1,142 @@
+.distanceMarker {
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 2px;
+}
+
+.sectionText {
+  dominant-baseline: central;
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 2px;
+  text-anchor: middle;
+}
+
+.racetrackName {
+  color: rgb(121, 64, 22);
+  font: 22px bold sans-serif;
+  margin-bottom: 0.3em;
+  text-align: center;
+  -webkit-text-stroke: 1px rgb(121, 64, 22);
+  text-shadow:
+    -1px -1px 0 white,
+    1px -1px 0 white,
+    -1px 1px 0 white,
+    1px 1px 0 white;
+}
+
+.mouseoverText {
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 2px;
+}
+
+.drag-textbox {
+  transition: opacity 0.2s ease;
+  cursor: grab !important;
+}
+
+.drag-textbox:hover {
+  opacity: 0.8;
+  cursor: grab !important;
+}
+
+.drag-textbox:active {
+  cursor: grabbing !important;
+  opacity: 0.6;
+}
+
+.drag-textbox text {
+  font-weight: bold;
+}
+
+.poskeep-label text {
+  font-weight: bold;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 1px;
+  filter: drop-shadow(0.5px 0.5px 1px rgba(0, 0, 0, 0.3)) opacity(1) !important;
+}
+
+.poskeep-label line {
+  filter: drop-shadow(0.5px 0.5px 1px rgba(0, 0, 0, 0.3)) opacity(1) !important;
+}
+
+.recovery-marker {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.recovery-marker:active {
+  cursor: grabbing;
+}
+
+.recovery-marker polygon {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.35));
+  animation: recovery-pulse 2s ease-in-out infinite;
+}
+
+@keyframes recovery-pulse {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.debuff-marker {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.debuff-marker:active {
+  cursor: grabbing;
+}
+
+.debuff-marker polygon {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.35));
+  animation: debuff-pulse 2s ease-in-out infinite;
+}
+
+@keyframes debuff-pulse {
+  0%,
+  100% {
+    opacity: 0.76;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.recovery-tooltip rect {
+  fill: color-mix(in srgb, var(--background) 85%, black);
+  stroke: color-mix(in srgb, var(--foreground) 45%, transparent);
+}
+
+.debuff-tooltip rect {
+  fill: color-mix(in srgb, var(--background) 85%, black);
+  stroke: color-mix(in srgb, var(--foreground) 45%, transparent);
+}
+
+.recovery-tooltip text {
+  fill: var(--foreground);
+  paint-order: stroke;
+  stroke: var(--background);
+  stroke-width: 1px;
+  font-weight: 600;
+}
+
+.debuff-tooltip text {
+  fill: var(--foreground);
+  paint-order: stroke;
+  stroke: var(--background);
+  stroke-width: 1px;
+  font-weight: 600;
+}
