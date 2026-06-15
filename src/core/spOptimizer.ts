@@ -172,3 +172,76 @@ export function selectTopDiverse(scored: ScoredBasket[], opts: SelectOpts): Scor
   }
   return chosen;
 }
+
+// --- proxy shortlister (large-residual branch) ---
+
+export interface ShortlistOpts {
+  /** Max baskets to return for simulation. */
+  limit: number;
+  /** Minimum diversity between shortlisted baskets. */
+  minDistance: number;
+}
+
+/**
+ * Exact DP-over-SP knapsack on the single-skill Δ-L proxy → the proxy-optimal
+ * feasible basket, then a diverse spread around it, capped at `limit`. The
+ * proxy ONLY narrows the field (spec §4 step 3); the sim re-ranks the result.
+ * Beats greedy-by-ratio (the knapsack is exact). Pure and total.
+ *
+ * `deltaLById` is the per-candidate single-skill Δ-lengths; missing ⇒ 0.
+ */
+export function shortlistByProxy(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+  deltaLById: Record<string, number>,
+  opts: ShortlistOpts,
+): string[][] {
+  const pinnedClosed = prereqClosure(pinned, candidates);
+  const pinnedCost = basketSpCost(pinnedClosed, candidates);
+  const pinnedSet = new Set(pinnedClosed);
+  const residual = Math.max(0, budget - pinnedCost);
+
+  const items = candidates
+    .filter((c) => !pinnedSet.has(c.skillId))
+    .map((c) => {
+      const closed = prereqClosure([c.skillId], candidates).filter((id) => !pinnedSet.has(id));
+      return {
+        id: c.skillId,
+        members: closed,
+        cost: basketSpCost(closed, candidates),
+        value: closed.reduce((s, id) => s + (deltaLById[id] ?? 0), 0),
+      };
+    })
+    .filter((it) => it.cost > 0 && it.cost <= residual);
+
+  const best: { value: number; picked: number[] }[] = Array.from({ length: residual + 1 }, () => ({
+    value: 0,
+    picked: [],
+  }));
+  items.forEach((it, idx) => {
+    for (let sp = residual; sp >= it.cost; sp--) {
+      const cand = best[sp - it.cost]!;
+      if (cand.value + it.value > best[sp]!.value && !cand.picked.includes(idx)) {
+        best[sp] = { value: cand.value + it.value, picked: [...cand.picked, idx] };
+      }
+    }
+  });
+
+  const raw: string[][] = best
+    .map((cell) => [...pinnedClosed, ...cell.picked.flatMap((i) => items[i]!.members)])
+    .map((b) => [...new Set(b)]);
+
+  const out: string[][] = [];
+  const seen = new Set<string>();
+  const valueOf = (b: string[]) => b.reduce((s, id) => s + (deltaLById[id] ?? 0), 0);
+  for (const b of raw.sort((x, y) => valueOf(y) - valueOf(x))) {
+    const key = b.slice().sort().join(',');
+    if (seen.has(key)) continue;
+    if (out.some((o) => skillSetDistance(o, b) < opts.minDistance)) continue;
+    seen.add(key);
+    out.push(b);
+    if (out.length === opts.limit) break;
+  }
+  return out;
+}

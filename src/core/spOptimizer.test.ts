@@ -112,3 +112,34 @@ describe('selectTopDiverse', () => {
     expect(top.length).toBeLessThanOrEqual(3);
   });
 });
+
+import { shortlistByProxy } from '@/core/spOptimizer';
+
+// --- shortlistByProxy ---
+describe('shortlistByProxy', () => {
+  const cands: BuyableSkill[] = [buy('a', 100), buy('b', 100), buy('c', 100), buy('d', 100)];
+  const deltaL: Record<string, number> = { a: 1, b: 1, c: 5, d: 0.5 };
+
+  it('produces budget-feasible baskets including the proxy-optimal one', () => {
+    const lists = shortlistByProxy(cands, 200, [], deltaL, { limit: 10, minDistance: 2 });
+    expect(lists.length).toBeGreaterThan(0);
+    expect(lists.every((b) => basketSpCost(b, cands) <= 200)).toBe(true);
+    const top = lists[0]!.slice().sort().join(',');
+    expect(['a,c', 'b,c']).toContain(top);
+  });
+
+  it('beats naive greedy-by-cost: a knapsack counterexample', () => {
+    const kn: BuyableSkill[] = [buy('x', 2), buy('y', 1), buy('z', 2)];
+    const d: Record<string, number> = { x: 3, y: 2, z: 2.9 };
+    const lists = shortlistByProxy(kn, 3, [], d, { limit: 10, minDistance: 1 });
+    const proxySum = (b: string[]) => b.reduce((s, id) => s + (d[id] ?? 0), 0);
+    const best = Math.max(...lists.map(proxySum));
+    expect(best).toBe(5); // x+y, not the greedy-ratio trap
+  });
+
+  it('respects pins and the shortlist limit', () => {
+    const lists = shortlistByProxy(cands, 300, ['a'], deltaL, { limit: 3, minDistance: 1 });
+    expect(lists.length).toBeLessThanOrEqual(3);
+    expect(lists.every((b) => b.includes('a'))).toBe(true);
+  });
+});
