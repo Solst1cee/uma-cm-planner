@@ -124,3 +124,51 @@ export function enumerateFeasibleBaskets(
     return true;
   });
 }
+
+// --- diversity + selection ---
+
+/** A basket plus its simulated score (mean Δ-lengths) and SP accounting. */
+export interface ScoredBasket extends Basket {
+  /** Simulated combined Δ-lengths (higher = better). */
+  score: number;
+}
+
+export interface SelectOpts {
+  k: number;
+  /** Drop baskets more than this many bashin below the best. */
+  bandBashin: number;
+  /** Minimum symmetric-difference between any two chosen baskets. */
+  minDistance: number;
+}
+
+/** Symmetric-difference size of two skill-id sets. */
+export function skillSetDistance(a: string[], b: string[]): number {
+  const sa = new Set(a);
+  const sb = new Set(b);
+  let d = 0;
+  for (const x of sa) if (!sb.has(x)) d++;
+  for (const x of sb) if (!sa.has(x)) d++;
+  return d;
+}
+
+/**
+ * Greedy top-K by descending score, skipping any basket within `minDistance`
+ * of an already-chosen one or more than `bandBashin` below the best score.
+ * Stable: equal scores keep input order. Pure and total.
+ */
+export function selectTopDiverse(scored: ScoredBasket[], opts: SelectOpts): ScoredBasket[] {
+  if (scored.length === 0) return [];
+  const ranked = [...scored].sort((x, y) => y.score - x.score);
+  const best = ranked[0]!.score;
+  const chosen: ScoredBasket[] = [];
+  for (const cand of ranked) {
+    if (cand.score < best - opts.bandBashin) break; // ranked desc → rest are worse
+    const tooClose = chosen.some(
+      (c) => skillSetDistance(c.skills, cand.skills) < opts.minDistance,
+    );
+    if (tooClose) continue;
+    chosen.push(cand);
+    if (chosen.length === opts.k) break;
+  }
+  return chosen;
+}

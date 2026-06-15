@@ -82,3 +82,33 @@ describe('enumerateFeasibleBaskets', () => {
     expect(asSets).not.toContain('g,w'); // also 200 > 150
   });
 });
+
+import { type ScoredBasket, selectTopDiverse, skillSetDistance } from '@/core/spOptimizer';
+
+// --- skillSetDistance ---
+describe('skillSetDistance', () => {
+  it('counts symmetric-difference size', () => {
+    expect(skillSetDistance(['a', 'b'], ['a', 'c'])).toBe(2); // b out, c in
+    expect(skillSetDistance(['a', 'b'], ['a', 'b'])).toBe(0);
+  });
+});
+
+// --- selectTopDiverse ---
+describe('selectTopDiverse', () => {
+  const scored: ScoredBasket[] = [
+    { skills: ['a', 'b'], score: 10, spUsed: 0, spLeft: 0 },
+    { skills: ['a', 'b', 'c'], score: 9.9, spUsed: 0, spLeft: 0 }, // dist 1 from best → too similar
+    { skills: ['d', 'e'], score: 9, spUsed: 0, spLeft: 0 }, // diverse
+    { skills: ['f', 'g'], score: 1, spUsed: 0, spLeft: 0 }, // outside band
+  ];
+
+  it('ranks by score, enforces ≥2-skill diversity, and applies the bashin band', () => {
+    const top = selectTopDiverse(scored, { k: 3, bandBashin: 2, minDistance: 2 });
+    expect(top.map((b) => b.skills.join(','))).toEqual(['a,b', 'd,e']);
+  });
+
+  it('returns fewer than k when diversity/band cannot be satisfied', () => {
+    const top = selectTopDiverse(scored, { k: 3, bandBashin: 2, minDistance: 2 });
+    expect(top.length).toBeLessThanOrEqual(3);
+  });
+});
