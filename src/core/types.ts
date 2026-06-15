@@ -232,6 +232,16 @@ export interface CmPreset {
 // Timeline (Module 3 — Meta Intel)
 // ---------------------------------------------------------------------------
 
+/** A CM#→track mapping row from uma.guide/cm-schedule/ (public/data/cm_tracks.json). */
+export interface CmTrack {
+  index: number;          // uma.guide position (#N)
+  cupName: string;        // 'Cancer Cup'
+  racetrack: string;      // 'Hanshin'
+  distance: number;       // 2200
+  distanceClass: 'sprint' | 'mile' | 'medium' | 'long';
+  surface: 'turf' | 'dirt';
+}
+
 export type TimelineTier = 'official' | 'datamined' | 'prediction';
 export type TimelineStatus = 'confirmed' | 'unconfirmed';
 export type TimelineSourceKind =
