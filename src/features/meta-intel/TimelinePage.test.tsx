@@ -94,12 +94,28 @@ describe('TimelinePage', () => {
     expect(screen.getByText(/No timeline data/)).toBeInTheDocument();
   });
 
-  it('does not fade an undated (TBD) entry as past', () => {
+  it('does not fade an undated (TBD) entry as past', async () => {
+    const user = userEvent.setup();
     mockGameData.mockReturnValue({
       status: 'ready',
       timeline: [te({ id: 'cm-tbd', type: 'cm', title: 'Future Cup', dates: {} })],
     });
     render(<TimelinePage now="2026-06-15" />);
+    // Undated entries only surface under the All range (default is Upcoming).
+    await user.selectOptions(screen.getByLabelText('Date range'), 'all');
     expect(screen.getByRole('button', { name: /Future Cup/ })).not.toHaveClass('past');
+  });
+
+  it('defaults to the Upcoming range, hiding past entries', () => {
+    renderPage();
+    expect(screen.queryByText('Gemini Cup')).not.toBeInTheDocument(); // cm14, 2026-05-30 (past)
+    expect(screen.getByText('Cancer Cup')).toBeInTheDocument();       // cm15, 2026-06-30 (upcoming)
+  });
+
+  it('switching range to All reveals past entries', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.selectOptions(screen.getByLabelText('Date range'), 'all');
+    expect(screen.getByText('Gemini Cup')).toBeInTheDocument();
   });
 });

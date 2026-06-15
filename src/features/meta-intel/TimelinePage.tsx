@@ -9,7 +9,7 @@
 import { Fragment, useMemo, useRef, useState } from 'react';
 import { effectiveDate } from '@/core/timeline';
 import { useGameData } from '@/features/data/gameData';
-import { LANES, type LaneKey, currentCm, filterTimeline, nowIndex, partitionByLane } from './timelineView';
+import { LANES, RANGES, type LaneKey, type RangeKey, currentCm, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
 import { TimelineEntryCard } from './TimelineEntryCard';
 import { TimelineDetailPanel } from './TimelineDetailPanel';
 import './meta-intel.css';
@@ -23,12 +23,13 @@ export function TimelinePage({ now }: { now?: string } = {}) {
 
   const [enabledLanes, setEnabledLanes] = useState<Set<LaneKey>>(() => new Set(ALL_LANE_KEYS));
   const [confirmedOnly, setConfirmedOnly] = useState(false);
+  const [range, setRange] = useState<RangeKey>('upcoming');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const lanesRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(
-    () => filterTimeline(entries, { lanes: enabledLanes, confirmedOnly }),
-    [entries, enabledLanes, confirmedOnly],
+    () => filterTimeline(windowTimeline(entries, nowISO, range), { lanes: enabledLanes, confirmedOnly }),
+    [entries, nowISO, range, enabledLanes, confirmedOnly],
   );
   const partitioned = useMemo(() => partitionByLane(filtered), [filtered]);
   const currentCmId = useMemo(
@@ -92,6 +93,18 @@ export function TimelinePage({ now }: { now?: string } = {}) {
             />
             Confirmed only
           </label>
+          <select
+            className="tl-range"
+            value={range}
+            onChange={(e) => setRange(e.target.value as RangeKey)}
+            aria-label="Date range"
+          >
+            {RANGES.map((r) => (
+              <option key={r.key} value={r.key}>
+                {r.label}
+              </option>
+            ))}
+          </select>
           <button type="button" onClick={jumpToNow}>
             Jump to now
           </button>
