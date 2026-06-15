@@ -1,0 +1,164 @@
+/* Meta Intel (M3) timeline styles. Shared primitives (panel, badge, muted,
+   small) live in src/styles/app.css — only timeline-specific layout here. */
+
+.tl-page {
+  gap: 0.75rem;
+}
+
+.timeline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.tl-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
+.tl-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 920px) {
+  .tl-body {
+    grid-template-columns: 1fr minmax(240px, 320px);
+    align-items: start;
+  }
+}
+
+.timeline-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.timeline-lane {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+}
+.lane-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--fg-muted);
+}
+.lane-track {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.tl-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 150px;
+  max-width: 220px;
+  text-align: left;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.55rem;
+  color: var(--fg);
+  cursor: pointer;
+}
+.tl-card:hover {
+  border-color: var(--accent);
+}
+.tl-card.selected {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.tl-card.past {
+  opacity: 0.55;
+}
+.tl-card.current {
+  border-color: var(--accent);
+}
+.tl-card-title {
+  font-weight: 600;
+}
+.tl-card-summary {
+  color: var(--fg-muted);
+}
+.tl-m4-tag {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0 0.3rem;
+}
+
+/* Tier badges — symbol + label; dashed/dotted echo datamined/predicted. */
+.tl-badge {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  border-radius: 6px;
+  padding: 0 0.3rem;
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+}
+.tl-badge.confirmed {
+  color: #7ee787;
+  border-color: #2ea04326;
+}
+.tl-badge.datamined {
+  border-style: dashed;
+}
+.tl-badge.predicted {
+  border-style: dotted;
+  opacity: 0.85;
+}
+
+.now-marker {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 0.72rem;
+  color: var(--accent);
+  border-left: 2px solid var(--accent);
+  padding-left: 0.3rem;
+  white-space: nowrap;
+}
+
+.tl-detail h3 {
+  margin: 0 0 0.4rem;
+}
+.tl-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
+}
+.tl-detail-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.6rem;
+  margin: 0 0 0.6rem;
+}
+.tl-detail-fields dt {
+  color: var(--fg-muted);
+}
+.tl-detail-fields dd {
+  margin: 0;
+}
+.tl-feeds {
+  color: var(--accent);
+}
+.tl-unconfirmed {
+  color: var(--fg-muted);
+  border-top: 1px dashed var(--border);
+  padding-top: 0.4rem;
+}
