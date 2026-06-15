@@ -8,6 +8,7 @@ const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, re
 export function evalSkillDelta(
   build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
 ): BashinStats {
+  if (nsamples < 1) return { ...EMPTY };
   if (!skillsService.isSimulatable(skillId)) return { ...EMPTY };
   const runnerA = toRunnerState(build);
   const runnerB = toRunnerState({ ...build, skills: [...build.skills, skillId] });
@@ -37,8 +38,8 @@ export function runVacuumCompare(
   });
   return {
     mean: _mean(r.results), median: _median(r.results),
-    min: r.results.length ? Math.min(...r.results) : 0,
-    max: r.results.length ? Math.max(...r.results) : 0,
+    min: r.results[0] ?? 0,
+    max: r.results[r.results.length - 1] ?? 0,
     nsamples: r.results.length, results: r.results,
     aFirstPlaceRate: r.firstUmaStats.uma1.firstPlaceRate / 100,
     bFirstPlaceRate: r.firstUmaStats.uma2.firstPlaceRate / 100,

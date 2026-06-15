@@ -1,8 +1,11 @@
 // The typed contract between src/sim and its callers (features/core).
 import type { Stat } from '@/core/types';
 
-/** Our strategy labels (shared-data-model §2). */
+/** Our strategy labels (shared-data-model §2). The engine also has a 5th ('Runaway'/大逃げ); intentionally omitted — out of scope for the current Global meta. */
 export type Strategy = 'front' | 'pace' | 'late' | 'end';
+
+/** Aptitude letter grades (engine accepts these strings directly). */
+export type Grade = 'S' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 
 /** A runner build expressed in OUR domain terms. */
 export interface SimBuild {
@@ -10,7 +13,7 @@ export interface SimBuild {
   stats: Record<Stat, number>;        // spd/sta/pow/gut/wit
   strategy: Strategy;
   /** Aptitude grades as letters, e.g. { distance: 'A', surface: 'A', strategy: 'A' }. */
-  aptitudes: { distance: string; surface: string; strategy: string };
+  aptitudes: { distance: Grade; surface: Grade; strategy: Grade };
   /** Owned/learned skill ids (master.mdb string ids — same as the engine's). */
   skills: string[];
   /** -2..2; defaults to 2 (Great) at the adapter. */
@@ -34,7 +37,7 @@ export interface BashinStats {
   min: number;
   max: number;
   nsamples: number;
-  /** Full per-sample distribution (for histograms / convergence display). */
+  /** Per-sample bashin values, SORTED ascending (distribution/histogram use; not sample-ordered). */
   results: number[];
 }
 

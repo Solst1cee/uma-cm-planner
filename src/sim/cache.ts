@@ -14,6 +14,14 @@ export function simCacheKey(build: SimBuild, race: SimRaceParams, skillId: strin
   return [race.courseId, build.strategy, bucketStats(build), aptHash(build), skillId, dataVersion].join('|');
 }
 
+/**
+ * Memoizing cache for SINGLE-skill bashin deltas on a FIXED base build.
+ * The key buckets stats (50-pt bins ≈ a single skill's noise floor) and ignores `mood`
+ * and the build's OWNED-skill loadout beyond the tracked `skillId`. Safe for M4's pre-run
+ * opportunistic reuse; NOT safe to reuse across builds with different owned-skill sets
+ * (e.g. M2 basket sims) — a skill's marginal value depends on what's already learned, so
+ * M2 must scope its own cache per basket.
+ */
 export function makeDeltaCache(dataVersion: string) {
   const store = new Map<string, BashinStats>();
   return {

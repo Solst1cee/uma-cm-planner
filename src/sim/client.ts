@@ -21,6 +21,12 @@ export class SimClient {
       this.pending.delete(e.data.id);
       p.resolve(e.data);
     };
+    const failAll = (msg: string) => {
+      for (const p of this.pending.values()) p.reject(new Error(msg));
+      this.pending.clear();
+    };
+    this.worker.onerror = (e) => failAll(`sim worker error: ${(e as { message?: string }).message ?? 'worker crashed'}`);
+    this.worker.onmessageerror = () => failAll('sim worker message could not be deserialized');
   }
 
   private send(req: SimRequest): Promise<SimResponse> {

@@ -32,6 +32,12 @@ describe('evalSkillDelta', () => {
     expect(stats.mean).toBe(0);
     expect(stats.nsamples).toBe(0);
   });
+
+  it('guards nsamples < 1 (returns EMPTY, no engine crash)', () => {
+    const stats = evalSkillDelta(build, { courseId: '10101' }, '200332', 0, 1);
+    expect(stats.nsamples).toBe(0);
+    expect(stats.mean).toBe(0);
+  });
 });
 
 import { runVacuumCompare, runPlannerCompare } from './run';
