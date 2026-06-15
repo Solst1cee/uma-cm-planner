@@ -620,6 +620,29 @@
       },
       "server": "global",
       "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm15-cancer-cup",
+      "type": "cm",
+      "title": "Cancer Cup",
+      "dates": {
+        "start": "2026-06-21",
+        "finals": "2026-06-30",
+        "end": "2026-06-30"
+      },
+      "cm": {
+        "cmNumber": 15,
+        "courseId": "10906",
+        "trackSummary": "Hanshin turf 2200m (inner, right · good/summer/cloudy)"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "official_news",
+        "url": "https://umamusume.com/news/"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
     }
   ]
 }
