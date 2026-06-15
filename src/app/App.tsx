@@ -7,7 +7,7 @@ import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
 import { ParentsPage } from '@/features/parents/ParentsPage';
-import { SkillPlannerPage } from '@/features/skill-planner/SkillPlannerPage';
+import { SkillAcquisitionPage } from '@/features/skill-acq/SkillAcquisitionPage';
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
 import { TimelinePage } from '@/features/meta-intel/TimelinePage';
 
@@ -57,7 +57,7 @@ function Shell() {
       <FixtureBanner />
       <main>
         <Routes>
-          <Route path="/" element={<SkillPlannerPage />} />
+          <Route path="/" element={<SkillAcquisitionPage />} />
           <Route path="/parents" element={<ParentsPage />} />
           <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
           <Route path="/meta-intel" element={<TimelinePage />} />

@@ -1,0 +1,24 @@
+.m4-grid { display: grid; grid-template-columns: minmax(280px, 26%) 1fr; gap: 1rem; align-items: start; }
+.m4-left { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 1rem; }
+.m4-right { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+@media (max-width: 820px) { .m4-grid { grid-template-columns: 1fr; } .m4-left { position: static; } }
+
+/* §1 Skill chart */
+.chart-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0.4rem 0 0.6rem; }
+.chart-controls .search { flex: 1 1 160px; min-width: 140px; }
+
+.skill-chart-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 560px; overflow-y: auto; }
+.skill-chart-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-2); }
+/* the skill-name span flexes to fill the row, pushing L / SP / actions to the right */
+.skill-chart-row > .sk-white, .skill-chart-row > .sk-gold { flex: 1 1 auto; min-width: 0; }
+
+.sk-white { color: var(--fg); font-weight: 600; }
+.sk-gold { color: #e6b85c; font-weight: 600; }
+.gold-star { color: #e6b85c; flex: 0 0 auto; }
+
+.skill-chart-row .L { font-variant-numeric: tabular-nums; font-weight: 700; color: #57c98a; }
+.skill-chart-row .na { color: #e0a14f; font-weight: 600; }
+.skill-chart-row .cost { font-variant-numeric: tabular-nums; color: #9fb4d8; font-size: 0.85rem; }
+.skill-chart-row .check { color: #57c98a; font-weight: 700; }
+
+.skill-chart-details { flex-basis: 100%; margin-top: 4px; padding: 6px 8px; background: var(--bg-1); border-radius: 6px; word-break: break-word; }
