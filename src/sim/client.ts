@@ -1,0 +1,55 @@
+import EngineWorker from './engine.worker?worker';
+import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult } from './types';
+
+type WorkerFactory = () => Worker;
+
+/** Default factory uses Vite's ?worker import; tests inject a fake. */
+function defaultFactory(): Worker {
+  return new EngineWorker();
+}
+
+export class SimClient {
+  private worker: Worker;
+  private seq = 0;
+  private pending = new Map<number, { resolve: (r: SimResponse) => void; reject: (e: Error) => void }>();
+
+  constructor(factory: WorkerFactory = defaultFactory) {
+    this.worker = factory();
+    this.worker.onmessage = (e: MessageEvent<SimResponse>) => {
+      const p = this.pending.get(e.data.id);
+      if (!p) return;
+      this.pending.delete(e.data.id);
+      p.resolve(e.data);
+    };
+  }
+
+  private send(req: SimRequest): Promise<SimResponse> {
+    return new Promise((resolve, reject) => {
+      this.pending.set(req.id, { resolve, reject });
+      this.worker.postMessage(req);
+    });
+  }
+
+  async skillDelta(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<BashinStats> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'skillDelta', build, race, skillId, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    return res.stats as BashinStats;
+  }
+
+  async vacuum(a: SimBuild, b: SimBuild, race: SimRaceParams, nsamples: number, seed?: number): Promise<VacuumResult> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'vacuum', a, b, race, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    return res.stats as VacuumResult;
+  }
+
+  async planner(build: SimBuild, race: SimRaceParams, candidateSkills: string[], nsamples: number, seed?: number): Promise<BashinStats> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'planner', build, race, candidateSkills, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    return res.stats as BashinStats;
+  }
+
+  dispose() { this.worker.terminate(); this.pending.clear(); }
+}
