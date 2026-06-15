@@ -46,4 +46,28 @@ describe('rankBaskets', () => {
     const b = rankBaskets(bundle as CaptureBundle, { deps: fakeDeps() });
     expect(a.baskets).toEqual(b.baskets);
   });
+
+  it('counts pinned and chosen skills in spUsed; owned skills stay free', () => {
+    const b: CaptureBundle = {
+      schemaVersion: 1, source: 'manual', capturedAt: '2026-06-15T00:00:00.000Z',
+      server: 'global', dataVersion: 'global-c1fa2107', seed: 1,
+      context: {
+        umaId: '', stats: { spd: 1000, sta: 800, pow: 800, gut: 400, wit: 600 },
+        aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',
+        courseId: '10101', spBudget: 300, ownedSkills: ['100'], pinned: ['200332'],
+        candidates: [
+          { skillId: '200332', rarity: 'white', screenSpCost: 100 }, // pinned, costs SP
+          { skillId: '200341', rarity: 'white', screenSpCost: 50 },
+        ],
+      },
+    };
+    const result = rankBaskets(b, { deps: fakeDeps() });
+    expect(result.baskets.length).toBeGreaterThan(0);
+    for (const basket of result.baskets) {
+      // every basket includes the pinned 200332 (100 SP); 200341 adds 50.
+      const expected = basket.skills.includes('200341') ? 150 : 100;
+      expect(basket.spUsed).toBe(expected);
+      expect(basket.spLeft).toBe(300 - expected);
+    }
+  });
 });

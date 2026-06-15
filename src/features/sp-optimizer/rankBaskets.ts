@@ -27,10 +27,8 @@ export interface SimDeps {
   planner: (b: SimBuild, r: SimRaceParams, skills: string[], n: number, seed: number) => BashinStats;
 }
 
-const REAL_DEPS: SimDeps = {
-  skillDelta: (b, r, s, n, seed) => evalSkillDelta(b, r, s, n, seed),
-  planner: (b, r, s, n, seed) => runPlannerCompare(b, r, s, n, seed),
-};
+// evalSkillDelta / runPlannerCompare already match the SimDeps signatures.
+const REAL_DEPS: SimDeps = { skillDelta: evalSkillDelta, planner: runPlannerCompare };
 
 export interface RankOpts {
   deps?: SimDeps;
@@ -95,6 +93,9 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
   };
   const baseKey = `${ctx.courseId}|${lockedSkills.slice().sort().join(',')}`;
 
+  // Per-candidate single-skill Δ-L: feeds the shortlist branch's proxy and
+  // (later) the UI L/SP table. On the exact branch it's computed but unused for
+  // ranking — acceptable for v1 (bounded to a handful of candidates).
   const deltaLById: Record<string, number> = {};
   for (const c of ctx.candidates) {
     if (lockedSkills.includes(c.skillId)) continue;
@@ -111,13 +112,20 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
   });
 
   const scored: (ScoredBasket & { descriptor: string })[] = choice.baskets.map((skills) => {
+    // The sim adds only the non-locked skills on top of the locked base (owned +
+    // pinned are already in lockedBuild).
     const additions = skills.filter((id) => !lockedSkills.includes(id));
     const stats = cached(`${baseKey}|p:${additions.slice().sort().join(',')}`, () =>
       deps.planner(lockedBuild, race, additions, n, seed),
     );
-    const spUsed = basketSpCost(additions, ctx.candidates);
+    // SP is spent on every PURCHASED skill in the basket — pinned must-buys cost
+    // money; only already-owned skills are free, and those are never candidates
+    // (so basketSpCost scores them 0). Use the full basket skills, not additions.
+    const spUsed = basketSpCost(skills, ctx.candidates);
     return {
       skills,
+      // The planner path never returns nsamples 0 (the engine throws on missing
+      // data); this guard is purely defensive.
       score: stats.nsamples === 0 ? 0 : stats.mean,
       spUsed,
       spLeft: ctx.spBudget - spUsed,
