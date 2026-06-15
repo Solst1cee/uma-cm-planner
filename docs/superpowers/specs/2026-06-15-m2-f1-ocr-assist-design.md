@@ -12,24 +12,28 @@ The M2 MVP requires typing the post-run skill screen by hand. F1 adds a **file-i
 - **The native companion** (a *separate project/repo*, not this web app) owns: window-resize-to-preset → capture (single-shot or scroll-sync) → OCR names + available SP → name→skill match → **emit a `CaptureBundle` JSON**.
 - **This web app** owns: **import + validate that JSON → editable form → Analyze.** No OCR, no canvas, no WASM in the web bundle.
 - **Manual entry (M2 MVP)** remains the zero-install baseline.
+- **Copy from the M4 wishlist (1-click)** seeds the editable form from the active plan's wishlist skills — the fastest path when you've already planned the build in M4 — which you then edit against the real post-run screen.
 
-The three M2-spec follow-ups F1 (this), and the capture conveniences formerly in **F4 (video-sync)**, now converge inside the **one native companion**; the web app's only job is to consume its `CaptureBundle` output.
+The three M2-spec follow-ups F1 (this), and the capture conveniences formerly in **F4 (video-sync)**, now converge inside the **one native companion**; the web app's only job is to consume its `CaptureBundle` output. Both the JSON import and the M4-wishlist seed feed the **same editable form** (one confirm surface).
 
 ## 2. Decisions (locked)
 - **Web = JSON-import only.** No in-browser OCR (`tesseract.js`/canvas dropped). The web F1 deliverable is: import a `CaptureBundle` JSON, validate it, pre-fill the editable form, confirm-on-entry, Analyze.
 - **`CaptureBundle` JSON is the contract** (§4). Any producer (native companion, a future tool, a hand-authored file, the app's own export) that emits a valid `CaptureBundle` can feed M2. This is the UmaExtractor → JSON → web-app role, reusing the existing artifact (M2 spec §3).
 - **Auto-resize + auto-scroll live in the native companion**, which is **out of scope for this repo** (separate project, native stack). We define its output contract; we don't build it here. (This also absorbs the old F4 video-sync conveniences.)
-- **Confirm-on-entry.** Imported candidate rows are editable (name shown, editable cost, remove); the user reviews before Analyze. The companion's matches/costs are best-effort.
+- **Confirm-on-entry.** Imported / wishlist-seeded candidate rows are editable (name shown, editable cost, remove); the user reviews before Analyze. The companion's matches/costs are best-effort.
+- **M4-wishlist seed.** A 1-click "Copy from M4 wishlist" button maps the active `CmPlan.wishlist` skills → editable candidate rows (cost pre-filled as dataset base, confirm-on-entry). **Skills only** — stats/aptitudes/course pre-fill stays **F3**.
 - **The validated `spikes/ocr/` approach is the companion's reference design** (§6 appendix), preserved so whoever builds the companion has it — not web-app code.
 
 ## 3. Web architecture — units with clear boundaries (all CI-tested)
 
 ### 3.1 Pure core
 - **`parseCaptureBundle(data: unknown): CaptureBundle`** (in `src/core/spOptimizer.ts`, beside the `CaptureBundle` type) — validates an imported JSON is a well-formed `CaptureBundle`: `schemaVersion === 1`, `source ∈ {manual,ocr,video}`, a `context` with `umaId/stats{spd,sta,pow,gut,wit}/aptitudes/strategy/courseId/spBudget/ownedSkills[]/pinned[]/candidates[]`, each candidate a valid `BuyableSkill` (`skillId:string`, `rarity`, `screenSpCost:number`, optional `prereqSkillId`/`hintLevel`/`matchTier`). Throws a descriptive `Error` on malformed input (mirrors `src/db/exportImport.ts`'s `asArray`/typed-parse discipline). Pure and total otherwise. **This also closes the M2-review "captures import lacks per-field validation" follow-up.**
+- **`wishlistToCandidates(wishlist: WishlistItem[], skillById: ReadonlyMap<string, SkillRecord>): BuyableSkill[]`** (`src/core/spOptimizer.ts`) — map each `CmPlan.wishlist` item to a `BuyableSkill` via the dataset (`rarity`/`prereqSkillId`), `screenSpCost = baseSpCost` (estimate, confirm-on-entry), `matchTier:'manual'`; dedupe by skillId; skip ids not in the dataset (e.g. P4-filtered). Pure, unit-tested.
 
 ### 3.2 UI
 - **`BuildContextForm` enhancement** — accept `initialCandidates?: BuyableSkill[]` + `initialSpBudget?: number` + `initialCourseId?: string`; render **editable named candidate rows** (name via `useGameData().skillById` + `GameIcon`, editable cost input, remove button, and a `matchTier` badge when present). Manual add still works. `source` is `'ocr'`/`'video'`/`'manual'` per provenance. (Closes the M2-review "no remove button / no name display" form gaps.)
 - **Import control on `SpOptimizerPage`** — a file input ("Import capture (.json)"): read the file → `JSON.parse` → `parseCaptureBundle` → pre-fill the form via `initialCandidates`/`initialSpBudget`/`initialCourseId` + a remount `key` (the form is uncontrolled). Show a clear error on a malformed/incompatible file. The page already holds `analyze()`, save/load, etc.
+- **"Copy from M4 wishlist" button on `SpOptimizerPage`** — reads `useActivePlan().plan?.wishlist` + `useGameData().skillById` → `wishlistToCandidates` → pre-fills the form via the **same** seed + remount-key mechanism as import. Disabled when there is no active plan or its wishlist is empty. *(The page gains a `useActivePlan()` call → page tests must mock `@/app/ActivePlanContext`.)*
 
 > The imported bundle's `context.candidates` + `spBudget` (+ `courseId`) pre-fill the form. The bundle's other context fields (`stats`/`aptitudes`/`strategy`) are **not** editable in the MVP form, so they fall to the form's defaults — the companion can't read those off the skill screen anyway. Honoring a fuller imported context (real stats/aptitudes) is **F3 (pre-fill)** territory, not F1.
 
@@ -82,8 +86,9 @@ Preserved from the spike (gitignored `spikes/ocr/`, validated 2026-06-15) so the
 
 ## 8. Testing (all CI — no WASM/canvas in the web app)
 - `parseCaptureBundle`: valid bundle round-trips; each malformed case (wrong `schemaVersion`, missing `context`, bad `candidates`, non-string `skillId`, etc.) throws a descriptive error; tolerant where the M2 spec allows.
+- `wishlistToCandidates`: maps wishlist → candidates (rarity/base cost/prereq), dedupes, skips ids absent from the dataset.
 - `BuildContextForm`: `initialCandidates`/`initialSpBudget` pre-fill + editable rows + remove + `source` provenance (extends the existing tests).
-- Import UI on `SpOptimizerPage`: a dropped valid JSON pre-fills the form; a malformed JSON shows an error (mock the file read; RTL).
+- Import + wishlist UI on `SpOptimizerPage`: a dropped valid JSON pre-fills the form; a malformed JSON shows an error; "Copy from M4 wishlist" seeds the form from a mocked active plan (mock the file read + `useActivePlan`; RTL).
 - **No manual-validation gate** (the OCR pipeline is not in this repo).
 
 ## 9. Honest notes (P3)
@@ -98,8 +103,9 @@ Preserved from the spike (gitignored `spikes/ocr/`, validated 2026-06-15) so the
 
 ## 11. Milestones (for writing-plans)
 1. **`parseCaptureBundle`** validator (pure) + tests.
-2. **`BuildContextForm`** editable named rows + `initialCandidates`/`initialSpBudget`/`initialCourseId` + remove + `matchTier` badge + `source` provenance; update/extend tests.
-3. **Import control** on `SpOptimizerPage` (file → parse → pre-fill via remount key) + tests; CSS.
-4. **Document the companion contract** (§4) in `docs/provenance.md` or a sibling `docs/capture-bundle-contract.md` so the separate companion project can target it.
+2. **`wishlistToCandidates`** (pure) + tests.
+3. **`BuildContextForm`** editable named rows + `initialCandidates`/`initialSpBudget`/`initialCourseId` + remove + `matchTier` badge + `source` provenance; update/extend tests.
+4. **Import control + "Copy from M4 wishlist" button** on `SpOptimizerPage` (file → parse → seed; wishlist → seed; shared remount key) + tests (mock `useActivePlan`); CSS.
+5. **Document the companion contract** (§4) in `docs/provenance.md` or a sibling `docs/capture-bundle-contract.md` so the separate companion project can target it.
 
 > F1 ships the JSON-import path + the contract. The native companion is a separate effort. F2 (compare-vs-veteran), F3 (pre-fill incl. stats) remain follow-ups.
