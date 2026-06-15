@@ -19,11 +19,12 @@ End of a run you have limited SP and can afford **fewer** skills than are offere
 - **Build comparison (VFalator-style):** reuse the engine's **uma-vs-uma** mode (`vacuum-compare`) to race a chosen build head-to-head vs a **veteran** → win-rate + bashin gap.
 - **Veteran roster + tags:** the UmaExtractor roster (shared with M1) is searchable and **taggable** (e.g. "CM12") to pick the compare opponent.
 - **OCR is a first-class input** to the module — validated on real screenshots (§3) — always with **manual entry + confirm**, because the numbers are yours to verify. *(Sequencing: the v1 MVP ships **manual entry first**; OCR-assist is the immediate follow-up **F1** — see §2a.)*
+- **The capture is a serializable `CaptureBundle` JSON** (§3): the single artifact **every** import path (manual / OCR / video) emits and the analysis consumes — saved locally (Dexie + JSON export/import, P2) and reused as the **test-fixture** unit. **Results are derived** from `bundle + seed`, never persisted stale; **images are process-and-discard; nothing is uploaded.**
 
 ## 2a. v1 (MVP) scope & follow-up plans
 M2 is sliced so the **first plan lands a usable artifact** (plan §11), with the rest designed here but built later.
 
-**Plan #1 — Manual-input MVP (the usable artifact):** *hand-enter the post-run screen (candidates + each on-screen cost + available SP + build context) → **3 simmed, diverse baskets ranked on simulated combined L**, each with SP used/left + a best-effort profile.* Units: `spOptimizer.ts` core, the sim layer (`evalSkillDelta` + per-build sim + the M2-scoped cache + `?worker` validation), the manual entry form, the `src/features/sp-optimizer/` UI (pin/lock table + 3 build cards + SP bar), and the validation gate (§6). **No cost calculation, no `cost.ts`, no shipped-M4 changes** — costs come from the screen (§2, §4).
+**Plan #1 — Manual-input MVP (the usable artifact):** *hand-enter the post-run screen (candidates + each on-screen cost + available SP + build context) → **3 simmed, diverse baskets ranked on simulated combined L**, each with SP used/left + a best-effort profile.* Units: `spOptimizer.ts` core, the sim layer (`evalSkillDelta` + per-build sim + the M2-scoped cache + `?worker` validation), the manual entry form, the `src/features/sp-optimizer/` UI (pin/lock table + 3 build cards + SP bar), a local **`CaptureBundle`** store (Dexie) + JSON import/export, and the validation gate (§6). **No cost calculation, no `cost.ts`, no shipped-M4 changes** — costs come from the screen (§2, §4). The analysis reads a **`CaptureBundle`** (§3), so the optimizer/sim are testable from hand-written JSON fixtures without live capture.
 
 **Follow-up plans (designed here, built later):**
 - **F1 — OCR-assist input** (§3.3): port `spikes/ocr/` into a `tesseract.js` in-browser flow, per-platform crop profiles, confirm-on-entry. The `effectiveSpCost` *fallback estimate* (for a digit OCR failed to read) appears **only** here.
@@ -37,6 +38,13 @@ M2 is sliced so the **first plan lands a usable artifact** (plan §11), with the
 
 > **Canonical shared types** (`CmPlan`, `Stat`, `RosterEntry`) live in [`2026-06-15-shared-data-model.md`](2026-06-15-shared-data-model.md); the veteran compare-opponent + tags use `RosterEntry`. `BuildContext` is M2-local.
 `BuildContext { umaId, stats, aptitudes, strategy, courseId, spBudget, candidates: BuyableSkill[], pinned: skillId[] }`; `BuyableSkill { skillId, rarity, screenSpCost, hintLevel?, prereqSkillId? }` — `screenSpCost` is the **effective** cost as shown/entered (already discounted).
+
+**The capture is a serializable JSON artifact — `CaptureBundle`.** All three load paths (§3.1) **converge on and emit one JSON document**, which the analysis engine then consumes (it never cares how the bundle was produced — §3.4 already routes every input through the same `BuyableSkill[]`):
+```
+CaptureBundle { schemaVersion, source: 'manual' | 'ocr' | 'video',
+                capturedAt, server, dataVersion, seed?, context: BuildContext }
+```
+Making the **import ↔ analysis boundary** an explicit artifact buys three things: (1) **persistence + portability** — bundles are saved locally (Dexie) and **JSON file export/import** (P2), so a run can be reopened or shared; (2) **fixture-driven testing (P6)** — a committed **corpus of hand-written bundles** drives the optimizer/sim with **zero live capture**, so dev/validation never needs a real post-run screen; (3) **reproducibility** — with the stored `seed`, the Monte-Carlo sim is deterministic, so `bundle + seed` always yields the same baskets (stable test assertions, honest re-runs). The **capture is the saved source of truth; analysis results are derived** (recomputed from `bundle + seed`, optionally cached) so nothing stale is ever persisted.
 
 ### 3.1 Three ways to load the screen (you pick per session)
 1. **Manual entry (always available, reliable):** type the learnable skills + their on-screen costs + your available SP. The skill picker autocompletes against the 578-skill dataset; you enter the cost you see. Zero extraction risk.
@@ -107,10 +115,12 @@ Validated on **16 real Global screenshots** of the in-career "Learn" screen (`sp
 ## 6. Honest numbers (P3)
 - L is a streaming estimate; each basket is a **strong prior**, not a verdict (caveat banner). The 3 builds are *options*, ranked by sim — you decide.
 - **Validation (Plan #1 gate):** single-skill Δ L within noise of VFalator for **≥3 spot-checked skills** (plan §8); the `spOptimizer` core **respects budget + pins + prereqs, returns ≥2-diverse baskets, and beats greedy** on a counterexample, and the **exact branch (step 2) matches brute force** on a small fixture; final ranking is on **simulated combined L**. *(The additive-FL + gold-premium cost-rule reproduction — 160→128, 200→160, gold 200→320 at Lv1+FL from `spikes/ocr/` — moves to **F1 / the separate M4 fix**, since v1 reads costs from the screen.)*
+- **Fixture-driven (P6):** the optimizer + sim are tested against a **committed corpus of hand-written `CaptureBundle` JSONs** (in the source tree, e.g. `src/core/__fixtures__/m2/`) with a **fixed seed** → deterministic, no live capture needed. *(Real personal captures stay in gitignored `spikes/samples/m2/`.)*
 
 ## 7. Data / integration
 - Reuse the `src/sim/` engine; M2 uses its **own basket-scoped Δ-L cache** (the shared `makeDeltaCache` is unsafe across differing owned-skill sets), reusing M4's single-skill cache only on an exact build match. The `CmPlan` is an **optional** context source (course/stats pre-fill, F3), never the candidate source.
 - **Veteran roster** (UmaExtractor import) **shared with M1** (F2); M2 adds user **`tags: string[]`** on roster entries for search + compare-opponent picking — persisted with the roster.
+- **Persistence (local-only, P2).** The unit of save is the **`CaptureBundle`** (§3) — stored in a Dexie M2 store + **JSON file export/import**, so a run can be reopened/replayed/shared. **Images are never persisted** (OCR/video decode → extract → discard); **nothing is ever uploaded** (static site, no backend/telemetry). Analysis **results are derived**, not the source of truth — recomputed from `bundle + seed` (optionally cached for quick reopen).
 - **Cost rules are not used in v1** (costs come from the screen). The additive-FL + `gold = base + white-prereq` rules (`mechanics-notes §7/§10`; gold→white via `SkillRecord.prereqSkillId`) are needed only by the **F1 OCR fallback estimate**. The M4 `coverage.ts` cost bug is a **separate** M4 fix, not an M2 dependency.
 - **M3 phase-2** consumes `evalSkillDelta` (the sim re-parameterization loop).
 
@@ -132,9 +142,9 @@ Validated on **16 real Global screenshots** of the in-career "Learn" screen (`sp
 ## 10. Milestones
 
 **Plan #1 (the Manual-input MVP, §2a):**
-1. **Core** `spOptimizer.ts` — `BuyableSkill`/`BuildContext`/`Basket` types, prereq-closed subset enumeration, the Δ L shortlister, and the diversity/band filter. **Sim-free, scores-as-input.** Tests: greedy counterexample, pins, prereq bundling, budget respected, ≥2-diversity, band cap, and **exact == brute force** on a small fixture.
-2. **Sim layer** — `evalSkillDelta` + per-build sim (`runPlannerCompare`) via the vendored engine/worker (shared with M4) + the **M2-scoped cache** + best-effort emergent-profile extraction; validate the production `?worker` path (first real `SimClient` import).
-3. **Manual input** — entry form: skill autocomplete vs the 578-skill dataset, editable on-screen costs + available SP + build context (uma/course/strategy/final stats/aptitudes). *(OCR is F1.)*
+1. **Core** `spOptimizer.ts` — `BuyableSkill`/`BuildContext`/`Basket` + the serializable **`CaptureBundle`** types, prereq-closed subset enumeration, the Δ L shortlister, and the diversity/band filter. **Sim-free, scores-as-input.** Tests (fixture `CaptureBundle`s, fixed seed): greedy counterexample, pins, prereq bundling, budget respected, ≥2-diversity, band cap, and **exact == brute force** on a small fixture.
+2. **Sim layer** — `evalSkillDelta` + per-build sim (`runPlannerCompare`) via the vendored engine/worker (shared with M4) + the **M2-scoped cache** + best-effort emergent-profile extraction; **fixed-seed determinism** for tests; validate the production `?worker` path (first real `SimClient` import).
+3. **Manual input + persistence** — entry form (skill autocomplete vs the 578-skill dataset; editable on-screen costs + available SP + build context: uma/course/strategy/final stats/aptitudes) that **emits a `CaptureBundle`**; save/load bundles via the Dexie M2 store + **JSON file import/export**. *(OCR is F1, which emits the same bundle.)*
 4. **UI** `src/features/sp-optimizer/` — pin/lock table + the 3 build cards (sim + profile + *exact/estimate* label) + SP bar; reuse `GameIcon`; enable the disabled `App.tsx` nav stub.
 5. **Validation (gate, §6)** vs VFalator (≥3 single-skill Δ L within noise) + the adaptive-branch correctness check; record outcomes in `docs/mechanics-notes.md`.
 
