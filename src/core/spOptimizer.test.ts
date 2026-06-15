@@ -193,3 +193,47 @@ describe('chooseBasketsToScore', () => {
     expect(r.baskets).toEqual([['a', 'b']]);
   });
 });
+
+import { parseCaptureBundle } from '@/core/spOptimizer';
+
+describe('parseCaptureBundle', () => {
+  const valid = {
+    schemaVersion: 1, source: 'ocr', capturedAt: '2026-06-15T00:00:00.000Z',
+    server: 'global', dataVersion: 'v', seed: 12345,
+    context: {
+      umaId: '', stats: { spd: 1000, sta: 800, pow: 800, gut: 400, wit: 600 },
+      aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',
+      courseId: '10101', spBudget: 2285, ownedSkills: [], pinned: [],
+      candidates: [{ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'exact' }],
+    },
+  };
+
+  it('accepts a valid bundle through a JSON round-trip', () => {
+    const b = parseCaptureBundle(JSON.parse(JSON.stringify(valid)));
+    expect(b.source).toBe('ocr');
+    expect(b.context.spBudget).toBe(2285);
+    expect(b.context.candidates[0]!.skillId).toBe('200332');
+    expect(b.context.candidates[0]!.matchTier).toBe('exact');
+  });
+
+  it('rejects a wrong schemaVersion', () => {
+    expect(() => parseCaptureBundle({ ...valid, schemaVersion: 2 })).toThrow(/schemaVersion/);
+  });
+
+  it('rejects a non-object / missing context', () => {
+    expect(() => parseCaptureBundle({ ...valid, context: undefined })).toThrow(/context/);
+    expect(() => parseCaptureBundle(null)).toThrow(/bundle/);
+  });
+
+  it('rejects a non-string candidate skillId', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].skillId = 123;
+    expect(() => parseCaptureBundle(bad)).toThrow(/skillId/);
+  });
+
+  it('rejects an invalid rarity', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].rarity = 'legendary';
+    expect(() => parseCaptureBundle(bad)).toThrow(/rarity/);
+  });
+});

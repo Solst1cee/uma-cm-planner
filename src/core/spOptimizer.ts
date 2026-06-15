@@ -19,6 +19,8 @@ export interface BuyableSkill {
   hintLevel?: HintLevel;
   /** Gold skills require their white base; a constraint, not a cost calc. */
   prereqSkillId?: string;
+  /** OCR/import-row provenance for the UI badge; absent/'manual' on manual entry. */
+  matchTier?: 'exact' | 'fuzzy' | 'manual';
 }
 
 /** The post-run build context — the serialized `CaptureBundle.context`. */
@@ -262,6 +264,87 @@ export function shortlistByProxy(
     if (out.length === opts.limit) break;
   }
   return out;
+}
+
+// --- CaptureBundle import validation (F1) ---
+
+function fail(msg: string): never { throw new Error(`Invalid CaptureBundle: ${msg}`); }
+function asObject(v: unknown, name: string): Record<string, unknown> {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) fail(`${name} must be an object`);
+  return v as Record<string, unknown>;
+}
+function asString(v: unknown, name: string): string {
+  if (typeof v !== 'string') fail(`${name} must be a string`);
+  return v;
+}
+function asNumber(v: unknown, name: string): number {
+  if (typeof v !== 'number' || Number.isNaN(v)) fail(`${name} must be a number`);
+  return v;
+}
+function asArray(v: unknown, name: string): unknown[] {
+  if (!Array.isArray(v)) fail(`${name} must be an array`);
+  return v;
+}
+
+const SOURCES = ['manual', 'ocr', 'video'];
+const STAT_KEYS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
+const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'];
+
+/** Validate + normalize an imported value into a CaptureBundle. Throws a descriptive Error otherwise. */
+export function parseCaptureBundle(data: unknown): CaptureBundle {
+  const root = asObject(data, 'bundle');
+  if (root['schemaVersion'] !== 1) fail('schemaVersion must be 1');
+  const source = asString(root['source'], 'source');
+  if (!SOURCES.includes(source)) fail(`source must be one of ${SOURCES.join('|')}`);
+
+  const ctx = asObject(root['context'], 'context');
+  const statsObj = asObject(ctx['stats'], 'context.stats');
+  const stats = {} as Record<Stat, number>;
+  for (const k of STAT_KEYS) stats[k] = asNumber(statsObj[k], `context.stats.${k}`);
+
+  const apt = asObject(ctx['aptitudes'], 'context.aptitudes');
+  const aptitudes = {
+    distance: asString(apt['distance'], 'context.aptitudes.distance') as Grade,
+    surface: asString(apt['surface'], 'context.aptitudes.surface') as Grade,
+    strategy: asString(apt['strategy'], 'context.aptitudes.strategy') as Grade,
+  };
+
+  const candidates: BuyableSkill[] = asArray(ctx['candidates'], 'context.candidates').map((c, i) => {
+    const o = asObject(c, `context.candidates[${i}]`);
+    const rarity = asString(o['rarity'], `context.candidates[${i}].rarity`);
+    if (!RARITIES.includes(rarity)) fail(`context.candidates[${i}].rarity must be a skill rarity`);
+    const bs: BuyableSkill = {
+      skillId: asString(o['skillId'], `context.candidates[${i}].skillId`),
+      rarity: rarity as SkillRarity,
+      screenSpCost: asNumber(o['screenSpCost'], `context.candidates[${i}].screenSpCost`),
+    };
+    if (o['prereqSkillId'] !== undefined) bs.prereqSkillId = asString(o['prereqSkillId'], `context.candidates[${i}].prereqSkillId`);
+    if (o['matchTier'] !== undefined) bs.matchTier = asString(o['matchTier'], `context.candidates[${i}].matchTier`) as BuyableSkill['matchTier'];
+    return bs;
+  });
+
+  const context: BuildContext = {
+    umaId: asString(ctx['umaId'], 'context.umaId'),
+    stats,
+    aptitudes,
+    strategy: asString(ctx['strategy'], 'context.strategy') as Strategy,
+    courseId: asString(ctx['courseId'], 'context.courseId'),
+    spBudget: asNumber(ctx['spBudget'], 'context.spBudget'),
+    ownedSkills: asArray(ctx['ownedSkills'], 'context.ownedSkills').map((s, i) => asString(s, `context.ownedSkills[${i}]`)),
+    pinned: asArray(ctx['pinned'], 'context.pinned').map((s, i) => asString(s, `context.pinned[${i}]`)),
+    candidates,
+  };
+
+  const bundle: CaptureBundle = {
+    schemaVersion: 1,
+    source: source as CaptureBundle['source'],
+    capturedAt: asString(root['capturedAt'], 'capturedAt'),
+    server: asString(root['server'], 'server') as Server,
+    dataVersion: asString(root['dataVersion'], 'dataVersion'),
+    context,
+  };
+  if (root['seed'] !== undefined) bundle.seed = asNumber(root['seed'], 'seed');
+  return bundle;
 }
 
 // --- branch chooser ---
