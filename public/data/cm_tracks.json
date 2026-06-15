@@ -1,0 +1,349 @@
+{
+  "dataVersion": "global-c1fa2107",
+  "tracks": [
+    {
+      "index": 1,
+      "cupName": "Taurus Cup",
+      "racetrack": "Tokyo",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 2,
+      "cupName": "Gemini Cup",
+      "racetrack": "Kyoto",
+      "distance": 3200,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 3,
+      "cupName": "Cancer Cup",
+      "racetrack": "Tokyo",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 4,
+      "cupName": "Leo Cup",
+      "racetrack": "Hanshin",
+      "distance": 2200,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 5,
+      "cupName": "Virgo Cup",
+      "racetrack": "Hanshin",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 6,
+      "cupName": "Libra Cup",
+      "racetrack": "Kyoto",
+      "distance": 3000,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 7,
+      "cupName": "Scorpio Cup",
+      "racetrack": "Tokyo",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 8,
+      "cupName": "Sagittarius Cup",
+      "racetrack": "Nakayama",
+      "distance": 2500,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 9,
+      "cupName": "Capricorn Cup",
+      "racetrack": "Chukyo",
+      "distance": 1200,
+      "distanceClass": "sprint",
+      "surface": "turf"
+    },
+    {
+      "index": 10,
+      "cupName": "Aquarius Cup",
+      "racetrack": "Tokyo",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "dirt"
+    },
+    {
+      "index": 11,
+      "cupName": "Pisces Cup",
+      "racetrack": "Hanshin",
+      "distance": 3200,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 12,
+      "cupName": "Aries Cup",
+      "racetrack": "Nakayama",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 13,
+      "cupName": "Taurus Cup",
+      "racetrack": "Tokyo",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 15,
+      "cupName": "Cancer Cup",
+      "racetrack": "Hanshin",
+      "distance": 2200,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 16,
+      "cupName": "Leo Cup",
+      "racetrack": "Nakayama",
+      "distance": 1200,
+      "distanceClass": "sprint",
+      "surface": "turf"
+    },
+    {
+      "index": 17,
+      "cupName": "Virgo Cup",
+      "racetrack": "Oi",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "dirt"
+    },
+    {
+      "index": 18,
+      "cupName": "Libra Cup",
+      "racetrack": "Hanshin",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 19,
+      "cupName": "Scorpio Cup",
+      "racetrack": "Kyoto",
+      "distance": 2200,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 20,
+      "cupName": "Sagittarius Cup",
+      "racetrack": "Nakayama",
+      "distance": 2500,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 21,
+      "cupName": "Capricorn Cup",
+      "racetrack": "Chukyo",
+      "distance": 1200,
+      "distanceClass": "sprint",
+      "surface": "turf"
+    },
+    {
+      "index": 22,
+      "cupName": "Aquarius Cup",
+      "racetrack": "Tokyo",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "dirt"
+    },
+    {
+      "index": 23,
+      "cupName": "Pisces Cup",
+      "racetrack": "Nakayama",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 24,
+      "cupName": "Aries Cup",
+      "racetrack": "Kyoto",
+      "distance": 3200,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 25,
+      "cupName": "MILE",
+      "racetrack": "Tokyo",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 26,
+      "cupName": "DIRT",
+      "racetrack": "Funabashi",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "dirt"
+    },
+    {
+      "index": 27,
+      "cupName": "CLASSIC",
+      "racetrack": "Longchamp",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 28,
+      "cupName": "LONG",
+      "racetrack": "Nakayama",
+      "distance": 2500,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 29,
+      "cupName": "SPRINT",
+      "racetrack": "Hanshin",
+      "distance": 1400,
+      "distanceClass": "sprint",
+      "surface": "turf"
+    },
+    {
+      "index": 30,
+      "cupName": "MILE",
+      "racetrack": "Hanshin",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 31,
+      "cupName": "CLASSIC",
+      "racetrack": "Tokyo",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 32,
+      "cupName": "DIRT",
+      "racetrack": "Chukyo",
+      "distance": 1800,
+      "distanceClass": "mile",
+      "surface": "dirt"
+    },
+    {
+      "index": 33,
+      "cupName": "CLASSIC",
+      "racetrack": "Tokyo",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 34,
+      "cupName": "LONG",
+      "racetrack": "Nakayama",
+      "distance": 2500,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 35,
+      "cupName": "CLASSIC",
+      "racetrack": "Hanshin",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 36,
+      "cupName": "MILE",
+      "racetrack": "Hanshin",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 37,
+      "cupName": "LONG",
+      "racetrack": "Kyoto",
+      "distance": 3200,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 38,
+      "cupName": "CLASSIC",
+      "racetrack": "Tokyo",
+      "distance": 2400,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 39,
+      "cupName": "CLASSIC",
+      "racetrack": "Hanshin",
+      "distance": 2200,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 40,
+      "cupName": "CLASSIC",
+      "racetrack": "Kyoto",
+      "distance": 2000,
+      "distanceClass": "medium",
+      "surface": "turf"
+    },
+    {
+      "index": 41,
+      "cupName": "SPRINT",
+      "racetrack": "Niigata",
+      "distance": 1200,
+      "distanceClass": "sprint",
+      "surface": "turf"
+    },
+    {
+      "index": 42,
+      "cupName": "MILE",
+      "racetrack": "Hanshin",
+      "distance": 1600,
+      "distanceClass": "mile",
+      "surface": "turf"
+    },
+    {
+      "index": 43,
+      "cupName": "LONG",
+      "racetrack": "Nakayama",
+      "distance": 2500,
+      "distanceClass": "long",
+      "surface": "turf"
+    },
+    {
+      "index": 44,
+      "cupName": "CLASSIC",
+      "racetrack": "Del Mar",
+      "distance": 2200,
+      "distanceClass": "medium",
+      "surface": "turf"
+    }
+  ]
+}
