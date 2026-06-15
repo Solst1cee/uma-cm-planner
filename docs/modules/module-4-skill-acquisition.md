@@ -6,6 +6,7 @@
 - **Status:** **Slice 1 shipped 2026-06-15** — engine-driven skill chart + runner config + sourcing.
 - **Spec:** [docs/superpowers/specs/2026-06-14-m4-skill-acquisition-design.md](../superpowers/specs/2026-06-14-m4-skill-acquisition-design.md) — design locked; **§11 is the Slice 1 reconciled build scope** (read this for what's in/out).
 - **Plan:** [docs/superpowers/plans/2026-06-15-m4-slice1-skill-chart.md](../superpowers/plans/2026-06-15-m4-slice1-skill-chart.md)
+- **⚠️ Mockup = the visual spec:** [docs/mockups/m4-current.html](../mockups/m4-current.html) (committed — open in a browser). **Current fidelity ~25%** — the build ranks skills but lacks the design system, §0 track diagram, Uma chart, effect badges, left-panel runner/wishlist cards, skill-detail graphs, and the sourcing table. Build *to the mockup*; see CLAUDE.md → *Design fidelity* for the full gap (most of it needs no new data).
 
 ## Purpose & boundary
 

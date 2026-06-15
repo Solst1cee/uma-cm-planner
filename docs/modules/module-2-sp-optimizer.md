@@ -6,6 +6,7 @@
 - **Status:** **MVP shipped 2026-06-15.** Follow-ups F1–F4 remain.
 - **Spec:** [docs/superpowers/specs/2026-06-14-m2-sp-optimizer-design.md](../superpowers/specs/2026-06-14-m2-sp-optimizer-design.md) + F1 [2026-06-15-m2-f1-ocr-assist-design.md](../superpowers/specs/2026-06-15-m2-f1-ocr-assist-design.md).
 - **Plan:** [docs/superpowers/plans/2026-06-15-m2-sp-optimizer-mvp.md](../superpowers/plans/2026-06-15-m2-sp-optimizer-mvp.md).
+- **⚠️ Mockup = the visual spec:** [docs/mockups/m2-sp-optimizer.html](../mockups/m2-sp-optimizer.html) (committed — open in a browser). **Current fidelity ~20%** — the optimizer *math* is done but the UI is 3 bare cards; missing the buyable-skills table (ΔL / cost / L-SP ratio / hint toggle) and the entire Compare-vs-Veteran section (`runPlannerCompare` already exists — buildable now). See CLAUDE.md → *Design fidelity*.
 
 ## Purpose & boundary
 

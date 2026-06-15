@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 1 — Inheritance Planner</title>
+<style>
+  :root{--bg:#0f1115;--panel:#171a21;--panel2:#1d212a;--band:#0c0e13;--border:#2a2f3a;--text:#e6e8ec;--muted:#8b929e;
+        --accent:#6aa3ff;--live:#57c98a;--gold:#e6b85c;--warn:#e0a14f;
+        --pink:#e35d8c;--blue:#5aa0ff;--green:#57c98a;--white:#e6e8ec;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:18px 26px}
+  h1{font-size:18px;margin:0 0 3px}.crumb{color:var(--muted);font-size:12px;margin:0 0 12px}
+  .mut{color:var(--muted)}
+  .sp{display:inline-flex;align-items:center;gap:2px;font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid;font-weight:600}
+  .pink{color:var(--pink);border-color:#5a3344;background:#241018}.blue{color:var(--blue);border-color:#33455f;background:#15202f}
+  .green{color:var(--green);border-color:#2c5a40;background:#0f2318}.white{color:var(--white);border-color:#3a4252;background:#1a1d24}
+  .star{color:var(--gold);letter-spacing:-1px}
+  .band{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);margin-bottom:13px}
+  .bhead{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--border)}
+  .bhead h2{font-size:13px;margin:0}.bhead .note{margin-left:auto;color:var(--muted);font-size:11px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .body{padding:12px;background:var(--band)}
+  .portrait{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#3a4a6a,#2a3550);border:1px solid #44557a;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:7px;color:#9fb4d8}
+  .inp{background:#0c0e13;border:1px solid var(--border);border-radius:7px;padding:4px 8px;color:var(--text);font-size:11.5px}
+  .btn{font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--accent);color:var(--accent);background:transparent}
+  .btn.ghost{border-color:var(--border);color:var(--muted)}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden}.seg span{padding:3px 8px;font-size:11px;color:var(--muted);border-right:1px solid var(--border)}.seg span:last-child{border-right:0}.seg span.on{background:var(--accent);color:#0b1220;font-weight:600}
+
+  /* PEDIGREE */
+  .ped{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .half{display:flex;flex-direction:column;gap:7px}
+  .gprow{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .node{border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:7px}
+  .node.gp{background:#12161e;border-color:#232833}
+  .node.parent{border-color:#3a4660}
+  .nh{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600}
+  .ns{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+  .lvl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+  .uma-bottom{margin-top:10px;display:flex;justify-content:center}
+  .uma-bottom .node{border-color:var(--accent);background:#16202f;min-width:240px;text-align:center}
+  .srctag{font-size:8.5px;padding:0 4px;border-radius:3px;border:1px solid}
+  .src-you{color:var(--live);border-color:#2c5a40;background:#0f2318}.src-rent{color:var(--gold);border-color:#5a4730;background:#241c10}.src-dummy{color:var(--accent);border-color:#33455f;background:#15202f}
+
+  /* PART 1 goals */
+  .cols2{display:grid;gap:12px}@media(min-width:900px){.cols2{grid-template-columns:1.4fr 1fr}}
+  .goalrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;font-size:12px}
+  .goalrow .k{width:64px;color:var(--muted);font-size:10.5px;text-transform:uppercase}
+  .calc{font-size:11px;color:var(--muted)}.calc b{color:var(--text)}
+  .resid-out{border:1px dashed #455067;border-radius:8px;background:#12161e;padding:9px;margin-top:8px}
+  .chk{display:inline-flex;align-items:center;gap:5px;font-size:11.5px}
+  .box{width:13px;height:13px;border:1px solid var(--accent);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent)}
+  .box.on{background:var(--accent);color:#0b1220}
+  .sidepanel{border:1px solid var(--border);border-radius:9px;background:var(--panel);padding:10px}
+  .sk-item{display:flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 0}
+  .dup{font-size:8.5px;color:var(--gold);border:1px solid #5a4730;border-radius:3px;padding:0 4px;background:#241c10}
+
+  /* PART 2 */
+  .addrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
+  .filterpanel{border:1px solid var(--border);border-radius:9px;background:var(--panel);padding:10px;margin-bottom:10px}
+  .fhead{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:8px}
+  .frow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .flk{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);width:72px}
+  .addchip{border:1px dashed var(--border);border-radius:5px;padding:0 6px;color:var(--accent);font-size:11px}
+  .fnote{font-size:10px;color:var(--muted);margin:4px 0 8px;border-left:2px solid #455067;padding-left:7px}
+  .fresults{border-top:1px solid var(--border);padding-top:8px}
+  .cand{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;margin-bottom:5px;font-size:11.5px}
+  .cand.sel{background:#22304a;outline:1px solid var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
+  th{text-align:left;color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:6px 8px;border-bottom:1px solid var(--border)}
+  td{padding:7px 8px;border-bottom:1px solid #1b1f27}
+  .col-a{background:#141821}.metric{font-variant-numeric:tabular-nums;font-weight:700}.good{color:var(--live)}.mid{color:var(--gold)}.bad{color:var(--warn)}
+  .winner{font-size:9px;color:var(--live);border:1px solid #2c5a40;border-radius:4px;padding:0 5px;background:#0f2318;font-weight:700}
+  .p3{display:flex;gap:8px;align-items:flex-start;background:#241c10;border:1px solid #5a4730;border-radius:9px;padding:8px 11px;font-size:11px;color:#e9cfa0;margin-bottom:12px}
+  h3{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:0 0 8px}
+  .partlabel{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+  <h1>Module 1 — Inheritance Planner</h1>
+  <p class="crumb">Pedigree view (grandparents → parents → runner) + <b>Part 1</b> spark-goal/residual search builder + <b>Part 2</b> candidate compare. Wireframe.</p>
+
+  <div class="p3"><span>⚠</span><div><b>Candidates to go friend, not guarantees.</b> A matching record ≠ a borrowable rental (follow-then-borrow 3/day, DB lag 2–7d, private/slot-full). M1 scores fit, not availability.</div></div>
+
+  <!-- TARGET -->
+  <div class="band">
+    <div class="bhead"><span class="dot" style="background:var(--accent)"></span><h2>Target build</h2><div class="note">from M4 build or manual</div></div>
+    <div class="body" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+      <span class="seg"><span class="on">From M4 plan</span><span>✎ Manual</span></span>
+      <span class="inp mut">▼ Plan 2 / CM14 / Kitasan / Ace / Front</span>
+      <span class="mut">runner <b style="color:var(--text)">Kitasan Black</b> · Tokyo 1600 Turf</span>
+    </div>
+  </div>
+
+  <!-- PEDIGREE -->
+  <div class="band">
+    <div class="bhead"><span class="dot" style="background:var(--gold)"></span><h2>Pedigree</h2><div class="note">roster/paste = display-only · dummy = editable</div></div>
+    <div class="body">
+      <div class="ped">
+        <!-- A side -->
+        <div class="half">
+          <div class="lvl">Grandparents — A</div>
+          <div class="gprow">
+            <div class="node gp"><div class="nh"><div class="portrait" style="width:18px;height:18px;font-size:6px">gp</div>Tokai Teio</div><div class="ns"><span class="sp pink">Front ★</span><span class="sp white">Escape Artist</span></div></div>
+            <div class="node gp"><div class="nh"><div class="portrait" style="width:18px;height:18px;font-size:6px">gp</div>Maruzensky</div><div class="ns"><span class="sp pink">Mile ★</span><span class="sp blue">Speed ★</span></div></div>
+          </div>
+          <div class="lvl">Parent A — yours</div>
+          <div class="node parent"><div class="nh"><div class="portrait">uma</div>Symboli Rudolf <span class="srctag src-you">yours</span><span class="mut" style="margin-left:auto;font-size:10.5px">aff <b style="color:var(--live)">142</b></span></div>
+            <div class="ns"><span class="sp pink">Mile ★★</span><span class="sp pink">Turf ★</span><span class="sp pink">Front ★</span><span class="sp blue">Power ★★</span><span class="sp white">Prof. Curvature ★</span></div>
+            <div style="margin-top:6px"><span class="seg" style="font-size:10px"><span class="on">Roster ▼</span><span>Paste code</span></span></div>
+          </div>
+        </div>
+        <!-- B side -->
+        <div class="half">
+          <div class="lvl">Grandparents — B</div>
+          <div class="gprow">
+            <div class="node gp"><div class="nh"><div class="portrait" style="width:18px;height:18px;font-size:6px">gp</div>Sakura Bakushin</div><div class="ns"><span class="sp pink">Front ★</span><span class="sp blue">Speed ★</span></div></div>
+            <div class="node gp"><div class="nh"><div class="portrait" style="width:18px;height:18px;font-size:6px">gp</div>Taiki Shuttle</div><div class="ns"><span class="sp pink">Mile ★</span><span class="sp white">Sprint Gear</span></div></div>
+          </div>
+          <div class="lvl">Parent B — selected candidate</div>
+          <div class="node parent"><div class="nh"><div class="portrait">uma</div>Maruzensky <span class="srctag src-rent">rental 1234-5678</span><span class="mut" style="margin-left:auto;font-size:10.5px">aff <b style="color:var(--live)">150</b></span></div>
+            <div class="ns"><span class="sp pink">Front ★★★</span><span class="sp blue">Stamina ★★</span><span class="sp white">Escape Artist ★</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="uma-bottom">
+        <div class="node"><div class="nh" style="justify-content:center"><div class="portrait">uma</div>Training: Kitasan Black</div><div class="mut" style="font-size:10.5px;margin-top:3px">inherits from A + B → start aptitudes + sparks</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 1 -->
+  <div class="band">
+    <div class="bhead"><span class="dot" style="background:var(--live)"></span><h2><span class="partlabel">PART 1</span> &nbsp;Spark goal &amp; residual <span class="mut" style="font-weight:400">— the search query</span></h2><div class="note">residual = goal − Parent A</div></div>
+    <div class="body">
+      <div class="cols2">
+        <!-- goals -->
+        <div>
+          <h3>Goals for Parent B (editable)</h3>
+          <div class="goalrow"><span class="k">Pink</span>
+            <span class="mut">from M4:</span>
+            <span class="sp pink">Mile <span class="seg" style="font-size:9px"><span class="on">A</span><span>S</span></span></span>
+            <span class="sp pink">Turf <span class="seg" style="font-size:9px"><span class="on">A</span><span>S</span></span></span>
+            <span class="sp pink">Front <span class="seg" style="font-size:9px"><span>A</span><span class="on">custom</span></span></span>
+          </div>
+          <div class="goalrow"><span class="k"></span><span class="calc">residual after A: <b>Front ★★+ </b>(have 1★, need ~3 cumulative for A)</span></div>
+
+          <div class="goalrow" style="margin-top:10px"><span class="k">Blue</span>
+            <span class="mut">target totals:</span>
+            <span class="sp blue">Power <input class="inp" style="width:34px;padding:1px 4px" value="9"></span>
+            <span class="sp blue">Stamina <input class="inp" style="width:34px;padding:1px 4px" value="9"></span>
+            <span class="btn ghost" style="font-size:10px">+ stat</span>
+          </div>
+          <div class="goalrow"><span class="k"></span><span class="calc">− Parent A (Power 6★) → residual: <b>Power 3★, Stamina 9★</b></span></div>
+
+          <div class="resid-out">
+            <h3 style="margin-bottom:7px">Residual to hunt — tick what to search for</h3>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <label class="chk"><span class="box on">✓</span> <span class="sp pink">Front ★★+</span> <span class="mut">aptitude to A</span></label>
+              <label class="chk"><span class="box on">✓</span> <span class="sp white">Corner Recovery ○</span> <span class="mut">M4 wishlist</span></label>
+              <label class="chk"><span class="box">&nbsp;</span> <span class="sp blue">Stamina ★★</span> <span class="mut">often dropped — no single parent has all</span></label>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+              <span class="mut" style="font-size:11px;align-self:center">search 2 selected →</span>
+              <span class="btn ghost">Pure-DB ↗</span><span class="btn ghost">uma.moe ↗</span><span class="btn ghost">ChronoGenesis ↗</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- white side panel -->
+        <div class="sidepanel">
+          <h3>White (skill) sparks to hunt</h3>
+          <div class="sk-item"><span class="box on">✓</span><span class="sp white">Corner Recovery ○</span><span class="mut" style="font-size:10px">M4 wishlist · not on A</span></div>
+          <div class="sk-item"><span class="box on">✓</span><span class="sp white">Prof. Curvature</span><span class="dup">double-up</span><span class="mut" style="font-size:10px">on A too → higher chance</span></div>
+          <div class="sk-item"><span class="box">&nbsp;</span><span class="sp white">Professor of Curvature ✕</span><span class="mut" style="font-size:10px">remove</span></div>
+          <div class="sk-item mut"><input class="inp" style="flex:1" placeholder="+ add a skill spark not in the list…"></div>
+          <p class="mut" style="font-size:10.5px;margin:8px 0 0">Pull from M4 wishlist, add/remove freely, or <b style="color:var(--gold)">double-up</b> a spark Parent A already has (same white on both parents = higher inherit chance).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <div class="band">
+    <div class="bhead"><span class="dot" style="background:var(--warn)"></span><h2><span class="partlabel">PART 2</span> &nbsp;Candidates &amp; compare-all</h2><div class="note">paste to list · score vs Parent A</div></div>
+    <div class="body">
+      <div class="addrow">
+        <input class="inp" style="flex:1;min-width:150px" placeholder="paste trainer ID / UmaExtractor code… (Enter)">
+        <span class="btn">+ Add</span><span class="btn ghost">⚄ dummy (editable)</span>
+        <span class="btn ghost">▼ pick from roster</span>
+      </div>
+
+      <div class="filterpanel">
+        <div class="fhead">Add own veteran — filter your roster <span class="mut" style="text-transform:none">· ChronoGenesis-style · same picker Parent A uses</span></div>
+        <div class="frow"><input class="inp" style="flex:1;min-width:110px" placeholder="🔍 name…"><span class="mut" style="font-size:10px">match:</span><span class="seg" style="font-size:10px"><span class="on">All (AND)</span><span>Any (OR)</span><span>Exclude</span></span></div>
+        <div class="frow"><span class="flk">Pink ≥</span><span class="sp pink">Front ★★</span><span class="sp pink">Turf ★</span><span class="addchip">+</span></div>
+        <div class="frow"><span class="flk">Blue ≥</span><span class="sp blue">Power ★★</span><span class="sp blue">Stamina ★</span><span class="addchip">+</span></div>
+        <div class="frow"><span class="flk">Skill spark</span><span class="seg" style="font-size:10px"><span class="on">on uma itself</span><span>total (uma+2 parents)</span></span><span class="sp white">Corner Recovery</span><span class="addchip">+</span></div>
+        <div class="frow"><span class="flk">Aptitude</span><span class="sp" style="color:var(--muted);border-color:var(--border)">dist Mile+</span><span class="sp" style="color:var(--muted);border-color:var(--border)">surf Turf</span></div>
+        <div class="fnote">counts <b style="color:var(--text)">uma + its 2 parents</b> (the grandparents in the new tree) — the uma's <i>own</i> grandparents are excluded</div>
+        <div class="fresults">
+          <div class="cand"><div class="portrait" style="width:20px;height:20px">uma</div><b>Mejiro McQueen</b><span class="srctag src-you">yours</span><span class="mut" style="margin-left:auto">Front ★ · Corner Rec ★★ · Sta ★</span><span class="btn" style="margin-left:6px">add</span></div>
+          <div class="cand"><div class="portrait" style="width:20px;height:20px">uma</div><b>Gold Ship</b><span class="srctag src-you">yours</span><span class="mut" style="margin-left:auto">Front ★★ · Guts ★</span><span class="btn" style="margin-left:6px">add</span></div>
+          <div class="mut" style="font-size:10px;padding:4px 0">2 of 38 veterans match · Symboli Rudolf hidden (already Parent A)</div>
+        </div>
+      </div>
+      <div class="cand sel"><div class="portrait" style="width:20px;height:20px">uma</div><b>Maruzensky</b><span class="srctag src-rent">rental 1234-5678</span><span class="mut" style="margin-left:auto">Front ★★★ · Sta ★★</span></div>
+      <div class="cand"><div class="portrait" style="width:20px;height:20px">uma</div><b>Mejiro McQueen</b><span class="srctag src-you">yours</span><span class="mut" style="margin-left:auto">Front ★ · Corner Rec ★★</span></div>
+      <div class="cand"><div class="portrait" style="width:20px;height:20px">uma</div><b>What-if parent</b><span class="srctag src-dummy">dummy · editable</span><span class="mut" style="margin-left:auto">Front ★★ · Corner Rec ★ · Sta ★</span></div>
+
+      <table style="margin-top:8px">
+        <thead><tr><th>Metric</th><th class="col-a">A — Rudolf</th><th>Maruzensky</th><th>McQueen</th><th>Dummy</th></tr></thead>
+        <tbody>
+          <tr><td>Front grade</td><td class="col-a">—</td><td><span class="metric good">A</span></td><td><span class="metric mid">B+</span></td><td><span class="metric good">A</span></td></tr>
+          <tr><td><b>P(S Front)</b></td><td class="col-a">—</td><td><span class="metric good">61%</span></td><td><span class="metric mid">38%</span></td><td><span class="metric mid">52%</span></td></tr>
+          <tr><td>White cover <span class="mut">(M4)</span></td><td class="col-a">1/2</td><td><span class="metric bad">1/2</span></td><td><span class="metric good">2/2</span><span class="winner">both</span></td><td><span class="metric good">2/2</span></td></tr>
+          <tr><td>Blue</td><td class="col-a"><span class="sp blue">Pwr</span></td><td><span class="sp blue">Sta★★</span></td><td><span class="sp blue">Sta★</span></td><td><span class="sp blue">Sta★</span></td></tr>
+          <tr><td>Affinity</td><td class="col-a">142</td><td>150</td><td>96</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="crumb" style="margin-top:6px">Locked: pedigree GP→parent→runner · Part 1 goal editing (blue manual, pink from M4 editable, white side-panel w/ double-up) → residual = goal−A → tick what to search · Part 2 paste-to-list compare-all + ChronoGenesis-style roster filter (counts uma + its 2 parents, excl. grandparents) · dummy editable, roster/paste read-only.</p>
+</body>
+</html>

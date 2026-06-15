@@ -6,6 +6,7 @@
 - **Status:** **Timeline (core + importers + UI + synthesis + range) shipped 2026-06-15.** Phase-2 (three-up) remains.
 - **Spec:** [docs/superpowers/specs/2026-06-14-m3-meta-intel-design.md](../superpowers/specs/2026-06-14-m3-meta-intel-design.md) + [2026-06-15-m3-synthesis-range-design.md](../superpowers/specs/2026-06-15-m3-synthesis-range-design.md).
 - **Plans:** [m3-timeline-core](../superpowers/plans/2026-06-15-m3-timeline-core.md) · [m3-importers](../superpowers/plans/2026-06-15-m3-importers.md) · [m3-timeline-ui](../superpowers/plans/2026-06-15-m3-timeline-ui.md) · [m3-synthesis-range](../superpowers/plans/2026-06-15-m3-synthesis-range.md).
+- **⚠️ Mockup = the visual spec:** [docs/mockups/m3-timeline.html](../mockups/m3-timeline.html) (committed — open in a browser). **Current fidelity ~25%** — built as vertical scroll-lanes instead of the mockup's grid-with-month-columns + NOW column; tier badges unstyled, no legend. The grid layout is buildable now; only the banner + patch lanes are data-gated (timeline.json has zero of those entries). See CLAUDE.md → *Design fidelity*.
 
 ## Purpose
 

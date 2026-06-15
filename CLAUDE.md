@@ -15,9 +15,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | M2 SP Optimizer | `/sp-optimizer` | MVP shipped; F1–F4 follow-ups | [module-2](docs/modules/module-2-sp-optimizer.md) |
 | M3 Meta Intel | `/meta-intel` | Timeline + synthesis shipped; phase-2 next | [module-3](docs/modules/module-3-meta-intel.md) |
 
+**⚠️ Design fidelity — the mockups are the spec.** The built module UIs are **functional skeletons far below the design mockups** that capture the product vision: **[docs/mockups/](docs/mockups/)** (committed; the canonical visual spec — open the `.html` in a browser). Fidelity audit 2026-06-15: **M4 ~25%, M3 ~25%, M2 ~20%, M1 ~8%.** The gap was classified — and **~80% of it needs no new data:**
+- **Design system** — one shared dark token + badge/chip/effect/track visual grammar, *identical across all 4 mockups*; building it once re-skins everything. (Currently mostly absent.)
+- **Not-built but data exists** — M4 §0 track diagram (geometry is *in the engine*), M4 left-panel cards + sourcing table, **M2 results table + Compare-vs-Veteran** (`runPlannerCompare` exists), M3 grid-with-month-columns layout, M1 pedigree + goal-builder + compare-all. Buildable now.
+- **Genuinely data-gated (only 4 things project-wide):** (1) skill effect-type + duration → effect badges/graphs (M4/M2); (2) uma stats/aptitudes/innate/unique-id → Uma chart + innate sourcing (M4/M1); (3) per-record release dates → Now/Upcoming/Future (M4); (4) banner + patch timeline entries → M3's empty lanes.
+
+**Treat the mockup HTML as the spec; the design system is a first-class deliverable, not deferred** (the earlier "Slice 1 = functional minimum" scoping under-delivered on the visual vision). Recommended realignment: shared `design-system.css` → M4 to full mockup fidelity → the 2 high-value data tasks (effect-type, uma stats) → M2/M3/M1.
+
 **Shared foundation:** vendored umalator engine v0.14.2 (`src/sim/`, `pnpm sim:build`; `evalSkillDelta` / `runVacuumCompare` / `runPlannerCompare` + `SimClient` worker + L-cache; fidelity-verified vs upstream, meanBashin 0.2202), the canonical `CmPlan` SSOT ([`docs/superpowers/specs/2026-06-15-shared-data-model.md`](docs/superpowers/specs/2026-06-15-shared-data-model.md); Dexie **v3**), and pure mechanics in `src/core/`. All four module designs are locked (`docs/superpowers/specs/2026-06-14-m{1,2,3,4}-*.md`).
 
-**Next:** Module 1 (Inheritance) Plans 3–5 — see [module-1](docs/modules/module-1-inheritance.md) + the roadmap memory. Also pending: M4 Slice 1b, M2 F1–F4, M3 phase-2.
+**Next (design-fidelity realignment — chosen direction 2026-06-15):** the built UIs are far below the mockups (see *Design fidelity* above). Recommended track: shared `design-system.css` (re-skins all 4) → M4 to full mockup fidelity → data tasks (effect-type, uma stats) → M2/M3/M1. The module-feature backlog still stands underneath: M1 Plans 3–5 ([module-1](docs/modules/module-1-inheritance.md)), M4 Slice 1b, M2 F1–F4, M3 phase-2.
 
 **Cross-cutting gotchas** (module-specific ones live in each module doc):
 - `git worktree` dirs under `.claude/worktrees/` may fail to auto-remove on Windows (node_modules lock) — git de-registers them but delete the folder by hand.

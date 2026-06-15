@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module 3 — Meta Intel · Timeline (v1)</title>
+<style>
+  :root{--bg:#0f1115;--panel:#171a21;--panel2:#1d212a;--band:#0c0e13;--border:#2a2f3a;--text:#e6e8ec;--muted:#8b929e;
+        --accent:#6aa3ff;--live:#57c98a;--gold:#e6b85c;--warn:#e0a14f;--violet:#b08bff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:22px 30px}
+  h1{font-size:18px;margin:0 0 3px}.crumb{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+  /* tier badges */
+  .tier{font-size:9px;font-weight:700;padding:0 5px;border-radius:3px;border:1px solid;letter-spacing:.02em}
+  .t-conf{color:var(--live);border-color:#2c5a40;background:#0f231a}
+  .t-data{color:var(--warn);border-color:#5a4730;background:#241c10}
+  .t-pred{color:var(--violet);border-color:#4a3a6e;background:#1a1530}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-bottom:14px;align-items:center}.legend b{color:var(--text)}
+
+  .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}.seg span{padding:5px 11px;font-size:12px;color:var(--muted);border-right:1px solid var(--border)}.seg span:last-child{border-right:0}.seg span.on{background:var(--accent);color:#0b1220;font-weight:600}
+  .chip{font-size:11px;padding:3px 9px;border-radius:7px;border:1px solid var(--border);color:var(--muted)}.chip.on{border-color:var(--accent);color:var(--accent)}
+
+  .tl{display:grid;grid-template-columns:96px repeat(4,1fr);border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--panel)}
+  .hc{background:var(--panel2);border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:8px 10px;font-size:12px;font-weight:600;text-align:center}
+  .hc.now{color:var(--live)}.hc.lanehdr{text-align:left;color:var(--muted);font-weight:500;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+  .lane{border-right:1px solid #1b1f27;border-bottom:1px solid #1b1f27;padding:8px;min-height:84px;position:relative}
+  .lane.now{background:#0e1a14}
+  .lanelabel{border-right:1px solid var(--border);border-bottom:1px solid #1b1f27;padding:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+  .lanelabel .dot{width:8px;height:8px;border-radius:2px}
+  .ev{border:1px solid var(--border);border-radius:8px;padding:6px 8px;margin-bottom:6px;background:#12161e;cursor:default}
+  .ev:last-child{margin-bottom:0}
+  .ev.sel{outline:1px solid var(--accent)}
+  .ev .nm{font-weight:600;font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .ev .meta{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .ev.conf{border-color:#2c5a40}.ev.data{border-color:#5a4730;border-style:dashed}.ev.pred{border-color:#4a3a6e;border-style:dotted;opacity:.92}
+  .src{color:var(--accent);font-size:10px}
+  .nowtag{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--live);color:#06120c;font-size:9px;font-weight:700;padding:0 6px;border-radius:0 0 5px 5px}
+  .m4link{font-size:10px;color:var(--live);border:1px solid #2c5a40;border-radius:5px;padding:0 5px;background:#0f231a}
+
+  .detail{margin-top:14px;border:1px solid var(--border);border-radius:11px;background:var(--panel);overflow:hidden;max-width:680px}
+  .dh{background:var(--panel2);border-bottom:1px solid var(--border);padding:9px 13px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .db{padding:13px}
+  .frow{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:7px}.frow .k{width:96px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  .inp{background:#0c0e13;border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px}
+  .btn{font-size:11.5px;padding:4px 10px;border-radius:6px;border:1px solid var(--accent);color:var(--accent);background:transparent}
+  .btn.go{background:var(--live);border-color:var(--live);color:#06120c;font-weight:600}
+  .note{color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+  <h1>Module 3 — Meta Intel · <span class="mut" style="font-weight:400;font-size:14px">Timeline (v1, build-first slice)</span></h1>
+  <p class="crumb">Browsable timeline of CMs · banners · patches. Every entry carries a verification tier; the current CM drives M4's §0. Wireframe.</p>
+
+  <div class="legend">
+    <span class="tier t-conf">✓ CONFIRMED</span> <span>official /news/</span>
+    <span class="tier t-data">◆ DATAMINED</span> <span>game files, not announced</span>
+    <span class="tier t-pred">~ PREDICTED</span> <span>JP-derived, needs confirm</span>
+    <span style="margin-left:auto" class="note">source: build-time bake + hand-confirm overrides</span>
+  </div>
+
+  <div class="controls">
+    <span class="seg"><span class="on">Quarter</span><span>Month</span><span>Year</span></span>
+    <span class="note">show:</span><span class="chip on">CMs</span><span class="chip on">Banners</span><span class="chip on">Patches</span>
+    <span class="chip">✓ confirmed only</span>
+    <span class="note" style="margin-left:auto">last import 2026-06-14</span>
+    <span class="btn" title="dev-only: runs the data:build importer; hidden in the static build">⟲ refresh <span class="note">(dev → data:build)</span></span>
+    <span class="btn go" style="border-color:var(--accent);background:var(--accent);color:#0b1220">↧ now</span>
+  </div>
+
+  <!-- TIMELINE GRID -->
+  <div class="tl">
+    <!-- header row -->
+    <div class="hc lanehdr">lane / month</div>
+    <div class="hc now">Jun 2026 ●now</div><div class="hc">Jul 2026</div><div class="hc">Aug 2026</div><div class="hc">Sep 2026</div>
+
+    <!-- CM lane -->
+    <div class="lanelabel"><span class="dot" style="background:var(--accent)"></span>Champions<br>Meeting</div>
+    <div class="lane now"><span class="nowtag">NOW</span>
+      <div class="ev conf sel"><div class="nm"><span class="tier t-conf">✓</span> CM14 Gemini Cup <span class="m4link">→ M4 §0</span></div><div class="meta">Tokyo 1600m Turf · finals Jun 27 · <span class="src">/news/790</span></div></div>
+    </div>
+    <div class="lane"><div class="ev conf"><div class="nm"><span class="tier t-conf">✓</span> CM15 Cancer Cup</div><div class="meta">Hanshin 2200m Turf · Jul · <span class="src">/news/829</span></div></div></div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> CM16 (Leo?)</div><div class="meta">pred. uma.guide #16 · ~Aug · <span class="note">no /news yet</span></div></div></div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> CM17 (Virgo?)</div><div class="meta">pred. ~Sep · GameTora Foresight</div></div></div>
+
+    <!-- Banner lane -->
+    <div class="lanelabel"><span class="dot" style="background:var(--gold)"></span>Banners</div>
+    <div class="lane now">
+      <div class="ev conf"><div class="nm"><span class="tier t-conf">✓</span> SSR support (current)</div><div class="meta">ends Jun 24 · <span class="src">/news/801</span></div></div>
+      <div class="ev data"><div class="nm"><span class="tier t-data">◆</span> Char banner (next)</div><div class="meta">datamined · ~Jun 24 · GameTora overlay</div></div>
+    </div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> 4–5 banners</div><div class="meta">Game8 forecast · est. Jul</div></div></div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> 4–5 banners</div><div class="meta">Game8 forecast · est. Aug</div></div></div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> 4–5 banners</div><div class="meta">SoulEC sheet · est. Sep</div></div></div>
+
+    <!-- Patch lane -->
+    <div class="lanelabel"><span class="dot" style="background:var(--warn)"></span>Patches</div>
+    <div class="lane now"><div class="note" style="font-size:10.5px">— none —</div></div>
+    <div class="lane"><div class="note" style="font-size:10.5px">— none —</div></div>
+    <div class="lane"><div class="ev pred"><div class="nm"><span class="tier t-pred">~</span> Anni-2 balance?</div><div class="meta">low-confidence · anni changelog</div></div></div>
+    <div class="lane"><div class="note" style="font-size:10.5px">— none —</div></div>
+  </div>
+
+  <!-- DETAIL / CONFIRM panel for selected event -->
+  <div class="detail">
+    <div class="dh"><span class="tier t-conf">✓ CONFIRMED</span> CM14 Gemini Cup <span class="note" style="margin-left:auto">selected entry</span></div>
+    <div class="db">
+      <div class="frow"><span class="k">Track</span> Tokyo 1600m · Turf · Mile · left-handed</div>
+      <div class="frow"><span class="k">Dates</span> signup Jun 20 · finals Jun 27, 2026</div>
+      <div class="frow"><span class="k">Source</span> <span class="inp">https://umamusume.com/news/790/</span> <a class="src" href="#">open ↗</a></div>
+      <div class="frow"><span class="k">Tier</span> <span class="seg"><span class="on">✓ confirmed</span><span>◆ datamined</span><span>~ predicted</span></span></div>
+      <div class="frow"><span class="k">Feeds</span> <span class="m4link">M4 §0 race</span> <span class="note">— this is the CM M4 plans against</span></div>
+      <div style="display:flex;gap:8px;margin-top:6px"><span class="btn go">✓ Confirm &amp; stamp /news</span><span class="btn">edit</span><span class="note" style="margin-left:auto;align-self:center">edits saved to timeline_overrides.json (P5)</span></div>
+    </div>
+  </div>
+
+  <p class="crumb" style="margin-top:14px">Forecast lanes (predicted/datamined) come from the build-time bake; the <b>Confirm</b> action checks against official <code style="color:#9fc1ff">/news/</code> and flips tier + stamps the permalink. Nothing shows a date without its tier badge (P3/P4).</p>
+</body>
+</html>
