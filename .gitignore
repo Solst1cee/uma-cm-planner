@@ -14,3 +14,12 @@ spikes/
 # editor/os
 .DS_Store
 Thumbs.db
+
+# Brainstorm visual companion (local mockups)
+.superpowers/
+
+# generated spec PDFs (regenerable: pnpm specs:html + browser print-to-pdf)
+docs/superpowers/specs/*.pdf
+
+# tesseract OCR training data (large fetched blob, not project source)
+eng.traineddata

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Module 4 — Skill Acquisition Planner: Design Spec</title>
+<style>
+:root{--bg:#0e1014;--panel:#1a1f2b;--line:#2a3142;--text:#e7eaf0;--muted:#9aa6ba;--faint:#6b7689;
+--pink:#ff5fa2;--teal:#2dd4bf;--blue:#58a6ff;--done:#3fb950;--warn:#e3b341;--radius:12px;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;color:var(--text);font:15.5px/1.68 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+background:radial-gradient(1200px 600px at 80% -10%,rgba(255,95,162,.10),transparent 60%),
+radial-gradient(900px 500px at -10% 10%,rgba(45,212,191,.08),transparent 55%),var(--bg);}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+header.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(14,16,20,.82);border-bottom:1px solid var(--line)}
+.bar-inner{max-width:960px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar-inner .title{font-weight:650;font-size:14px;color:var(--text)}
+.bar-inner .meta{font-size:12px;color:var(--faint)}
+main{max-width:960px;margin:0 auto;padding:28px 24px 120px}
+h1,h2,h3,h4{line-height:1.25;font-weight:680;scroll-margin-top:72px}
+h1{font-size:1.85em;margin:.2em 0 .6em;background:linear-gradient(90deg,var(--pink),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:1.32em;margin:1.9em 0 .5em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.1em;margin:1.5em 0 .4em;color:#cbd5e6}
+h4{font-size:1em;margin:1.3em 0 .3em;color:var(--muted)}
+.anchor{margin-left:.4em;color:var(--faint);opacity:0;font-weight:400;text-decoration:none}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+p,li{color:var(--text)}
+strong{color:#fff}
+em{color:var(--muted)}
+code{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;font-size:.86em;background:rgba(255,255,255,.06);padding:.12em .42em;border-radius:5px;color:#d7e2f1}
+pre{background:#11151d;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto}
+pre code{background:none;padding:0;color:#d7e2f1;font-size:.85em;line-height:1.55}
+blockquote{margin:1em 0;padding:.4em 1em;border-left:3px solid var(--teal);background:rgba(45,212,191,.06);border-radius:0 8px 8px 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:rgba(255,255,255,.04);color:#cbd5e6;font-weight:620}
+tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.22em 0}
+.toc{margin:0 0 2em;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 16px}
+.toc summary{cursor:pointer;font-weight:620;color:var(--muted);padding:6px 0}
+.toc ul{list-style:none;padding-left:0;margin:.4em 0 .6em;columns:2;column-gap:28px}
+.toc li{margin:.18em 0;break-inside:avoid}
+.toc li.lvl3{padding-left:1.1em;font-size:.92em}
+.toc a{color:var(--muted)}.toc a:hover{color:var(--blue)}
+@media(max-width:680px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-inner"><span class="title">Module 4 — Skill Acquisition Planner: Design Spec</span><span class="meta">2026-06-14-m4-skill-acquisition-design.md · rendered from markdown</span></div></header>
+<main>
+<details class="toc" open><summary>Contents</summary><ul><li class="lvl2"><a href="#1-why-this-redesign">1. Why this redesign</a></li>
+<li class="lvl2"><a href="#2-scope-amp-boundaries">2. Scope &amp; boundaries</a></li>
+<li class="lvl2"><a href="#3-the-plan-model-cross-module-ssot">3. The Plan model (cross-module SSOT)</a></li>
+<li class="lvl2"><a href="#4-engine-foundation-the-quot-first-quot-in-engine-first">4. Engine foundation (the &quot;first&quot; in engine-first)</a></li>
+<li class="lvl2"><a href="#5-the-flow">5. The flow</a></li>
+<li class="lvl3"><a href="#0-race">§0 · Race</a></li>
+<li class="lvl3"><a href="#1-skill-selection-pick-runner-skills">§1 · Skill selection (pick runner + skills)</a></li>
+<li class="lvl3"><a href="#2-wishlist">§2 · Wishlist</a></li>
+<li class="lvl3"><a href="#3-where-do-i-get-these-sourcing-umalator-does-not-have-this">§3 · Where do I get these? (sourcing — umalator does NOT have this)</a></li>
+<li class="lvl2"><a href="#6-honest-numbers-p3">6. Honest numbers (P3)</a></li>
+<li class="lvl2"><a href="#7-data-gaps-amp-new-artifacts">7. Data gaps &amp; new artifacts</a></li>
+<li class="lvl2"><a href="#8-out-of-scope-this-module-version">8. Out of scope (this module/version)</a></li>
+<li class="lvl2"><a href="#9-risks-open-questions">9. Risks / open questions</a></li>
+<li class="lvl2"><a href="#10-milestones-high-level-detailed-impl-plan-via-writing-plans-later">10. Milestones (high-level; detailed impl plan via writing-plans later)</a></li></ul></details>
+<h1 id="module-4-skill-acquisition-planner-design-spec">Module 4 — Skill Acquisition Planner: Design Spec<a class="anchor" href="#module-4-skill-acquisition-planner-design-spec" aria-label="link">#</a></h1>
+<p><strong>Status:</strong> APPROVED — M4 design locked (2026-06-14) · <strong>Owner:</strong> Sun · <em>(implementation plan via writing-plans deferred until M3/M1/M2 are brainstormed)</em>
+<strong>Origin:</strong> Brainstorm (superpowers:brainstorming) replacing the target-centric coverage matrix shipped in Phases 0–2.
+<strong>Supersedes:</strong> the existing M4 coverage-matrix UI (target rows × owned-card columns), which never showed what a card offers and assumed the target list as an <em>input</em>.</p>
+<hr>
+<h2 id="1-why-this-redesign">1. Why this redesign<a class="anchor" href="#1-why-this-redesign" aria-label="link">#</a></h2>
+<p>The shipped M4 starts in the <em>middle</em> of how Sun actually plans. Sun&#39;s real Champions Meeting (CM) pipeline (see memory <code>uma-planning-pipeline-and-module-boundaries</code>):</p>
+<ol>
+<li><strong>Track → VFalator</strong> → find unique skills + skill sets with high <strong>L</strong> (length advantage / bashin) on this track.</li>
+<li>Pick the <strong>uma</strong> — deciding whether its unique is needed <em>as the runner</em> (full power) or whether the <em>inherited</em> (weaker) version suffices.</li>
+<li>Pick the <strong>strategy</strong> (run-style) — gated by which skills give L here AND whether the build can hit the scenario&#39;s stat thresholds.</li>
+<li>Build fixed → derive the shopping list: unique + <strong>inherited skills</strong> (→ parents) + <strong>skill sparks</strong> (→ cards/parents).</li>
+<li>Hunt <strong>parents</strong> meeting the track&#39;s stat-threshold spark totals.</li>
+<li>Build the <strong>support deck</strong> around the parents.</li>
+<li>Meta is <strong>timeline-bound</strong> (balance patches + releases; Global&#39;s big patch landed earlier than JP/TW).</li>
+</ol>
+<p><strong>Key consequence:</strong> the target skill list is an <strong>output of steps 1–3, not an input.</strong> The redesigned M4 owns steps 1–4 of this pipeline and produces a <strong>named, shareable plan</strong> that Modules 1/2/3 extend.</p>
+<p>The trigger complaint — <em>&quot;when I select a support card it should at least show what skills this card contains&quot;</em> — is the smallest symptom of this: card-first discovery and L-driven discovery were both missing.</p>
+<hr>
+<h2 id="2-scope-amp-boundaries">2. Scope &amp; boundaries<a class="anchor" href="#2-scope-amp-boundaries" aria-label="link">#</a></h2>
+<p><strong>M4 IS:</strong> the <strong>pre-run planner for the ideal build.</strong> It answers <em>&quot;what should this build end up with, and is it reachable?&quot;</em> — discovery (what&#39;s worth targeting, where to get it) + coverage (is my deck/inheritance enough). <strong>No SP constraint.</strong></p>
+<p><strong>M4 IS NOT</strong> Module 2. M2 = the <strong>post-run, real-life SP-limited min-max</strong> (at a run&#39;s end you can usually buy more skills than you have SP for; M2 picks the optimal subset). The L-ranking here is the <em>discovery</em> engine, distinct from M2&#39;s purchase optimization.</p>
+<p><strong>Build sequencing decision (Sun, 2026-06-14): ENGINE-FIRST.</strong> Vendor the umalator simulation engine into <code>src/sim/</code> first, then build the full §0–§3 flow on top of it. The engine is shared foundation for M1/M2/M3, so it is never throwaway.</p>
+<p><strong>Inheritance (decided earlier):</strong> §3 sourcing uses support-card <strong>hints</strong> now (fully buildable) plus a <strong>manual stopgap</strong> for &quot;skills I&#39;ll inherit / sparks I&#39;ll have.&quot; Module 1 later replaces the manual input with real parent data.</p>
+<hr>
+<h2 id="3-the-plan-model-cross-module-ssot">3. The Plan model (cross-module SSOT)<a class="anchor" href="#3-the-plan-model-cross-module-ssot" aria-label="link">#</a></h2>
+<p>A <strong>plan</strong> is the cross-module single source of truth — the architecture&#39;s <code>CmPlan</code> (plan §10). M4 is where a plan is <strong>created and named</strong>; M1/M2/M3 read and extend the same object.</p>
+<blockquote>
+<p><strong>Canonical shared types</strong> (<code>CmPlan</code>, <code>Stat</code>, <code>AptKey</code>, <code>CmId</code>, <code>WishlistItem</code>, <code>sparkGoals</code>, …) are declared in <a href="2026-06-15-shared-data-model.html"><code>2026-06-15-shared-data-model.md</code></a> — the field shapes below are superseded by that contract; cite it, don&#39;t redefine.</p>
+</blockquote>
+<blockquote>
+<p><strong>Schema change — CLEAN REPLACE (confirmed by Sun, 2026-06-14):</strong> the shipped <code>CmPlan</code> (<code>src/core/types.ts</code>) uses <code>targetUmaId</code>, <code>targetSkills[]</code>, <code>scenario</code>, <code>month</code>, <code>requiredAptitudes</code>, <code>lockedDeckSlots</code>, <code>chosenParents</code>. This redesign <strong>replaces</strong> it with the fields below — <strong>no migration</strong> (no saved data to preserve), just a <strong>Dexie schema version bump</strong>. For reference, the old→new map: <code>targetSkills</code> → <code>wishlist</code>, <code>targetUmaId</code> → <code>umaId</code>, <code>month</code>/<code>scenario</code> → <code>cmRef</code>, <code>requiredAptitudes</code> → <code>statProfile</code> aptitudes, <code>lockedDeckSlots</code> → <code>deck</code>, <code>chosenParents</code> → (M1, replaces <code>inheritanceStopgap</code>).</p>
+</blockquote>
+<p><strong>Unit:</strong> one plan = <strong>one uma build.</strong> Plans are <strong>freely many</strong>, with <strong>no uniqueness constraint</strong> — Sun may keep two &quot;Kitasan · Ace · Front · CM12&quot; plans as variations, plus &quot;Kitasan · Ace · Pace · CM12&quot;, &quot;Nice Nature · Debuffer · Late · CM12&quot;, etc.</p>
+<p><strong>Structured fields</strong> drive an auto-suggested, editable name in this <strong>slash order</strong>: <code>Plan {n} / CM{cm} / {uma} / {role} / {strategy} / {remark}</code> — e.g. <code>Plan 2 / CM12 / Kitasan Black / Ace / Frontrunner / with groundwork</code>. The <strong>remark</strong> is free text that distinguishes otherwise-identical variations (the reason near-duplicate plans exist).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td><strong>auto-generated in an editable name box</strong> (slash order above); freely user-editable</td>
+<td>inline editing is also how the remark gets added — box auto-fills from the fields but never locks</td>
+</tr>
+<tr>
+<td><code>planNumber</code></td>
+<td>auto-increment within a (cm, uma, role, strategy) group, editable</td>
+<td>the &quot;Plan 1 / Plan 2&quot; variant index</td>
+</tr>
+<tr>
+<td><code>umaId</code> + <code>uniqueSkillId</code></td>
+<td>§1 Uma chart selection</td>
+<td>unique ↔ uma; record whether unique is <em>native-runner</em> or <em>inherited-version</em></td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>user</td>
+<td><strong>Ace</strong> (main scorer) / <strong>Debuffer</strong> (slows rivals) / <strong>Hybrid</strong> (scores while carrying some debuffs) — no Pacer. Debuffer self-L isn&#39;t the right metric → §5.1 (deferred); Ace/Hybrid use self-L</td>
+</tr>
+<tr>
+<td><code>strategy</code></td>
+<td>§1 segmented control</td>
+<td><strong>Frontrunner / Pace Chaser / Late Surger / End Closer</strong>; aptitude-adjustable</td>
+</tr>
+<tr>
+<td><code>remark</code></td>
+<td>user, free text (optional)</td>
+<td><strong>distinguishes near-identical plans</strong> — e.g. &quot;with/without groundwork skill&quot;; typed inline in the name box</td>
+</tr>
+<tr>
+<td><code>statProfile</code></td>
+<td>§1, seeded per track+strategy (§5.2)</td>
+<td>speed/stamina/power/guts/wit + aptitudes + mood; the assumed <em>ideal</em> build, editable</td>
+</tr>
+<tr>
+<td><code>cmRef</code> (CM number)</td>
+<td>§0</td>
+<td>&quot;CM12&quot; token + reference into <code>cm_schedule.json</code> (course + conditions)</td>
+</tr>
+<tr>
+<td><code>wishlist[]</code></td>
+<td>§2</td>
+<td><code>{ skillId, projectedL, source: targeted }</code></td>
+</tr>
+<tr>
+<td><code>deck[]</code></td>
+<td>existing inventory</td>
+<td>owned cards + limit breaks (reused from current M4)</td>
+</tr>
+<tr>
+<td><code>inheritanceStopgap</code></td>
+<td>manual (→ M1)</td>
+<td><code>{ inheritedSkills[], sparks[] }</code></td>
+</tr>
+<tr>
+<td><code>dataVersion</code>, <code>server</code></td>
+<td>system</td>
+<td>P4 server-versioning</td>
+</tr>
+</tbody></table>
+<p><strong>Persistence:</strong> IndexedDB via Dexie; <strong>plan list + active-plan selector</strong> present on every module; <strong>JSON export/import</strong> (P2). The <strong>plan header is the top of M4&#39;s left &quot;Current Uma Plan&quot; sidebar</strong>: an <strong>editable name box that auto-fills</strong> the slash-format name from the structured fields (and live-updates as uma/role/strategy/CM change), yet stays <strong>freely user-editable</strong> — type a remark, override anything; once the user hand-edits, auto-fill stops clobbering it. The header is a <strong>save-state</strong>: it tracks <strong>dirty vs saved</strong> (a &quot;● unsaved&quot; dot). <strong>Switch</strong> or <strong>New</strong> while dirty prompts <strong>Save / Discard / Cancel</strong> so unsaved edits aren&#39;t lost; explicit <strong>Save</strong> persists to Dexie.</p>
+<p><strong>Cross-module contract (what consumers read):</strong></p>
+<ul>
+<li><strong>M1 (Inheritance):</strong> <code>wishlist</code> skills flagged &quot;needs inheriting&quot; + <code>statProfile</code> thresholds → parent/grandparent hunt; writes back resolved parents (replacing <code>inheritanceStopgap</code>).</li>
+<li><strong>M2 (SP Optimizer):</strong> <code>wishlist</code> + post-run available skills → SP-constrained subset.</li>
+<li><strong>M3 (Meta):</strong> supplies <code>cmRef</code> context and meta/timeline framing.</li>
+</ul>
+<p><strong>Plan lifecycle &amp; list:</strong></p>
+<ul>
+<li><strong>Active plan</strong> is persisted (last-selected <code>id</code> in Dexie/localStorage); on load the app restores it. <strong>Zero plans</strong> → empty state with a &quot;Create your first plan&quot; CTA; §1–§3 are inert until a plan exists.</li>
+<li><strong>List/selector</strong> rows key off the plan <strong><code>id</code></strong>, not <code>name</code>, and render <code>planNumber</code> + <code>remark</code> (+ created date), so two identically-named plans stay distinguishable.</li>
+<li><strong>Staleness (P3/P4):</strong> on load, if a plan&#39;s <code>dataVersion</code> ≠ current data version, flag its stored <code>projectedL</code> values as <strong>stale</strong> and offer one-click recompute; never present stale L as current.</li>
+</ul>
+<hr>
+<h2 id="4-engine-foundation-the-quot-first-quot-in-engine-first">4. Engine foundation (the &quot;first&quot; in engine-first)<a class="anchor" href="#4-engine-foundation-the-quot-first-quot-in-engine-first" aria-label="link">#</a></h2>
+<p>The umalator engine is <strong>not yet vendored</strong> — it exists only in <code>spikes/repos/umalator-global/</code> (headless smoke-tested 2026-06-12, but <code>src/sim/</code> does not exist). This step creates it.</p>
+<p><strong>Reuse (P1):</strong> the L-charts ARE umalator&#39;s existing features — <strong><code>Uma Bassin</code></strong> (unique skills ranked by L) and <strong><code>Skill Bassin</code></strong> (normal/golden ranked by L). We port them; we do not reinvent.</p>
+<p><strong>How L is computed (umalator&#39;s method, to preserve exactly):</strong></p>
+<ul>
+<li><code>runSkillComparison(params): SkillComparisonResult</code> in <code>src/modules/simulation/simulators/skill-compare.ts</code>.</li>
+<li>Run the race <strong>with vs without</strong> the skill on the <strong>same seed</strong>; <code>bashin = Δposition / 2.5m</code>; average over Monte-Carlo samples. Output <code>{ results[], min, max, mean, median }</code>.</li>
+<li><strong>Progressive sampling</strong> (umalator): worker yields partial results at increasing sample counts, <strong>dropping skills measuring ≤ 0.1 L early</strong> → this <em>is</em> the &quot;0 L = dead-weight auto-hide&quot; behavior, for free.</li>
+<li><strong>Strategy enters</strong> via the runner&#39;s starting <code>orderRange</code> (Front <code>[1,1]</code>, Pace <code>[2,4]</code>, Late/End <code>[5,9]</code>) → changing strategy genuinely re-ranks.</li>
+</ul>
+<p><strong>Inputs (<code>IRunnerState</code>):</strong> <code>{ speed, stamina, power, guts, wisdom, strategy, distanceAptitude, surfaceAptitude, strategyAptitude, mood, skills[] }</code>. <strong>Course (<code>CourseData</code>):</strong> <code>{ courseId, distance, surface, turn(direction), corners[], straights[], slopes[] … }</code>. <strong>Race (<code>RaceParameters</code>):</strong> ground/weather/season/timeOfDay/grade.</p>
+<p><strong>Vendoring scope → <code>src/sim/</code>:</strong></p>
+<ul>
+<li><code>src/lib/sunday-tools/**</code> (core <code>Race</code>, <code>Runner</code>, observers, course defs, skill-condition DSL).</li>
+<li>Simulators: <code>skill-compare.ts</code>, <code>vacuum-compare.ts</code> (uma-vs-uma), <code>shared.ts</code> glue.</li>
+<li>Worker: <code>simulator.worker.ts</code> + the <strong>pool manager</strong> (<code>navigator.hardwareConcurrency</code>, clamped 2–16).</li>
+<li>Bassin-chart UI: <code>BasinnChart</code> + columns/sorting + length-difference activation bars (adapt to our design system).</li>
+<li><strong>Adaptations:</strong> stub React <code>getUmaDisplayInfo</code> (we render our own); relocate <code>compare.types.ts</code> into the vendored tree to break a circular import; <strong>inject our <code>public/data/</code> services</strong> (skills/courses/umas) instead of the upstream singletons; esbuild <code>define:{&#39;import.meta.env&#39;:&#39;{&quot;DEV&quot;:false}&#39;,&#39;import.meta.main&#39;:&#39;true&#39;}</code> for any headless/CLI use.</li>
+</ul>
+<p><strong>Provenance:</strong> pin jalbarrang/umalator-global v0.14.2 (<code>c1fa2107…</code> — <strong>cross-check the exact hash against <code>docs/provenance.md</code> before vendoring</strong>), GPL-3.0; record source + retrieval date in <code>docs/provenance.md</code>. The whole repo is already GPL-3.0 per the licensing decision.</p>
+<p><strong>Performance (honest, P3):</strong> ~15–50 ms/race; a full skill chart (~hundreds of skills × progressive samples across the worker pool) <strong>streams a first ranking in ~1 s and refines over ~5–30 s</strong> depending on hardware. &quot;Refresh on strategy/stat change&quot; = a short recompute, not an instant toggle.</p>
+<p><strong>L-cache contract:</strong> memoize under key <code>(courseId, strategy, hash(statProfile), skillId)</code>; <strong>bucket continuous stats</strong> (e.g. round to nearest 50) so tiny edits don&#39;t blow the cache. Invalidate on course / strategy / stat-profile change or <code>dataVersion</code> bump.</p>
+<hr>
+<h2 id="5-the-flow">5. The flow<a class="anchor" href="#5-the-flow" aria-label="link">#</a></h2>
+<p><strong>Layout — 2-column app shell (VFalator-style).</strong> A persistent <strong>left sidebar (~25% width): &quot;Current Uma Plan&quot;</strong> — one section holding the plan name (save-state), the runner summary (uma + unique + stats + strategy/mood/role), and the <strong>Wishlist</strong> (moved here). The <strong>right column (~75%)</strong> is the working area, divided into sections — <strong>§0 Race</strong>, <strong>§1 Skill selection</strong> (the only place you pick a runner/skills), <strong>§3 Sourcing</strong>. Picking happens on the right; the left always mirrors the current plan.</p>
+<h3 id="0-race">§0 · Race<a class="anchor" href="#0-race" aria-label="link">#</a></h3>
+<ul>
+<li>Auto-select the <strong>current / upcoming CM</strong> from a <strong>new small hand-maintained <code>cm_schedule.json</code></strong> (<code>{ date, cmId, name, courseId }</code>); resolve <code>courseId</code> → <code>course_data.json</code> for distance/surface/<strong>direction</strong> and merge <code>cm_presets.json</code> conditions (ground/weather/season/time). One click to change. <strong>Auto-select restricts to <code>server:&quot;global&quot;</code> CMs</strong> (JP presets stay preview-only per P4); if the schedule is empty or all dates are past, fall back to the latest known <strong>Global</strong> CM and let the user pick manually.</li>
+<li><strong>New dataset required:</strong> <code>cm_schedule.json</code> (no schedule exists today — only 31 historical presets). Hand-maintained per P5; updated when banners are announced. (First real entry: <strong>CM14 Gemini Cup</strong> = Yasuda Kinen, Tokyo <strong>1600m turf</strong> mile.)</li>
+<li>Course <strong><code>turn</code>/direction</strong> is read from <code>course_data.json</code> (it carries <code>turn</code>); display it as <strong>right-handed / left-handed</strong> (the form skills are conditioned on), <strong>not</strong> CW/CCW. Not added to <code>CmPreset</code> (which omits it).</li>
+<li><strong>The race-track diagram lives here (one shared track).</strong> §0 renders the course (straights/corners/slopes, like umalator) and <strong>always overlays the activation zone + duration of <em>every</em> wishlist skill plus the unique</strong> — no selection needed. <strong>Selecting / hovering a skill highlights its band</strong> (eye-catch) but doesn&#39;t gate rendering. (Only the <em>spatial</em> activation/duration is here; the per-skill <em>analytical</em> graphs live in that skill&#39;s &quot;show description&quot;.)</li>
+</ul>
+<h3 id="1-skill-selection-pick-runner-skills">§1 · Skill selection (pick runner + skills)<a class="anchor" href="#1-skill-selection-pick-runner-skills" aria-label="link">#</a></h3>
+<p><em>(Right column, first section — the <strong>selection</strong> area: pick runner + pick skills. The chosen runner and targeted skills appear in the left &quot;Current Uma Plan&quot; sidebar. Runner <strong>config</strong> — stats/strategy/mood/role — shows in the left sidebar with the runner.)</em></p>
+<ul>
+<li><p><strong>Uma chart (Uma Bassin) — the entry point, shown FIRST.</strong> Uniques ranked by L on this track. <strong>Clicking a row expands the unique&#39;s description to <em>read</em> it (collapsible) — it does NOT change the plan.</strong> A separate <strong>&quot;Select runner&quot;</strong> button on the row commits that uma + unique to the plan, so browsing skills never accidentally swaps your runner. <strong>Row icon = the uma portrait, not the skill icon</strong> (the unique already implies the skill — you want to see <em>which uma</em>). <strong>Each row also shows the uma&#39;s base default aptitudes</strong> (distance · surface · strategy letters, e.g. <em>Mile A · Turf A · Front B</em>) so a glance tells whether it&#39;s usable here without heavy inheritance — plus the unique&#39;s name with <strong>effect-summary badges</strong>. An <strong>aptitude filter sits next to the search bar</strong> (filter umas by base aptitude). <strong>Population:</strong> umas whose track distance/surface aptitude clears a threshold (default; togglable to all 84); the shared availability toggle applies. Mark inherited-version availability separately (native-runner ≠ inherited).</p>
+</li>
+<li><p><strong>Runner config (after a runner is picked):</strong> <strong>target stat profile</strong> (default seeded per track+strategy — §5.2; fully editable, Sun&#39;s &quot;can I hit the scenario threshold&quot; lever) + <strong>strategy</strong> segmented control (Frontrunner/Pace Chaser/Late Surger/End Closer; aptitude-adjustable) + <strong>role</strong> (<strong>Ace / Debuffer / Hybrid</strong>) + race-condition inputs mirroring VFalator — <strong>surface + distance</strong> (from §0), <strong>style</strong> (strategy), <strong>mood</strong> (Great…Awful). <strong>Mood scales stats, so it shifts L</strong> — explicit input, not cosmetic. <strong>Aptitudes live here (the real / target aptitudes):</strong> distance / surface / strategy each <strong>default to A</strong> (the ideal you aim for) and are <strong>editable</strong>; the uma&#39;s <strong>base default aptitudes show read-only</strong> beside them (so you can match them for a realistic plan). The L-chart uses these <em>target</em> aptitudes.</p>
+</li>
+<li><p><strong>Skill chart (Skill Bassin) — the single available list.</strong> Acquirable skills ranked by L for (track + strategy + stat profile) — normal + golden, <strong>plus inherited-unique versions</strong> (a uma&#39;s unique, when inherited, behaves like a normal white skill and belongs here) <strong>and scenario-specific skills</strong> (both normal + golden). Each row is a <strong>clean line</strong>: icon, name (<strong>white text = white skill, gold = golden</strong> — rarity, not target) <strong>+ effect-summary badges</strong> (spd / acc / rec / heal / …), type, <strong>L (bashin)</strong>, <strong>base SP cost</strong>, <strong><code>+ target</code></strong>. <em>(The effect badges appear <strong>wherever a skill is listed</strong> — skill chart, uma-chart uniques, wishlist.)</em> <strong>No separate &quot;available&quot; panel in §2</strong> (that duplication was confusing); §2 shows only the selected wishlist. Streams + auto-hides dead-weight (≤0.1 L). <strong>Re-ranks on strategy, stat, or aptitude change</strong> — aptitudes come from the <strong>runner config (left), defaulting to A and editable</strong>, <em>not</em> the uma&#39;s base. So changing <em>uma</em> doesn&#39;t re-rank the normal/golden chart (only the <strong>unique</strong> is uma-bound, via the Uma chart); editing a <strong>target aptitude</strong> does.</p>
+</li>
+<li><p><strong>Row detail — &quot;show description&quot; (collapsed by default, like VFalator):</strong> a per-row <strong>&quot;show description&quot;</strong> link opens the <strong>real mechanic</strong> — <code>skillId</code>, <strong>conditions</strong> (e.g. <code>activate_count_heal&gt;=3 &amp; distance_rate&gt;=50%</code>), <strong>effects</strong> (Speed / Accel / Recovery), <strong>duration</strong>, the <strong>L estimate</strong>, an <strong>effectiveness rate</strong>, and <strong>two graphs: L vs distance and speed vs distance</strong> (where along the race the skill actually helps). The <strong>spatial activation zone + duration render on the §0 track</strong> (always-on for wishlist + unique) — <em>not</em> inside the row. The Uma chart rows show the same description for uniques.</p>
+</li>
+<li><p><strong>Filters / toggles (both skill &amp; uma charts):</strong></p>
+<ul>
+<li><strong>Show-every-skill toggle</strong> — default hides ≤0.1 L dead-weight; toggling on reveals all, because <strong>umalator can&#39;t model every skill</strong> and some that read 0 L genuinely do something in-game. These stay <strong>addable to the wishlist</strong> on game knowledge.</li>
+<li><strong><code>0 L</code> vs <code>n/a</code> (P3)</strong> — a skill the engine <em>measured</em> at ~0 under this strategy shows <strong><code>0 L</code></strong>; a skill the engine <strong>can&#39;t evaluate</strong> (effect type not simulated) shows <strong><code>n/a — not simulated</code></strong>, never a misleading <code>0 L</code>. Both are addable when &quot;show every skill&quot; is on.</li>
+<li><strong>Availability — ONE shared toggle for both charts</strong> (timeline-aware, §5.3). A single <strong>Now / + Upcoming / + Future</strong> control governs the uma chart <em>and</em> the skill chart at once (not one per chart). <strong>Now</strong> (Global ≤ today; default) · <strong>+ Upcoming</strong> (announced Global release within ~1–2 wk of the CM — plan around a character/card dropping 2–3 days pre-CM) · <strong>+ Future</strong> (all JP-ahead, preview-only — <em>future improvement</em>). Preview rows <strong>badged</strong>, L = projection (P4: JP-ahead never silently mixed into now-totals).</li>
+<li><strong>Search + filter (important — both charts).</strong> Free-text <strong>search</strong> by name (skill or uma). <strong>Filters:</strong> <em>skill chart</em> by type (speed/accel/recovery/corner/…), rarity (white·gold), category (normal · inherited-unique · scenario), status (live · 0 L · n/a), and targeted-or-not; <em>uma chart</em> by aptitude, availability, and name. Filters <strong>compose</strong> with the toggles above (e.g. &quot;show every skill&quot; + type=recovery + search &quot;corner&quot;).</li>
+</ul>
+</li>
+<li><p><strong>Read vs select (both charts).</strong> Clicking a row <strong>expands its description</strong> to <em>read</em> (collapsible) — it never mutates the plan. Committing is always an explicit button: <strong>&quot;Select runner&quot;</strong> (uma chart) / <strong><code>+ target</code></strong> (skill chart). The whole §1 can also collapse (header chevron) once you&#39;ve chosen, to focus on §2/§3.</p>
+<p><strong>5.1 Debuffer evaluation — DEFERRED (future improvement).</strong> umalator&#39;s <code>runSkillComparison</code> measures <em>your</em> position delta, which is correct for <strong>Ace / Hybrid</strong> but not for a pure <strong>Debuffer</strong>, whose value is <em>slowing opponents</em>. A correct debuffer eval needs a <strong>different flow</strong> (e.g. measure the field&#39;s delay, or evaluate against a fixed Ace) and is <strong>explicitly out of scope for now</strong> (Sun, 2026-06-14). Debuffer plans can still be created, named, and given a wishlist; the skill chart simply shows self-L with a caveat that debuff value isn&#39;t yet modeled. Revisit as a future mode/module.</p>
+</li>
+</ul>
+<h4 id="5-2-stat-profile-default-shortcut-now-calculator-later">§5.2 · Stat-profile default — shortcut now, calculator later<a class="anchor" href="#5-2-stat-profile-default-shortcut-now-calculator-later" aria-label="link">#</a></h4>
+<p>The <em>correct</em> target stats per (track, strategy): <strong>max speed</strong> (almost always mandatory), <strong>stamina + guts</strong> sized so the uma survives the race and <strong>hits spurt reliably</strong>, then <strong>pool the remaining stats</strong> as high as possible — modulated by each track&#39;s <strong>hidden stat thresholds</strong> (e.g. crossing 601 wit grants bonus speed on some courses; likely encoded in the engine&#39;s <code>CourseData.courseSetStatus</code>). umalator already has the stamina-survival / spurt function needed for the stamina/guts floor.</p>
+<ul>
+<li><strong>Now (owner-authorized, private use only):</strong> seed the editable default by <strong>importing from a reliable guide site</strong> (e.g. <code>uma.guide/guides/cmNN-guide</code>) behind a <code>StatTargetSource</code> interface — <code>UmaGuideImporter</code> now → <code>ManualStatTargets</code> / curated JSON before any public release. <strong>Reality check (verified against the CM14 page, 2026-06-14):</strong> the page exposes parseable <strong>prose breakpoints</strong> (<em>&quot;at least 601 Stamina… 613 if Bad Mood&quot;</em>) + recommended umas/skills/deck configs, but the <strong>full per-stat table is an image</strong> (<code>cm14-stats.png</code>) → the importer grabs breakpoints + reco lists, and the precise stat block is <strong>read from the image into <code>cm_stat_targets.json</code> (OCR/manual)</strong>. Cache one fetch per CM to that hand-editable file (which <em>is</em> the manual format), respect <code>robots.txt</code>/ToS, and credit the source (e.g. <em>uma.guide — catbomb</em>) in <code>docs/provenance.md</code> (P1).</li>
+<li><strong>Scoping note:</strong> this is a deliberate, time-boxed exception to the standing <strong>no-scraping rule</strong> (Sun, 2026-06-14), scoped to <em>private use</em>; the public build swaps in <code>ManualStatTargets</code>. GameTora / ChronoGenesis remain off-limits. The seeded value is only a default; the user always edits it.</li>
+<li><strong>Future module (if time):</strong> compute targets in-app — run umalator&#39;s survival/spurt calc for the stamina/guts floor, max speed, pool the rest, factor <code>courseSetStatus</code> threshold bonuses. Tedious but reuses the engine; tracked as a separate feature.</li>
+<li><strong>Honest caveat (P3):</strong> real targets <strong>vary per account</strong> (your parents/cards cap what&#39;s reachable), so the seeded value is a <em>reference target</em>, not a promise.</li>
+</ul>
+<h4 id="5-3-timeline-amp-availability-model">§5.3 · Timeline &amp; availability model<a class="anchor" href="#5-3-timeline-amp-availability-model" aria-label="link">#</a></h4>
+<p>Now/Upcoming/Future need a <strong>timeline</strong> the data is keyed to — <strong>current date · CM date · banner/release dates · patch version.</strong> Every skill/card/uma already carries <code>server</code> + <code>dataVersion</code> (P4) and additionally needs a <strong>release/availability date</strong> (Global release; JP release for preview).</p>
+<ul>
+<li><strong>Now</strong> = released on Global ≤ today. <strong>Upcoming</strong> = announced Global release ≤ CM date (≈1–2 wk window) → needs a hand-maintained <strong>banner/release schedule</strong> (from official announcements). <strong>Future</strong> = exists on JP with no Global date yet (preview-only).</li>
+<li>This timeline is <strong>owned by Module 3 (Meta Intel)</strong> and consumed by M4; <code>cm_schedule.json</code> (§0) is one slice of it. <strong>Patch / balance version</strong> matters too — meta shifts per patch and Global&#39;s big patch landed earlier than JP — so <strong>stamp the active patch on the plan</strong> and read L/meta against it.</li>
+<li><strong>Honesty (P3/P4):</strong> upcoming/future L-values are <strong>projections against possibly-unbalanced JP data</strong> — badge them, never fold into &quot;available-now&quot; totals silently.</li>
+</ul>
+<h3 id="2-wishlist">§2 · Wishlist<a class="anchor" href="#2-wishlist" aria-label="link">#</a></h3>
+<ul>
+<li>§2 is the <strong>wishlist only</strong>, and it <strong>lives in the left &quot;Current Uma Plan&quot; sidebar</strong> (not a right-column section) — the skills you <code>+ target</code>&#39;d in §1&#39;s skill chart, shown as a single list with <strong><code>− target</code></strong> to prune. <strong>The &quot;available&quot; side lives in §1</strong> (the skill chart <em>is</em> the available list) — no duplicate panel here, which removes the earlier confusion. Wishlist persists to the active plan. <strong>Every row shows the skill&#39;s name + effect-summary badges + base SP cost</strong> beside its L. <strong>All wishlist skills + the unique are <em>always</em> rendered on the §0 track</strong> (zone + duration) — no selection needed; selecting a row just <strong>highlights</strong> its band.</li>
+<li><strong>Totals on the wishlist panel:</strong> (a) <strong>Σ individual skill L</strong> — labeled as the sum of each skill measured <em>alone</em> (NOT combined-build L; skills interact, so it isn&#39;t additive, P3; optional &quot;simulate this wishlist together&quot; for a true number); (b) <strong>Σ base SP cost (undiscounted)</strong> — raw skill-point cost before hint discounts. (The <em>discounted</em> spend + optimization stays in M2.)</li>
+<li><strong>Colour = rarity, not target:</strong> white skills render <strong>white text</strong>, golden skills <strong>gold/yellow text</strong>; &quot;targeted&quot; is shown by placement / checkmark, never by colouring a white skill yellow (which would read as a gold skill).</li>
+</ul>
+<h3 id="3-where-do-i-get-these-sourcing-umalator-does-not-have-this">§3 · Where do I get these? (sourcing — umalator does NOT have this)<a class="anchor" href="#3-where-do-i-get-these-sourcing-umalator-does-not-have-this" aria-label="link">#</a></h3>
+<ul>
+<li>Per wishlist skill, a <strong>pure data join</strong> (no sim): <strong>cards that hint it</strong> (with LB/hint-level icons, reusing existing <code>classifyHintTier</code>/coverage logic) + <strong>umas that have it innate</strong> + <strong>⚠ gap</strong> when neither covers it (→ inherit, via the manual stopgap, or add a card).</li>
+<li><strong>Lives in <code>src/core/sourcing.ts</code></strong> as pure, unit-tested functions (P6), reusing <code>coverage.ts</code>; the feature layer only renders.</li>
+<li><strong>New indexes required:</strong> card-hint → skill reverse index; uma → innate-skill index. (Forward card→skill hint data exists in the coverage core; needs inverting + an uma innate-skill source.)</li>
+</ul>
+<hr>
+<h2 id="6-honest-numbers-p3">6. Honest numbers (P3)<a class="anchor" href="#6-honest-numbers-p3" aria-label="link">#</a></h2>
+<ul>
+<li>L is a <strong>streaming estimate, not a verdict</strong> — surface &quot;refining N/M samples&quot; and a caveat tooltip (&quot;simulated, RNG-dependent&quot;).</li>
+<li><strong>Validation:</strong> reproduce a handful of VFalator L values for a known build/track within tolerance before trusting the chart (plan §12); spot-check skill deltas. Record outcomes in <code>docs/mechanics-notes.md</code>.</li>
+</ul>
+<hr>
+<h2 id="7-data-gaps-amp-new-artifacts">7. Data gaps &amp; new artifacts<a class="anchor" href="#7-data-gaps-amp-new-artifacts" aria-label="link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>umalator engine in <code>src/sim/</code></td>
+<td><strong>missing</strong></td>
+<td>vendor (§4)</td>
+</tr>
+<tr>
+<td><code>cm_schedule.json</code></td>
+<td><strong>missing</strong></td>
+<td>new hand-maintained dataset (§0)</td>
+</tr>
+<tr>
+<td>course direction at runtime</td>
+<td>flattened out</td>
+<td>expose <code>turn</code> from <code>course_data.json</code></td>
+</tr>
+<tr>
+<td>card-hint → skill reverse index</td>
+<td>derivable</td>
+<td>build from coverage core</td>
+</tr>
+<tr>
+<td>uma → innate skills</td>
+<td><strong>missing</strong> (<code>umas.json</code> has none)</td>
+<td>source from master.mdb / umalator; feeds §3 innate column + Uma chart</td>
+</tr>
+<tr>
+<td>uma base stats + aptitude letters</td>
+<td><strong>missing</strong> (<code>umas.json</code> has none)</td>
+<td>source from master.mdb / umalator; needed for <code>IRunnerState</code> + Uma-chart population</td>
+</tr>
+<tr>
+<td><code>course_data.json</code> in <code>public/data/</code></td>
+<td><strong>borrowed-only</strong></td>
+<td>emit via scripts pipeline (only in <code>scripts/borrowed/</code> now); apply P4/P5 — also <strong>powers the §1 track diagram</strong> (straights/corners/slopes)</td>
+</tr>
+<tr>
+<td>run-style gating fidelity</td>
+<td>partial (DSL only)</td>
+<td>validation item — sim emerges 0-L empirically, but confirm run-style-locked skills behave</td>
+</tr>
+<tr>
+<td><code>cm_stat_targets.json</code> (stat-profile defaults)</td>
+<td><strong>missing</strong></td>
+<td><code>UmaGuideImporter</code> (private use) → manual before public; full stat block is image-bound (OCR/manual); cited (P5); §5.2</td>
+</tr>
+<tr>
+<td>skill effect / duration / force-by-position data</td>
+<td><strong>not in <code>SkillRecord</code></strong></td>
+<td>the vendored engine has it (<code>buildSkillData</code>); surface engine data or extend the skills dataset — powers the §1 row-detail panel</td>
+</tr>
+<tr>
+<td>banner / release-date schedule + per-record release date</td>
+<td><strong>missing</strong></td>
+<td>hand-maintained (official announcements); powers Now/Upcoming/Future (§5.3); shared with M3</td>
+</tr>
+<tr>
+<td>known <strong>not-simulated</strong> skills flag</td>
+<td><strong>missing</strong></td>
+<td>derive from the engine&#39;s supported effect types, or curate an <code>unsimulated_skills</code> override; drives <code>n/a</code> vs <code>0 L</code></td>
+</tr>
+<tr>
+<td>active patch / balance timeline</td>
+<td><strong>missing</strong></td>
+<td>stamp patch on the plan; meta/L read per patch (Global patch ≠ JP timing)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-out-of-scope-this-module-version">8. Out of scope (this module/version)<a class="anchor" href="#8-out-of-scope-this-module-version" aria-label="link">#</a></h2>
+<ul>
+<li>SP-budget purchase optimization → <strong>M2</strong>.</li>
+<li>Real parent/spark resolution → <strong>M1</strong> (manual stopgap until then).</li>
+<li>Meta tier-lists / timeline curation → <strong>M3</strong> (M4 only references <code>cmRef</code>).</li>
+<li><strong>Debuffer-specific L evaluation</strong> → future improvement; needs a different flow (§5.1). Ace/Hybrid only for now.</li>
+<li><strong>In-app stat-target calculator</strong> (survival/spurt + threshold bonuses) → future module; seeded from curated guide data now (§5.2).</li>
+<li><strong>&quot;Future&quot; (all-JP) availability toggle</strong> → future improvement; <strong>Upcoming</strong> (≈CM-window Global releases) is in scope now and needs banner-date data (§5.3).</li>
+</ul>
+<hr>
+<h2 id="9-risks-open-questions">9. Risks / open questions<a class="anchor" href="#9-risks-open-questions" aria-label="link">#</a></h2>
+<ol>
+<li><strong>Debuffer eval</strong> — deferred to a future mode (§5.1); Ace/Hybrid only for now.</li>
+<li><strong>Perf</strong> — 5–30 s full-chart refresh; mitigate with progressive streaming + caching per (course, strategy, statProfile, skill).</li>
+<li><strong>Run-style data fidelity</strong> — validate empirically vs VFalator.</li>
+<li><strong>Stat-profile defaults</strong> — seed by importing from a guide site now (private use; uma.guide), manual before public (§5.2); in-app calculator later. Risks: the precise stat table is <strong>image-bound</strong> (OCR/manual read), guide-layout brittleness, per-account variance.</li>
+<li><strong>Engine vendor surface</strong> — adaptation effort (React stub, type relocation, data injection) is real; smoke test passed but full in-app worker wiring is unproven.</li>
+<li><strong>Timeline data upkeep</strong> — Now/Upcoming need hand-maintained banner/release + patch dates (§5.3); staleness mis-filters. <strong>Not-simulated detection</strong> — must reliably tell <code>n/a</code> from <code>0 L</code> so uncomputable-but-real skills stay addable.</li>
+</ol>
+<hr>
+<h2 id="10-milestones-high-level-detailed-impl-plan-via-writing-plans-later">10. Milestones (high-level; detailed impl plan via writing-plans later)<a class="anchor" href="#10-milestones-high-level-detailed-impl-plan-via-writing-plans-later" aria-label="link">#</a></h2>
+<ol>
+<li><strong>Foundation:</strong> vendor engine → <code>src/sim/</code>, worker pool, data injection, headless test green.</li>
+<li><strong>§1 charts:</strong> Skill/Uma Bassin live in-app for a fixed plan.</li>
+<li><strong>Plan model + header:</strong> Dexie persistence, named many-plans, export/import.</li>
+<li><strong>§0 schedule + §2 wishlist.</strong></li>
+<li><strong>§3 sourcing join.</strong></li>
+<li><strong>Validation pass</strong> vs VFalator; honest-numbers UI.</li>
+</ol>
+<p>Each milestone touching <code>src/core/</code> or data lands with <strong>passing unit tests</strong> (P6 — 100% core coverage), not just milestone 6.</p>
+<blockquote>
+<p>Note: per Sun&#39;s request to <strong>brainstorm each module before building</strong>, the implementation plan (writing-plans) is deferred until M3/M1/M2 are also brainstormed and folded into one engine-first plan.</p>
+</blockquote>
+
+</main>
+</body>
+</html>

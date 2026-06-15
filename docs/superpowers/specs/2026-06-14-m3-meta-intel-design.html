@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Module 3 — Meta Intel Workspace: Design Spec</title>
+<style>
+:root{--bg:#0e1014;--panel:#1a1f2b;--line:#2a3142;--text:#e7eaf0;--muted:#9aa6ba;--faint:#6b7689;
+--pink:#ff5fa2;--teal:#2dd4bf;--blue:#58a6ff;--done:#3fb950;--warn:#e3b341;--radius:12px;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;color:var(--text);font:15.5px/1.68 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+background:radial-gradient(1200px 600px at 80% -10%,rgba(255,95,162,.10),transparent 60%),
+radial-gradient(900px 500px at -10% 10%,rgba(45,212,191,.08),transparent 55%),var(--bg);}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+header.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(14,16,20,.82);border-bottom:1px solid var(--line)}
+.bar-inner{max-width:960px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar-inner .title{font-weight:650;font-size:14px;color:var(--text)}
+.bar-inner .meta{font-size:12px;color:var(--faint)}
+main{max-width:960px;margin:0 auto;padding:28px 24px 120px}
+h1,h2,h3,h4{line-height:1.25;font-weight:680;scroll-margin-top:72px}
+h1{font-size:1.85em;margin:.2em 0 .6em;background:linear-gradient(90deg,var(--pink),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:1.32em;margin:1.9em 0 .5em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.1em;margin:1.5em 0 .4em;color:#cbd5e6}
+h4{font-size:1em;margin:1.3em 0 .3em;color:var(--muted)}
+.anchor{margin-left:.4em;color:var(--faint);opacity:0;font-weight:400;text-decoration:none}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+p,li{color:var(--text)}
+strong{color:#fff}
+em{color:var(--muted)}
+code{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;font-size:.86em;background:rgba(255,255,255,.06);padding:.12em .42em;border-radius:5px;color:#d7e2f1}
+pre{background:#11151d;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto}
+pre code{background:none;padding:0;color:#d7e2f1;font-size:.85em;line-height:1.55}
+blockquote{margin:1em 0;padding:.4em 1em;border-left:3px solid var(--teal);background:rgba(45,212,191,.06);border-radius:0 8px 8px 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:rgba(255,255,255,.04);color:#cbd5e6;font-weight:620}
+tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.22em 0}
+.toc{margin:0 0 2em;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 16px}
+.toc summary{cursor:pointer;font-weight:620;color:var(--muted);padding:6px 0}
+.toc ul{list-style:none;padding-left:0;margin:.4em 0 .6em;columns:2;column-gap:28px}
+.toc li{margin:.18em 0;break-inside:avoid}
+.toc li.lvl3{padding-left:1.1em;font-size:.92em}
+.toc a{color:var(--muted)}.toc a:hover{color:var(--blue)}
+@media(max-width:680px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-inner"><span class="title">Module 3 — Meta Intel Workspace: Design Spec</span><span class="meta">2026-06-14-m3-meta-intel-design.md · rendered from markdown</span></div></header>
+<main>
+<details class="toc" open><summary>Contents</summary><ul><li class="lvl2"><a href="#1-the-timeline-v1">1. The Timeline (v1)</a></li>
+<li class="lvl3"><a href="#1-1-purpose-amp-integration">1.1 Purpose &amp; integration</a></li>
+<li class="lvl3"><a href="#1-2-data-model">1.2 Data model</a></li>
+<li class="lvl3"><a href="#1-3-browsable-view-see-mockup-m3-timeline-html">1.3 Browsable view (see mockup m3-timeline.html)</a></li>
+<li class="lvl3"><a href="#1-4-source-architecture-build-time-bake-hand-confirm">1.4 Source architecture — build-time bake + hand-confirm</a></li>
+<li class="lvl3"><a href="#1-5-re-import-honest-p2">1.5 Re-import (honest, P2)</a></li>
+<li class="lvl3"><a href="#1-6-timeline-watch-scheduled-designed-now-built-with-m3">1.6 Timeline watch (scheduled) — designed now, built with M3</a></li>
+<li class="lvl2"><a href="#2-phase-2-meta-three-up-from-plan-9-later-needs-the-engine">2. Phase 2 — Meta three-up (from plan §9; later, needs the engine)</a></li>
+<li class="lvl2"><a href="#3-phase-3-match-logger-from-plan-9-later">3. Phase 3 — Match logger (from plan §9; later)</a></li>
+<li class="lvl2"><a href="#4-honest-numbers-amp-principles">4. Honest numbers &amp; principles</a></li>
+<li class="lvl2"><a href="#5-data-gaps-new-artifacts">5. Data gaps / new artifacts</a></li>
+<li class="lvl2"><a href="#6-risks">6. Risks</a></li>
+<li class="lvl2"><a href="#7-milestones-timeline-v1-phases-2-3-follow">7. Milestones (timeline v1; phases 2–3 follow)</a></li></ul></details>
+<h1 id="module-3-meta-intel-workspace-design-spec">Module 3 — Meta Intel Workspace: Design Spec<a class="anchor" href="#module-3-meta-intel-workspace-design-spec" aria-label="link">#</a></h1>
+<p><strong>Status:</strong> APPROVED — M3 design locked (2026-06-14, timeline-first) · <strong>Owner:</strong> Sun · <em>(implementation plan via writing-plans deferred until M1/M2 brainstormed)</em>
+<strong>Origin:</strong> Brainstorm (superpowers:brainstorming), building on plan §9. <strong>Timeline-first</strong> slice (it&#39;s the dependency M4 already needs).
+<strong>Scope:</strong> M3 is the <strong>CM intelligence hub</strong> — three faces, built in this order:</p>
+<ol>
+<li><strong>Timeline</strong> (CM schedule · banners · patches) — <strong>v1, the focus of this spec</strong>; unblocks M4&#39;s §0 + Now/Upcoming/Future + patch-stamping.</li>
+<li><strong>Meta three-up</strong> (JP/TW prior vs Global observed vs sim) — <strong>phase 2</strong> (its sim column needs the engine-first vendor work).</li>
+<li><strong>Match logger + sim feedback</strong> — <strong>phase 3</strong> (compounds over time).</li>
+</ol>
+<hr>
+<h2 id="1-the-timeline-v1">1. The Timeline (v1)<a class="anchor" href="#1-the-timeline-v1" aria-label="link">#</a></h2>
+<h3 id="1-1-purpose-amp-integration">1.1 Purpose &amp; integration<a class="anchor" href="#1-1-purpose-amp-integration" aria-label="link">#</a></h3>
+<p>A <strong>browsable timeline</strong> of upcoming CMs, banners, and patches that doubles as the <strong>confirmation workspace</strong>. It owns the data M4 consumes:</p>
+<ul>
+<li><code>cm_schedule.json</code> — CM → <code>courseId</code> + dates + conditions (M4 §0).</li>
+<li>per-character / per-support <strong>Global release dates</strong> (M4 Now / + Upcoming / + Future availability).</li>
+<li><strong>patch timeline</strong> — patch version + date (M4 stamps the active patch on each plan; meta read per patch).</li>
+</ul>
+<h3 id="1-2-data-model">1.2 Data model<a class="anchor" href="#1-2-data-model" aria-label="link">#</a></h3>
+<blockquote>
+<p><strong>Shared types</strong> (<code>CmId</code>, <code>CmRef</code>, the <code>CmScheduleRow</code> projection M4 consumes, the <code>CmPlan.patch</code> field) are canonical in <a href="2026-06-15-shared-data-model.html"><code>2026-06-15-shared-data-model.md</code></a> §3/§6 — emit the projection there, with <code>cmNumber → cmId</code> (&#39;CM14&#39;) and non-optional <code>courseId</code>.
+<code>TimelineEntry</code> (generated rows ⊕ overrides, merged last):</p>
+</blockquote>
+<pre><code class="language-ts">interface TimelineEntry {
+  id: string;
+  type: &#39;cm&#39; | &#39;banner&#39; | &#39;patch&#39;;
+  title: string;
+  dates: { start?: string; finals?: string; end?: string };   // ISO; CM uses start(signup)+finals
+  cm?:     { cmNumber: number; courseId?: string; trackSummary?: string };
+  banner?: { kind: &#39;char&#39; | &#39;support&#39;; umaId?: string; cardId?: string };
+  patch?:  { version?: string; summary?: string };
+  tier:   &#39;official&#39; | &#39;datamined&#39; | &#39;prediction&#39;;    // source / confidence class
+  status: &#39;confirmed&#39; | &#39;unconfirmed&#39;;                 // has it been verified against official /news/ yet?
+  source: { kind: &#39;official_news&#39;|&#39;game8&#39;|&#39;soulec&#39;|&#39;phoenix&#39;|&#39;umaguide&#39;|&#39;gametora&#39;|&#39;umalator&#39;|&#39;manual&#39;; url: string };
+  server: &#39;global&#39; | &#39;jp&#39;;                              // P4 — datamined/prediction ahead of Global = &#39;jp&#39; preview
+  dataVersion: string;
+}
+</code></pre>
+<p><strong>Displayed badge</strong> = <code>✓ confirmed</code> when <code>status === &#39;confirmed&#39;</code> (a matching official <code>/news/</code> link is stamped), otherwise the <code>tier</code> (<code>◆ datamined</code> / <code>~ predicted</code>). Confirming a predicted/datamined entry sets <code>status = &#39;confirmed&#39;</code> + stamps the permalink; <code>tier</code> is kept for provenance. <code>tier: &#39;official&#39;</code> always implies <code>status: &#39;confirmed&#39;</code>.</p>
+<p>Relation to plan §9: the <strong>timeline is a sibling dataset</strong> under M3; the §9 <code>MetaIntel</code> object (prior/observed/sim, embedded in <code>CmPlan</code>) is <strong>phase 2</strong>. Both live in <code>features/meta-intel/</code>.</p>
+<h3 id="1-3-browsable-view-see-mockup-m3-timeline-html">1.3 Browsable view (see mockup <code>m3-timeline.html</code>)<a class="anchor" href="#1-3-browsable-view-see-mockup-m3-timeline-html" aria-label="link">#</a></h3>
+<ul>
+<li><strong>Swimlanes</strong> — CM · Banners · Patches — across a time axis, with a <strong>&quot;now&quot;</strong> marker. The current CM carries a <strong><code>→ M4 §0</code></strong> link (the CM M4 plans against).</li>
+<li><strong>Tier badge on every entry</strong> — <code>✓ confirmed</code> (official, has <code>/news/</code> link) · <code>◆ datamined</code> (dashed) · <code>~ predicted</code> (dotted, faded). <strong>Nothing renders without its tier</strong> (P3/P4).</li>
+<li><strong>Controls</strong> — range (quarter/month/year), lane filters, &quot;confirmed only,&quot; <strong>refresh</strong> (dev-only; §1.5), jump-to-now.</li>
+<li><strong>Detail / confirm panel</strong> (selected entry) — track, dates, an editable <strong><code>/news/&lt;id&gt;/</code> source field</strong>, a <strong>tier selector</strong>, and <strong>&quot;✓ Confirm &amp; stamp /news&quot;</strong> (the mandatory-official gate) — edits saved to <code>timeline_overrides.json</code> (P5). Shows what it <strong>feeds</strong> (M4 §0).</li>
+</ul>
+<h3 id="1-4-source-architecture-build-time-bake-hand-confirm">1.4 Source architecture — build-time bake + hand-confirm<a class="anchor" href="#1-4-source-architecture-build-time-bake-hand-confirm" aria-label="link">#</a></h3>
+<p>Full classified resource list lives in <strong>plan §3 → &quot;Timeline / schedule / banner / patch sources&quot;</strong> (added 2026-06-14). Summary of how each tier is used:</p>
+<ul>
+<li><strong>AUTHORITY (mandatory confirmation):</strong> <code>umamusume.com/news/</code> — every entry is <code>confirmed</code> only when matched to a stable <code>/news/&lt;id&gt;/</code> permalink (e.g. <code>/news/790/</code> Gemini, balance <code>/news/100040/</code>). Client-side-rendered → confirmation is <strong>manual/curated in v1</strong> (optionally build-time headless later); a static runtime can&#39;t auto-confirm.</li>
+<li><strong>AUTO-IMPORT forecast (build-time):</strong> Game8 upcoming table + SoulEC/Phoenix sheets (<code>pub?output=csv</code>) + uma.guide CM-schedule (track geometry). Every imported entry → <code>tier = prediction|datamined</code>, <code>status = unconfirmed</code>.</li>
+<li><strong>CALIBRATION:</strong> GameTora Gacha History (<code>server=en</code>, <strong>manual</strong> — ToS) → derive the <strong>~1.3–1.6× JP→Global pace multiplier</strong> for the date predictor (uma.guide gives a fixed-order track list with no dates).</li>
+<li><strong>DATAMINED:</strong> GameTora &quot;upcoming&quot; overlay via the already-vendored umalator <code>sync:data</code> (the ToS-clean route) → <code>server:&#39;jp&#39;</code> preview; live Global <code>master.mdb</code> = ground truth for <em>released</em> content (course geometry, skill params for patch-diffing) but reveals nothing ahead.</li>
+<li><strong>PATCHES:</strong> confirmed from official balance bulletins (<code>/news/100040/</code> pattern); &quot;what Global inherits&quot; from anni changelogs (snep.pw) + umalator data-version diffs. <strong>No predictive feed exists</strong> → heavily human-curated, predicted patches low-confidence.</li>
+</ul>
+<p><strong>Pipeline:</strong> <code>pnpm data:build</code> → <code>scripts/timeline/*.ts</code> fetch + normalize the forecast feeds → <strong><code>timeline.json</code></strong> (generated) ⊕ <strong><code>timeline_overrides.json</code></strong> (P5, hand-maintained: status flips, <code>/news/</code> permalinks, corrections) merged last → shipped dataset.</p>
+<p><strong>No-scraping posture:</strong> GameTora is <strong>cite / deep-link only</strong> (ToS, plan §7) — its data comes through the umalator overlay, never a scraper. The importable community feeds (Game8, Google Sheets, uma.guide) run under the owner&#39;s <strong>private-use scraping exception</strong> (<code>scraping-exception-private-use</code>); curate/swap before any public release.</p>
+<h3 id="1-5-re-import-honest-p2">1.5 Re-import (honest, P2)<a class="anchor" href="#1-5-re-import-honest-p2" aria-label="link">#</a></h3>
+<p>The app is static/local-first, so it <strong>cannot scrape at runtime</strong>. &quot;Refresh&quot;:</p>
+<ul>
+<li><strong>Deployed/static:</strong> read-only — shows a <strong>&quot;last imported: <date>&quot;</strong> stamp; data is whatever was baked.</li>
+<li><strong>Local dev:</strong> optional Vite <strong>dev-middleware</strong> runs the importer on click (never ships), or just <code>pnpm data:build</code>.</li>
+<li>Run it via: you (<code>pnpm data:build</code> / a focused <code>pnpm timeline:import</code>), <code>!pnpm data:build</code> in Claude Code, or asking Claude Code to run it. <strong>Deterministic code — not an AI workflow.</strong></li>
+</ul>
+<h3 id="1-6-timeline-watch-scheduled-designed-now-built-with-m3">1.6 Timeline watch (scheduled) — designed now, built with M3<a class="anchor" href="#1-6-timeline-watch-scheduled-designed-now-built-with-m3" aria-label="link">#</a></h3>
+<p>Two layers:</p>
+<ul>
+<li><strong>Deterministic diff (free):</strong> a cron runs <code>data:build</code>, diffs <code>timeline.json</code> vs committed, alerts on change.</li>
+<li><strong>Light AI confirm-check:</strong> one small agent checks official <code>/news/</code> for new confirmations + forecast deltas <strong>since the last marker</strong>, returns only what&#39;s new.
+Cron → <strong>PushNotification</strong> with the deltas (can open a diff/commit). <strong>NOT</strong> the heavy research sweep (~208k tokens) — a lightweight delta-check, ~weekly (banner cadence ≈ 1/week). Honest caveat: fires while Claude Code&#39;s scheduler is active.</li>
+</ul>
+<hr>
+<h2 id="2-phase-2-meta-three-up-from-plan-9-later-needs-the-engine">2. Phase 2 — Meta three-up (from plan §9; later, needs the engine)<a class="anchor" href="#2-phase-2-meta-three-up-from-plan-9-later-needs-the-engine" aria-label="link">#</a></h2>
+<p>JP/TW <strong>prior</strong> vs Global <strong>observed</strong> vs sim <strong>calculation</strong>, three-up with <strong>disagreement badges</strong>. The <strong>sim re-param loop</strong>: feed the observed Global style distribution into the vendored engine&#39;s pacer assumption → re-rank skills → flag disagreements (usually positional effects the sim can&#39;t see → test in-room). The §9 <code>MetaIntel</code> data model lives here; Moo&#39;s CM dashboard = manual import for &quot;observed.&quot; Requires the engine-first vendor work to be live.</p>
+<h2 id="3-phase-3-match-logger-from-plan-9-later">3. Phase 3 — Match logger (from plan §9; later)<a class="anchor" href="#3-phase-3-match-logger-from-plan-9-later" aria-label="link">#</a></h2>
+<p>10-second per-match log (placement, opponent styles counted from lobby, notable procs) → accrues Global &quot;observed&quot; data → feeds phase-2 observed column + the sim pacer assumption. Uses the existing <code>matchLogs</code> Dexie table (plan §11).</p>
+<hr>
+<h2 id="4-honest-numbers-amp-principles">4. Honest numbers &amp; principles<a class="anchor" href="#4-honest-numbers-amp-principles" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Tier on everything</strong> — no date shown without its tier + predicted/unconfirmed badge (P3 honesty + P4 server-versioning; JP-ahead never silently mixed into Global).</li>
+<li><strong>Official is the only confirmation authority</strong>; predicted/datamined are explicitly second-class until promoted.</li>
+<li><strong>No-scraping</strong> — GameTora cite-only; community feeds under the private-use exception; curate before public.</li>
+<li><strong>Pure-core (P6)</strong> — date-prediction (pace multiplier) + merge logic live in <code>src/core/</code> (e.g. <code>timeline.ts</code>) as tested pure functions; importers in <code>scripts/</code>; UI in <code>features/meta-intel/</code>.</li>
+</ul>
+<h2 id="5-data-gaps-new-artifacts">5. Data gaps / new artifacts<a class="anchor" href="#5-data-gaps-new-artifacts" aria-label="link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>timeline.json</code></td>
+<td><strong>new</strong></td>
+<td>generated by <code>data:build</code> from forecast feeds</td>
+</tr>
+<tr>
+<td><code>timeline_overrides.json</code></td>
+<td><strong>new</strong></td>
+<td>P5 hand-confirm (status flips, <code>/news/</code> permalinks, corrections)</td>
+</tr>
+<tr>
+<td><code>scripts/timeline/*.ts</code> importers</td>
+<td><strong>new</strong></td>
+<td>Game8 table, Sheets-CSV (SoulEC/Phoenix), uma.guide; + pace-multiplier calc</td>
+</tr>
+<tr>
+<td>GameTora &quot;upcoming&quot; overlay</td>
+<td>via vendored umalator <code>sync:data</code></td>
+<td>datamined preview (<code>server:&#39;jp&#39;</code>)</td>
+</tr>
+<tr>
+<td><code>features/meta-intel/</code> UI</td>
+<td><strong>new</strong></td>
+<td>timeline view (v1); three-up + logger later</td>
+</tr>
+<tr>
+<td>official-confirm mechanism</td>
+<td>manual v1</td>
+<td>headless build-time confirm = future enhancement</td>
+</tr>
+</tbody></table>
+<h2 id="6-risks">6. Risks<a class="anchor" href="#6-risks" aria-label="link">#</a></h2>
+<ol>
+<li><strong>Feed brittleness</strong> — HTML/sheet layouts change; Game8 monthly pages mint a new archive ID each month (discover off the wiki index). Repair via an AI workflow when a parser breaks; importers stay deterministic.</li>
+<li><strong>Official client-rendering</strong> — can&#39;t auto-confirm in a static app; v1 confirmation is manual/curated (headless build-time later).</li>
+<li><strong>Patches have no predictor</strong> — low-confidence, human-curated.</li>
+<li><strong>Watch execution model</strong> — runs while Claude Code&#39;s scheduler is active; not guaranteed if the machine is off.</li>
+<li><strong>GameTora ToS</strong> — never scrape; cite / deep-link / umalator-overlay only.</li>
+</ol>
+<h2 id="7-milestones-timeline-v1-phases-2-3-follow">7. Milestones (timeline v1; phases 2–3 follow)<a class="anchor" href="#7-milestones-timeline-v1-phases-2-3-follow" aria-label="link">#</a></h2>
+<ol>
+<li><strong>Data model + types</strong> (<code>TimelineEntry</code>, <code>src/core/timeline.ts</code>) + unit tests (P6).</li>
+<li><strong>Forecast importer</strong> (<code>scripts/timeline/*.ts</code>) → <code>timeline.json</code>; pace-multiplier calibration.</li>
+<li><strong>Overrides + merge</strong> (<code>timeline_overrides.json</code>, P5).</li>
+<li><strong>Browsable timeline view</strong> (<code>features/meta-intel/</code>).</li>
+<li><strong>Wire outputs to M4</strong> — <code>cm_schedule.json</code>, release dates, patch stamp.</li>
+<li><strong>Timeline watch</strong> — cron + deterministic diff + light AI confirm-check + push.</li>
+</ol>
+<blockquote>
+<p>Phase 2 (three-up, needs engine) and Phase 3 (match logger) follow. Per Sun&#39;s &quot;brainstorm each module first,&quot; the implementation plan (writing-plans) is deferred until M1/M2 are also brainstormed, then folded into one engine-first plan.</p>
+</blockquote>
+
+</main>
+</body>
+</html>

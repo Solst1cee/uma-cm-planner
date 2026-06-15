@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Shared Data Model & Cross-Cutting Contracts</title>
+<style>
+:root{--bg:#0e1014;--panel:#1a1f2b;--line:#2a3142;--text:#e7eaf0;--muted:#9aa6ba;--faint:#6b7689;
+--pink:#ff5fa2;--teal:#2dd4bf;--blue:#58a6ff;--done:#3fb950;--warn:#e3b341;--radius:12px;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;color:var(--text);font:15.5px/1.68 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+background:radial-gradient(1200px 600px at 80% -10%,rgba(255,95,162,.10),transparent 60%),
+radial-gradient(900px 500px at -10% 10%,rgba(45,212,191,.08),transparent 55%),var(--bg);}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+header.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(14,16,20,.82);border-bottom:1px solid var(--line)}
+.bar-inner{max-width:960px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar-inner .title{font-weight:650;font-size:14px;color:var(--text)}
+.bar-inner .meta{font-size:12px;color:var(--faint)}
+main{max-width:960px;margin:0 auto;padding:28px 24px 120px}
+h1,h2,h3,h4{line-height:1.25;font-weight:680;scroll-margin-top:72px}
+h1{font-size:1.85em;margin:.2em 0 .6em;background:linear-gradient(90deg,var(--pink),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:1.32em;margin:1.9em 0 .5em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.1em;margin:1.5em 0 .4em;color:#cbd5e6}
+h4{font-size:1em;margin:1.3em 0 .3em;color:var(--muted)}
+.anchor{margin-left:.4em;color:var(--faint);opacity:0;font-weight:400;text-decoration:none}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+p,li{color:var(--text)}
+strong{color:#fff}
+em{color:var(--muted)}
+code{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;font-size:.86em;background:rgba(255,255,255,.06);padding:.12em .42em;border-radius:5px;color:#d7e2f1}
+pre{background:#11151d;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto}
+pre code{background:none;padding:0;color:#d7e2f1;font-size:.85em;line-height:1.55}
+blockquote{margin:1em 0;padding:.4em 1em;border-left:3px solid var(--teal);background:rgba(45,212,191,.06);border-radius:0 8px 8px 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:rgba(255,255,255,.04);color:#cbd5e6;font-weight:620}
+tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.22em 0}
+.toc{margin:0 0 2em;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 16px}
+.toc summary{cursor:pointer;font-weight:620;color:var(--muted);padding:6px 0}
+.toc ul{list-style:none;padding-left:0;margin:.4em 0 .6em;columns:2;column-gap:28px}
+.toc li{margin:.18em 0;break-inside:avoid}
+.toc li.lvl3{padding-left:1.1em;font-size:.92em}
+.toc a{color:var(--muted)}.toc a:hover{color:var(--blue)}
+@media(max-width:680px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-inner"><span class="title">Shared Data Model & Cross-Cutting Contracts</span><span class="meta">2026-06-15-shared-data-model.md · rendered from markdown</span></div></header>
+<main>
+<details class="toc" open><summary>Contents</summary><ul><li class="lvl2"><a href="#1-primitive-tokens-canonical">1. Primitive tokens (canonical)</a></li>
+<li class="lvl2"><a href="#2-sparks">2. Sparks</a></li>
+<li class="lvl2"><a href="#3-cmplan-the-cross-module-ssot-replaces-the-shipped-cmplan">3. CmPlan — the cross-module SSOT (replaces the shipped CmPlan)</a></li>
+<li class="lvl2"><a href="#4-wishlistitem-m4-owns-m1-sets-flags-nobody-re-declares">4. WishlistItem (M4 owns; M1 sets flags; nobody re-declares)</a></li>
+<li class="lvl2"><a href="#5-rosterentry-amp-parent-umaextractor-roster-shared-by-m1-m2">5. RosterEntry &amp; Parent (UmaExtractor roster — shared by M1 + M2)</a></li>
+<li class="lvl2"><a href="#6-cm-schedule-json-projection-m3-produces-m4-consumes">6. cm_schedule.json projection (M3 produces, M4 consumes)</a></li>
+<li class="lvl2"><a href="#7-cross-cutting-build-decisions-resolve-the-medium-findings">7. Cross-cutting build decisions (resolve the Medium findings)</a></li>
+<li class="lvl2"><a href="#8-governance-anchors-also-added-to-claude-md-provenance">8. Governance anchors (also added to CLAUDE.md / provenance)</a></li>
+<li class="lvl2"><a href="#9-low-severity-validation-items-defer-to-implementation">9. Low-severity validation items (defer to implementation)</a></li></ul></details>
+<h1 id="shared-data-model-amp-cross-cutting-contracts">Shared Data Model &amp; Cross-Cutting Contracts<a class="anchor" href="#shared-data-model-amp-cross-cutting-contracts" aria-label="link">#</a></h1>
+<p><strong>Status:</strong> Contract for writing-plans · <strong>Date:</strong> 2026-06-15 · <strong>Owner:</strong> Sun
+<strong>Why:</strong> the four module specs (M4/M3/M1/M2) own <em>behavior</em>; this owns the <em>shared shapes</em>. It resolves the cross-spec consistency review (2026-06-15) — the root finding that no single canonical <code>CmPlan</code>/types declaration existed, so field shapes had drifted. <strong>Transcribe this into <code>src/core/types.ts</code> as step 1 of implementation</strong>, so <code>tsc</code> enforces it across all four modules. Module specs cite this file for any shared type.</p>
+<hr>
+<h2 id="1-primitive-tokens-canonical">1. Primitive tokens (canonical)<a class="anchor" href="#1-primitive-tokens-canonical" aria-label="link">#</a></h2>
+<pre><code class="language-ts">type Stat = &#39;spd&#39; | &#39;sta&#39; | &#39;pow&#39; | &#39;gut&#39; | &#39;wit&#39;;        // engine speed/stamina/power/guts/wisdom — map ONLY at the src/sim adapter
+type Grade = &#39;G&#39;|&#39;F&#39;|&#39;E&#39;|&#39;D&#39;|&#39;C&#39;|&#39;B&#39;|&#39;A&#39;|&#39;S&#39;;             // &#39;S&#39; included (career-start targets A; inheritance reaches S)
+type Role = &#39;ace&#39; | &#39;debuffer&#39; | &#39;hybrid&#39;;                // UI labels: Ace / Debuffer / Hybrid
+type Strategy = &#39;front&#39; | &#39;pace&#39; | &#39;late&#39; | &#39;end&#39;;        // UI labels: Frontrunner / Pace Chaser / Late Surger / End Closer
+type Mood = -2 | -1 | 0 | 1 | 2;                          // Awful…Great
+type AptKey =
+  | { kind: &#39;distance&#39;; key: &#39;short&#39; | &#39;mile&#39; | &#39;medium&#39; | &#39;long&#39; }
+  | { kind: &#39;surface&#39;;  key: &#39;turf&#39; | &#39;dirt&#39; }
+  | { kind: &#39;strategy&#39;; key: Strategy };
+type CmId = `CM${number}`;                                // rule: cmNumber 14 -&gt; &#39;CM14&#39;
+</code></pre>
+<p>All cross-module tokens use these. <code>Strategy</code>/<code>Role</code> are stored as tokens; the UI maps to display labels. The L-cache key + <code>AptKey</code> strategy sub-key reuse the same <code>Strategy</code> token (no display-string drift).</p>
+<h2 id="2-sparks">2. Sparks<a class="anchor" href="#2-sparks" aria-label="link">#</a></h2>
+<pre><code class="language-ts">interface ParentSparks {
+  pink:  Array&lt;{ aptKey: AptKey; stars: 1|2|3 }&gt;;
+  blue:  Array&lt;{ stat: Stat; stars: 1|2|3 }&gt;;
+  green: Array&lt;{ uniqueSkillId: string; stars: 1|2|3 }&gt;;
+  white: Array&lt;{ skillId: string; stars: 1|2|3 }&gt;;
+}
+</code></pre>
+<h2 id="3-cmplan-the-cross-module-ssot-replaces-the-shipped-cmplan">3. CmPlan — the cross-module SSOT (replaces the shipped <code>CmPlan</code>)<a class="anchor" href="#3-cmplan-the-cross-module-ssot-replaces-the-shipped-cmplan" aria-label="link">#</a></h2>
+<pre><code class="language-ts">interface CmPlan {
+  id: string;
+  name: string;            // auto: &quot;Plan #/CM#/Uma/Role/Strategy/remark&quot;; editable (stops auto-fill once hand-edited)
+  planNumber: number;
+  remark?: string;
+  cmRef: CmRef;
+  scenarioId?: number;     // TRAINING scenario (e.g. Trackblazer) — distinct from the CM course (cmRef)
+  umaId: string;
+  uniqueSkillId: string;
+  uniqueIsInherited?: boolean;        // native-runner vs inherited-version
+  role: Role;
+  strategy: Strategy;
+  statProfile: { stats: Record&lt;Stat, number&gt;; mood: Mood };   // aptitudes are NOT here — see sparkGoals.pink
+  sparkGoals: {
+    pink: Array&lt;{ aptKey: AptKey; target: Grade }&gt;;           // CANONICAL target aptitudes; ALSO the L-sim&#39;s assumed aptitudes
+    blue: Partial&lt;Record&lt;Stat, number&gt;&gt;;                      // target total spark stars (e.g. { pow: 9, sta: 9 })
+  };
+  wishlist: WishlistItem[];
+  deck: OwnedCard[];
+  parents: { a?: string; b?: string };                        // RosterEntry/Parent ids, resolved by M1
+  inheritanceStopgap?: { inheritedSkills: string[]; sparks: ParentSparks };  // manual v1; IGNORED once `parents` set
+  patch: { version: string; source?: string };               // stamped by M4 from M3 timeline; ≠ dataVersion
+  server: &#39;global&#39; | &#39;jp&#39;;
+  dataVersion: string;
+}
+type CmRef = { cmId: CmId; cmNumber: number; courseId: string };
+</code></pre>
+<p><strong>Single-home rules</strong> (resolve the duplicate-storage findings):</p>
+<ul>
+<li><strong>Target aptitude</strong> lives once in <code>sparkGoals.pink</code>. <code>statProfile</code> holds only stats + mood; the L-sim reads aptitude grades from <code>sparkGoals.pink</code>. (M4 seeds it on plan creation; thereafter <code>sparkGoals.pink</code> is authoritative for both sim and inheritance.)</li>
+<li><strong>What-I&#39;ll-inherit</strong> has one rule: <code>inheritanceStopgap</code> is the manual-v1 value; once M1 writes <code>parents</code>, M4 §3 sourcing and the §0 overlay read <code>parents</code> and ignore the stopgap.</li>
+<li><strong>Patch</strong> is its own field (M3 supplies the timeline, M4 stamps the active version), distinct from <code>dataVersion</code> (local dataset build) and <code>server</code>.</li>
+<li><strong><code>scenarioId</code></strong> stays (M4 scenario-skill filter, M2 build context need it); <strong>SP budget</strong> lives in M2&#39;s runtime input, not <code>CmPlan</code>.</li>
+</ul>
+<h2 id="4-wishlistitem-m4-owns-m1-sets-flags-nobody-re-declares">4. WishlistItem (M4 owns; M1 sets flags; nobody re-declares)<a class="anchor" href="#4-wishlistitem-m4-owns-m1-sets-flags-nobody-re-declares" aria-label="link">#</a></h2>
+<pre><code class="language-ts">interface WishlistItem {
+  skillId: string;
+  source: &#39;targeted&#39;;
+  projectedL?: number;
+  projectedLStale?: boolean;       // dataVersion mismatch -&gt; recompute
+  needsInheriting?: boolean;       // set by M1
+  doubleUp?: boolean;              // set by M1 (target a white Parent A already has)
+  manualAdd?: boolean;
+}
+</code></pre>
+<h2 id="5-rosterentry-amp-parent-umaextractor-roster-shared-by-m1-m2">5. RosterEntry &amp; Parent (UmaExtractor roster — shared by M1 + M2)<a class="anchor" href="#5-rosterentry-amp-parent-umaextractor-roster-shared-by-m1-m2" aria-label="link">#</a></h2>
+<pre><code class="language-ts">interface RosterEntry {                       // UmaExtractor import target; OWN Dexie store; owned by M1
+  id: string;
+  umaId: string;
+  stats: Record&lt;Stat, number&gt;;
+  aptitudes: Array&lt;{ aptKey: AptKey; grade: Grade }&gt;;
+  learnedSkills: string[];                     // skillIds — M2 uses as a compareBuilds opponent build
+  sparks: ParentSparks;
+  tags: string[];                              // user labels e.g. &quot;CM12&quot; — LIVES HERE (M2 search/compare), not on Parent
+  source: &#39;mine&#39; | &#39;friend_rental&#39; | &#39;dummy&#39;;
+  importSource: &#39;umaextractor&#39; | &#39;paste&#39; | &#39;roster&#39; | &#39;dummy&#39;;
+  trainerId?: string;
+}
+interface Parent {                             // M1 inheritance tree-node, DERIVED from a RosterEntry (or pasted/dummy)
+  umaId: string;
+  source: RosterEntry[&#39;source&#39;];
+  sparks: ParentSparks;
+  grandparents: [Parent?, Parent?];            // 1-level nesting
+  affinity?: { computed: number; override?: number };
+  trainerId?: string;
+}
+</code></pre>
+<ul>
+<li>M1 <strong>derives</strong> <code>Parent</code> from a <code>RosterEntry</code>; M2 uses <code>RosterEntry</code> <strong>directly</strong> as a <code>compareBuilds</code> opponent; <strong>tags edited on <code>RosterEntry</code></strong> only.</li>
+<li>Editable only when <code>source === &#39;dummy&#39;</code>.</li>
+<li><strong>Generation rule:</strong> a chosen veteran contributes itself + its 2 parents (→ the new tree&#39;s grandparents); its <em>own</em> grandparents are out of the new tree.</li>
+<li><strong>UmaExtractor caveat (both M1 + M2):</strong> UmaExtractor reads the live game record — opt-in, ToS/ban-risk, <strong>never required</strong>; <strong>manual entry is a first-class alternative</strong>.</li>
+</ul>
+<h2 id="6-cm-schedule-json-projection-m3-produces-m4-consumes">6. cm_schedule.json projection (M3 produces, M4 consumes)<a class="anchor" href="#6-cm-schedule-json-projection-m3-produces-m4-consumes" aria-label="link">#</a></h2>
+<p>Derived from <code>TimelineEntry where type === &#39;cm&#39;</code> → emitted rows:</p>
+<pre><code class="language-ts">type CmScheduleRow = { date: string; cmId: CmId; name: string; courseId: string };  // courseId NON-optional on emitted rows
+</code></pre>
+<p>M4 §0 joins <code>plan.cmRef.cmId</code> → this row → <code>course_data.json</code>. (M3&#39;s internal <code>TimelineEntry.cm</code> = <code>{ cmNumber, courseId?, trackSummary? }</code>; the projection normalizes it to the above with <code>cmNumber→cmId</code> and a resolved <code>courseId</code>.)</p>
+<h2 id="7-cross-cutting-build-decisions-resolve-the-medium-findings">7. Cross-cutting build decisions (resolve the Medium findings)<a class="anchor" href="#7-cross-cutting-build-decisions-resolve-the-medium-findings" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Shared L-cache</strong> (in <code>src/sim</code>): key = <code>(courseId, strategy, bucketedStatHash, aptitudeHash, skillId, dataVersion)</code>, identical bucketing in M4 + M2. <strong>Honest:</strong> M2&#39;s post-run <em>actual</em> build rarely equals M4&#39;s pre-run <em>ideal</em>, so reuse is opportunistic, not assumed.</li>
+<li><strong>One cost module</strong> <code>src/core/cost.ts</code>: the hint-discount schedule + <code>effectiveSpCost</code> live here once, imported by M4 coverage <strong>and</strong> M2 <code>spOptimizer</code> (no duplication; P6).</li>
+<li><strong><code>evalSkillDelta</code> lives in <code>src/sim</code></strong> (not <code>features/sp-optimizer</code>) so M3 phase-2 imports it from the engine layer.</li>
+<li><strong>Combined-L / basket eval:</strong> <strong>vendor <code>skill-planner-compare.ts</code> (<code>runPlannerComparison</code>, multi-candidate)</strong> — exactly what M4&#39;s &quot;simulate the wishlist together&quot; and M2&#39;s basket-on/off + A/B need (the one-skill <code>runSampling</code> loop doesn&#39;t give it cleanly). → update provenance vendor list (&quot;5 files&quot; → 6).</li>
+<li><strong>Affinity = clean-room</strong> from the <code>master.mdb</code> <code>succession_relation</code> tables (as <code>mechanics-notes</code> §3 already does). <strong>Do NOT port uma.moe <code>affinity.py</code>/<code>affinity.rs</code> source — it&#39;s AGPL-3.0, incompatible with this GPL-3.0 repo.</strong> uma.moe is a <em>validation cross-check</em> only.</li>
+<li><strong>Build order</strong> (engine-first, acyclic): M3 timeline-v1 (<code>cm_schedule</code> + dates + patch) → <code>src/sim</code> vendor (incl. <code>sync:data</code>, <code>skill-planner-compare</code>) → M4 charts → roster import → M1 (affinity core is engine-free; may parallel) → M2 (defines <code>evalSkillDelta</code>) → M3 phase-2 (consumes it). M4 may stub <code>cm_schedule.json</code> with the CM14 entry for parallel dev; real availability/patch is M3-blocked.</li>
+</ul>
+<h2 id="8-governance-anchors-also-added-to-claude-md-provenance">8. Governance anchors (also added to CLAUDE.md / provenance)<a class="anchor" href="#8-governance-anchors-also-added-to-claude-md-provenance" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Private-use scraping exception</strong> (owner-authorized, time-boxed) — see CLAUDE.md: OK = uma.guide, Game8 upcoming, SoulEC/Phoenix Sheets CSV; public build → ManualStatTargets/curated JSON; <strong>GameTora + ChronoGenesis off-limits / cite-only</strong>.</li>
+<li><strong>UmaExtractor</strong> = live game-memory read → ToS/ban-risk, opt-in, never required; manual entry first-class (§5).</li>
+</ul>
+<h2 id="9-low-severity-validation-items-defer-to-implementation">9. Low-severity validation items (defer to implementation)<a class="anchor" href="#9-low-severity-validation-items-defer-to-implementation" aria-label="link">#</a></h2>
+<ul>
+<li>Verify the engine actually distinguishes Late vs End (both map to start-order <code>[5,9]</code>); if their L profiles are identical, label them shared rather than imply a false distinction.</li>
+<li>Render rental/paste-parent affinity as <code>≈</code>/estimate (unknown G1-win bonus); precise integers only for fully-known own lineages (P3).</li>
+<li>M2 reads <code>CmPlan.wishlist</code> (not &quot;targets&quot;); &quot;skills hinted this run&quot; = M2 manual input or seeded from M4 §3 sourcing, not an undefined plan field.</li>
+</ul>
+
+</main>
+</body>
+</html>

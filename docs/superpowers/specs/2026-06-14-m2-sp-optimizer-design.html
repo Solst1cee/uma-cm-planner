@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Module 2 — SP Purchase Optimizer: Design Spec</title>
+<style>
+:root{--bg:#0e1014;--panel:#1a1f2b;--line:#2a3142;--text:#e7eaf0;--muted:#9aa6ba;--faint:#6b7689;
+--pink:#ff5fa2;--teal:#2dd4bf;--blue:#58a6ff;--done:#3fb950;--warn:#e3b341;--radius:12px;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;color:var(--text);font:15.5px/1.68 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased;
+background:radial-gradient(1200px 600px at 80% -10%,rgba(255,95,162,.10),transparent 60%),
+radial-gradient(900px 500px at -10% 10%,rgba(45,212,191,.08),transparent 55%),var(--bg);}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+header.bar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(14,16,20,.82);border-bottom:1px solid var(--line)}
+.bar-inner{max-width:960px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar-inner .title{font-weight:650;font-size:14px;color:var(--text)}
+.bar-inner .meta{font-size:12px;color:var(--faint)}
+main{max-width:960px;margin:0 auto;padding:28px 24px 120px}
+h1,h2,h3,h4{line-height:1.25;font-weight:680;scroll-margin-top:72px}
+h1{font-size:1.85em;margin:.2em 0 .6em;background:linear-gradient(90deg,var(--pink),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:1.32em;margin:1.9em 0 .5em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.1em;margin:1.5em 0 .4em;color:#cbd5e6}
+h4{font-size:1em;margin:1.3em 0 .3em;color:var(--muted)}
+.anchor{margin-left:.4em;color:var(--faint);opacity:0;font-weight:400;text-decoration:none}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor{opacity:1}
+p,li{color:var(--text)}
+strong{color:#fff}
+em{color:var(--muted)}
+code{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;font-size:.86em;background:rgba(255,255,255,.06);padding:.12em .42em;border-radius:5px;color:#d7e2f1}
+pre{background:#11151d;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto}
+pre code{background:none;padding:0;color:#d7e2f1;font-size:.85em;line-height:1.55}
+blockquote{margin:1em 0;padding:.4em 1em;border-left:3px solid var(--teal);background:rgba(45,212,191,.06);border-radius:0 8px 8px 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+th{background:rgba(255,255,255,.04);color:#cbd5e6;font-weight:620}
+tr:nth-child(even) td{background:rgba(255,255,255,.018)}
+hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+ul,ol{padding-left:1.4em}
+li{margin:.22em 0}
+.toc{margin:0 0 2em;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 16px}
+.toc summary{cursor:pointer;font-weight:620;color:var(--muted);padding:6px 0}
+.toc ul{list-style:none;padding-left:0;margin:.4em 0 .6em;columns:2;column-gap:28px}
+.toc li{margin:.18em 0;break-inside:avoid}
+.toc li.lvl3{padding-left:1.1em;font-size:.92em}
+.toc a{color:var(--muted)}.toc a:hover{color:var(--blue)}
+@media(max-width:680px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-inner"><span class="title">Module 2 — SP Purchase Optimizer: Design Spec</span><span class="meta">2026-06-14-m2-sp-optimizer-design.md · rendered from markdown</span></div></header>
+<main>
+<details class="toc" open><summary>Contents</summary><ul><li class="lvl2"><a href="#1-problem-amp-boundary">1. Problem &amp; boundary</a></li>
+<li class="lvl2"><a href="#2-decisions-locked">2. Decisions (locked)</a></li>
+<li class="lvl2"><a href="#3-inputs-the-post-run-build-context">3. Inputs — the post-run build context</a></li>
+<li class="lvl3"><a href="#3-1-three-ways-to-load-the-screen-you-pick-per-session">3.1 Three ways to load the screen (you pick per session)</a></li>
+<li class="lvl3"><a href="#3-2-why-not-file-api-extraction-settled-still-true">3.2 Why not file/API extraction (settled, still true)</a></li>
+<li class="lvl3"><a href="#3-3-ocr-validated-and-how-the-cost-fragility-is-handled">3.3 OCR — validated, and how the cost-fragility is handled</a></li>
+<li class="lvl3"><a href="#3-4-future-version-scroll-sync-video-capture-ptcgp-style-quot-sync-quot">3.4 Future version — scroll-sync video capture (PTCGP-style &quot;sync&quot;)</a></li>
+<li class="lvl2"><a href="#4-the-math">4. The math</a></li>
+<li class="lvl2"><a href="#5-ui-mockup-m2-sp-optimizer-html-to-revise">5. UI (mockup m2-sp-optimizer.html — to revise)</a></li>
+<li class="lvl2"><a href="#5-1-compare-vs-existing-veteran-decide-before-buying">5.1 Compare vs existing veteran (decide before buying)</a></li>
+<li class="lvl2"><a href="#6-honest-numbers-p3">6. Honest numbers (P3)</a></li>
+<li class="lvl2"><a href="#7-data-integration">7. Data / integration</a></li>
+<li class="lvl2"><a href="#8-out-of-scope-later">8. Out of scope / later</a></li>
+<li class="lvl2"><a href="#9-risks">9. Risks</a></li>
+<li class="lvl2"><a href="#10-milestones">10. Milestones</a></li></ul></details>
+<h1 id="module-2-sp-purchase-optimizer-design-spec">Module 2 — SP Purchase Optimizer: Design Spec<a class="anchor" href="#module-2-sp-purchase-optimizer-design-spec" aria-label="link">#</a></h1>
+<p><strong>Status:</strong> Draft for review (rev. 2026-06-15 — reshaped to post-run-screen-first) · <strong>Owner:</strong> Sun
+<strong>Origin:</strong> Brainstorm (superpowers:brainstorming), building on plan §8. <strong>The post-run decision tool</strong> — you&#39;re standing on the skill-purchase screen with a fixed SP pool; M2 reads what&#39;s actually in front of you, lets you lock the certain buys, then finds the best ways to spend the rest and <strong>sims a few of them so you can pick</strong>.</p>
+<hr>
+<h2 id="1-problem-amp-boundary">1. Problem &amp; boundary<a class="anchor" href="#1-problem-amp-boundary" aria-label="link">#</a></h2>
+<p>End of a run you have limited SP and can afford <strong>fewer</strong> skills than are offered. M2 solves the <strong>basket</strong>: given your actual post-run build + SP budget + the buyable skills on screen, pick subsets that <strong>maximize Σ E[L]</strong> (length / bashin) — but instead of one answer, it surfaces <strong>~3 strong, genuinely different builds</strong>, <strong>simulates each</strong> (VFalator-style), and lets you <strong>choose</strong>. Umalator ranks <em>single</em> skills; nobody solves the <em>budgeted basket</em>, let alone offers diverse simmed alternatives. <strong>Plus a decision aid:</strong> head-to-head <strong>compare</strong> a chosen build against an <strong>existing veteran</strong> — <em>&quot;is this run actually better than my last CM12 ace?&quot;</em> — before you spend.</p>
+<p><strong>Boundary vs M4:</strong> M4 is the <em>pre-run ideal</em> planner (discovery + coverage, no SP limit, plan-time estimates). <strong>M2 is the <em>post-run actual</em></strong> — it reads the real screen (your real stats, real SP, the real learnable list with the real effective costs that already bake in your hints + Fast Learner). <strong>M2 does not depend on M4</strong> (see §3).</p>
+<h2 id="2-decisions-locked">2. Decisions (locked)<a class="anchor" href="#2-decisions-locked" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Input = the post-run screen in front of you</strong> (OCR or manual), <strong>not</strong> an M4 carry. M4 carry is an <em>optional</em> pre-fill convenience, never required (§3). The live screen is the source of truth.</li>
+<li><strong>Costs come from the screen</strong> (the real effective cost you&#39;ll pay), not from dataset base costs — post-run, your actual hint levels + Fast Learner are already applied and the dataset can&#39;t predict them. The dataset is used to <strong>identify</strong> the skill (name → effect → L-sim), not to price it.</li>
+<li><strong>Reuse the vendored umalator engine</strong> (<code>src/sim/</code>) for <strong>Δ L per skill</strong> and <strong>per-build race sims</strong> — the same Monte-Carlo as M4.</li>
+<li><strong>Lock / pin must-buys</strong> → forced into every build (SP deducted first; a pinned gold pulls in its white prereq); the optimizer spends the <strong>remaining</strong> SP over the <strong>remaining</strong> candidates.</li>
+<li><strong>Output = top-3 near-optimal + diverse baskets</strong>, each <strong>simulated</strong>, ranked by win-rate / mean bashin, annotated with the <em>emergent</em> profile the sim reveals (where the length comes from — early vs late, stamina margin). You choose.</li>
+<li><strong>Build comparison (VFalator-style):</strong> reuse the engine&#39;s <strong>uma-vs-uma</strong> mode (<code>vacuum-compare</code>) to race a chosen build head-to-head vs a <strong>veteran</strong> → win-rate + bashin gap.</li>
+<li><strong>Veteran roster + tags:</strong> the UmaExtractor roster (shared with M1) is searchable and <strong>taggable</strong> (e.g. &quot;CM12&quot;) to pick the compare opponent.</li>
+<li><strong>OCR is a first-class input here</strong> (not deferred) — validated on real screenshots (§3) — but always with <strong>manual entry + confirm</strong>, because the numbers are yours to verify.</li>
+</ul>
+<h2 id="3-inputs-the-post-run-build-context">3. Inputs — the post-run build context<a class="anchor" href="#3-inputs-the-post-run-build-context" aria-label="link">#</a></h2>
+<blockquote>
+<p><strong>Canonical shared types</strong> (<code>CmPlan</code>, <code>Stat</code>, <code>RosterEntry</code>) live in <a href="2026-06-15-shared-data-model.html"><code>2026-06-15-shared-data-model.md</code></a>; the veteran compare-opponent + tags use <code>RosterEntry</code>. <code>BuildContext</code> is M2-local.
+<code>BuildContext { umaId, stats, aptitudes, strategy, courseId, spBudget, candidates: BuyableSkill[], pinned: skillId[] }</code>; <code>BuyableSkill { skillId, rarity, screenSpCost, hintLevel?, prereqSkillId? }</code> — <code>screenSpCost</code> is the <strong>effective</strong> cost as shown/entered (already discounted).</p>
+</blockquote>
+<h3 id="3-1-three-ways-to-load-the-screen-you-pick-per-session">3.1 Three ways to load the screen (you pick per session)<a class="anchor" href="#3-1-three-ways-to-load-the-screen-you-pick-per-session" aria-label="link">#</a></h3>
+<ol>
+<li><strong>Manual entry (always available, reliable):</strong> type the learnable skills + their on-screen costs + your available SP. The skill picker autocompletes against the 578-skill dataset; you enter the cost you see. Zero extraction risk.</li>
+<li><strong>OCR assist (validated 2026-06-15):</strong> snap the skill screen; OCR reads skill <strong>names</strong> (fuzzy-matched to the dataset) + <strong>available SP</strong>, pre-filling the form for you to confirm/correct. See §3.3.</li>
+<li><strong>Optional M4 / roster pre-fill:</strong> if you made an M4 plan for this runner, pre-fill stats/aptitudes/course/strategy from its <code>CmPlan</code>; UmaExtractor (via the M1 roster path, opt-in, ToS/ban-risk) can pre-fill final stats/aptitudes/learned-skills. <strong>Convenience only</strong> — the candidate list + costs still come from the screen.</li>
+</ol>
+<p>What M2 minimally needs to run sims: <strong>course</strong> (which CM — from the CM schedule or your plan), <strong>final stats + aptitudes + strategy</strong> (screen/manual/roster), and the <strong>candidate skills</strong> (screen). None of these <em>require</em> M4.</p>
+<h3 id="3-2-why-not-file-api-extraction-settled-still-true">3.2 Why not file/API extraction (settled, still true)<a class="anchor" href="#3-2-why-not-file-api-extraction-settled-still-true" aria-label="link">#</a></h3>
+<p>The live skill-acquisition screen is <strong>not file/API-extractable on Global</strong> (confirmed by direct on-disk inspection 2026-06-14: the only local save <code>…/LocalLow/Cygames/Umamusume/d/SaveData.db</code> is a single <strong>211-row obfuscated <code>AppSetting</code></strong> key-value table — settings only, no run/skill data; <code>master.mdb</code> is the 338-table <em>static</em> game DB; <code>dat/</code> is content-addressed asset bundles). The packet stack (CarrotJuicer → UmamusumeResponseAnalyzer / hakuraku / UmaLauncher) is <strong>DMM/JP-only</strong>; Steam/Global adds <strong>CrackProof</strong> anti-cheat. UmaExtractor reads live process <em>memory</em> and only exports the <strong>finished-uma</strong> record (→ M1 roster), not the in-career menu. Every extraction route is ToS/ban-risk → <strong>never a required dependency</strong>. So the screen is read by <strong>OCR or by hand</strong> — which is exactly the post-run flow you want anyway.</p>
+<h3 id="3-3-ocr-validated-and-how-the-cost-fragility-is-handled">3.3 OCR — validated, and how the cost-fragility is handled<a class="anchor" href="#3-3-ocr-validated-and-how-the-cost-fragility-is-handled" aria-label="link">#</a></h3>
+<p>Validated on <strong>16 real Global screenshots</strong> of the in-career &quot;Learn&quot; screen (<code>spikes/ocr/</code>, 2026-06-15): <strong>available-SP 16/16 correct</strong> (96% conf, dedicated SP-pill crop: greyscale → threshold → PSM6 + digit whitelist) and <strong>skill names matched across the whole scrollable list</strong> (proportional panel crop; full-image OCR invents false rows from the adjacent Agenda panel). The bigram matcher hits 10/10 on mangled names.</p>
+<ul>
+<li><strong>Names</strong> are read by OCR → fuzzy-matched to the dataset (robust; OCR&#39;s strength).</li>
+<li><strong>Costs</strong>: post-run we want the <em>effective</em> on-screen cost. OCR digits are the fragile part (documented Tesseract &quot;33→3&quot; digit-drop), so <strong>costs are confirm-on-entry</strong>: OCR pre-fills, you verify the few numbers. (For <em>missing</em> hint/cost reads, the dataset base + your stated hint level is the fallback estimate, flagged as such.)</li>
+<li><strong>Robustness — validated across HDR + non-HDR + resolution:</strong> the proportional crops survive both <strong>HDR</strong> (1573×855) and <strong>non-HDR</strong> (1451×816) Steam captures — 16/16 on each, identical reads (SP 2285 every shot, same skills per scroll). Resolution-independence holds because crops are fractions of W/H. <strong>Remaining open case:</strong> a different <strong>aspect ratio</strong> — an iPhone screen capture (~2.16:1) vs Steam&#39;s ~1.84:1 shifts the in-career layout, so the layout-keyed crops would need recalibration (or per-aspect crop profiles); a true camera <em>photo</em> (perspective/glare) would also need deskew + tone-normalize. Needs one iPhone sample to calibrate before trusting that source.</li>
+<li><strong>Cost-data note (verified, not a bug):</strong> our dataset <code>baseSpCost</code> is <strong>correct</strong> (matches live <code>master.mdb</code>); the screen costs differ only because of your <strong>active Fast Learner</strong> (additive +10%) and the <strong>gold 2× premium</strong>. Those are M4-side cost-derivation fixes (see <code>mechanics-notes §7/§10</code>), not an M2 input problem — M2 sidesteps them entirely by reading the real screen cost.</li>
+<li><strong>Mobile validated too (iPhone portrait, 1206×2622, 2026-06-15):</strong> with a <strong>portrait crop profile</strong>, names read 93–95%; available-SP reads but fragile (human-confirm, by design). Confirms the input is platform-shaped: ship <strong>per-platform crop profiles</strong> (landscape Steam vs portrait mobile), selected by aspect ratio. Also surfaced two matcher fixes: <strong>preserve aptitude marks</strong> (<code>Tokyo Racecourse ○</code> ≠ <code>◎</code> — distinct, differently-priced skills the normalizer currently collapses), and <strong>review &quot;unique&quot;/SP-0 tagging</strong> of some learnable-on-screen skills (e.g. Barcarole of Blessings) in the dataset.</li>
+</ul>
+<h3 id="3-4-future-version-scroll-sync-video-capture-ptcgp-style-quot-sync-quot">3.4 Future version — scroll-sync video capture (PTCGP-style &quot;sync&quot;)<a class="anchor" href="#3-4-future-version-scroll-sync-video-capture-ptcgp-style-quot-sync-quot" aria-label="link">#</a></h3>
+<p><em>Deferred enhancement; designing the room now.</em> Single screenshots only cover what&#39;s on screen; the learnable list scrolls. The robust capture is the <strong>PokémonTCG-Pocket &quot;sync&quot; pattern</strong>: you <strong>record while slowly scrolling the skill list top→bottom</strong>, then the app reads the <strong>video</strong> and reconstructs the full list. Wanted on <strong>both PC and iPhone</strong>.</p>
+<ul>
+<li><strong>Capture per platform (local-first, P2 — all processing in-browser, no upload):</strong><ul>
+<li><strong>PC — live or file.</strong> Live: <code>navigator.mediaDevices.getDisplayMedia()</code> captures the chosen game window/screen region straight into a <code>&lt;canvas&gt;</code>; OCR runs on sampled frames in real time as you scroll. Or drop a <strong>pre-recorded screen-capture video</strong> and process it.</li>
+<li><strong>iPhone — record-then-import.</strong> iOS Safari <strong>cannot</strong> live-capture another app from a web page, so the flow mirrors PTCGP exactly: use the <strong>built-in iOS Screen Recorder</strong>, scroll the skill list, stop, then <strong>import the saved video</strong> into the web app (file input / Share Sheet / a Shortcut). Frames decode locally via <code>&lt;video&gt;</code>+canvas (or WebCodecs).</li>
+</ul>
+</li>
+<li><strong>Shared processing pipeline (<code>src/core</code> pure where possible):</strong><ol>
+<li><strong>Sample frames</strong> at ~2–4 fps (slow scroll → low fps suffices).</li>
+<li><strong>Locate the scroll viewport</strong> — bound it by the static chrome (SP bar above, Confirm/Reset below) via the per-platform profile, or auto-detect the repeating card pitch.</li>
+<li><strong>OCR visible rows</strong> per frame (names → dataset match; on-screen costs).</li>
+<li><strong>Stitch + dedup</strong> — the same row recurs across frames at shifting <code>y</code>; track rows by fuzzy name(+cost) and the inter-frame scroll offset (optical-flow / row-pitch) to merge duplicates and order the list with <strong>no gaps, no repeats</strong>.</li>
+<li><strong>Available-SP</strong> read once from static chrome (human-confirmed).</li>
+<li><strong>Confidence + confirm</strong> — present the reconstructed list for review; low-confidence rows flagged (the SP digit especially).</li>
+</ol>
+</li>
+<li><strong>Honest constraints (P3):</strong> scroll too fast → rows skipped between frames (UI coaches &quot;scroll slowly,&quot; same as PTCGP); per-platform layout profiles still needed (or robust auto-detect); iOS is record-then-import only from a web app (a native app/Shortcut could go further, out of local-first web scope). <strong>Same engine reuse:</strong> the reconstructed list feeds the <em>exact</em> <code>BuyableSkill[]</code> the manual/single-shot paths produce — video-sync is just a richer <strong>front-end to the same input</strong>, so the optimizer/sim are unaffected.</li>
+<li><strong>Reuse beyond M2:</strong> the same scroll-sync could later import the <strong>M1 veteran roster</strong> (scroll the owned-uma list) — design it generic.</li>
+<li><strong>Spike room reserved:</strong> real samples kept under <code>spikes/ocr/shots/iPhone/</code> (portrait) + <code>shots/</code> (landscape); a <code>spikes/ocr/video-sync/</code> spike is the next experiment when this is built.</li>
+</ul>
+<h2 id="4-the-math">4. The math<a class="anchor" href="#4-the-math" aria-label="link">#</a></h2>
+<ul>
+<li><strong><code>evalSkillDelta(build, course, skillId, n) → BashinStats</code></strong> — with-vs-without Monte-Carlo Δ L on the <strong>actual</strong> build/course; <strong>cache</strong> per <code>(buildHash, courseId, skillId)</code>, reuse M4&#39;s cache where the build matches.</li>
+<li><strong>Cost</strong> = the entered/OCR&#39;d <strong><code>screenSpCost</code></strong> (already effective). When estimating an un-shown cost: <code>effectiveSpCost(base, hintLevel, fastLearner)</code> using the <strong>additive</strong> discount (hint% + Fast Learner 10%, one multiply, <code>ceil</code>) and the <strong>gold = base + bundled-white-prereq</strong> rule — both corrected per <code>mechanics-notes §7/§10</code>. <strong>Gold pins its white prereq</strong> as one item.</li>
+<li><strong><code>topKBaskets(cands, budget, pinned, K=3) → Basket[]</code></strong> — exact <strong>DP-over-SP</strong> knapsack maximizing Σ E[L] subject to Σ cost ≤ budget and <code>pinned ⊆ basket</code>, extended to return the <strong>K best baskets that are mutually diverse</strong> (each differs from the others by <strong>≥2 skills</strong>; K-best via DP backtracking + a diversity filter). Beats greedy-by-ratio (proven counterexample test retained).</li>
+<li><strong>Per-build sim + profile:</strong> run a full race sim for each of the K baskets → <strong>mean bashin, win-rate</strong>, and an <strong>emergent profile</strong> extracted from engine telemetry (where the gain lands — early/mid/late, stamina margin at the line, spurt presence). Honest caveat where a dimension isn&#39;t directly measurable.</li>
+<li><strong><code>compareBuilds(buildA, buildB, course, n) → CompareResult</code></strong> — wraps the engine&#39;s <strong>uma-vs-uma</strong> sim (<code>vacuum-compare</code> / <code>runComparison</code>) → win-rate + bashin distribution. Races a chosen build vs a veteran.</li>
+<li>Pure core in <strong><code>src/core/spOptimizer.ts</code></strong> (<code>effectiveSpCost</code>, <code>topKBaskets</code>, diversity filter) — unit-tested (P6); <code>evalSkillDelta</code> + per-build sim wrap the sim worker.</li>
+</ul>
+<h2 id="5-ui-mockup-m2-sp-optimizer-html-to-revise">5. UI (mockup <code>m2-sp-optimizer.html</code> — to revise)<a class="anchor" href="#5-ui-mockup-m2-sp-optimizer-html-to-revise" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Build &amp; SP bar:</strong> input mode (Manual / OCR / pre-fill), build chips (uma · course · strategy · final stats), <strong>editable available-SP</strong>.</li>
+<li><strong>Buyable-skills table:</strong> per row — <strong>📌 pin</strong> (must-buy), skill (rarity colour + effect badges), type, <strong>Δ L</strong>, <strong>on-screen SP cost</strong> (editable), <strong>L / SP</strong> (×1k), and the <strong>L/SP + hint</strong> info. Pinned rows lift to the top and pre-spend their SP.</li>
+<li><strong>The 3 build cards (headline):</strong> for each of the top-3 diverse baskets — the skill list (pinned shown locked + the optimizer&#39;s picks), <strong>SP used / left</strong>, <strong>mean bashin + win-rate</strong>, and a short <strong>profile tag</strong> the sim revealed (e.g. &quot;more stamina margin&quot;, &quot;stronger final spurt&quot;, &quot;highest raw speed&quot;). One-click <strong>&quot;Compare this vs veteran.&quot;</strong> Just-missed skills greyed below each.</li>
+<li><strong>Compare vs veteran panel</strong> (§5.1).</li>
+<li><strong>P3 caveat banner:</strong> the sim can&#39;t see positional chaos — estimate, not verdict; test in room.</li>
+</ul>
+<h2 id="5-1-compare-vs-existing-veteran-decide-before-buying">5.1 Compare vs existing veteran (decide before buying)<a class="anchor" href="#5-1-compare-vs-existing-veteran-decide-before-buying" aria-label="link">#</a></h2>
+<ul>
+<li>Race a chosen build (one of the 3) head-to-head vs a <strong>veteran</strong> from your roster on the CM course — the engine&#39;s VFalator-style <strong>uma-vs-uma</strong> sim → <strong>win-rate + mean bashin gap</strong> (+ distribution).</li>
+<li><strong>Pick the opponent:</strong> <strong>search + tag-filter</strong> your roster (UmaExtractor import, shared with M1). <strong>Tags</strong> are free-text (e.g. &quot;CM12&quot;, &quot;dirt ace&quot;) so you can pull up &quot;my last CM12 ace&quot; instantly.</li>
+<li>Also supports <strong>build-A vs build-B</strong> (compare two of the three) and <strong>basket-on vs basket-off</strong>, but <strong>vs-veteran is the headline</strong> — <em>&quot;is this build worth running over the one I already have?&quot;</em></li>
+<li><strong>Honest (P3):</strong> head-to-head bashin / win-rate is a strong prior, not a guaranteed match outcome (positional-chaos caveat).</li>
+</ul>
+<h2 id="6-honest-numbers-p3">6. Honest numbers (P3)<a class="anchor" href="#6-honest-numbers-p3" aria-label="link">#</a></h2>
+<ul>
+<li>L is a streaming estimate; each basket is a <strong>strong prior</strong>, not a verdict (caveat banner). The 3 builds are <em>options</em>, ranked by sim — you decide.</li>
+<li><strong>Validation:</strong> single-skill Δ L within noise of VFalator for <strong>≥3 spot-checked skills</strong> (plan §8); <code>topKBaskets</code> <strong>respects budget + pins + prereqs, returns diverse baskets, and beats greedy</strong> on a counterexample test; the additive Fast Learner + gold-premium cost rules reproduce the real-screen costs (160→128, 200→160, gold 200→320 at Lv1+FL) from <code>spikes/ocr/</code>.</li>
+</ul>
+<h2 id="7-data-integration">7. Data / integration<a class="anchor" href="#7-data-integration" aria-label="link">#</a></h2>
+<ul>
+<li>Reuse <code>src/sim/</code> engine + <strong>M4&#39;s Δ-L cache</strong>; the <code>CmPlan</code> is an <strong>optional</strong> context source (course/stats pre-fill), never the candidate source.</li>
+<li><strong>Veteran roster</strong> (UmaExtractor import) <strong>shared with M1</strong>; M2 adds user <strong><code>tags: string[]</code></strong> on roster entries for search + compare-opponent picking — persisted with the roster.</li>
+<li>Discount + gold rules from <code>mechanics-notes §7/§10</code> (additive Fast Learner, gold = base + white prereq). Gold⇒white prereq from <code>SkillRecord.prereqSkillId</code>.</li>
+<li><strong>M3 phase-2</strong> consumes <code>evalSkillDelta</code> (the sim re-parameterization loop).</li>
+</ul>
+<h2 id="8-out-of-scope-later">8. Out of scope / later<a class="anchor" href="#8-out-of-scope-later" aria-label="link">#</a></h2>
+<ul>
+<li>File/API extraction of the skill screen → <strong>not pursued</strong> (unavailable on Global; ToS/ban-risk; §3.2).</li>
+<li>No live in-game integration (read the screen by OCR/hand).</li>
+<li><strong>Scroll-sync video capture (§3.4) → designed, deferred</strong> to a later phase (after single-shot OCR + the core optimizer ship).</li>
+<li>Multi-uma / team SP planning (single runner per plan).</li>
+<li>Auto-detecting hint levels from skill-row icons (manual/<code>screenSpCost</code> covers it for now).</li>
+</ul>
+<h2 id="9-risks">9. Risks<a class="anchor" href="#9-risks" aria-label="link">#</a></h2>
+<ul>
+<li><strong>Engine vendoring</strong> (shared with M4/M1/M3) is <em>the</em> dependency — M2 is thin on top.</li>
+<li><strong>Δ L noise + K full-build sims</strong> → enough Monte-Carlo + cache; show streaming convergence; K=3 keeps sim cost bounded.</li>
+<li><strong>Diversity vs quality</strong> — the ≥2-skill diversity filter must not surface a much-worse build as &quot;an option&quot;; cap the K builds within a max-bashin-gap band of the optimum (configurable).</li>
+<li><strong>OCR on non-HDR/phone</strong> — unvalidated source; normalize + add a fixture before trusting (§3.3).</li>
+<li><strong>&quot;Emergent profile&quot; honesty</strong> — only label a build&#39;s survivability/spurt character to the extent the sim telemetry supports it; never fabricate a profile (P3).</li>
+</ul>
+<h2 id="10-milestones">10. Milestones<a class="anchor" href="#10-milestones" aria-label="link">#</a></h2>
+<ol>
+<li><strong>Core</strong> <code>spOptimizer.ts</code> — <code>effectiveSpCost</code> (additive FL + gold bundle), <code>topKBaskets</code> (DP + diversity) + tests (greedy counterexample, pins, prereqs, diversity, cost-rule reproduction).</li>
+<li><strong><code>evalSkillDelta</code> + per-build sim</strong> via the vendored engine/worker (shared with M4) + cache + emergent-profile extraction.</li>
+<li><strong>Input</strong> — Manual entry form + OCR-assist (port <code>spikes/ocr/</code> into a <code>tesseract.js</code> WASM in-browser flow with confirm; <strong>per-platform crop profiles</strong>; preserve aptitude marks in the matcher) + optional pre-fill.</li>
+<li><strong>UI</strong> — pin/lock table + the 3 build cards (sim + profile) + SP bar.</li>
+<li><strong>Compare panel</strong> — engine uma-vs-uma build-vs-veteran + roster <strong>tags / search</strong>.</li>
+<li><strong>Validation</strong> vs VFalator (≥3 skill deltas + a head-to-head spot-check) + the cost-rule reproduction check.</li>
+<li><strong>(Deferred) Scroll-sync video capture (§3.4)</strong> — PC live <code>getDisplayMedia</code> + file, iPhone record-then-import; frame-sample → viewport-locate → OCR → stitch/dedup → confirm. Spike in <code>spikes/ocr/video-sync/</code> first.</li>
+</ol>
+<blockquote>
+<p>M2 is the <strong>last module</strong>. Per Sun&#39;s &quot;brainstorm each module first,&quot; all four specs now fold into <strong>one engine-first implementation plan</strong> (writing-plans) after this review.</p>
+</blockquote>
+
+</main>
+</body>
+</html>
