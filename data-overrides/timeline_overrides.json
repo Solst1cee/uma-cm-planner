@@ -1,0 +1,4 @@
+{
+  "_note": "M3 timeline overrides (P5, hand-maintained). Add/patch TimelineEntry objects by id: assign cmNumber to make M4's cmRef.cmId join live, flip status + add /news/<id>/ source.url on confirmation, and insert upcoming CMs / banners / patches. Unknown id = insert (must be a complete TimelineEntry); known id = patch. Schedule data is NEVER fabricated here — only real, sourced entries.",
+  "entries": []
+}

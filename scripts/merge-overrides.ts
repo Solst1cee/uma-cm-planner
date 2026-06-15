@@ -113,10 +113,17 @@ export function applyOverrides<T extends object>(
   return out;
 }
 
+/**
+ * Override files consumed by their own direct readers (not the generic patch
+ * loop). Excluded from `loadOverrideFiles` to avoid the "_target"+"records"
+ * shape check. Add any future non-standard override files here.
+ */
+const DIRECT_OVERRIDE_FILES = new Set(['timeline_overrides.json']);
+
 /** Read all data-overrides/*_overrides.json, sorted by filename for determinism. */
 export function loadOverrideFiles(overridesDir: string): LoadedOverrideFile[] {
   const files = readdirSync(overridesDir)
-    .filter((f) => f.endsWith('_overrides.json'))
+    .filter((f) => f.endsWith('_overrides.json') && !DIRECT_OVERRIDE_FILES.has(f))
     .sort();
   return files.map((fileName) => {
     const parsed = readJson<OverrideFile>(join(overridesDir, fileName));

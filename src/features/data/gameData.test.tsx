@@ -27,6 +27,7 @@ const DATASETS: Record<string, unknown> = {
   'spark_rates.json': FIXTURE_SPARK_RATES,
   'cm_presets.json': [],
   'umas.json': UMAS,
+  'timeline.json': { entries: [] },
 };
 
 function Probe() {

@@ -16,8 +16,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, UmaRecord } from '@/core/types';
+import type { CmPreset, CmScheduleRow, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import type { IconManifest } from '@/core/icons';
+import { projectCmSchedule } from '@/core/timeline';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,
@@ -58,6 +59,18 @@ export interface GameData {
    * should treat `undefined`/`null` the same (no icons).
    */
   iconManifest?: IconManifest | null;
+  /**
+   * M3 timeline entries (plan §3). Loaded from timeline.json; optional so
+   * pre-M3 GameData literals (test fixtures) keep compiling — consumers
+   * should `?? []`. Failure degrades to empty (never flips to fixture mode).
+   */
+  timeline?: TimelineEntry[];
+  /**
+   * M3→M4 CM schedule: timeline entries with a cmNumber projected to CmScheduleRow.
+   * Derived from `timeline` via `projectCmSchedule`. Optional for the same
+   * reason as `timeline` — consumers should `?? []`.
+   */
+  cmSchedule?: CmScheduleRow[];
   skillById: Map<string, SkillRecord>;
   cardById: Map<string, SupportCardRecord>;
   umaById?: Map<string, UmaRecord>;
@@ -83,6 +96,7 @@ interface Datasets {
   cmPresets: CmPreset[];
   umas: UmaRecord[];
   iconManifest: IconManifest | null;
+  timeline: TimelineEntry[];
 }
 
 const FIXTURE_DATASETS: Datasets = {
@@ -95,6 +109,8 @@ const FIXTURE_DATASETS: Datasets = {
   umas: [],
   // No bundled icons in fixture mode — GameIcon falls back to its placeholder.
   iconManifest: null,
+  // No timeline in fixture mode — M3 views degrade to empty.
+  timeline: [],
 };
 
 async function fetchJson<T>(file: string): Promise<T> {
@@ -129,7 +145,16 @@ async function loadDatasets(): Promise<Datasets> {
     console.warn('[gameData] icon-manifest.json unavailable — icons fall back to text.', err);
     return null;
   });
-  return { skills, cards, sparkRates, cmPresets, umas, iconManifest };
+  // timeline.json ships with M3. Like umas.json, its failure must NOT flip the
+  // whole provider to fixture mode — M3 views simply degrade to an empty timeline.
+  const timelineJson = await fetchJson<{ entries: TimelineEntry[] }>('timeline.json').catch(
+    (err: unknown) => {
+      console.warn('[gameData] timeline.json unavailable — M3 timeline degrades to empty.', err);
+      return { entries: [] as TimelineEntry[] };
+    },
+  );
+  const timeline = timelineJson.entries;
+  return { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline };
 }
 
 const GameDataContext = createContext<GameData | null>(null);
@@ -157,7 +182,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<GameData>(() => {
-    const { skills, cards, sparkRates, cmPresets, umas, iconManifest } = state.data;
+    const { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline } = state.data;
     return {
       status: state.status,
       skills,
@@ -166,6 +191,8 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       cmPresets,
       umas,
       iconManifest,
+      timeline,
+      cmSchedule: projectCmSchedule(timeline),
       skillById: new Map(skills.map((s) => [s.skillId, s])),
       cardById: new Map(cards.map((c) => [c.cardId, c])),
       umaById: new Map(umas.map((u) => [u.umaId, u])),

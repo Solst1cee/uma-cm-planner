@@ -1,0 +1,625 @@
+{
+  "dataVersion": "global-c1fa2107",
+  "entries": [
+    {
+      "id": "cm-pisces-cup-2022-03-22",
+      "type": "cm",
+      "title": "Pisces Cup",
+      "dates": {
+        "finals": "2022-03-22"
+      },
+      "cm": {
+        "courseId": "10914",
+        "trackSummary": "3200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-aries-cup-2022-04-22",
+      "type": "cm",
+      "title": "Aries Cup",
+      "dates": {
+        "finals": "2022-04-22"
+      },
+      "cm": {
+        "courseId": "10504",
+        "trackSummary": "2000m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-taurus-cup-2022-05-24",
+      "type": "cm",
+      "title": "Taurus Cup",
+      "dates": {
+        "finals": "2022-05-24"
+      },
+      "cm": {
+        "courseId": "10606",
+        "trackSummary": "2400m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-gemini-cup-2022-06-14",
+      "type": "cm",
+      "title": "Gemini Cup",
+      "dates": {
+        "finals": "2022-06-14"
+      },
+      "cm": {
+        "courseId": "10602",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-cancer-cup-2022-07-14",
+      "type": "cm",
+      "title": "Cancer Cup",
+      "dates": {
+        "finals": "2022-07-14"
+      },
+      "cm": {
+        "courseId": "10906",
+        "trackSummary": "2200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-leo-cup-2022-08-13",
+      "type": "cm",
+      "title": "Leo Cup",
+      "dates": {
+        "finals": "2022-08-13"
+      },
+      "cm": {
+        "courseId": "10501",
+        "trackSummary": "1200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-virgo-cup-2022-09-15",
+      "type": "cm",
+      "title": "Virgo Cup",
+      "dates": {
+        "finals": "2022-09-15"
+      },
+      "cm": {
+        "courseId": "11103",
+        "trackSummary": "2000m dirt"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-libra-cup-2022-10-14",
+      "type": "cm",
+      "title": "Libra Cup",
+      "dates": {
+        "finals": "2022-10-14"
+      },
+      "cm": {
+        "courseId": "10903",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-scorpio-cup-2022-11-13",
+      "type": "cm",
+      "title": "Scorpio Cup",
+      "dates": {
+        "finals": "2022-11-13"
+      },
+      "cm": {
+        "courseId": "10808",
+        "trackSummary": "2200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-sagittarius-cup-2022-12-15",
+      "type": "cm",
+      "title": "Sagittarius Cup",
+      "dates": {
+        "finals": "2022-12-15"
+      },
+      "cm": {
+        "courseId": "10506",
+        "trackSummary": "2500m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-capricorn-cup-2023-01-14",
+      "type": "cm",
+      "title": "Capricorn Cup",
+      "dates": {
+        "finals": "2023-01-14"
+      },
+      "cm": {
+        "courseId": "10701",
+        "trackSummary": "1200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-aquarius-cup-2023-02-17",
+      "type": "cm",
+      "title": "Aquarius Cup",
+      "dates": {
+        "finals": "2023-02-17"
+      },
+      "cm": {
+        "courseId": "10611",
+        "trackSummary": "1600m dirt"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-pisces-cup-2023-03-14",
+      "type": "cm",
+      "title": "Pisces Cup",
+      "dates": {
+        "finals": "2023-03-14"
+      },
+      "cm": {
+        "courseId": "10504",
+        "trackSummary": "2000m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-aries-cup-2023-04-13",
+      "type": "cm",
+      "title": "Aries Cup",
+      "dates": {
+        "finals": "2023-04-13"
+      },
+      "cm": {
+        "courseId": "10811",
+        "trackSummary": "3200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-mile-2023-06-13",
+      "type": "cm",
+      "title": "MILE",
+      "dates": {
+        "finals": "2023-06-13"
+      },
+      "cm": {
+        "courseId": "10602",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-long-2023-12-14",
+      "type": "cm",
+      "title": "LONG",
+      "dates": {
+        "finals": "2023-12-14"
+      },
+      "cm": {
+        "courseId": "10506",
+        "trackSummary": "2500m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-sprint-2024-02-18",
+      "type": "cm",
+      "title": "SPRINT",
+      "dates": {
+        "finals": "2024-02-18"
+      },
+      "cm": {
+        "courseId": "10902",
+        "trackSummary": "1400m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-mile-2024-04-13",
+      "type": "cm",
+      "title": "MILE",
+      "dates": {
+        "finals": "2024-04-13"
+      },
+      "cm": {
+        "courseId": "10903",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2024-06-20",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2024-06-20"
+      },
+      "cm": {
+        "courseId": "10606",
+        "trackSummary": "2400m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-dirt-2024-08-25",
+      "type": "cm",
+      "title": "DIRT",
+      "dates": {
+        "finals": "2024-08-25"
+      },
+      "cm": {
+        "courseId": "10708",
+        "trackSummary": "1800m dirt"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2024-10-23",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2024-10-23"
+      },
+      "cm": {
+        "courseId": "10604",
+        "trackSummary": "2000m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-long-2024-12-22",
+      "type": "cm",
+      "title": "LONG",
+      "dates": {
+        "finals": "2024-12-22"
+      },
+      "cm": {
+        "courseId": "10506",
+        "trackSummary": "2500m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2025-01-24",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2025-01-24"
+      },
+      "cm": {
+        "courseId": "10907",
+        "trackSummary": "2400m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-mile-2025-03-25",
+      "type": "cm",
+      "title": "MILE",
+      "dates": {
+        "finals": "2025-03-25"
+      },
+      "cm": {
+        "courseId": "10903",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-long-2025-04-23",
+      "type": "cm",
+      "title": "LONG",
+      "dates": {
+        "finals": "2025-04-23"
+      },
+      "cm": {
+        "courseId": "10811",
+        "trackSummary": "3200m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2025-06-21",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2025-06-21"
+      },
+      "cm": {
+        "courseId": "10606",
+        "trackSummary": "2400m turf"
+      },
+      "tier": "datamined",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "jp",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2025-07-25",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2025-07-25"
+      },
+      "cm": {
+        "courseId": "10906",
+        "trackSummary": "2200m turf"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-classic-2025-09-22",
+      "type": "cm",
+      "title": "CLASSIC",
+      "dates": {
+        "finals": "2025-09-22"
+      },
+      "cm": {
+        "courseId": "10807",
+        "trackSummary": "2000m turf"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-sprint-2025-10-23",
+      "type": "cm",
+      "title": "SPRINT",
+      "dates": {
+        "finals": "2025-10-23"
+      },
+      "cm": {
+        "courseId": "10302",
+        "trackSummary": "1200m turf"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-mile-2025-12-21",
+      "type": "cm",
+      "title": "MILE",
+      "dates": {
+        "finals": "2025-12-21"
+      },
+      "cm": {
+        "courseId": "10903",
+        "trackSummary": "1600m turf"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    },
+    {
+      "id": "cm-long-2026-01-22",
+      "type": "cm",
+      "title": "LONG",
+      "dates": {
+        "finals": "2026-01-22"
+      },
+      "cm": {
+        "courseId": "10506",
+        "trackSummary": "2500m turf"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "umalator",
+        "url": "https://github.com/jalbarrang/umalator-global"
+      },
+      "server": "global",
+      "dataVersion": "global-c1fa2107"
+    }
+  ]
+}

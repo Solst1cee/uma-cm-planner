@@ -9,17 +9,18 @@
  *   pnpm data:build -- --from-spikes — (re)copy inputs from the local Phase-0 clone first
  */
 import { join } from 'node:path';
-import type { CmPreset, SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
+import type { CmPreset, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { buildAffinity } from './build-affinity';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { buildCmPresets } from './build-cm-presets';
 import { buildIcons } from './build-icons';
 import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
+import { buildTimeline } from './build-timeline';
 import { buildUmas } from './build-umas';
 import { borrowedFilesPresent, copyFromSpikes, UPSTREAM_COMMIT } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
-import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, writeJsonDeterministic } from './lib/io';
+import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
 import type {
   CourseDataJson,
   EventSkillSourcesJson,
@@ -109,6 +110,10 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     console.log(`applied ${override.fileName} → ${override._target}`);
   }
   recomputeHintPoolSizes(cards); // hintPoolSize is derived; overrides may re-type sources
+  // Timeline: built after cm_preset overrides are applied so patched presets flow in.
+  // Read directly (not via loadOverrideFiles) — timeline_overrides.json is insert-capable.
+  const timelineOverrides = (readJson<{ entries?: Array<Partial<TimelineEntry> & { id: string }> }>(join(OVERRIDES_DIR, 'timeline_overrides.json')).entries ?? []);
+  const timeline = buildTimeline({ presets, overrides: timelineOverrides, dataVersion: DATA_VERSION });
 
   // Build-time oracle (provenance §4.1): emitted cards must agree with the
   // independent Tachyons-lab event-reward source — catches regressions of the
@@ -121,11 +126,12 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'cm_presets.json'), presets);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'umas.json'), umas);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'affinity.json'), affinity);
+  writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'timeline.json'), timeline);
 
   console.log(
     `public/data written: ${skills.length} skills, ${cards.length} support cards, ` +
       `${presets.length} cm presets, ${umas.length} umas, spark_rates (${sparkRates.dataVersion}), ` +
-      `${affinity.groups.length} affinity groups.`,
+      `${affinity.groups.length} affinity groups, ${timeline.entries.length} timeline entries.`,
   );
 
   // Icons run LAST — they read the id lists from the JSON just written above.
