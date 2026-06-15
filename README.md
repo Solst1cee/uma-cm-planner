@@ -2,7 +2,7 @@
 
 Local-first web app for *Umamusume: Pretty Derby* (Global) **Champions Meeting build planning**. Working name — see plan §14.3.
 
-Four modules (build order): **Skill Acquisition Planner** → Inheritance Planner → SP Purchase Optimizer → Meta Intel Workspace. Full design: [uma-cm-planner-plan.md](uma-cm-planner-plan.md); data/algorithm provenance: [docs/provenance.md](docs/provenance.md); verified mechanics: [docs/mechanics-notes.md](docs/mechanics-notes.md).
+Four modules (build order): **Skill Acquisition Planner** → Inheritance Planner → SP Purchase Optimizer → Meta Intel Workspace. Per-module status + how each fits together: [docs/modules/](docs/modules/). Full design: [uma-cm-planner-plan.md](uma-cm-planner-plan.md); data/algorithm provenance: [docs/provenance.md](docs/provenance.md); verified mechanics: [docs/mechanics-notes.md](docs/mechanics-notes.md).
 
 - All your data stays in your browser (IndexedDB) with JSON export/import. No accounts, no server.
 - Game data is baked in at build time from community-maintained extractions (see provenance).
