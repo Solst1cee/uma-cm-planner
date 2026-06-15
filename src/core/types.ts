@@ -257,6 +257,17 @@ export interface TimelineEntry {
 /** M3→M4 projection (shared-data-model §6): one row per CM entry that has a cmNumber. */
 export type CmScheduleRow = { date: string; cmId: CmId; cmNumber: number; name: string; courseId: string };
 
+/** A parsed item from the official umamusume.com/news/ feed (public/data/official_news.json). */
+export interface NewsItem {
+  id: string;
+  title: string;
+  date: string;   // ISO 'YYYY-MM-DD'
+  url: string;    // https://umamusume.com/news/<id>/
+  category?: string;
+  /** Importer's guess (newsMatch.ts). */
+  kind?: 'cm' | 'banner' | 'patch' | 'other';
+}
+
 // ---------------------------------------------------------------------------
 // User data (Dexie)
 // ---------------------------------------------------------------------------
