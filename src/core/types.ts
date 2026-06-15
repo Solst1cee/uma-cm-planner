@@ -229,6 +229,35 @@ export interface CmPreset {
 }
 
 // ---------------------------------------------------------------------------
+// Timeline (Module 3 — Meta Intel)
+// ---------------------------------------------------------------------------
+
+export type TimelineTier = 'official' | 'datamined' | 'prediction';
+export type TimelineStatus = 'confirmed' | 'unconfirmed';
+export type TimelineSourceKind =
+  | 'official_news' | 'game8' | 'soulec' | 'phoenix' | 'umaguide' | 'gametora' | 'umalator' | 'manual';
+
+/** A CM / banner / patch on the M3 timeline (generated ⊕ overrides; M3 spec §1.2). */
+export interface TimelineEntry {
+  id: string;
+  type: 'cm' | 'banner' | 'patch';
+  title: string;
+  /** ISO dates; CM uses finals (and optionally signup start). */
+  dates: { start?: string; finals?: string; end?: string };
+  cm?: { cmNumber?: number; courseId?: string; trackSummary?: string };
+  banner?: { kind: 'char' | 'support'; umaId?: string; cardId?: string };
+  patch?: { version?: string; summary?: string };
+  tier: TimelineTier;
+  status: TimelineStatus;
+  source: { kind: TimelineSourceKind; url: string };
+  server: Server;
+  dataVersion: string;
+}
+
+/** M3→M4 projection (shared-data-model §6): one row per CM entry that has a cmNumber. */
+export type CmScheduleRow = { date: string; cmId: CmId; cmNumber: number; name: string; courseId: string };
+
+// ---------------------------------------------------------------------------
 // User data (Dexie)
 // ---------------------------------------------------------------------------
 
