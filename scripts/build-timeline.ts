@@ -1,15 +1,22 @@
-import { mergeTimeline } from '@/core/timeline';
-import type { CmPreset, TimelineEntry } from '@/core/types';
+import { mergeTimeline, sortTimeline } from '@/core/timeline';
+import { synthesizeUpcomingCms } from '@/core/cmSynthesis';
+import type { CmPreset, CmTrack, TimelineEntry } from '@/core/types';
 
 function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-/** Each cm_preset → a `cm` TimelineEntry (real data; tier/status by server, P4). */
+/**
+ * Each cm_preset → a `cm` TimelineEntry (real data; tier/status by server, P4),
+ * overrides merged, then synthesized *predicted* CMs (cm_tracks rotation, monthly
+ * cadence) appended — predictions never overwrite a present CM number.
+ */
 export function buildTimeline(inputs: {
   presets: CmPreset[];
   overrides: Array<Partial<TimelineEntry> & { id: string }>;
+  tracks?: CmTrack[];
   dataVersion: string;
+  horizon?: number;
 }): { dataVersion: string; entries: TimelineEntry[] } {
   const base: TimelineEntry[] = inputs.presets.map((p) => ({
     id: `cm-${slug(p.name)}-${p.date}`,
@@ -23,5 +30,10 @@ export function buildTimeline(inputs: {
     server: p.server,
     dataVersion: inputs.dataVersion,
   }));
-  return { dataVersion: inputs.dataVersion, entries: mergeTimeline(base, inputs.overrides) };
+  const merged = mergeTimeline(base, inputs.overrides);
+  const predicted = synthesizeUpcomingCms(merged, inputs.tracks ?? [], {
+    dataVersion: inputs.dataVersion,
+    horizon: inputs.horizon,
+  });
+  return { dataVersion: inputs.dataVersion, entries: sortTimeline([...merged, ...predicted]) };
 }
