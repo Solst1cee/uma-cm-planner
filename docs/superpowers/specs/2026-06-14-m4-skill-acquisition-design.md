@@ -213,3 +213,31 @@ Now/Upcoming/Future need a **timeline** the data is keyed to — **current date 
 Each milestone touching `src/core/` or data lands with **passing unit tests** (P6 — 100% core coverage), not just milestone 6.
 
 > Note: per Sun's request to **brainstorm each module before building**, the implementation plan (writing-plans) is deferred until M3/M1/M2 are also brainstormed and folded into one engine-first plan.
+
+---
+
+## 11. Slice 1 — reconciled build scope (2026-06-15)
+
+**Context:** the engine-first M4 above was specced 2026-06-14 but **never implemented** — the running `/` is still the pre-engine coverage MVP this spec supersedes (§Supersedes). Since then the **engine is vendored** (`src/sim/`, working), **M3 owns the timeline** (`cmSchedule`), and **`CmPlan` is reconciled** to the canonical model. A recon (2026-06-15) verified what's buildable *today* vs. what's gated by missing data. Sun signed off on building the **first vertical slice** and replacing `/`.
+
+**Verified feasibility (the unblockers):**
+- `evalSkillDelta(build, race, skillId, nsamples, seed)` computes per-skill L from a `SimBuild` that needs **only raw stats + strategy + aptitudes** — *no uma required*.
+- **Course geometry is embedded in the vendored bundle** — `resolveCourse('10906')` works with zero external data (no `course_data.json` needed for the sim).
+- Reuse: `SimClient` / `makeDeltaCache` / adapter (`src/sim`), `coverage.ts` (`classifyHintTier`/`tierForCardSkill`), `cost.ts` (`effectiveSpCost`), `useActivePlan`/`useGameData`, CSS primitives. M2's `rankBaskets.ts` is the call-pattern reference (M4 chart = a *flatter* loop, no basket/diversity branching).
+
+### 11.1 In scope (all verified buildable now)
+- **2-column shell, route `/` replaced.** LEFT "Current Uma Plan" sidebar: plan name + save-state (reuse `PlanHeaderPanel` logic), CM picker (from M3 `cmSchedule`/`cmPresets`), **runner config** (editable `statProfile.stats`, `strategy`, target aptitudes → `sparkGoals.pink` defaulting to `A`, `statProfile.mood`), and the **wishlist** (per-skill L + base SP). RIGHT: **§0 Race** (course summary + conditions, *form only — no track diagram*), **§1 Skill chart**, **§3 Sourcing**.
+- **§1 Skill chart** — acquirable skills (white/gold/scenario; **exclude JP per P4**, exclude uniques) ranked by individual **L** via `evalSkillDelta` over `SimClient`, **progressive streaming** (first ranking fast, refine), **`0 L` auto-hide + "show every skill" toggle**, **`0 L` vs `n/a`** where the engine can't evaluate, filters (type/rarity/search/targeted), **base SP cost**, **`+ target`**, and a **row-detail** = `skillId` + raw `conditions` DSL + L (mean with min/max + sample count, honest-numbers P3). Colour = rarity (white text / gold text), never "targeted".
+- **§3 Sourcing** — new pure `src/core/sourcing.ts`: card-hint **reverse index** (skill→cards, derived from `support_cards.json`) + `sourcingJoin` → per wishlist skill, the **cards that hint it** (tier/LB via coverage) + **⚠ gap** when none. *Uma-innate column omitted this slice* (data-gated).
+- **New tested core (P6):** `rankSkillChart` (streaming orchestrator over the catalog, injectable sim dep, ≤0.1 L threshold) + `sourcing.ts`. Feature layer renders.
+
+### 11.2 Deferred — each with its named dependency (not hand-waving)
+- **Effect-summary badges + duration + L-vs-distance / speed graphs** → `SkillRecord` lacks effect-type & duration data; the engine has it (`SkillType`/`baseDuration`) but it isn't surfaced. Needs a build-time extraction from the bundle's `skillsService` — **verify feasibility first**, then a fast-follow increment.
+- **§1 Uma chart + "usable here" filter + §3 uma-innate column** → `umas.json` has no base stats / aptitude letters / innate skills / unique-skill id (only `umaId/charaId/nameEn/epithet`). Needs a master.mdb/umalator data-sourcing task.
+- **§0 race-track diagram (SVG activation zones)** → engine `CourseData` has geometry, but rendering it is later-milestone work.
+- **§5.2 stat-target auto-seed** (`cm_stat_targets.json`) → user hand-enters stats for now.
+- **Now/Upcoming/Future availability toggle** → needs per-record release dates; "Now" only for the slice.
+- **Debuffer L** → self-L with caveat (Ace/Hybrid honest); per §5.1.
+
+### 11.3 Honesty (P3) for the slice
+L is a streaming estimate — show "refining N/M samples" + an RNG caveat; never present `n/a` (unmodeled effect) as `0 L`; JP-ahead skills excluded from the Now chart. Validate a few values vs VFalator before trusting (record in `mechanics-notes.md`).
