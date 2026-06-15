@@ -50,3 +50,35 @@ describe('basketSpCost', () => {
     expect(basketSpCost(['w1', 'owned'], CANDS)).toBe(100);
   });
 });
+
+import { enumerateFeasibleBaskets } from '@/core/spOptimizer';
+
+// --- enumerateFeasibleBaskets ---
+describe('enumerateFeasibleBaskets', () => {
+  const cands: BuyableSkill[] = [buy('a', 100), buy('b', 100), buy('c', 100)];
+
+  it('returns the empty basket plus every affordable subset (budget 200)', () => {
+    const baskets = enumerateFeasibleBaskets(cands, 200, []);
+    const asSets = baskets.map((b) => b.slice().sort().join(','));
+    expect(asSets).toContain(''); // spend nothing
+    expect(asSets).toContain('a');
+    expect(asSets).toContain('a,b');
+    expect(asSets).not.toContain('a,b,c'); // 300 > 200
+  });
+
+  it('forces pinned ids into every basket and deducts their cost first', () => {
+    const baskets = enumerateFeasibleBaskets(cands, 200, ['a']);
+    expect(baskets.every((b) => b.includes('a'))).toBe(true);
+    // 'a' is pinned (100), so only one more 100 skill fits
+    expect(baskets.some((b) => b.length === 3)).toBe(false);
+  });
+
+  it('keeps a gold and its white prereq together as one feasible unit', () => {
+    const gold: BuyableSkill[] = [buy('w', 100), buy('g', 100, 'w')];
+    const baskets = enumerateFeasibleBaskets(gold, 150, []);
+    const asSets = baskets.map((b) => b.slice().sort().join(','));
+    expect(asSets).toContain('w'); // white alone fits (100)
+    expect(asSets).not.toContain('g'); // gold pulls in w → 200 > 150, infeasible
+    expect(asSets).not.toContain('g,w'); // also 200 > 150
+  });
+});

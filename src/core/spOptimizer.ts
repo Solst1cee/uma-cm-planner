@@ -83,3 +83,44 @@ export function basketSpCost(skillIds: string[], candidates: BuyableSkill[]): nu
   const cost = new Map(candidates.map((c) => [c.skillId, c.screenSpCost]));
   return skillIds.reduce((sum, id) => sum + (cost.get(id) ?? 0), 0);
 }
+
+// --- enumeration (exact branch) ---
+
+/**
+ * Every prereq-closed subset of `candidates` whose total on-screen cost fits
+ * `budget`, with `pinned` (+ their prereqs) forced into each. Returned baskets
+ * are arrays of skill ids that INCLUDE the pinned set. Pure and total.
+ *
+ * Cost is bounded by the lock-threshold in practice (spec §4 step 2): the
+ * caller only enumerates when the optional skill count is small.
+ */
+export function enumerateFeasibleBaskets(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+): string[][] {
+  const pinnedClosed = prereqClosure(pinned, candidates);
+  const pinnedCost = basketSpCost(pinnedClosed, candidates);
+  const pinnedSet = new Set(pinnedClosed);
+  // Optional skills are the non-pinned candidates; golds carry their prereq.
+  const optional = candidates.filter((c) => !pinnedSet.has(c.skillId));
+
+  const out: string[][] = [];
+  const n = optional.length;
+  for (let mask = 0; mask < 1 << n; mask++) {
+    const picked: string[] = [];
+    for (let i = 0; i < n; i++) if (mask & (1 << i)) picked.push(optional[i]!.skillId);
+    const closed = prereqClosure(picked, candidates);
+    const totalCost = pinnedCost + basketSpCost(closed.filter((id) => !pinnedSet.has(id)), candidates);
+    if (totalCost > budget) continue;
+    out.push([...new Set([...pinnedClosed, ...closed])]);
+  }
+  // Dedupe baskets (closures can collapse two masks to the same set).
+  const seen = new Set<string>();
+  return out.filter((b) => {
+    const key = b.slice().sort().join(',');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
