@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "data:fetch": "tsx scripts/fetch-borrowed.ts",
-    "data:build": "tsx scripts/build-all.ts"
+    "data:build": "tsx scripts/build-all.ts",
+    "specs:html": "node scripts/render-specs.mjs",
+    "sim:build": "node scripts/build-sim.mjs"
   },
   "dependencies": {
     "dexie": "^4.2.0",
@@ -30,8 +32,10 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "esbuild": "^0.28.1",
     "fake-indexeddb": "^6.0.0",
     "jsdom": "^26.1.0",
+    "marked": "^18.0.5",
     "playwright": "^1.60.0",
     "sharp": "^0.35.1",
     "tsx": "^4.20.0",
