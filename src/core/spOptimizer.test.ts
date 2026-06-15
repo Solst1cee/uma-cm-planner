@@ -6,7 +6,21 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { basketSpCost, prereqClosure, type BuyableSkill } from '@/core/spOptimizer';
+import {
+  basketSpCost,
+  chooseBasketsToScore,
+  enumerateFeasibleBaskets,
+  parseCaptureBundle,
+  prereqClosure,
+  selectTopDiverse,
+  shortlistByProxy,
+  skillSetDistance,
+  wishlistToCandidates,
+  type BuyableSkill,
+  type ScoredBasket,
+} from '@/core/spOptimizer';
+import { FIXTURE_SKILLS } from '@/core/fixtures';
+import type { WishlistItem } from '@/core/types';
 
 // --- test helpers ---
 function buy(skillId: string, screenSpCost: number, prereqSkillId?: string): BuyableSkill {
@@ -21,7 +35,7 @@ const CANDS: BuyableSkill[] = [
 
 // --- prereqClosure ---
 describe('prereqClosure', () => {
-  it('adds a gold skill’s white prereq when present in candidates', () => {
+  it("adds a gold skill's white prereq when present in candidates", () => {
     expect(prereqClosure(['g1'], CANDS).sort()).toEqual(['g1', 'w1']);
   });
 
@@ -50,8 +64,6 @@ describe('basketSpCost', () => {
     expect(basketSpCost(['w1', 'owned'], CANDS)).toBe(100);
   });
 });
-
-import { enumerateFeasibleBaskets } from '@/core/spOptimizer';
 
 // --- enumerateFeasibleBaskets ---
 describe('enumerateFeasibleBaskets', () => {
@@ -83,8 +95,6 @@ describe('enumerateFeasibleBaskets', () => {
   });
 });
 
-import { type ScoredBasket, selectTopDiverse, skillSetDistance } from '@/core/spOptimizer';
-
 // --- skillSetDistance ---
 describe('skillSetDistance', () => {
   it('counts symmetric-difference size', () => {
@@ -112,8 +122,6 @@ describe('selectTopDiverse', () => {
     expect(top.length).toBeLessThanOrEqual(3);
   });
 });
-
-import { shortlistByProxy } from '@/core/spOptimizer';
 
 // --- shortlistByProxy ---
 describe('shortlistByProxy', () => {
@@ -145,8 +153,6 @@ describe('shortlistByProxy', () => {
     expect(lists.every((b) => b.includes('a'))).toBe(true);
   });
 });
-
-import { chooseBasketsToScore } from '@/core/spOptimizer';
 
 // --- chooseBasketsToScore ---
 describe('chooseBasketsToScore', () => {
@@ -191,5 +197,79 @@ describe('chooseBasketsToScore', () => {
       { exactThreshold: 100, shortlistLimit: 5, minDistance: 1 },
     );
     expect(r.baskets).toEqual([['a', 'b']]);
+  });
+});
+
+describe('parseCaptureBundle', () => {
+  const valid = {
+    schemaVersion: 1, source: 'ocr', capturedAt: '2026-06-15T00:00:00.000Z',
+    server: 'global', dataVersion: 'v', seed: 12345,
+    context: {
+      umaId: '', stats: { spd: 1000, sta: 800, pow: 800, gut: 400, wit: 600 },
+      aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',
+      courseId: '10101', spBudget: 2285, ownedSkills: [], pinned: [],
+      candidates: [{ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'exact' }],
+    },
+  };
+
+  it('accepts a valid bundle through a JSON round-trip', () => {
+    const b = parseCaptureBundle(JSON.parse(JSON.stringify(valid)));
+    expect(b.source).toBe('ocr');
+    expect(b.context.spBudget).toBe(2285);
+    expect(b.context.candidates[0]!.skillId).toBe('200332');
+    expect(b.context.candidates[0]!.matchTier).toBe('exact');
+  });
+
+  it('rejects a wrong schemaVersion', () => {
+    expect(() => parseCaptureBundle({ ...valid, schemaVersion: 2 })).toThrow(/schemaVersion/);
+  });
+
+  it('rejects a non-object / missing context', () => {
+    expect(() => parseCaptureBundle({ ...valid, context: undefined })).toThrow(/context/);
+    expect(() => parseCaptureBundle(null)).toThrow(/bundle/);
+  });
+
+  it('rejects a non-string candidate skillId', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].skillId = 123;
+    expect(() => parseCaptureBundle(bad)).toThrow(/skillId/);
+  });
+
+  it('rejects an invalid rarity', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].rarity = 'legendary';
+    expect(() => parseCaptureBundle(bad)).toThrow(/rarity/);
+  });
+
+  it('rejects a non-finite cost (Infinity)', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].screenSpCost = Infinity;
+    expect(() => parseCaptureBundle(bad)).toThrow(/finite/);
+  });
+
+  it('rejects an invalid strategy, aptitude grade, and server', () => {
+    const badStrat = JSON.parse(JSON.stringify(valid)); badStrat.context.strategy = 'sprint';
+    expect(() => parseCaptureBundle(badStrat)).toThrow(/strategy/);
+    const badGrade = JSON.parse(JSON.stringify(valid)); badGrade.context.aptitudes.distance = 'Z';
+    expect(() => parseCaptureBundle(badGrade)).toThrow(/aptitudes\.distance/);
+    const badServer = JSON.parse(JSON.stringify(valid)); badServer.server = 'tw';
+    expect(() => parseCaptureBundle(badServer)).toThrow(/server/);
+  });
+});
+
+const SKILL_BY_ID = new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s]));
+const wl = (skillId: string): WishlistItem => ({ skillId, priority: 1, source: 'targeted' });
+
+describe('wishlistToCandidates', () => {
+  it('maps wishlist skills to BuyableSkills with dataset rarity/base cost/prereq', () => {
+    expect(wishlistToCandidates([wl('200332'), wl('200331')], SKILL_BY_ID)).toEqual([
+      { skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'manual' },
+      { skillId: '200331', rarity: 'gold', screenSpCost: 160, prereqSkillId: '200332', matchTier: 'manual' },
+    ]);
+  });
+
+  it('dedupes and skips ids absent from the dataset', () => {
+    const out = wishlistToCandidates([wl('200332'), wl('200332'), wl('999999')], SKILL_BY_ID);
+    expect(out.map((c) => c.skillId)).toEqual(['200332']);
   });
 });

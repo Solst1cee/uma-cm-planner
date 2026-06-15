@@ -6,7 +6,7 @@
  * on-screen effective costs (no cost calculation here — spec §2/§4).
  */
 import type { HintLevel } from '@/core/coverage';
-import type { Server, SkillRarity, Stat } from '@/core/types';
+import type { Server, SkillRarity, SkillRecord, Stat, WishlistItem } from '@/core/types';
 import type { Grade, Strategy } from '@/sim';
 
 /** One buyable skill row on the post-run screen (M2-local). */
@@ -19,6 +19,8 @@ export interface BuyableSkill {
   hintLevel?: HintLevel;
   /** Gold skills require their white base; a constraint, not a cost calc. */
   prereqSkillId?: string;
+  /** OCR/import-row provenance for the UI badge; absent/'manual' on manual entry. */
+  matchTier?: 'exact' | 'fuzzy' | 'manual';
 }
 
 /** The post-run build context — the serialized `CaptureBundle.context`. */
@@ -260,6 +262,124 @@ export function shortlistByProxy(
     seen.add(key);
     out.push(b);
     if (out.length === opts.limit) break;
+  }
+  return out;
+}
+
+// --- CaptureBundle import validation (F1) ---
+
+function fail(msg: string): never { throw new Error(`Invalid CaptureBundle: ${msg}`); }
+function asObject(v: unknown, name: string): Record<string, unknown> {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) fail(`${name} must be an object`);
+  return v as Record<string, unknown>;
+}
+function asString(v: unknown, name: string): string {
+  if (typeof v !== 'string') fail(`${name} must be a string`);
+  return v;
+}
+function asNumber(v: unknown, name: string): number {
+  if (typeof v !== 'number' || !Number.isFinite(v)) fail(`${name} must be a finite number`);
+  return v;
+}
+function asArray(v: unknown, name: string): unknown[] {
+  if (!Array.isArray(v)) fail(`${name} must be an array`);
+  return v;
+}
+
+function asEnum<T extends string>(v: unknown, allowed: readonly T[], name: string): T {
+  const s = asString(v, name);
+  if (!(allowed as readonly string[]).includes(s)) fail(`${name} must be one of ${allowed.join('|')}`);
+  return s as T;
+}
+
+const SOURCES = ['manual', 'ocr', 'video'] as const;
+const STAT_KEYS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
+const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'] as const;
+const STRATEGIES = ['front', 'pace', 'late', 'end'] as const;
+const GRADES = ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+const SERVERS = ['global', 'jp'] as const;
+const MATCH_TIERS = ['exact', 'fuzzy', 'manual'] as const;
+
+/** Validate + normalize an imported value into a CaptureBundle. Throws a descriptive Error otherwise. */
+export function parseCaptureBundle(data: unknown): CaptureBundle {
+  const root = asObject(data, 'bundle');
+  if (root['schemaVersion'] !== 1) fail('schemaVersion must be 1');
+  const source = asEnum(root['source'], SOURCES, 'source');
+
+  const ctx = asObject(root['context'], 'context');
+  const statsObj = asObject(ctx['stats'], 'context.stats');
+  const stats = {} as Record<Stat, number>;
+  for (const k of STAT_KEYS) stats[k] = asNumber(statsObj[k], `context.stats.${k}`);
+
+  const apt = asObject(ctx['aptitudes'], 'context.aptitudes');
+  const aptitudes = {
+    distance: asEnum(apt['distance'], GRADES, 'context.aptitudes.distance'),
+    surface: asEnum(apt['surface'], GRADES, 'context.aptitudes.surface'),
+    strategy: asEnum(apt['strategy'], GRADES, 'context.aptitudes.strategy'),
+  };
+
+  const candidates: BuyableSkill[] = asArray(ctx['candidates'], 'context.candidates').map((c, i) => {
+    const o = asObject(c, `context.candidates[${i}]`);
+    const bs: BuyableSkill = {
+      skillId: asString(o['skillId'], `context.candidates[${i}].skillId`),
+      rarity: asEnum(o['rarity'], RARITIES, `context.candidates[${i}].rarity`),
+      screenSpCost: asNumber(o['screenSpCost'], `context.candidates[${i}].screenSpCost`),
+    };
+    if (o['prereqSkillId'] !== undefined) bs.prereqSkillId = asString(o['prereqSkillId'], `context.candidates[${i}].prereqSkillId`);
+    if (o['matchTier'] !== undefined) bs.matchTier = asEnum(o['matchTier'], MATCH_TIERS, `context.candidates[${i}].matchTier`);
+    return bs;
+  });
+
+  const context: BuildContext = {
+    umaId: asString(ctx['umaId'], 'context.umaId'),
+    stats,
+    aptitudes,
+    strategy: asEnum(ctx['strategy'], STRATEGIES, 'context.strategy'),
+    courseId: asString(ctx['courseId'], 'context.courseId'),
+    spBudget: asNumber(ctx['spBudget'], 'context.spBudget'),
+    ownedSkills: asArray(ctx['ownedSkills'], 'context.ownedSkills').map((s, i) => asString(s, `context.ownedSkills[${i}]`)),
+    pinned: asArray(ctx['pinned'], 'context.pinned').map((s, i) => asString(s, `context.pinned[${i}]`)),
+    candidates,
+  };
+
+  const bundle: CaptureBundle = {
+    schemaVersion: 1,
+    source,
+    capturedAt: asString(root['capturedAt'], 'capturedAt'),
+    server: asEnum(root['server'], SERVERS, 'server'),
+    dataVersion: asString(root['dataVersion'], 'dataVersion'),
+    context,
+  };
+  if (root['seed'] !== undefined) bundle.seed = asNumber(root['seed'], 'seed');
+  return bundle;
+}
+
+// --- M4-wishlist seed (F1) ---
+
+/**
+ * Map an M4 `CmPlan.wishlist` to editable buyable candidates (1-click seed).
+ * Cost is the dataset base (an estimate to confirm against the screen). Dedupes
+ * by skillId; skips ids absent from the dataset (e.g. P4-filtered). Pure.
+ */
+export function wishlistToCandidates(
+  wishlist: WishlistItem[],
+  skillById: ReadonlyMap<string, SkillRecord>,
+): BuyableSkill[] {
+  const out: BuyableSkill[] = [];
+  const seen = new Set<string>();
+  for (const item of wishlist) {
+    if (seen.has(item.skillId)) continue;
+    const skill = skillById.get(item.skillId);
+    if (!skill) continue;
+    seen.add(item.skillId);
+    const bs: BuyableSkill = {
+      skillId: skill.skillId,
+      rarity: skill.rarity,
+      screenSpCost: skill.baseSpCost,
+      matchTier: 'manual',
+    };
+    if (skill.prereqSkillId !== undefined) bs.prereqSkillId = skill.prereqSkillId;
+    out.push(bs);
   }
   return out;
 }
