@@ -33,3 +33,26 @@ describe('evalSkillDelta', () => {
     expect(stats.nsamples).toBe(0);
   });
 });
+
+import { runVacuumCompare, runPlannerCompare } from './run';
+
+const buildB: SimBuild = { ...build, stats: { spd: 1100, sta: 850, pow: 950, gut: 520, wit: 880 } };
+
+describe('runVacuumCompare', () => {
+  it('returns bashin gap + first-place + stamina rates for A vs B', () => {
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 7);
+    expect(r.nsamples).toBe(30);
+    expect(Number.isFinite(r.mean)).toBe(true);
+    expect(r.aFirstPlaceRate).toBeGreaterThanOrEqual(0);
+    expect(r.aFirstPlaceRate).toBeLessThanOrEqual(1);
+    expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('runPlannerCompare', () => {
+  it('returns a bashin delta tracking candidate skills', () => {
+    const r = runPlannerCompare(build, { courseId: '10101' }, ['200332'], 20, 3);
+    expect(r.nsamples).toBe(20);
+    expect(Number.isFinite(r.mean)).toBe(true);
+  });
+});
