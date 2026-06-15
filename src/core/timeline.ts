@@ -74,3 +74,16 @@ export const GLOBAL_LAUNCH = '2025-06-26';
 export function predictGlobalDateDefault(jpISO: string): string {
   return predictGlobalDate(jpISO, JP_GLOBAL_PACE, JP_LAUNCH, GLOBAL_LAUNCH);
 }
+
+/**
+ * Add `months` calendar months to an ISO date (UTC), clamping to the last day
+ * of the target month so day-of-month never overflows (2026-01-31 +1mo →
+ * 2026-02-28, not 2026-03-03). Shared by CM-schedule synthesis + timeline windowing.
+ */
+export function addMonths(iso: string, months: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  const day = d.getUTCDate();
+  d.setUTCMonth(d.getUTCMonth() + months);
+  if (d.getUTCDate() !== day) d.setUTCDate(0); // overflowed → snap to last day of intended month
+  return d.toISOString().slice(0, 10);
+}
