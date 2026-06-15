@@ -237,3 +237,24 @@ describe('parseCaptureBundle', () => {
     expect(() => parseCaptureBundle(bad)).toThrow(/rarity/);
   });
 });
+
+import { wishlistToCandidates } from '@/core/spOptimizer';
+import { FIXTURE_SKILLS } from '@/core/fixtures';
+import type { WishlistItem } from '@/core/types';
+
+const SKILL_BY_ID = new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s]));
+const wl = (skillId: string): WishlistItem => ({ skillId, priority: 1, source: 'targeted' });
+
+describe('wishlistToCandidates', () => {
+  it('maps wishlist skills to BuyableSkills with dataset rarity/base cost/prereq', () => {
+    expect(wishlistToCandidates([wl('200332'), wl('200331')], SKILL_BY_ID)).toEqual([
+      { skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'manual' },
+      { skillId: '200331', rarity: 'gold', screenSpCost: 160, prereqSkillId: '200332', matchTier: 'manual' },
+    ]);
+  });
+
+  it('dedupes and skips ids absent from the dataset', () => {
+    const out = wishlistToCandidates([wl('200332'), wl('200332'), wl('999999')], SKILL_BY_ID);
+    expect(out.map((c) => c.skillId)).toEqual(['200332']);
+  });
+});

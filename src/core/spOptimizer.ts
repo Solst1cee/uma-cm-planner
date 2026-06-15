@@ -6,7 +6,7 @@
  * on-screen effective costs (no cost calculation here — spec §2/§4).
  */
 import type { HintLevel } from '@/core/coverage';
-import type { Server, SkillRarity, Stat } from '@/core/types';
+import type { Server, SkillRarity, SkillRecord, Stat, WishlistItem } from '@/core/types';
 import type { Grade, Strategy } from '@/sim';
 
 /** One buyable skill row on the post-run screen (M2-local). */
@@ -345,6 +345,36 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
   };
   if (root['seed'] !== undefined) bundle.seed = asNumber(root['seed'], 'seed');
   return bundle;
+}
+
+// --- M4-wishlist seed (F1) ---
+
+/**
+ * Map an M4 `CmPlan.wishlist` to editable buyable candidates (1-click seed).
+ * Cost is the dataset base (an estimate to confirm against the screen). Dedupes
+ * by skillId; skips ids absent from the dataset (e.g. P4-filtered). Pure.
+ */
+export function wishlistToCandidates(
+  wishlist: WishlistItem[],
+  skillById: ReadonlyMap<string, SkillRecord>,
+): BuyableSkill[] {
+  const out: BuyableSkill[] = [];
+  const seen = new Set<string>();
+  for (const item of wishlist) {
+    if (seen.has(item.skillId)) continue;
+    const skill = skillById.get(item.skillId);
+    if (!skill) continue;
+    seen.add(item.skillId);
+    const bs: BuyableSkill = {
+      skillId: skill.skillId,
+      rarity: skill.rarity,
+      screenSpCost: skill.baseSpCost,
+      matchTier: 'manual',
+    };
+    if (skill.prereqSkillId !== undefined) bs.prereqSkillId = skill.prereqSkillId;
+    out.push(bs);
+  }
+  return out;
 }
 
 // --- branch chooser ---
