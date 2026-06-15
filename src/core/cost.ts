@@ -35,8 +35,11 @@ export function discountedComponent(
   rates: SparkRates,
   opts?: { fastLearner?: boolean },
 ): number {
-  const discount = hintDiscountFraction(level, rates) + (opts?.fastLearner ? 0.1 : 0);
-  return skill.baseSpCost * (1 - discount);
+  // Integer percentage points avoid IEEE-754 drift (e.g. 0.35+0.1). base×(100−pct)/100 is exact
+  // at integer boundaries (pct divisible cases) and float-noise-immune otherwise.
+  const hintPct = level === 0 ? 0 : (rates.hintDiscountCumulativePct[level - 1] ?? 0);
+  const discountPct = hintPct + (opts?.fastLearner ? 10 : 0);
+  return (skill.baseSpCost * (100 - discountPct)) / 100;
 }
 
 /** Effective single-skill SP cost (ceil after discount). */

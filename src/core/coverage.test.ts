@@ -428,8 +428,9 @@ describe('bundledSpCost', () => {
 
   it('applies Fast Learner additively to the whole bundle', () => {
     // additive FL: hint% + 10% (mechanics-notes §7/§10 item 7; 2026-06-15 screenshot)
-    // ceil(110×0.55 + 90×0.55) = ceil(110) = 111 (floating-point: 0.35+0.1 not exact → sum ~110.0…1)
-    expect(bundledSpCost(gold, white, 4, 4, rates, { fastLearner: true })).toBe(111);
+    // discountPct = 35 + 10 = 45; ceil(110×55/100 + 90×55/100) = ceil(60.5 + 49.5) = ceil(110) = 110
+    // (integer-percent arithmetic: no float drift, so exactly 110 not 111)
+    expect(bundledSpCost(gold, white, 4, 4, rates, { fastLearner: true })).toBe(110);
   });
 });
 
