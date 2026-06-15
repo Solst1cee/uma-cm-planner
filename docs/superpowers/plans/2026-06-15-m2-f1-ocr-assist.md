@@ -1,822 +1,263 @@
-# M2 · F1 — OCR-assist Input: Implementation Plan
+# M2 · F1 — Capture Import + M4-wishlist seed: Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add an optional image → pre-filled-form path to the M2 SP optimizer: drop a screenshot of the post-run "Learn" screen; OCR matches skill *names* to the dataset and reads *available SP*; it pre-fills the existing manual form's editable candidate rows; you confirm/correct every value and Analyze.
+**Goal:** Give the M2 SP optimizer two new ways to fill its form besides manual entry — **import a `CaptureBundle` JSON** (from the future native companion or any source) and **1-click copy the active M4 wishlist** — both feeding the same editable, confirm-on-entry candidate form.
 
-**Architecture:** A pure, CI-tested core (`skillMatch` fuzzy matcher + `cropProfiles` region math + `imagePrep` pixel transforms over a structural `PixelBuffer`) and a browser-only OCR layer (`canvasOps` + lazy `tesseract.js` `ocrEngine` + a `readSkillScreen` orchestrator with injectable deps) that the manual form consumes via an `OcrDropZone`. tesseract.js WASM + traineddata are vendored locally (no CDN, P2). The M2 core/orchestrator/persistence are unchanged.
+**Architecture:** Two pure, CI-tested core functions (`parseCaptureBundle` validator, `wishlistToCandidates` mapper) in `src/core/spOptimizer.ts`; an upgraded `BuildContextForm` with editable named candidate rows + `initial*` pre-fill props; and a `SpOptimizerPage` import-file control + "Copy from M4 wishlist" button that share one remount-key seed. No OCR/canvas/WASM in the web app — that lives in a separate native companion (spec §5).
 
-**Tech Stack:** TypeScript, React 19, Vite, Vitest (jsdom) + Testing Library, **tesseract.js ^5** (lazy, locally hosted). Path alias `@/* → src/*`. Spec: [docs/superpowers/specs/2026-06-15-m2-f1-ocr-assist-design.md](../specs/2026-06-15-m2-f1-ocr-assist-design.md). Ports `spikes/ocr/` (gitignored).
+**Tech Stack:** TypeScript, React 19, Vite, Vitest (jsdom) + Testing Library. Path alias `@/* → src/*`. Spec: [docs/superpowers/specs/2026-06-15-m2-f1-ocr-assist-design.md](../specs/2026-06-15-m2-f1-ocr-assist-design.md).
 
 ---
 
 ## Conventions (read once)
-- `import type { ... }` for types; alphabetized; `@/*` alias, never relative `../` across `src`.
-- Core tests: `import { describe, expect, it } from 'vitest';`. Component tests: `import '@testing-library/jest-dom/vitest';` per file, `afterEach(cleanup)`, `userEvent.setup()`; mock `@/features/data/gameData` (spread `importOriginal` to keep `GameIcon`).
-- **jsdom has no canvas/`ImageData`** (verified): pure pixel transforms take a structural `PixelBuffer = { data: Uint8ClampedArray; width; height }`, NEVER the DOM `ImageData`. Canvas/WASM code lives in **browser-only** files that **no unit test imports** — they're verified by `pnpm typecheck` + `pnpm build` + manual validation (Task 8).
-- Run one file: `pnpm vitest run <path>`. Typecheck: `pnpm typecheck`. Build: `pnpm build`.
-- Baseline before starting: `pnpm test` → 393 passing.
+- `import type { ... }` for types, alphabetized; `@/*` alias.
+- Core tests: `import { describe, expect, it } from 'vitest';` + `@/core/fixtures` (`FIXTURE_SKILLS`).
+- Component tests: `import '@testing-library/jest-dom/vitest';`, `afterEach(cleanup)`, `userEvent.setup()`; mock `@/features/data/gameData` (spread `importOriginal` to keep `GameIcon`), mock `@/app/ActivePlanContext` where the page uses `useActivePlan`.
+- Run one file: `pnpm vitest run <path>`. Typecheck: `pnpm typecheck`.
+- Baseline: `pnpm test` → 393 passing.
 
 ## File structure
-| File | Responsibility | Task | CI-tested |
-|---|---|---|---|
-| `src/core/skillMatch.ts` | pure name→skill matcher (normalize keeps aptitude marks; exact + Dice fuzzy) | 1 | ✅ |
-| `src/core/cropProfiles.ts` | pure proportional crop regions + orientation selection | 2 | ✅ |
-| `src/core/spOptimizer.ts` | add optional `matchTier?` to `BuyableSkill` | 3 | (existing) |
-| `src/features/sp-optimizer/ocr/imagePrep.ts` | pure `PixelBuffer` transforms (greyscale/normalise/contrast/threshold) | 3 | ✅ |
-| `src/features/sp-optimizer/ocr/canvasOps.ts` | browser-only decode/crop/upscale ↔ `PixelBuffer` | 4 | ❌ manual |
-| `src/features/sp-optimizer/ocr/ocrEngine.ts` | lazy tesseract worker, local assets | 4 | ❌ manual |
-| `public/ocr/*` + `scripts/vendor-ocr-assets.mjs` | vendored WASM/worker/traineddata + fetch script | 4 | ❌ |
-| `src/features/sp-optimizer/ocr/readSkillScreen.ts` | orchestrator (port of `analyze.mjs`); injectable deps | 5 | ✅ |
-| `src/features/sp-optimizer/ocr/runOcr.ts` | browser-only wiring of canvasOps+ocrEngine→readSkillScreen | 6 | ❌ manual |
-| `src/features/sp-optimizer/OcrDropZone.tsx` | drop/file UI → runOcr → `onExtracted` | 6 | ✅ (mock runOcr) |
-| `src/features/sp-optimizer/BuildContextForm.tsx` | `initialCandidates`/`initialSpBudget` + editable named rows + remove + tier badge + `source:'ocr'` | 7 | ✅ |
-| `src/features/sp-optimizer/SpOptimizerPage.tsx` | mount `OcrDropZone` + remount-key wiring | 7 | ✅ (existing) |
-| `src/features/sp-optimizer/sp-optimizer.css` | row/badge/dropzone classes | 7 | — |
-| `docs/provenance.md` | record vendored tesseract assets (Apache-2.0) | 4 | — |
-| `docs/mechanics-notes.md` | F1 manual-validation procedure | 8 | — |
+| File | Responsibility | Task |
+|---|---|---|
+| `src/core/spOptimizer.ts` | `BuyableSkill.matchTier` + `parseCaptureBundle` | 1 |
+| `src/core/spOptimizer.ts` | `wishlistToCandidates` | 2 |
+| `src/core/spOptimizer.test.ts` | tests for both | 1, 2 |
+| `src/features/sp-optimizer/BuildContextForm.tsx` | editable named rows + `initial*` props + remove + badge + `source` | 3 |
+| `src/features/sp-optimizer/BuildContextForm.test.tsx` | extended tests | 3 |
+| `src/features/sp-optimizer/SpOptimizerPage.tsx` | import-file control + wishlist button + shared seed | 4 |
+| `src/features/sp-optimizer/SpOptimizerPage.test.tsx` | extended tests (mock `useActivePlan`) | 4 |
+| `src/features/sp-optimizer/sp-optimizer.css` | row/badge/import classes | 4 |
+| `docs/capture-bundle-contract.md` | the companion's output contract | 5 |
 
 ---
 
-## Task 1: `skillMatch.ts` — pure name matcher
+## Task 1: `BuyableSkill.matchTier` + `parseCaptureBundle`
 
-**Files:** Create `src/core/skillMatch.ts`; Test `src/core/skillMatch.test.ts`.
+**Files:** Modify `src/core/spOptimizer.ts`; Test `src/core/spOptimizer.test.ts` (append).
 
-- [ ] **Step 1: Write the failing test**
-
+- [ ] **Step 1: Add `matchTier` to `BuyableSkill`.** In the `BuyableSkill` interface, after `prereqSkillId?:`, add:
 ```ts
-// src/core/skillMatch.test.ts
-/** Tests for the F1 OCR skill-name matcher (spec 2026-06-15-m2-f1-ocr-assist-design §3.1). */
-import { describe, expect, it } from 'vitest';
-
-import { FIXTURE_SKILLS } from '@/core/fixtures';
-import { diceCoefficient, matchSkillByName, normalizeSkillName } from '@/core/skillMatch';
-
-const GLOBAL = FIXTURE_SKILLS.filter((s) => s.server === 'global');
-
-describe('normalizeSkillName', () => {
-  it('lowercases, keeps aptitude marks, strips other punctuation', () => {
-    expect(normalizeSkillName('Corner Adept ○!')).toBe('corner adept ○');
-    expect(normalizeSkillName('Right  Turns ◎')).toBe('right turns ◎');
-  });
-});
-
-describe('diceCoefficient', () => {
-  it('is 1 for identical strings and lower for unrelated ones', () => {
-    expect(diceCoefficient('corner adept', 'corner adept')).toBe(1);
-    expect(diceCoefficient('corner adept', 'cornr adept')).toBeGreaterThan(0.6);
-    expect(diceCoefficient('corner adept', 'professor of curvature')).toBeLessThan(0.3);
-  });
-});
-
-describe('matchSkillByName', () => {
-  it('exact-matches a clean name to its skillId', () => {
-    const m = matchSkillByName('Corner Adept ○', GLOBAL);
-    expect(m?.skillId).toBe('200332');
-    expect(m?.tier).toBe('exact');
-  });
-
-  it('keeps aptitude marks distinct: ◎ ≠ ○ (the spike bug fix)', () => {
-    expect(matchSkillByName('Right Turns ○', GLOBAL)?.skillId).toBe('200012');
-    expect(matchSkillByName('Right Turns ◎', GLOBAL)?.skillId).toBe('200014');
-  });
-
-  it('fuzzy-matches an OCR-mangled name', () => {
-    const m = matchSkillByName('Corner Adept', GLOBAL); // typo + dropped mark
-    expect(m?.skillId).toBe('200332');
-    expect(m?.tier).toBe('fuzzy');
-  });
-
-  it('returns null for garbage', () => {
-    expect(matchSkillByName('xqzptv restart item', GLOBAL)).toBeNull();
-  });
-
-  it('carries rarity + prereqSkillId from the matched gold record', () => {
-    const m = matchSkillByName('Professor of Curvature', GLOBAL);
-    expect(m?.rarity).toBe('gold');
-    expect(m?.prereqSkillId).toBe('200332');
-  });
-
-  it('does not return jp-server skills when given a Global-filtered list (P4)', () => {
-    const jp = FIXTURE_SKILLS.find((s) => s.server === 'jp')!;
-    expect(matchSkillByName(jp.nameEn, GLOBAL)?.skillId).not.toBe(jp.skillId);
-  });
-});
-```
-
-- [ ] **Step 2: Run → fails** (`pnpm vitest run src/core/skillMatch.test.ts`) — module not found.
-
-- [ ] **Step 3: Implement**
-
-```ts
-// src/core/skillMatch.ts
-/**
- * Module 2 · F1 OCR-assist — pure skill-name matcher (spec
- * 2026-06-15-m2-f1-ocr-assist-design.md §3.1; ports spikes/ocr/lib/match.mjs,
- * retrieved 2026-06-15). Sørensen–Dice on character bigrams. APTITUDE-MARK FIX:
- * ○/◎/●/◯ are KEPT (not stripped) so same-base skills ("Right Turns ○" vs
- * "Right Turns ◎") stay distinguishable. Operates on the list it is given;
- * server filtering (P4) happens upstream in the data layer.
- */
-import type { SkillRarity, SkillRecord } from '@/core/types';
-
-export interface SkillMatch {
-  skillId: string;
-  nameEn: string;
-  rarity: SkillRarity;
-  baseSpCost: number;
-  iconId: string;
-  prereqSkillId?: string;
-  tier: 'exact' | 'fuzzy';
-  score: number;
-}
-
-const FUZZY_MIN = 0.6;
-
-/** Lowercase; keep aptitude marks ○◎●◯; strip other OCR-mangled punctuation; collapse spaces. */
-export function normalizeSkillName(s: string): string {
-  return String(s)
-    .toLowerCase()
-    .replace(/[☆★①②③④⑤!！?？.,;:'"`’“”·•\-_/\\()\[\]]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function bigrams(s: string): Map<string, number> {
-  const t = s.replace(/\s+/g, '');
-  const m = new Map<string, number>();
-  for (let i = 0; i < t.length - 1; i++) {
-    const b = t.slice(i, i + 2);
-    m.set(b, (m.get(b) ?? 0) + 1);
-  }
-  return m;
-}
-
-/** Sørensen–Dice coefficient on character bigrams (0..1). */
-export function diceCoefficient(a: string, b: string): number {
-  const A = bigrams(a);
-  const B = bigrams(b);
-  if (A.size === 0 || B.size === 0) return a === b ? 1 : 0;
-  let inter = 0;
-  let total = 0;
-  for (const [k, v] of A) {
-    const bv = B.get(k);
-    if (bv !== undefined) inter += Math.min(v, bv);
-    total += v;
-  }
-  for (const v of B.values()) total += v;
-  return (2 * inter) / total;
-}
-
-/**
- * Resolve an OCR'd skill name to a canonical skill. Exact (normalized equality)
- * → tier 'exact'; else best Dice ≥ 0.6 → 'fuzzy'; else null (caller falls back
- * to manual entry). Pure and total.
- */
-export function matchSkillByName(ocrText: string, skills: SkillRecord[]): SkillMatch | null {
-  const q = normalizeSkillName(ocrText);
-  if (q.length < 2) return null;
-
-  let exact: SkillRecord | null = null;
-  let best: SkillRecord | null = null;
-  let bestScore = 0;
-  for (const s of skills) {
-    const norm = normalizeSkillName(s.nameEn);
-    if (norm === q) { exact = s; break; }
-    const score = diceCoefficient(q, norm);
-    if (score > bestScore) { bestScore = score; best = s; }
-  }
-
-  const out = (s: SkillRecord, tier: 'exact' | 'fuzzy', score: number): SkillMatch => ({
-    skillId: s.skillId, nameEn: s.nameEn, rarity: s.rarity, baseSpCost: s.baseSpCost,
-    iconId: s.iconId, prereqSkillId: s.prereqSkillId, tier, score,
-  });
-
-  if (exact) return out(exact, 'exact', 1);
-  if (best && bestScore >= FUZZY_MIN) return out(best, 'fuzzy', bestScore);
-  return null;
-}
-```
-
-- [ ] **Step 4: Run → passes.** `pnpm vitest run src/core/skillMatch.test.ts`.
-- [ ] **Step 5: Commit.** `pnpm typecheck && git add src/core/skillMatch.ts src/core/skillMatch.test.ts && git commit -m "feat(m2-f1): pure skill-name matcher (Dice + aptitude-mark fix)"`
-
----
-
-## Task 2: `cropProfiles.ts` — proportional regions
-
-**Files:** Create `src/core/cropProfiles.ts`; Test `src/core/cropProfiles.test.ts`.
-
-- [ ] **Step 1: Write the failing test**
-
-```ts
-// src/core/cropProfiles.test.ts
-/** Tests for F1 crop-region math (spec §3.1/§5). Landscape fractions are the spike's validated values. */
-import { describe, expect, it } from 'vitest';
-
-import { regionsFor, selectProfile } from '@/core/cropProfiles';
-
-describe('selectProfile', () => {
-  it('picks landscape when wider-or-equal, portrait when taller', () => {
-    expect(selectProfile(1573, 855)).toBe('landscape');
-    expect(selectProfile(1206, 2622)).toBe('portrait');
-    expect(selectProfile(800, 800)).toBe('landscape');
-  });
-});
-
-describe('regionsFor', () => {
-  it('computes landscape rects from fractions (validated 1573×855)', () => {
-    expect(regionsFor(1573, 855, 'landscape')).toEqual({
-      panel: { left: 220, top: 315, width: 459, height: 345 },
-      sp: { left: 544, top: 262, width: 135, height: 44 },
-    });
-  });
-
-  it('recomputes for a different resolution (non-HDR 1451×816)', () => {
-    expect(regionsFor(1451, 816, 'landscape').panel).toEqual({ left: 203, top: 300, width: 424, height: 330 });
-  });
-});
-```
-
-- [ ] **Step 2: Run → fails.**
-
-- [ ] **Step 3: Implement**
-
-```ts
-// src/core/cropProfiles.ts
-/**
- * Module 2 · F1 OCR-assist — proportional crop regions (spec §3.1, §5).
- * Regions are fractions of (W,H) → resolution-independent. Landscape fractions
- * are validated (spikes/ocr/analyze.mjs, 1573×855). Portrait fractions are an
- * INITIAL estimate to be calibrated against shots/iPhone/ (plan Task 8).
- */
-export type CropProfile = 'landscape' | 'portrait';
-export interface Rect { left: number; top: number; width: number; height: number; }
-export interface ScreenRegions { panel: Rect; sp: Rect; }
-
-type Frac = [number, number, number, number]; // fLeft, fTop, fWidth, fHeight
-const PROFILES: Record<CropProfile, { panel: Frac; sp: Frac }> = {
-  landscape: { panel: [0.140, 0.368, 0.292, 0.404], sp: [0.346, 0.306, 0.086, 0.051] },
-  portrait: { panel: [0.060, 0.300, 0.880, 0.420], sp: [0.620, 0.120, 0.300, 0.040] }, // CALIBRATE (Task 8)
-};
-
-/** Landscape when wider-or-equal, portrait when taller. */
-export function selectProfile(width: number, height: number): CropProfile {
-  return width >= height ? 'landscape' : 'portrait';
-}
-
-function rect(W: number, H: number, [fl, ft, fw, fh]: Frac): Rect {
-  return { left: Math.round(fl * W), top: Math.round(ft * H), width: Math.round(fw * W), height: Math.round(fh * H) };
-}
-
-export function regionsFor(width: number, height: number, profile: CropProfile): ScreenRegions {
-  const f = PROFILES[profile];
-  return { panel: rect(width, height, f.panel), sp: rect(width, height, f.sp) };
-}
-```
-
-- [ ] **Step 4: Run → passes.**
-- [ ] **Step 5: Commit.** `pnpm typecheck && git add src/core/cropProfiles.ts src/core/cropProfiles.test.ts && git commit -m "feat(m2-f1): proportional crop profiles (landscape validated, portrait pending calibration)"`
-
----
-
-## Task 3: `imagePrep.ts` pure transforms + `matchTier` on `BuyableSkill`
-
-**Files:** Create `src/features/sp-optimizer/ocr/imagePrep.ts` (+ test); Modify `src/core/spOptimizer.ts`.
-
-- [ ] **Step 1: Add `matchTier` to `BuyableSkill`** in `src/core/spOptimizer.ts`. Find the `BuyableSkill` interface and add this optional field (after `prereqSkillId?`):
-
-```ts
-  /** OCR-row provenance for the UI badge; absent/'manual' on manual entry. */
+  /** OCR/import-row provenance for the UI badge; absent/'manual' on manual entry. */
   matchTier?: 'exact' | 'fuzzy' | 'manual';
 ```
-This is backward-compatible (all existing rows omit it; `rankBaskets`/`enumerateFeasibleBaskets` ignore it). Run `pnpm typecheck` → clean.
+Run `pnpm typecheck` → clean (optional field, backward-compatible).
 
-- [ ] **Step 2: Write the failing test**
+- [ ] **Step 2: Write the failing test** (append to `src/core/spOptimizer.test.ts`)
 
 ```ts
-// src/features/sp-optimizer/ocr/imagePrep.test.ts
-/** Pure pixel transforms over a structural PixelBuffer (spec §3.2/§6). jsdom has no canvas/ImageData. */
-import { describe, expect, it } from 'vitest';
+import { parseCaptureBundle } from '@/core/spOptimizer';
 
-import { contrast, greyscale, normalise, threshold, type PixelBuffer } from '@/features/sp-optimizer/ocr/imagePrep';
+describe('parseCaptureBundle', () => {
+  const valid = {
+    schemaVersion: 1, source: 'ocr', capturedAt: '2026-06-15T00:00:00.000Z',
+    server: 'global', dataVersion: 'v', seed: 12345,
+    context: {
+      umaId: '', stats: { spd: 1000, sta: 800, pow: 800, gut: 400, wit: 600 },
+      aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',
+      courseId: '10101', spBudget: 2285, ownedSkills: [], pinned: [],
+      candidates: [{ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'exact' }],
+    },
+  };
 
-const buf = (...rgba: number[]): PixelBuffer => ({ data: new Uint8ClampedArray(rgba), width: rgba.length / 4, height: 1 });
-
-describe('greyscale', () => {
-  it('replaces RGB with luminance, keeps alpha', () => {
-    const b = buf(255, 0, 0, 255); // red → round(0.299*255)=76
-    greyscale(b);
-    expect([...b.data]).toEqual([76, 76, 76, 255]);
+  it('accepts a valid bundle through a JSON round-trip', () => {
+    const b = parseCaptureBundle(JSON.parse(JSON.stringify(valid)));
+    expect(b.source).toBe('ocr');
+    expect(b.context.spBudget).toBe(2285);
+    expect(b.context.candidates[0]!.skillId).toBe('200332');
+    expect(b.context.candidates[0]!.matchTier).toBe('exact');
   });
-});
 
-describe('threshold', () => {
-  it('binarizes at t (>= t → 255 else 0)', () => {
-    const b = buf(184, 184, 184, 255, 185, 185, 185, 255);
-    threshold(b, 185);
-    expect([b.data[0], b.data[4]]).toEqual([0, 255]);
+  it('rejects a wrong schemaVersion', () => {
+    expect(() => parseCaptureBundle({ ...valid, schemaVersion: 2 })).toThrow(/schemaVersion/);
   });
-});
 
-describe('normalise', () => {
-  it('stretches min..max to 0..255', () => {
-    const b = buf(100, 100, 100, 255, 150, 150, 150, 255);
-    normalise(b);
-    expect([b.data[0], b.data[4]]).toEqual([0, 255]);
+  it('rejects a non-object / missing context', () => {
+    expect(() => parseCaptureBundle({ ...valid, context: undefined })).toThrow(/context/);
+    expect(() => parseCaptureBundle(null)).toThrow(/bundle/);
   });
-});
 
-describe('contrast', () => {
-  it('applies mul*v+add with Uint8Clamped clamping', () => {
-    const b = buf(10, 10, 10, 255, 200, 200, 200, 255);
-    contrast(b, 1.2, -12); // 10→0 (clamp), 200→228
-    expect([b.data[0], b.data[4]]).toEqual([0, 228]);
+  it('rejects a non-string candidate skillId', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].skillId = 123;
+    expect(() => parseCaptureBundle(bad)).toThrow(/skillId/);
+  });
+
+  it('rejects an invalid rarity', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.candidates[0].rarity = 'legendary';
+    expect(() => parseCaptureBundle(bad)).toThrow(/rarity/);
   });
 });
 ```
 
-- [ ] **Step 3: Run → fails.**
+- [ ] **Step 3: Run → fails.** `pnpm vitest run src/core/spOptimizer.test.ts`
 
-- [ ] **Step 4: Implement**
+- [ ] **Step 4: Implement `parseCaptureBundle`** (append to `src/core/spOptimizer.ts`; the imports `Stat`, `SkillRarity`, `Server`, `Grade`, `Strategy` already exist in this file)
 
 ```ts
-// src/features/sp-optimizer/ocr/imagePrep.ts
-/**
- * F1 OCR-assist — PURE pixel preprocessing (spec §3.2/§6). Operates on a
- * structural { data, width, height } (RGBA) so it unit-tests under jsdom
- * (which has NO canvas/ImageData). A real browser ImageData is structurally
- * assignable. Canvas glue (decode/crop/upscale) lives in canvasOps.ts.
- * All four mutate in place and return the buffer (chainable).
- */
-export interface PixelBuffer {
-  data: Uint8ClampedArray; // RGBA, 4 bytes/px
-  width: number;
-  height: number;
+// --- CaptureBundle import validation (F1) ---
+
+function fail(msg: string): never { throw new Error(`Invalid CaptureBundle: ${msg}`); }
+function asObject(v: unknown, name: string): Record<string, unknown> {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) fail(`${name} must be an object`);
+  return v as Record<string, unknown>;
+}
+function asString(v: unknown, name: string): string {
+  if (typeof v !== 'string') fail(`${name} must be a string`);
+  return v;
+}
+function asNumber(v: unknown, name: string): number {
+  if (typeof v !== 'number' || Number.isNaN(v)) fail(`${name} must be a number`);
+  return v;
+}
+function asArray(v: unknown, name: string): unknown[] {
+  if (!Array.isArray(v)) fail(`${name} must be an array`);
+  return v;
 }
 
-export function greyscale(buf: PixelBuffer): PixelBuffer {
-  const d = buf.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const y = Math.round(0.299 * d[i]! + 0.587 * d[i + 1]! + 0.114 * d[i + 2]!);
-    d[i] = y; d[i + 1] = y; d[i + 2] = y;
-  }
-  return buf;
-}
+const SOURCES = ['manual', 'ocr', 'video'];
+const STAT_KEYS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
+const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'];
 
-/** Stretch the luminance range to 0..255 (reads the R channel; assumes greyscale). */
-export function normalise(buf: PixelBuffer): PixelBuffer {
-  const d = buf.data;
-  let min = 255;
-  let max = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = d[i]!;
-    if (v < min) min = v;
-    if (v > max) max = v;
-  }
-  const range = max - min || 1;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = Math.round(((d[i]! - min) / range) * 255);
-    d[i] = v; d[i + 1] = v; d[i + 2] = v;
-  }
-  return buf;
-}
+/** Validate + normalize an imported value into a CaptureBundle. Throws a descriptive Error otherwise. */
+export function parseCaptureBundle(data: unknown): CaptureBundle {
+  const root = asObject(data, 'bundle');
+  if (root['schemaVersion'] !== 1) fail('schemaVersion must be 1');
+  const source = asString(root['source'], 'source');
+  if (!SOURCES.includes(source)) fail(`source must be one of ${SOURCES.join('|')}`);
 
-/** Linear contrast v' = mul*v + add (clamped by Uint8ClampedArray assignment). */
-export function contrast(buf: PixelBuffer, mul: number, add: number): PixelBuffer {
-  const d = buf.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = mul * d[i]! + add;
-    d[i] = v; d[i + 1] = v; d[i + 2] = v;
-  }
-  return buf;
-}
+  const ctx = asObject(root['context'], 'context');
+  const statsObj = asObject(ctx['stats'], 'context.stats');
+  const stats = {} as Record<Stat, number>;
+  for (const k of STAT_KEYS) stats[k] = asNumber(statsObj[k], `context.stats.${k}`);
 
-/** Binary threshold: v >= t → 255 else 0 (assumes greyscale). */
-export function threshold(buf: PixelBuffer, t: number): PixelBuffer {
-  const d = buf.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = d[i]! >= t ? 255 : 0;
-    d[i] = v; d[i + 1] = v; d[i + 2] = v;
-  }
-  return buf;
+  const apt = asObject(ctx['aptitudes'], 'context.aptitudes');
+  const aptitudes = {
+    distance: asString(apt['distance'], 'context.aptitudes.distance') as Grade,
+    surface: asString(apt['surface'], 'context.aptitudes.surface') as Grade,
+    strategy: asString(apt['strategy'], 'context.aptitudes.strategy') as Grade,
+  };
+
+  const candidates: BuyableSkill[] = asArray(ctx['candidates'], 'context.candidates').map((c, i) => {
+    const o = asObject(c, `context.candidates[${i}]`);
+    const rarity = asString(o['rarity'], `context.candidates[${i}].rarity`);
+    if (!RARITIES.includes(rarity)) fail(`context.candidates[${i}].rarity must be a skill rarity`);
+    const bs: BuyableSkill = {
+      skillId: asString(o['skillId'], `context.candidates[${i}].skillId`),
+      rarity: rarity as SkillRarity,
+      screenSpCost: asNumber(o['screenSpCost'], `context.candidates[${i}].screenSpCost`),
+    };
+    if (o['prereqSkillId'] !== undefined) bs.prereqSkillId = asString(o['prereqSkillId'], `context.candidates[${i}].prereqSkillId`);
+    if (o['matchTier'] !== undefined) bs.matchTier = asString(o['matchTier'], `context.candidates[${i}].matchTier`) as BuyableSkill['matchTier'];
+    return bs;
+  });
+
+  const context: BuildContext = {
+    umaId: asString(ctx['umaId'], 'context.umaId'),
+    stats,
+    aptitudes,
+    strategy: asString(ctx['strategy'], 'context.strategy') as Strategy,
+    courseId: asString(ctx['courseId'], 'context.courseId'),
+    spBudget: asNumber(ctx['spBudget'], 'context.spBudget'),
+    ownedSkills: asArray(ctx['ownedSkills'], 'context.ownedSkills').map((s, i) => asString(s, `context.ownedSkills[${i}]`)),
+    pinned: asArray(ctx['pinned'], 'context.pinned').map((s, i) => asString(s, `context.pinned[${i}]`)),
+    candidates,
+  };
+
+  const bundle: CaptureBundle = {
+    schemaVersion: 1,
+    source: source as CaptureBundle['source'],
+    capturedAt: asString(root['capturedAt'], 'capturedAt'),
+    server: asString(root['server'], 'server') as Server,
+    dataVersion: asString(root['dataVersion'], 'dataVersion'),
+    context,
+  };
+  if (root['seed'] !== undefined) bundle.seed = asNumber(root['seed'], 'seed');
+  return bundle;
 }
 ```
 
 - [ ] **Step 5: Run → passes.**
-- [ ] **Step 6: Commit.** `pnpm typecheck && git add src/core/spOptimizer.ts src/features/sp-optimizer/ocr/imagePrep.ts src/features/sp-optimizer/ocr/imagePrep.test.ts && git commit -m "feat(m2-f1): pure imagePrep transforms + BuyableSkill.matchTier"`
+- [ ] **Step 6: Commit.** `pnpm typecheck && git add src/core/spOptimizer.ts src/core/spOptimizer.test.ts && git commit -m "feat(m2-f1): BuyableSkill.matchTier + parseCaptureBundle validator"`
 
 ---
 
-## Task 4: `canvasOps.ts` + `ocrEngine.ts` + vendor assets (browser-only, no CI test)
+## Task 2: `wishlistToCandidates`
 
-> These modules use canvas + the tesseract WASM worker, which jsdom cannot run. **No unit tests** — verified by `pnpm typecheck` + `pnpm build` + manual validation (Task 8). Keep them out of any file a unit test imports.
+**Files:** Modify `src/core/spOptimizer.ts`; Test `src/core/spOptimizer.test.ts` (append).
 
-- [ ] **Step 1: Add tesseract.js + vendor the assets**
-
-```bash
-pnpm add tesseract.js
-```
-Create `scripts/vendor-ocr-assets.mjs`:
-
-```js
-// Copies tesseract.js runtime assets into public/ocr/ and fetches the eng
-// traineddata (all Apache-2.0). Run: node scripts/vendor-ocr-assets.mjs
-import { mkdir, copyFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-
-const OUT = path.resolve('public/ocr');
-const CORE = 'node_modules/tesseract.js-core';
-const TJS = 'node_modules/tesseract.js/dist';
-const TRAINEDDATA = 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz';
-
-await mkdir(OUT, { recursive: true });
-const copies = [
-  [`${TJS}/worker.min.js`, 'worker.min.js'],
-  [`${CORE}/tesseract-core-simd-lstm.wasm.js`, 'tesseract-core-simd-lstm.wasm.js'],
-  [`${CORE}/tesseract-core-simd-lstm.wasm`, 'tesseract-core-simd-lstm.wasm'],
-  [`${CORE}/tesseract-core-lstm.wasm.js`, 'tesseract-core-lstm.wasm.js'],
-  [`${CORE}/tesseract-core-lstm.wasm`, 'tesseract-core-lstm.wasm'],
-];
-for (const [src, dst] of copies) await copyFile(src, path.join(OUT, dst));
-
-const res = await fetch(TRAINEDDATA);
-if (!res.ok) throw new Error(`traineddata fetch failed: ${res.status}`);
-await writeFile(path.join(OUT, 'eng.traineddata.gz'), Buffer.from(await res.arrayBuffer()));
-console.log('vendored OCR assets → public/ocr/');
-```
-Run it: `node scripts/vendor-ocr-assets.mjs`. Verify `public/ocr/` has 6 files (worker.min.js, 2 SIMD-LSTM core files, 2 LSTM fallback core files, eng.traineddata.gz). These are committed (git-tracked vendored assets, like `public/data/`; ~8 MB, fetched only on first OCR use at runtime).
-
-- [ ] **Step 2: Record provenance.** Append to `docs/provenance.md` a section: `tesseract.js@5.x` + `tesseract.js-core@5.x` + `@tesseract.js-data/eng 4.0.0_best_int` — **Apache-2.0** (clean, no copyleft) — vendored into `public/ocr/`, retrieved 2026-06-15, source `cdn.jsdelivr.net/npm/...`. Note the ~8 MB runtime assets are lazy-fetched + cached (wasm via HTTP cache, traineddata via IndexedDB).
-
-- [ ] **Step 3: Implement `src/features/sp-optimizer/ocr/canvasOps.ts`**
+- [ ] **Step 1: Write the failing test** (append)
 
 ```ts
-// src/features/sp-optimizer/ocr/canvasOps.ts
-/**
- * F1 OCR-assist — BROWSER-ONLY canvas glue (decode/crop/upscale + PixelBuffer
- * bridge). NOT unit-tested (jsdom has no 2D canvas/ImageData). Validated
- * manually against spikes/ocr/shots/ (plan Task 8). No unit test may import this.
- */
-import type { Rect } from '@/core/cropProfiles';
-import type { PixelBuffer } from '@/features/sp-optimizer/ocr/imagePrep';
-
-function ctx2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const c = canvas.getContext('2d');
-  if (!c) throw new Error('2D canvas context unavailable');
-  return c;
-}
-
-export function decodeImage(blob: Blob): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image decode failed')); };
-    img.src = url;
-  });
-}
-
-/** Crop `rect` from `img`, upscaled ×`scale`, into a canvas (for OCR). */
-export function cropToCanvas(img: HTMLImageElement, rect: Rect, scale = 1): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(rect.width * scale);
-  canvas.height = Math.round(rect.height * scale);
-  ctx2d(canvas).drawImage(img, rect.left, rect.top, rect.width, rect.height, 0, 0, canvas.width, canvas.height);
-  return canvas;
-}
-
-/** Read a canvas into a structural PixelBuffer the pure transforms accept. */
-export function canvasToPixelBuffer(canvas: HTMLCanvasElement): PixelBuffer {
-  const { width, height } = canvas;
-  const { data } = ctx2d(canvas).getImageData(0, 0, width, height);
-  return { data, width, height };
-}
-
-/** Write a (preprocessed) PixelBuffer back onto a canvas for OCR. */
-export function pixelBufferToCanvas(buf: PixelBuffer): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
-  canvas.width = buf.width;
-  canvas.height = buf.height;
-  ctx2d(canvas).putImageData(new ImageData(buf.data, buf.width, buf.height), 0, 0);
-  return canvas;
-}
-```
-
-- [ ] **Step 4: Implement `src/features/sp-optimizer/ocr/ocrEngine.ts`**
-
-```ts
-// src/features/sp-optimizer/ocr/ocrEngine.ts
-/**
- * F1 OCR-assist — lazy tesseract.js worker with LOCAL assets (no CDN, P2).
- * Browser-only; not unit-tested. Assets in public/ocr/ (Apache-2.0; provenance).
- * One reusable module-scoped worker (creation loads ~8 MB once).
- */
-interface TWorker {
-  recognize: (image: unknown) => Promise<{ data: { text: string; confidence: number; lines: { text: string; confidence: number }[] } }>;
-  setParameters: (p: Record<string, string>) => Promise<unknown>;
-  terminate: () => Promise<unknown>;
-}
-
-let workerPromise: Promise<TWorker> | null = null;
-
-async function getWorker(): Promise<TWorker> {
-  if (!workerPromise) {
-    workerPromise = (async () => {
-      const { createWorker, OEM } = await import('tesseract.js');
-      const base = import.meta.env.BASE_URL;
-      const w = await createWorker('eng', OEM.LSTM_ONLY, {
-        workerPath: `${base}ocr/worker.min.js`,
-        workerBlobURL: false,
-        corePath: `${base}ocr/`,
-        langPath: `${base}ocr/`,
-        gzip: true,
-        cacheMethod: 'write',
-        logger: () => {},
-      });
-      return w as unknown as TWorker;
-    })();
-  }
-  return workerPromise;
-}
-
-export interface RecognizeOpts { psm: '3' | '6'; whitelist?: string; }
-
-export async function recognize(canvas: HTMLCanvasElement, opts: RecognizeOpts) {
-  const worker = await getWorker();
-  await worker.setParameters({ tessedit_pageseg_mode: opts.psm, tessedit_char_whitelist: opts.whitelist ?? '' });
-  const { data } = await worker.recognize(canvas);
-  return data;
-}
-
-export async function disposeOcr(): Promise<void> {
-  if (workerPromise) {
-    const w = await workerPromise;
-    await w.terminate();
-    workerPromise = null;
-  }
-}
-```
-> The local `TWorker` structural type avoids tesseract.js CJS/interop friction; tesseract ships its own types but the dynamic `import()` return is loosely typed.
-
-- [ ] **Step 5: Verify + commit.** `pnpm typecheck && pnpm build` (must compile; build copies `public/ocr/` into `dist/`). Then:
-```bash
-git add package.json pnpm-lock.yaml scripts/vendor-ocr-assets.mjs public/ocr docs/provenance.md src/features/sp-optimizer/ocr/canvasOps.ts src/features/sp-optimizer/ocr/ocrEngine.ts
-git commit -m "feat(m2-f1): browser canvas glue + lazy local tesseract.js engine + vendored assets"
-```
-
----
-
-## Task 5: `readSkillScreen.ts` orchestrator (injectable deps)
-
-**Files:** Create `src/features/sp-optimizer/ocr/readSkillScreen.ts` (+ test).
-
-- [ ] **Step 1: Write the failing test**
-
-```ts
-// src/features/sp-optimizer/ocr/readSkillScreen.test.ts
-/** Orchestrator test with a FAKE OCR/decode (no canvas/WASM) + the real matcher + pure transforms. */
-import { describe, expect, it } from 'vitest';
-
+import { wishlistToCandidates } from '@/core/spOptimizer';
 import { FIXTURE_SKILLS } from '@/core/fixtures';
-import { readSkillScreen, type OcrDeps } from '@/features/sp-optimizer/ocr/readSkillScreen';
+import type { WishlistItem } from '@/core/types';
 
-const GLOBAL = FIXTURE_SKILLS.filter((s) => s.server === 'global');
+const SKILL_BY_ID = new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s]));
+const wl = (skillId: string): WishlistItem => ({ skillId, priority: 1, source: 'targeted' });
 
-function fakeDeps(panelLines: string[], spText: string): OcrDeps {
-  return {
-    decode: async () => ({ width: 1573, height: 855, img: {} }),
-    toPixelBuffer: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
-    recognize: async (_buf, opts) =>
-      opts.psm === '6'
-        ? { text: spText, confidence: 96, lines: [] }
-        : { text: panelLines.join('\n'), confidence: 90, lines: panelLines.map((t) => ({ text: t, confidence: 90 })) },
-  };
-}
-
-describe('readSkillScreen', () => {
-  it('matches panel names + reads available SP', async () => {
-    const r = await readSkillScreen(new Blob(), GLOBAL, fakeDeps(['Corner Adept ○', 'Professor of Curvature 160 sp'], 'SP 2285'));
-    expect(r.availableSp).toBe(2285);
-    expect(r.matches.map((m) => m.skillId).sort()).toEqual(['200331', '200332']);
+describe('wishlistToCandidates', () => {
+  it('maps wishlist skills to BuyableSkills with dataset rarity/base cost/prereq', () => {
+    expect(wishlistToCandidates([wl('200332'), wl('200331')], SKILL_BY_ID)).toEqual([
+      { skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'manual' },
+      { skillId: '200331', rarity: 'gold', screenSpCost: 160, prereqSkillId: '200332', matchTier: 'manual' },
+    ]);
   });
 
-  it('drops unmatchable lines and dedupes by skillId', async () => {
-    const r = await readSkillScreen(new Blob(), GLOBAL, fakeDeps(['Corner Adept ○', 'Corner Adept ○', 'xqzptv'], '2285'));
-    expect(r.matches).toHaveLength(1);
-    expect(r.matches[0]!.skillId).toBe('200332');
+  it('dedupes and skips ids absent from the dataset', () => {
+    const out = wishlistToCandidates([wl('200332'), wl('200332'), wl('999999')], SKILL_BY_ID);
+    expect(out.map((c) => c.skillId)).toEqual(['200332']);
   });
 });
 ```
 
 - [ ] **Step 2: Run → fails.**
 
-- [ ] **Step 3: Implement**
+- [ ] **Step 3: Implement** (append to `src/core/spOptimizer.ts`; add `SkillRecord, WishlistItem` to the existing `import type { ... } from '@/core/types';` line)
 
 ```ts
-// src/features/sp-optimizer/ocr/readSkillScreen.ts
+// --- M4-wishlist seed (F1) ---
+
 /**
- * F1 OCR-assist orchestrator (spec §3.2; port of spikes/ocr/analyze.mjs).
- * Browser deps (decode/crop/recognize) are INJECTED so the orchestration is
- * unit-testable with a fake OCR + the real matcher/transforms. The browser
- * wiring lives in runOcr.ts.
+ * Map an M4 `CmPlan.wishlist` to editable buyable candidates (1-click seed).
+ * Cost is the dataset base (an estimate to confirm against the screen). Dedupes
+ * by skillId; skips ids absent from the dataset (e.g. P4-filtered). Pure.
  */
-import type { Rect } from '@/core/cropProfiles';
-import { regionsFor, selectProfile } from '@/core/cropProfiles';
-import { matchSkillByName, type SkillMatch } from '@/core/skillMatch';
-import type { SkillRecord } from '@/core/types';
-import { contrast, greyscale, normalise, threshold, type PixelBuffer } from '@/features/sp-optimizer/ocr/imagePrep';
-
-export interface OcrLine { text: string; confidence: number; }
-export interface OcrText { text: string; confidence: number; lines: OcrLine[]; }
-
-/** Injectable browser surface (real impls in canvasOps.ts + ocrEngine.ts). */
-export interface OcrDeps {
-  decode: (blob: Blob) => Promise<{ width: number; height: number; img: unknown }>;
-  toPixelBuffer: (img: unknown, rect: Rect, scale: number) => PixelBuffer;
-  recognize: (buf: PixelBuffer, opts: { psm: '3' | '6'; whitelist?: string }) => Promise<OcrText>;
-}
-
-export interface OcrMatch extends SkillMatch { ocrText: string; }
-export interface OcrResult { availableSp: number | null; spConfidence: number; matches: OcrMatch[]; }
-
-export async function readSkillScreen(blob: Blob, skills: SkillRecord[], deps: OcrDeps): Promise<OcrResult> {
-  const { width, height, img } = await deps.decode(blob);
-  const { panel, sp } = regionsFor(width, height, selectProfile(width, height));
-
-  // Names: greyscale → ×3 → normalise → contrast → OCR PSM3.
-  const panelBuf = contrast(normalise(greyscale(deps.toPixelBuffer(img, panel, 3))), 1.2, -12);
-  const panelOcr = await deps.recognize(panelBuf, { psm: '3' });
-
-  // Available SP: greyscale → ×7 → threshold(185) → OCR PSM6 digits.
-  const spBuf = threshold(greyscale(deps.toPixelBuffer(img, sp, 7)), 185);
-  const spOcr = await deps.recognize(spBuf, { psm: '6', whitelist: '0123456789' });
-  const spDigits = spOcr.text.match(/\d{3,5}/)?.[0];
-
-  const matches: OcrMatch[] = [];
+export function wishlistToCandidates(
+  wishlist: WishlistItem[],
+  skillById: ReadonlyMap<string, SkillRecord>,
+): BuyableSkill[] {
+  const out: BuyableSkill[] = [];
   const seen = new Set<string>();
-  for (const line of panelOcr.lines) {
-    const namePart = line.text.replace(/\b\d+\b/g, '').replace(/\bsp\b/gi, '').trim();
-    if (namePart.replace(/\s/g, '').length < 3) continue;
-    const m = matchSkillByName(namePart, skills);
-    if (m && !seen.has(m.skillId)) {
-      seen.add(m.skillId);
-      matches.push({ ...m, ocrText: line.text });
-    }
+  for (const item of wishlist) {
+    if (seen.has(item.skillId)) continue;
+    const skill = skillById.get(item.skillId);
+    if (!skill) continue;
+    seen.add(item.skillId);
+    const bs: BuyableSkill = {
+      skillId: skill.skillId,
+      rarity: skill.rarity,
+      screenSpCost: skill.baseSpCost,
+      matchTier: 'manual',
+    };
+    if (skill.prereqSkillId !== undefined) bs.prereqSkillId = skill.prereqSkillId;
+    out.push(bs);
   }
-
-  return { availableSp: spDigits ? Number(spDigits) : null, spConfidence: Math.round(spOcr.confidence), matches };
+  return out;
 }
 ```
 
 - [ ] **Step 4: Run → passes.**
-- [ ] **Step 5: Commit.** `pnpm typecheck && git add src/features/sp-optimizer/ocr/readSkillScreen.ts src/features/sp-optimizer/ocr/readSkillScreen.test.ts && git commit -m "feat(m2-f1): readSkillScreen orchestrator (injectable deps)"`
+- [ ] **Step 5: Commit.** `pnpm typecheck && git add src/core/spOptimizer.ts src/core/spOptimizer.test.ts && git commit -m "feat(m2-f1): wishlistToCandidates (M4 wishlist → editable candidates)"`
 
 ---
 
-## Task 6: `runOcr.ts` (wiring) + `OcrDropZone.tsx`
+## Task 3: `BuildContextForm` — editable named rows + pre-fill props
 
-**Files:** Create `src/features/sp-optimizer/ocr/runOcr.ts` (browser-only, no CI test); `src/features/sp-optimizer/OcrDropZone.tsx` (+ test).
+**Files:** Modify `src/features/sp-optimizer/BuildContextForm.tsx` (+ test).
 
-- [ ] **Step 1: Implement `runOcr.ts`** (wires the real browser deps; not unit-tested)
-
-```ts
-// src/features/sp-optimizer/ocr/runOcr.ts
-/** F1 OCR-assist — browser-only wiring of canvasOps + ocrEngine into readSkillScreen. Not unit-tested. */
-import type { SkillRecord } from '@/core/types';
-import { canvasToPixelBuffer, cropToCanvas, decodeImage, pixelBufferToCanvas } from '@/features/sp-optimizer/ocr/canvasOps';
-import { recognize as ocrRecognize } from '@/features/sp-optimizer/ocr/ocrEngine';
-import { readSkillScreen, type OcrResult } from '@/features/sp-optimizer/ocr/readSkillScreen';
-
-export function runOcr(blob: Blob, skills: SkillRecord[]): Promise<OcrResult> {
-  return readSkillScreen(blob, skills, {
-    decode: async (b) => {
-      const img = await decodeImage(b);
-      return { width: img.naturalWidth, height: img.naturalHeight, img };
-    },
-    toPixelBuffer: (img, rect, scale) => canvasToPixelBuffer(cropToCanvas(img as HTMLImageElement, rect, scale)),
-    recognize: async (buf, opts) => {
-      const data = await ocrRecognize(pixelBufferToCanvas(buf), opts);
-      return { text: data.text, confidence: data.confidence, lines: data.lines };
-    },
-  });
-}
-```
-
-- [ ] **Step 2: Write the failing test** (`OcrDropZone.test.tsx`)
-
-```tsx
-// src/features/sp-optimizer/OcrDropZone.test.tsx
-import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { OcrDropZone } from '@/features/sp-optimizer/OcrDropZone';
-
-vi.mock('@/features/data/gameData', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/features/data/gameData')>();
-  const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
-  return { ...actual, useGameData: () => fixtureGameData() };
-});
-
-vi.mock('@/features/sp-optimizer/ocr/runOcr', () => ({
-  runOcr: vi.fn(async () => ({
-    availableSp: 2285,
-    spConfidence: 96,
-    matches: [{ skillId: '200332', nameEn: 'Corner Adept ○', rarity: 'white', baseSpCost: 110, iconId: '10011', tier: 'exact', score: 1, ocrText: 'Corner Adept ○' }],
-  })),
-}));
-
-afterEach(cleanup);
-
-describe('OcrDropZone', () => {
-  it('runs OCR on an uploaded file and emits candidates + available SP', async () => {
-    const user = userEvent.setup();
-    const onExtracted = vi.fn();
-    render(<OcrDropZone onExtracted={onExtracted} />);
-
-    await user.upload(screen.getByLabelText(/OCR a screenshot/i), new File(['x'], 'screen.png', { type: 'image/png' }));
-    await waitFor(() => expect(onExtracted).toHaveBeenCalledTimes(1));
-
-    const [candidates, sp] = onExtracted.mock.calls[0]!;
-    expect(sp).toBe(2285);
-    expect(candidates[0]).toMatchObject({ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'exact' });
-  });
-});
-```
-
-- [ ] **Step 3: Run → fails.**
-
-- [ ] **Step 4: Implement `OcrDropZone.tsx`**
-
-```tsx
-// src/features/sp-optimizer/OcrDropZone.tsx
-import { useState } from 'react';
-
-import type { BuyableSkill } from '@/core/spOptimizer';
-import { useGameData } from '@/features/data/gameData';
-import { runOcr } from '@/features/sp-optimizer/ocr/runOcr';
-
-export interface OcrDropZoneProps {
-  onExtracted: (candidates: BuyableSkill[], availableSp: number | null) => void;
-}
-
-export function OcrDropZone({ onExtracted }: OcrDropZoneProps) {
-  const { skills } = useGameData();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleFile(file: File) {
-    setBusy(true);
-    setError(null);
-    try {
-      const result = await runOcr(file, skills);
-      const candidates: BuyableSkill[] = result.matches.map((m) => ({
-        skillId: m.skillId,
-        rarity: m.rarity,
-        screenSpCost: m.baseSpCost, // base estimate — user confirms against the screen
-        prereqSkillId: m.prereqSkillId,
-        matchTier: m.tier,
-      }));
-      onExtracted(candidates, result.availableSp);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="sp-ocr">
-      <label className="sp-ocr-drop">
-        {busy ? 'Reading screen…' : 'OCR a screenshot of the skill screen'}
-        <input
-          type="file"
-          accept="image/*"
-          disabled={busy}
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleFile(f); }}
-        />
-      </label>
-      <p className="small muted">OCR is best-effort — every matched name + cost is editable below before you Analyze.</p>
-      {error && <p className="error" role="alert">OCR failed: {error}</p>}
-    </div>
-  );
-}
-```
-
-- [ ] **Step 5: Run → passes.**
-- [ ] **Step 6: Commit.** `pnpm typecheck && git add src/features/sp-optimizer/ocr/runOcr.ts src/features/sp-optimizer/OcrDropZone.tsx src/features/sp-optimizer/OcrDropZone.test.tsx && git commit -m "feat(m2-f1): OcrDropZone + runOcr wiring"`
-
----
-
-## Task 7: `BuildContextForm` editable rows + `SpOptimizerPage` mount + CSS
-
-**Files:** Modify `BuildContextForm.tsx` (+ test), `SpOptimizerPage.tsx`, `sp-optimizer.css`.
-
-- [ ] **Step 1: Update the existing test + add new tests** (`BuildContextForm.test.tsx`)
-
-`BuildContextForm` will now call `useGameData()`, so the existing test needs a gameData mock. Replace the file with:
+- [ ] **Step 1: Replace the test** (`BuildContextForm.test.tsx`) — the form will now call `useGameData()`, so add the mock; keep the existing manual case; add pre-fill + edit + remove cases.
 
 ```tsx
 // src/features/sp-optimizer/BuildContextForm.test.tsx
@@ -860,9 +301,10 @@ describe('BuildContextForm', () => {
     const user = userEvent.setup();
     const onAnalyze = vi.fn();
     const seed: BuyableSkill[] = [{ skillId: '200332', rarity: 'white', screenSpCost: 110, matchTier: 'exact' }];
-    render(<BuildContextForm onAnalyze={onAnalyze} initialCandidates={seed} initialSpBudget={2285} />);
+    render(<BuildContextForm onAnalyze={onAnalyze} initialCandidates={seed} initialSpBudget={2285} initialCourseId="10105" />);
 
     expect(screen.getByLabelText('Available SP')).toHaveValue(2285);
+    expect(screen.getByLabelText('Course id')).toHaveValue('10105');
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
     const bundle = onAnalyze.mock.calls[0]![0];
     expect(bundle.source).toBe('ocr');
@@ -878,11 +320,9 @@ describe('BuildContextForm', () => {
     ];
     render(<BuildContextForm onAnalyze={onAnalyze} initialCandidates={seed} initialSpBudget={2285} />);
 
-    // correct the first cost (resolved name comes from fixtureGameData; fall back to id)
     const costInputs = screen.getAllByLabelText(/^Cost for /);
     await user.clear(costInputs[0]!);
     await user.type(costInputs[0]!, '128');
-    // remove the second row (each row has one "Remove …" button)
     const removeButtons = screen.getAllByRole('button', { name: /^Remove/ });
     await user.click(removeButtons[1]!);
 
@@ -894,8 +334,6 @@ describe('BuildContextForm', () => {
   });
 });
 ```
-
-> If the remove-button query is brittle, target it directly: each row's remove button has `aria-label={`Remove ${name}`}`; query the specific one once names resolve. The intent is: edit a cost, remove a row, assert the resulting bundle.
 
 - [ ] **Step 2: Run → fails** (no `initialCandidates` prop / no editable rows yet).
 
@@ -917,17 +355,18 @@ export interface BuildContextFormProps {
   onAnalyze: (bundle: CaptureBundle) => void;
   initialCandidates?: BuyableSkill[];
   initialSpBudget?: number;
+  initialCourseId?: string;
   dataVersion?: string;
   /** Clock injected so the component stays testable/deterministic. */
   now?: () => string;
 }
 
 export function BuildContextForm({
-  onAnalyze, initialCandidates, initialSpBudget, dataVersion = 'global-c1fa2107', now,
+  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, dataVersion = 'global-c1fa2107', now,
 }: BuildContextFormProps) {
   const { skillById } = useGameData();
   const [spBudget, setSpBudget] = useState(initialSpBudget ?? 1000);
-  const [courseId, setCourseId] = useState('10101');
+  const [courseId, setCourseId] = useState(initialCourseId ?? '10101');
   const [candidates, setCandidates] = useState<BuyableSkill[]>(initialCandidates ?? []);
   const [draftId, setDraftId] = useState('');
   const [draftCost, setDraftCost] = useState('');
@@ -1030,28 +469,222 @@ export function BuildContextForm({
 }
 ```
 
-- [ ] **Step 4: Run the form test → passes.** `pnpm vitest run src/features/sp-optimizer/BuildContextForm.test.tsx`
+- [ ] **Step 4: Run → passes.** `pnpm vitest run src/features/sp-optimizer/BuildContextForm.test.tsx`
+- [ ] **Step 5: Commit.** `pnpm typecheck && git add src/features/sp-optimizer/BuildContextForm.tsx src/features/sp-optimizer/BuildContextForm.test.tsx && git commit -m "feat(m2-f1): editable named candidate rows + initial-pre-fill props"`
 
-- [ ] **Step 5: Mount `OcrDropZone` in `SpOptimizerPage.tsx`.** Add the import + seed state + drop-zone + remount-key. Specifically:
-  1. Add imports: `import type { BuyableSkill } from '@/core/spOptimizer';` and `import { OcrDropZone } from '@/features/sp-optimizer/OcrDropZone';`
-  2. Add state (with the other `useState`s): `const [ocrSeed, setOcrSeed] = useState<{ candidates: BuyableSkill[]; sp: number | null } | null>(null); const [importKey, setImportKey] = useState(0);`
-  3. Replace `<BuildContextForm onAnalyze={analyze} />` with:
+---
+
+## Task 4: `SpOptimizerPage` import control + "Copy from M4 wishlist" + CSS
+
+**Files:** Modify `src/features/sp-optimizer/SpOptimizerPage.tsx` (+ test), `sp-optimizer.css`.
+
+- [ ] **Step 1: Replace `SpOptimizerPage.test.tsx`** — add the `useActivePlan` mock + a wishlist-button test (keep the existing analyze→save test).
+
 ```tsx
-        <OcrDropZone
-          onExtracted={(candidates, sp) => { setOcrSeed({ candidates, sp }); setImportKey((k) => k + 1); }}
-        />
-        <BuildContextForm
-          key={importKey}
-          onAnalyze={analyze}
-          initialCandidates={ocrSeed?.candidates}
-          initialSpBudget={ocrSeed?.sp ?? undefined}
-        />
+// src/features/sp-optimizer/SpOptimizerPage.test.tsx
+import '@testing-library/jest-dom/vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
+
+vi.mock('@/features/data/gameData', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/features/data/gameData')>();
+  const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
+  return { ...actual, useGameData: () => ({ ...fixtureGameData(), status: 'ready' as const }) };
+});
+
+vi.mock('@/db', () => ({
+  listCaptures: vi.fn(async () => []),
+  saveCapture: vi.fn(async (d: { label: string; bundle: unknown }) => ({ id: 'id1', ...d })),
+  deleteCapture: vi.fn(async () => undefined),
+}));
+
+vi.mock('@/features/sp-optimizer/rankBaskets', () => ({
+  rankBaskets: vi.fn(() => ({ mode: 'exact', baskets: [{ skills: ['200332'], score: 1, spUsed: 110, spLeft: 0, descriptor: 'd' }] })),
+}));
+
+// active plan with a 1-item wishlist (200332 is in FIXTURE_SKILLS)
+vi.mock('@/app/ActivePlanContext', () => ({
+  useActivePlan: () => ({
+    plan: { wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] },
+    setPlan: vi.fn(), flushPendingSave: vi.fn(), loadError: null,
+  }),
+}));
+
+afterEach(cleanup);
+
+describe('SpOptimizerPage', () => {
+  it('seeds the form from the M4 wishlist and can Analyze', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+
+    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    // the seeded candidate row renders + Analyze is enabled
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    expect(screen.getByText('Suggested baskets')).toBeInTheDocument();
+  });
+});
 ```
 
-- [ ] **Step 6: Append CSS** to `src/features/sp-optimizer/sp-optimizer.css`:
+> Note: `wishlistToCandidates` skips skillIds absent from `skillById`, so the wishlist test's `skillId` (`200332`) must resolve in `fixtureGameData`. Confirm it does (read `src/features/testing/fixtureGameData.ts`); if not, use a skillId that `fixtureGameData` provides (or extend the fixture). The Task-3 form pre-fill test already exercises `200332` with the same mock.
+
+- [ ] **Step 2: Run → fails** (no wishlist button yet).
+
+- [ ] **Step 3: Replace `SpOptimizerPage.tsx`**
+
+```tsx
+// src/features/sp-optimizer/SpOptimizerPage.tsx
+import { useState } from 'react';
+
+import { useActivePlan } from '@/app/ActivePlanContext';
+import { type BuyableSkill, type CaptureBundle, parseCaptureBundle, wishlistToCandidates } from '@/core/spOptimizer';
+import { useGameData } from '@/features/data/gameData';
+import { BuildCards } from '@/features/sp-optimizer/BuildCards';
+import { BuildContextForm } from '@/features/sp-optimizer/BuildContextForm';
+import { type RankResult, rankBaskets } from '@/features/sp-optimizer/rankBaskets';
+import { useCaptures } from '@/features/sp-optimizer/useCaptures';
+import './sp-optimizer.css';
+
+interface Seed { candidates: BuyableSkill[]; sp?: number; courseId?: string; }
+
+export function SpOptimizerPage() {
+  const { status, skillById } = useGameData();
+  const { plan } = useActivePlan();
+  const captures = useCaptures();
+  const [result, setResult] = useState<RankResult | null>(null);
+  const [bundle, setBundle] = useState<CaptureBundle | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [label, setLabel] = useState('');
+  const [seed, setSeed] = useState<Seed | null>(null);
+  const [seedKey, setSeedKey] = useState(0);
+
+  function applySeed(next: Seed) {
+    setSeed(next);
+    setSeedKey((k) => k + 1);
+    setImportError(null);
+  }
+
+  async function importFile(file: File) {
+    try {
+      const parsed = parseCaptureBundle(JSON.parse(await file.text()));
+      applySeed({ candidates: parsed.context.candidates, sp: parsed.context.spBudget, courseId: parsed.context.courseId });
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  function copyWishlist() {
+    if (!plan) return;
+    applySeed({ candidates: wishlistToCandidates(plan.wishlist, skillById) });
+  }
+
+  function analyze(b: CaptureBundle) {
+    setBundle(b);
+    try {
+      setResult(rankBaskets(b));
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      setResult(null);
+    }
+  }
+
+  function saveCurrent() {
+    if (!bundle) return;
+    captures.save(label.trim() || 'Untitled capture', bundle);
+    setLabel('');
+  }
+
+  if (status === 'loading') {
+    return <p className="muted">Loading…</p>;
+  }
+
+  const wishlistEmpty = !plan || plan.wishlist.length === 0;
+
+  return (
+    <div className="page">
+      <section className="panel" aria-labelledby="sp-h">
+        <h2 id="sp-h">SP Purchase Optimizer</h2>
+        <p className="muted small">
+          Post-run, SP-limited. Enter the skills on your purchase screen (or import / copy from your
+          M4 wishlist), their on-screen costs, and your available SP. Costs are read from the screen — never calculated.
+        </p>
+        <p className="sp-caveat small" role="note">
+          Estimates, not verdicts — the sim can’t see positional chaos (P3).
+        </p>
+        {status === 'fixture' && (
+          <p className="error" role="alert">Running on placeholder data — results are illustrative.</p>
+        )}
+
+        <div className="sp-imports">
+          <label className="sp-import">
+            Import capture (.json)
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); }}
+            />
+          </label>
+          <button type="button" onClick={copyWishlist} disabled={wishlistEmpty}>
+            Copy from M4 wishlist
+          </button>
+        </div>
+        {importError && <p className="error" role="alert">Import failed: {importError}</p>}
+
+        <BuildContextForm
+          key={seedKey}
+          onAnalyze={analyze}
+          initialCandidates={seed?.candidates}
+          initialSpBudget={seed?.sp}
+          initialCourseId={seed?.courseId}
+        />
+        {error && <p className="error" role="alert">Could not analyze: {error}</p>}
+      </section>
+
+      {result && (
+        <section className="panel" aria-labelledby="sp-results-h">
+          <h2 id="sp-results-h">Suggested baskets</h2>
+          <BuildCards result={result} />
+          <div className="sp-save">
+            <label>
+              Save as
+              <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. CM14 ace" />
+            </label>
+            <button type="button" onClick={saveCurrent}>Save capture</button>
+          </div>
+        </section>
+      )}
+
+      <section className="panel" aria-labelledby="sp-saved-h">
+        <h2 id="sp-saved-h">Saved captures</h2>
+        {captures.error !== null && <p className="error" role="alert">Captures error: {captures.error}</p>}
+        {captures.items === null ? (
+          <p className="muted">Loading…</p>
+        ) : captures.items.length === 0 ? (
+          <p className="muted small">No saved captures yet.</p>
+        ) : (
+          <ul className="sp-saved">
+            {captures.items.map((c) => (
+              <li key={c.id}>
+                <button type="button" className="sp-load" onClick={() => analyze(c.bundle)}>{c.label}</button>
+                <button type="button" aria-label={`Delete ${c.label}`} onClick={() => captures.remove(c.id)}>✕</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Append CSS** to `src/features/sp-optimizer/sp-optimizer.css`:
 ```css
-.sp-ocr { display: grid; gap: 0.25rem; margin-bottom: 0.5rem; }
-.sp-ocr-drop { display: inline-grid; gap: 0.25rem; padding: 0.5rem 0.75rem; border: 1px dashed var(--border, #aaa); border-radius: 0.5rem; cursor: pointer; }
+.sp-imports { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.sp-import { display: inline-grid; gap: 0.2rem; }
 .sp-candidate-row { display: flex; align-items: center; gap: 0.4rem; }
 .sp-candidate-name { flex: 1; }
 .sp-candidate-cost { width: 5rem; }
@@ -1060,32 +693,71 @@ export function BuildContextForm({
 .sp-tier-badge[data-tier='fuzzy'] { background: var(--warn-bg, #fde9c8); }
 ```
 
-- [ ] **Step 7: Verify the page test still passes** (it mocks gameData/db/rankBaskets and does analyze→save; `OcrDropZone` renders but its `runOcr` is never called without an upload, so no canvas runs). Run `pnpm vitest run src/features/sp-optimizer/SpOptimizerPage.test.tsx`. If it fails because `OcrDropZone`'s `runOcr` import pulls canvas at module load, that won't happen (the canvas calls are inside functions), but if the page test needs it, add `vi.mock('@/features/sp-optimizer/ocr/runOcr', () => ({ runOcr: vi.fn() }))` to that test.
-
-- [ ] **Step 8: Full suite + commit.** `pnpm typecheck && pnpm test` (all green). Then:
+- [ ] **Step 5: Run the page test → passes.** `pnpm vitest run src/features/sp-optimizer/SpOptimizerPage.test.tsx`
+  - Note: the `App.tsx` renders the page inside `<ActivePlanProvider>` already, so production has a real `useActivePlan`; only the test needs the mock above.
+- [ ] **Step 6: Full suite + commit.** `pnpm typecheck && pnpm test` (all green). Then:
 ```bash
-git add src/features/sp-optimizer/BuildContextForm.tsx src/features/sp-optimizer/BuildContextForm.test.tsx src/features/sp-optimizer/SpOptimizerPage.tsx src/features/sp-optimizer/sp-optimizer.css
-git commit -m "feat(m2-f1): editable named candidate rows + OcrDropZone wired into the page"
+git add src/features/sp-optimizer/SpOptimizerPage.tsx src/features/sp-optimizer/SpOptimizerPage.test.tsx src/features/sp-optimizer/sp-optimizer.css
+git commit -m "feat(m2-f1): import-capture control + Copy-from-M4-wishlist button"
 ```
 
 ---
 
-## Task 8: Manual validation + portrait calibration
+## Task 5: Document the CaptureBundle contract
 
-> The full WASM+Canvas pipeline can't run in jsdom (verified). This task validates it manually against the gitignored `spikes/ocr/shots/` and calibrates the portrait crop.
+**Files:** Create `docs/capture-bundle-contract.md`.
 
-- [ ] **Step 1: Build + serve.** `pnpm build && pnpm dev`. Open the SP Optimizer page.
-- [ ] **Step 2: Landscape validation.** Drop 2–3 of `spikes/ocr/shots/*.png` (landscape Steam, 1573×855 / 1451×816). Confirm: available SP reads `2285`; the matched skill names + tiers reproduce the spike's `node spikes/ocr/batch.mjs` output for those shots; costs pre-fill as dataset base (editable). Note any mis-matches.
-- [ ] **Step 3: Portrait calibration.** Drop `spikes/ocr/shots/iPhone/*` (1206×2622). If the panel/SP crops are off, adjust the `portrait` fractions in `src/core/cropProfiles.ts` until names read (target ≥90%, matching the spike's 93–95%). Re-run `pnpm test` (cropProfiles tests assert the math, not portrait pixel values, so they stay green) and re-validate.
-- [ ] **Step 4: Record the procedure + results.** Append a section to `docs/mechanics-notes.md` (or a sibling `docs/ocr-validation.md`): the shots used (NOT committed — they're personal/gitignored), the per-shot SP + matched-skill results, the final portrait fractions, and the date. State the honest caveat (P3): OCR is assistive; the canvas preprocessing isn't byte-identical to the spike's `sharp`, so accuracy is "good enough to pre-fill, always confirm-on-entry."
-- [ ] **Step 5: Commit.** `git add src/core/cropProfiles.ts docs/mechanics-notes.md && git commit -m "test(m2-f1): manual OCR validation + portrait crop calibration"`
+- [ ] **Step 1: Write the contract doc** (so the separate native companion can target it)
+
+```markdown
+# CaptureBundle JSON — import contract (M2)
+
+`CaptureBundle` is the JSON the M2 SP optimizer imports (spec
+`docs/superpowers/specs/2026-06-15-m2-f1-ocr-assist-design.md` §4). Any producer
+(the native capture companion, a hand-authored file, this app's own export) that
+emits a valid bundle can feed M2. `parseCaptureBundle` (`src/core/spOptimizer.ts`)
+is the **authoritative validator** — it rejects malformed input with a descriptive error.
+
+## Shape
+\`\`\`jsonc
+{
+  "schemaVersion": 1,
+  "source": "ocr",            // "manual" | "ocr" | "video"
+  "capturedAt": "<ISO 8601>",
+  "server": "global",
+  "dataVersion": "<dataset version matched against>",
+  "seed": 12345,              // optional; fixed seed → reproducible sims
+  "context": {
+    "umaId": "",
+    "stats":  { "spd": 0, "sta": 0, "pow": 0, "gut": 0, "wit": 0 },
+    "aptitudes": { "distance": "A", "surface": "A", "strategy": "A" },
+    "strategy": "pace",       // "front" | "pace" | "late" | "end"
+    "courseId": "10101",
+    "spBudget": 2285,         // available SP (the number a companion really reads)
+    "ownedSkills": [],
+    "pinned": [],
+    "candidates": [
+      { "skillId": "200332", "rarity": "white", "screenSpCost": 110, "matchTier": "exact" },
+      { "skillId": "200331", "rarity": "gold",  "screenSpCost": 160, "prereqSkillId": "200332", "matchTier": "fuzzy" }
+    ]
+  }
+}
+\`\`\`
+
+## Producer notes (native companion)
+- A skill-screen capturer can populate `candidates` (name→`skillId` match + on-screen cost) and `spBudget`. It cannot read `stats`/`aptitudes`/`strategy`/`courseId` off that screen — leave them at defaults; the user confirms in the form (or M2·F3 supplies them).
+- `matchTier` ('exact' | 'fuzzy' | 'manual') drives the UI confidence badge.
+- The validated OCR reference design lives in the spec §6 (ported from the gitignored `spikes/ocr/`).
+```
+
+- [ ] **Step 2: Commit.** `git add docs/capture-bundle-contract.md && git commit -m "docs(m2-f1): CaptureBundle import contract for the native companion"`
 
 ---
 
 ## Self-review (author)
-- **Spec coverage:** §3.1 skillMatch→T1, cropProfiles→T2; §3.2 imagePrep→T3, canvasOps/ocrEngine→T4, readSkillScreen→T5; §3.3 OcrDropZone+form→T6/T7; §5 crop profiles→T2(+T8 portrait calibration); §6 preprocessing→T3+T4; §7 testing (CI pure + manual)→T1-3/5/6 CI, T4/T8 manual; §8 local-first tesseract→T4; §2 cost=base→T6 (`screenSpCost: m.baseSpCost`). The matcher aptitude-mark fix→T1.
-- **No-CI-test modules** (canvasOps/ocrEngine/runOcr) are explicitly verified by typecheck+build+manual (T8) — necessary because jsdom has no canvas (recon-confirmed); not a placeholder.
-- **Type consistency:** `PixelBuffer` (T3) used by imagePrep/canvasOps/readSkillScreen; `Rect`/`selectProfile`/`regionsFor` (T2) used by canvasOps/readSkillScreen; `SkillMatch` (T1) extended by `OcrMatch` (T5) → mapped to `BuyableSkill.matchTier` (T3) in OcrDropZone (T6); `OcrResult`/`OcrDeps` (T5) consumed by runOcr (T6). `matchTier` union 'exact'|'fuzzy'|'manual' consistent across spOptimizer/form/matcher (matcher emits 'exact'|'fuzzy'; manual-add sets 'manual').
-- **Portrait fractions** are an explicit initial estimate calibrated in T8 (the unit tests assert the math + orientation, not portrait pixel accuracy) — honest, not a placeholder.
+- **Spec coverage:** §3.1 `parseCaptureBundle`→T1, `wishlistToCandidates`→T2; §3.2 form→T3, import control + wishlist button→T4; §4 contract→T5; §8 testing→T1-4; §2 cost=base (`screenSpCost: baseSpCost`)→T2, confirm-on-entry editable rows→T3. `matchTier`→T1.
+- **No placeholders;** every code step is complete. No OCR/canvas/WASM anywhere (moved to the companion per spec §5).
+- **Type consistency:** `matchTier` union 'exact'|'fuzzy'|'manual' added in T1, set by `wishlistToCandidates`/manual-add (T2/T3), validated by `parseCaptureBundle` (T1), badged in the form (T3). `parseCaptureBundle`/`wishlistToCandidates` return/consume `BuyableSkill`/`CaptureBundle` from the same module; `BuildContextForm` `initial*` props (T3) consumed by `SpOptimizerPage` (T4). The page's `useActivePlan` (T4) is mocked in its test.
+- **Honest scope:** imported `context.stats/aptitudes/strategy` are not surfaced by the MVP form (it uses defaults) — recorded as F3 territory in the spec; the import seeds candidates + SP + course only.
 
-> F1 ships OCR-assist. F2 (compare-vs-veteran), F3 (pre-fill), F4 (video-sync) remain separate follow-ups.
+> F1 ships the import + wishlist paths + the contract. F2 (compare-vs-veteran), F3 (full pre-fill incl. stats), and the native companion remain separate efforts.
