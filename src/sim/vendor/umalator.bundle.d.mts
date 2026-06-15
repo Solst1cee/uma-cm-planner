@@ -1,0 +1,87 @@
+// Types for the generated umalator.bundle.mjs (hand-written; the bundle ships no .d.ts).
+// Source shapes: jalbarrang/umalator-global v0.14.2.
+
+/** Engine runner input. Strategy + aptitudes are STRING labels; mood is -2..2. */
+export interface IRunnerState {
+  outfitId: string;
+  speed: number;
+  stamina: number;
+  power: number;
+  guts: number;
+  wisdom: number;
+  strategy: 'Front Runner' | 'Pace Chaser' | 'Late Surger' | 'End Closer' | 'Runaway';
+  distanceAptitude: string; // 'S'|'A'|'B'|'C'|'D'|'E'|'F'|'G'
+  surfaceAptitude: string;
+  strategyAptitude: string;
+  mood: -2 | -1 | 0 | 1 | 2;
+  skills: string[];
+  randomMobId?: number;
+  linkedRunnerId?: string;
+}
+
+/** Opaque course geometry; only ever produced by coursesService.getSimCourse. */
+export interface CourseData {
+  readonly courseId: number;
+  readonly distance: number;
+  readonly surface: number; // 1=Turf, 2=Dirt
+  readonly [key: string]: unknown;
+}
+
+/** Race conditions (engine accepts plain numbers; see adversarial-smoke). */
+export interface RaceDef {
+  ground: number;  // 1=firm
+  weather: number; // 1=sunny
+  season: number;
+  time: number;
+  grade: number;   // 100=G1
+  [key: string]: unknown;
+}
+
+export interface SimOptions {
+  seed?: number;
+  ignoreStaminaConsumption?: boolean;
+  [key: string]: unknown;
+}
+
+export interface SkillComparisonResult {
+  results: number[];
+  skillActivations: Record<string, unknown>;
+  runData: unknown;
+  min: number; max: number; mean: number; median: number;
+}
+export interface PlannerCompareResult {
+  results: number[];
+  skillActivations: Record<string, unknown>;
+  min: number; max: number; mean: number; median: number;
+}
+export interface CompareResult {
+  results: number[];
+  runData: unknown;
+  rushedStats: unknown;
+  leadCompetitionStats: unknown;
+  spurtInfo: null;
+  staminaStats: { uma1: { staminaSurvivalRate: number; fullSpurtRate: number }; uma2: { staminaSurvivalRate: number; fullSpurtRate: number } };
+  firstUmaStats: { uma1: { firstPlaceRate: number }; uma2: { firstPlaceRate: number } };
+}
+
+export function runSkillComparison(params: {
+  trackedSkillId: string; nsamples: number; course: CourseData; racedef: RaceDef;
+  runnerA: IRunnerState; runnerB: IRunnerState; options: SimOptions;
+}): SkillComparisonResult;
+
+export function runComparison(params: {
+  nsamples: number; course: CourseData; racedef: RaceDef;
+  uma1: IRunnerState; uma2: IRunnerState; options: SimOptions;
+}): CompareResult;
+
+export function runPlannerComparison(params: {
+  nsamples: number; course: CourseData; racedef: RaceDef;
+  runnerA: IRunnerState; runnerB: IRunnerState; candidateSkills: string[];
+  ignoreStaminaConsumption: boolean; options: SimOptions;
+}): PlannerCompareResult;
+
+export const coursesService: { getSimCourse(courseId: number): CourseData };
+export const skillsService: {
+  getById(skillId: string): { name?: string } | undefined;
+  isSimulatable(skillId: string): boolean;
+};
