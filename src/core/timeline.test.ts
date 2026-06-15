@@ -51,3 +51,19 @@ describe('sortTimeline', () => {
     expect(sortTimeline(base).map((e) => e.id)).toEqual(['cm-a', 'cm-b']);
   });
 });
+
+import { predictGlobalDateDefault, JP_GLOBAL_PACE, JP_LAUNCH, GLOBAL_LAUNCH } from './timeline';
+
+describe('pace calibration', () => {
+  it('exposes the calibrated JP→Global pace (SoulEC 1.422) + launch anchors', () => {
+    expect(JP_GLOBAL_PACE).toBeCloseTo(1.422);
+    expect(JP_LAUNCH).toBe('2021-02-24');
+    expect(GLOBAL_LAUNCH).toBe('2025-06-26');
+  });
+  it('predictGlobalDateDefault maps JP launch → Global launch and compresses later dates', () => {
+    expect(predictGlobalDateDefault('2021-02-24')).toBe('2025-06-26');
+    const d = predictGlobalDateDefault('2025-01-16'); // ~1422 JP days after launch
+    expect(d > '2025-06-26').toBe(true);
+    expect(predictGlobalDateDefault('2025-01-16')).toBe(d); // deterministic
+  });
+});

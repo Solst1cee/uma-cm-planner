@@ -64,3 +64,13 @@ export function timelineBadge(e: TimelineEntry): { symbol: '✓' | '◆' | '~'; 
   if (e.tier === 'datamined') return { symbol: '◆', label: 'datamined' };
   return { symbol: '~', label: 'predicted' };
 }
+
+/** JP→Global content acceleration (SoulEC "Time Factor" ≈ 142.2%, 2026-06-15). PREDICTION input only (P3). */
+export const JP_GLOBAL_PACE = 1.422;
+export const JP_LAUNCH = '2021-02-24';
+export const GLOBAL_LAUNCH = '2025-06-26';
+
+/** Predict a Global date from a JP date using the baked pace + launch anchors (tier 'prediction'). */
+export function predictGlobalDateDefault(jpISO: string): string {
+  return predictGlobalDate(jpISO, JP_GLOBAL_PACE, JP_LAUNCH, GLOBAL_LAUNCH);
+}
