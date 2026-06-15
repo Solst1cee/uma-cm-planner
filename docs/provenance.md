@@ -46,6 +46,16 @@ All findings below: **Phase 0 spikes, retrieved/verified 2026-06-12** unless dat
 ### Fidelity caveat (P3)
 Compare mode replaces multi-runner interactions (blocking, order conditions) with statistical distributions (`conditions/aproximate-conditions.ts`, upstream README disclaimers). Good for **relative** skill ranking; absolute bashin vs in-game behavior is unvalidated. Surface this in the UI.
 
+### 1.2 Racetrack UI layers — SOURCE vendor (added 2026-06-16)
+
+The static race-track visualisation for M4 §0 is vendored as **source** (not a bundle) into `src/features/planner/racetrack/vendor/` — same upstream repo, same pin (v0.14.2 / commit `c1fa2107`), GPL-3.0-only. No new licence obligation beyond what §1 already carries.
+
+Three SVG layer/primitive components were copied verbatim and then adapted:
+- `d3` removed from the x-axis tick calculation (replaced by a local tick helper).
+- `@/i18n` import replaced by a local label shim (`src/features/planner/racetrack/shims/`).
+- `CourseService.phaseStart` and the `CourseData` type replaced by local shims in the same directory.
+- `// @ts-nocheck` applied to the three vendored files that trip `noUncheckedIndexedAccess` (our tsconfig is stricter than upstream's).
+
 ---
 
 ## 2. Licensing
