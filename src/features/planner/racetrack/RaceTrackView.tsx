@@ -1,0 +1,79 @@
+/**
+ * M4 §0 — race-track visualization. Renders umalator's vendored SVG layers
+ * (slope profile, corner/straight bands, race legs, distance ruler) for the
+ * active plan's CM course. Course geometry is the real engine CourseData,
+ * lazy-loaded so the engine bundle stays out of the initial chunk.
+ *
+ * Slice A scope: static course only. HP, velocity, and skill-activation zones
+ * (which need the engine's per-frame run trace) land in a later slice.
+ */
+import { useEffect, useState } from 'react';
+import type { CmPlan } from '@/core/types';
+import type { CourseData } from '@/sim';
+import { RaceTrackDimensions } from './vendor/types';
+import { SlopeVisualization } from './vendor/layers/slope-visualization';
+import { SlopeLabelBar } from './vendor/layers/slope-label-bar';
+import { SectionTypesBar } from './vendor/layers/section-bar';
+import { PhaseBar } from './vendor/layers/phase-bar';
+import { SectionNumbersBar } from './vendor/layers/section-numbers';
+import { XAxis } from './vendor/axes/x-axis';
+import './vendor/RaceTrack.css';
+import './racetrack.css';
+
+interface RaceTrackViewProps {
+  plan: CmPlan;
+  deps?: { loadCourse: (courseId: string) => Promise<CourseData> };
+}
+
+const defaultLoadCourse = (courseId: string): Promise<CourseData> =>
+  import('@/sim/courseData').then((m) => m.courseDataFor(courseId));
+
+export function RaceTrackView({ plan, deps }: RaceTrackViewProps) {
+  const loadCourse = deps?.loadCourse ?? defaultLoadCourse;
+  const courseId = plan.cmRef.courseId;
+  const [course, setCourse] = useState<CourseData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setCourse(null);
+    setError(null);
+    if (!courseId) {
+      setError('no course selected');
+      return;
+    }
+    loadCourse(courseId)
+      .then((c) => {
+        if (!cancelled) setCourse(c);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, loadCourse]);
+
+  if (error) return <p className="muted">Track unavailable: {error}</p>;
+  if (!course) return <p className="muted small">Loading track…</p>;
+
+  return (
+    <div className="rt-view">
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={`0 0 ${RaceTrackDimensions.ViewWidth} ${RaceTrackDimensions.ViewHeight}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="racetrackView"
+        data-courseid={courseId}
+      >
+        <SlopeVisualization course={course} />
+        <SlopeLabelBar course={course} />
+        <SectionTypesBar course={course} />
+        <PhaseBar course={course} />
+        <SectionNumbersBar />
+        <XAxis courseDistance={course.distance} />
+      </svg>
+    </div>
+  );
+}
