@@ -23,3 +23,6 @@ docs/superpowers/specs/*.pdf
 
 # tesseract OCR training data (large fetched blob, not project source)
 eng.traineddata
+
+# Claude Code local state (git worktrees live under .claude/worktrees/)
+.claude/
