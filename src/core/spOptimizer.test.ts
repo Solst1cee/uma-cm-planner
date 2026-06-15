@@ -143,3 +143,42 @@ describe('shortlistByProxy', () => {
     expect(lists.every((b) => b.includes('a'))).toBe(true);
   });
 });
+
+import { chooseBasketsToScore } from '@/core/spOptimizer';
+
+// --- chooseBasketsToScore ---
+describe('chooseBasketsToScore', () => {
+  const cands: BuyableSkill[] = [buy('a', 100), buy('b', 100), buy('c', 100)];
+
+  it('uses the exact branch when feasible subsets are within the threshold', () => {
+    const r = chooseBasketsToScore(
+      { candidates: cands, spBudget: 200, pinned: [] },
+      {},
+      { exactThreshold: 100, shortlistLimit: 10, minDistance: 1 },
+    );
+    expect(r.mode).toBe('exact');
+    expect(r.baskets.length).toBe(enumerateFeasibleBaskets(cands, 200, []).length);
+  });
+
+  it('falls back to the shortlist when the feasible count exceeds the threshold', () => {
+    const r = chooseBasketsToScore(
+      { candidates: cands, spBudget: 300, pinned: [] },
+      { a: 1, b: 1, c: 1 },
+      { exactThreshold: 3, shortlistLimit: 5, minDistance: 1 },
+    );
+    expect(r.mode).toBe('shortlist');
+    expect(r.baskets.length).toBeLessThanOrEqual(5);
+  });
+
+  it('skips the exact branch (no 2^n blowup) when there are many optional candidates', () => {
+    const many: BuyableSkill[] = Array.from({ length: 24 }, (_, i) => buy(`s${i}`, 10));
+    const dl = Object.fromEntries(many.map((c) => [c.skillId, 1]));
+    const r = chooseBasketsToScore(
+      { candidates: many, spBudget: 1000, pinned: [] },
+      dl,
+      { exactThreshold: 256, shortlistLimit: 5, minDistance: 1 },
+    );
+    expect(r.mode).toBe('shortlist'); // returns fast, never enumerates 2^24
+    expect(r.baskets.length).toBeLessThanOrEqual(5);
+  });
+});

@@ -245,3 +245,50 @@ export function shortlistByProxy(
   }
   return out;
 }
+
+// --- branch chooser ---
+
+/** Above this many OPTIONAL candidates, never attempt exact (2^n) enumeration. */
+const MAX_EXACT_BITS = 20;
+
+export interface ChooseOpts {
+  /** Max feasible subsets to allow the exact (sim-everything) branch. */
+  exactThreshold: number;
+  shortlistLimit: number;
+  minDistance: number;
+}
+
+export interface ChooseResult {
+  mode: 'exact' | 'shortlist';
+  /** Candidate baskets (skill-id arrays, incl. pinned) for the sim to score. */
+  baskets: string[][];
+}
+
+/**
+ * Decide the exact vs shortlist branch (spec §4 steps 2–3). The exact branch
+ * is gated TWICE so it never explodes: first by the optional-candidate bit
+ * count (`MAX_EXACT_BITS`, to avoid even building 2^n masks), then by the
+ * feasible-subset count (`exactThreshold`). Otherwise return a Δ-L proxy
+ * shortlist. Pure and total — no simulation here.
+ */
+export function chooseBasketsToScore(
+  ctx: Pick<BuildContext, 'candidates' | 'spBudget' | 'pinned'>,
+  deltaLById: Record<string, number>,
+  opts: ChooseOpts,
+): ChooseResult {
+  const pinnedClosed = prereqClosure(ctx.pinned, ctx.candidates);
+  const optionalCount = ctx.candidates.filter((c) => !pinnedClosed.includes(c.skillId)).length;
+  if (optionalCount <= MAX_EXACT_BITS) {
+    const feasible = enumerateFeasibleBaskets(ctx.candidates, ctx.spBudget, ctx.pinned);
+    if (feasible.length <= opts.exactThreshold) {
+      return { mode: 'exact', baskets: feasible };
+    }
+  }
+  return {
+    mode: 'shortlist',
+    baskets: shortlistByProxy(ctx.candidates, ctx.spBudget, ctx.pinned, deltaLById, {
+      limit: opts.shortlistLimit,
+      minDistance: opts.minDistance,
+    }),
+  };
+}
