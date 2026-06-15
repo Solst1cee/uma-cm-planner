@@ -8,9 +8,10 @@ import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
 import { ParentsPage } from '@/features/parents/ParentsPage';
 import { SkillPlannerPage } from '@/features/skill-planner/SkillPlannerPage';
+import { TimelinePage } from '@/features/meta-intel/TimelinePage';
 
-// Modules 1–3 land in later phases; nav shows them as disabled stubs.
-const STUB_MODULES = ['Inheritance', 'SP Optimizer', 'Meta Intel'] as const;
+// Modules 1–2 land in later phases; nav shows them as disabled stubs.
+const STUB_MODULES = ['Inheritance', 'SP Optimizer'] as const;
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   isActive ? 'nav-item active' : 'nav-item';
@@ -41,6 +42,9 @@ function Shell() {
           <NavLink to="/parents" className={navItemClass}>
             Parents
           </NavLink>
+          <NavLink to="/meta-intel" className={navItemClass}>
+            Meta Intel
+          </NavLink>
           {STUB_MODULES.map((name) => (
             <button key={name} type="button" className="nav-item" disabled>
               {name}
@@ -53,6 +57,7 @@ function Shell() {
         <Routes>
           <Route path="/" element={<SkillPlannerPage />} />
           <Route path="/parents" element={<ParentsPage />} />
+          <Route path="/meta-intel" element={<TimelinePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
