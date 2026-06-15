@@ -20,3 +20,12 @@ export interface SettingRecord {
   key: string;
   value: unknown;
 }
+
+import type { CaptureBundle } from '@/core/spOptimizer';
+
+/** A persisted M2 capture (the source-of-truth artifact; results are derived). */
+export interface StoredCapture {
+  id: string;
+  label: string;
+  bundle: CaptureBundle;
+}

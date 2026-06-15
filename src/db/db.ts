@@ -7,7 +7,7 @@
  */
 import Dexie, { type Table } from 'dexie';
 import type { CmPlan, OwnedCard, Parent } from '@/core/types';
-import type { MatchLog, SettingRecord } from './types';
+import type { MatchLog, SettingRecord, StoredCapture } from './types';
 
 export const DB_NAME = 'uma-cm-planner';
 
@@ -19,6 +19,7 @@ export class UmaCmPlannerDb extends Dexie {
   declare cmPlans: Table<CmPlan, string>;
   declare matchLogs: Table<MatchLog, number>;
   declare settings: Table<SettingRecord, string>;
+  declare captures: Table<StoredCapture, string>;
 
   constructor(name: string = DB_NAME) {
     super(name);
@@ -28,6 +29,9 @@ export class UmaCmPlannerDb extends Dexie {
       cmPlans: 'id, name, month',
       matchLogs: '++id, cmPlanId, date',
       settings: 'key',
+    });
+    this.version(2).stores({
+      captures: 'id, label',
     });
   }
 }
