@@ -97,6 +97,19 @@ Semantics: per individual spark, per lineage member, independent rolls each even
 - Level caps per limit break: R 20/25/30/35/40, SR 25/30/35/40/45, SSR 30/35/40/45/50 (`support_card_limit`). Per-LB passive value = matrix value at the LB's cap level; between breakpoints linear-interpolate (integer floor), carry-forward after the last (reference impl: Tachyons-lab `helper.py lerp_levels`).
 - Per-card hint pools: `single_mode_hint_gain` (1735 rows; `hint_gain_type=0`, `hint_value_1` = skill id, `hint_value_2` = hint levels granted). Extracted: `db/extract/hint-effects.json`.
 
+## 11. M2 SP-optimizer validation (Plan #1 gate)
+
+- **Automated (`rankBaskets.validation.test.ts`):** deterministic output for a
+  fixed seed; ≤3 baskets; each within budget; ranked on simulated combined Δ-L;
+  the pure core's exact branch == brute-force enumeration (`spOptimizer.test.ts`).
+- **Manual vs VFalator (≥3 skills):** for the fixture build, run VFalator on the
+  same course/strategy/stats and compare single-skill Δ-lengths against
+  `evalSkillDelta` for ≥3 spot-checked skills; record date + numbers here.
+  Within Monte-Carlo noise = pass.
+- **Deferred (needs adapter telemetry):** per-basket phase profile (early/mid/late,
+  stamina margin) — the adapter currently exposes only BashinStats, so v1 shows a
+  distribution descriptor (Δ-lengths + spread), not a phase profile.
+
 ## 10. In-game verification queue (P3 — render affected outputs as approximate until resolved)
 
 1. Blue in-run roll ranges + distribution shape (§6) — single-proc isolation runs.
