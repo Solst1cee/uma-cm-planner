@@ -52,6 +52,7 @@
 .cmp-preset {
   grid-column: 1;
   grid-row: 1 / span 2;
+  align-self: stretch; /* fill both custom rows so the separator spans their full height */
   border-right: 1px solid var(--border);
   padding-right: 0.8rem;
 }
