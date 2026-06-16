@@ -1,14 +1,14 @@
 /**
  * M4 §0 — race-track visualization. Renders umalator's vendored SVG layers
- * (slope profile, corner/straight bands, race legs, distance ruler) for the
- * active plan's CM course. Course geometry is the real engine CourseData,
- * lazy-loaded so the engine bundle stays out of the initial chunk.
+ * (slope profile, corner/straight bands, race legs, distance ruler) for a
+ * given course. Course geometry is the real engine CourseData, lazy-loaded so
+ * the engine bundle stays out of the initial chunk.
  *
- * Slice A scope: static course only. HP, velocity, and skill-activation zones
- * (which need the engine's per-frame run trace) land in a later slice.
+ * Driven by `courseId` (the race-setup chooser owns the selection). Slice A
+ * scope: static course only — HP / velocity / skill-activation zones (which need
+ * the engine's per-frame run trace) land in a later slice.
  */
 import { useEffect, useState } from 'react';
-import type { CmPlan } from '@/core/types';
 import type { CourseData } from '@/sim';
 import { RaceTrackDimensions } from './vendor/types';
 import { SlopeVisualization } from './vendor/layers/slope-visualization';
@@ -21,16 +21,15 @@ import './vendor/RaceTrack.css';
 import './racetrack.css';
 
 interface RaceTrackViewProps {
-  plan: CmPlan;
+  courseId: string;
   deps?: { loadCourse: (courseId: string) => Promise<CourseData> };
 }
 
 const defaultLoadCourse = (courseId: string): Promise<CourseData> =>
   import('@/sim/courseData').then((m) => m.courseDataFor(courseId));
 
-export function RaceTrackView({ plan, deps }: RaceTrackViewProps) {
+export function RaceTrackView({ courseId, deps }: RaceTrackViewProps) {
   const loadCourse = deps?.loadCourse ?? defaultLoadCourse;
-  const courseId = plan.cmRef.courseId;
   const [course, setCourse] = useState<CourseData | null>(null);
   const [error, setError] = useState<string | null>(null);
 

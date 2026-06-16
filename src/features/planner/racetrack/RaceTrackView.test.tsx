@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan } from '@/core/types';
 import { RaceTrackView } from './RaceTrackView';
 
 afterEach(cleanup);
@@ -30,29 +29,18 @@ const HANSHIN_2200 = {
   ],
 };
 
-function makePlan(over: Partial<CmPlan> = {}): CmPlan {
-  return {
-    id: 'p', name: 'p', planNumber: 1,
-    cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
-    umaId: '100101', uniqueSkillId: 'u', role: 'ace', strategy: 'front',
-    statProfile: { stats: { spd: 1200, sta: 650, pow: 900, gut: 400, wit: 600 }, mood: 0 },
-    sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},
-    patch: { version: 't' }, server: 'global', dataVersion: 't', ...over,
-  } as CmPlan;
-}
-
 const deps = { loadCourse: () => Promise.resolve(HANSHIN_2200 as never) };
 
 describe('RaceTrackView', () => {
   it('renders the race-phase, section, and slope bars for the course', async () => {
-    render(<RaceTrackView plan={makePlan()} deps={deps} />);
+    render(<RaceTrackView courseId="10906" deps={deps} />);
     await waitFor(() => expect(document.querySelector('#race-phases')).toBeInTheDocument());
     expect(document.querySelector('#race-sections')).toBeInTheDocument();
     expect(document.querySelector('#racetrack-slope-visualization')).toBeInTheDocument();
   });
 
   it('labels the legs (Early-race … Last spurt) and section types', async () => {
-    render(<RaceTrackView plan={makePlan()} deps={deps} />);
+    render(<RaceTrackView courseId="10906" deps={deps} />);
     expect(await screen.findByText('Last spurt')).toBeInTheDocument();
     expect(screen.getByText('Early-race')).toBeInTheDocument();
     expect(screen.getAllByText('Straight').length).toBeGreaterThan(0);
@@ -60,7 +48,7 @@ describe('RaceTrackView', () => {
 
   it('degrades gracefully when the course cannot be resolved', async () => {
     const failing = { loadCourse: () => Promise.reject(new Error('Unknown course: x')) };
-    render(<RaceTrackView plan={makePlan()} deps={failing} />);
+    render(<RaceTrackView courseId="999" deps={failing} />);
     expect(await screen.findByText(/unavailable/i)).toBeInTheDocument();
     expect(document.querySelector('#race-phases')).not.toBeInTheDocument();
   });

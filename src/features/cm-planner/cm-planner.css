@@ -1,111 +1,83 @@
-/* M4 rebuild — new main page (cm-planner). §0 race-track diagram styles,
-   ported from the mockup (.superpowers/brainstorm/.../m4-current.html) onto the
-   project's design tokens (--border / --accent / --fg-muted). */
+/* M4 planner page — the §0 race-track diagram on top (large), the race-setup
+   chooser below. (The old hand-rolled track styles were retired with Slice A;
+   the vendored track styles live in features/planner/racetrack/.) */
 
-/* ---- §0 track diagram ---- */
-.track {
-  position: relative;
-  height: 34px;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid var(--border);
+.cmp-page {
   display: flex;
-  margin-top: 8px;
-}
-.tseg {
-  height: 100%;
-}
-.tstraight {
-  background: #1b2230;
-}
-.tcorner {
-  background: #33283f;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-/* activation bands are <button>s overlaid on the track */
-.act {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  margin: 0;
-  padding: 0;
-  font: inherit;
-  background: rgba(176, 139, 255, 0.16);
-  border: 0;
-  border-left: 1px solid rgba(176, 139, 255, 0.55);
-  border-right: 1px solid rgba(176, 139, 255, 0.55);
+/* the vendored track fills the page width (bigger than the old hand-rolled bar) */
+.cmp-page .rt-view {
+  width: 100%;
+}
+
+/* ---- race-setup chooser ---- */
+.cmp-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.cmp-mode {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.cmp-mode .chip {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.85rem;
   cursor: pointer;
 }
-.act > b {
-  position: absolute;
-  top: 1px;
-  left: 4px;
-  font-size: 8.5px;
+.cmp-mode .chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-0);
   font-weight: 600;
-  color: #cfe0ff;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.act.hot {
-  background: rgba(122, 162, 247, 0.32);
-  border-left: 2px solid var(--accent);
-  border-right: 2px solid var(--accent);
-  z-index: 2;
-}
-.act:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-  z-index: 3;
-}
-.fin {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 3px;
-  background: #57c98a;
 }
 
-.axis {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--fg-muted);
-  margin-top: 2px;
+.cmp-custom {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
 }
-.tracklegend {
+.cmp-field {
   display: flex;
-  gap: 11px;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.cmp-field-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+}
+.cmp-field select {
+  padding: 5px 8px;
+  background: var(--bg-0);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.cmp-conditions {
+  display: flex;
   flex-wrap: wrap;
-  font-size: 10px;
-  color: var(--fg-muted);
-  margin-top: 6px;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
 }
-.tracklegend .k {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.tracklegend i {
-  width: 13px;
-  height: 9px;
-  border-radius: 2px;
-  display: inline-block;
-}
-.leg-straight {
-  background: #1b2230;
-}
-.leg-corner {
-  background: #33283f;
-}
-.leg-sel {
-  background: rgba(122, 162, 247, 0.5);
-  border: 1px solid var(--accent);
-}
-.leg-other {
-  background: rgba(176, 139, 255, 0.25);
-  border: 1px solid #6a5a9e;
-}
-.leg-fin {
-  background: #57c98a;
+.cmp-chip {
+  font-size: 0.8rem;
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--fg);
 }
