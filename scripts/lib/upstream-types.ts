@@ -23,6 +23,8 @@ export interface MasterSkill {
   id: string;
   /** 1=white, 2=gold, 3–5=unique. Inherited uniques (9xxxxx) carry rarity 1 + unique_version. */
   rarity: number;
+  /** Umalator skill family id; skills with the same id are mutually exclusive variants. */
+  groupId?: number;
   /** Other skill ids in the same family (gold↔white links). */
   versions: number[];
   baseCost: number;

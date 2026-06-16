@@ -1,0 +1,218 @@
+/* M4 §1 Unique-skill chart — collapsible VFalator-style table.
+   Kept separate from cm-planner.css. Reuses page tokens + shared utilities
+   (.cmp-small-btn / .cmp-missing-skill / .muted / .small). */
+
+.cmp-uma-chart {
+  padding: 0; /* head + body manage their own padding */
+  overflow: hidden; /* clip the header bar to the panel's rounded corners */
+}
+
+/* ---- header bar (matches the sidebar's .cmp-plan-card-head) with inline Run + collapse ---- */
+.cmp-uma-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+}
+.cmp-uma-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.cmp-run-btn {
+  padding: 2px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg-0);
+  cursor: pointer;
+}
+.cmp-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cmp-uma-progress {
+  white-space: nowrap;
+}
+.cmp-stale {
+  color: #b8702a;
+  white-space: nowrap;
+}
+.cmp-uma-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--fg-muted);
+}
+.cmp-uma-caret {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg); /* points right when collapsed */
+  transition: transform 120ms ease;
+}
+.cmp-uma-caret[data-open] {
+  transform: rotate(45deg); /* points down when open */
+}
+
+/* ---- body ---- */
+.cmp-uma-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem 0.7rem;
+}
+.cmp-uma-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.cmp-uma-toolbar .search {
+  flex: 1; /* fills; "show all" sits right after it on the same row */
+  min-width: 8rem;
+  background: var(--bg-0, #fff);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 4px 9px;
+  font-size: 0.82rem;
+  color: inherit;
+}
+.cmp-showall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+/* ---- table: thead + scrollable rows share the same fixed grid columns so they align ---- */
+.cmp-uma-thead,
+.cmp-uma-row {
+  display: grid;
+  /* portrait | skill (grows) | style | min | max | mean | median | select */
+  grid-template-columns: 2rem minmax(0, 1fr) 5rem 3.2rem 3.2rem 3.2rem 3.2rem 3.4rem;
+  gap: 0.4rem;
+}
+/* scroll container framing the table; the thead sticks while rows scroll */
+.cmp-uma-table {
+  max-height: 30rem; /* ~12 compact rows, then scroll */
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.cmp-uma-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  align-items: center;
+  padding: 0.3rem 0.4rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fg-muted);
+}
+.cmp-uma-sort {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.cmp-uma-sort.is-sort {
+  color: var(--accent);
+  font-weight: 700;
+}
+.cmp-uma-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* compact, borderless rows (a faint hover background distinguishes them) */
+.cmp-uma-row {
+  align-items: start; /* cells stick to the top line; they don't reflow when a plate expands */
+  padding: 0.1rem 0.4rem;
+}
+.cmp-uma-row:hover {
+  background: var(--bg-2);
+}
+.cmp-uma-row.is-dim {
+  opacity: 0.55;
+}
+.cmp-uma-portrait {
+  align-self: start;
+  border-radius: 6px;
+}
+.cmp-uma-plate {
+  min-width: 0; /* fills the fixed 13rem column */
+}
+/* left-pack the plate's icon+name+caret (the sidebar uses space-between, which here
+   would shove the caret to the far right) + ellipsis the name to keep the column equal-width */
+.cmp-uma-row .cmp-skill-detail > summary {
+  justify-content: flex-start;
+}
+.cmp-uma-row .cmp-skill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* the right-hand cells are top-aligned (align-self:start) but center their own
+   content within the first-line height, so they read aligned with the skill name
+   when collapsed and stay put when the plate expands. */
+.cmp-uma-style {
+  align-self: start;
+  min-height: 2.05rem;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.76rem;
+  background: var(--bg-0, #fff);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 3px;
+  cursor: pointer;
+}
+.cmp-uma-na {
+  align-self: start;
+  min-height: 2.05rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--fg-muted);
+  cursor: default;
+}
+.cmp-uma-num {
+  align-self: start;
+  min-height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+.cmp-uma-num.is-sort {
+  color: var(--accent);
+  font-weight: 700;
+}
+.cmp-uma-select {
+  align-self: start;
+  min-height: 2.05rem;
+  display: inline-flex;
+  align-items: center;
+}

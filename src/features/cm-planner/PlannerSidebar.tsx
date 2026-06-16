@@ -9,6 +9,13 @@ import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy } f
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
+import {
+  addOrReplaceWishlistSkill,
+  replaceWishlistSkillVariant,
+  skillVariantOptions,
+  wishlistSkillId,
+  wishlistSkillRecord,
+} from '@/features/skill-planner/skillFamilies';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import {
   loadUniqueSkillByUmaId,
@@ -92,17 +99,6 @@ function generatePlanName(plan: CmPlan, umaName: string | undefined): string {
   return parts.filter((part): part is string => part !== undefined && part !== '').join(' / ');
 }
 
-function addWishlistSkill(plan: CmPlan, skillId: string): CmPlan {
-  if (plan.wishlist.some((item) => item.skillId === skillId)) return plan;
-  return {
-    ...plan,
-    wishlist: [
-      ...plan.wishlist,
-      { skillId, priority: 1, source: 'targeted', manualAdd: true },
-    ],
-  };
-}
-
 function setStat(plan: CmPlan, stat: Stat, value: number): CmPlan {
   return {
     ...plan,
@@ -178,9 +174,22 @@ export function PlannerSidebar({
       .slice(0, 24);
   }, [globalUmas, umaQuery, uniqueByUmaId]);
   const wishlistIds = useMemo(
-    () => new Set(plan.wishlist.map((item) => item.skillId)),
-    [plan.wishlist],
+    () => new Set(plan.wishlist.flatMap((item) => {
+      const resolvedSkillId = wishlistSkillId(item.skillId, skillById);
+      return resolvedSkillId && resolvedSkillId !== item.skillId
+        ? [item.skillId, resolvedSkillId]
+        : [item.skillId];
+    })),
+    [plan.wishlist, skillById],
   );
+  const hiddenWishlistSkillIds = useMemo(() => {
+    const hidden = new Set<string>();
+    if (plan.uniqueSkillId) {
+      const inheritedSkillId = wishlistSkillId(plan.uniqueSkillId, skillById);
+      if (inheritedSkillId !== plan.uniqueSkillId) hidden.add(inheritedSkillId);
+    }
+    return hidden;
+  }, [plan.uniqueSkillId, skillById]);
   const uniqueFromRuntime = plan.umaId ? uniqueByUmaId?.get(plan.umaId) ?? null : null;
   const uniqueFromRecord = plan.uniqueSkillId
     ? skillSummaryFromMap(plan.uniqueSkillId, skillById)
@@ -191,7 +200,7 @@ export function PlannerSidebar({
   const selectedStrategy = STRATEGIES.find((strategy) => strategy.value === plan.strategy) ?? STRATEGIES[0];
   const projectedTotal = plan.wishlist.reduce((sum, item) => sum + (item.projectedL ?? 0), 0);
   const spTotal = plan.wishlist.reduce((sum, item) => {
-    const skill = skillById.get(item.skillId);
+    const skill = wishlistSkillRecord(item.skillId, skillById);
     return sum + (skill?.baseSpCost ?? 0);
   }, 0);
 
@@ -549,8 +558,9 @@ export function PlannerSidebar({
             <div className="cmp-wishlist-list">
               {plan.wishlist.length === 0 && <p className="muted small">No target skills yet.</p>}
               {plan.wishlist.map((item) => {
-                const skill = skillById.get(item.skillId);
+                const skill = wishlistSkillRecord(item.skillId, skillById);
                 const summary = skill ? skillRecordToSummary(skill) : null;
+                const variants = skill ? skillVariantOptions(skill, skillById) : [];
                 return (
                   <div key={item.skillId} className="cmp-wishlist-line">
                     {summary ? (
@@ -559,6 +569,34 @@ export function PlannerSidebar({
                         side={
                           item.projectedL !== undefined ? (
                             <span className="L">+{item.projectedL.toFixed(2)}</span>
+                          ) : undefined
+                        }
+                        technicalHeaderSide={
+                          variants.length > 1 ? (
+                            <label className="cmp-variant-select">
+                              <span>Variant</span>
+                              <select
+                                aria-label={`Skill variant for ${summary.nameEn}`}
+                                value={summary.skillId}
+                                onChange={(e) =>
+                                  onChange({
+                                    ...plan,
+                                    wishlist: replaceWishlistSkillVariant(
+                                      plan.wishlist,
+                                      item.skillId,
+                                      e.target.value,
+                                      skillById,
+                                    ),
+                                  })
+                                }
+                              >
+                                {variants.map((variant) => (
+                                  <option key={variant.skillId} value={variant.skillId}>
+                                    {variant.nameEn}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
                           ) : undefined
                         }
                       />
@@ -592,7 +630,18 @@ export function PlannerSidebar({
             </div>
             <SkillPicker
               addedSkillIds={wishlistIds}
-              onPick={(skillId) => onChange(addWishlistSkill(plan, skillId))}
+              hiddenSkillIds={hiddenWishlistSkillIds}
+              onPick={(skillId) =>
+                onChange({
+                  ...plan,
+                  wishlist: addOrReplaceWishlistSkill(
+                    plan.wishlist,
+                    skillId,
+                    skillById,
+                    hiddenWishlistSkillIds,
+                  ),
+                })
+              }
             />
           </section>
         </div>

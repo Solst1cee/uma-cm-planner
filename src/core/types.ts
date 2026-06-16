@@ -104,6 +104,8 @@ export interface SkillRecord {
   iconId: string;
   /** Gold skills require their white base (counted/bundled by SP math). */
   prereqSkillId?: string;
+  /** Other released skill ids in the same game variation family. */
+  variantSkillIds?: string[];
   /**
    * Game-internal scenario id (single_mode_scenario.id — NOT GameTora release
    * order; id 3 does not exist). Set only for scenario-exclusive skills.

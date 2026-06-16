@@ -8,6 +8,7 @@ import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CmId } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { PlannerSidebar } from './PlannerSidebar';
+import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
@@ -59,6 +60,11 @@ export function CmPlannerPage() {
         <div className="cmp-main">
           <RaceTrackView courseId={selection.courseId} />
           <RaceSetup onChange={handleRaceChange} />
+          <UmaChartPanel
+            courseId={selection.courseId}
+            plan={plan}
+            onSelectRunner={(umaId, uniqueSkillId) => setPlan({ ...plan, umaId, uniqueSkillId })}
+          />
         </div>
       </div>
     </SelectedSkillProvider>

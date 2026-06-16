@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
@@ -8,10 +8,12 @@ const h = vi.hoisted(() => {
   const skill = (
     skillId: string,
     nameEn: string,
-    rarity: 'white' | 'gold' | 'unique',
+    rarity: 'white' | 'gold' | 'unique' | 'inherited_unique',
     iconId: string,
     conditions: string,
     baseSpCost = 0,
+    variantSkillIds?: string[],
+    prereqSkillId?: string,
   ) => ({
     skillId,
     nameEn,
@@ -19,6 +21,8 @@ const h = vi.hoisted(() => {
     baseSpCost,
     rarity,
     iconId,
+    ...(prereqSkillId ? { prereqSkillId } : {}),
+    ...(variantSkillIds ? { variantSkillIds } : {}),
     conditions,
     server: 'global',
     dataVersion: 't',
@@ -27,7 +31,16 @@ const h = vi.hoisted(() => {
     skill('u', 'Victory Cheer!', 'unique', '20013', 'phase>=2&order>=1'),
     skill('v', 'Silent Speedline', 'unique', '20013', 'corner!=0'),
     skill('a', 'Escape Artist', 'white', '20011', 'distance_rate>=50', 240),
-    skill('b', 'Professor of Curvature', 'gold', '20012', 'corner_random==1', 160),
+    skill('200011', 'Right-Handed ◎', 'white', '10011', 'rotation==1', 110, ['200012', '200013', '200014']),
+    skill('200012', 'Right-Handed ○', 'white', '10011', 'rotation==1', 90, ['200011', '200013', '200014']),
+    skill('200013', 'Right-Handed ×', 'white', '10014', 'rotation==1', 50, ['200011', '200012', '200014']),
+    skill('200014', 'Right-Handed Demon', 'gold', '10012', 'rotation==1', 130, ['200011', '200012', '200013'], '200012'),
+    skill('200331', 'Professor of Curvature', 'gold', '20012', 'all_corner_random==1', 180, ['200332', '200333'], '200332'),
+    skill('200332', 'Corner Adept ○', 'white', '20011', 'all_corner_random==1', 180, ['200331', '200333']),
+    skill('200333', 'Corner Adept ×', 'white', '20014', 'all_corner_random==1', 100, ['200331', '200332']),
+    skill('201472', 'I Can See Right Through You', 'white', '20011', 'running_style==4&is_move_lane==1', 110),
+    skill('110061', 'Festive Miracle', 'unique', '20013', 'activate_count_heal>=3&distance_rate>=50'),
+    skill('910061', 'Festive Miracle', 'inherited_unique', '20011', 'activate_count_heal>=3&distance_rate>=50', 200),
   ];
   const umas = [
     {
@@ -103,10 +116,14 @@ const h = vi.hoisted(() => {
             condition: record?.conditions ?? 'phase>=2',
             baseDuration: 50000,
             cooldownTime: 5000000,
-            effects: [{ type: 27, modifier: 2500, target: 1 }],
+            effects: [
+              { type: 27, modifier: 2500, target: 1, valueUsage: 1, valueLevelUsage: 1 },
+              { type: 31, modifier: 2000, target: 1, valueUsage: 1, valueLevelUsage: 1 },
+              { type: 8, modifier: 50000, target: 1, valueUsage: 1, valueLevelUsage: 1 },
+            ],
           },
         ],
-        sources: [],
+        sources: [{ name: 'Special Week', outfit: '[Special Dreamer]' }],
       };
     }),
   };
@@ -278,7 +295,7 @@ describe('PlannerSidebar', () => {
 
     expect(h.setPlan).toHaveBeenCalledWith(
       expect.objectContaining({
-        wishlist: expect.arrayContaining([expect.objectContaining({ skillId: 'b' })]),
+        wishlist: expect.arrayContaining([expect.objectContaining({ skillId: '200331' })]),
       }),
     );
 
@@ -286,6 +303,95 @@ describe('PlannerSidebar', () => {
     expect(h.setPlan).toHaveBeenCalledWith(
       expect.objectContaining({ wishlist: [] }),
     );
+  });
+
+  it('only offers inherited uniques in wishlist search results', async () => {
+    const user = userEvent.setup();
+    renderSidebar({ ...(h.plan as CmPlan), wishlist: [] });
+
+    await user.type(screen.getByLabelText('Search skills by name'), 'festive');
+
+    const festiveResults = await screen.findAllByRole('button', { name: /Festive Miracle/i });
+    expect(festiveResults).toHaveLength(1);
+    expect(festiveResults[0]).toHaveTextContent('200 SP');
+    expect(festiveResults[0]).toHaveClass('cmp-skill-rarity-inherited_unique');
+    expect(screen.queryByText('0 SP')).not.toBeInTheDocument();
+  });
+
+  it('displays inherited unique details when a native unique is already in the wishlist', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: '110061', priority: 1, source: 'targeted' }],
+    });
+
+    const festive = screen.getByText('Festive Miracle');
+    expect(festive.closest('.cmp-skill-detail')).toHaveClass('cmp-skill-rarity-inherited_unique');
+    expect(screen.getByText('SP 200')).toBeInTheDocument();
+    expect(screen.queryByText('SP 0')).not.toBeInTheDocument();
+    expect(screen.getByText(/base SP/i)).toHaveTextContent('200');
+  });
+
+  it('hides the inherited version of the current native unique from wishlist search', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      uniqueSkillId: '110061',
+      wishlist: [],
+    });
+
+    await user.type(screen.getByLabelText('Search skills by name'), 'festive');
+
+    expect(screen.queryByRole('button', { name: /Festive Miracle/i })).not.toBeInTheDocument();
+    expect(screen.getByText('No matching skills.')).toBeInTheDocument();
+  });
+
+  it('replaces a lower selected variant when a higher variant is picked', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: '200012', priority: 2, source: 'targeted' }],
+    });
+
+    await user.type(screen.getByLabelText('Search skills by name'), 'right-handed');
+    const results = within(screen.getByRole('list', { name: 'Skill search results' }));
+    expect(results.queryByRole('button', { name: /Right-Handed ○/i })).not.toBeInTheDocument();
+    expect(results.queryByRole('button', { name: /Right-Handed ×/i })).not.toBeInTheDocument();
+    await user.click(results.getByRole('button', { name: /Right-Handed Demon/i }));
+
+    const next = h.setPlan.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist).toHaveLength(1);
+    expect(next.wishlist[0]).toMatchObject({ skillId: '200014', priority: 2 });
+  });
+
+  it('does not offer lower variants when a higher one is already selected', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: '200014', priority: 1, source: 'targeted' }],
+    });
+
+    await user.type(screen.getByLabelText('Search skills by name'), 'right-handed');
+    const results = within(screen.getByRole('list', { name: 'Skill search results' }));
+
+    expect(results.queryByRole('button', { name: /Right-Handed ○/i })).not.toBeInTheDocument();
+    expect(results.queryByRole('button', { name: /Right-Handed ◎/i })).not.toBeInTheDocument();
+    expect(results.queryByRole('button', { name: /Right-Handed Demon/i })).not.toBeInTheDocument();
+    expect(screen.getByText('No matching skills.')).toBeInTheDocument();
+  });
+
+  it('lets wishlist rows switch between skill variants', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }],
+    });
+
+    await user.click(screen.getByText('Corner Adept ○', { selector: 'span.cmp-skill-name' }));
+    await user.selectOptions(screen.getByLabelText('Skill variant for Corner Adept ○'), '200333');
+
+    const next = h.setPlan.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist).toHaveLength(1);
+    expect(next.wishlist[0]).toMatchObject({ skillId: '200333', priority: 1 });
   });
 
   it('flushes the pending save when Save is clicked', async () => {
@@ -298,17 +404,74 @@ describe('PlannerSidebar', () => {
     await screen.findByText('saved');
   });
 
-  it('expands skill technical detail with conditions and raw effects', async () => {
+  it('expands skill technical detail with conditions and readable effects', async () => {
     const user = userEvent.setup();
     renderSidebar();
 
     await user.click(screen.getByText('Victory Cheer!'));
 
-    expect(await screen.findByText('Alternative 1')).toBeInTheDocument();
+    expect(await screen.findByText('Activation route 1')).toBeInTheDocument();
     expect(screen.getAllByText('phase>=2 &').length).toBeGreaterThan(0);
     expect(screen.getAllByText('order>=1').length).toBeGreaterThan(0);
-    expect(screen.getByText('type 27')).toBeInTheDocument();
-    expect(screen.getByText('modifier 2500')).toBeInTheDocument();
-    expect(screen.getByText('target 1')).toBeInTheDocument();
+    expect(screen.queryByText('Trigger')).not.toBeInTheDocument();
+    expect(screen.queryByText('1 route')).not.toBeInTheDocument();
+    expect(screen.queryByText('3 effects')).not.toBeInTheDocument();
+    expect(screen.queryByText('Sources')).not.toBeInTheDocument();
+    expect(screen.queryByText('Special Week [Special Dreamer]')).not.toBeInTheDocument();
+    expect(screen.getByText('Target speed')).toBeInTheDocument();
+    expect(screen.getByText('+0.25m/s')).toBeInTheDocument();
+    expect(screen.getByText('+0.25m/s')).toHaveClass('is-positive');
+    expect(screen.getByText('Acceleration')).toBeInTheDocument();
+    expect(screen.getByText('+0.2m/s²')).toBeInTheDocument();
+    expect(screen.getByText('+0.2m/s²')).toHaveClass('is-positive');
+    expect(screen.getByText('Field of view')).toBeInTheDocument();
+    expect(screen.getByText('+5')).toHaveClass('is-positive');
+    expect(screen.getByText('Target speed').closest('.cmp-effect-chip')).toHaveClass('is-target-speed');
+    expect(screen.getByText('Acceleration').closest('.cmp-effect-chip')).toHaveClass('is-acceleration');
+    expect(screen.queryByText('modifier 2500')).not.toBeInTheDocument();
+    expect(screen.queryByText('target 1')).not.toBeInTheDocument();
+  });
+
+  it('marks harmful random recovery effects as debuffs', async () => {
+    const user = userEvent.setup();
+    h.loadSkillTechnicalDetail.mockResolvedValueOnce({
+      summary: {
+        skillId: 'u',
+        nameEn: 'Victory Cheer!',
+        iconId: '20013',
+        rarity: 'unique',
+        baseSpCost: 0,
+        conditions: 'phase>=2&order>=1',
+      },
+      alternatives: [
+        {
+          precondition: '',
+          condition: 'phase>=2&order>=1',
+          baseDuration: 50000,
+          cooldownTime: 5000000,
+          effects: [{ type: 9, modifier: -10000, target: 1, valueUsage: 8, valueLevelUsage: 1 }],
+        },
+      ],
+      sources: [],
+    });
+    renderSidebar();
+
+    await user.click(screen.getByText('Victory Cheer!'));
+
+    expect(await screen.findByText('HP drain')).toBeInTheDocument();
+    expect(screen.getByText('60% none / 30% -2% / 10% -4%')).toBeInTheDocument();
+    expect(screen.getByText('60% none / 30% -2% / 10% -4%')).toHaveClass('is-negative');
+    expect(screen.getByText('HP drain').closest('.cmp-effect-chip')).toHaveClass('is-debuff');
+  });
+
+  it('shows an honest empty state when runtime skill detail is missing', async () => {
+    const user = userEvent.setup();
+    h.loadSkillTechnicalDetail.mockResolvedValueOnce(null as never);
+    renderSidebar();
+
+    await user.click(screen.getByText('Victory Cheer!'));
+
+    expect(await screen.findByText('No runtime technical detail was found for this skill.')).toBeInTheDocument();
+    expect(screen.queryByText('Loading technical detail...')).not.toBeInTheDocument();
   });
 });

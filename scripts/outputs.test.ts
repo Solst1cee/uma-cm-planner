@@ -39,6 +39,13 @@ describe('public/data/skills.json', () => {
     }
   });
 
+  it('carries mutually exclusive skill variant families from upstream versions', () => {
+    const rightHandedDemon = skills.find((s) => s.skillId === '200014');
+    expect(rightHandedDemon?.variantSkillIds).toEqual(['200011', '200012', '200013']);
+    const cornerAdept = skills.find((s) => s.skillId === '200332');
+    expect(cornerAdept?.variantSkillIds).toEqual(['200331', '200333']);
+  });
+
   it('classifies rarities incl. inherited uniques (9xxxxx) and uniques (cost 0)', () => {
     const inherited = skills.filter((s) => s.rarity === 'inherited_unique');
     expect(inherited).toHaveLength(84);

@@ -12,6 +12,7 @@ export interface SkillSummary {
 export interface RawSkillEffect {
   type?: number;
   modifier?: number;
+  value?: number;
   target?: number;
   valueUsage?: number;
   valueLevelUsage?: number;
