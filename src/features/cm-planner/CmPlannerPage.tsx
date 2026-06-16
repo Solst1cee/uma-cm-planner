@@ -20,7 +20,7 @@ export function CmPlannerPage() {
 
   return (
     <SelectedSkillProvider>
-      <div className="page cmp-page">
+      <div className="cmp-page">
         <RaceTrackView courseId={selection.courseId} />
         <RaceSetup onChange={setSelection} />
       </div>

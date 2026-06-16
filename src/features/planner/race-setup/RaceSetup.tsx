@@ -133,6 +133,14 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
     <section className="panel cmp-setup" aria-labelledby="setup-h">
       <h2 id="setup-h">Race setup</h2>
 
+      <div className="cmp-conditions" aria-label="Race conditions">
+        {describeSelection(sel).map((chip) => (
+          <span key={chip} className="cmp-chip">
+            {chip}
+          </span>
+        ))}
+      </div>
+
       <div className="cmp-custom">
         <label className="cmp-field">
           <span className="cmp-field-label">Preset</span>
@@ -246,13 +254,6 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
 
       {catalogError && <p className="muted small">Track list unavailable: {catalogError}</p>}
 
-      <div className="cmp-conditions" aria-label="Race conditions">
-        {describeSelection(sel).map((chip) => (
-          <span key={chip} className="cmp-chip">
-            {chip}
-          </span>
-        ))}
-      </div>
       <p className="muted small">
         Track + distance set the course; ground / weather / season feed the simulation (they
         don&apos;t change the track diagram).

@@ -7,8 +7,6 @@
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
 }
 
 /* the vendored track fills the page width (bigger than the old hand-rolled bar) */
