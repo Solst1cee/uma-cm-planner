@@ -159,16 +159,6 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
         <span className="cmp-uma-title">Unique-skill chart</span>
         <button
           type="button"
-          className="cmp-run-btn"
-          disabled={!ready || status === 'running'}
-          onClick={run}
-        >
-          {status === 'idle' ? 'Run' : 'Re-run'}
-        </button>
-        {status === 'running' && <span className="muted small cmp-uma-progress" role="status">ranking {done}/{total}</span>}
-        {isStale && status !== 'running' && <span className="cmp-stale small">re-run</span>}
-        <button
-          type="button"
           className="cmp-uma-toggle"
           aria-expanded={open}
           aria-label={open ? 'Collapse chart' : 'Expand chart'}
@@ -180,6 +170,18 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
 
       {open && (
         <div className="cmp-uma-body">
+          <div className="cmp-uma-runbar">
+            <button
+              type="button"
+              className="cmp-run-btn"
+              disabled={!ready || status === 'running'}
+              onClick={run}
+            >
+              {status === 'idle' ? 'Run' : 'Re-run'}
+            </button>
+            {status === 'running' && <span className="muted small cmp-uma-progress" role="status">ranking {done}/{total}</span>}
+            {isStale && status !== 'running' && <span className="cmp-stale small">track changed — re-run</span>}
+          </div>
           {status === 'idle' ? (
             <p className="muted small">
               Run to rank umas by their unique skill&apos;s length on this track. Uses a fixed standard
