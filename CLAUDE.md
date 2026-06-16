@@ -64,6 +64,8 @@ pnpm data:build   # regenerate public/data/ from borrowed sources + data-overrid
 
 CI (`.github/workflows/ci.yml`): typecheck + test + build on every push/PR; GitHub Pages deploy from main (`BASE_PATH` env sets the Vite base).
 
+**Remote access (Tailscale):** the dev server binds all interfaces on port 5177 and adds `TAILNET_HOST` (from the gitignored `.env.local`) to Vite's `allowedHosts`. **Whenever you start `pnpm dev`, also surface the tailnet URL `http://<TAILNET_HOST>:5177/`** (read the value from `.env.local`) so the user can open it from any device on their tailnet. It's tailnet-only, not public; true public exposure would be `tailscale funnel 5177` (don't enable without asking).
+
 ## Guiding Principles (standing rules — mirrored from plan §2, which is authoritative)
 
 **P1. REUSE FIRST — always search before building.** The Umamusume community has 5+ years of tooling. Before implementing any mechanic, calculation, or dataset: (1) check the Resource Map in plan §3; (2) search the web for community tools beyond it; (3) prefer import as dependency > vendor/borrow data > port a known-good algorithm with attribution > build from scratch. When porting, record source URL + retrieval date in a code comment and in `docs/provenance.md`. **Keep the Resource Map alive:** any useful resource discovered in a session gets added to plan §3 with a "use for" note before the session ends.
