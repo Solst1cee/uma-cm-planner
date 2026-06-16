@@ -89,7 +89,21 @@ export function runPlannerComparison(params: {
   ignoreStaminaConsumption: boolean; options: SimOptions;
 }): PlannerCompareResult;
 
-export const coursesService: { getSimCourse(courseId: number): CourseData };
+/** A raw course-catalog entry (from coursesService enumeration; geometry omitted). */
+export interface CourseEntry {
+  readonly raceTrackId: number;
+  readonly distance: number;
+  readonly distanceType: number; // 1=sprint, 2=mile, 3=medium, 4=long, 5=extra
+  readonly surface: number; // 1=Turf, 2=Dirt
+  readonly turn: number; // 1=right-handed, 2=left-handed
+  readonly [key: string]: unknown;
+}
+export const coursesService: {
+  getSimCourse(courseId: number): CourseData;
+  getAll(): CourseEntry[];
+  getAllEntries(): Array<[string, CourseEntry]>;
+  getByTrackId(trackId: number): CourseEntry[];
+};
 export const skillsService: {
   getById(skillId: string): { name?: string } | undefined;
   isSimulatable(skillId: string): boolean;
