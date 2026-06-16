@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.45rem 0.75rem;
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
 }
@@ -71,11 +71,6 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.6rem 0.75rem 0.7rem;
-}
-.cmp-uma-runbar {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
 }
 .cmp-uma-toolbar {
   display: flex;
