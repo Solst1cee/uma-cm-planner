@@ -48,6 +48,12 @@ const h = vi.hoisted(() => {
       charaId: '1001',
       nameEn: 'Special Week',
       epithet: 'Special Dreamer',
+      statGrowth: { spd: 0, sta: 20, pow: 0, gut: 0, wit: 10 },
+      baseAptitudes: {
+        surface: { turf: 'A', dirt: 'G' },
+        distance: { short: 'F', mile: 'C', medium: 'A', long: 'A' },
+        strategy: { front: 'G', pace: 'A', late: 'A', end: 'C' },
+      },
       server: 'global',
       dataVersion: 't',
     },
@@ -56,6 +62,12 @@ const h = vi.hoisted(() => {
       charaId: '1002',
       nameEn: 'Silence Suzuka',
       epithet: 'Innocent Silence',
+      statGrowth: { spd: 20, sta: 0, pow: 0, gut: 0, wit: 10 },
+      baseAptitudes: {
+        surface: { turf: 'A', dirt: 'G' },
+        distance: { short: 'D', mile: 'A', medium: 'A', long: 'E' },
+        strategy: { front: 'A', pace: 'C', late: 'E', end: 'G' },
+      },
       server: 'global',
       dataVersion: 't',
     },
@@ -243,6 +255,15 @@ describe('PlannerSidebar', () => {
     expect(screen.queryByLabelText('Pace Chaser target aptitude')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Dirt target aptitude')).toHaveValue('');
     expect(screen.getAllByRole('option', { name: 'A/S' }).length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Required pink spark summary')).toHaveTextContent('Medium ★1');
+    expect(screen.getByLabelText('Required pink spark summary')).toHaveTextContent('Front Runner ★6');
+  });
+
+  it('shows selected uma stat growth under the stat inputs', () => {
+    renderSidebar();
+
+    expect(screen.getByText('+20%')).toBeInTheDocument();
+    expect(screen.getByText('+10%')).toBeInTheDocument();
   });
 
   it('stores an explicit aptitude target for a non-current aptitude', async () => {
@@ -303,6 +324,15 @@ describe('PlannerSidebar', () => {
     expect(h.setPlan).toHaveBeenCalledWith(
       expect.objectContaining({ wishlist: [] }),
     );
+  });
+
+  it('clears the wishlist from the section header', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.click(screen.getByRole('button', { name: 'Clear' }));
+
+    expect(h.setPlan).toHaveBeenCalledWith(expect.objectContaining({ wishlist: [] }));
   });
 
   it('only offers inherited uniques in wishlist search results', async () => {

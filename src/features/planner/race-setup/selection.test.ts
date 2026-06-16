@@ -58,7 +58,7 @@ describe('describeSelection', () => {
       '2,200m (Medium)',
       'Right-Handed',
       'Inner',
-      'Ground good',
+      'Good',
       'Summer',
       'Cloudy',
     ]);

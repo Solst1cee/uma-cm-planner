@@ -5,7 +5,7 @@ import {
   setTargetAptitudeByKey,
   targetAptitude,
 } from '@/core/simBuild';
-import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy } from '@/core/types';
+import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
@@ -53,6 +53,7 @@ const MOODS: Array<{ value: Mood; label: string; iconId: string }> = [
 ];
 
 const GRADES: Grade[] = ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
+const GRADE_RANK: Record<Grade, number> = { G: 0, F: 1, E: 2, D: 3, C: 4, B: 5, A: 6, S: 7 };
 
 type AptitudeTarget = { aptKey: AptKey; label: string };
 
@@ -85,6 +86,28 @@ function moodIconId(value: Mood): string {
 
 function gradeIconId(grade: Grade): string {
   return `apt-${grade}`;
+}
+
+function statGrowthLabel(value: number | undefined): string {
+  return value === undefined || value === 0 ? '-' : `+${value}%`;
+}
+
+function baseAptitudeFor(uma: UmaRecord, aptKey: AptKey): Grade | undefined {
+  const aptitudes = uma.baseAptitudes;
+  if (!aptitudes) return undefined;
+  if (aptKey.kind === 'surface') return aptitudes.surface[aptKey.key];
+  if (aptKey.kind === 'distance') return aptitudes.distance[aptKey.key];
+  return aptitudes.strategy[aptKey.key];
+}
+
+function aptLabel(aptKey: AptKey, fallback: string): string {
+  if (aptKey.kind !== 'strategy') return fallback;
+  return STRATEGIES.find((strategy) => strategy.value === aptKey.key)?.fullLabel ?? fallback;
+}
+
+function requiredPinkStars(base: Grade | undefined, target: Grade | undefined): number {
+  if (!base || !target) return 0;
+  return Math.max(0, GRADE_RANK[target] - GRADE_RANK[base]);
 }
 
 function generatePlanName(plan: CmPlan, umaName: string | undefined): string {
@@ -197,7 +220,30 @@ export function PlannerSidebar({
   const uniqueSkill = uniqueFromRuntime ?? uniqueFromRecord;
   const strategyTargetKey: AptKey = { kind: 'strategy', key: plan.strategy };
   const strategyTargetValue = targetAptitude(plan, strategyTargetKey) ?? 'A';
-  const selectedStrategy = STRATEGIES.find((strategy) => strategy.value === plan.strategy) ?? STRATEGIES[0];
+  const selectedStrategy = STRATEGIES.find((strategy) => strategy.value === plan.strategy) ?? STRATEGIES[0]!;
+  const sparkRequirements = useMemo(() => {
+    if (!currentUma?.baseAptitudes) return [];
+    const targets = [
+      ...APTITUDE_GROUPS.flatMap((group) =>
+        group.options.map((option) => ({
+          label: option.label,
+          aptKey: option.aptKey,
+          target: targetAptitude(plan, option.aptKey),
+        })),
+      ),
+      {
+        label: selectedStrategy.fullLabel,
+        aptKey: strategyTargetKey,
+        target: strategyTargetValue,
+      },
+    ];
+    return targets
+      .map(({ label, aptKey, target }) => ({
+        label: aptLabel(aptKey, label),
+        stars: requiredPinkStars(baseAptitudeFor(currentUma, aptKey), target),
+      }))
+      .filter((item) => item.stars > 0);
+  }, [currentUma, plan, selectedStrategy.fullLabel, strategyTargetKey, strategyTargetValue]);
   const projectedTotal = plan.wishlist.reduce((sum, item) => sum + (item.projectedL ?? 0), 0);
   const spTotal = plan.wishlist.reduce((sum, item) => {
     const skill = wishlistSkillRecord(item.skillId, skillById);
@@ -384,7 +430,7 @@ export function PlannerSidebar({
             <h3 id="cmp-stats-h">Stats</h3>
             <div className="cmp-stat-grid">
               {STATS.map(({ key, label, shortLabel, iconId }) => (
-                <label key={key} className="cmp-stat-field">
+                <label key={key} className={`cmp-stat-field cmp-stat-${key}`}>
                   <span className="cmp-stat-label">
                     <GameIcon kind="ui" id={iconId} size={18} alt="" />
                     <span>{label}</span>
@@ -398,6 +444,7 @@ export function PlannerSidebar({
                       onChange={(e) => onChange(setStat(plan, key, Number(e.target.value)))}
                     />
                   </span>
+                  <span className="cmp-stat-growth">{statGrowthLabel(currentUma?.statGrowth?.[key])}</span>
                 </label>
               ))}
             </div>
@@ -459,8 +506,7 @@ export function PlannerSidebar({
                   <div className="cmp-strategy-target-card">
                     <label className="cmp-apt-card cmp-strategy-target-field">
                       <span className="cmp-apt-tile-face">
-                        <span className="cmp-apt-name">{selectedStrategy?.label ?? 'Style'}</span>
-                        <span className="cmp-apt-any">Style</span>
+                        <span className="cmp-apt-name">{selectedStrategy?.fullLabel ?? 'Strategy'}</span>
                       </span>
                       <select
                         className="cmp-tile-select"
@@ -484,8 +530,7 @@ export function PlannerSidebar({
                       </select>
                     </label>
                     <label className="cmp-apt-card cmp-strategy-target-field is-current">
-                      <span className="cmp-apt-tile-face">
-                        <span className="cmp-apt-name">Target</span>
+                      <span className="cmp-apt-tile-face cmp-apt-grade-face">
                         <GameIcon kind="ui" id={gradeIconId(strategyTargetValue)} width={15} height={14} alt="" />
                       </span>
                       <select
@@ -549,11 +594,37 @@ export function PlannerSidebar({
                 </label>
               </section>
             </div>
+            <div className="cmp-spark-summary-row" aria-label="Required pink spark summary">
+              <span className="cmp-spark-summary-label">Pink sparks</span>
+              <div className="cmp-spark-chip-list">
+                {currentUma?.baseAptitudes ? (
+                  sparkRequirements.length > 0 ? (
+                    sparkRequirements.map((item) => (
+                      <span key={item.label} className="cmp-spark-chip">
+                        {item.label} ★{item.stars}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="cmp-spark-empty">none required</span>
+                  )
+                ) : (
+                  <span className="cmp-spark-empty">select runner</span>
+                )}
+              </div>
+            </div>
           </section>
 
           <section className="cmp-sidebar-section" aria-labelledby="cmp-wishlist-h">
             <div className="cmp-section-title-row">
               <h3 id="cmp-wishlist-h">Wishlist ({plan.wishlist.length})</h3>
+              <button
+                type="button"
+                className="cmp-clear-wishlist-btn"
+                disabled={plan.wishlist.length === 0}
+                onClick={() => onChange({ ...plan, wishlist: [] })}
+              >
+                Clear
+              </button>
             </div>
             <div className="cmp-wishlist-list">
               {plan.wishlist.length === 0 && <p className="muted small">No target skills yet.</p>}
@@ -605,7 +676,7 @@ export function PlannerSidebar({
                     )}
                     <button
                       type="button"
-                      className="cmp-small-btn"
+                      className="cmp-small-btn cmp-remove-skill-btn"
                       aria-label={`Remove ${summary?.nameEn ?? item.skillId}`}
                       onClick={() =>
                         onChange({
@@ -614,7 +685,7 @@ export function PlannerSidebar({
                         })
                       }
                     >
-                      -
+                      ×
                     </button>
                   </div>
                 );

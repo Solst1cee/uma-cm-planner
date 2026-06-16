@@ -60,7 +60,7 @@ export function courseToSelection(
   };
 }
 
-/** Readable condition chips, e.g. Hanshin · Turf · 2,200m (Medium) · Right-Handed · Inner · Ground good · Summer · Cloudy. */
+/** Readable condition chips, e.g. Hanshin · Turf · 2,200m (Medium) · Right-Handed · Inner · Good · Summer · Cloudy. */
 export function describeSelection(sel: RaceSelection): string[] {
   const chips = [
     sel.racetrack,
@@ -69,6 +69,6 @@ export function describeSelection(sel: RaceSelection): string[] {
     sel.direction === 'right' ? 'Right-Handed' : 'Left-Handed',
   ];
   if (sel.inOut) chips.push(cap(sel.inOut));
-  chips.push(`Ground ${sel.ground}`, cap(sel.season), cap(sel.weather));
+  chips.push(cap(sel.ground), cap(sel.season), cap(sel.weather));
   return chips;
 }

@@ -209,6 +209,14 @@ export interface UmaRecord {
   nameEn: string;
   /** Outfit epithet, e.g. "Special Dreamer". */
   epithet?: string;
+  /** Training growth bonuses by stat, as percentages (e.g. 20 = +20%). */
+  statGrowth?: Record<Stat, number>;
+  /** Base aptitude letters from GameTora's character-card catalog. */
+  baseAptitudes?: {
+    surface: { turf: Grade; dirt: Grade };
+    distance: { short: Grade; mile: Grade; medium: Grade; long: Grade };
+    strategy: Record<Strategy, Grade>;
+  };
   server: Server;
   dataVersion: string;
 }

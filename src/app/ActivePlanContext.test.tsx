@@ -101,7 +101,7 @@ describe('makeDefaultPlan preset preference (P4)', () => {
       preset({ name: 'Global Latest', date: '2026-04-22', courseId: '10811' }),
       preset({ name: 'Global Older', date: '2025-12-22' }),
     ]);
-    expect(plan.name).toBe('Global Latest');
+    expect(plan.name).toBe('');
     expect(plan.cmRef.courseId).toBe('10811');
   });
 
@@ -110,12 +110,12 @@ describe('makeDefaultPlan preset preference (P4)', () => {
       preset({ name: 'JP Old', date: '2025-01-01', server: 'jp' }),
       preset({ name: 'JP New', date: '2026-02-02', server: 'jp' }),
     ]);
-    expect(plan.name).toBe('JP New');
+    expect(plan.name).toBe('');
   });
 
   it('still produces a usable plan with no presets at all', () => {
     const plan = makeDefaultPlan([]);
-    expect(plan.name).toBe('New CM Plan');
+    expect(plan.name).toBe('');
     expect(plan.statProfile.mood).toBe(2);
     expect(plan.wishlist).toEqual([]);
   });

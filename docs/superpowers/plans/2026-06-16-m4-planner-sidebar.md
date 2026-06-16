@@ -35,8 +35,22 @@
 - UI icon assets are generated from the local uma-tools icon dump through `scripts/build-icons.ts`; do not hand-edit `public/data/icons/ui/`.
 - The current visual direction is light shell + in-game assets for compact stat/skill/mood elements.
 
+## 2026-06-17 Visual/Data Follow-Up
+
+The sidebar was tightened after browser review:
+
+- The plan target tiles are narrower, right-aligned, and use two equal-width boxes for Style; visible filler text like "style" / "target" was removed.
+- Mood is an icon-only compact dropdown aligned with Track / Distance / Style rows.
+- The stats block no longer uses the green in-game table frame. It now uses a light-theme table, color-coded stat icons, centered transparent number inputs, and a growth row below each stat.
+- Wishlist rows now have a borderless red cross remove action, a header-level Clear button, hidden dropdown glyphs on skill variant selectors, and fixed-height remove controls when skill details expand.
+- New `UmaRecord.baseAptitudes` and `UmaRecord.statGrowth` fields are generated from GameTora character card `aptitude` / `stat_bonus` data. The sidebar uses them for selected-uma growth display and pink-spark requirement chips, e.g. `Turf ★2` / `Medium ★1`.
+- `makeDefaultPlan()` now leaves the plan name blank; auto-naming remains an explicit button action.
+- `scripts/build-icons.ts` has a Windows-safe icon directory swap fallback for EPERM rename failures during `pnpm data:build`.
+
 ## Verification
 
 - `pnpm.cmd typecheck`
-- `pnpm.cmd test src/features/cm-planner/PlannerSidebar.test.tsx src/features/skill-planner/PlanHeaderPanel.test.tsx`
-- Full suite/build were green earlier in the sidebar slice before the final small polish pass; rerun `pnpm.cmd test` and `pnpm.cmd build` before release.
+- `pnpm.cmd build`
+- `pnpm.cmd data:build`
+- `pnpm.cmd vitest run src/features/cm-planner/PlannerSidebar.test.tsx src/app/ActivePlanContext.test.tsx scripts/build-umas.test.ts scripts/outputs.test.ts scripts/build-icons.test.ts`
+- Final visual/data polish spot-checks: `pnpm.cmd vitest run src/features/cm-planner/PlannerSidebar.test.tsx`, `pnpm.cmd typecheck`, and a Playwright computed-style check for colored stat icons + borderless stat inputs.

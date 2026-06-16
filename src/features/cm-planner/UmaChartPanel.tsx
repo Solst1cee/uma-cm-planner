@@ -74,7 +74,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
         >
           {row.perStyle.map((p) => (
             <option key={p.strategy} value={p.strategy}>
-              {STRATEGY_LABEL[p.strategy]} {signed(p.L)}
+              {STRATEGY_LABEL[p.strategy]}
             </option>
           ))}
         </select>
@@ -94,7 +94,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
         disabled={!row.uniqueSkillId}
         onClick={() => row.uniqueSkillId && onSelect(row.outfitId, row.uniqueSkillId)}
       >
-        {isRunner ? '✓' : 'Select'}
+        {isRunner ? '✓' : '›'}
       </button>
     </li>
   );
@@ -154,29 +154,36 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
     .sort((a, b) => sortKey(b.eff) - sortKey(a.eff)); // re-rank by each row's effective style + chosen metric
 
   return (
-    <section className="panel cmp-uma-chart">
-      <div className="cmp-uma-head">
+    <section className="cmp-plan-card cmp-uma-chart">
+      <header
+        className="cmp-plan-card-head cmp-collapse-head"
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen((o) => !o);
+          }
+        }}
+      >
         <span className="cmp-uma-title">Unique-skill chart</span>
         <button
           type="button"
           className="cmp-run-btn"
           disabled={!ready || status === 'running'}
-          onClick={run}
+          onClick={(e) => {
+            e.stopPropagation(); // don't toggle collapse when running
+            run();
+          }}
         >
           {status === 'idle' ? 'Run' : 'Re-run'}
         </button>
         {status === 'running' && <span className="muted small cmp-uma-progress" role="status">ranking {done}/{total}</span>}
         {isStale && status !== 'running' && <span className="cmp-stale small">re-run</span>}
-        <button
-          type="button"
-          className="cmp-uma-toggle"
-          aria-expanded={open}
-          aria-label={open ? 'Collapse chart' : 'Expand chart'}
-          onClick={() => setOpen((o) => !o)}
-        >
-          <span className="cmp-uma-caret" data-open={open || undefined} aria-hidden="true" />
-        </button>
-      </div>
+        <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
+      </header>
 
       {open && (
         <div className="cmp-uma-body">

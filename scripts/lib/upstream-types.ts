@@ -114,6 +114,10 @@ export interface GtCharacterCard {
   /** Character card id (master.mdb card_data id), e.g. 100101. */
   card_id: number;
   char_id: number;
+  /** [turf, dirt, sprint, mile, medium, long, front, pace, late, end]. */
+  aptitude?: string[];
+  /** [speed, stamina, power, guts, wit] growth bonuses as percentages. */
+  stat_bonus?: number[];
   /** GameTora house-style EN name — may differ from official ("TM Opera O" vs "T.M. Opera O"). */
   name_en?: string;
   /** Fan-TL outfit title (no brackets) — present for the whole catalog incl. JP-only. */

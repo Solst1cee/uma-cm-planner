@@ -4,6 +4,17 @@ import type { GtCharacterCard, UmalatorUmasJson } from './lib/upstream-types';
 
 const DV = 'global-test';
 
+const DEFAULT_APTITUDES = ['A', 'G', 'F', 'C', 'A', 'A', 'G', 'A', 'A', 'C'];
+const DEFAULT_GROWTH = [0, 0, 0, 0, 0];
+
+function gtCard(card: GtCharacterCard): GtCharacterCard {
+  return {
+    aptitude: DEFAULT_APTITUDES,
+    stat_bonus: DEFAULT_GROWTH,
+    ...card,
+  };
+}
+
 const cutover: UmalatorUmasJson = {
   '1002': { name: ['', 'Silence Suzuka'], outfits: { '100201': '[Innocent Silence]' } },
   '1001': {
@@ -14,9 +25,9 @@ const cutover: UmalatorUmasJson = {
 };
 
 const gt: GtCharacterCard[] = [
-  { card_id: 100101, char_id: 1001, name_en: 'Special Week', title_en_gl: '[Special Dreamer]' },
-  { card_id: 100102, char_id: 1001, name_en: 'Special Week', title_en_gl: "[Hopp'n♪Happy Heart]" },
-  { card_id: 100201, char_id: 1002, name_en: 'Silence Suzuka', title_en_gl: '[Innocent Silence]' },
+  gtCard({ card_id: 100101, char_id: 1001, name_en: 'Special Week', title_en_gl: '[Special Dreamer]', stat_bonus: [0, 20, 0, 0, 10] }),
+  gtCard({ card_id: 100102, char_id: 1001, name_en: 'Special Week', title_en_gl: "[Hopp'n♪Happy Heart]", stat_bonus: [0, 10, 10, 10, 0] }),
+  gtCard({ card_id: 100201, char_id: 1002, name_en: 'Silence Suzuka', title_en_gl: '[Innocent Silence]', aptitude: ['A', 'G', 'D', 'A', 'A', 'E', 'A', 'C', 'E', 'G'], stat_bonus: [20, 0, 0, 0, 10] }),
   // JP-only catalog entry — fan-TL title only; must never produce a record.
   { card_id: 110101, char_id: 1101, name_en: 'Somebody Else', title: 'Fan Translation' },
 ];
@@ -41,6 +52,12 @@ describe('buildUmas', () => {
         server: 'global',
         dataVersion: DV,
         epithet: 'Special Dreamer',
+        statGrowth: { spd: 0, sta: 20, pow: 0, gut: 0, wit: 10 },
+        baseAptitudes: {
+          surface: { turf: 'A', dirt: 'G' },
+          distance: { short: 'F', mile: 'C', medium: 'A', long: 'A' },
+          strategy: { front: 'G', pace: 'A', late: 'A', end: 'C' },
+        },
       },
       {
         umaId: '100102',
@@ -49,6 +66,12 @@ describe('buildUmas', () => {
         server: 'global',
         dataVersion: DV,
         epithet: "Hopp'n♪Happy Heart",
+        statGrowth: { spd: 0, sta: 10, pow: 10, gut: 10, wit: 0 },
+        baseAptitudes: {
+          surface: { turf: 'A', dirt: 'G' },
+          distance: { short: 'F', mile: 'C', medium: 'A', long: 'A' },
+          strategy: { front: 'G', pace: 'A', late: 'A', end: 'C' },
+        },
       },
       {
         umaId: '100201',
@@ -57,6 +80,12 @@ describe('buildUmas', () => {
         server: 'global',
         dataVersion: DV,
         epithet: 'Innocent Silence',
+        statGrowth: { spd: 20, sta: 0, pow: 0, gut: 0, wit: 10 },
+        baseAptitudes: {
+          surface: { turf: 'A', dirt: 'G' },
+          distance: { short: 'D', mile: 'A', medium: 'A', long: 'E' },
+          strategy: { front: 'A', pace: 'C', late: 'E', end: 'G' },
+        },
       },
     ]);
     // The JP-only gametora entry (110101) is excluded: released = in the cutover.
@@ -67,7 +96,7 @@ describe('buildUmas', () => {
     const records = buildUmas({
       umas: { '1015': { name: ['', 'T.M. Opera O'], outfits: { '101501': '[O Sole Suo!]' } } },
       gametoraChars: [
-        { card_id: 101501, char_id: 1015, name_en: 'TM Opera O', title_en_gl: '[O Sole Suo!]' },
+        gtCard({ card_id: 101501, char_id: 1015, name_en: 'TM Opera O', title_en_gl: '[O Sole Suo!]' }),
       ],
       dataVersion: DV,
     });
