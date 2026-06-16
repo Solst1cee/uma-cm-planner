@@ -15,7 +15,8 @@
 }
 
 /* ---- race-setup chooser ---- */
-.cmp-setup {
+/* the card stacks head + body as blocks; the body holds the stacked controls */
+.cmp-setup-body {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -92,6 +93,7 @@
 .cmp-conditions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.4rem;
   margin-top: 0.2rem;
 }
@@ -141,6 +143,9 @@ main:has(.cmp-page) {
 }
 
 .cmp-plan-card-head {
+  display: flex;
+  align-items: center;
+  min-height: 2.6rem; /* match the chart head's Run-button height so all card heads are equal */
   border-bottom: 1px solid var(--border);
   background: var(--bg-2);
   padding: 0.6rem 0.75rem;
@@ -150,6 +155,38 @@ main:has(.cmp-page) {
 
 .cmp-plan-card-body {
   padding: 0.75rem;
+}
+
+/* clickable collapsible header (the whole bar toggles) — pairs with .cmp-plan-card-head */
+.cmp-collapse-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+}
+.cmp-collapse-caret {
+  margin-left: auto;
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--fg-muted);
+  border-bottom: 2px solid var(--fg-muted);
+  transform: rotate(-45deg); /* collapsed → points right */
+  transition: transform 120ms ease;
+}
+.cmp-collapse-caret[data-open] {
+  transform: rotate(45deg); /* open → points down */
+}
+
+/* track card: centered title; track + condition chips stacked in the body */
+.cmp-track-head {
+  justify-content: center; /* the head is a flex container now, so center the title this way */
+}
+.cmp-track-card .cmp-plan-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .cmp-name-field input {
@@ -171,6 +208,30 @@ main:has(.cmp-page) {
 .cmp-save-row {
   justify-content: space-between;
   margin: 0.35rem 0 0.65rem;
+}
+
+.cmp-section-title-row {
+  justify-content: space-between;
+}
+
+.cmp-clear-wishlist-btn {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #48627f;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.cmp-clear-wishlist-btn:not(:disabled):hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.cmp-clear-wishlist-btn:disabled {
+  color: #b6c4d5;
+  cursor: default;
 }
 
 .cmp-action-seg,
@@ -347,9 +408,10 @@ main:has(.cmp-page) {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   overflow: hidden;
   gap: 0;
-  border: 1px solid #79c84b;
+  border: 1px solid var(--border);
   border-radius: 8px;
   background: #fff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85);
 }
 
 .cmp-stat-field {
@@ -357,8 +419,8 @@ main:has(.cmp-page) {
   min-width: 0;
   flex-direction: column;
   gap: 0;
-  background: #fff;
-  border-right: 1px dashed #9fd47b;
+  background: #f9fbff;
+  border-right: 1px solid var(--border);
 }
 
 .cmp-stat-field:last-child {
@@ -377,16 +439,38 @@ main:has(.cmp-page) {
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
-  min-height: 1.35rem;
+  min-height: 1.42rem;
   padding: 0.12rem 0.16rem;
-  background: linear-gradient(#64db1c, #44b915);
-  color: #fff;
-  text-shadow: 0 1px 1px rgba(40, 90, 20, 0.75);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(#f4f8fd, #eaf1fa);
+  color: #445b78;
+  text-shadow: none;
 }
 
 .cmp-stat-label .game-icon {
-  border-radius: 50%;
-  background: transparent;
+  border-radius: 4px;
+  background: #6b86c8;
+  padding: 1px;
+}
+
+.cmp-stat-spd .cmp-stat-label .game-icon {
+  background: #2f9df4;
+}
+
+.cmp-stat-sta .cmp-stat-label .game-icon {
+  background: #f05f9f;
+}
+
+.cmp-stat-pow .cmp-stat-label .game-icon {
+  background: #f2a322;
+}
+
+.cmp-stat-gut .cmp-stat-label .game-icon {
+  background: #ef5a48;
+}
+
+.cmp-stat-wit .cmp-stat-label .game-icon {
+  background: #35b86b;
 }
 
 .cmp-stat-label span:last-child {
@@ -401,21 +485,35 @@ main:has(.cmp-page) {
   min-width: 0;
   align-items: center;
   justify-content: center;
-  padding: 0.22rem 0.12rem;
-  background: #fff;
+  padding: 0.22rem 0.12rem 0.08rem;
+  background: transparent;
 }
 
-.cmp-stat-field input {
+.cmp-stat-field input[type='number'] {
   min-width: 0;
   width: 5.1ch;
   border: 0;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
   padding: 0;
-  color: rgb(121, 64, 22);
-  text-align: left;
+  color: var(--fg);
+  text-align: center;
   font-size: 1rem;
   font-weight: 800;
   appearance: textfield;
+}
+
+.cmp-stat-growth {
+  display: flex;
+  min-height: 1rem;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #edf2f8;
+  background: #fbfdff;
+  color: #7b8fa8;
+  font-size: 0.64rem;
+  font-weight: 800;
 }
 
 .cmp-stat-field input::-webkit-outer-spin-button,
@@ -445,8 +543,9 @@ main:has(.cmp-page) {
 
 .cmp-apt-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(4.95rem, 5.8rem));
   gap: 0.28rem;
+  justify-content: end;
 }
 
 .cmp-apt-card {
@@ -461,8 +560,9 @@ main:has(.cmp-page) {
 
 .cmp-strategy-target-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(4.95rem, 5.8rem));
   gap: 0.28rem;
+  justify-content: end;
 }
 
 .cmp-strategy-target-field {
@@ -484,6 +584,10 @@ main:has(.cmp-page) {
   justify-content: space-between;
   gap: 0.24rem;
   pointer-events: none;
+}
+
+.cmp-apt-grade-face {
+  justify-content: center;
 }
 
 .cmp-apt-name {
@@ -536,7 +640,13 @@ main:has(.cmp-page) {
 }
 
 .cmp-mood-group .cmp-apt-card {
-  padding-right: 1.6rem;
+  width: 4.22rem;
+  justify-self: end;
+  padding-right: 0.34rem;
+}
+
+.cmp-mood-card .cmp-apt-tile-face {
+  justify-content: center;
 }
 
 .cmp-mood-face {
@@ -546,20 +656,50 @@ main:has(.cmp-page) {
   gap: 0;
 }
 
-.cmp-mood-card::after {
-  position: absolute;
-  top: 50%;
-  right: 0.45rem;
-  transform: translateY(-50%);
-  color: var(--fg-muted);
-  content: "v";
-  font-size: 0.7rem;
-  pointer-events: none;
-}
-
 .cmp-mood-card .cmp-mood-pill {
   width: 56px !important;
   height: 22px !important;
+}
+
+.cmp-spark-summary-row {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: start;
+  margin-top: 0.52rem;
+}
+
+.cmp-spark-summary-label {
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cmp-spark-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.cmp-spark-chip {
+  border: 1px solid #f1a5c6;
+  border-radius: 999px;
+  background: #ffe7f1;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75);
+  padding: 0.12rem 0.44rem;
+  color: #9b2559;
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cmp-spark-empty {
+  color: var(--fg-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .cmp-wishlist-list {
@@ -599,6 +739,11 @@ main:has(.cmp-page) {
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: none;
+  appearance: none;
+}
+
+.cmp-variant-select select::-ms-expand {
+  display: none;
 }
 
 .cmp-small-btn {
@@ -611,8 +756,25 @@ main:has(.cmp-page) {
 
 .cmp-wishlist-line .cmp-small-btn {
   height: 2.12rem;
-  min-width: 2rem;
+  min-width: 1.25rem;
   margin-top: 0.1rem;
+}
+
+.cmp-wishlist-line .cmp-remove-skill-btn {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0 0.1rem;
+  color: #d83d54;
+  font-size: 1.14rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.cmp-wishlist-line .cmp-remove-skill-btn:hover {
+  color: #a91d33;
+  background: transparent;
+  transform: scale(1.08);
 }
 
 .cmp-wishlist-totals {
@@ -742,19 +904,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-disclosure-icon {
-  width: 0.46rem;
-  height: 0.46rem;
-  flex: none;
-  margin-right: 0.1rem;
-  border-right: 2px solid var(--skill-text);
-  border-bottom: 2px solid var(--skill-text);
-  opacity: 0.68;
-  transform: rotate(45deg) translateY(-0.08rem);
-  transition: transform 120ms ease;
-}
-
-.cmp-skill-detail[open] .cmp-disclosure-icon {
-  transform: rotate(225deg) translate(-0.08rem, -0.04rem);
+  display: none;
 }
 
 .cmp-skill-detail .cost,

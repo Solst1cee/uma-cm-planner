@@ -31,8 +31,9 @@
  * committed public/data/icons/ stays intact, and data:build's other 5 outputs
  * still build. Regeneration requires the local dump.
  */
-import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import sharp from 'sharp';
 import type { SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
 import { PUBLIC_DATA_DIR, readJson, REPO_ROOT, writeJsonDeterministic } from './lib/io';
@@ -46,6 +47,7 @@ const ICONS_STAGING_DIR = join(PUBLIC_DATA_DIR, 'icons.staging');
 
 /** WebP quality (plan §4: sharp q80, visually near-lossless on flat game art). */
 const WEBP_QUALITY = 80;
+const ICON_SWAP_RETRIES = 5;
 
 /** Cards that exist in the dump ONLY as uppercase `Support_card_s_…` (provenance §2). */
 const UPPERCASE_SUPPORT_CARD_IDS: ReadonlySet<string> = new Set(['30024', '30061']);
@@ -224,8 +226,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
 
   // Atomic swap: only now, with every file converted and the manifest written,
   // do we replace the committed icons. A throw above leaves them untouched.
-  rmSync(ICONS_OUT_DIR, { recursive: true, force: true });
-  renameSync(ICONS_STAGING_DIR, ICONS_OUT_DIR);
+  await swapIconsDir();
 
   const onDiskBytes = dirBytes(ICONS_OUT_DIR);
   console.log(
@@ -235,6 +236,28 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   );
   if (fallbackUmas.length > 0) {
     console.log(`  fallback umas (no trained _02 icon): ${fallbackUmas.join(', ')}`);
+  }
+}
+
+async function swapIconsDir(): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= ICON_SWAP_RETRIES; attempt += 1) {
+    try {
+      rmSync(ICONS_OUT_DIR, { recursive: true, force: true });
+      renameSync(ICONS_STAGING_DIR, ICONS_OUT_DIR);
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt === ICON_SWAP_RETRIES) break;
+      await sleep(150 * (attempt + 1));
+    }
+  }
+  try {
+    rmSync(ICONS_OUT_DIR, { recursive: true, force: true });
+    cpSync(ICONS_STAGING_DIR, ICONS_OUT_DIR, { recursive: true });
+    rmSync(ICONS_STAGING_DIR, { recursive: true, force: true });
+  } catch {
+    throw lastError;
   }
 }
 

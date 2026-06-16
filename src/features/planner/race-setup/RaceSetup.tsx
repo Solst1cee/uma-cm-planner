@@ -14,7 +14,6 @@ import { TRACKS, coursesForTrackSurface, surfacesForTrack } from './trackCatalog
 import {
   cap,
   courseToSelection,
-  describeSelection,
   presetToSelection,
   type RaceSelection,
 } from './selection';
@@ -75,6 +74,7 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
   const [fields, setFields] = useState<Fields>(() => fieldsFromPreset(PRESETS[0]!));
   const [catalog, setCatalog] = useState<CourseCatalogEntry[] | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [open, setOpen] = useState(true);
 
   // Emit the initial selection once (matched preset needs no catalog).
   const emitted = useRef(false);
@@ -132,16 +132,27 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
   const distanceOptions = catalog ? coursesForTrackSurface(catalog, fields.trackId, fields.surface) : [];
 
   return (
-    <section className="panel cmp-setup" aria-labelledby="setup-h">
-      <h2 id="setup-h">Race setup</h2>
+    <section className="cmp-plan-card cmp-setup" aria-labelledby="setup-h">
+      <header
+        className="cmp-plan-card-head cmp-collapse-head"
+        id="setup-h"
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen((o) => !o);
+          }
+        }}
+      >
+        <span>Race setup</span>
+        <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
+      </header>
 
-      <div className="cmp-conditions" aria-label="Race conditions">
-        {describeSelection(sel).map((chip) => (
-          <span key={chip} className="cmp-chip">
-            {chip}
-          </span>
-        ))}
-      </div>
+      {open && (
+      <div className="cmp-plan-card-body cmp-setup-body">
 
       <div className="cmp-custom">
         <label className="cmp-field cmp-preset">
@@ -255,11 +266,8 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
       </div>
 
       {catalogError && <p className="muted small">Track list unavailable: {catalogError}</p>}
-
-      <p className="muted small">
-        Track + distance set the course; ground / weather / season feed the simulation (they
-        don&apos;t change the track diagram).
-      </p>
+      </div>
+      )}
     </section>
   );
 }

@@ -116,6 +116,7 @@
   top: 0;
   z-index: 1;
   align-items: center;
+  justify-items: center; /* center every header label in its column */
   padding: 0.3rem 0.4rem;
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
@@ -178,15 +179,21 @@
    when collapsed and stay put when the plate expands. */
 .cmp-uma-style {
   align-self: start;
+  justify-self: center; /* center the (transparent) select in its column */
   min-height: 2.05rem;
   min-width: 0;
   font-variant-numeric: tabular-nums;
   font-size: 0.76rem;
-  background: var(--bg-0, #fff);
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 6px;
   padding: 2px 3px;
+  text-align: center;
+  text-align-last: center; /* center the selected value (e.g. "End") */
+  color: inherit;
   cursor: pointer;
+  appearance: none; /* drop native select chrome so the container reads transparent */
+  -webkit-appearance: none;
 }
 .cmp-uma-na {
   align-self: start;
@@ -201,8 +208,7 @@
   min-height: 2.05rem;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  text-align: right;
+  justify-content: center;
   font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
 }
@@ -212,7 +218,21 @@
 }
 .cmp-uma-select {
   align-self: start;
+  justify-self: center; /* center the ›/✓ in its column */
   min-height: 2.05rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  color: var(--fg-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.cmp-uma-select:not(:disabled):hover {
+  color: var(--accent);
+}
+.cmp-uma-select[aria-pressed='true'] {
+  color: var(--accent);
 }

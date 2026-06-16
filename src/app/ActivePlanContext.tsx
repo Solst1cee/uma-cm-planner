@@ -36,7 +36,7 @@ export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
   const cmNumber = latest ? cmNumberFromName(latest.name) : 0;
   return {
     id: crypto.randomUUID(),
-    name: latest ? latest.name : 'New CM Plan',
+    name: '',
     planNumber: 1,
     cmRef: latest
       ? { cmId: `CM${cmNumber}`, cmNumber, courseId: latest.courseId, surface: latest.surface, distance: latest.distance, season: latest.season, condition: latest.ground }

@@ -15,8 +15,52 @@
  * per playable outfit, charaId = floor(umaId/100) — exactly what the
  * UmaExtractor importer maps `card_id` onto `Parent.umaId`.
  */
-import type { UmaRecord } from '@/core/types';
+import type { Grade, UmaRecord } from '@/core/types';
 import type { GtCharacterCard, UmalatorUmasJson } from './lib/upstream-types';
+
+const GRADE_SET = new Set(['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S']);
+
+function gradeAt(aptitude: string[] | undefined, index: number, umaId: string): Grade {
+  const value = aptitude?.[index];
+  if (!GRADE_SET.has(value ?? '')) {
+    throw new Error(`umas: outfit ${umaId} has invalid/missing GameTora aptitude at index ${index}`);
+  }
+  return value as Grade;
+}
+
+function baseAptitudesFromGt(gt: GtCharacterCard, umaId: string): NonNullable<UmaRecord['baseAptitudes']> {
+  return {
+    surface: {
+      turf: gradeAt(gt.aptitude, 0, umaId),
+      dirt: gradeAt(gt.aptitude, 1, umaId),
+    },
+    distance: {
+      short: gradeAt(gt.aptitude, 2, umaId),
+      mile: gradeAt(gt.aptitude, 3, umaId),
+      medium: gradeAt(gt.aptitude, 4, umaId),
+      long: gradeAt(gt.aptitude, 5, umaId),
+    },
+    strategy: {
+      front: gradeAt(gt.aptitude, 6, umaId),
+      pace: gradeAt(gt.aptitude, 7, umaId),
+      late: gradeAt(gt.aptitude, 8, umaId),
+      end: gradeAt(gt.aptitude, 9, umaId),
+    },
+  };
+}
+
+function statGrowthFromGt(gt: GtCharacterCard, umaId: string): NonNullable<UmaRecord['statGrowth']> {
+  if (!gt.stat_bonus || gt.stat_bonus.length < 5) {
+    throw new Error(`umas: outfit ${umaId} has invalid/missing GameTora stat_bonus`);
+  }
+  return {
+    spd: gt.stat_bonus[0] ?? 0,
+    sta: gt.stat_bonus[1] ?? 0,
+    pow: gt.stat_bonus[2] ?? 0,
+    gut: gt.stat_bonus[3] ?? 0,
+    wit: gt.stat_bonus[4] ?? 0,
+  };
+}
 
 /** "[Special Dreamer]" → "Special Dreamer" (also trims stray whitespace, e.g. "[Saintly Jade Cleric ]"). */
 export function stripTitleBrackets(title: string): string {
@@ -67,7 +111,14 @@ export function buildUmas(inputs: {
       }
       const epithet = official !== '' ? official : stripTitleBrackets(gt?.title_en_gl ?? '');
 
-      const record: UmaRecord = { umaId, charaId, nameEn, server: 'global', dataVersion };
+      const record: UmaRecord = {
+        umaId,
+        charaId,
+        nameEn,
+        server: 'global',
+        dataVersion,
+        ...(gt ? { statGrowth: statGrowthFromGt(gt, umaId), baseAptitudes: baseAptitudesFromGt(gt, umaId) } : {}),
+      };
       if (epithet !== '') record.epithet = epithet;
       records.push(record);
     }

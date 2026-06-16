@@ -13,7 +13,7 @@ import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import { PRESETS } from '@/features/planner/race-setup/presets';
-import { presetToSelection, type RaceSelection } from '@/features/planner/race-setup/selection';
+import { describeSelection, presetToSelection, type RaceSelection } from '@/features/planner/race-setup/selection';
 
 export function CmPlannerPage() {
   const { status } = useGameData();
@@ -53,12 +53,29 @@ export function CmPlannerPage() {
     setPlan({ ...plan, cmRef: nextCmRef });
   };
 
+  const racePreset = PRESETS.find((p) => p.cmId === selection.presetCmId);
+  const trackTitle = racePreset
+    ? racePreset.label
+    : `${selection.racetrack} ${selection.distance.toLocaleString('en-US')}m`;
+
   return (
     <SelectedSkillProvider>
       <div className="cmp-page">
         <PlannerSidebar plan={plan} onChange={setPlan} onSave={flushPendingSave} />
         <div className="cmp-main">
-          <RaceTrackView courseId={selection.courseId} />
+          <section className="cmp-plan-card cmp-track-card">
+            <header className="cmp-plan-card-head cmp-track-head">{trackTitle}</header>
+            <div className="cmp-plan-card-body cmp-track-body">
+              <RaceTrackView courseId={selection.courseId} />
+              <div className="cmp-conditions" aria-label="Race conditions">
+                {describeSelection(selection).map((chip) => (
+                  <span key={chip} className="cmp-chip">
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
           <RaceSetup onChange={handleRaceChange} />
           <UmaChartPanel
             courseId={selection.courseId}

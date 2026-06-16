@@ -5,6 +5,31 @@
     "nameEn": "Special Week",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Special Dreamer"
   },
   {
@@ -13,6 +38,31 @@
     "nameEn": "Special Week",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Hopp'n♪Happy Heart"
   },
   {
@@ -21,6 +71,31 @@
     "nameEn": "Silence Suzuka",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "E",
+        "end": "G"
+      }
+    },
     "epithet": "Innocent Silence"
   },
   {
@@ -29,6 +104,31 @@
     "nameEn": "Tokai Teio",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "E",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
     "epithet": "Peak Joy"
   },
   {
@@ -37,6 +137,31 @@
     "nameEn": "Tokai Teio",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "E",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
     "epithet": "Beyond the Horizon"
   },
   {
@@ -45,6 +170,31 @@
     "nameEn": "Maruzensky",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "Formula R"
   },
   {
@@ -53,6 +203,31 @@
     "nameEn": "Maruzensky",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "Hot☆Summer Night"
   },
   {
@@ -61,6 +236,31 @@
     "nameEn": "Fuji Kiseki",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Shooting Star Revue"
   },
   {
@@ -69,6 +269,31 @@
     "nameEn": "Fuji Kiseki",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 14,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Succès Étoilé"
   },
   {
@@ -77,6 +302,31 @@
     "nameEn": "Oguri Cap",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Starlight Beat"
   },
   {
@@ -85,6 +335,31 @@
     "nameEn": "Oguri Cap",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Ashen Miracle"
   },
   {
@@ -93,6 +368,31 @@
     "nameEn": "Gold Ship",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "B",
+        "end": "A"
+      }
+    },
     "epithet": "Red Strife"
   },
   {
@@ -101,6 +401,31 @@
     "nameEn": "Vodka",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "B",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Wild Top Gear"
   },
   {
@@ -109,6 +434,31 @@
     "nameEn": "Daiwa Scarlet",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
     "epithet": "Peak Blue"
   },
   {
@@ -117,6 +467,31 @@
     "nameEn": "Taiki Shuttle",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
     "epithet": "Wild Frontier"
   },
   {
@@ -125,6 +500,31 @@
     "nameEn": "Grass Wonder",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Stone-Piercing Blue"
   },
   {
@@ -133,6 +533,31 @@
     "nameEn": "Grass Wonder",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Saintly Jade Cleric"
   },
   {
@@ -141,6 +566,31 @@
     "nameEn": "Hishi Amazon",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "C",
+        "end": "A"
+      }
+    },
     "epithet": "Azure Amazon"
   },
   {
@@ -149,6 +599,31 @@
     "nameEn": "Mejiro McQueen",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "D",
+        "end": "F"
+      }
+    },
     "epithet": "Frontline Elegance"
   },
   {
@@ -157,6 +632,31 @@
     "nameEn": "Mejiro McQueen",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "D",
+        "end": "F"
+      }
+    },
     "epithet": "End of the Skies"
   },
   {
@@ -165,6 +665,31 @@
     "nameEn": "El Condor Pasa",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "El☆Número 1"
   },
   {
@@ -173,6 +698,31 @@
     "nameEn": "El Condor Pasa",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Kukulkan Warrior"
   },
   {
@@ -181,6 +731,31 @@
     "nameEn": "T.M. Opera O",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "O Sole Suo!"
   },
   {
@@ -189,6 +764,31 @@
     "nameEn": "T.M. Opera O",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 8,
+      "pow": 0,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "New Year, Same Radiance!"
   },
   {
@@ -197,6 +797,31 @@
     "nameEn": "Narita Brian",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Maverick"
   },
   {
@@ -205,6 +830,31 @@
     "nameEn": "Symboli Rudolf",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Emperor's Path"
   },
   {
@@ -213,6 +863,31 @@
     "nameEn": "Symboli Rudolf",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 14,
+      "pow": 0,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Archer by Moonlight"
   },
   {
@@ -221,6 +896,31 @@
     "nameEn": "Air Groove",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Empress Road"
   },
   {
@@ -229,6 +929,31 @@
     "nameEn": "Air Groove",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Quercus Civilis"
   },
   {
@@ -237,6 +962,31 @@
     "nameEn": "Agnes Digital",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 8,
+      "pow": 7,
+      "gut": 0,
+      "wit": 7
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "B"
+      }
+    },
     "epithet": "Full-Color Fangirling"
   },
   {
@@ -245,6 +995,31 @@
     "nameEn": "Seiun Sky",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "D",
+        "end": "E"
+      }
+    },
     "epithet": "Reeling in the Big One"
   },
   {
@@ -253,6 +1028,31 @@
     "nameEn": "Seiun Sky",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 8,
+      "gut": 14,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "D",
+        "end": "E"
+      }
+    },
     "epithet": "Soirée des Chatons"
   },
   {
@@ -261,6 +1061,31 @@
     "nameEn": "Tamamo Cross",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "A"
+      }
+    },
     "epithet": "Fast as Lightning"
   },
   {
@@ -269,6 +1094,31 @@
     "nameEn": "Fine Motion",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "E",
+        "end": "C"
+      }
+    },
     "epithet": "Noble Seamair"
   },
   {
@@ -277,6 +1127,31 @@
     "nameEn": "Fine Motion",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "E",
+        "end": "C"
+      }
+    },
     "epithet": "Titania"
   },
   {
@@ -285,6 +1160,31 @@
     "nameEn": "Biwa Hayahide",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
     "epithet": "pf. Winning Equation..."
   },
   {
@@ -293,6 +1193,31 @@
     "nameEn": "Biwa Hayahide",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 12,
+      "pow": 12,
+      "gut": 0,
+      "wit": 6
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
     "epithet": "Rouge Caroler"
   },
   {
@@ -301,6 +1226,31 @@
     "nameEn": "Mayano Top Gun",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "B",
+        "end": "B"
+      }
+    },
     "epithet": "Scramble☆Zone"
   },
   {
@@ -309,6 +1259,31 @@
     "nameEn": "Mayano Top Gun",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "B",
+        "end": "B"
+      }
+    },
     "epithet": "Sunlight Bouquet"
   },
   {
@@ -317,6 +1292,31 @@
     "nameEn": "Manhattan Cafe",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 30,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Creeping Shadow"
   },
   {
@@ -325,6 +1325,31 @@
     "nameEn": "Mihono Bourbon",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "MB-19890425"
   },
   {
@@ -333,6 +1358,31 @@
     "nameEn": "Mihono Bourbon",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "CODE: ICING"
   },
   {
@@ -341,6 +1391,31 @@
     "nameEn": "Mejiro Ryan",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Down the Line"
   },
   {
@@ -349,6 +1424,31 @@
     "nameEn": "Hishi Akebono",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "F",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Buono ☆ Alla Moda"
   },
   {
@@ -357,6 +1457,31 @@
     "nameEn": "Rice Shower",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Rosy Dreams"
   },
   {
@@ -365,6 +1490,31 @@
     "nameEn": "Rice Shower",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 15,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Vampire Makeover!"
   },
   {
@@ -373,6 +1523,31 @@
     "nameEn": "Ines Fujin",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "Always Electrifying"
   },
   {
@@ -381,6 +1556,31 @@
     "nameEn": "Agnes Tachyon",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "D",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
     "epithet": "Tach-nology"
   },
   {
@@ -389,6 +1589,31 @@
     "nameEn": "Admire Vega",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "B",
+        "end": "A"
+      }
+    },
     "epithet": "Starry Nocturne"
   },
   {
@@ -397,6 +1622,31 @@
     "nameEn": "Inari One",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "B",
+        "end": "A"
+      }
+    },
     "epithet": "Edomurasaki"
   },
   {
@@ -405,6 +1655,31 @@
     "nameEn": "Winning Ticket",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Get to Winning!"
   },
   {
@@ -413,6 +1688,31 @@
     "nameEn": "Eishin Flash",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Meisterschaft"
   },
   {
@@ -421,6 +1721,31 @@
     "nameEn": "Eishin Flash",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 8,
+      "pow": 8,
+      "gut": 0,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "C"
+      }
+    },
     "epithet": "Precise Chocolatier"
   },
   {
@@ -429,6 +1754,31 @@
     "nameEn": "Curren Chan",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "D",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
     "epithet": "Fille Éclair"
   },
   {
@@ -437,6 +1787,31 @@
     "nameEn": "Curren Chan",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "D",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
     "epithet": "Ma Chérie of the New Moon"
   },
   {
@@ -445,6 +1820,31 @@
     "nameEn": "Kawakami Princess",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "B",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Princess of Pink"
   },
   {
@@ -453,6 +1853,31 @@
     "nameEn": "Gold City",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "B",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Authentic / 1928"
   },
   {
@@ -461,6 +1886,31 @@
     "nameEn": "Gold City",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "B",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Autumn Cosmos"
   },
   {
@@ -469,6 +1919,31 @@
     "nameEn": "Sakura Bakushin O",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
     "epithet": "Blossom in Learning"
   },
   {
@@ -477,6 +1952,31 @@
     "nameEn": "Sweep Tosho",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "A"
+      }
+    },
     "epithet": "Platanus Witch"
   },
   {
@@ -485,6 +1985,31 @@
     "nameEn": "Super Creek",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
     "epithet": "Murmuring Stream"
   },
   {
@@ -493,6 +2018,31 @@
     "nameEn": "Super Creek",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 8,
+      "pow": 0,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
     "epithet": "Chiffon-Wrapped Mummy"
   },
   {
@@ -501,6 +2051,31 @@
     "nameEn": "Smart Falcon",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "E",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "D",
+        "late": "G",
+        "end": "G"
+      }
+    },
     "epithet": "LOVE☆4EVER"
   },
   {
@@ -509,6 +2084,31 @@
     "nameEn": "Tosen Jordan",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
     "epithet": "Jokester ☆ Vibes"
   },
   {
@@ -517,6 +2117,31 @@
     "nameEn": "Narita Taishin",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "F",
+        "late": "B",
+        "end": "A"
+      }
+    },
     "epithet": "Nevertheless"
   },
   {
@@ -525,6 +2150,31 @@
     "nameEn": "Nishino Flower",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Layered Petals"
   },
   {
@@ -533,6 +2183,31 @@
     "nameEn": "Haru Urara",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "B"
+      }
+    },
     "epithet": "Bestest Prize ♪"
   },
   {
@@ -541,6 +2216,31 @@
     "nameEn": "Haru Urara",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "B"
+      }
+    },
     "epithet": "New Year ♪ New Urara!"
   },
   {
@@ -549,6 +2249,31 @@
     "nameEn": "Matikanefukukitaru",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Rising☆Fortune"
   },
   {
@@ -557,6 +2282,31 @@
     "nameEn": "Matikanefukukitaru",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "F"
+      }
+    },
     "epithet": "Lucky Tidings"
   },
   {
@@ -565,6 +2315,31 @@
     "nameEn": "Meisho Doto",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
     "epithet": "Turbulent Blue"
   },
   {
@@ -573,6 +2348,31 @@
     "nameEn": "Mejiro Dober",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "B",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Off the Line"
   },
   {
@@ -581,6 +2381,31 @@
     "nameEn": "Nice Nature",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Poinsettia Ribbon"
   },
   {
@@ -589,6 +2414,31 @@
     "nameEn": "Nice Nature",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Run & Win"
   },
   {
@@ -597,6 +2447,31 @@
     "nameEn": "King Halo",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "King of Emeralds"
   },
   {
@@ -605,6 +2480,31 @@
     "nameEn": "King Halo",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Cheerleader in Noble White"
   },
   {
@@ -613,6 +2513,31 @@
     "nameEn": "Matikanetannhauser",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
     "epithet": "Clippety-Tippety-Clop"
   },
   {
@@ -621,6 +2546,31 @@
     "nameEn": "Mejiro Palmer",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "F",
+        "end": "G"
+      }
+    },
     "epithet": "Line Breakthrough"
   },
   {
@@ -629,6 +2579,31 @@
     "nameEn": "Satono Diamond",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
     "epithet": "Natural Brilliance"
   },
   {
@@ -637,6 +2612,31 @@
     "nameEn": "Kitasan Black",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "C",
+        "end": "G"
+      }
+    },
     "epithet": "Gilded Shrine to Glory"
   },
   {
@@ -645,6 +2645,31 @@
     "nameEn": "Sakura Chiyono O",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
     "epithet": "Strength in Full Bloom"
   },
   {
@@ -653,6 +2678,31 @@
     "nameEn": "Mejiro Ardan",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "B",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "D",
+        "end": "G"
+      }
+    },
     "epithet": "Crystalline"
   },
   {
@@ -661,6 +2711,31 @@
     "nameEn": "Yaeno Muteki",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
     "epithet": "Blazed Head, Covered Fists"
   },
   {
@@ -669,6 +2744,31 @@
     "nameEn": "Mejiro Bright",
     "server": "global",
     "dataVersion": "global-c1fa2107",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 14,
+      "pow": 0,
+      "gut": 8,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "A"
+      }
+    },
     "epithet": "Brunissage Line"
   }
 ]

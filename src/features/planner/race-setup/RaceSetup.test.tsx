@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { RaceSetup } from './RaceSetup';
@@ -27,9 +27,7 @@ describe('RaceSetup', () => {
     const track = await screen.findByLabelText('Track');
     expect(track).toHaveValue('10009'); // Hanshin
     expect(screen.getByLabelText('Distance')).toHaveValue('10906');
-    const cond = within(screen.getByLabelText('Race conditions'));
-    expect(cond.getByText('Hanshin')).toBeInTheDocument();
-    expect(cond.getByText('Inner')).toBeInTheDocument();
+    // (the condition chips moved to the track card in CmPlannerPage; tested via describeSelection)
   });
 
   it('selecting CM16 fills the track data and emits Leo Cup', async () => {

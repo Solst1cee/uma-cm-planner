@@ -237,6 +237,12 @@ describe('public/data/umas.json', () => {
     expect(spe?.charaId).toBe('1001');
     expect(spe?.nameEn).toBe('Special Week');
     expect(spe?.epithet).toBe('Special Dreamer');
+    expect(spe?.statGrowth).toEqual({ spd: 0, sta: 20, pow: 0, gut: 0, wit: 10 });
+    expect(spe?.baseAptitudes).toEqual({
+      surface: { turf: 'A', dirt: 'G' },
+      distance: { short: 'F', mile: 'C', medium: 'A', long: 'A' },
+      strategy: { front: 'G', pace: 'A', late: 'A', end: 'C' },
+    });
   });
 
   it('uses official EN names where GameTora house style differs (T.M. Opera O, provenance §3 EN-names row)', () => {

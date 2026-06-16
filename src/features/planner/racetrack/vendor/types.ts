@@ -22,7 +22,7 @@ export namespace RaceTrackDimensions {
   export const ViewWidth = 960;
   export const RankBarHeight = 24;
   export const RankBarY = 2;
-  export const ViewHeight = 280;
+  export const ViewHeight = 240; // local mod: was 280; shrank the bottom section-numbers band 80→40
 
   export const marginTop = 16;
   export const marginBottom = 0;
@@ -38,7 +38,7 @@ export namespace RaceTrackDimensions {
 
   export const yAxisHeight = ViewHeight - xAxisHeight - marginBottom - marginTop;
 
-  export const SectionNumbersBarHeight = 80;
+  export const SectionNumbersBarHeight = 40; // local mod: was 80; matched to the 40px bars above (ViewHeight reduced 40 to compensate)
   export const SectionNumbersBarY = xAxisY - SectionNumbersBarHeight;
 
   export const PhaseBarHeight = 40;
