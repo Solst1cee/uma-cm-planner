@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 const h = vi.hoisted(() => ({
@@ -28,8 +28,9 @@ const h = vi.hoisted(() => ({
   },
 }));
 
-// The track lazy-imports the engine; mock it so the page test stays in jsdom.
+// The track + race-setup lazy-import the engine; mock them so the page test stays in jsdom.
 vi.mock('@/sim/courseData', () => ({ courseDataFor: () => h.courseData }));
+vi.mock('@/sim/courseCatalog', () => ({ courseCatalog: () => [] }));
 
 import { CmPlannerPage } from './CmPlannerPage';
 
@@ -48,8 +49,9 @@ describe('CmPlannerPage', () => {
 
   it('shows CM15 conditions in the readout (Hanshin, medium, inner)', () => {
     render(<CmPlannerPage />);
-    expect(screen.getByText('Hanshin')).toBeInTheDocument();
-    expect(screen.getByText('2,200m (Medium)')).toBeInTheDocument();
-    expect(screen.getByText('Inner')).toBeInTheDocument();
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(cond.getByText('Hanshin')).toBeInTheDocument();
+    expect(cond.getByText('2,200m (Medium)')).toBeInTheDocument();
+    expect(cond.getByText('Inner')).toBeInTheDocument();
   });
 });

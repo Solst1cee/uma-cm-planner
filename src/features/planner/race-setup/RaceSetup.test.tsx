@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { RaceSetup } from './RaceSetup';
@@ -16,46 +16,54 @@ const CATALOG: CourseCatalogEntry[] = [
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
 describe('RaceSetup', () => {
-  it('defaults to preset mode with CM15 and emits it on mount + shows its conditions', () => {
+  it('defaults to CM15: preset selected, controls show its track data, emits CM15', async () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} deps={deps} />);
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ courseId: '10906', presetCmId: 'CM15' }),
     );
-    expect(screen.getByText('Hanshin')).toBeInTheDocument();
-    expect(screen.getByText('2,200m (Medium)')).toBeInTheDocument();
-    expect(screen.getByText('Inner')).toBeInTheDocument();
-    expect(screen.getByText('Cloudy')).toBeInTheDocument();
+    expect(screen.getByLabelText('CM preset')).toHaveValue('CM15');
+    // controls populate once the catalog loads, showing the preset's track data
+    const track = await screen.findByLabelText('Track');
+    expect(track).toHaveValue('10009'); // Hanshin
+    expect(screen.getByLabelText('Distance')).toHaveValue('10906');
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(cond.getByText('Hanshin')).toBeInTheDocument();
+    expect(cond.getByText('Inner')).toBeInTheDocument();
   });
 
-  it('switching the preset to CM16 emits Leo Cup (course 10501)', () => {
+  it('selecting CM16 fills the track data and emits Leo Cup', async () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} deps={deps} />);
+    await screen.findByLabelText('Track');
     fireEvent.change(screen.getByLabelText('CM preset'), { target: { value: 'CM16' } });
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ courseId: '10501', presetCmId: 'CM16' }),
     );
-    expect(screen.getByText('Nakayama')).toBeInTheDocument();
+    expect(screen.getByLabelText('Track')).toHaveValue('10005'); // Nakayama
+    expect(screen.getByLabelText('CM preset')).toHaveValue('CM16');
   });
 
-  it('custom mode: choosing Tokyo turf 1600m emits course 10602 (left-handed)', async () => {
+  it('editing a condition away from the preset blanks the preset (— Custom —)', async () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} deps={deps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Custom' }));
-    const track = await screen.findByLabelText('Track');
-    fireEvent.change(track, { target: { value: '10006' } }); // Tokyo
-    fireEvent.change(screen.getByLabelText('Distance'), { target: { value: '10602' } });
-    expect(onChange).toHaveBeenLastCalledWith(
-      expect.objectContaining({ courseId: '10602', racetrack: 'Tokyo', direction: 'left' }),
-    );
-  });
-
-  it('custom mode: ground/weather/season selects update the emitted conditions', async () => {
-    const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={deps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Custom' }));
     await screen.findByLabelText('Track');
     fireEvent.change(screen.getByLabelText('Weather'), { target: { value: 'rainy' } });
-    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ weather: 'rainy' }));
+    const last = onChange.mock.lastCall![0];
+    expect(last.weather).toBe('rainy');
+    expect(last.presetCmId).toBeUndefined();
+    expect(screen.getByLabelText('CM preset')).toHaveValue('');
+  });
+
+  it('changing the Track to Tokyo turf emits a custom left-handed course (preset blanks)', async () => {
+    const onChange = vi.fn();
+    render(<RaceSetup onChange={onChange} deps={deps} />);
+    await screen.findByLabelText('Track');
+    fireEvent.change(screen.getByLabelText('Track'), { target: { value: '10006' } }); // Tokyo
+    const last = onChange.mock.lastCall![0];
+    expect(last.racetrack).toBe('Tokyo');
+    expect(last.direction).toBe('left');
+    expect(last.presetCmId).toBeUndefined();
+    expect(screen.getByLabelText('CM preset')).toHaveValue('');
   });
 });
