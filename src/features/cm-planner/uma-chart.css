@@ -1,0 +1,97 @@
+/* M4 §1 Unique-skill chart — kept separate from cm-planner.css. Light theme,
+   reuses the page tokens (--border, --accent, --bg-0/2, --fg-muted) + the shared
+   .cmp-chip / .cmp-small-btn / .L / .muted utilities. */
+.cmp-uma-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.cmp-uma-runbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.cmp-uma-runbar h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.cmp-run-btn {
+  padding: 4px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: var(--accent);
+  color: var(--bg-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+.cmp-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cmp-stale {
+  color: #b8702a;
+}
+.cmp-uma-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.cmp-uma-filters .search {
+  flex: 1;
+  min-width: 8rem;
+  background: var(--bg-0, #fff);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 0.85rem;
+  color: inherit;
+}
+.cmp-showall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.cmp-uma-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.cmp-uma-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.cmp-uma-row.is-dim {
+  opacity: 0.55;
+}
+.cmp-uma-row-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.cmp-uma-row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.cmp-uma-perstyle {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+.cmp-uma-perstyle .cmp-chip {
+  font-variant-numeric: tabular-nums;
+}
