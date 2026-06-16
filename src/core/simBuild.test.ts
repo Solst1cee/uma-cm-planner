@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { CmPlan } from '@/core/types';
-import { distanceClass, planToSimBuild, simAptitudes, setTargetAptitude } from './simBuild';
+import {
+  distanceClass,
+  planToSimBuild,
+  simAptitudes,
+  setTargetAptitude,
+  setTargetAptitudeByKey,
+  setStrategyTargetAptitude,
+  targetAptitude,
+} from './simBuild';
 
 function plan(over: Partial<CmPlan> = {}): CmPlan {
   return {
@@ -22,8 +30,8 @@ describe('distanceClass', () => {
 });
 
 describe('simAptitudes', () => {
-  it('defaults every aptitude to A when no spark goals set', () => {
-    expect(simAptitudes(plan())).toEqual({ distance: 'A', surface: 'A', strategy: 'A' });
+  it('prefills active distance as S and active surface/strategy as A when no spark goals are set', () => {
+    expect(simAptitudes(plan())).toEqual({ distance: 'S', surface: 'A', strategy: 'A' });
   });
   it('reads target grades from sparkGoals.pink by the course/strategy keys', () => {
     const p = plan({ sparkGoals: { pink: [
@@ -43,6 +51,36 @@ describe('setTargetAptitude', () => {
     expect(p2.sparkGoals.pink.filter((g) => g.aptKey.kind === 'distance')).toHaveLength(1);
     expect(simAptitudes(p2).distance).toBe('B');
   });
+
+  it('sets and clears an explicit non-current aptitude target by key', () => {
+    const p = setTargetAptitudeByKey(plan(), { kind: 'surface', key: 'dirt' }, 'B');
+    expect(targetAptitude(p, { kind: 'surface', key: 'dirt' })).toBe('B');
+    expect(simAptitudes(p).surface).toBe('A');
+
+    const cleared = setTargetAptitudeByKey(p, { kind: 'surface', key: 'dirt' }, '');
+    expect(targetAptitude(cleared, { kind: 'surface', key: 'dirt' })).toBeUndefined();
+  });
+
+  it('keeps only the selected strategy aptitude target', () => {
+    const p = plan({
+      strategy: 'front',
+      sparkGoals: {
+        blue: {},
+        pink: [
+          { aptKey: { kind: 'strategy', key: 'front' }, target: 'S' },
+          { aptKey: { kind: 'strategy', key: 'late' }, target: 'B' },
+          { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
+        ],
+      },
+    });
+
+    const next = setStrategyTargetAptitude(p, 'pace', 'A');
+
+    expect(next.strategy).toBe('pace');
+    expect(next.sparkGoals.pink).toContainEqual({ aptKey: { kind: 'strategy', key: 'pace' }, target: 'A' });
+    expect(next.sparkGoals.pink).toContainEqual({ aptKey: { kind: 'surface', key: 'turf' }, target: 'A' });
+    expect(next.sparkGoals.pink.filter((goal) => goal.aptKey.kind === 'strategy')).toHaveLength(1);
+  });
 });
 
 describe('planToSimBuild', () => {
@@ -51,7 +89,7 @@ describe('planToSimBuild', () => {
     expect(b.stats).toEqual({ spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 });
     expect(b.strategy).toBe('pace');
     expect(b.mood).toBe(0);
-    expect(b.aptitudes).toEqual({ distance: 'A', surface: 'A', strategy: 'A' });
+    expect(b.aptitudes).toEqual({ distance: 'S', surface: 'A', strategy: 'A' });
     expect(b.skills).toEqual([]);
     expect(b.umaId).toBe('100101');
   });

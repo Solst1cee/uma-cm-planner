@@ -116,6 +116,7 @@ describe('makeDefaultPlan preset preference (P4)', () => {
   it('still produces a usable plan with no presets at all', () => {
     const plan = makeDefaultPlan([]);
     expect(plan.name).toBe('New CM Plan');
+    expect(plan.statProfile.mood).toBe(2);
     expect(plan.wishlist).toEqual([]);
   });
 });

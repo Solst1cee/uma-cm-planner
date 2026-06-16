@@ -59,9 +59,32 @@ export interface IconManifest {
   card: string[];
   /** Available uma umaIds (sorted). */
   uma: string[];
+  /** Available small UI icon ids. */
+  ui: string[];
   /** umaIds that fell back to the base chr_icon (no outfit-specific trained icon). */
   _fallbackUmas: string[];
 }
+
+const UI_ICON_SOURCES: Record<string, string> = {
+  'apt-G': 'utx_ico_statusrank_00.png',
+  'apt-F': 'utx_ico_statusrank_01.png',
+  'apt-E': 'utx_ico_statusrank_02.png',
+  'apt-D': 'utx_ico_statusrank_03.png',
+  'apt-C': 'utx_ico_statusrank_04.png',
+  'apt-B': 'utx_ico_statusrank_05.png',
+  'apt-A': 'utx_ico_statusrank_06.png',
+  'apt-S': 'utx_ico_statusrank_07.png',
+  'stat-spd': 'status_00.png',
+  'stat-sta': 'status_01.png',
+  'stat-pow': 'status_02.png',
+  'stat-gut': 'status_03.png',
+  'stat-wit': 'status_04.png',
+  'mood--2': 'global/utx_ico_motivation_m_00.png',
+  'mood--1': 'global/utx_ico_motivation_m_01.png',
+  'mood-0': 'global/utx_ico_motivation_m_02.png',
+  'mood-1': 'global/utx_ico_motivation_m_03.png',
+  'mood-2': 'global/utx_ico_motivation_m_04.png',
+};
 
 // ---------------------------------------------------------------------------
 // Pure source-filename resolvers (unit-tested in build-icons.test.ts)
@@ -177,12 +200,24 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`));
   }
 
+  const uiIconEntries = Object.entries(UI_ICON_SOURCES).sort(([a], [b]) => a.localeCompare(b));
+  const uiIconIds = uiIconEntries.map(([id]) => id);
+  mkdirSync(join(ICONS_STAGING_DIR, 'ui'), { recursive: true });
+  for (const [id, relPath] of uiIconEntries) {
+    const src = srcAbs(relPath);
+    if (!existsSync(src)) {
+      throw new Error(`build-icons: missing UI icon source ${src} (id ${id}).`);
+    }
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'ui', `${id}.webp`));
+  }
+
   const manifest: IconManifest = {
     dataVersion: opts.dataVersion,
     format: 'webp',
     skill: skillIconIds,
     card: cardIds,
     uma: umaIds,
+    ui: uiIconIds,
     _fallbackUmas: fallbackUmas,
   };
   writeJsonDeterministic(join(ICONS_STAGING_DIR, 'icon-manifest.json'), manifest);

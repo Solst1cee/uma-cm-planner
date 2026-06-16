@@ -27,6 +27,8 @@ export interface IconManifest {
   card: string[];
   /** Available uma ids (UmaRecord.umaId). */
   uma: string[];
+  /** Available small UI asset ids. */
+  ui?: string[];
   /**
    * umaIds whose portrait fell back to the base character icon (no alt-outfit
    * trained icon in the dump). Informational; these still appear in `uma`.
@@ -58,4 +60,10 @@ export function cardIconPath(cardId: string, m: IconManifest): string | undefine
 export function umaIconPath(umaId: string, m: IconManifest): string | undefined {
   if (!has(m.uma, umaId)) return undefined;
   return `data/icons/uma/${umaId}.${m.format}`;
+}
+
+/** App-base-relative path to a small UI icon, e.g. `data/icons/ui/stat-spd.webp`. */
+export function uiIconPath(id: string, m: IconManifest): string | undefined {
+  if (!has(m.ui, id)) return undefined;
+  return `data/icons/ui/${id}.${m.format}`;
 }
