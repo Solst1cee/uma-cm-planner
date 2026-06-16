@@ -105,7 +105,7 @@
 }
 /* scroll container framing the table; the thead sticks while rows scroll */
 .cmp-uma-table {
-  max-height: 15rem; /* ~6 compact rows, then scroll */
+  max-height: 30rem; /* ~12 compact rows, then scroll */
   overflow-y: auto;
   scrollbar-gutter: stable;
   border: 1px solid var(--border);
@@ -147,7 +147,7 @@
 }
 /* compact, borderless rows (a faint hover background distinguishes them) */
 .cmp-uma-row {
-  align-items: center;
+  align-items: start; /* cells stick to the top line; they don't reflow when a plate expands */
   padding: 0.1rem 0.4rem;
 }
 .cmp-uma-row:hover {
@@ -157,6 +157,7 @@
   opacity: 0.55;
 }
 .cmp-uma-portrait {
+  align-self: start;
   border-radius: 6px;
 }
 .cmp-uma-plate {
@@ -172,8 +173,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* the right-hand cells are top-aligned (align-self:start) but center their own
+   content within the first-line height, so they read aligned with the skill name
+   when collapsed and stay put when the plate expands. */
 .cmp-uma-style {
-  align-self: center;
+  align-self: start;
+  min-height: 2.05rem;
   min-width: 0;
   font-variant-numeric: tabular-nums;
   font-size: 0.76rem;
@@ -184,12 +189,19 @@
   cursor: pointer;
 }
 .cmp-uma-na {
-  align-self: center;
+  align-self: start;
+  min-height: 2.05rem;
+  display: inline-flex;
+  align-items: center;
   color: var(--fg-muted);
   cursor: default;
 }
 .cmp-uma-num {
-  align-self: center;
+  align-self: start;
+  min-height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-size: 0.8rem;
@@ -199,5 +211,8 @@
   font-weight: 700;
 }
 .cmp-uma-select {
-  align-self: center;
+  align-self: start;
+  min-height: 2.05rem;
+  display: inline-flex;
+  align-items: center;
 }
