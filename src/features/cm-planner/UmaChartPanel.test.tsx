@@ -54,7 +54,8 @@ describe('UmaChartPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
     const rows = within(screen.getByLabelText('Uma unique-skill ranking')).getAllByRole('listitem');
-    expect(rows[0]).toHaveTextContent('Silence Suzuka'); // u2 (2.0) ranks above u1 (1.0)
+    // rows now show the unique skill (uma name removed); u2 (2.0) ranks above u1 (1.0)
+    expect(rows[0]).toHaveTextContent('Silent Speedline');
     await userEvent.click(within(rows[0]!).getByRole('button', { name: 'Select' }));
     expect(onSelectRunner).toHaveBeenCalledWith('100201', 'u2');
   });

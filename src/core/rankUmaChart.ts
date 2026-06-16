@@ -29,7 +29,12 @@ export interface UmaChartCandidate {
 }
 export interface UmaStyleL {
   strategy: Strategy;
+  /** mean bashin — the rank value. */
   L: number;
+  /** distribution from the engine's Monte-Carlo samples (surfaced on hover). */
+  min: number;
+  max: number;
+  median: number;
   nsamples: number;
 }
 export interface UmaChartRow {
@@ -90,7 +95,7 @@ async function rowFor(
       continue; // this style can't be evaluated — faithful: just drop it
     }
     if (s.nsamples === 0) continue;
-    perStyle.push({ strategy, L: s.mean, nsamples: s.nsamples });
+    perStyle.push({ strategy, L: s.mean, min: s.min, max: s.max, median: s.median, nsamples: s.nsamples });
   }
   if (perStyle.length === 0) {
     return { outfitId: c.outfitId, uniqueSkillId: c.uniqueSkillId, L: null, bestStrategy: null, perStyle: [], status: 'na', nsamples: 0 };
