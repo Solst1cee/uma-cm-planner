@@ -142,7 +142,7 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
       </div>
 
       <div className="cmp-custom">
-        <label className="cmp-field">
+        <label className="cmp-field cmp-preset">
           <span className="cmp-field-label">Preset</span>
           <select aria-label="CM preset" value={matched?.cmId ?? ''} onChange={(e) => onPreset(e.target.value)}>
             <option value="">— Custom —</option>

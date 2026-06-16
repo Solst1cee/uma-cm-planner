@@ -40,10 +40,33 @@
   font-weight: 600;
 }
 
+/* 4 equal columns: Preset in column 1 (with a thin vertical separator); the 6
+   track inputs fill columns 2–4 across 2 rows (Track/Surface/Distance, then
+   Ground/Weather/Season). Collapses to 2 columns on narrow screens. */
 .cmp-custom {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem 0.8rem;
+  align-items: start;
+}
+.cmp-preset {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  border-right: 1px solid var(--border);
+  padding-right: 0.8rem;
+}
+@media (max-width: 720px) {
+  .cmp-custom {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cmp-preset {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0;
+    padding-bottom: 0.6rem;
+  }
 }
 .cmp-field {
   display: flex;
