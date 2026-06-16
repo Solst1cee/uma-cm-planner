@@ -8,6 +8,7 @@ import type { CmPlan, CmPreset, Priority } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
+import { addOrReplaceWishlistSkill, wishlistSkillId } from './skillFamilies';
 
 // Game-internal scenario ids (provenance §3.1 — id 3 does not exist).
 const SCENARIOS = [
@@ -69,8 +70,11 @@ export function PlanHeaderPanel({
   const showCustom = customMode || matchedPreset < 0;
 
   const addedSkillIds = useMemo(
-    () => new Set(plan.wishlist.map((t) => t.skillId)),
-    [plan.wishlist],
+    () => new Set(plan.wishlist.flatMap((t) => {
+      const resolvedSkillId = wishlistSkillId(t.skillId, skillById);
+      return resolvedSkillId !== t.skillId ? [t.skillId, resolvedSkillId] : [t.skillId];
+    })),
+    [plan.wishlist, skillById],
   );
 
   const applyPreset = (value: string) => {
@@ -237,7 +241,7 @@ export function PlanHeaderPanel({
         onPick={(skillId) =>
           onChange({
             ...plan,
-            wishlist: [...plan.wishlist, { skillId, priority: 1, source: 'targeted', manualAdd: true }],
+            wishlist: addOrReplaceWishlistSkill(plan.wishlist, skillId, skillById),
           })
         }
       />

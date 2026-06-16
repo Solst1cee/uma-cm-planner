@@ -577,7 +577,30 @@ main:has(.cmp-page) {
   min-width: 0;
 }
 
-.cmp-priority-btn,
+.cmp-variant-select {
+  display: grid;
+  grid-template-columns: auto minmax(7rem, 1fr);
+  gap: 0.35rem;
+  align-items: center;
+  color: var(--fg-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cmp-variant-select select {
+  min-width: 0;
+  max-width: 12rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.2rem 0.35rem;
+  color: var(--fg);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
 .cmp-small-btn {
   flex: none;
   min-height: 0;
@@ -590,11 +613,6 @@ main:has(.cmp-page) {
   height: 2.12rem;
   min-width: 2rem;
   margin-top: 0.1rem;
-}
-
-.cmp-priority-btn {
-  min-width: 2.1rem;
-  color: #e6b85c;
 }
 
 .cmp-wishlist-totals {
@@ -641,12 +659,26 @@ main:has(.cmp-page) {
 .cmp-skill-detail > summary {
   min-height: 2.05rem;
   justify-content: space-between;
+  gap: 0.45rem;
   border: 2px solid transparent;
   border-radius: 8px;
   box-shadow: 0 2px 0 rgb(180, 178, 192);
   padding: 0.22rem 0.45rem;
   cursor: pointer;
-  list-style-position: outside;
+  list-style: none;
+  transition:
+    filter 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.cmp-skill-detail > summary:hover {
+  filter: brightness(1.025);
+}
+
+.cmp-skill-detail[open] > summary {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgb(160, 158, 178);
 }
 
 .cmp-skill-plate {
@@ -669,16 +701,23 @@ main:has(.cmp-page) {
 }
 
 .cmp-skill-rarity-unique > summary,
-.cmp-skill-rarity-inherited_unique > summary,
-.cmp-skill-rarity-unique.cmp-skill-plate,
-.cmp-skill-rarity-inherited_unique.cmp-skill-plate {
+.cmp-skill-rarity-unique.cmp-skill-plate {
   background:
     linear-gradient(90deg, rgb(239, 255, 214), rgb(161, 201, 248), rgb(170, 170, 255), rgb(255, 186, 231)) padding-box,
     linear-gradient(90deg, rgb(197, 255, 190), rgb(189, 235, 255), rgb(195, 208, 255), rgb(255, 138, 222)) border-box;
 }
 
+.cmp-skill-rarity-inherited_unique > summary,
+.cmp-skill-rarity-inherited_unique.cmp-skill-plate {
+  --skill-text: #46505f;
+  --skill-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+  background:
+    linear-gradient(90deg, #f8fafc, #d3d9e3) padding-box,
+    linear-gradient(90deg, #c9d1dd, #8b96a7) border-box;
+}
+
 .cmp-skill-detail > summary::-webkit-details-marker {
-  color: var(--fg-muted);
+  display: none;
 }
 
 .cmp-skill-summary-main,
@@ -702,6 +741,22 @@ main:has(.cmp-page) {
   margin-left: auto;
 }
 
+.cmp-disclosure-icon {
+  width: 0.46rem;
+  height: 0.46rem;
+  flex: none;
+  margin-right: 0.1rem;
+  border-right: 2px solid var(--skill-text);
+  border-bottom: 2px solid var(--skill-text);
+  opacity: 0.68;
+  transform: rotate(45deg) translateY(-0.08rem);
+  transition: transform 120ms ease;
+}
+
+.cmp-skill-detail[open] .cmp-disclosure-icon {
+  transform: rotate(225deg) translate(-0.08rem, -0.04rem);
+}
+
 .cmp-skill-detail .cost,
 .cmp-sidebar .picker-row .muted {
   color: var(--skill-text);
@@ -714,6 +769,43 @@ main:has(.cmp-page) {
   border-radius: 8px;
   background: #fbfdff;
   padding: 0.55rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85);
+}
+
+.cmp-skill-detail:not([open]) > .cmp-skill-tech {
+  display: none;
+}
+
+.cmp-skill-tech-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  align-items: center;
+  margin-bottom: 0.48rem;
+}
+
+.cmp-skill-tech-head > span {
+  border: 1px solid #cbd9ea;
+  border-radius: 999px;
+  background: #f3f8ff;
+  padding: 0.12rem 0.45rem;
+  color: #49617f;
+  font-size: 0.67rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cmp-skill-tech-head .cmp-skill-id-chip {
+  border-color: #b8cdf0;
+  background: #eaf3ff;
+  color: #234b86;
+}
+
+.cmp-skill-tech-head-side {
+  display: flex;
+  min-width: 0;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .cmp-tech-list {
@@ -752,6 +844,14 @@ main:has(.cmp-page) {
   font-size: 0.74rem;
 }
 
+.cmp-alt h4 {
+  margin: 0 0 0.35rem;
+  color: var(--fg-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .cmp-condition-lines {
   display: flex;
   flex-direction: column;
@@ -770,13 +870,6 @@ main:has(.cmp-page) {
   padding-top: 0.5rem;
 }
 
-.cmp-alt h4 {
-  margin: 0 0 0.4rem;
-  color: var(--fg-muted);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
 .cmp-effect-list {
   display: flex;
   flex-direction: column;
@@ -790,28 +883,120 @@ main:has(.cmp-page) {
 
 .cmp-effect-list li {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  align-items: center;
-  border: 1px solid #d5e2f3;
-  border-radius: 8px;
-  background: #f7fbff;
-  padding: 0.35rem;
+  min-width: 0;
 }
 
-.cmp-effect-list li span {
-  border: 1px solid #b9ccec;
-  border-radius: 999px;
-  background: #eef5ff;
-  padding: 0.12rem 0.4rem;
-  color: #2b4d80;
+.cmp-effect-chip {
+  --effect-color: #475569;
+  --effect-border: #cbd5e1;
+  --effect-bg: #f8fafc;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  gap: 0.04rem 0.45rem;
+  align-items: center;
+  border: 1px solid var(--effect-border);
+  border-radius: 7px;
+  background: var(--effect-bg);
+  padding: 0.3rem 0.45rem;
+  color: var(--effect-color);
   font-weight: 700;
 }
 
-.cmp-effect-list li span:first-child {
-  border-color: #3478f6;
-  background: #dceaff;
-  color: #173c78;
+.cmp-effect-chip.is-target-speed {
+  --effect-color: #1f4f99;
+  --effect-border: #4f8df7;
+  --effect-bg: #eaf2ff;
+}
+
+.cmp-effect-chip.is-current-speed {
+  --effect-color: #28327f;
+  --effect-border: #4f5bd5;
+  --effect-bg: #eef0ff;
+}
+
+.cmp-effect-chip.is-acceleration {
+  --effect-color: #8a4b00;
+  --effect-border: #f59e0b;
+  --effect-bg: #fff4df;
+}
+
+.cmp-effect-chip.is-recovery {
+  --effect-color: #0f6675;
+  --effect-border: #22b8cf;
+  --effect-bg: #e8fbff;
+}
+
+.cmp-effect-chip.is-stat {
+  --effect-color: #166534;
+  --effect-border: #22c55e;
+  --effect-bg: #edfff4;
+}
+
+.cmp-effect-chip.is-debuff {
+  --effect-color: #9f1239;
+  --effect-border: #ef4444;
+  --effect-bg: #fff1f2;
+}
+
+.cmp-effect-chip.is-start {
+  --effect-color: #92400e;
+  --effect-border: #d97706;
+  --effect-bg: #fff7ed;
+}
+
+.cmp-effect-chip.is-movement {
+  --effect-color: #115e59;
+  --effect-border: #14b8a6;
+  --effect-bg: #effdf9;
+}
+
+.cmp-effect-chip.is-duration {
+  --effect-color: #6d28d9;
+  --effect-border: #a78bfa;
+  --effect-bg: #f5f3ff;
+}
+
+.cmp-effect-list li b,
+.cmp-effect-list li strong,
+.cmp-effect-list li small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-effect-list li b {
+  font-size: 0.72rem;
+}
+
+.cmp-effect-list li strong {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  align-self: center;
+  color: var(--effect-color);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  text-align: right;
+  white-space: normal;
+}
+
+.cmp-effect-list li strong.is-positive {
+  color: #57c98a;
+}
+
+.cmp-effect-list li strong.is-negative {
+  color: #dc2626;
+}
+
+.cmp-effect-list li small {
+  grid-column: 1;
+  color: var(--effect-color);
+  font-size: 0.62rem;
+  font-weight: 800;
+  opacity: 0.72;
 }
 
 .cmp-alt-metrics {

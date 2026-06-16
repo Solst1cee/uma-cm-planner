@@ -6,17 +6,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
+import { isBlockedBySelectedVariant } from './skillFamilies';
 
 const MAX_RESULTS = 30;
+const EMPTY_SKILL_IDS = new Set<string>();
 
 export function SkillPicker({
   addedSkillIds,
+  hiddenSkillIds = EMPTY_SKILL_IDS,
   onPick,
 }: {
   addedSkillIds: ReadonlySet<string>;
+  hiddenSkillIds?: ReadonlySet<string>;
   onPick: (skillId: string) => void;
 }) {
-  const { skills } = useGameData();
+  const { skills, skillById } = useGameData();
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -24,9 +28,15 @@ export function SkillPicker({
     const q = query.trim().toLowerCase();
     if (q === '') return [];
     return skills
-      .filter((s) => s.server === 'global' && s.nameEn.toLowerCase().includes(q))
+      .filter((s) => (
+        s.server === 'global'
+        && s.rarity !== 'unique'
+        && !hiddenSkillIds.has(s.skillId)
+        && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
+        && s.nameEn.toLowerCase().includes(q)
+      ))
       .slice(0, MAX_RESULTS);
-  }, [skills, query]);
+  }, [addedSkillIds, hiddenSkillIds, query, skillById, skills]);
 
   useEffect(() => {
     setActiveIndex(0);

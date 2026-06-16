@@ -185,6 +185,10 @@ export function buildSkills(inputs: {
       server: 'global',
       dataVersion,
     };
+    const variantSkillIds = skill.versions
+      .map((id) => String(id))
+      .filter((id) => inputs.master[id] !== undefined);
+    if (variantSkillIds.length > 0) record.variantSkillIds = variantSkillIds;
     if (skill.rarity === 2) {
       const prereq = resolvePrereq(skill, master);
       if (prereq !== undefined) record.prereqSkillId = prereq;

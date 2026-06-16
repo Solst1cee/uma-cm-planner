@@ -23,7 +23,7 @@ function renderPanel(plan: CmPlan = FIXTURE_PLAN) {
 describe('PlanHeaderPanel skill search', () => {
   it('filters by EN name, case-insensitively', async () => {
     const user = userEvent.setup();
-    renderPanel();
+    renderPanel({ ...FIXTURE_PLAN, wishlist: [] });
     await user.type(screen.getByLabelText('Search skills by name'), 'CORNER');
     expect(screen.getByRole('button', { name: /Corner Adept ○/ })).toBeInTheDocument();
     expect(screen.queryByText('Right Turns ○')).not.toBeInTheDocument();
@@ -39,12 +39,12 @@ describe('PlanHeaderPanel skill search', () => {
 
   it('adds a picked skill at priority 1', async () => {
     const user = userEvent.setup();
-    const onChange = renderPanel();
+    const onChange = renderPanel({ ...FIXTURE_PLAN, wishlist: [] });
     await user.type(screen.getByLabelText('Search skills by name'), 'corner');
     await user.click(screen.getByRole('button', { name: /Corner Adept ○/ }));
     const next = onChange.mock.lastCall?.[0];
     expect(next?.wishlist).toContainEqual(expect.objectContaining({ skillId: '200332', priority: 1 }));
-    expect(next?.wishlist).toHaveLength(FIXTURE_PLAN.wishlist.length + 1);
+    expect(next?.wishlist).toHaveLength(1);
   });
 
   it('adds a highlighted result with arrow keys and Enter', async () => {
@@ -57,14 +57,14 @@ describe('PlanHeaderPanel skill search', () => {
     expect(next?.wishlist).toContainEqual(expect.objectContaining({ skillId: '200014', priority: 1 }));
   });
 
-  it('disables results that are already targets', async () => {
+  it('hides lower variants when a higher target is already selected', async () => {
     const user = userEvent.setup();
     renderPanel();
     await user.type(screen.getByLabelText('Search skills by name'), 'right turns');
-    // Right Turns ◎ (200014) is already a target → disabled; ○ is not.
     const results = within(screen.getByRole('list', { name: 'Skill search results' }));
-    expect(results.getByRole('button', { name: /Right Turns ◎/ })).toBeDisabled();
-    expect(results.getByRole('button', { name: /Right Turns ○/ })).toBeEnabled();
+    expect(results.queryByRole('button', { name: /Right Turns ◎/ })).not.toBeInTheDocument();
+    expect(results.queryByRole('button', { name: /Right Turns ○/ })).not.toBeInTheDocument();
+    expect(screen.getByText('No matching skills.')).toBeInTheDocument();
   });
 });
 
