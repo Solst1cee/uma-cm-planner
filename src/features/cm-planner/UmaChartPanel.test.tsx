@@ -56,7 +56,8 @@ describe('UmaChartPanel', () => {
     const rows = within(screen.getByLabelText('Uma unique-skill ranking')).getAllByRole('listitem');
     // rows now show the unique skill (uma name removed); u2 (2.0) ranks above u1 (1.0)
     expect(rows[0]).toHaveTextContent('Silent Speedline');
-    await userEvent.click(within(rows[0]!).getByRole('button', { name: 'Select' }));
+    // one button per row (the Select action; the style picker is a combobox)
+    await userEvent.click(within(rows[0]!).getByRole('button'));
     expect(onSelectRunner).toHaveBeenCalledWith('100201', 'u2');
   });
 

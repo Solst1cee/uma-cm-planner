@@ -1,85 +1,85 @@
-/* M4 §1 Unique-skill chart — collapsible panel, compact single-line rows.
+/* M4 §1 Unique-skill chart — collapsible VFalator-style table.
    Kept separate from cm-planner.css. Reuses page tokens + shared utilities
-   (.cmp-chip / .cmp-small-btn / .cmp-missing-skill / .muted). */
+   (.cmp-small-btn / .cmp-missing-skill / .muted / .small). */
 
-/* ---- collapsible panel ---- */
 .cmp-uma-chart {
-  padding: 0; /* summary + body manage their own padding */
+  padding: 0; /* head + body manage their own padding */
   overflow: hidden; /* clip the header bar to the panel's rounded corners */
 }
-/* header bar — matches the sidebar's "Current Uma Plan" head (.cmp-plan-card-head) */
-.cmp-uma-summary {
+
+/* ---- header bar (matches the sidebar's .cmp-plan-card-head) with inline Run + collapse ---- */
+.cmp-uma-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
+  gap: 0.6rem;
+  padding: 0.45rem 0.75rem;
   background: var(--bg-2);
   border-bottom: 1px solid var(--border);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-}
-.cmp-uma-summary::-webkit-details-marker {
-  display: none;
 }
 .cmp-uma-title {
   font-size: 0.82rem;
   font-weight: 700;
 }
-.cmp-uma-caret {
-  width: 0.5rem;
-  height: 0.5rem;
-  flex: none;
-  border-right: 2px solid var(--fg-muted);
-  border-bottom: 2px solid var(--fg-muted);
-  transform: rotate(-45deg); /* points right when collapsed */
-  transition: transform 120ms ease;
-}
-.cmp-uma-chart[open] .cmp-uma-caret {
-  transform: rotate(45deg); /* points down when open */
-}
-.cmp-uma-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  padding: 0 0.8rem 0.7rem;
-}
-
-/* ---- run bar + filters ---- */
-.cmp-uma-runbar {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
 .cmp-run-btn {
-  padding: 4px 16px;
+  padding: 2px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
   border: 1px solid var(--accent);
-  border-radius: 7px;
+  border-radius: 6px;
   background: var(--accent);
   color: var(--bg-0);
-  font-weight: 600;
   cursor: pointer;
 }
 .cmp-run-btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
+.cmp-uma-progress {
+  white-space: nowrap;
+}
 .cmp-stale {
   color: #b8702a;
+  white-space: nowrap;
 }
-.cmp-uma-filters {
+.cmp-uma-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--fg-muted);
+}
+.cmp-uma-caret {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg); /* points right when collapsed */
+  transition: transform 120ms ease;
+}
+.cmp-uma-caret[data-open] {
+  transform: rotate(45deg); /* points down when open */
+}
+
+/* ---- body ---- */
+.cmp-uma-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem 0.7rem;
+}
+.cmp-uma-toolbar {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   flex-wrap: wrap;
-  margin-left: auto;
 }
-.cmp-uma-filters .search {
-  min-width: 8rem;
+.cmp-uma-toolbar .search {
+  min-width: 10rem;
   background: var(--bg-0, #fff);
   border: 1px solid var(--border);
   border-radius: 7px;
@@ -95,7 +95,36 @@
   white-space: nowrap;
 }
 
-/* ---- rows: ~6 visible, then scroll ---- */
+/* ---- table: thead + scrollable rows share the same fixed grid columns so they align ---- */
+.cmp-uma-thead,
+.cmp-uma-row {
+  display: grid;
+  grid-template-columns: 2rem 13rem 5rem 3.3rem 3.3rem 3.3rem 3.3rem 3.6rem;
+  gap: 0.4rem;
+}
+.cmp-uma-thead {
+  align-items: center;
+  padding: 0 0.35rem 0.25rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fg-muted);
+}
+.cmp-uma-sort {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.cmp-uma-sort.is-sort {
+  color: var(--accent);
+  font-weight: 700;
+}
 .cmp-uma-rows {
   list-style: none;
   margin: 0;
@@ -103,14 +132,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  max-height: 16rem; /* ~6 compact rows */
+  max-height: 16rem; /* ~6 rows, then scroll */
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 .cmp-uma-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto; /* portrait | plate | L | Select */
-  align-items: start; /* keep portrait/controls on the plate's summary line when it expands */
-  gap: 0.5rem;
+  align-items: start; /* keep cells on the plate's summary line when it expands */
   padding: 0.25rem 0.35rem;
   border: 1px solid var(--border);
   border-radius: 7px;
@@ -122,38 +149,44 @@
   border-radius: 6px;
 }
 .cmp-uma-plate {
-  min-width: 0; /* fills the 1fr grid column; the grid (not flex) controls width */
+  min-width: 0; /* fills the fixed 13rem column */
 }
-/* in our compact rows, left-pack the plate's icon+name+caret (the sidebar uses
-   space-between, which here would shove the caret to the far right with a big gap) */
+/* left-pack the plate's icon+name+caret (the sidebar uses space-between, which here
+   would shove the caret to the far right) + ellipsis the name to keep the column equal-width */
 .cmp-uma-row .cmp-skill-detail > summary {
   justify-content: flex-start;
 }
-/* the per-style L dropdown (each style pre-simulated; switching re-ranks, no re-sim) */
+.cmp-uma-row .cmp-skill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .cmp-uma-style {
-  flex: none;
-  align-self: flex-start;
+  align-self: center;
+  min-width: 0;
   font-variant-numeric: tabular-nums;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #2c8a5a;
+  font-size: 0.76rem;
   background: var(--bg-0, #fff);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 2px 4px;
+  padding: 2px 3px;
   cursor: pointer;
 }
-.cmp-uma-style.is-dim {
-  color: var(--fg-muted);
-  font-weight: 600;
-}
 .cmp-uma-na {
-  display: inline-flex;
-  align-items: center;
+  align-self: center;
   color: var(--fg-muted);
   cursor: default;
 }
+.cmp-uma-num {
+  align-self: center;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+.cmp-uma-num.is-sort {
+  color: var(--accent);
+  font-weight: 700;
+}
 .cmp-uma-select {
-  flex: none;
-  align-self: flex-start;
+  align-self: center;
 }
