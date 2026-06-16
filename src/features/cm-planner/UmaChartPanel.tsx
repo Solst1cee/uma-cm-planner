@@ -21,9 +21,9 @@ const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace',
 
 type SortMetric = 'mean' | 'min' | 'max' | 'median';
 const METRIC_COLUMNS: ReadonlyArray<{ key: SortMetric; label: string }> = [
-  { key: 'mean', label: 'Mean' },
   { key: 'min', label: 'Min' },
   { key: 'max', label: 'Max' },
+  { key: 'mean', label: 'Mean' },
   { key: 'median', label: 'Median' },
 ];
 const metricOf = (p: UmaStyleL, m: SortMetric): number => (m === 'mean' ? p.L : p[m]);
@@ -52,8 +52,13 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
   onStyle: (outfitId: string, strategy: Strategy) => void;
   onSelect: (outfitId: string, uniqueSkillId: string) => void;
 }) {
+  const hover = row.perStyle.length
+    ? row.perStyle
+        .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)
+        .join('\n')
+    : 'No simulatable unique on this track';
   return (
-    <li className={`cmp-uma-row ${row.status === 'live' ? '' : 'is-dim'}`.trim()}>
+    <li className={`cmp-uma-row ${row.status === 'live' ? '' : 'is-dim'}`.trim()} title={hover}>
       <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
       {unique ? (
         <SkillDetailDisclosure skill={unique} showCost={false} className="cmp-uma-plate" />
@@ -197,7 +202,8 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
                 </label>
               </div>
 
-              <div className="cmp-uma-thead" aria-hidden="true">
+              <div className="cmp-uma-table">
+                <div className="cmp-uma-thead" aria-hidden="true">
                 <span />
                 <span>Skill</span>
                 <span>Style</span>
@@ -233,6 +239,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
                   <li className="muted small">No umas to show{!showAll ? ' (try “show all”)' : ''}.</li>
                 )}
               </ul>
+              </div>
             </>
           )}
         </div>
