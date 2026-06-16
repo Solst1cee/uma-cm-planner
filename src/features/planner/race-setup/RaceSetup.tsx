@@ -12,6 +12,7 @@ import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { PRESETS, type Ground, type RacePreset, type Season, type Weather } from './presets';
 import { TRACKS, coursesForTrackSurface, surfacesForTrack } from './trackCatalog';
 import {
+  cap,
   courseToSelection,
   describeSelection,
   presetToSelection,
@@ -21,7 +22,6 @@ import {
 const GROUNDS: Ground[] = ['firm', 'good', 'soft', 'heavy'];
 const WEATHERS: Weather[] = ['sunny', 'cloudy', 'rainy', 'snowy'];
 const SEASONS: Season[] = ['spring', 'summer', 'fall', 'winter'];
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 interface Fields {
   trackId: number;
@@ -101,9 +101,10 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
   }, [loadCatalog]);
 
   const apply = (next: Fields) => {
-    setFields(next);
     const sel = resolveSelection(next, catalog);
-    if (sel) onChange(sel);
+    if (!sel) return; // unresolvable (empty/malformed catalog) — keep fields ↔ emitted selection in sync
+    setFields(next);
+    onChange(sel);
   };
 
   const onPreset = (cmId: string) => {
@@ -112,20 +113,21 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
   };
 
   const onTrack = (trackId: number) => {
-    if (!catalog) return;
+    if (!catalog || catalog.length === 0) return;
     const surface = surfacesForTrack(catalog, trackId)[0] ?? 'turf';
     const courseId = coursesForTrackSurface(catalog, trackId, surface)[0]?.courseId ?? '';
     apply({ ...fields, trackId, surface, courseId });
   };
 
   const onSurface = (surface: 'turf' | 'dirt') => {
-    if (!catalog) return;
+    if (!catalog || catalog.length === 0) return;
     const courseId = coursesForTrackSurface(catalog, fields.trackId, surface)[0]?.courseId ?? '';
     apply({ ...fields, surface, courseId });
   };
 
   const matched = matchPreset(fields);
   const sel = resolveSelection(fields, catalog) ?? presetToSelection(PRESETS[0]!);
+  const ready = catalog != null && catalog.length > 0;
   const surfaceOptions = catalog ? surfacesForTrack(catalog, fields.trackId) : [];
   const distanceOptions = catalog ? coursesForTrackSurface(catalog, fields.trackId, fields.surface) : [];
 
@@ -159,7 +161,7 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
           <select
             aria-label="Track"
             value={String(fields.trackId)}
-            disabled={!catalog}
+            disabled={!ready}
             onChange={(e) => onTrack(Number(e.target.value))}
           >
             {TRACKS.map((t) => (
@@ -175,7 +177,7 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
           <select
             aria-label="Surface"
             value={fields.surface}
-            disabled={!catalog}
+            disabled={!ready}
             onChange={(e) => onSurface(e.target.value as 'turf' | 'dirt')}
           >
             {(surfaceOptions.length ? surfaceOptions : [fields.surface]).map((s) => (
@@ -191,7 +193,7 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
           <select
             aria-label="Distance"
             value={fields.courseId}
-            disabled={!catalog}
+            disabled={!ready}
             onChange={(e) => apply({ ...fields, courseId: e.target.value })}
           >
             {distanceOptions.length ? (

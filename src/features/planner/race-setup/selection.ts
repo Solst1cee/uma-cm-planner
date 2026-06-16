@@ -25,7 +25,7 @@ export interface RaceSelection extends RaceConditions {
   presetCmId?: string;
 }
 
-const cap = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+export const cap = (s: string): string => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 export function presetToSelection(p: RacePreset): RaceSelection {
   return {

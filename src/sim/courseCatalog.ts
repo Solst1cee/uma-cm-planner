@@ -1,4 +1,5 @@
 import { coursesService } from './vendor/umalator.bundle.mjs';
+import { distanceClass } from '@/core/simBuild';
 
 /**
  * The full course catalog, enumerated from the vendored engine at runtime
@@ -27,12 +28,14 @@ const DISTANCE_TYPE_CLASS: Record<number, CourseCatalogEntry['distanceClass']> =
   5: 'long',
 };
 
-/** Fallback when distanceType is missing/unknown (a few courses have it undefined). */
+/**
+ * Fallback when distanceType is missing/unknown (a few courses have it undefined).
+ * Reuses core's distance thresholds (single source of truth); the catalog uses the
+ * 'sprint' display label where the aptitude class is 'short'.
+ */
 function classifyByDistance(distance: number): CourseCatalogEntry['distanceClass'] {
-  if (distance < 1400) return 'sprint';
-  if (distance <= 1800) return 'mile';
-  if (distance <= 2400) return 'medium';
-  return 'long';
+  const c = distanceClass(distance);
+  return c === 'short' ? 'sprint' : c;
 }
 
 export function courseCatalog(): CourseCatalogEntry[] {

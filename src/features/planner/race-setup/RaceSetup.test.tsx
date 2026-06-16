@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { RaceSetup } from './RaceSetup';
@@ -65,5 +65,16 @@ describe('RaceSetup', () => {
     expect(last.direction).toBe('left');
     expect(last.presetCmId).toBeUndefined();
     expect(screen.getByLabelText('CM preset')).toHaveValue('');
+  });
+
+  it('treats an empty catalog as not-ready: still emits CM15 and disables the cascade selects', async () => {
+    const onChange = vi.fn();
+    render(<RaceSetup onChange={onChange} deps={{ loadCatalog: () => Promise.resolve([]) }} />);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ courseId: '10906', presetCmId: 'CM15' }),
+    );
+    await waitFor(() => expect(screen.getByLabelText('Track')).toBeDisabled());
+    expect(screen.getByLabelText('Surface')).toBeDisabled();
+    expect(screen.getByLabelText('Distance')).toBeDisabled();
   });
 });
