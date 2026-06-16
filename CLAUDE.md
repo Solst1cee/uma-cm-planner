@@ -4,20 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current State
 
-**Status (2026-06-15):** engine-first foundation shipped; all four modules are in progress on `main` (**412 tests**, typecheck + build green). `/` is the engine-driven M4 skill chart.
+**Status (2026-06-16):** all four modules in progress on `main` (**443 tests**, typecheck + build green). **M4 is being rebuilt around umalator's _vendored_ UI** — the mockups are umalator-derived, so vendoring umalator's real components is the fastest path to fidelity (the hand-rolled track was far below the real uma-tools track that uma.guide ships). `/` is now `CmPlannerPage`: the **real umalator §0 race-track visualizer** + a **race-setup customizer** (preset ⇄ fully-custom track / ground / weather / season). The original engine-driven skill chart moved to **`/legacy`**. Rebuild spec: [2026-06-16-m4-umalator-build-foundation-design.md](docs/superpowers/specs/2026-06-16-m4-umalator-build-foundation-design.md).
 
 **Per-module detail lives in [docs/modules/](docs/modules/) — load the lean file below + the one module you're working on, not the whole history.**
 
 | Module | Route | Status | Doc |
 |---|---|---|---|
-| M4 Skill Acquisition | `/` | Slice 1 shipped (engine skill chart + runner config + sourcing) | [module-4](docs/modules/module-4-skill-acquisition.md) *(detailed)* |
+| M4 Skill Acquisition | `/` (rebuild) · `/legacy` (old) | **Rebuild Slice A done (2026-06-16):** vendored umalator §0 race-track + race-setup customizer at `/`. Original engine skill chart + sourcing at `/legacy`. | [module-4](docs/modules/module-4-skill-acquisition.md) *(detailed)* |
 | M1 Inheritance | — (stub) | Plans 1–2 (CmPlan SSOT + affinity core) done; **Plans 3–5 are Next** | [module-1](docs/modules/module-1-inheritance.md) |
 | M2 SP Optimizer | `/sp-optimizer` | MVP shipped; F1–F4 follow-ups | [module-2](docs/modules/module-2-sp-optimizer.md) |
 | M3 Meta Intel | `/meta-intel` | Timeline + synthesis shipped; phase-2 next | [module-3](docs/modules/module-3-meta-intel.md) |
 
 **⚠️ Design fidelity — the mockups are the spec.** The built module UIs are **functional skeletons far below the design mockups** that capture the product vision: **[docs/mockups/](docs/mockups/)** (committed; the canonical visual spec — open the `.html` in a browser). Fidelity audit 2026-06-15: **M4 ~25%, M3 ~25%, M2 ~20%, M1 ~8%.** The gap was classified — and **~80% of it needs no new data:**
 - **Design system** — one shared dark token + badge/chip/effect/track visual grammar, *identical across all 4 mockups*; building it once re-skins everything. (Currently mostly absent.)
-- **Not-built but data exists** — M4 §0 track diagram (geometry is *in the engine*), M4 left-panel cards + sourcing table, **M2 results table + Compare-vs-Veteran** (`runPlannerCompare` exists), M3 grid-with-month-columns layout, M1 pedigree + goal-builder + compare-all. Buildable now.
+- **Not-built but data exists** — M4 §0 track diagram (**DONE 2026-06-16 — vendored umalator track**), M4 left-panel cards + sourcing table, **M2 results table + Compare-vs-Veteran** (`runPlannerCompare` exists), M3 grid-with-month-columns layout, M1 pedigree + goal-builder + compare-all. Buildable now.
 - **Genuinely data-gated (only 4 things project-wide):** (1) skill effect-type + duration → effect badges/graphs (M4/M2); (2) uma stats/aptitudes/innate/unique-id → Uma chart + innate sourcing (M4/M1); (3) per-record release dates → Now/Upcoming/Future (M4); (4) banner + patch timeline entries → M3's empty lanes.
 
 **Treat the mockup HTML as the spec; the design system is a first-class deliverable, not deferred** (the earlier "Slice 1 = functional minimum" scoping under-delivered on the visual vision). Recommended realignment: shared `design-system.css` → M4 to full mockup fidelity → the 2 high-value data tasks (effect-type, uma stats) → M2/M3/M1.
@@ -26,11 +26,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Next (design-fidelity realignment — chosen direction 2026-06-15):** the built UIs are far below the mockups (see *Design fidelity* above). Recommended track: shared `design-system.css` (re-skins all 4) → M4 to full mockup fidelity → data tasks (effect-type, uma stats) → M2/M3/M1. The module-feature backlog still stands underneath: M1 Plans 3–5 ([module-1](docs/modules/module-1-inheritance.md)), M4 Slice 1b, M2 F1–F4, M3 phase-2.
 
+**M4 rebuild — next up (2026-06-16):** `/` now has the vendored umalator §0 race-track + the race-setup customizer (Slice A). Resume by bringing the **Skill chart + Uma chart** onto the new page — decision pending: *vendor umalator's chart UI* (pulls Tailwind + Base UI + ~30 deps — the "adopt full umalator stack" option, the documented fallback in the rebuild spec) vs. *reuse the `/legacy` skill-chart components* — then **wishlist (§2) + card-hint sourcing (§3)**, then **HP / velocity / skill-activation zones** on the track (needs surfacing the engine's per-frame run trace / `chartData` from the bundle — not just `getSimCourse`). Slice plan: [2026-06-16-m4-slice-a-track.md](docs/superpowers/plans/2026-06-16-m4-slice-a-track.md).
+
 **Cross-cutting gotchas** (module-specific ones live in each module doc):
 - `git worktree` dirs under `.claude/worktrees/` may fail to auto-remove on Windows (node_modules lock) — git de-registers them but delete the folder by hand.
 - **`src/app/App.tsx` is the merge-collision point** when two module branches each add a nav route — resolve by keeping *both* NavLinks/Routes and trimming `STUB_MODULES` (only `Inheritance` remains a stub now).
 - **The sim engine throws `firstPositionInLateRace` on a 0-speed runner** — never feed `evalSkillDelta` an all-zero build; `makeDefaultPlan` seeds non-zero stats and the M4 chart guards `spd > 0`.
 - The pre-engine M4 coverage UI (old `SkillPlannerPage` + `src/features/coverage/` + `src/features/inventory/` + the `iconRetrofit` integration test that only exercised them) was **removed 2026-06-15** once the engine chart replaced it — recover the coverage-matrix/inventory pattern from git history if Slice 1b needs it. `PlanHeaderPanel`/`SkillPicker` stayed (shared by the new page).
+- **Don't put the global `.page` class on a full-width *stacked* page** — at wider widths `.page` becomes a **2-column grid** (legacy coverage layout, `src/styles/app.css`), which lays children out side-by-side. The M4 rebuild page uses its own `.cmp-page` (flex column). (This bit us: the track + race-setup rendered side-by-side.)
+- **The vendored bundle's `coursesService` exposes `getAll()` / `getAllEntries()` / `getByTrackId()` at runtime** even though the `.d.mts` originally only typed `getSimCourse` — widen the `.d.mts` and call them (no `pnpm sim:build` rebuild needed). `src/sim/courseCatalog.ts` enumerates all 107 courses / 11 tracks (incl. Ooi) from these for the custom-track picker.
+- **Keep the engine lazy** — reach engine-backed data via lazy `import('@/sim/courseData')` / `import('@/sim/courseCatalog')`, **not** the `@/sim` barrel (the barrel's `run`/`adapter` pull the ~5 MB engine bundle synchronously into the importing chunk). Verified: those stay tiny separate chunks.
+- **Vendored umalator racetrack layers carry `// @ts-nocheck`** (3 files under `src/features/planner/racetrack/vendor/layers/`) — verbatim third-party SVG that trips our strict `noUncheckedIndexedAccess`; the pragma is scoped to those files only.
+- **Hand-rolled M4 §0 track retired (2026-06-16)** — `src/core/track.ts`, `src/sim/courseGeometry.ts`, and `TrackDiagramPanel` were deleted and replaced by the vendored umalator track (`src/features/planner/racetrack/`).
 
 Key files:
 - [docs/modules/](docs/modules/) — **per-module living docs (read first for any module).**

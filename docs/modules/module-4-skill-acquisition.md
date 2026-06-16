@@ -2,11 +2,22 @@
 
 > **The detailed living doc for M4.** A session working on M4 should load this + the lean [CLAUDE.md](../../CLAUDE.md), not the whole repo. Full design rationale is in the spec; this doc is the **current build + how it fits together**.
 
-- **Route:** `/` (the app's home page)
-- **Status:** **Slice 1 shipped 2026-06-15** — engine-driven skill chart + runner config + sourcing.
-- **Spec:** [docs/superpowers/specs/2026-06-14-m4-skill-acquisition-design.md](../superpowers/specs/2026-06-14-m4-skill-acquisition-design.md) — design locked; **§11 is the Slice 1 reconciled build scope** (read this for what's in/out).
-- **Plan:** [docs/superpowers/plans/2026-06-15-m4-slice1-skill-chart.md](../superpowers/plans/2026-06-15-m4-slice1-skill-chart.md)
+- **Route:** `/` = the **rebuild** (`CmPlannerPage`); `/legacy` = the original engine skill chart (`SkillAcquisitionPage`, unedited).
+- **Status:** **Rebuilt around umalator's vendored UI — Slice A done 2026-06-16.** `/` now shows the **real umalator §0 race-track visualizer** + a **race-setup customizer** (preset CM15/CM16 ⇄ fully-custom: 11 tracks → distance cascade + ground/weather/season). The original engine **skill chart + runner config + sourcing** (detailed below) now lives at **`/legacy`**.
+- **Rebuild spec:** [2026-06-16-m4-umalator-build-foundation-design.md](../superpowers/specs/2026-06-16-m4-umalator-build-foundation-design.md) — vendor umalator's working UI into our shell; shared `Build` core, two faces (`RealUma`=`RosterEntry` vs `CmPlan`=Build+planner layer); defer the CmPlan/Dexie bridge. Slice plan: [2026-06-16-m4-slice-a-track.md](../superpowers/plans/2026-06-16-m4-slice-a-track.md).
+- **Original design (now `/legacy`):** [2026-06-14-m4-skill-acquisition-design.md](../superpowers/specs/2026-06-14-m4-skill-acquisition-design.md) §11 + [2026-06-15-m4-slice1-skill-chart.md](../superpowers/plans/2026-06-15-m4-slice1-skill-chart.md)
 - **⚠️ Mockup = the visual spec:** [docs/mockups/m4-current.html](../mockups/m4-current.html) (committed — open in a browser). **Current fidelity ~25%** — the build ranks skills but lacks the design system, §0 track diagram, Uma chart, effect badges, left-panel runner/wishlist cards, skill-detail graphs, and the sourcing table. Build *to the mockup*; see CLAUDE.md → *Design fidelity* for the full gap (most of it needs no new data).
+
+## Rebuild — what's live on `/` (2026-06-16, vendored umalator UI)
+
+`CmPlannerPage` = the §0 race-track on top, the race-setup customizer below.
+
+- **§0 Race-track visualizer** — umalator's *real* SVG track, **vendored** into `src/features/planner/racetrack/vendor/` (slope/elevation profile, corner/straight bands, the four legs Early/Mid/Late/Last-spurt, distance ruler). Composed in our own [RaceTrackView.tsx](../../src/features/planner/racetrack/RaceTrackView.tsx), driven by `courseId`; lazy-loads the real engine `CourseData` via `@/sim/courseData`. Pure SVG — **no Tailwind/Base-UI** (d3 / i18n / `CourseService` replaced by tiny shims under `racetrack/shims/`; the 3 vendored layer files carry `// @ts-nocheck`).
+- **Race-setup customizer** ([src/features/planner/race-setup/](../../src/features/planner/race-setup/)) — one panel: a **Preset** dropdown (CM15 Cancer Cup / CM16 Leo Cup, real conditions) that fills the controls, plus an always-visible **Track → Surface → Distance** cascade over all 11 tracks (incl. Ooi) from the engine catalog (`@/sim/courseCatalog` → `coursesService.getAllEntries`) + **Ground / Weather / Season** + a conditions readout. Editing a field away from the preset blanks it to "— Custom —".
+- **P3 honesty:** only Track + distance (→ course geometry) changes the drawn track; ground/weather/season feed the sim later, not the static diagram.
+- **Deferred on the new page (next):** the **Skill chart + Uma chart** (still on `/legacy`; vendor-umalator-chart-UI vs. reuse-`/legacy`-components decision pending), **wishlist + sourcing**, and **HP / velocity / skill-activation zones** on the track (needs the engine's per-frame run trace, not just `getSimCourse`).
+
+> **The sections below describe the original Slice-1 build, now served at `/legacy`.**
 
 ## Purpose & boundary
 
