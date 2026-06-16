@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import { SimClient } from '@/sim/client';
-import { rankUmaChart, type UmaChartCandidate, type UmaChartRow } from '@/core/rankUmaChart';
+import { rankUmaChart, compareUmaChartRows, type UmaChartCandidate, type UmaChartRow } from '@/core/rankUmaChart';
 
 export interface UseUmaChartDeps {
   skillDelta: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => BashinStats | Promise<BashinStats>;
@@ -55,17 +55,21 @@ export function useUmaChart(
     setStatus('running');
     setRows([]);
     setDone(0);
-    setRunSig(sigOf(race.courseId, candidates, merged.nsamples));
+    // Snapshot the sig from the same pre-fallback nsamples source as currentSig below,
+    // so the two can never diverge (realDeps() is for skillDelta only, not the sig).
+    setRunSig(sigOf(race.courseId, candidates, depsRef.current?.nsamples));
     void rankUmaChart(
       candidates,
       race,
       { skillDelta: merged.skillDelta, nsamples: merged.nsamples },
       (row) => {
         if (runToken.current === token) {
-          setRows((p) => [...p, row]);
+          // Keep the streamed list sorted as rows arrive (no end-of-run reshuffle).
+          setRows((p) => [...p, row].sort(compareUmaChartRows));
           setDone((d) => d + 1);
         }
       },
+      () => runToken.current === token,
     ).then((sorted) => {
       if (runToken.current === token) {
         setRows(sorted);

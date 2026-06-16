@@ -95,3 +95,21 @@
 .cmp-uma-perstyle .cmp-chip {
   font-variant-numeric: tabular-nums;
 }
+/* best-style chip marker (the winning running style) */
+.cmp-uma-perstyle .cmp-chip.on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg-0);
+  font-weight: 600;
+}
+/* L-chip modifiers used on the rows (smaller; muted for na/zero rows + the inline style label) */
+.cmp-uma-chart .L.sm {
+  font-size: 0.82rem;
+}
+.cmp-uma-chart .L.mut {
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+.cmp-uma-chart .mut {
+  color: var(--fg-muted);
+}

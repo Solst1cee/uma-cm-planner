@@ -26,7 +26,8 @@ export interface UmaChartPanelDeps {
 
 function lDisplay(row: UmaChartRow): string {
   if (row.status === 'na') return 'n/a';
-  if (row.status === 'zero') return '0 L';
+  // 'zero' = best L <= DEAD_L; surface a net-negative honestly rather than as "0 L" (P3).
+  if (row.status === 'zero') return row.L != null && row.L < 0 ? `${row.L.toFixed(2)} L` : '0 L';
   return `+${(row.L ?? 0).toFixed(2)}`;
 }
 
@@ -90,7 +91,8 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
 
-  const loadUnique = deps?.loadUniqueByUmaId ?? loadUniqueSkillByUmaId;
+  // Memoize so an inline-arrow deps.loadUniqueByUmaId can't make the load effect re-fetch every render.
+  const loadUnique = useMemo(() => deps?.loadUniqueByUmaId ?? loadUniqueSkillByUmaId, [deps?.loadUniqueByUmaId]);
   useEffect(() => {
     let cancelled = false;
     loadUnique()

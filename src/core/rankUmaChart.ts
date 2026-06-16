@@ -62,7 +62,14 @@ function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
 }
 
 function rankValue(r: UmaChartRow): number {
-  return r.status === 'na' ? -Infinity : (r.L ?? 0);
+  // Finite sentinel (not -Infinity) so an na-vs-na comparison yields 0, not NaN.
+  return r.status === 'na' ? Number.MIN_SAFE_INTEGER : (r.L ?? 0);
+}
+
+/** Chart order comparator: L desc, na last. Exported so the hook can keep the
+ *  streamed list sorted as rows arrive (no end-of-run reshuffle). */
+export function compareUmaChartRows(a: UmaChartRow, b: UmaChartRow): number {
+  return rankValue(b) - rankValue(a);
 }
 
 async function rowFor(
@@ -107,13 +114,17 @@ export async function rankUmaChart(
   race: SimRaceParams,
   deps: RankUmaChartDeps,
   onRow?: (row: UmaChartRow) => void,
+  shouldContinue?: () => boolean,
 ): Promise<UmaChartRow[]> {
   const n = deps.nsamples ?? DISCOVERY_NSAMPLES;
   const rows: UmaChartRow[] = [];
   for (const c of candidates) {
+    // Cancellation: a new run()/unmount flips this false, so we stop queuing sims.
+    // (The shared SimClient worker is FIFO — abandoned work would block the next run.)
+    if (shouldContinue && !shouldContinue()) break;
     const row = await rowFor(c, race, deps, n);
     rows.push(row);
     onRow?.(row);
   }
-  return rows.sort((a, b) => rankValue(b) - rankValue(a));
+  return rows.sort(compareUmaChartRows);
 }
