@@ -5,13 +5,19 @@
 /* ---- collapsible panel ---- */
 .cmp-uma-chart {
   padding: 0; /* summary + body manage their own padding */
+  overflow: hidden; /* clip the header bar to the panel's rounded corners */
 }
+/* header bar — matches the sidebar's "Current Uma Plan" head (.cmp-plan-card-head) */
 .cmp-uma-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.6rem 0.8rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
   list-style: none;
   user-select: none;
@@ -20,8 +26,8 @@
   display: none;
 }
 .cmp-uma-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 .cmp-uma-caret {
   width: 0.5rem;
@@ -101,10 +107,11 @@
   overflow-y: auto;
 }
 .cmp-uma-row {
-  display: flex;
-  align-items: flex-start; /* keep portrait/controls on the plate's summary line when it expands */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto; /* portrait | plate | L | Select */
+  align-items: start; /* keep portrait/controls on the plate's summary line when it expands */
   gap: 0.5rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.25rem 0.35rem;
   border: 1px solid var(--border);
   border-radius: 7px;
 }
@@ -112,12 +119,15 @@
   opacity: 0.55;
 }
 .cmp-uma-portrait {
-  flex: none;
   border-radius: 6px;
 }
 .cmp-uma-plate {
-  flex: 1;
-  min-width: 0;
+  min-width: 0; /* fills the 1fr grid column; the grid (not flex) controls width */
+}
+/* in our compact rows, left-pack the plate's icon+name+caret (the sidebar uses
+   space-between, which here would shove the caret to the far right with a big gap) */
+.cmp-uma-row .cmp-skill-detail > summary {
+  justify-content: flex-start;
 }
 /* the per-style L dropdown (each style pre-simulated; switching re-ranks, no re-sim) */
 .cmp-uma-style {
