@@ -1,15 +1,15 @@
-/* Mobile-first (designed at 390px), dark theme, no layout libs. */
+/* Mobile-first (designed at 390px), light theme, no layout libs. */
 
 :root {
-  color-scheme: dark;
-  --bg-0: #0f1115;
-  --bg-1: #171a21;
-  --bg-2: #1f2430;
-  --fg: #e6e6ea;
-  --fg-muted: #9aa0ae;
-  --border: #2c3340;
-  --accent: #7aa2f7;
-  --error: #f87171;
+  color-scheme: light;
+  --bg-0: #f5f7fb;
+  --bg-1: #ffffff;
+  --bg-2: #eef3f9;
+  --fg: #172033;
+  --fg-muted: #637083;
+  --border: #d7dee8;
+  --accent: #3478f6;
+  --error: #c2414b;
 
   /* Tier colors (spec: chain green, scenario teal, date_event cyan,
      hint_strong lime, hint_weak yellow, random orange, uncovered red). */
@@ -29,7 +29,9 @@
 
 body {
   margin: 0;
-  background: var(--bg-0);
+  background:
+    linear-gradient(180deg, #ffffff 0, #f5f7fb 11rem),
+    var(--bg-0);
   color: var(--fg);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
@@ -119,7 +121,7 @@ nav[aria-label='Modules'] {
 .nav-item.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0c1020;
+  color: #fff;
   font-weight: 600;
 }
 .nav-item:disabled {
@@ -176,7 +178,7 @@ nav[aria-label='Modules'] {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.5);
+  box-shadow: 0 12px 28px rgb(35 52 80 / 0.16);
 }
 
 /* ---- Panels & form fields ---- */
@@ -373,7 +375,7 @@ button:disabled {
   vertical-align: middle;
   object-fit: contain;
   border-radius: 5px;
-  background: var(--bg-2);
+  background: transparent;
 }
 img.game-icon {
   /* image-rendering keeps small WebP icons from looking mushy when scaled */

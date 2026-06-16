@@ -3,7 +3,7 @@
  * marginal L on a FIXED base build with no owned skills (vacuum), so skills:[].
  * Target aptitudes live in sparkGoals.pink (shared-data-model); default A.
  */
-import type { CmPlan, Grade } from '@/core/types';
+import type { AptKey, CmPlan, Grade, Strategy } from '@/core/types';
 import type { SimBuild } from '@/sim';
 
 export type AptDim = 'distance' | 'surface' | 'strategy';
@@ -15,33 +15,81 @@ export function distanceClass(distance: number): 'short' | 'mile' | 'medium' | '
   return 'long';
 }
 
-/** The AptKey used to store a plan's target aptitude for each dimension. */
-function aptKeyFor(plan: CmPlan, dim: AptDim) {
+function sameAptKey(a: AptKey, b: AptKey): boolean {
+  return a.kind === b.kind && a.key === b.key;
+}
+
+/** The AptKey used to store a plan's active target aptitude for each dimension. */
+function aptKeyFor(plan: CmPlan, dim: AptDim): AptKey {
   if (dim === 'distance') return { kind: 'distance' as const, key: distanceClass(plan.cmRef.distance) };
   if (dim === 'surface') return { kind: 'surface' as const, key: plan.cmRef.surface };
   return { kind: 'strategy' as const, key: plan.strategy };
 }
 
-/** Read the three SimBuild aptitude grades from sparkGoals.pink, default A. */
-export function simAptitudes(plan: CmPlan): { distance: Grade; surface: Grade; strategy: Grade } {
-  const read = (dim: AptDim): Grade => {
-    const want = aptKeyFor(plan, dim);
-    const hit = plan.sparkGoals.pink.find(
-      (g) => g.aptKey.kind === want.kind && g.aptKey.key === want.key,
-    );
-    return hit?.target ?? 'A';
+export function currentAptitudeKeys(plan: CmPlan): { distance: AptKey; surface: AptKey; strategy: AptKey } {
+  return {
+    distance: aptKeyFor(plan, 'distance'),
+    surface: aptKeyFor(plan, 'surface'),
+    strategy: aptKeyFor(plan, 'strategy'),
   };
-  return { distance: read('distance'), surface: read('surface'), strategy: read('strategy') };
+}
+
+export function isCurrentAptitude(plan: CmPlan, aptKey: AptKey): boolean {
+  return Object.values(currentAptitudeKeys(plan)).some((current) => sameAptKey(current, aptKey));
+}
+
+function storedTargetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
+  return plan.sparkGoals.pink.find((goal) => sameAptKey(goal.aptKey, aptKey))?.target;
+}
+
+/**
+ * Default target shown before the user edits sparkGoals.pink. The active distance
+ * defaults to S (displayed as A/S in the UI) because S requires pink inheritance;
+ * the active surface and strategy default to A.
+ */
+function defaultTargetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
+  const current = currentAptitudeKeys(plan);
+  if (sameAptKey(aptKey, current.distance)) return 'S';
+  if (sameAptKey(aptKey, current.surface)) return 'A';
+  if (sameAptKey(aptKey, current.strategy)) return 'A';
+  return undefined;
+}
+
+export function targetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
+  return storedTargetAptitude(plan, aptKey) ?? defaultTargetAptitude(plan, aptKey);
+}
+
+export function setTargetAptitudeByKey(plan: CmPlan, aptKey: AptKey, grade: Grade | ''): CmPlan {
+  const pink = plan.sparkGoals.pink.filter((goal) => !sameAptKey(goal.aptKey, aptKey));
+  if (grade !== '') pink.push({ aptKey, target: grade });
+  return { ...plan, sparkGoals: { ...plan.sparkGoals, pink } };
+}
+
+export function setStrategyTargetAptitude(
+  plan: CmPlan,
+  strategy: Strategy,
+  grade: Grade | '',
+): CmPlan {
+  const pink = plan.sparkGoals.pink.filter((goal) => goal.aptKey.kind !== 'strategy');
+  if (grade !== '') {
+    pink.push({ aptKey: { kind: 'strategy', key: strategy }, target: grade });
+  }
+  return { ...plan, strategy, sparkGoals: { ...plan.sparkGoals, pink } };
 }
 
 /** Upsert a target aptitude grade for a dimension (keyed by course/strategy). Returns a new plan. */
 export function setTargetAptitude(plan: CmPlan, dim: AptDim, grade: Grade): CmPlan {
-  const want = aptKeyFor(plan, dim);
-  const pink = plan.sparkGoals.pink.filter(
-    (g) => !(g.aptKey.kind === want.kind && g.aptKey.key === want.key),
-  );
-  pink.push({ aptKey: want, target: grade });
-  return { ...plan, sparkGoals: { ...plan.sparkGoals, pink } };
+  return setTargetAptitudeByKey(plan, aptKeyFor(plan, dim), grade);
+}
+
+/** Read the three SimBuild aptitude grades from sparkGoals.pink and active defaults. */
+export function simAptitudes(plan: CmPlan): { distance: Grade; surface: Grade; strategy: Grade } {
+  const current = currentAptitudeKeys(plan);
+  return {
+    distance: targetAptitude(plan, current.distance) ?? 'A',
+    surface: targetAptitude(plan, current.surface) ?? 'A',
+    strategy: targetAptitude(plan, current.strategy) ?? 'A',
+  };
 }
 
 export function planToSimBuild(plan: CmPlan): SimBuild {

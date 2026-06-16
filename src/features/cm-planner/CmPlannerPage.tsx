@@ -1,28 +1,65 @@
 /**
- * Module 4 — Skill Acquisition Planner, engine-first REBUILD. New main page at /
- * (the old skill-acq/SkillAcquisitionPage is kept at /legacy as reference).
- *
- * Layout: the §0 race-track diagram on top, the race-setup chooser (preset ⇄
- * custom) below it. The chooser owns the race selection; the track renders the
- * selected course. The §1/§2/§3 sections (skill/uma charts, wishlist, sourcing)
- * land in later slices.
+ * Module 4 - Skill Acquisition Planner, engine-first rebuild. The root route
+ * keeps the planner sidebar beside the umalator-derived track and race setup.
  */
-import './cm-planner.css';
 import { useState } from 'react';
+import './cm-planner.css';
+import { useActivePlan } from '@/app/ActivePlanContext';
+import type { CmId } from '@/core/types';
+import { useGameData } from '@/features/data/gameData';
+import { PlannerSidebar } from './PlannerSidebar';
+import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import { PRESETS } from '@/features/planner/race-setup/presets';
 import { presetToSelection, type RaceSelection } from '@/features/planner/race-setup/selection';
-import { SelectedSkillProvider } from './useSelectedSkill';
 
 export function CmPlannerPage() {
+  const { status } = useGameData();
+  const { plan, setPlan, flushPendingSave, loadError } = useActivePlan();
   const [selection, setSelection] = useState<RaceSelection>(() => presetToSelection(PRESETS[0]!));
+
+  if (loadError) {
+    return (
+      <p className="error" role="alert">
+        Failed to load plan: {loadError}
+      </p>
+    );
+  }
+  if (status === 'loading' || plan === null) {
+    return <p className="muted">Loading...</p>;
+  }
+
+  const handleRaceChange = (next: RaceSelection) => {
+    setSelection(next);
+    const preset = PRESETS.find((p) => p.cmId === next.presetCmId);
+    const nextCmRef = {
+      ...plan.cmRef,
+      ...(preset ? { cmId: preset.cmId as CmId, cmNumber: preset.cmNumber } : {}),
+      courseId: next.courseId,
+      surface: next.surface,
+      distance: next.distance,
+    };
+    if (
+      nextCmRef.cmId === plan.cmRef.cmId &&
+      nextCmRef.cmNumber === plan.cmRef.cmNumber &&
+      nextCmRef.courseId === plan.cmRef.courseId &&
+      nextCmRef.surface === plan.cmRef.surface &&
+      nextCmRef.distance === plan.cmRef.distance
+    ) {
+      return;
+    }
+    setPlan({ ...plan, cmRef: nextCmRef });
+  };
 
   return (
     <SelectedSkillProvider>
       <div className="cmp-page">
-        <RaceTrackView courseId={selection.courseId} />
-        <RaceSetup onChange={setSelection} />
+        <PlannerSidebar plan={plan} onChange={setPlan} onSave={flushPendingSave} />
+        <div className="cmp-main">
+          <RaceTrackView courseId={selection.courseId} />
+          <RaceSetup onChange={handleRaceChange} />
+        </div>
       </div>
     </SelectedSkillProvider>
   );

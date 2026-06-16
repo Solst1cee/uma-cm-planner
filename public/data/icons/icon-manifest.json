@@ -367,6 +367,26 @@
     "107201",
     "107401"
   ],
+  "ui": [
+    "apt-A",
+    "apt-B",
+    "apt-C",
+    "apt-D",
+    "apt-E",
+    "apt-F",
+    "apt-G",
+    "apt-S",
+    "mood--1",
+    "mood--2",
+    "mood-0",
+    "mood-1",
+    "mood-2",
+    "stat-gut",
+    "stat-pow",
+    "stat-spd",
+    "stat-sta",
+    "stat-wit"
+  ],
   "_fallbackUmas": [
     "100402",
     "100502",

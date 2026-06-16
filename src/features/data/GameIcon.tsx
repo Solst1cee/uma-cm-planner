@@ -13,10 +13,10 @@
  * readers don't double-read the name.
  */
 import { useEffect, useState } from 'react';
-import { cardIconPath, skillIconPath, umaIconPath } from '@/core/icons';
+import { cardIconPath, skillIconPath, uiIconPath, umaIconPath } from '@/core/icons';
 import { BASE_URL, useGameData } from '@/features/data/gameData';
 
-export type GameIconKind = 'skill' | 'card' | 'uma';
+export type GameIconKind = 'skill' | 'card' | 'uma' | 'ui';
 
 function relativePathFor(
   kind: GameIconKind,
@@ -30,6 +30,8 @@ function relativePathFor(
       return cardIconPath(id, manifest);
     case 'uma':
       return umaIconPath(id, manifest);
+    case 'ui':
+      return uiIconPath(id, manifest);
   }
 }
 
@@ -37,14 +39,20 @@ export function GameIcon({
   kind,
   id,
   size = 22,
+  width,
+  height,
   alt,
   className,
 }: {
   kind: GameIconKind;
-  /** SkillRecord.iconId for kind="skill"; cardId / umaId otherwise. */
+  /** SkillRecord.iconId for kind="skill"; cardId / umaId / UI id otherwise. */
   id: string;
   /** Rendered box edge in px (square). Defaults to 22 (matrix skill icon). */
   size?: number;
+  /** Optional non-square rendered width in px, used for in-game UI pills. */
+  width?: number;
+  /** Optional non-square rendered height in px, used for in-game UI pills. */
+  height?: number;
   /** Accessible name; pass "" for decorative use beside a visible label. */
   alt: string;
   className?: string;
@@ -58,7 +66,9 @@ export function GameIcon({
     setBroken(false);
   }, [relative]);
 
-  const boxStyle = { width: size, height: size } as const;
+  const boxWidth = width ?? size;
+  const boxHeight = height ?? size;
+  const boxStyle = { width: boxWidth, height: boxHeight } as const;
 
   if (relative === undefined || broken) {
     // Neutral placeholder: keeps row rhythm + tap-target size without a broken
@@ -79,8 +89,8 @@ export function GameIcon({
     <img
       className={`game-icon ${className ?? ''}`.trim()}
       src={`${BASE_URL}${relative}`}
-      width={size}
-      height={size}
+      width={boxWidth}
+      height={boxHeight}
       style={boxStyle}
       loading="lazy"
       decoding="async"
