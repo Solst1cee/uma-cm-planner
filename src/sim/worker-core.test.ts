@@ -33,11 +33,17 @@ describe('handleSimRequest — skillTrace / skillRate', () => {
   it('dispatches skillTrace', () => {
     const res = handleSimRequest({ id: 1, kind: 'skillTrace', build: b, race: { courseId: '10101' }, skillId: '200332', nsamples: 10, seed: 1 });
     expect(res.ok).toBe(true);
-    if (res.ok && res.kind === 'skillTrace') expect(res.trace.nsamples).toBe(10);
+    if (res.ok) {
+      expect(res.kind).toBe('skillTrace');
+      if (res.kind === 'skillTrace') expect(res.trace.nsamples).toBe(10);
+    }
   });
   it('dispatches skillRate', () => {
     const res = handleSimRequest({ id: 2, kind: 'skillRate', build: b, race: { courseId: '10101' }, skillId: '200332', nsamples: 10, seed: 1 });
     expect(res.ok).toBe(true);
-    if (res.ok && res.kind === 'skillRate') expect(res.rate.nsamples).toBe(10);
+    if (res.ok) {
+      expect(res.kind).toBe('skillRate');
+      if (res.kind === 'skillRate') expect(res.rate.nsamples).toBe(10);
+    }
   });
 });
