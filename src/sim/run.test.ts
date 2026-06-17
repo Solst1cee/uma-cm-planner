@@ -62,3 +62,30 @@ describe('runPlannerCompare', () => {
     expect(Number.isFinite(r.mean)).toBe(true);
   });
 });
+
+import { runSkillTrace } from './run';
+
+describe('runSkillTrace', () => {
+  it('returns per-frame with/without traces and a finite L', () => {
+    const t = runSkillTrace(build, { courseId: '10101' }, '200332', 20, 42);
+    expect(t.nsamples).toBe(20);
+    expect(t.runs.median.withSkill.length).toBeGreaterThan(0);
+    expect(t.runs.median.without.length).toBeGreaterThan(0);
+    const f = t.runs.median.withSkill[0]!;
+    expect(Number.isFinite(f.t)).toBe(true);
+    expect(Number.isFinite(f.v)).toBe(true);
+    expect(Number.isFinite(t.meanL)).toBe(true);
+  });
+
+  it('is empty (no throw) for a non-simulatable skill', () => {
+    const t = runSkillTrace(build, { courseId: '10101' }, '000000', 10, 1);
+    expect(t.nsamples).toBe(0);
+    expect(t.runs.median.withSkill).toHaveLength(0);
+  });
+
+  it('is empty for a zero-speed build (guards firstPositionInLateRace)', () => {
+    const zero = { ...build, stats: { ...build.stats, spd: 0 } };
+    const t = runSkillTrace(zero, { courseId: '10101' }, '200332', 10, 1);
+    expect(t.nsamples).toBe(0);
+  });
+});

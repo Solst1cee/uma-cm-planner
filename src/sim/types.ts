@@ -41,6 +41,32 @@ export interface BashinStats {
   results: number[];
 }
 
+/** Which representative run (by bashin L) the charts read. */
+export type RunChoice = 'min' | 'max' | 'mean' | 'median';
+
+/** One per-frame sample of a run. */
+export interface SkillFrame {
+  t: number;    // seconds
+  v: number;    // m/s
+  pos: number;  // course metres
+  hp: number;
+}
+
+/** A single representative run mapped to clean arrays. */
+export interface SkillTraceRun {
+  withSkill: SkillFrame[];
+  without: SkillFrame[];
+  activation: { start: number; end: number }[]; // tracked-skill regions, course metres
+  L: number;                                     // bashin for this run
+}
+
+/** The four representative runs + summary; min/max/mean/median come back in one sim. */
+export interface SkillTrace {
+  runs: Record<RunChoice, SkillTraceRun>;
+  meanL: number;
+  nsamples: number;
+}
+
 /** Worker request/response unions. */
 export type SimRequest =
   | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
