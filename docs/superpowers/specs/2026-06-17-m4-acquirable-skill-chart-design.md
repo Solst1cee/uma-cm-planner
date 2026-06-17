@@ -34,6 +34,28 @@ The original engine skill chart stays at `/legacy` (untouched).
    Unique-skill-chart need, where one uma is best-of-4-styles on a fixed reference). Here
    the plan has a single chosen style, baked into the sim build.
 5. **`/legacy` stays.** The old page remains the fallback; this is additive.
+6. **Catalog — white + gold + inherited-unique, NOT native uniques.** Already what
+   `acquirableSkills` returns (`CHART_RARITIES`); native `unique` skills belong to the
+   Unique-skill chart. Inherited-unique versions appear here, as expected.
+7. **Variants — one row per family.** Skills with `variantSkillIds` (white/gold/○/◎ tiers,
+   inherited-unique counterparts — "alternate versions that apply the same behavior")
+   collapse to a single row showing the strongest variant (`skillVariantRank`) and its L,
+   with a variant dropdown to pick which one to target (same pattern as the wishlist line).
+   Reuses `src/features/skill-planner/skillFamilies.ts`.
+8. **`+ target` carries L into the wishlist.** On add, set `projectedL` (= the row's mean
+   L) + `projectedLStale: false` so the sidebar's existing `individual L = Σ projectedL`
+   total works (today it reads 0 because the add path omits `projectedL`). Add via
+   `addOrReplaceWishlistSkill` (family dedup), then patch `projectedL` onto the resulting
+   item — the helper's `resetProjectedSkill` clears it, so the patch must come after.
+9. **Effect-chips stay on-expand.** Reuse `SkillDetailDisclosure` unchanged: the detailed
+   effect badges + conditions + activation routes render when a row is expanded (already
+   how the sidebar works). NOT inline-always-visible (the spec's earlier preview was
+   misleading).
+10. **Always-visible skill-type tag — OUT OF SCOPE (handed off).** The compact
+    Speed/Accel/Recovery category pill is a separate cross-cutting plate task (needs a
+    baked `category` field); see
+    [2026-06-17-skill-plate-type-tag-handoff.md](2026-06-17-skill-plate-type-tag-handoff.md).
+    This chart ships with the skill icon (game type-coded) + on-expand chips.
 
 ## Architecture
 
@@ -52,16 +74,23 @@ restyle the legacy panel in place — risks the legacy page (old grammar + auto-
 
 ```
 useGameData() → skills, skillById, sparkRates
-acquirableSkills(skills, plan.server)            → catalog (server-filtered, P4)
+acquirableSkills(skills, plan.server)            → catalog (white+gold+inherited, server-filtered P4)
+familyRepresentatives(catalog, skillById)        → reps  (one strongest variant per family)
 planToSimBuild(plan)                             → build  (plan-dependent)
 { courseId: selection.courseId }                 → race
-catalog.map(s => s.skillId)   (only if spd > 0)  → ids
+reps.map(s => s.skillId)      (only if spd > 0)  → ids
 useSkillRank(build, race, ids, deps)             → { rows, status, done, total, isStale, run }
   per row (in panel, pure):
-    skill = skillById.get(row.skillId)
+    skill = skillById.get(row.skillId)                       // the family rep
     sp    = effectiveSpCost(skill, 0, sparkRates)
-    eff   = sp > 0 ? (100 * L) / sp : null
+    eff   = sp > 0 && L != null ? (100 * L) / sp : null
+    targeted = wishlist has any same-family variant           // areSkillVariants
 ```
+
+Collapsing the catalog to family representatives **before** simulating means one row per
+family AND fewer sims (variants apply the same behavior). `familyRepresentatives` is a new
+pure helper in `skillFamilies.ts`: group by `variantSkillIds`/`areSkillVariants`, keep the
+highest `skillVariantRank` member of each group.
 
 The engine cannot race a 0-speed runner (`firstPositionInLateRace` throw — see CLAUDE.md);
 the panel guards `plan.statProfile.stats.spd > 0` before producing `ids`, exactly like the
@@ -81,6 +110,15 @@ legacy panel and the Unique-skill chart.
   Ranking is by L desc; `na` sorts last (use a finite sentinel, not `-Infinity`, to keep
   the comparator NaN-safe — see the Unique-skill chart's `Number.MIN_SAFE_INTEGER`).
 - `/legacy` `useSkillChart` keeps working — all changes are additive.
+
+### Helper — `src/features/skill-planner/skillFamilies.ts` (modify, additive)
+
+Add a pure `familyRepresentatives(skills, skillById): SkillRecord[]` — group the input by
+variant family (`variantSkillIds` / `areSkillVariants`) and return the highest-ranked member
+(`skillVariantRank`) of each family, order-stable. Used by the panel to collapse the
+acquirable catalog to one row (and one sim) per family. Existing helpers
+(`addOrReplaceWishlistSkill`, `areSkillVariants`, `skillVariantRank`, `wishlistSkillId`) are
+reused unchanged.
 
 ### Hook — `src/features/cm-planner/useSkillRank.ts` (create)
 
@@ -114,19 +152,24 @@ Run-on-demand wrapper around `rankSkillChart`, a near-mirror of `useUmaChart`:
     SP and efficiency are pure (computed in the panel from skill data + `row.L`), so
     re-sorting never re-sims — the panel sorts the visible list, same as the Unique-skill
     chart sorts by `sortMetric`. `na`/`zero` rows (no L) sort last.
-  - **Skill plate** = `SkillDetailDisclosure` built from `skillRecordToSummary(skill)`
-    (`showCost={false}` — SP has its own column). Expanding lazily loads effect-chips from
-    the vendored bundle. The L distribution (`L +mean · min · max · med · n=`) rides in the
-    disclosure's `technicalHeaderSide` slot. Gold rarity is styled by the disclosure's
-    existing `cmp-skill-rarity-gold`.
+  - **Skill plate** = `SkillDetailDisclosure` built from `skillRecordToSummary(rep)` where
+    `rep` is the family representative (`showCost={false}` — SP has its own column).
+    Expanding lazily loads the detailed effect-chips + conditions + activation routes
+    (on-expand, unchanged). The L distribution (`L +mean · min · max · med · n=`) rides in
+    the disclosure's `technicalHeaderSide` slot. No in-chart variant dropdown — the chart
+    shows the strongest variant per family and `+ target` targets it; downgrading to a
+    cheaper variant (○ / base) happens in the sidebar's existing wishlist variant switcher.
+    Gold rarity is styled by the disclosure's existing `cmp-skill-rarity-gold`.
   - **L cell**: `+mean.toFixed(2)` for `live`; muted for `zero`; `n/a` for `na`
     (engine can't simulate the effect — P3 honest numbers, never a misleading `+0.00`).
   - **SP cell**: `effectiveSpCost(skill, 0, sparkRates)`.
   - **Efficiency cell**: `(100·L/SP).toFixed(2)` for `live` with `SP > 0`, else `—`.
   - **Target button**: `+` → `✓` (`aria-pressed`), mirrors the Unique-skill chart's select
-    button. `+` appends `{ skillId, priority: 1, source: 'targeted' }` to `plan.wishlist`
-    via `onChange`; `✓` shown when the skill is already in the wishlist (feeds the sidebar
-    target summary).
+    button. `+` adds via `addOrReplaceWishlistSkill(plan.wishlist, skillId, skillById)`
+    (family-aware: replaces a same-family variant already targeted), then patches
+    `projectedL = row.L` + `projectedLStale = false` onto the added/replaced item.
+    `✓` shows when **any** family member is targeted (reuse `areSkillVariants` /
+    `wishlistSkillId`, the same set logic the sidebar's `wishlistIds` uses).
 - **Idle state**: a one-line "Run to rank acquirable skills by length on your build…"
   prompt (estimate caveat, P3). **No-speed state**: prompt to enter the runner's Speed.
 
@@ -145,16 +188,30 @@ auto-sim cost). Wrapped by the existing `SelectedSkillProvider`.
 `acquirableSkills` (`@/core/skillCatalog`) · `planToSimBuild` (`@/core/simBuild`) ·
 `effectiveSpCost` (`@/core/cost`) · `skillRecordToSummary` + `SkillDetailDisclosure`
 (`cm-planner/`) · `GameIcon` · `SimClient` (`@/sim/client`) · `rankSkillChart`
-(`@/core/rankSkillChart`) · `cmp-plan-card` / `cmp-uma-table` CSS grammar · `useGameData` ·
-the `CmPlan.wishlist` SSOT. New code is one hook + one panel + one CSS file + an additive
-core enrichment.
+(`@/core/rankSkillChart`) · `addOrReplaceWishlistSkill` / `areSkillVariants` /
+`skillVariantRank` / `wishlistSkillId` (`skill-planner/skillFamilies`) · `cmp-plan-card` /
+`cmp-uma-table` CSS grammar · `useGameData` · the `CmPlan.wishlist` SSOT (incl. the existing
+`projectedL` field + the sidebar's `Σ projectedL` total). New code is one hook + one panel +
+one CSS file + an additive `rankSkillChart` enrichment + an additive `familyRepresentatives`
+helper.
+
+## Multiple activation routes
+
+A skill's routes are its `alternatives[]` (the `@`-separated OR-conditions). The engine
+activates whichever route's condition is satisfied during the simulated A/B race, so the
+computed L is the *realized* effect of whatever actually fires — no user choice or special
+handling needed (this matches umalator/VFalator; GameTora's static DB just shows the
+condition string). All routes are displayed in the expanded `SkillDetailDisclosure`
+("Activation route 1/2…"). If no route can fire on this track → L≈0 → `zero`; if the effect
+is unmodellable → `na`.
 
 ## Performance & honest numbers
 
-- The acquirable catalog is ~477 skills; at `DISCOVERY_NSAMPLES = 30` a full run is
-  ~30–40 s serial on one worker, with top rows streaming in within ~1–2 s. The chart is
-  badged a simulated estimate (P3). `slice-1b` progressive-refine (re-sim surviving top-N
-  at higher samples) is out of scope here — noted as a follow-up, as in `rankSkillChart`.
+- The acquirable catalog is ~477 skills; collapsing to family representatives trims the sim
+  count (one per family). At `DISCOVERY_NSAMPLES = 30` a full run is tens of seconds serial
+  on one worker, with top rows streaming in within ~1–2 s. The chart is badged a simulated
+  estimate (P3). `slice-1b` progressive-refine (re-sim surviving top-N at higher samples) is
+  out of scope here — noted as a follow-up, as in `rankSkillChart`.
 - Efficiency divides by SP; a 0-SP skill (none expected in the acquirable set, but guard
   anyway) shows `—` rather than `Infinity`.
 
@@ -163,12 +220,16 @@ core enrichment.
 - **`rankSkillChart.test.ts`** (extend): row carries `min`/`max`/`median`; `na` when
   `nsamples === 0`; `shouldContinue` halts the loop (cancellation); `compareSkillChartRows`
   orders L desc with `na` last and is NaN-safe.
+- **`skillFamilies.test.ts`** (extend): `familyRepresentatives` returns one member per
+  family (the highest `skillVariantRank`), passes singletons through, and is order-stable.
 - **`useSkillRank.test.tsx`** (create): idle until `run()`; streams rows kept-sorted;
   `done/total` progress; `isStale` flips when the build or course changes; an in-flight run
   is cancelled by a second `run()` / unmount (injected fake `skillDelta`).
-- **`SkillChartPanel.test.tsx`** (create): search + rarity + show-all filters; sort by
-  L / SP / efficiency; `+ target` appends to `plan.wishlist` and flips to `✓`; `n/a`
-  rendering; the `spd === 0` guard shows the prompt and never sims.
+- **`SkillChartPanel.test.tsx`** (create): catalog collapses to one row per family; search +
+  rarity + show-all filters; sort by L / SP / efficiency; `+ target` adds via
+  `addOrReplaceWishlistSkill` AND sets `projectedL = row.L` (so the sidebar total moves);
+  `✓` shows when any same-family variant is already targeted; `n/a` rendering; the
+  `spd === 0` guard shows the prompt and never sims.
 
 All UI tests run with the dev server stopped (CLAUDE.md: Vitest flakes vs a live
 `pnpm dev`); trust `pnpm build` / `pnpm typecheck`.
