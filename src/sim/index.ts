@@ -1,4 +1,4 @@
-export type { BashinStats, Grade, SimBuild, SimRaceParams, Strategy, VacuumResult } from './types';
+export type { BashinStats, Grade, SimBuild, SimRaceParams, Strategy, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillRate, RunChoice } from './types';
 export type { CourseData } from './vendor/umalator.bundle.mjs';
 export { evalSkillDelta, runVacuumCompare, runPlannerCompare } from './run';
 export { simCacheKey, makeDeltaCache } from './cache';

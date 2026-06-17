@@ -1,5 +1,5 @@
 import EngineWorker from './engine.worker?worker';
-import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult } from './types';
+import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult, SkillTrace, SkillRate } from './types';
 
 type WorkerFactory = () => Worker;
 
@@ -40,21 +40,35 @@ export class SimClient {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'skillDelta', build, race, skillId, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as BashinStats;
+    return (res as unknown as { stats: BashinStats }).stats;
   }
 
   async vacuum(a: SimBuild, b: SimBuild, race: SimRaceParams, nsamples: number, seed?: number): Promise<VacuumResult> {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'vacuum', a, b, race, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as VacuumResult;
+    return (res as unknown as { stats: VacuumResult }).stats;
   }
 
   async planner(build: SimBuild, race: SimRaceParams, candidateSkills: string[], nsamples: number, seed?: number): Promise<BashinStats> {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'planner', build, race, candidateSkills, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as BashinStats;
+    return (res as unknown as { stats: BashinStats }).stats;
+  }
+
+  async skillTrace(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillTrace> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'skillTrace', build, race, skillId, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    return (res as unknown as { trace: SkillTrace }).trace;
+  }
+
+  async skillRate(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillRate> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'skillRate', build, race, skillId, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    return (res as unknown as { rate: SkillRate }).rate;
   }
 
   dispose() { this.worker.terminate(); this.pending.clear(); }

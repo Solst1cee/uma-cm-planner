@@ -77,7 +77,9 @@ export interface SkillRate {
 export type SimRequest =
   | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
   | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number }
-  | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number };
+  | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number }
+  | { id: number; kind: 'skillTrace'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
+  | { id: number; kind: 'skillRate'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number };
 
 export interface VacuumResult extends BashinStats {
   /** Win-rate of A vs B and stamina survival, for the M2 compare panel. */
@@ -90,4 +92,6 @@ export interface VacuumResult extends BashinStats {
 export type SimResponse =
   | { id: number; ok: true; kind: 'skillDelta' | 'planner'; stats: BashinStats }
   | { id: number; ok: true; kind: 'vacuum'; stats: VacuumResult }
+  | { id: number; ok: true; kind: 'skillTrace'; trace: SkillTrace }
+  | { id: number; ok: true; kind: 'skillRate'; rate: SkillRate }
   | { id: number; ok: false; error: string };

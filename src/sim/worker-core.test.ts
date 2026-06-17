@@ -24,3 +24,20 @@ describe('handleSimRequest', () => {
     expect(res.ok && res.kind === 'vacuum').toBe(true);
   });
 });
+
+describe('handleSimRequest — skillTrace / skillRate', () => {
+  const b: SimBuild = {
+    umaId: '', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },
+    strategy: 'pace' as const, aptitudes: { distance: 'A' as const, surface: 'A' as const, strategy: 'A' as const }, skills: [],
+  };
+  it('dispatches skillTrace', () => {
+    const res = handleSimRequest({ id: 1, kind: 'skillTrace', build: b, race: { courseId: '10101' }, skillId: '200332', nsamples: 10, seed: 1 });
+    expect(res.ok).toBe(true);
+    if (res.ok && res.kind === 'skillTrace') expect(res.trace.nsamples).toBe(10);
+  });
+  it('dispatches skillRate', () => {
+    const res = handleSimRequest({ id: 2, kind: 'skillRate', build: b, race: { courseId: '10101' }, skillId: '200332', nsamples: 10, seed: 1 });
+    expect(res.ok).toBe(true);
+    if (res.ok && res.kind === 'skillRate') expect(res.rate.nsamples).toBe(10);
+  });
+});
