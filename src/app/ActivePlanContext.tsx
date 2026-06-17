@@ -14,10 +14,13 @@ import {
   type ReactNode,
 } from 'react';
 import type { CmPlan, CmPreset } from '@/core/types';
-import { getPlan, getSetting, listPlans, savePlan, setSetting } from '@/db';
+import { isPlanContentSaved, nextPlanNumberForContent } from '@/core/planIdentity';
+import { uniquePlanName } from '@/core/planName';
+import { deletePlan, getPlan, getSetting, listPlans, savePlan, setSetting } from '@/db';
 import { useGameData } from '@/features/data/gameData';
 
 const ACTIVE_PLAN_KEY = 'activePlanId';
+const AUTO_SAVE_KEY = 'cmPlannerAutoSave';
 const SAVE_DEBOUNCE_MS = 400;
 
 const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
@@ -39,7 +42,16 @@ export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
     name: '',
     planNumber: 1,
     cmRef: latest
-      ? { cmId: `CM${cmNumber}`, cmNumber, courseId: latest.courseId, surface: latest.surface, distance: latest.distance, season: latest.season, condition: latest.ground }
+      ? {
+          cmId: `CM${cmNumber}`,
+          cmNumber,
+          courseId: latest.courseId,
+          surface: latest.surface,
+          distance: latest.distance,
+          condition: latest.ground,
+          weather: latest.weather,
+          season: latest.season,
+        }
       : { cmId: 'CM0', cmNumber: 0, courseId: '', surface: 'turf', distance: 1600 },
     scenarioId: 4,
     umaId: '',
@@ -62,8 +74,22 @@ export function makeDefaultPlan(presets: CmPreset[]): CmPlan {
 
 interface ActivePlanValue {
   plan: CmPlan | null;
+  savedPlans: CmPlan[];
+  autoSave: boolean;
+  isSaved: boolean;
+  setAutoSave: (enabled: boolean) => void;
   /** Replace the active plan; persisted (debounced) on every call. */
   setPlan: (next: CmPlan) => void;
+  /** Load a saved plan, make it active, and persist that active-plan choice. */
+  selectPlan: (id: string) => Promise<void>;
+  /** Delete a saved plan and refresh the inventory. */
+  deleteSavedPlan: (id: string) => Promise<void>;
+  /** Create a new draft as the active plan without immediately saving it. */
+  setDraftPlan: (next: CmPlan) => void;
+  /** Persist the active plan over its current id. */
+  saveCurrentPlan: (next?: CmPlan) => Promise<void>;
+  /** Persist the active plan as a new version with the next available plan number. */
+  saveCurrentPlanAs: (next?: CmPlan) => Promise<CmPlan>;
   /**
    * Persist any edit still sitting in the save debounce, immediately.
    * Await before reading Dexie directly (export) or replacing it (import) —
@@ -78,18 +104,24 @@ const ActivePlanContext = createContext<ActivePlanValue | null>(null);
 export function ActivePlanProvider({ children }: { children: ReactNode }) {
   const { status, cmPresets } = useGameData();
   const [plan, setPlanState] = useState<CmPlan | null>(null);
+  const [savedPlans, setSavedPlans] = useState<CmPlan[]>([]);
+  const [autoSave, setAutoSaveState] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const saveTimer = useRef<number | undefined>(undefined);
+  const pendingSave = useRef<CmPlan | null>(null);
+  const planRef = useRef<CmPlan | null>(null);
+  const autoSaveRef = useRef(false);
 
   useEffect(() => {
     if (status === 'loading') return;
     let cancelled = false;
     (async () => {
       const savedId = await getSetting<string>(ACTIVE_PLAN_KEY);
+      const savedAutoSave = await getSetting<boolean>(AUTO_SAVE_KEY);
+      const allPlans = await listPlans();
       let loaded = savedId ? await getPlan(savedId) : undefined;
       if (!loaded) {
-        const all = await listPlans();
-        loaded = all.at(-1);
+        loaded = allPlans.at(-1);
       }
       if (!loaded) {
         const fresh = makeDefaultPlan(cmPresets);
@@ -99,7 +131,14 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       }
       if (cancelled) return;
       await setSetting(ACTIVE_PLAN_KEY, loaded.id);
-      if (!cancelled) setPlanState(loaded);
+      if (!cancelled) {
+        const refreshedPlans = await listPlans();
+        setSavedPlans(refreshedPlans);
+        setAutoSaveState(savedAutoSave === true);
+        autoSaveRef.current = savedAutoSave === true;
+        planRef.current = loaded;
+        setPlanState(loaded);
+      }
     })().catch((err: unknown) => {
       if (!cancelled) setLoadError(err instanceof Error ? err.message : String(err));
     });
@@ -108,27 +147,126 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     };
   }, [status, cmPresets]);
 
-  // The edit not yet persisted (null = Dexie is up to date). Single source
-  // for every flush path: explicit flush, pagehide, unmount.
-  const pendingSave = useRef<CmPlan | null>(null);
-
   const setPlan = useCallback((next: CmPlan) => {
     setPlanState(next);
+    planRef.current = next;
     pendingSave.current = next;
     window.clearTimeout(saveTimer.current);
+    if (!autoSaveRef.current) return;
     saveTimer.current = window.setTimeout(() => {
       pendingSave.current = null;
-      savePlan(next).catch((err: unknown) => {
+      savePlan(next).then(async () => {
+        await setSetting(ACTIVE_PLAN_KEY, next.id);
+        setSavedPlans(await listPlans());
+      }).catch((err: unknown) => {
         setLoadError(err instanceof Error ? err.message : String(err));
       });
     }, SAVE_DEBOUNCE_MS);
   }, []);
 
-  const flushPendingSave = useCallback(async () => {
+  const saveCurrentPlan = useCallback(async (nextPlan?: CmPlan) => {
+    window.clearTimeout(saveTimer.current);
+    const toSave = nextPlan ?? pendingSave.current ?? planRef.current;
+    pendingSave.current = null;
+    if (!toSave) return;
+    const refreshedBeforeSave = await listPlans();
+    const namedPlan = {
+      ...toSave,
+      name: uniquePlanName(toSave.name, refreshedBeforeSave, toSave.id),
+    };
+    await savePlan(namedPlan);
+    await setSetting(ACTIVE_PLAN_KEY, toSave.id);
+    const refreshedPlans = await listPlans();
+    setSavedPlans(refreshedPlans);
+    planRef.current = namedPlan;
+    setPlanState(namedPlan);
+  }, []);
+
+  const flushPendingSave = saveCurrentPlan;
+
+  const saveCurrentPlanAs = useCallback(async (nextPlan?: CmPlan) => {
+    window.clearTimeout(saveTimer.current);
+    const draft = nextPlan ?? pendingSave.current ?? planRef.current;
+    pendingSave.current = null;
+    if (!draft) throw new Error('No active plan to save');
+
+    const refreshedBeforeSave = await listPlans();
+    const nextPlanNumber = nextPlanNumberForContent(draft, refreshedBeforeSave);
+    const next: CmPlan = {
+      ...draft,
+      id: crypto.randomUUID(),
+      name: uniquePlanName(draft.name, refreshedBeforeSave),
+      planNumber: nextPlanNumber,
+    };
+
+    await savePlan(next);
+    await setSetting(ACTIVE_PLAN_KEY, next.id);
+    const refreshedPlans = await listPlans();
+    setSavedPlans(refreshedPlans);
+    planRef.current = next;
+    setPlanState(next);
+    return next;
+  }, []);
+
+  const selectPlan = useCallback(async (id: string) => {
     window.clearTimeout(saveTimer.current);
     const toSave = pendingSave.current;
     pendingSave.current = null;
-    if (toSave) await savePlan(toSave);
+    if (toSave && autoSaveRef.current) await savePlan(toSave);
+
+    const next = await getPlan(id);
+    if (!next) throw new Error(`Saved plan ${id} could not be found`);
+    await setSetting(ACTIVE_PLAN_KEY, next.id);
+    setSavedPlans(await listPlans());
+    planRef.current = next;
+    setPlanState(next);
+  }, []);
+
+  const deleteSavedPlan = useCallback(async (id: string) => {
+    if (pendingSave.current?.id === id) {
+      window.clearTimeout(saveTimer.current);
+      pendingSave.current = null;
+    }
+
+    await deletePlan(id);
+    const refreshedPlans = await listPlans();
+    setSavedPlans(refreshedPlans);
+
+    if (planRef.current?.id !== id) return;
+
+    const next = refreshedPlans.at(-1) ?? makeDefaultPlan(cmPresets);
+    await setSetting(ACTIVE_PLAN_KEY, next.id);
+    pendingSave.current = null;
+    planRef.current = next;
+    setPlanState(next);
+  }, [cmPresets]);
+
+  const setDraftPlan = useCallback((next: CmPlan) => {
+    window.clearTimeout(saveTimer.current);
+    pendingSave.current = next;
+    planRef.current = next;
+    setPlanState(next);
+  }, []);
+
+  const setAutoSave = useCallback((enabled: boolean) => {
+    autoSaveRef.current = enabled;
+    setAutoSaveState(enabled);
+    void setSetting(AUTO_SAVE_KEY, enabled).catch(() => undefined);
+    if (enabled && pendingSave.current) {
+      const toSave = pendingSave.current;
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = window.setTimeout(() => {
+        pendingSave.current = null;
+        savePlan(toSave).then(async () => {
+          await setSetting(ACTIVE_PLAN_KEY, toSave.id);
+          setSavedPlans(await listPlans());
+        }).catch((err: unknown) => {
+          setLoadError(err instanceof Error ? err.message : String(err));
+        });
+      }, SAVE_DEBOUNCE_MS);
+    } else {
+      window.clearTimeout(saveTimer.current);
+    }
   }, []);
 
   // Flush on pagehide (tab close / mobile background-kill — plan §6 says
@@ -139,7 +277,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(saveTimer.current);
       const toSave = pendingSave.current;
       pendingSave.current = null;
-      if (toSave) void savePlan(toSave).catch(() => undefined);
+      if (toSave && autoSaveRef.current) void savePlan(toSave).catch(() => undefined);
     };
     window.addEventListener('pagehide', flushSync);
     return () => {
@@ -148,8 +286,26 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const isSaved = plan ? isPlanContentSaved(plan, savedPlans) : true;
+
   return (
-    <ActivePlanContext.Provider value={{ plan, setPlan, flushPendingSave, loadError }}>
+    <ActivePlanContext.Provider
+      value={{
+        plan,
+        savedPlans,
+        autoSave,
+        isSaved,
+        setAutoSave,
+        setPlan,
+        selectPlan,
+        deleteSavedPlan,
+        setDraftPlan,
+        saveCurrentPlan,
+        saveCurrentPlanAs,
+        flushPendingSave,
+        loadError,
+      }}
+    >
       {children}
     </ActivePlanContext.Provider>
   );

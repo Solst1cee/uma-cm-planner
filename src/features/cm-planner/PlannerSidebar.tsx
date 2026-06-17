@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   isCurrentAptitude,
   setStrategyTargetAptitude,
   setTargetAptitudeByKey,
   targetAptitude,
 } from '@/core/simBuild';
+import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
+import { generatePlanName } from '@/core/planName';
 import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -53,7 +55,6 @@ const MOODS: Array<{ value: Mood; label: string; iconId: string }> = [
 ];
 
 const GRADES: Grade[] = ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G'];
-const GRADE_RANK: Record<Grade, number> = { G: 0, F: 1, E: 2, D: 3, C: 4, B: 5, A: 6, S: 7 };
 
 type AptitudeTarget = { aptKey: AptKey; label: string };
 
@@ -75,10 +76,6 @@ const APTITUDE_GROUPS: Array<{ label: string; options: AptitudeTarget[] }> = [
     ],
   },
 ];
-
-function displayToken(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 function moodIconId(value: Mood): string {
   return MOODS.find((mood) => mood.value === value)?.iconId ?? 'mood-0';
@@ -105,23 +102,6 @@ function aptLabel(aptKey: AptKey, fallback: string): string {
   return STRATEGIES.find((strategy) => strategy.value === aptKey.key)?.fullLabel ?? fallback;
 }
 
-function requiredPinkStars(base: Grade | undefined, target: Grade | undefined): number {
-  if (!base || !target) return 0;
-  return Math.max(0, GRADE_RANK[target] - GRADE_RANK[base]);
-}
-
-function generatePlanName(plan: CmPlan, umaName: string | undefined): string {
-  const parts = [
-    `Plan ${plan.planNumber}`,
-    plan.cmRef.cmNumber > 0 ? `CM${plan.cmRef.cmNumber}` : plan.cmRef.cmId,
-    umaName ?? (plan.umaId ? `Uma ${plan.umaId}` : 'No Uma'),
-    displayToken(plan.role),
-    displayToken(plan.strategy),
-    plan.remark?.trim(),
-  ];
-  return parts.filter((part): part is string => part !== undefined && part !== '').join(' / ');
-}
-
 function setStat(plan: CmPlan, stat: Stat, value: number): CmPlan {
   return {
     ...plan,
@@ -140,14 +120,33 @@ function skillSummaryFromMap(
   return skill ? skillRecordToSummary(skill) : null;
 }
 
+function resizeNoteTextarea(textarea: HTMLTextAreaElement): void {
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
 export function PlannerSidebar({
   plan,
+  autoSave,
+  isSaved,
   onChange,
   onSave,
+  onSaveAs,
+  onNew,
+  onAutoSaveChange,
+  raceNameLabel,
+  collapseSkillSignal,
 }: {
   plan: CmPlan;
+  autoSave: boolean;
+  isSaved: boolean;
   onChange: (next: CmPlan) => void;
-  onSave: () => Promise<void>;
+  onSave: (next: CmPlan) => Promise<void>;
+  onSaveAs: (next: CmPlan) => Promise<void>;
+  onNew: () => void;
+  onAutoSaveChange: (enabled: boolean) => void;
+  raceNameLabel?: string;
+  collapseSkillSignal?: number;
 }) {
   const { skillById, umas, umaById } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
@@ -155,6 +154,8 @@ export function PlannerSidebar({
   const [umaQuery, setUmaQuery] = useState('');
   const [umaPickerOpen, setUmaPickerOpen] = useState(false);
   const [activeUmaIndex, setActiveUmaIndex] = useState(0);
+  const [autoGeneratePlanId, setAutoGeneratePlanId] = useState<string | null>(null);
+  const noteTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,12 +177,18 @@ export function PlannerSidebar({
     if (unique) onChange({ ...plan, uniqueSkillId: unique.skillId });
   }, [onChange, plan, uniqueByUmaId]);
 
+  useEffect(() => {
+    if (noteTextareaRef.current) resizeNoteTextarea(noteTextareaRef.current);
+  }, [plan.notes]);
+
   const globalUmas = useMemo(
     () => (umas ?? []).filter((u) => u.server === plan.server),
     [plan.server, umas],
   );
   const currentUma = (umaById ?? new Map()).get(plan.umaId);
   const currentUmaName = currentUma?.nameEn ?? (plan.umaId ? `Uma ${plan.umaId}` : undefined);
+  const autoGenerateName = autoGeneratePlanId === plan.id;
+  const generatedPlanName = generatePlanName(plan, currentUmaName, raceNameLabel);
   const umaResults = useMemo(() => {
     const q = umaQuery.trim().toLowerCase();
     return globalUmas
@@ -240,10 +247,13 @@ export function PlannerSidebar({
     return targets
       .map(({ label, aptKey, target }) => ({
         label: aptLabel(aptKey, label),
-        stars: requiredPinkStars(baseAptitudeFor(currentUma, aptKey), target),
+        requirement: pinkAptitudeRequirement(baseAptitudeFor(currentUma, aptKey), target),
       }))
-      .filter((item) => item.stars > 0);
+      .filter((item) => item.requirement.stars > 0);
   }, [currentUma, plan, selectedStrategy.fullLabel, strategyTargetKey, strategyTargetValue]);
+  const midRunSparkRequirements = sparkRequirements.filter(
+    (item) => item.requirement.steps === 4 && item.requirement.inRunStepsNeeded > 0,
+  );
   const projectedTotal = plan.wishlist.reduce((sum, item) => sum + (item.projectedL ?? 0), 0);
   const spTotal = plan.wishlist.reduce((sum, item) => {
     const skill = wishlistSkillRecord(item.skillId, skillById);
@@ -253,6 +263,12 @@ export function PlannerSidebar({
   useEffect(() => {
     if (!umaPickerOpen) setUmaQuery(currentUmaName ?? '');
   }, [currentUmaName, umaPickerOpen]);
+
+  useEffect(() => {
+    if (autoGenerateName && plan.name !== generatedPlanName) {
+      onChange({ ...plan, name: generatedPlanName });
+    }
+  }, [autoGenerateName, generatedPlanName, onChange, plan]);
 
   useEffect(() => {
     setActiveUmaIndex(0);
@@ -273,7 +289,18 @@ export function PlannerSidebar({
   const handleSave = async () => {
     setSaveState('saving');
     try {
-      await onSave();
+      await onSave(plan);
+      setSaveState('saved');
+      window.setTimeout(() => setSaveState('idle'), 1200);
+    } catch {
+      setSaveState('error');
+    }
+  };
+
+  const handleSaveAs = async () => {
+    setSaveState('saving');
+    try {
+      await onSaveAs(plan);
       setSaveState('saved');
       window.setTimeout(() => setSaveState('idle'), 1200);
     } catch {
@@ -295,34 +322,75 @@ export function PlannerSidebar({
           Current Uma Plan
         </header>
         <div className="cmp-plan-card-body">
-          <label className="cmp-name-field">
-            <span className="visually-hidden">Plan name</span>
-            <input
-              type="text"
-              value={plan.name}
-              onChange={(e) => onChange({ ...plan, name: e.target.value })}
-              aria-label="Plan name"
+          <div className="cmp-name-row">
+            <label className={`cmp-name-field ${autoGenerateName ? 'is-auto' : ''}`.trim()}>
+              <span className="visually-hidden">Plan name</span>
+              <input
+                type="text"
+                value={plan.name}
+                readOnly={autoGenerateName}
+                onChange={(e) => onChange({ ...plan, name: e.target.value })}
+                aria-label="Plan name"
+              />
+            </label>
+            <label className="cmp-name-auto-toggle">
+              <span>Auto</span>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label="Auto-generate plan name"
+                checked={autoGenerateName}
+                onChange={(e) => {
+                  const enabled = e.target.checked;
+                  setAutoGeneratePlanId(enabled ? plan.id : null);
+                }}
+              />
+            </label>
+          </div>
+          <label className="cmp-note-field">
+            <span className="visually-hidden">Plan note</span>
+            <textarea
+              ref={noteTextareaRef}
+              value={plan.notes ?? ''}
+              onChange={(e) => onChange({ ...plan, notes: e.target.value })}
+              onInput={(e) => resizeNoteTextarea(e.currentTarget)}
+              aria-label="Plan note"
+              placeholder="note"
+              rows={1}
             />
           </label>
           <div className="cmp-save-row">
-            <span className="muted small">
-              {saveState === 'saved' ? 'saved' : saveState === 'saving' ? 'saving...' : 'autosaves'}
+            <span
+              className={`cmp-save-status ${isSaved ? 'is-saved' : 'is-unsaved'}`}
+              aria-live="polite"
+            >
+              {saveState === 'saving'
+                ? 'saving...'
+                : saveState === 'error'
+                  ? 'save failed'
+                  : isSaved
+                    ? 'saved'
+                    : 'unsaved'}
             </span>
+            <label className="cmp-autosave-toggle">
+              <span>Auto-save</span>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label="Auto-save"
+                checked={autoSave}
+                onChange={(e) => onAutoSaveChange(e.target.checked)}
+              />
+            </label>
             <div className="cmp-action-seg">
-              <button
-                type="button"
-                onClick={() => onChange({ ...plan, name: generatePlanName(plan, currentUmaName) })}
-              >
-                Auto-generate
-              </button>
               <button type="button" onClick={() => void handleSave()}>
                 Save
               </button>
-              <button type="button" disabled>
-                Switch
+              <button type="button" onClick={() => void handleSaveAs()}>
+                Save as
               </button>
-              <button type="button" disabled>
-                + New
+              <button type="button" onClick={onNew}>
+                New
               </button>
             </div>
           </div>
@@ -330,9 +398,13 @@ export function PlannerSidebar({
           <section className="cmp-sidebar-section" aria-labelledby="cmp-runner-h">
             <h3 id="cmp-runner-h">Runner</h3>
             <div className="cmp-runner-card">
-              {plan.umaId ? <GameIcon kind="uma" id={plan.umaId} size={52} alt="" /> : <span className="cmp-portrait-ph">uma</span>}
+              {plan.umaId ? <GameIcon kind="uma" id={plan.umaId} size={70} alt="" /> : <span className="cmp-portrait-ph">uma</span>}
               <div className="cmp-runner-picker">
-                <label className="field cmp-compact-field cmp-uma-search-field">
+                <label
+                  className={`field cmp-compact-field cmp-uma-search-field ${
+                    currentUma?.epithet && !umaPickerOpen ? 'has-epithet-overlay' : ''
+                  }`.trim()}
+                >
                   <span className="visually-hidden">Select uma</span>
                   <input
                     type="search"
@@ -340,6 +412,10 @@ export function PlannerSidebar({
                     aria-label="Search uma or unique skill"
                     placeholder="Search uma or unique skill..."
                     onFocus={(e) => {
+                      setUmaPickerOpen(true);
+                      e.currentTarget.select();
+                    }}
+                    onClick={(e) => {
                       setUmaPickerOpen(true);
                       e.currentTarget.select();
                     }}
@@ -369,36 +445,41 @@ export function PlannerSidebar({
                       }
                     }}
                   />
+                  {currentUma?.epithet && !umaPickerOpen && (
+                    <span className="cmp-uma-input-overlay" aria-hidden="true">
+                      <span className="cmp-uma-input-name">{currentUmaName}</span>
+                      <span className="cmp-uma-epithet">{currentUma.epithet}</span>
+                    </span>
+                  )}
                 </label>
-                {currentUma?.epithet && <span className="muted small">{currentUma.epithet}</span>}
+                {umaPickerOpen && (
+                  <ul className="cmp-uma-results" aria-label="Uma search results">
+                    {umaResults.length === 0 && <li className="muted small">No matching umas.</li>}
+                    {umaResults.map((uma, index) => {
+                      const unique = uniqueByUmaId?.get(uma.umaId);
+                      return (
+                        <li key={uma.umaId}>
+                          <button
+                            type="button"
+                            className={`cmp-uma-result ${index === activeUmaIndex ? 'is-active' : ''}`.trim()}
+                            aria-pressed={plan.umaId === uma.umaId}
+                            aria-selected={index === activeUmaIndex}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleSelectUma(uma.umaId)}
+                          >
+                            <GameIcon kind="uma" id={uma.umaId} size={36} alt="" />
+                            <span>
+                              <strong>{uma.nameEn}</strong>
+                              {unique && <small>{unique.nameEn}</small>}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             </div>
-            {umaPickerOpen && (
-              <ul className="cmp-uma-results" aria-label="Uma search results">
-                {umaResults.length === 0 && <li className="muted small">No matching umas.</li>}
-                {umaResults.map((uma, index) => {
-                  const unique = uniqueByUmaId?.get(uma.umaId);
-                  return (
-                    <li key={uma.umaId}>
-                      <button
-                        type="button"
-                        className={`cmp-uma-result ${index === activeUmaIndex ? 'is-active' : ''}`.trim()}
-                        aria-pressed={plan.umaId === uma.umaId}
-                        aria-selected={index === activeUmaIndex}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelectUma(uma.umaId)}
-                      >
-                        <GameIcon kind="uma" id={uma.umaId} size={36} alt="" />
-                        <span>
-                          <strong>{uma.nameEn}</strong>
-                          {unique && <small>{unique.nameEn}</small>}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
 
             <div className="cmp-runner-role">
               <div className="cmp-mini-label">Role</div>
@@ -419,7 +500,11 @@ export function PlannerSidebar({
             <div className="cmp-unique-block">
               <div className="cmp-mini-label">Unique Skill</div>
               {uniqueSkill ? (
-                <SkillDetailDisclosure skill={uniqueSkill} showCost={false} />
+                <SkillDetailDisclosure
+                  skill={uniqueSkill}
+                  showCost={false}
+                  collapseSignal={collapseSkillSignal}
+                />
               ) : (
                 <p className="muted small">Unique skill pending source data.</p>
               )}
@@ -600,8 +685,16 @@ export function PlannerSidebar({
                 {currentUma?.baseAptitudes ? (
                   sparkRequirements.length > 0 ? (
                     sparkRequirements.map((item) => (
-                      <span key={item.label} className="cmp-spark-chip">
-                        {item.label} ★{item.stars}
+                      <span
+                        key={item.label}
+                        className="cmp-spark-chip"
+                        title={
+                          item.requirement.reachesTargetAtCareerStart
+                            ? 'Career-start inheritance reaches the target.'
+                            : `Career-start inheritance reaches ${item.requirement.careerStartGrade}.`
+                        }
+                      >
+                        {item.label} ★{item.requirement.stars}
                       </span>
                     ))
                   ) : (
@@ -612,6 +705,22 @@ export function PlannerSidebar({
                 )}
               </div>
             </div>
+            {currentUma?.baseAptitudes && midRunSparkRequirements.length > 0 && (
+              <div className="cmp-spark-summary-row" aria-label="Required mid-run spark summary">
+                <span className="cmp-spark-summary-label">Mid-run spark</span>
+                <div className="cmp-spark-chip-list">
+                  {midRunSparkRequirements.map((item) => (
+                    <span
+                      key={item.label}
+                      className="cmp-spark-chip"
+                      title={`Needs ${item.requirement.inRunStepsNeeded} in-run pink proc${item.requirement.inRunStepsNeeded === 1 ? '' : 's'} after career-start inheritance.`}
+                    >
+                      {item.label} x {item.requirement.inRunStepsNeeded}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="cmp-sidebar-section" aria-labelledby="cmp-wishlist-h">
@@ -620,10 +729,15 @@ export function PlannerSidebar({
               <button
                 type="button"
                 className="cmp-clear-wishlist-btn"
+                aria-label="Clear wishlist"
+                title="Clear wishlist"
                 disabled={plan.wishlist.length === 0}
                 onClick={() => onChange({ ...plan, wishlist: [] })}
               >
-                Clear
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" />
+                  <path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" />
+                </svg>
               </button>
             </div>
             <div className="cmp-wishlist-list">
@@ -637,6 +751,7 @@ export function PlannerSidebar({
                     {summary ? (
                       <SkillDetailDisclosure
                         skill={summary}
+                        collapseSignal={collapseSkillSignal}
                         side={
                           item.projectedL !== undefined ? (
                             <span className="L">+{item.projectedL.toFixed(2)}</span>

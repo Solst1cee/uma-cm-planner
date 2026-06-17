@@ -17,6 +17,7 @@ describe('courseCatalog', () => {
       surface: 'turf',
       distance: 2200,
       distanceClass: 'medium',
+      course: 2,
       turn: 1,
     });
   });
@@ -28,6 +29,7 @@ describe('courseCatalog', () => {
       surface: 'turf',
       distance: 1200,
       distanceClass: 'sprint',
+      course: 3,
       turn: 1,
     });
   });

@@ -14,6 +14,7 @@ import { TRACKS, coursesForTrackSurface, surfacesForTrack } from './trackCatalog
 import {
   cap,
   courseToSelection,
+  formatDistanceWithLayout,
   presetToSelection,
   type RaceSelection,
 } from './selection';
@@ -63,15 +64,40 @@ function resolveSelection(f: Fields, catalog: CourseCatalogEntry[] | null): Race
 
 interface RaceSetupProps {
   onChange: (sel: RaceSelection) => void;
+  selection?: RaceSelection;
   deps?: { loadCatalog: () => Promise<CourseCatalogEntry[]> };
 }
 
 const defaultLoadCatalog = (): Promise<CourseCatalogEntry[]> =>
   import('@/sim/courseCatalog').then((m) => m.courseCatalog());
 
-export function RaceSetup({ onChange, deps }: RaceSetupProps) {
+function fieldsFromSelection(selection: RaceSelection): Fields {
+  return {
+    trackId: TRACKS.find((track) => track.name === selection.racetrack)?.raceTrackId ?? TRACKS[0]!.raceTrackId,
+    surface: selection.surface,
+    courseId: selection.courseId,
+    ground: selection.ground,
+    weather: selection.weather,
+    season: selection.season,
+  };
+}
+
+function sameFields(a: Fields, b: Fields): boolean {
+  return (
+    a.trackId === b.trackId &&
+    a.surface === b.surface &&
+    a.courseId === b.courseId &&
+    a.ground === b.ground &&
+    a.weather === b.weather &&
+    a.season === b.season
+  );
+}
+
+export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
-  const [fields, setFields] = useState<Fields>(() => fieldsFromPreset(PRESETS[0]!));
+  const [fields, setFields] = useState<Fields>(() =>
+    selection ? fieldsFromSelection(selection) : fieldsFromPreset(PRESETS[0]!),
+  );
   const [catalog, setCatalog] = useState<CourseCatalogEntry[] | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [open, setOpen] = useState(true);
@@ -79,11 +105,17 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
   // Emit the initial selection once (matched preset needs no catalog).
   const emitted = useRef(false);
   useEffect(() => {
-    if (emitted.current) return;
+    if (selection || emitted.current) return;
     emitted.current = true;
     const sel = resolveSelection(fields, null);
     if (sel) onChange(sel);
-  }, [fields, onChange]);
+  }, [fields, onChange, selection]);
+
+  useEffect(() => {
+    if (!selection) return;
+    const next = fieldsFromSelection(selection);
+    setFields((current) => (sameFields(current, next) ? current : next));
+  }, [selection]);
 
   // Load the course catalog (powers the Track → Surface → Distance cascade).
   useEffect(() => {
@@ -210,11 +242,11 @@ export function RaceSetup({ onChange, deps }: RaceSetupProps) {
             {distanceOptions.length ? (
               distanceOptions.map((c) => (
                 <option key={c.courseId} value={c.courseId}>
-                  {c.distance.toLocaleString('en-US')}m ({cap(c.distanceClass)})
+                  {formatDistanceWithLayout(courseToSelection(c, { ground: fields.ground, weather: fields.weather, season: fields.season }))}
                 </option>
               ))
             ) : (
-              <option value={fields.courseId}>{sel.distance.toLocaleString('en-US')}m</option>
+              <option value={fields.courseId}>{formatDistanceWithLayout(sel)}</option>
             )}
           </select>
         </label>

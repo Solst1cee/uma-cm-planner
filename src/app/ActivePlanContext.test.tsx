@@ -12,7 +12,7 @@ import {
   makeDefaultPlan,
   useActivePlan,
 } from '@/app/ActivePlanContext';
-import { savePlan } from '@/db';
+import { deletePlan, getPlan, listPlans, savePlan, setSetting } from '@/db';
 
 vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
@@ -25,6 +25,7 @@ vi.mock('@/features/data/gameData', async () => {
 vi.mock('@/db', () => ({
   getPlan: vi.fn(async () => undefined),
   getSetting: vi.fn(async () => undefined),
+  deletePlan: vi.fn(async () => undefined),
   listPlans: vi.fn(async () => []),
   savePlan: vi.fn(async () => undefined),
   setSetting: vi.fn(async () => undefined),
@@ -46,6 +47,7 @@ async function renderProvider() {
   );
   await waitFor(() => expect(ctx.plan).not.toBeNull());
   vi.mocked(savePlan).mockClear(); // drop the default-plan creation save
+  vi.mocked(setSetting).mockClear();
 }
 
 describe('ActivePlanProvider flushPendingSave', () => {
@@ -64,13 +66,14 @@ describe('ActivePlanProvider flushPendingSave', () => {
     expect(savePlan).toHaveBeenCalledTimes(1);
   });
 
-  it('is a no-op when nothing is pending', async () => {
+  it('persists the current plan when nothing is pending', async () => {
     await renderProvider();
     await ctx.flushPendingSave();
-    expect(savePlan).not.toHaveBeenCalled();
+    expect(savePlan).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(savePlan).mock.calls[0]?.[0]?.id).toBe(ctx.plan?.id);
   });
 
-  it('flushes the pending edit on pagehide (tab close)', async () => {
+  it('does not flush the pending edit on pagehide when auto-save is off', async () => {
     await renderProvider();
 
     act(() => ctx.setPlan({ ...ctx.plan!, name: 'EDIT-BEFORE-CLOSE' }));
@@ -78,8 +81,176 @@ describe('ActivePlanProvider flushPendingSave', () => {
       window.dispatchEvent(new Event('pagehide'));
     });
 
+    expect(savePlan).not.toHaveBeenCalled();
+  });
+
+  it('flushes the pending edit on pagehide when auto-save is on', async () => {
+    await renderProvider();
+
+    act(() => ctx.setAutoSave(true));
+    act(() => ctx.setPlan({ ...ctx.plan!, name: 'EDIT-BEFORE-CLOSE' }));
+    act(() => {
+      window.dispatchEvent(new Event('pagehide'));
+    });
+
     expect(savePlan).toHaveBeenCalledTimes(1);
     expect(vi.mocked(savePlan).mock.calls[0]?.[0]?.name).toBe('EDIT-BEFORE-CLOSE');
+  });
+
+  it('does not silently save an unsaved edit before selecting a saved plan when auto-save is off', async () => {
+    await renderProvider();
+    const savedPlan = { ...ctx.plan!, id: 'saved-plan', name: 'Saved Plan' };
+    vi.mocked(getPlan).mockResolvedValueOnce(savedPlan);
+
+    act(() => ctx.setPlan({ ...ctx.plan!, name: 'EDIT-BEFORE-SWITCH' }));
+    await act(async () => {
+      await ctx.selectPlan('saved-plan');
+    });
+
+    expect(savePlan).not.toHaveBeenCalled();
+    expect(setSetting).toHaveBeenCalledWith('activePlanId', 'saved-plan');
+    expect(ctx.plan?.id).toBe('saved-plan');
+  });
+
+  it('flushes the current edit before selecting a saved plan when auto-save is on', async () => {
+    await renderProvider();
+    const savedPlan = { ...ctx.plan!, id: 'saved-plan', name: 'Saved Plan' };
+    vi.mocked(getPlan).mockResolvedValueOnce(savedPlan);
+
+    act(() => ctx.setAutoSave(true));
+    act(() => ctx.setPlan({ ...ctx.plan!, name: 'EDIT-BEFORE-SWITCH' }));
+    await act(async () => {
+      await ctx.selectPlan('saved-plan');
+    });
+
+    expect(vi.mocked(savePlan).mock.calls[0]?.[0]?.name).toBe('EDIT-BEFORE-SWITCH');
+    expect(setSetting).toHaveBeenCalledWith('activePlanId', 'saved-plan');
+    expect(ctx.plan?.id).toBe('saved-plan');
+  });
+
+  it('saves a copy with the lowest missing plan number', async () => {
+    await renderProvider();
+    const edited = {
+      ...ctx.plan!,
+      id: 'draft',
+      planNumber: 99,
+      name: 'Plan 99 / copy',
+      statProfile: {
+        ...ctx.plan!.statProfile,
+        stats: { ...ctx.plan!.statProfile.stats, spd: ctx.plan!.statProfile.stats.spd + 1 },
+      },
+    };
+    vi.mocked(getPlan).mockResolvedValue(undefined);
+    const existing = [
+      { ...ctx.plan!, id: 'p1', planNumber: 1 },
+      { ...ctx.plan!, id: 'p3', planNumber: 3 },
+    ];
+    vi.mocked(listPlans).mockResolvedValue(existing);
+
+    act(() => ctx.setDraftPlan(edited));
+    let saved!: typeof edited;
+    await act(async () => {
+      saved = await ctx.saveCurrentPlanAs();
+    });
+
+    expect(saved.planNumber).toBe(2);
+    expect(saved.id).not.toBe('draft');
+    expect(saved.name).toBe('Plan 99 / copy');
+    expect(vi.mocked(savePlan).mock.calls.at(-1)?.[0]).toMatchObject({ planNumber: 2 });
+  });
+
+  it('adds a numeric suffix when Save would duplicate another plan name', async () => {
+    await renderProvider();
+    const edited = { ...ctx.plan!, name: 'My custom plan' };
+    vi.mocked(listPlans).mockResolvedValue([
+      { ...ctx.plan!, id: 'other-plan', name: 'My custom plan' },
+      { ...ctx.plan!, id: ctx.plan!.id, name: 'Old name' },
+    ]);
+
+    await act(async () => {
+      await ctx.saveCurrentPlan(edited);
+    });
+
+    expect(vi.mocked(savePlan).mock.calls.at(-1)?.[0]?.name).toBe('My custom plan (1)');
+    expect(ctx.plan?.name).toBe('My custom plan (1)');
+  });
+
+  it('adds the next numeric suffix when Save as duplicates an existing name', async () => {
+    await renderProvider();
+    const draft = { ...ctx.plan!, id: 'draft', name: 'Random name' };
+    vi.mocked(listPlans).mockResolvedValue([
+      { ...ctx.plan!, id: 'p1', name: 'Random name', planNumber: 1 },
+      { ...ctx.plan!, id: 'p2', name: 'Random name (1)', planNumber: 2 },
+    ]);
+
+    let saved!: typeof draft;
+    await act(async () => {
+      saved = await ctx.saveCurrentPlanAs(draft);
+    });
+
+    expect(saved.name).toBe('Random name (2)');
+  });
+
+  it('advances an existing custom suffix instead of nesting another suffix', async () => {
+    await renderProvider();
+    const draft = { ...ctx.plan!, id: 'draft', name: 'Plan 1 (1)' };
+    vi.mocked(listPlans).mockResolvedValue([
+      { ...ctx.plan!, id: 'p1', name: 'Plan 1', planNumber: 1 },
+      { ...ctx.plan!, id: 'p2', name: 'Plan 1 (1)', planNumber: 2 },
+    ]);
+
+    let saved!: typeof draft;
+    await act(async () => {
+      saved = await ctx.saveCurrentPlanAs(draft);
+    });
+
+    expect(saved.name).toBe('Plan 1 (2)');
+  });
+
+  it('deletes a non-active saved plan and refreshes the inventory', async () => {
+    await renderProvider();
+    const active = ctx.plan!;
+    const other = { ...active, id: 'other-plan', name: 'Other Plan' };
+    vi.mocked(listPlans).mockResolvedValueOnce([active]);
+
+    await act(async () => {
+      await ctx.deleteSavedPlan(other.id);
+    });
+
+    expect(deletePlan).toHaveBeenCalledWith('other-plan');
+    expect(ctx.plan?.id).toBe(active.id);
+    expect(ctx.savedPlans.map((plan) => plan.id)).toEqual([active.id]);
+  });
+
+  it('switches to another saved plan when deleting the active plan', async () => {
+    await renderProvider();
+    const activeId = ctx.plan!.id;
+    const fallback = { ...ctx.plan!, id: 'fallback-plan', name: 'Fallback Plan' };
+    vi.mocked(listPlans).mockResolvedValueOnce([fallback]);
+
+    await act(async () => {
+      await ctx.deleteSavedPlan(activeId);
+    });
+
+    expect(deletePlan).toHaveBeenCalledWith(activeId);
+    expect(setSetting).toHaveBeenCalledWith('activePlanId', 'fallback-plan');
+    expect(ctx.plan?.id).toBe('fallback-plan');
+  });
+
+  it('leaves the inventory empty when deleting the final saved plan', async () => {
+    await renderProvider();
+    const activeId = ctx.plan!.id;
+    vi.mocked(listPlans).mockResolvedValueOnce([]);
+
+    await act(async () => {
+      await ctx.deleteSavedPlan(activeId);
+    });
+
+    expect(deletePlan).toHaveBeenCalledWith(activeId);
+    expect(ctx.savedPlans).toEqual([]);
+    expect(savePlan).not.toHaveBeenCalled();
+    expect(ctx.plan?.id).not.toBe(activeId);
+    expect(ctx.plan?.name).toBe('');
   });
 });
 

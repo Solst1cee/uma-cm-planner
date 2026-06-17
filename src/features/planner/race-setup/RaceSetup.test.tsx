@@ -7,11 +7,11 @@ import { RaceSetup } from './RaceSetup';
 afterEach(cleanup);
 
 const CATALOG: CourseCatalogEntry[] = [
-  { courseId: '10906', raceTrackId: 10009, surface: 'turf', distance: 2200, distanceClass: 'medium', turn: 1 },
-  { courseId: '10501', raceTrackId: 10005, surface: 'turf', distance: 1200, distanceClass: 'sprint', turn: 1 },
-  { courseId: '10601', raceTrackId: 10006, surface: 'turf', distance: 1400, distanceClass: 'sprint', turn: 2 },
-  { courseId: '10602', raceTrackId: 10006, surface: 'turf', distance: 1600, distanceClass: 'mile', turn: 2 },
-  { courseId: '10609', raceTrackId: 10006, surface: 'dirt', distance: 1300, distanceClass: 'sprint', turn: 2 },
+  { courseId: '10906', raceTrackId: 10009, surface: 'turf', distance: 2200, distanceClass: 'medium', course: 2, turn: 1 },
+  { courseId: '10501', raceTrackId: 10005, surface: 'turf', distance: 1200, distanceClass: 'sprint', course: 3, turn: 1 },
+  { courseId: '10601', raceTrackId: 10006, surface: 'turf', distance: 1400, distanceClass: 'sprint', course: 1, turn: 2 },
+  { courseId: '10602', raceTrackId: 10006, surface: 'turf', distance: 1600, distanceClass: 'mile', course: 1, turn: 2 },
+  { courseId: '10609', raceTrackId: 10006, surface: 'dirt', distance: 1300, distanceClass: 'sprint', course: 1, turn: 2 },
 ];
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
@@ -27,6 +27,7 @@ describe('RaceSetup', () => {
     const track = await screen.findByLabelText('Track');
     expect(track).toHaveValue('10009'); // Hanshin
     expect(screen.getByLabelText('Distance')).toHaveValue('10906');
+    expect(screen.getByRole('option', { name: '2,200m (Inner)' })).toBeInTheDocument();
     // (the condition chips moved to the track card in CmPlannerPage; tested via describeSelection)
   });
 
@@ -74,5 +75,34 @@ describe('RaceSetup', () => {
     await waitFor(() => expect(screen.getByLabelText('Track')).toBeDisabled());
     expect(screen.getByLabelText('Surface')).toBeDisabled();
     expect(screen.getByLabelText('Distance')).toBeDisabled();
+  });
+
+  it('syncs its controls from an externally loaded selection', async () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<RaceSetup onChange={onChange} deps={deps} />);
+    await screen.findByLabelText('Track');
+
+    rerender(
+      <RaceSetup
+        onChange={onChange}
+        deps={deps}
+        selection={{
+          courseId: '10602',
+          racetrack: 'Tokyo',
+          surface: 'turf',
+          distance: 1600,
+          distanceClass: 'mile',
+          direction: 'left',
+          ground: 'soft',
+          weather: 'rainy',
+          season: 'winter',
+        }}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByLabelText('Distance')).toHaveValue('10602'));
+    expect(screen.getByLabelText('Ground')).toHaveValue('soft');
+    expect(screen.getByLabelText('Weather')).toHaveValue('rainy');
+    expect(screen.getByLabelText('Season')).toHaveValue('winter');
   });
 });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
@@ -105,6 +105,9 @@ const h = vi.hoisted(() => {
     plan,
     setPlan: vi.fn(),
     save: vi.fn(async () => undefined),
+    saveAs: vi.fn(async () => undefined),
+    newPlan: vi.fn(),
+    setAutoSave: vi.fn(),
     loadUniqueSkillByUmaId: vi.fn(async () => uniqueByUmaId),
     loadSkillTechnicalDetail: vi.fn(async (skillId: string) => {
       const summary = uniqueByUmaId.get('100101')?.skillId === skillId
@@ -179,8 +182,20 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function renderSidebar(plan: CmPlan = h.plan as CmPlan) {
-  return render(<PlannerSidebar plan={plan} onChange={h.setPlan} onSave={h.save} />);
+function renderSidebar(plan: CmPlan = h.plan as CmPlan, raceNameLabel?: string, isSaved = true, autoSave = false) {
+  return render(
+    <PlannerSidebar
+      plan={plan}
+      autoSave={autoSave}
+      isSaved={isSaved}
+      onChange={h.setPlan}
+      onSave={h.save}
+      onSaveAs={h.saveAs}
+      onNew={h.newPlan}
+      onAutoSaveChange={h.setAutoSave}
+      raceNameLabel={raceNameLabel}
+    />,
+  );
 }
 
 async function waitForUniqueMap() {
@@ -206,6 +221,21 @@ describe('PlannerSidebar', () => {
     expect(h.setPlan).toHaveBeenCalledWith(
       expect.objectContaining({ umaId: '100201', uniqueSkillId: 'v' }),
     );
+  });
+
+  it('reopens uma search after selecting from the dropdown without requiring an outside click', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+    await waitForUniqueMap();
+
+    const input = screen.getByLabelText('Search uma or unique skill');
+    await user.clear(input);
+    await user.type(input, 'speedline');
+    await user.click(await screen.findByRole('button', { name: /Silence Suzuka.*Silent Speedline/i }));
+
+    await user.click(input);
+
+    expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument();
   });
 
   it('selects an uma with arrow keys and Enter', async () => {
@@ -237,11 +267,93 @@ describe('PlannerSidebar', () => {
     const user = userEvent.setup();
     renderSidebar();
 
-    await user.click(screen.getByRole('button', { name: 'Auto-generate' }));
+    const toggle = screen.getByRole('switch', { name: 'Auto-generate plan name' });
+    await user.click(toggle);
 
     expect(h.setPlan).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Plan 2 / CM15 / Special Week / Ace / Front' }),
+      expect.objectContaining({ name: 'CM15 / Special Week / Ace / Front' }),
     );
+    expect(toggle).toBeChecked();
+    expect(screen.getByLabelText('Plan name')).toHaveAttribute('readonly');
+  });
+
+  it('auto-generates custom track plan names from the current course label instead of stale CM metadata', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10906', surface: 'turf', distance: 2200 },
+    }, 'Hanshin 2,200m (Inner)');
+
+    await user.click(screen.getByRole('switch', { name: 'Auto-generate plan name' }));
+
+    expect(h.setPlan).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Hanshin 2,200m (Inner) / Special Week / Ace / Front' }),
+    );
+  });
+
+  it('keeps the generated text and unlocks the name field when auto-generation is disabled', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+    const toggle = screen.getByRole('switch', { name: 'Auto-generate plan name' });
+    const nameInput = screen.getByLabelText('Plan name');
+
+    await user.click(toggle);
+    await user.click(toggle);
+
+    expect(toggle).not.toBeChecked();
+    expect(nameInput).not.toHaveAttribute('readonly');
+  });
+
+  it('stores the plan note and does not show the idle autosaves label', async () => {
+    renderSidebar();
+
+    expect(screen.queryByText('autosaves')).not.toBeInTheDocument();
+    const note = screen.getByLabelText('Plan note');
+    expect(note).toHaveAttribute('rows', '1');
+    fireEvent.change(note, { target: { value: 'inheritance backup' } });
+
+    expect(h.setPlan).toHaveBeenCalledWith(
+      expect.objectContaining({ notes: 'inheritance backup' }),
+    );
+  });
+
+  it('shows saved and unsaved status from the plan content checker', () => {
+    const { rerender } = renderSidebar();
+    expect(screen.getByText('saved')).toHaveClass('is-saved');
+
+    rerender(
+      <PlannerSidebar
+        plan={h.plan as CmPlan}
+        autoSave={false}
+        isSaved={false}
+        onChange={h.setPlan}
+        onSave={h.save}
+        onSaveAs={h.saveAs}
+        onNew={h.newPlan}
+        onAutoSaveChange={h.setAutoSave}
+      />,
+    );
+
+    expect(screen.getByText('unsaved')).toHaveClass('is-unsaved');
+  });
+
+  it('toggles auto-save from the save row', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    const toggle = screen.getByRole('switch', { name: 'Auto-save' });
+    await user.click(toggle);
+
+    expect(h.setAutoSave).toHaveBeenCalledWith(true);
+    expect(toggle).toHaveAttribute('role', 'switch');
+  });
+
+  it('shows the uma epithet inside the search field', () => {
+    renderSidebar();
+
+    const epithet = screen.getByText('Special Dreamer');
+    expect(epithet).toHaveClass('cmp-uma-epithet');
+    expect(epithet.closest('label')).toHaveClass('cmp-uma-search-field');
   });
 
   it('prefills current CM aptitude targets while leaving unrelated aptitudes open', () => {
@@ -256,7 +368,10 @@ describe('PlannerSidebar', () => {
     expect(screen.getByLabelText('Dirt target aptitude')).toHaveValue('');
     expect(screen.getAllByRole('option', { name: 'A/S' }).length).toBeGreaterThan(0);
     expect(screen.getByLabelText('Required pink spark summary')).toHaveTextContent('Medium ★1');
-    expect(screen.getByLabelText('Required pink spark summary')).toHaveTextContent('Front Runner ★6');
+    expect(screen.getByLabelText('Required pink spark summary')).toHaveTextContent('Front Runner ★10');
+    expect(screen.getByLabelText('Required pink spark summary')).not.toHaveTextContent('->');
+    expect(screen.getByLabelText('Required mid-run spark summary')).toHaveTextContent('Front Runner x 2');
+    expect(screen.getByLabelText('Required mid-run spark summary')).not.toHaveTextContent('Medium x 1');
   });
 
   it('shows selected uma stat growth under the stat inputs', () => {
@@ -330,7 +445,7 @@ describe('PlannerSidebar', () => {
     const user = userEvent.setup();
     renderSidebar();
 
-    await user.click(screen.getByRole('button', { name: 'Clear' }));
+    await user.click(screen.getByRole('button', { name: 'Clear wishlist' }));
 
     expect(h.setPlan).toHaveBeenCalledWith(expect.objectContaining({ wishlist: [] }));
   });
@@ -431,7 +546,26 @@ describe('PlannerSidebar', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(h.save).toHaveBeenCalledTimes(1);
+    expect(h.save).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Plan 2 / CM15 / Special' }),
+    );
     await screen.findByText('saved');
+  });
+
+  it('saves as a new version and starts a new default draft from the save row', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.click(screen.getByRole('button', { name: 'Save as' }));
+    expect(h.saveAs).toHaveBeenCalledTimes(1);
+    expect(h.saveAs).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Plan 2 / CM15 / Special' }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'New' }));
+    expect(h.newPlan).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Switch' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '+ New' })).not.toBeInTheDocument();
   });
 
   it('expands skill technical detail with conditions and readable effects', async () => {

@@ -297,6 +297,7 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   const row = asRecord(v, path);
   reqString(row, 'id', path);
   reqString(row, 'name', path);
+  optString(row, 'notes', path);
   reqNumber(row, 'planNumber', path);
   optString(row, 'remark', path);
 
@@ -307,6 +308,7 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   reqOneOf(cmRef, 'surface', ['turf', 'dirt'] as const, `${path}.cmRef`);
   reqNumber(cmRef, 'distance', `${path}.cmRef`);
   optString(cmRef, 'condition', `${path}.cmRef`);
+  optString(cmRef, 'weather', `${path}.cmRef`);
   optString(cmRef, 'season', `${path}.cmRef`);
 
   optNumber(row, 'scenarioId', path);

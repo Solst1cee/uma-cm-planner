@@ -55,10 +55,11 @@ function metricOf(v: RowView, m: SortMetric): number {
   return v.eff ?? Number.MIN_SAFE_INTEGER;
 }
 
-export function SkillChartPanel({ courseId, plan, onChange, deps }: {
+export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, deps }: {
   courseId: string;
   plan: CmPlan;
   onChange: (next: CmPlan) => void;
+  collapseSkillSignal?: number;
   deps?: SkillChartPanelDeps;
 }) {
   const { skills, skillById, sparkRates } = useGameData();
@@ -189,6 +190,7 @@ export function SkillChartPanel({ courseId, plan, onChange, deps }: {
                     <li key={v.skill.skillId} className={`cmp-skill-row ${v.row.status === 'live' ? '' : 'is-dim'}`.trim()}>
                       <SkillDetailDisclosure
                         skill={skillRecordToSummary(v.skill)}
+                        collapseSignal={collapseSkillSignal}
                         showCost={false}
                         className="cmp-uma-plate"
                         technicalHeaderSide={

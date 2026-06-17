@@ -24,6 +24,8 @@ const MATCH_LOG: Omit<MatchLog, 'id'> = {
   notes: 'lost to a closer',
 };
 
+const PLAN_WITH_NOTES = { ...FIXTURE_PLAN, notes: 'test plan note' };
+
 const BUNDLE_FIXTURE: CaptureBundle = {
   schemaVersion: 1,
   source: 'manual',
@@ -62,7 +64,7 @@ async function seed(): Promise<void> {
     { cardId: '30016', limitBreak: 4 },
   ]);
   await db.parents.put(PARENT);
-  await db.cmPlans.put(FIXTURE_PLAN);
+  await db.cmPlans.put(PLAN_WITH_NOTES);
   await db.matchLogs.add({ ...MATCH_LOG });
   await db.settings.put({ key: 'preferredServer', value: 'global' });
 }
@@ -95,7 +97,8 @@ describe('export → clear → import (replace)', () => {
     expect(await db.ownedCards.toArray()).toEqual(blob.ownedCards); // ids preserved
     expect(await db.parents.get('parent-1')).toEqual(PARENT);
     const plan = await db.cmPlans.get(FIXTURE_PLAN.id);
-    expect(plan).toEqual(FIXTURE_PLAN);
+    expect(blob.cmPlans[0]?.notes).toBe('test plan note');
+    expect(plan).toEqual(PLAN_WITH_NOTES);
     expect(plan?.parents).toEqual({});
     expect(await db.matchLogs.toArray()).toEqual(blob.matchLogs);
     expect((await db.settings.get('preferredServer'))?.value).toBe('global');

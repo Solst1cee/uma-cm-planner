@@ -16,6 +16,8 @@ export interface CourseCatalogEntry {
   surface: 'turf' | 'dirt';
   distance: number;
   distanceClass: 'sprint' | 'mile' | 'medium' | 'long';
+  /** uma-tools course layout code: 1=none, 2=inner, 3=outer, 4=outer->inner. */
+  course: 1 | 2 | 3 | 4;
   /** 1 = right-handed, 2 = left-handed. */
   turn: 1 | 2;
 }
@@ -45,6 +47,7 @@ export function courseCatalog(): CourseCatalogEntry[] {
     surface: e.surface === 2 ? 'dirt' : 'turf',
     distance: e.distance,
     distanceClass: DISTANCE_TYPE_CLASS[e.distanceType] ?? classifyByDistance(e.distance),
+    course: e.course === 2 || e.course === 3 || e.course === 4 ? e.course : 1,
     turn: e.turn === 2 ? 2 : 1,
   }));
 }

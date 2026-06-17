@@ -306,12 +306,14 @@ export function SkillDetailDisclosure({
   side,
   technicalHeaderSide,
   showCost = true,
+  collapseSignal,
 }: {
   skill: SkillSummary;
   className?: string;
   side?: ReactNode;
   technicalHeaderSide?: ReactNode;
   showCost?: boolean;
+  collapseSignal?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [detail, setDetail] = useState<SkillTechnicalDetail | null>(null);
@@ -323,6 +325,10 @@ export function SkillDetailDisclosure({
     setError(null);
     setStatus('idle');
   }, [skill.skillId]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [collapseSignal]);
 
   useEffect(() => {
     if (!open || status !== 'idle') return;

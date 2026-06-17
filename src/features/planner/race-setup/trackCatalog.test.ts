@@ -3,10 +3,10 @@ import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { TRACKS, trackName, surfacesForTrack, coursesForTrackSurface } from './trackCatalog';
 
 const CATALOG: CourseCatalogEntry[] = [
-  { courseId: '10906', raceTrackId: 10009, surface: 'turf', distance: 2200, distanceClass: 'medium', turn: 1 },
-  { courseId: '10901', raceTrackId: 10009, surface: 'turf', distance: 1200, distanceClass: 'sprint', turn: 1 },
-  { courseId: '10910', raceTrackId: 10009, surface: 'dirt', distance: 1200, distanceClass: 'sprint', turn: 1 },
-  { courseId: '11101', raceTrackId: 10101, surface: 'dirt', distance: 1200, distanceClass: 'sprint', turn: 1 },
+  { courseId: '10906', raceTrackId: 10009, surface: 'turf', distance: 2200, distanceClass: 'medium', course: 2, turn: 1 },
+  { courseId: '10901', raceTrackId: 10009, surface: 'turf', distance: 1200, distanceClass: 'sprint', course: 2, turn: 1 },
+  { courseId: '10910', raceTrackId: 10009, surface: 'dirt', distance: 1200, distanceClass: 'sprint', course: 1, turn: 1 },
+  { courseId: '11101', raceTrackId: 10101, surface: 'dirt', distance: 1200, distanceClass: 'sprint', course: 1, turn: 1 },
 ];
 
 describe('TRACKS', () => {

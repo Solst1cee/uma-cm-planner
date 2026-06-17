@@ -36,11 +36,22 @@ describe('umaSourceFile', () => {
     });
   });
 
-  it('falls back to the base chr_icon when no trained _02 exists (alt-outfit gap)', () => {
+  it('uses the known trained asset-id override for Global alt outfits', () => {
     const noTrained = (): boolean => false;
-    // e.g. 100402 Maruzensky "Hot Summer Night" — one of the 17 fallback umas.
-    expect(umaSourceFile('100402', '1004', noTrained)).toEqual({
-      source: 'chara/chr_icon_1004.png',
+    expect(umaSourceFile('101502', '1015', noTrained)).toEqual({
+      source: 'chara/trained_chr_icon_1015_101510_02.png',
+      fallback: false,
+    });
+    expect(umaSourceFile('102602', '1026', noTrained)).toEqual({
+      source: 'chara/trained_chr_icon_1026_102613_02.png',
+      fallback: false,
+    });
+  });
+
+  it('falls back to the base chr_icon when no trained _02 exists and no override is known', () => {
+    const noTrained = (): boolean => false;
+    expect(umaSourceFile('999902', '9999', noTrained)).toEqual({
+      source: 'chara/chr_icon_9999.png',
       fallback: true,
     });
   });
