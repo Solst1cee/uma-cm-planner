@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { polyline, gapCurve, vtPoints, domainOf, activationTimes } from './geometry';
+import { polyline, gapCurve, vtPoints, domainOf, activationTimes, gapPoints, maxAbsL } from './geometry';
 import type { SkillTraceRun } from '@/sim';
 
 const run: SkillTraceRun = {
@@ -31,5 +31,30 @@ describe('geometry', () => {
 
   it('activationTimes maps activation positions to with-skill frame times', () => {
     expect(activationTimes(run)).toEqual([{ tStart: 1, tEnd: 1 }]);
+  });
+});
+
+describe('geometry gap mapping', () => {
+  const box = { w: 100, h: 80 };
+  const dom = { tMax: 1, vMax: 1, distMax: 10 };
+
+  it('gapPoints centers L=0 on the baseline (y = box.h/2)', () => {
+    const pts = gapPoints([{ dist: 0, L: 0 }, { dist: 10, L: 0 }], box, dom, 5);
+    expect(pts.every((p) => p.y === 40)).toBe(true);
+  });
+
+  it('gapPoints sends positive L up (y < half) and negative L down (y > half)', () => {
+    const pts = gapPoints([{ dist: 5, L: 2 }, { dist: 5, L: -2 }], box, dom, 4);
+    expect(pts[0]!.y).toBeLessThan(40);
+    expect(pts[1]!.y).toBeGreaterThan(40);
+  });
+
+  it('maxAbsL returns the largest magnitude, floored at 0.1', () => {
+    expect(maxAbsL([{ dist: 0, L: -3 }, { dist: 1, L: 1 }])).toBe(3);
+    expect(maxAbsL([])).toBe(0.1);
+  });
+
+  it('polyline rounds coordinates to 2dp', () => {
+    expect(polyline([{ x: 1.2345, y: 2 }])).toBe('1.23,2');
   });
 });

@@ -37,6 +37,7 @@ export function gapCurve(run: SkillTraceRun): { dist: number; L: number }[] {
   for (let i = 0; i < n; i++) {
     const bi = b[i], ai = a[i];
     if (!bi || !ai) continue;
+    // x = the with-skill runner's distance (it's ahead); y = バ身 lead = (posWith - posWithout) / 2.5.
     out.push({ dist: bi.pos, L: (bi.pos - ai.pos) / 2.5 });
   }
   return out;
