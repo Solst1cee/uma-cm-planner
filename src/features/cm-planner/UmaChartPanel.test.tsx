@@ -29,6 +29,12 @@ vi.mock('./skillTechnicalDetails', () => ({
   loadSkillTechnicalDetail: vi.fn(async () => null),
   skillRecordToSummary: (s: unknown) => s,
 }));
+vi.mock('./useSkillTrace', () => ({
+  useSkillTrace: () => ({
+    status: 'idle', run: null, runChoice: 'median', setRunChoice: vi.fn(),
+    rate: null, rateStatus: 'idle', computeRate: vi.fn(),
+  }),
+}));
 
 import { UmaChartPanel } from './UmaChartPanel';
 
@@ -71,5 +77,17 @@ describe('UmaChartPanel', () => {
     const list = screen.getByLabelText('Uma unique-skill ranking');
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);
     expect(h.skillDelta.mock.calls.length).toBe(callsAfterRun); // no re-sim
+  });
+
+  it('keeps only one skill disclosure open at a time (accordion)', async () => {
+    render(<UmaChartPanel courseId="10906" plan={plan} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
+    const summaries = document.querySelectorAll<HTMLElement>('details.cmp-uma-plate summary');
+    expect(summaries.length).toBeGreaterThanOrEqual(2);
+    await userEvent.click(summaries[0]!);
+    await userEvent.click(summaries[1]!);
+    expect(document.querySelectorAll('details.cmp-uma-plate[open]').length).toBe(1);
   });
 });

@@ -11,11 +11,13 @@ import { useEffect, useMemo, useState } from 'react';
 import type { CmPlan } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { UmaChartRow, UmaChartCandidate, UmaStyleL } from '@/core/rankUmaChart';
+import { referenceBuild } from '@/core/rankUmaChart';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
+import type { TraceContext } from './useSkillTrace';
 
 const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
 
@@ -42,7 +44,7 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>): UmaStyleL 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSelect }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSelect, isOpen, onOpenChange, race }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
@@ -51,7 +53,12 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
   sortMetric: SortMetric;
   onStyle: (outfitId: string, strategy: Strategy) => void;
   onSelect: (outfitId: string, uniqueSkillId: string) => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  race: SimRaceParams;
 }) {
+  const traceCtx: TraceContext | undefined =
+    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race } : undefined;
   const hover = row.perStyle.length
     ? row.perStyle
         .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)
@@ -61,7 +68,14 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
     <li className={`cmp-uma-row ${row.status === 'live' ? '' : 'is-dim'}`.trim()} title={hover}>
       <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
       {unique ? (
-        <SkillDetailDisclosure skill={unique} showCost={false} className="cmp-uma-plate" />
+        <SkillDetailDisclosure
+          skill={unique}
+          showCost={false}
+          className="cmp-uma-plate"
+          traceContext={traceCtx}
+          open={isOpen}
+          onOpenChange={onOpenChange}
+        />
       ) : (
         <span className="cmp-missing-skill cmp-uma-plate">No unique-skill data</span>
       )}
@@ -113,6 +127,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
   const [open, setOpen] = useState(true);
   const [sortMetric, setSortMetric] = useState<SortMetric>('mean');
   const [styleOverride, setStyleOverride] = useState<Map<string, Strategy>>(new Map());
+  const [openOutfitId, setOpenOutfitId] = useState<string | null>(null);
 
   // Memoize so an inline-arrow deps.loadUniqueByUmaId can't make the load effect re-fetch every render.
   const loadUnique = useMemo(() => deps?.loadUniqueByUmaId ?? loadUniqueSkillByUmaId, [deps?.loadUniqueByUmaId]);
@@ -240,6 +255,9 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
                     sortMetric={sortMetric}
                     onStyle={onStyle}
                     onSelect={onSelectRunner}
+                    race={race}
+                    isOpen={openOutfitId === row.outfitId}
+                    onOpenChange={(o) => setOpenOutfitId(o ? row.outfitId : null)}
                   />
                 ))}
                 {visible.length === 0 && (

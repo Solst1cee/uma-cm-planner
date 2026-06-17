@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   isCurrentAptitude,
+  planToSimBuild,
   setStrategyTargetAptitude,
   setTargetAptitudeByKey,
   targetAptitude,
 } from '@/core/simBuild';
+import type { TraceContext } from './useSkillTrace';
 import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -249,6 +251,10 @@ export function PlannerSidebar({
     const skill = wishlistSkillRecord(item.skillId, skillById);
     return sum + (skill?.baseSpCost ?? 0);
   }, 0);
+  const traceCtx = useMemo<TraceContext>(
+    () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId } }),
+    [plan],
+  );
 
   useEffect(() => {
     if (!umaPickerOpen) setUmaQuery(currentUmaName ?? '');
@@ -419,7 +425,7 @@ export function PlannerSidebar({
             <div className="cmp-unique-block">
               <div className="cmp-mini-label">Unique Skill</div>
               {uniqueSkill ? (
-                <SkillDetailDisclosure skill={uniqueSkill} showCost={false} />
+                <SkillDetailDisclosure skill={uniqueSkill} showCost={false} traceContext={traceCtx} />
               ) : (
                 <p className="muted small">Unique skill pending source data.</p>
               )}
@@ -637,6 +643,7 @@ export function PlannerSidebar({
                     {summary ? (
                       <SkillDetailDisclosure
                         skill={summary}
+                        traceContext={traceCtx}
                         side={
                           item.projectedL !== undefined ? (
                             <span className="L">+{item.projectedL.toFixed(2)}</span>
