@@ -37,4 +37,10 @@ describe('SkillTraceSection', () => {
     render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
     expect(screen.getByText(/No simulated trace for this skill on this build\/course\./i)).toBeInTheDocument();
   });
+
+  it('captions the run with the context buildLabel (honest-numbers, P3)', () => {
+    current = hookState;
+    render(<SkillTraceSection skillId="200332" ctx={{ ...ctx, buildLabel: 'the reference' }} enabled />);
+    expect(screen.getByText(/Single typical run of the reference/i)).toBeInTheDocument();
+  });
 });

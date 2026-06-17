@@ -58,7 +58,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
   race: SimRaceParams;
 }) {
   const traceCtx: TraceContext | undefined =
-    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race } : undefined;
+    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race, buildLabel: 'the reference' } : undefined;
   const hover = row.perStyle.length
     ? row.perStyle
         .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)

@@ -11,7 +11,9 @@ import { SimClient } from '@/sim/client';
 export const TRACE_SAMPLES = 20;
 export const RATE_SAMPLES = 400;
 
-export interface TraceContext { build: SimBuild; race: SimRaceParams; }
+/** `buildLabel` is the honest-numbers caption for whose build the trace ran on
+ *  (e.g. 'your build' from the sidebar, 'the reference' from the uma chart). */
+export interface TraceContext { build: SimBuild; race: SimRaceParams; buildLabel?: string; }
 export interface UseSkillTraceDeps {
   skillTrace: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => SkillTrace | Promise<SkillTrace>;
   skillRate: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => SkillRate | Promise<SkillRate>;

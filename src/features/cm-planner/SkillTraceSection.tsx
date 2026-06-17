@@ -25,7 +25,7 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
         <ActivationRateBadge status={s.rateStatus} rate={s.rate} onCompute={s.computeRate} />
       </div>
       <p className="cmp-trace-note">
-        Single {RUN_LABEL[s.runChoice]} run of {ctx.build.umaId ? 'your build' : 'the reference'} — an estimate (P3), not a guarantee.
+        Single {RUN_LABEL[s.runChoice]} run of {ctx.buildLabel ?? 'this build'} — an estimate (P3), not a guarantee.
       </p>
     </div>
   );

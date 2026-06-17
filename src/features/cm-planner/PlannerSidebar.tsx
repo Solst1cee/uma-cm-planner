@@ -252,7 +252,7 @@ export function PlannerSidebar({
     return sum + (skill?.baseSpCost ?? 0);
   }, 0);
   const traceCtx = useMemo<TraceContext>(
-    () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId } }),
+    () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId }, buildLabel: 'your build' }),
     [plan],
   );
 
