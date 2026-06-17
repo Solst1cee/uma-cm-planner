@@ -89,3 +89,19 @@ describe('runSkillTrace', () => {
     expect(t.nsamples).toBe(0);
   });
 });
+
+import { skillActivationRate } from './run';
+
+describe('skillActivationRate', () => {
+  it('returns a rate in [0,1] over nsamples for a real skill', () => {
+    const r = skillActivationRate(build, { courseId: '10101' }, '200332', 50, 5);
+    expect(r.nsamples).toBe(50);
+    expect(r.rate).toBeGreaterThanOrEqual(0);
+    expect(r.rate).toBeLessThanOrEqual(1);
+  });
+
+  it('returns rate 0 / nsamples 0 for a non-simulatable skill', () => {
+    const r = skillActivationRate(build, { courseId: '10101' }, '000000', 20, 1);
+    expect(r).toEqual({ rate: 0, nsamples: 0 });
+  });
+});

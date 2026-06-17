@@ -67,6 +67,12 @@ export interface SkillTrace {
   nsamples: number;
 }
 
+/** Fraction of sampled runs in which the tracked skill actually procs (発動率). */
+export interface SkillRate {
+  rate: number;     // 0..1
+  nsamples: number;
+}
+
 /** Worker request/response unions. */
 export type SimRequest =
   | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }

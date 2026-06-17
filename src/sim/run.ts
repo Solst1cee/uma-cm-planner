@@ -1,7 +1,7 @@
 import { runSkillComparison, skillsService, runComparison, runPlannerComparison } from '@/sim/vendor/umalator.bundle.mjs';
 import type { SimulationRun } from '@/sim/vendor/umalator.bundle.mjs';
 import { toRunnerState, toRaceDef, resolveCourse, bashinStatsFrom } from './adapter';
-import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame } from './types';
+import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillRate } from './types';
 
 const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
 
@@ -102,6 +102,26 @@ function activationRegions(run: SimulationRun, skillId: string): { start: number
 
 function mapRun(run: SimulationRun, skillId: string, L: number): SkillTraceRun {
   return { withSkill: zipFrames(run, 1), without: zipFrames(run, 0), activation: activationRegions(run, skillId), L };
+}
+
+/** Activation rate (発動率): fraction of samples in which `skillId` procs. */
+export function skillActivationRate(
+  build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
+): SkillRate {
+  if (nsamples < 1 || build.stats.spd <= 0) return { rate: 0, nsamples: 0 };
+  if (!skillsService.isSimulatable(skillId)) return { rate: 0, nsamples: 0 };
+  const r = runSkillComparison({
+    trackedSkillId: skillId,
+    nsamples,
+    course: resolveCourse(race.courseId),
+    racedef: toRaceDef(race),
+    runnerA: toRunnerState(build),
+    runnerB: toRunnerState({ ...build, skills: [...build.skills, skillId] }),
+    options: { seed, ignoreStaminaConsumption: false },
+  });
+  const activations = r.skillActivations[skillId]?.length ?? 0;
+  const rate = Math.min(1, Math.max(0, activations / nsamples));
+  return { rate, nsamples };
 }
 
 /** Per-frame with-vs-without trace for adding `skillId` to `build` (curves + activation zones). */
