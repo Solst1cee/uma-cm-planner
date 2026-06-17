@@ -119,6 +119,7 @@ export function skillActivationRate(
     runnerB: toRunnerState({ ...build, skills: [...build.skills, skillId] }),
     options: { seed, ignoreStaminaConsumption: false },
   });
+  // runSkillComparison keys skillActivations flat by tracked skill id (NOT runner-indexed like runComparison's runData).
   const activations = r.skillActivations[skillId]?.length ?? 0;
   const rate = Math.min(1, Math.max(0, activations / nsamples));
   return { rate, nsamples };

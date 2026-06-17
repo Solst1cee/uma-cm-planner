@@ -104,4 +104,10 @@ describe('skillActivationRate', () => {
     const r = skillActivationRate(build, { courseId: '10101' }, '000000', 20, 1);
     expect(r).toEqual({ rate: 0, nsamples: 0 });
   });
+
+  it('returns rate 0 / nsamples 0 for a zero-speed build', () => {
+    const zero = { ...build, stats: { ...build.stats, spd: 0 } };
+    const r = skillActivationRate(zero, { courseId: '10101' }, '200332', 10, 1);
+    expect(r).toEqual({ rate: 0, nsamples: 0 });
+  });
 });
