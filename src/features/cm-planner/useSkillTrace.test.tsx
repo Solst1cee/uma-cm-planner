@@ -53,4 +53,18 @@ describe('useSkillTrace', () => {
     expect(result.current.run?.L).toBe(9);
     expect(skillTrace.mock.calls.length).toBe(calls); // no re-sim
   });
+
+  it('re-runs the trace when a non-speed stat changes', async () => {
+    const skillTrace = vi.fn(async () => trace);
+    const skillRate = vi.fn(async () => ({ rate: 0, nsamples: 0 } as SkillRate));
+    const { result, rerender } = renderHook(
+      ({ sta }) =>
+        useSkillTrace('200332', { ...ctx, build: { ...ctx.build, stats: { ...ctx.build.stats, sta } } }, true, { skillTrace, skillRate }),
+      { initialProps: { sta: 800 } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    const calls = skillTrace.mock.calls.length;
+    rerender({ sta: 1000 });
+    await waitFor(() => expect(skillTrace.mock.calls.length).toBe(calls + 1));
+  });
 });

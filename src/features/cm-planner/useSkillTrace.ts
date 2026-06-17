@@ -8,8 +8,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { RunChoice, SimBuild, SimRaceParams, SkillRate, SkillTrace, SkillTraceRun } from '@/sim';
 import { SimClient } from '@/sim/client';
 
-const TRACE_SAMPLES = 20;
-const RATE_SAMPLES = 400;
+export const TRACE_SAMPLES = 20;
+export const RATE_SAMPLES = 400;
 
 export interface TraceContext { build: SimBuild; race: SimRaceParams; }
 export interface UseSkillTraceDeps {
@@ -51,7 +51,7 @@ export function useSkillTrace(
   const token = useRef(0);
 
   // Auto-run the trace when enabled + a context is present. Re-run on skill/course/build change.
-  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}` : null;
+  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}` : null;
   useEffect(() => {
     if (!enabled || !ctx || sig === null) return;
     const merged = depsRef.current ?? realDeps();
