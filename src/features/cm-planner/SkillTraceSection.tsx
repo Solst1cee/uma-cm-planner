@@ -1,8 +1,9 @@
 import './skill-trace/skill-trace.css';
+import type { RunChoice } from '@/sim';
 import { useSkillTrace, type TraceContext } from './useSkillTrace';
 import { VelocityTimeChart, LengthDistanceChart, ActivationRateBadge, RunChoiceToggle } from './skill-trace/SkillTraceCharts';
 
-const RUN_LABEL: Record<string, string> = { min: 'worst', median: 'typical', mean: 'mean', max: 'best' };
+const RUN_LABEL: Record<RunChoice, string> = { min: 'worst', median: 'typical', mean: 'mean', max: 'best' };
 
 export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; ctx: TraceContext; enabled: boolean }) {
   const s = useSkillTrace(skillId, ctx, enabled);
