@@ -47,10 +47,11 @@ interface RowView {
   targeted: boolean;
 }
 
-// All columns sort descending; null/na metrics sort last (finite sentinel = NaN-safe).
+// L and efficiency sort descending (best first); SP sorts ascending (cheapest first)
+// via negation. null/na metrics sort last either way (finite sentinel = NaN-safe).
 function metricOf(v: RowView, m: SortMetric): number {
   if (m === 'L') return v.row.L ?? Number.MIN_SAFE_INTEGER;
-  if (m === 'sp') return v.sp ?? Number.MIN_SAFE_INTEGER;
+  if (m === 'sp') return -(v.sp ?? Number.MAX_SAFE_INTEGER);
   return v.eff ?? Number.MIN_SAFE_INTEGER;
 }
 
@@ -167,7 +168,7 @@ export function SkillChartPanel({ courseId, plan, onChange, deps }: {
               </div>
 
               <div className="cmp-skill-table">
-                <div className="cmp-skill-thead" aria-hidden="true">
+                <div className="cmp-skill-thead" role="row">
                   <span>Skill</span>
                   {COLUMNS.map((c) => (
                     <button
