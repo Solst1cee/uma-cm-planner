@@ -91,7 +91,7 @@ export function LengthImpactChart({ impact }: { impact: SkillImpact }) {
   const values = impactByPosition(impact.samples, impact.distance);
   const ld = niceDomain(values);
   return (
-    <PositionBarChart title="Length gained by activation position" yTitle="バ身" yMax={`${num(ld.top)}L`}
+    <PositionBarChart title="Length gained by activation position" yTitle="max L" yMax={`${num(ld.top)}L`}
       values={values} ld={ld} distance={impact.distance} />
   );
 }

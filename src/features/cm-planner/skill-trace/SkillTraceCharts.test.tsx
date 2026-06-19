@@ -24,10 +24,10 @@ describe('SkillTraceCharts', () => {
     expect(container.querySelectorAll('rect.cmp-trace-phase').length).toBe(3);
   });
 
-  it('LengthImpactChart: columns, バ身 axis, auto Y max, phase-transition position ticks', () => {
+  it('LengthImpactChart: columns, max-L axis, auto Y max, phase-transition position ticks', () => {
     const { container } = render(<LengthImpactChart impact={impact} />);
     expect(container.querySelectorAll('rect.cmp-trace-col').length).toBeGreaterThan(0);
-    expect(container.querySelector('.cmp-axis-ytitle')?.textContent).toBe('バ身');
+    expect(container.querySelector('.cmp-axis-ytitle')?.textContent).toBe('max L');
     expect(container.querySelector('.cmp-axis-ymax')?.textContent).toBe('5L'); // niceCeil(max 3) = 5
     const ticks = Array.from(container.querySelectorAll('.cmp-xtick')).map((t) => t.textContent);
     expect(ticks).toEqual(['0', '200m', '800m', '1200m']); // 1/6, 2/3, end of 1200m

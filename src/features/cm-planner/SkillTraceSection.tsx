@@ -46,7 +46,7 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
               <span className="cmp-trace-rate-label">Activates in</span>
               <span className="cmp-trace-rate-bar"><span style={{ width: `${Math.round(s.rate * 100)}%` }} /></span>
               <strong>{Math.round(s.rate * 100)}%</strong>
-              <small className="cmp-trace-note">of {s.impact.nsamples} runs · max バ身 = best gain per zone</small>
+              <small className="cmp-trace-note">of {s.impact.nsamples} runs · bars show max L = best gain per zone</small>
             </div>
           )}
         </>
