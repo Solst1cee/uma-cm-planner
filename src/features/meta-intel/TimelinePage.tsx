@@ -7,7 +7,7 @@
  * `now` is injectable for deterministic tests; it defaults to today.
  */
 import { Fragment, useMemo, useRef, useState } from 'react';
-import { effectiveDate, currentCm } from '@/core/timeline';
+import { effectiveDate } from '@/core/timeline';
 import { useGameData } from '@/features/data/gameData';
 import { LANES, RANGES, type LaneKey, type RangeKey, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
 import { TimelineEntryCard } from './TimelineEntryCard';
@@ -17,7 +17,7 @@ import './meta-intel.css';
 const ALL_LANE_KEYS: LaneKey[] = LANES.map((l) => l.key);
 
 export function TimelinePage({ now }: { now?: string } = {}) {
-  const { status, timeline } = useGameData();
+  const { status, timeline, currentCm } = useGameData();
   const entries = timeline ?? [];
   const nowISO = now ?? new Date().toISOString().slice(0, 10);
 
@@ -32,10 +32,7 @@ export function TimelinePage({ now }: { now?: string } = {}) {
     [entries, nowISO, range, enabledLanes, confirmedOnly],
   );
   const partitioned = useMemo(() => partitionByLane(filtered), [filtered]);
-  const currentCmId = useMemo(
-    () => currentCm(partitionByLane(entries).cm, nowISO)?.id ?? null,
-    [entries, nowISO],
-  );
+  const currentCmId = currentCm?.id ?? null;
   const selected = useMemo(
     () => entries.find((e) => e.id === selectedId) ?? null,
     [entries, selectedId],

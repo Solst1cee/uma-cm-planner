@@ -38,7 +38,9 @@ vi.mock('@/features/data/gameData', () => ({ useGameData: () => mockGameData() }
 afterEach(cleanup);
 
 function renderPage() {
-  mockGameData.mockReturnValue({ status: 'ready', timeline: ENTRIES });
+  // currentCm is pre-resolved in the context (Task 6). Supply the entry that
+  // would be "current" at now="2026-06-15" — Cancer Cup (cm15).
+  mockGameData.mockReturnValue({ status: 'ready', timeline: ENTRIES, currentCm: ENTRIES[1] });
   render(<TimelinePage now="2026-06-15" />);
 }
 
