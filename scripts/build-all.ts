@@ -21,6 +21,7 @@ import { buildTimeline } from './build-timeline';
 import { buildUmas } from './build-umas';
 import { borrowedFilesPresent, copyFromSpikes, DATA_VERSION } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
+import { loadSkillAdditions } from './lib/skill-additions';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
 import type {
   CourseDataJson,
@@ -54,6 +55,15 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
     dataVersion: DATA_VERSION,
   });
+  // Additions: full records for upcoming (server:'jp') skills not yet in the Global cutover
+  // — inserted BEFORE overrides so overrides can still patch them.
+  const skillAdditions = loadSkillAdditions(join(OVERRIDES_DIR, 'skill_additions.json'), {
+    existingSkillIds: new Set(skills.map((s) => s.skillId)),
+  });
+  if (skillAdditions.length > 0) {
+    skills = [...skills, ...skillAdditions].sort((a, b) => Number(a.skillId) - Number(b.skillId));
+    console.log(`applied skill_additions.json → ${skillAdditions.length} upcoming skill(s)`);
+  }
   let cards = buildCards({
     master: readBorrowedJson<MasterCardsJson>('support-cards.json'),
     gametoraCards: readBorrowedJson<GtCard[]>('gametora/support-cards.json'),

@@ -1,0 +1,4 @@
+{
+  "_comment": "Full SkillRecord entries for upcoming (server:'jp') skills not yet in the Global cutover, so the skill chart 'show upcoming' toggle can gate them by CM date. Each entry MUST have a releaseDate (announced from official news, else predicted via JP->Global pace with releaseDatePredicted:true). Inserted before overrides. Delete an entry when the pin catches up (the build fails on a duplicate id). Never fabricate entries (P3).",
+  "records": []
+}
