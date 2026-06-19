@@ -1,7 +1,7 @@
 import './skill-trace.css';
 import type { RunChoice, SkillTraceRun } from '@/sim';
 import {
-  vtPoints, gapCurve, gapColumns, lDomain, zeroLineY, polyline, domainOf, activationTimes,
+  vtPoints, gapCurve, incrementalGains, gainColumns, niceDomain, zeroLineY, polyline, domainOf, activationTimes,
   distancePhaseBands, timePhaseBands, phaseBoundaryDistances, PHASE_FRACTIONS, type Box, type Band,
 } from './geometry';
 
@@ -56,8 +56,9 @@ export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
 export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
   const d = domainOf(run);
   const curve = gapCurve(run);
-  const ld = lDomain(curve);
-  const cols = gapColumns(curve, BOX, d, ld);
+  const gains = incrementalGains(curve, d);           // ΔL the skill adds in each track segment
+  const ld = niceDomain(gains.map((g) => g.dL));
+  const cols = gainColumns(gains, BOX, ld);
   const zeroY = zeroLineY(BOX, ld);
   // x-axis ticks at the phase transitions (Early→Mid, Mid→Late) plus the start/finish.
   const ticks = [
@@ -74,7 +75,7 @@ export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
         {ld.bottom < 0 && <span className="cmp-axis-ymin">{`${num(ld.bottom)}L`}</span>}
         <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage by distance, drawn as columns; race phases shaded" preserveAspectRatio="none">
           <PhaseBands bands={distancePhaseBands(BOX)} />
-          {cols.map((c, i) => <rect key={i} className="cmp-trace-col" x={c.x} y={c.y} width={c.w} height={c.h} />)}
+          {cols.map((c, i) => <rect key={i} className={`cmp-trace-col ${c.neg ? 'is-neg' : ''}`.trim()} x={c.x} y={c.y} width={c.w} height={c.h} />)}
           <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={BOX.w} y2={zeroY} />
         </svg>
         <span className="cmp-axis-x cmp-axis-x-ticks">

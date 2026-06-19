@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  polyline, gapCurve, vtPoints, domainOf, activationTimes, gapColumns,
-  niceCeil, lDomain, zeroLineY, distancePhaseBands, timePhaseBands, phaseBoundaryDistances,
+  polyline, gapCurve, vtPoints, domainOf, activationTimes, incrementalGains, gainColumns,
+  niceCeil, niceDomain, zeroLineY, distancePhaseBands, timePhaseBands, phaseBoundaryDistances,
 } from './geometry';
 import type { SkillTraceRun } from '@/sim';
 
@@ -47,12 +47,12 @@ describe('geometry L-axis scaling', () => {
     expect(niceCeil(0)).toBe(0.5); // degenerate guard
   });
 
-  it('lDomain auto-fits a positive curve from a 0 baseline', () => {
-    expect(lDomain([{ dist: 0, L: 0 }, { dist: 10, L: 3.2 }])).toEqual({ top: 5, bottom: 0 });
+  it('niceDomain auto-fits positive values from a 0 baseline', () => {
+    expect(niceDomain([0, 3.2])).toEqual({ top: 5, bottom: 0 });
   });
 
-  it('lDomain gives a nice-rounded floor for negative dips', () => {
-    expect(lDomain([{ dist: 0, L: -1.3 }, { dist: 10, L: 2 }])).toEqual({ top: 2, bottom: -2 });
+  it('niceDomain gives a nice-rounded floor for negative values', () => {
+    expect(niceDomain([-1.3, 2])).toEqual({ top: 2, bottom: -2 });
   });
 });
 
@@ -65,21 +65,32 @@ describe('geometry gap mapping (columns)', () => {
     expect(zeroLineY(box, { top: 4, bottom: -4 })).toBe(40);
   });
 
-  it('gapColumns bars only where L is non-zero (skips inactive distances)', () => {
+  it('incrementalGains is ΔL per bucket, telescopes to the total, zero in flat regions', () => {
+    // cumulative lead: 0 until 5m, +1 by 6m, +1 more by 8m, then held at 2.
     const curve = [
-      { dist: 0, L: 0 }, { dist: 3, L: 0 },
-      { dist: 6, L: 2 }, { dist: 8, L: 4 }, { dist: 10, L: 5 },
+      { dist: 0, L: 0 }, { dist: 5, L: 0 }, { dist: 6, L: 1 }, { dist: 8, L: 2 }, { dist: 10, L: 2 },
     ];
-    const cols = gapColumns(curve, box, dom, { top: 5, bottom: 0 }, 10);
-    expect(cols.length).toBeGreaterThan(0);
-    expect(cols.length).toBeLessThan(10);            // inactive buckets produce no bar
-    for (const c of cols) expect(c.y + c.h).toBeCloseTo(80, 5); // bars grow from the baseline
-    const tallest = cols.reduce((a, c) => (c.h > a.h ? c : a));
-    expect(tallest.h).toBeGreaterThan(0);            // bigger L → taller bar
+    const gains = incrementalGains(curve, dom, 10);
+    expect(gains).toHaveLength(10);
+    expect(gains.reduce((s, g) => s + g.dL, 0)).toBeCloseTo(2, 5); // sum = final lead
+    expect(gains[0]!.dL).toBe(0);                                  // flat early region
+    expect(gains[9]!.dL).toBe(0);                                  // maintained-lead plateau
+    const active = gains.filter((g) => g.dL > 0);
+    expect(active.length).toBe(2);                                 // only the two rise buckets
   });
 
-  it('gapColumns returns [] for an all-zero curve (skill never leads)', () => {
-    expect(gapColumns([{ dist: 0, L: 0 }, { dist: 10, L: 0 }], box, dom, { top: 0.5, bottom: 0 }, 10)).toEqual([]);
+  it('gainColumns draws a bar only for non-zero buckets, growing from the baseline', () => {
+    const gains = [{ d0: 0, d1: 1, dL: 0 }, { d0: 1, d1: 2, dL: 0.4 }, { d0: 2, d1: 3, dL: 0 }];
+    const cols = gainColumns(gains, box, { top: 0.5, bottom: 0 });
+    expect(cols).toHaveLength(1);
+    expect(cols[0]!.x).toBeCloseTo(100 / 3, 5);   // bucket index 1 of 3
+    expect(cols[0]!.y + cols[0]!.h).toBeCloseTo(80, 5); // grows from baseline (h)
+    expect(cols[0]!.neg).toBe(false);
+  });
+
+  it('gainColumns flags a negative (lost-ground) bar', () => {
+    const cols = gainColumns([{ d0: 0, d1: 1, dL: -0.3 }], box, { top: 0.5, bottom: -0.5 });
+    expect(cols[0]!.neg).toBe(true);
   });
 
   it('polyline rounds coordinates to 2dp', () => {

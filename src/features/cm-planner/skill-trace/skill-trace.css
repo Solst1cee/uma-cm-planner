@@ -23,8 +23,10 @@
 .cmp-trace-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .cmp-trace-line.is-with { stroke: var(--accent, #ffcf4a); }
 .cmp-trace-line.is-without { stroke: #9aa0a6; stroke-dasharray: 3 3; }
-/* L-vs-distance columns — discrete bars so inactive distances simply show no bar. */
+/* L-vs-distance columns — each bar is the lead the skill adds in that segment (incremental);
+   inactive distances simply show no bar. A negative bar (lost ground) is muted red. */
 .cmp-trace-col { fill: var(--accent, #ffcf4a); }
+.cmp-trace-col.is-neg { fill: #d1687a; }
 .cmp-trace-baseline { stroke: #4a4d55; stroke-width: 1; vector-effect: non-scaling-stroke; }
 /* Race-phase bands (colors mirror the §0 racetrack: Early green / Mid yellow / Late pink). */
 .cmp-trace-phase { stroke: none; }

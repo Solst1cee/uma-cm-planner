@@ -7,8 +7,10 @@ export interface Domain { tMax: number; vMax: number; distMax: number; }
 export interface LDomain { top: number; bottom: number; }
 /** A phase background band in viewBox pixels (phase 0=Early, 1=Mid, 2=Late). */
 export interface Band { x: number; w: number; phase: 0 | 1 | 2; }
-/** A column (bar) in viewBox pixels. */
-export interface Col { x: number; y: number; w: number; h: number; }
+/** A column (bar) in viewBox pixels; `neg` flags a lost-ground (downward) bar. */
+export interface Col { x: number; y: number; w: number; h: number; neg?: boolean; }
+/** One distance bucket's incremental lead: ΔL gained between d0 and d1 (metres). */
+export interface Gain { d0: number; d1: number; dL: number; }
 
 /** Race phase boundaries as fractions of course distance (Early|Mid at 1/6, Mid|Late at 2/3). */
 export const PHASE_FRACTIONS = [1 / 6, 2 / 3] as const;
@@ -67,39 +69,49 @@ export function niceCeil(x: number): number {
   return niceBase * pow;
 }
 
-/** Auto, nice-rounded y-range for the L curve. Always includes 0 (gains read off a 0 baseline);
- *  negative dips get a nice-rounded floor. */
-export function lDomain(curve: { dist: number; L: number }[]): LDomain {
-  const ls = curve.map((c) => c.L);
-  const maxL = Math.max(0, ...ls);
-  const minL = Math.min(0, ...ls);
-  return { top: niceCeil(maxL), bottom: minL < 0 ? -niceCeil(-minL) : 0 };
+/** Auto, nice-rounded y-range for a set of values. Always includes 0 (bars read off a 0
+ *  baseline); negative values get a nice-rounded floor. */
+export function niceDomain(values: number[]): LDomain {
+  const maxv = Math.max(0, ...values);
+  const minv = Math.min(0, ...values);
+  return { top: niceCeil(maxv), bottom: minv < 0 ? -niceCeil(-minv) : 0 };
 }
 
-/** L-vs-distance as discrete columns. The trace is continuous, but the skill only contributes
- *  lead in/after its activation window — a connected line implies data across distances where
- *  nothing happens. Bucketing into bars (and SKIPPING empty/zero buckets) shows the lead only
- *  where it exists. Each bar spans the baseline→peak-L of its distance bucket. */
-export function gapColumns(curve: { dist: number; L: number }[], box: Box, d: Domain, ld: LDomain, nCols = 56): Col[] {
-  if (curve.length === 0) return [];
+/** The cumulative バ身 lead at a distance (step-held from the trace's gap curve). */
+function cumulativeLAt(curve: { dist: number; L: number }[], dist: number): number {
+  let l = 0;
+  for (const c of curve) {
+    if (c.dist <= dist) l = c.L; else break;
+  }
+  return l;
+}
+
+/** Per-segment (INCREMENTAL) lead: ΔL = cumulativeL(bucket end) − cumulativeL(bucket start).
+ *  Non-zero only where the skill is actively adding lead — flat regions (before activation and
+ *  the maintained-lead plateau after) contribute 0. The dL values telescope to the total lead. */
+export function incrementalGains(curve: { dist: number; L: number }[], d: Domain, nCols = 48): Gain[] {
+  const out: Gain[] = [];
+  if (curve.length === 0) return out;
+  for (let i = 0; i < nCols; i++) {
+    const d0 = (i / nCols) * d.distMax, d1 = ((i + 1) / nCols) * d.distMax;
+    const dL = Math.round((cumulativeLAt(curve, d1) - cumulativeLAt(curve, d0)) * 10000) / 10000;
+    out.push({ d0, d1, dL });
+  }
+  return out;
+}
+
+/** Map incremental gains to bars, one per bucket, skipping zero buckets (no bar where the skill
+ *  added nothing). Bars grow up from the baseline; a negative ΔL (lost ground) grows down. */
+export function gainColumns(gains: Gain[], box: Box, ld: LDomain): Col[] {
   const zeroY = zeroLineY(box, ld);
   const span = ld.top - ld.bottom || 1;
-  const colW = box.w / nCols;
+  const colW = gains.length ? box.w / gains.length : box.w;
   const cols: Col[] = [];
-  for (let i = 0; i < nCols; i++) {
-    const lo = (i / nCols) * d.distMax, hi = ((i + 1) / nCols) * d.distMax;
-    const last = i === nCols - 1;
-    let peak = 0, has = false;
-    for (const c of curve) {
-      if (c.dist >= lo && (c.dist < hi || (last && c.dist <= hi))) {
-        has = true;
-        if (Math.abs(c.L) > Math.abs(peak)) peak = c.L;
-      }
-    }
-    if (!has || peak === 0) continue; // no bar where the skill isn't contributing
-    const yL = box.h - ((peak - ld.bottom) / span) * box.h;
-    cols.push({ x: i * colW, y: Math.min(zeroY, yL), w: Math.max(0.5, colW - 0.6), h: Math.abs(yL - zeroY) });
-  }
+  gains.forEach((g, i) => {
+    if (g.dL === 0) return;
+    const yL = box.h - ((g.dL - ld.bottom) / span) * box.h;
+    cols.push({ x: i * colW, y: Math.min(zeroY, yL), w: Math.max(0.5, colW - 0.6), h: Math.abs(yL - zeroY), neg: g.dL < 0 });
+  });
   return cols;
 }
 
