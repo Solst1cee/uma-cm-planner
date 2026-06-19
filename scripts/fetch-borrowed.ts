@@ -15,16 +15,17 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { BORROWED_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR } from './lib/io';
 
-/** v0.14.2 — see docs/provenance.md §1. */
-export const UPSTREAM_COMMIT = 'c1fa2107b6a7be6283bf6414ebb7a23ea0c095ca';
+/** v0.16.1 — see docs/provenance.md §1. */
+export const UPSTREAM_COMMIT = '76214c821a2573a532657c90cb406f3f5fe65f3e';
 /** Data version stamped on every generated record = `global-<first 8 of UPSTREAM_COMMIT>`. */
 export const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`;
 const RAW_BASE = `https://raw.githubusercontent.com/jalbarrang/umalator-global/${UPSTREAM_COMMIT}/`;
 
 /**
  * jechto/Tachyons-lab pin — latest commit touching front/src/app/data/data.json
- * as of 2026-06-12 (data dated 2026-06-09; sha256 verified identical to the
- * Phase-0 local copy spikes/tachyons-data.json). See docs/provenance.md §4.1.
+ * as of 2026-06-19 (still the newest such commit; data dated 2026-06-09; sha256
+ * verified identical to the Phase-0 local copy spikes/tachyons-data.json). See
+ * docs/provenance.md §4.1.
  */
 export const TACHYONS_COMMIT = '2ce0c8fe4af685d2a3cf5d5fd8f80fe60c6115de';
 const TACHYONS_RAW_BASE = `https://raw.githubusercontent.com/jechto/Tachyons-lab/${TACHYONS_COMMIT}/`;
@@ -36,6 +37,13 @@ export interface BorrowedFile {
   rawBase?: string;
   /** --from-spikes source relative to the repo root; defaults to the umalator-global clone. */
   spikesPath?: string;
+  /**
+   * Skip the network download — this file is never published on
+   * raw.githubusercontent.com (it only exists in the local Phase-0 mdb clone).
+   * The existing scripts/borrowed/ copy is reused as-is; `--from-spikes`
+   * (re)copies it from spikes/. See docs/provenance.md §4.1.
+   */
+  localOnly?: boolean;
 }
 
 export const BORROWED_FILES: ReadonlyArray<BorrowedFile> = [
@@ -55,8 +63,17 @@ export const BORROWED_FILES: ReadonlyArray<BorrowedFile> = [
     local: 'gametora/event-skill-sources.json',
   },
   { upstream: 'src/store/race/cm-presets.json', local: 'cm-presets.json' },
-  { upstream: 'db/extract/relation.json', local: 'relation.json' },
-  { upstream: 'db/extract/relation_member.json', local: 'relation_member.json' },
+  // Succession-relation tables — extracted from the GLOBAL master.mdb in Phase 0
+  // (provenance §4.1). umalator-global removed db/extract/ at v0.16.0, and these
+  // were never on raw.githubusercontent.com, so they are local-only: the
+  // committed scripts/borrowed/ copy is reused, `--from-spikes` recopies from
+  // the local clone. Pin-independent stable game data (affinity groups).
+  { upstream: 'db/extract/relation.json', local: 'relation.json', localOnly: true },
+  {
+    upstream: 'db/extract/relation_member.json',
+    local: 'relation_member.json',
+    localOnly: true,
+  },
   {
     upstream: 'front/src/app/data/data.json',
     local: 'tachyons-data.json',
@@ -98,6 +115,18 @@ export function copyFromSpikes(): void {
 export async function downloadFromGitHub(): Promise<void> {
   prepareBorrowedDir();
   for (const file of BORROWED_FILES) {
+    if (file.localOnly) {
+      const dest = join(BORROWED_DIR, file.local);
+      if (!existsSync(dest)) {
+        throw new Error(
+          `local-only borrowed file missing: ${dest}. It is not published upstream — ` +
+            `run \`pnpm data:fetch -- --from-spikes\` once to seed it from the local clone ` +
+            `(provenance §4.1).`,
+        );
+      }
+      console.log(`local   ${file.local} (reused — not published upstream)`);
+      continue;
+    }
     const url = `${file.rawBase ?? RAW_BASE}${file.upstream}`;
     const res = await fetch(url);
     if (!res.ok) {

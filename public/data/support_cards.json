@@ -80,7 +80,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10002",
@@ -173,7 +173,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10003",
@@ -251,7 +251,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10004",
@@ -324,7 +324,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10005",
@@ -422,7 +422,7 @@
     ],
     "hintPoolSize": 10,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10006",
@@ -540,7 +540,7 @@
     ],
     "hintPoolSize": 14,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10007",
@@ -633,7 +633,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10008",
@@ -711,7 +711,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10009",
@@ -803,7 +803,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10010",
@@ -891,7 +891,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10011",
@@ -974,7 +974,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10012",
@@ -1057,7 +1057,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10013",
@@ -1145,7 +1145,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10014",
@@ -1223,7 +1223,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10015",
@@ -1316,7 +1316,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10016",
@@ -1389,7 +1389,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10017",
@@ -1452,7 +1452,7 @@
     ],
     "hintPoolSize": 3,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10018",
@@ -1540,7 +1540,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10019",
@@ -1613,7 +1613,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10020",
@@ -1661,7 +1661,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10021",
@@ -1717,7 +1717,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10022",
@@ -1781,7 +1781,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10023",
@@ -1859,7 +1859,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10024",
@@ -1932,7 +1932,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10025",
@@ -2010,7 +2010,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10026",
@@ -2092,7 +2092,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10027",
@@ -2175,7 +2175,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10028",
@@ -2248,7 +2248,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10029",
@@ -2321,7 +2321,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10030",
@@ -2399,7 +2399,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10031",
@@ -2477,7 +2477,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10032",
@@ -2545,7 +2545,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10033",
@@ -2613,7 +2613,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10034",
@@ -2681,7 +2681,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10035",
@@ -2754,7 +2754,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10036",
@@ -2822,7 +2822,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10037",
@@ -2885,7 +2885,7 @@
     ],
     "hintPoolSize": 3,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10038",
@@ -2958,7 +2958,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10039",
@@ -3046,7 +3046,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10040",
@@ -3129,7 +3129,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10041",
@@ -3198,7 +3198,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10042",
@@ -3281,7 +3281,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10043",
@@ -3354,7 +3354,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10044",
@@ -3433,7 +3433,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10045",
@@ -3516,7 +3516,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10046",
@@ -3589,7 +3589,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10047",
@@ -3677,7 +3677,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10048",
@@ -3755,7 +3755,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10049",
@@ -3828,7 +3828,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10050",
@@ -3907,7 +3907,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10051",
@@ -3985,7 +3985,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10052",
@@ -4068,7 +4068,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10053",
@@ -4141,7 +4141,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10054",
@@ -4224,7 +4224,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10055",
@@ -4308,7 +4308,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10056",
@@ -4391,7 +4391,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10057",
@@ -4464,7 +4464,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10058",
@@ -4537,7 +4537,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10059",
@@ -4625,7 +4625,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10060",
@@ -4689,7 +4689,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10061",
@@ -4767,7 +4767,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10062",
@@ -4835,7 +4835,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10063",
@@ -4903,7 +4903,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10064",
@@ -4981,7 +4981,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10065",
@@ -5059,7 +5059,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10066",
@@ -5127,7 +5127,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10067",
@@ -5224,7 +5224,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10068",
@@ -5312,7 +5312,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10069",
@@ -5385,7 +5385,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10070",
@@ -5463,7 +5463,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10071",
@@ -5531,7 +5531,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10072",
@@ -5619,7 +5619,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10073",
@@ -5692,7 +5692,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10074",
@@ -5756,7 +5756,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10075",
@@ -5829,7 +5829,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10076",
@@ -5902,7 +5902,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10077",
@@ -5985,7 +5985,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "10078",
@@ -6068,7 +6068,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20001",
@@ -6145,7 +6145,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20002",
@@ -6227,7 +6227,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20003",
@@ -6304,7 +6304,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20004",
@@ -6386,7 +6386,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20005",
@@ -6472,7 +6472,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20006",
@@ -6549,7 +6549,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20007",
@@ -6631,7 +6631,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20008",
@@ -6713,7 +6713,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20009",
@@ -6789,7 +6789,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20010",
@@ -6861,7 +6861,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20011",
@@ -6929,7 +6929,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20012",
@@ -7001,7 +7001,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20013",
@@ -7078,7 +7078,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20014",
@@ -7165,7 +7165,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20015",
@@ -7238,7 +7238,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20016",
@@ -7321,7 +7321,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20017",
@@ -7408,7 +7408,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20018",
@@ -7485,7 +7485,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20019",
@@ -7577,7 +7577,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20020",
@@ -7655,7 +7655,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20021",
@@ -7719,7 +7719,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20022",
@@ -7810,7 +7810,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20023",
@@ -7905,7 +7905,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20024",
@@ -7996,7 +7996,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20025",
@@ -8077,7 +8077,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20026",
@@ -8169,7 +8169,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20027",
@@ -8246,7 +8246,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20028",
@@ -8338,7 +8338,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20029",
@@ -8424,7 +8424,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20030",
@@ -8513,7 +8513,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20031",
@@ -8585,7 +8585,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20032",
@@ -8677,7 +8677,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20034",
@@ -8750,7 +8750,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20035",
@@ -8832,7 +8832,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20037",
@@ -8909,7 +8909,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20038",
@@ -8981,7 +8981,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20039",
@@ -9078,7 +9078,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20040",
@@ -9145,7 +9145,7 @@
     ],
     "hintPoolSize": 3,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20041",
@@ -9222,7 +9222,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20042",
@@ -9314,7 +9314,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20043",
@@ -9401,7 +9401,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20044",
@@ -9482,7 +9482,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20045",
@@ -9573,7 +9573,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20046",
@@ -9664,7 +9664,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20047",
@@ -9746,7 +9746,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "20048",
@@ -9838,7 +9838,88 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
+  },
+  {
+    "cardId": "20049",
+    "nameEn": "[Going for Gold]",
+    "charName": "Gold City",
+    "rarity": "SR",
+    "type": "wit",
+    "perLevel": [
+      {
+        "limitBreak": 0,
+        "hintFrequency": 30,
+        "hintLevels": 2,
+        "specialtyPriority": 20
+      },
+      {
+        "limitBreak": 1,
+        "hintFrequency": 32,
+        "hintLevels": 2,
+        "specialtyPriority": 25
+      },
+      {
+        "limitBreak": 2,
+        "hintFrequency": 35,
+        "hintLevels": 2,
+        "specialtyPriority": 30
+      },
+      {
+        "limitBreak": 3,
+        "hintFrequency": 37,
+        "hintLevels": 2,
+        "specialtyPriority": 35
+      },
+      {
+        "limitBreak": 4,
+        "hintFrequency": 40,
+        "hintLevels": 2,
+        "specialtyPriority": 35
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "200232",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "200302",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "200692",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "201611",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "201641",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "200242",
+        "sourceType": "chain"
+      },
+      {
+        "skillId": "200382",
+        "sourceType": "chain"
+      },
+      {
+        "skillId": "201422",
+        "sourceType": "random_event"
+      }
+    ],
+    "hintPoolSize": 5,
+    "server": "global",
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30001",
@@ -9937,7 +10018,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30002",
@@ -10042,7 +10123,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30003",
@@ -10124,7 +10205,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30004",
@@ -10258,7 +10339,7 @@
     ],
     "hintPoolSize": 14,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30005",
@@ -10359,7 +10440,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30006",
@@ -10463,7 +10544,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30007",
@@ -10554,7 +10635,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30008",
@@ -10648,7 +10729,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30009",
@@ -10739,7 +10820,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30010",
@@ -10820,7 +10901,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30011",
@@ -10901,7 +10982,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30012",
@@ -10982,7 +11063,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30013",
@@ -11057,7 +11138,7 @@
     ],
     "hintPoolSize": 3,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30014",
@@ -11128,7 +11209,7 @@
     ],
     "hintPoolSize": 3,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30015",
@@ -11220,7 +11301,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30016",
@@ -11297,7 +11378,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30017",
@@ -11405,7 +11486,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30018",
@@ -11486,7 +11567,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30019",
@@ -11538,7 +11619,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30020",
@@ -11625,7 +11706,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30021",
@@ -11685,7 +11766,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30022",
@@ -11791,7 +11872,7 @@
     ],
     "hintPoolSize": 10,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30023",
@@ -11892,7 +11973,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30024",
@@ -12002,7 +12083,7 @@
     ],
     "hintPoolSize": 10,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30025",
@@ -12097,7 +12178,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30026",
@@ -12187,7 +12268,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30027",
@@ -12294,7 +12375,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30028",
@@ -12386,7 +12467,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30029",
@@ -12477,7 +12558,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30030",
@@ -12558,7 +12639,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30031",
@@ -12638,7 +12719,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30032",
@@ -12727,7 +12808,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30033",
@@ -12804,7 +12885,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30034",
@@ -12905,7 +12986,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30036",
@@ -12969,7 +13050,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30038",
@@ -13049,7 +13130,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30039",
@@ -13125,7 +13206,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30040",
@@ -13223,7 +13304,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30041",
@@ -13300,7 +13381,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30042",
@@ -13402,7 +13483,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30043",
@@ -13511,7 +13592,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30044",
@@ -13603,7 +13684,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30045",
@@ -13690,7 +13771,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30046",
@@ -13783,7 +13864,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30047",
@@ -13869,7 +13950,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30048",
@@ -13945,7 +14026,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30053",
@@ -14031,7 +14112,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30054",
@@ -14123,7 +14204,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30055",
@@ -14209,7 +14290,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30056",
@@ -14303,7 +14384,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30057",
@@ -14437,7 +14518,7 @@
     ],
     "hintPoolSize": 14,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30058",
@@ -14489,7 +14570,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30059",
@@ -14545,7 +14626,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30060",
@@ -14601,7 +14682,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30061",
@@ -14657,7 +14738,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30062",
@@ -14762,7 +14843,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30063",
@@ -14843,7 +14924,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30064",
@@ -14934,7 +15015,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30065",
@@ -15034,7 +15115,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30066",
@@ -15110,7 +15191,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30068",
@@ -15199,7 +15280,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30069",
@@ -15295,7 +15376,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30070",
@@ -15375,7 +15456,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30071",
@@ -15474,7 +15555,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30072",
@@ -15564,7 +15645,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30073",
@@ -15663,7 +15744,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30074",
@@ -15748,7 +15829,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30075",
@@ -15834,7 +15915,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30076",
@@ -15931,7 +16012,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30077",
@@ -16012,7 +16093,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30078",
@@ -16099,7 +16180,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30079",
@@ -16190,7 +16271,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30080",
@@ -16258,7 +16339,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30081",
@@ -16342,7 +16423,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30082",
@@ -16419,7 +16500,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30083",
@@ -16519,7 +16600,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30084",
@@ -16605,7 +16686,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30085",
@@ -16703,7 +16784,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30086",
@@ -16798,7 +16879,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30087",
@@ -16879,7 +16960,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30088",
@@ -16969,7 +17050,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30089",
@@ -17046,7 +17127,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30090",
@@ -17142,7 +17223,7 @@
     ],
     "hintPoolSize": 8,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30091",
@@ -17231,7 +17312,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30092",
@@ -17316,7 +17397,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30093",
@@ -17401,7 +17482,7 @@
     ],
     "hintPoolSize": 5,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30094",
@@ -17491,7 +17572,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30095",
@@ -17596,7 +17677,7 @@
     ],
     "hintPoolSize": 9,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30096",
@@ -17668,7 +17749,7 @@
     ],
     "hintPoolSize": 4,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30097",
@@ -17763,7 +17844,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30098",
@@ -17815,7 +17896,7 @@
     ],
     "hintPoolSize": 0,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30099",
@@ -17906,7 +17987,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30100",
@@ -17992,7 +18073,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-c1fa2107"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30102",
@@ -18079,7 +18160,7 @@
     ],
     "hintPoolSize": 7,
     "server": "global",
-    "dataVersion": "global-mdb-10006400"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30103",
@@ -18169,7 +18250,7 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-mdb-10006400"
+    "dataVersion": "global-76214c82"
   },
   {
     "cardId": "30104",
@@ -18259,6 +18340,100 @@
     ],
     "hintPoolSize": 6,
     "server": "global",
-    "dataVersion": "global-mdb-10006400"
+    "dataVersion": "global-76214c82"
+  },
+  {
+    "cardId": "30106",
+    "nameEn": "[Tailwind to My Goals]",
+    "charName": "Air Groove",
+    "rarity": "SSR",
+    "type": "power",
+    "perLevel": [
+      {
+        "limitBreak": 0,
+        "hintFrequency": 0,
+        "hintLevels": 0,
+        "specialtyPriority": 50
+      },
+      {
+        "limitBreak": 1,
+        "hintFrequency": 0,
+        "hintLevels": 0,
+        "specialtyPriority": 53
+      },
+      {
+        "limitBreak": 2,
+        "hintFrequency": 0,
+        "hintLevels": 0,
+        "specialtyPriority": 57
+      },
+      {
+        "limitBreak": 3,
+        "hintFrequency": 0,
+        "hintLevels": 0,
+        "specialtyPriority": 61
+      },
+      {
+        "limitBreak": 4,
+        "hintFrequency": 0,
+        "hintLevels": 0,
+        "specialtyPriority": 65
+      }
+    ],
+    "skills": [
+      {
+        "skillId": "200931",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "200941",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "201382",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "201442",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "201692",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "202122",
+        "sourceType": "hint_pool",
+        "hintLevels": 1
+      },
+      {
+        "skillId": "200502",
+        "sourceType": "random_event"
+      },
+      {
+        "skillId": "200702",
+        "sourceType": "chain"
+      },
+      {
+        "skillId": "201691",
+        "sourceType": "chain"
+      },
+      {
+        "skillId": "202082",
+        "sourceType": "chain"
+      },
+      {
+        "skillId": "202122",
+        "sourceType": "chain"
+      }
+    ],
+    "hintPoolSize": 6,
+    "server": "global",
+    "dataVersion": "global-76214c82"
   }
 ]

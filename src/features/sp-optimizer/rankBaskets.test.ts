@@ -50,7 +50,7 @@ describe('rankBaskets', () => {
   it('counts pinned and chosen skills in spUsed; owned skills stay free', () => {
     const b: CaptureBundle = {
       schemaVersion: 1, source: 'manual', capturedAt: '2026-06-15T00:00:00.000Z',
-      server: 'global', dataVersion: 'global-c1fa2107', seed: 1,
+      server: 'global', dataVersion: 'global-76214c82', seed: 1,
       context: {
         umaId: '', stats: { spd: 1000, sta: 800, pow: 800, gut: 400, wit: 600 },
         aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',

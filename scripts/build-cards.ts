@@ -86,9 +86,12 @@ export function buildCards(inputs: {
       if (!isReleased(hint.id)) continue;
       const entry: CardSkill = { skillId: String(hint.id), sourceType: 'hint_pool' };
       // hint_pool only (types.ts contract): hint levels granted per take,
-      // from Tachyons-lab hints_table = master.mdb hint_value_2.
-      const hintLevels = hintLevelsBySkill.get(hint.id);
-      if (hintLevels !== undefined) entry.hintLevels = hintLevels;
+      // from Tachyons-lab hints_table = master.mdb hint_value_2. The Tachyons
+      // pin lags the umalator data pin, so cards newer than the Tachyons
+      // snapshot (e.g. 20049/30102-30106 at v0.16.1) have no hints_table row —
+      // fall back to 1, the verified Global invariant (every Global pool hint
+      // grants exactly 1 level, 1282 rows / 2026-06-12, see outputs.test.ts).
+      entry.hintLevels = hintLevelsBySkill.get(hint.id) ?? 1;
       skills.push(entry);
     }
 

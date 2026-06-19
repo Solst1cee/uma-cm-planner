@@ -19,10 +19,10 @@ const presets = readData<CmPreset[]>('cm_presets.json');
 const umas = readData<UmaRecord[]>('umas.json');
 
 describe('public/data/skills.json', () => {
-  it('contains the 578 Global-released skills, all server=global with the pinned dataVersion', () => {
-    expect(skills).toHaveLength(578);
+  it('contains the 587 Global-released skills, all server=global with the pinned dataVersion', () => {
+    expect(skills).toHaveLength(587);
     expect(skills.every((s) => s.server === 'global')).toBe(true);
-    expect(skills.every((s) => s.dataVersion === 'global-c1fa2107')).toBe(true);
+    expect(skills.every((s) => s.dataVersion === 'global-76214c82')).toBe(true);
   });
 
   it('links gold skills to their white prereq (Professor of Curvature → Corner Adept ○)', () => {
@@ -48,7 +48,7 @@ describe('public/data/skills.json', () => {
 
   it('classifies rarities incl. inherited uniques (9xxxxx) and uniques (cost 0)', () => {
     const inherited = skills.filter((s) => s.rarity === 'inherited_unique');
-    expect(inherited).toHaveLength(84);
+    expect(inherited).toHaveLength(87);
     expect(inherited.every((s) => /^9\d{5}$/.test(s.skillId))).toBe(true);
     const uniques = skills.filter((s) => s.rarity === 'unique');
     expect(uniques.length).toBeGreaterThan(0);
@@ -66,20 +66,17 @@ describe('public/data/skills.json', () => {
 });
 
 describe('public/data/support_cards.json', () => {
-  it('contains the 220 Global cards (217 pinned + 3 additions), all server=global', () => {
-    expect(cards).toHaveLength(220);
+  it('contains the 222 Global cards, all server=global on the pinned dataVersion', () => {
+    expect(cards).toHaveLength(222);
     expect(cards.every((c) => c.server === 'global')).toBe(true);
-    // 217 from the pinned upstream; 3 from data-overrides/card_additions.json
-    // (upstream-pin lag, provenance §3.2) carry the master.mdb dataVersion.
-    expect(cards.filter((c) => c.dataVersion === 'global-c1fa2107')).toHaveLength(217);
-    expect(cards.filter((c) => c.dataVersion === 'global-mdb-10006400').map((c) => c.cardId)).toEqual([
-      '30102',
-      '30103',
-      '30104',
-    ]);
+    // The v0.16.1 pin (76214c82) now emits 30102/30103/30104, so the former
+    // card_additions.json entries were retired — every card carries the pin
+    // dataVersion and none carries the old master.mdb addition stamp.
+    expect(cards.filter((c) => c.dataVersion === 'global-76214c82')).toHaveLength(222);
+    expect(cards.filter((c) => c.dataVersion === 'global-mdb-10006400')).toHaveLength(0);
   });
 
-  it('carries the 2026-06-11 banner SSRs via card_additions.json (review: 3 missing SSRs)', () => {
+  it('carries the 2026-06-11 banner SSRs (now from the upstream pin, formerly card_additions.json)', () => {
     const elCondor = cards.find((c) => c.cardId === '30102');
     expect(elCondor?.charName).toBe('El Condor Pasa');
     expect(elCondor?.rarity).toBe('SSR');
@@ -223,12 +220,12 @@ describe('public/data/spark_rates.json', () => {
 });
 
 describe('public/data/umas.json', () => {
-  it('contains the 84 Global-released outfits (59 characters), all server=global on the pinned dataVersion', () => {
+  it('contains the 87 Global-released outfits (60 characters), all server=global on the pinned dataVersion', () => {
     expect(umas.length).toBeGreaterThan(0);
-    expect(umas).toHaveLength(84); // umalator cutover umas.json @ c1fa2107
-    expect(new Set(umas.map((u) => u.charaId)).size).toBe(59);
+    expect(umas).toHaveLength(87); // umalator umas.json @ 76214c82 (v0.16.1)
+    expect(new Set(umas.map((u) => u.charaId)).size).toBe(60);
     expect(umas.every((u) => u.server === 'global')).toBe(true);
-    expect(umas.every((u) => u.dataVersion === 'global-c1fa2107')).toBe(true);
+    expect(umas.every((u) => u.dataVersion === 'global-76214c82')).toBe(true);
   });
 
   it('Special Week 100101 carries the official EN name + epithet', () => {
@@ -281,7 +278,7 @@ describe('public/data/cm_presets.json', () => {
     // Derivation rule (build-cm-presets.ts): date >= 2025-06-26 (Global
     // launch, provenance §3.1) → 'global'; earlier → 'jp'. Review fix for
     // "cm_presets.json mixes JP CM definitions".
-    expect(presets.every((p) => p.dataVersion === 'global-c1fa2107')).toBe(true);
+    expect(presets.every((p) => p.dataVersion === 'global-76214c82')).toBe(true);
     const global = presets.filter((p) => p.server === 'global');
     const jp = presets.filter((p) => p.server === 'jp');
     expect(global).toHaveLength(5);

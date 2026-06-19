@@ -4,7 +4,7 @@
     "charaId": "1001",
     "nameEn": "Special Week",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -37,7 +37,7 @@
     "charaId": "1001",
     "nameEn": "Special Week",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -70,7 +70,7 @@
     "charaId": "1002",
     "nameEn": "Silence Suzuka",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -103,7 +103,7 @@
     "charaId": "1003",
     "nameEn": "Tokai Teio",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 10,
@@ -136,7 +136,7 @@
     "charaId": "1003",
     "nameEn": "Tokai Teio",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 10,
@@ -169,7 +169,7 @@
     "charaId": "1004",
     "nameEn": "Maruzensky",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -202,7 +202,7 @@
     "charaId": "1004",
     "nameEn": "Maruzensky",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 15,
       "sta": 0,
@@ -235,7 +235,7 @@
     "charaId": "1005",
     "nameEn": "Fuji Kiseki",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -268,7 +268,7 @@
     "charaId": "1005",
     "nameEn": "Fuji Kiseki",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 8,
       "sta": 0,
@@ -301,7 +301,7 @@
     "charaId": "1006",
     "nameEn": "Oguri Cap",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -334,7 +334,7 @@
     "charaId": "1006",
     "nameEn": "Oguri Cap",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 15,
       "sta": 15,
@@ -367,7 +367,7 @@
     "charaId": "1007",
     "nameEn": "Gold Ship",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -400,7 +400,7 @@
     "charaId": "1008",
     "nameEn": "Vodka",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -433,7 +433,7 @@
     "charaId": "1009",
     "nameEn": "Daiwa Scarlet",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -466,7 +466,7 @@
     "charaId": "1010",
     "nameEn": "Taiki Shuttle",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -495,11 +495,44 @@
     "epithet": "Wild Frontier"
   },
   {
+    "umaId": "101002",
+    "charaId": "1010",
+    "nameEn": "Taiki Shuttle",
+    "server": "global",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 30,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Bubblegum☆Memories"
+  },
+  {
     "umaId": "101101",
     "charaId": "1011",
     "nameEn": "Grass Wonder",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -532,7 +565,7 @@
     "charaId": "1011",
     "nameEn": "Grass Wonder",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 15,
@@ -565,7 +598,7 @@
     "charaId": "1012",
     "nameEn": "Hishi Amazon",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -598,7 +631,7 @@
     "charaId": "1013",
     "nameEn": "Mejiro McQueen",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -631,7 +664,7 @@
     "charaId": "1013",
     "nameEn": "Mejiro McQueen",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -664,7 +697,7 @@
     "charaId": "1014",
     "nameEn": "El Condor Pasa",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -697,7 +730,7 @@
     "charaId": "1014",
     "nameEn": "El Condor Pasa",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 15,
       "sta": 0,
@@ -730,7 +763,7 @@
     "charaId": "1015",
     "nameEn": "T.M. Opera O",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -763,7 +796,7 @@
     "charaId": "1015",
     "nameEn": "T.M. Opera O",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 14,
       "sta": 8,
@@ -796,7 +829,7 @@
     "charaId": "1016",
     "nameEn": "Narita Brian",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 20,
@@ -829,7 +862,7 @@
     "charaId": "1017",
     "nameEn": "Symboli Rudolf",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -862,7 +895,7 @@
     "charaId": "1017",
     "nameEn": "Symboli Rudolf",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 8,
       "sta": 14,
@@ -895,7 +928,7 @@
     "charaId": "1018",
     "nameEn": "Air Groove",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -928,7 +961,7 @@
     "charaId": "1018",
     "nameEn": "Air Groove",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -961,7 +994,7 @@
     "charaId": "1019",
     "nameEn": "Agnes Digital",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 8,
       "sta": 8,
@@ -994,7 +1027,7 @@
     "charaId": "1020",
     "nameEn": "Seiun Sky",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -1027,7 +1060,7 @@
     "charaId": "1020",
     "nameEn": "Seiun Sky",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 8,
       "sta": 0,
@@ -1060,7 +1093,7 @@
     "charaId": "1021",
     "nameEn": "Tamamo Cross",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -1093,7 +1126,7 @@
     "charaId": "1022",
     "nameEn": "Fine Motion",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1126,7 +1159,7 @@
     "charaId": "1022",
     "nameEn": "Fine Motion",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1159,7 +1192,7 @@
     "charaId": "1023",
     "nameEn": "Biwa Hayahide",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1192,7 +1225,7 @@
     "charaId": "1023",
     "nameEn": "Biwa Hayahide",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 12,
@@ -1225,7 +1258,7 @@
     "charaId": "1024",
     "nameEn": "Mayano Top Gun",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -1258,7 +1291,7 @@
     "charaId": "1024",
     "nameEn": "Mayano Top Gun",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 10,
@@ -1291,7 +1324,7 @@
     "charaId": "1025",
     "nameEn": "Manhattan Cafe",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 30,
@@ -1324,7 +1357,7 @@
     "charaId": "1026",
     "nameEn": "Mihono Bourbon",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -1357,7 +1390,7 @@
     "charaId": "1026",
     "nameEn": "Mihono Bourbon",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 10,
@@ -1390,7 +1423,7 @@
     "charaId": "1027",
     "nameEn": "Mejiro Ryan",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1423,7 +1456,7 @@
     "charaId": "1028",
     "nameEn": "Hishi Akebono",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1456,7 +1489,7 @@
     "charaId": "1030",
     "nameEn": "Rice Shower",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -1489,7 +1522,7 @@
     "charaId": "1030",
     "nameEn": "Rice Shower",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 15,
@@ -1522,7 +1555,7 @@
     "charaId": "1031",
     "nameEn": "Ines Fujin",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 15,
       "sta": 0,
@@ -1555,7 +1588,7 @@
     "charaId": "1032",
     "nameEn": "Agnes Tachyon",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -1588,7 +1621,7 @@
     "charaId": "1033",
     "nameEn": "Admire Vega",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -1621,7 +1654,7 @@
     "charaId": "1034",
     "nameEn": "Inari One",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -1654,7 +1687,7 @@
     "charaId": "1035",
     "nameEn": "Winning Ticket",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -1683,11 +1716,44 @@
     "epithet": "Get to Winning!"
   },
   {
+    "umaId": "103601",
+    "charaId": "1036",
+    "nameEn": "Air Shakur",
+    "server": "global",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 30
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "unsigned"
+  },
+  {
     "umaId": "103701",
     "charaId": "1037",
     "nameEn": "Eishin Flash",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1720,7 +1786,7 @@
     "charaId": "1037",
     "nameEn": "Eishin Flash",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 8,
@@ -1753,7 +1819,7 @@
     "charaId": "1038",
     "nameEn": "Curren Chan",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -1786,7 +1852,7 @@
     "charaId": "1038",
     "nameEn": "Curren Chan",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -1819,7 +1885,7 @@
     "charaId": "1039",
     "nameEn": "Kawakami Princess",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1852,7 +1918,7 @@
     "charaId": "1040",
     "nameEn": "Gold City",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -1885,7 +1951,7 @@
     "charaId": "1040",
     "nameEn": "Gold City",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 8,
       "sta": 0,
@@ -1918,7 +1984,7 @@
     "charaId": "1041",
     "nameEn": "Sakura Bakushin O",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -1951,7 +2017,7 @@
     "charaId": "1044",
     "nameEn": "Sweep Tosho",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -1984,7 +2050,7 @@
     "charaId": "1045",
     "nameEn": "Super Creek",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -2017,7 +2083,7 @@
     "charaId": "1045",
     "nameEn": "Super Creek",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 14,
       "sta": 8,
@@ -2050,7 +2116,7 @@
     "charaId": "1046",
     "nameEn": "Smart Falcon",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 0,
@@ -2083,7 +2149,7 @@
     "charaId": "1048",
     "nameEn": "Tosen Jordan",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2116,7 +2182,7 @@
     "charaId": "1050",
     "nameEn": "Narita Taishin",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2149,7 +2215,7 @@
     "charaId": "1051",
     "nameEn": "Nishino Flower",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 15,
       "sta": 0,
@@ -2182,7 +2248,7 @@
     "charaId": "1052",
     "nameEn": "Haru Urara",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -2215,7 +2281,7 @@
     "charaId": "1052",
     "nameEn": "Haru Urara",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -2248,7 +2314,7 @@
     "charaId": "1056",
     "nameEn": "Matikanefukukitaru",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -2281,7 +2347,7 @@
     "charaId": "1056",
     "nameEn": "Matikanefukukitaru",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -2314,7 +2380,7 @@
     "charaId": "1058",
     "nameEn": "Meisho Doto",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -2347,7 +2413,7 @@
     "charaId": "1059",
     "nameEn": "Mejiro Dober",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2376,11 +2442,44 @@
     "epithet": "Off the Line"
   },
   {
+    "umaId": "105902",
+    "charaId": "1059",
+    "nameEn": "Mejiro Dober",
+    "server": "global",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "B",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Sapphire Sojourn"
+  },
+  {
     "umaId": "106001",
     "charaId": "1060",
     "nameEn": "Nice Nature",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -2413,7 +2512,7 @@
     "charaId": "1060",
     "nameEn": "Nice Nature",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 10,
@@ -2446,7 +2545,7 @@
     "charaId": "1061",
     "nameEn": "King Halo",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -2479,7 +2578,7 @@
     "charaId": "1061",
     "nameEn": "King Halo",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2512,7 +2611,7 @@
     "charaId": "1062",
     "nameEn": "Matikanetannhauser",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 20,
@@ -2545,7 +2644,7 @@
     "charaId": "1064",
     "nameEn": "Mejiro Palmer",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 10,
@@ -2578,7 +2677,7 @@
     "charaId": "1067",
     "nameEn": "Satono Diamond",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 15,
@@ -2611,7 +2710,7 @@
     "charaId": "1068",
     "nameEn": "Kitasan Black",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 20,
       "sta": 10,
@@ -2644,7 +2743,7 @@
     "charaId": "1069",
     "nameEn": "Sakura Chiyono O",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2677,7 +2776,7 @@
     "charaId": "1071",
     "nameEn": "Mejiro Ardan",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 10,
       "sta": 0,
@@ -2710,7 +2809,7 @@
     "charaId": "1072",
     "nameEn": "Yaeno Muteki",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 0,
@@ -2743,7 +2842,7 @@
     "charaId": "1074",
     "nameEn": "Mejiro Bright",
     "server": "global",
-    "dataVersion": "global-c1fa2107",
+    "dataVersion": "global-76214c82",
     "statGrowth": {
       "spd": 0,
       "sta": 14,

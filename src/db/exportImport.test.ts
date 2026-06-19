@@ -31,7 +31,7 @@ const BUNDLE_FIXTURE: CaptureBundle = {
   source: 'manual',
   capturedAt: '2026-06-15T00:00:00.000Z',
   server: 'global',
-  dataVersion: 'global-c1fa2107',
+  dataVersion: 'global-76214c82',
   context: {
     umaId: '',
     stats: { spd: 1, sta: 1, pow: 1, gut: 1, wit: 1 },

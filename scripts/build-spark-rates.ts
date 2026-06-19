@@ -37,7 +37,7 @@ export function buildSparkRates(): SparkRates {
     // mechanics-notes §7 — Fast Learner ×0.9.
     fastLearnerMultiplier: 0.9,
     // INTENTIONALLY a mechanics-verification version, NOT the upstream data
-    // commit ('global-c1fa2107' on skills/cards/umas): these constants come from
+    // commit ('global-76214c82' on skills/cards/umas): these constants come from
     // community research (docs/mechanics-notes.md), not the borrowed dataset, so
     // they version on the date they were verified. Bump when mechanics change.
     dataVersion: 'global-2026-06',
