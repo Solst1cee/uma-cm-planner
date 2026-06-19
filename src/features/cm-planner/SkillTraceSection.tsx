@@ -25,17 +25,8 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
         Velocity is a single {RUN_LABEL[s.runChoice]} run of {ctx.buildLabel ?? 'this build'} — an estimate (P3), not a guarantee.
       </p>
 
-      {/* Button-gated: position-resolved impact + frequency, from {IMPACT_SAMPLES} samples. */}
-      {s.impactStatus !== 'done' || s.impact === null ? (
-        <button
-          type="button"
-          className="cmp-trace-rate-btn"
-          disabled={s.impactStatus === 'running'}
-          onClick={s.computeImpact}
-        >
-          {s.impactStatus === 'running' ? `Simulating ${IMPACT_SAMPLES} runs…` : 'Compute activation impact'}
-        </button>
-      ) : (
+      {/* Auto (paints after velocity): position-resolved impact + frequency from {IMPACT_SAMPLES} samples. */}
+      {s.impactStatus === 'done' && s.impact !== null ? (
         <>
           <div className="cmp-trace-charts">
             <LengthImpactChart impact={s.impact} />
@@ -50,7 +41,9 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
             </div>
           )}
         </>
-      )}
+      ) : s.impactStatus === 'running' ? (
+        <p className="muted small">Simulating activation impact ({IMPACT_SAMPLES} runs)…</p>
+      ) : null}
     </div>
   );
 }

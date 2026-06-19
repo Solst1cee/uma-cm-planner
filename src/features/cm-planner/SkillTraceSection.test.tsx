@@ -19,7 +19,7 @@ const impact: SkillImpact = { samples: [{ horseLength: 2, positions: [800] }], n
 
 const base: SkillTraceState = {
   status: 'done', run, runChoice: 'median', setRunChoice: vi.fn(),
-  impact: null, impactStatus: 'idle', computeImpact: vi.fn(), rate: null,
+  impact: null, impactStatus: 'running', rate: null,
 };
 let current: SkillTraceState = base;
 vi.mock('./useSkillTrace', async (importOriginal) => ({
@@ -28,15 +28,15 @@ vi.mock('./useSkillTrace', async (importOriginal) => ({
 }));
 
 describe('SkillTraceSection', () => {
-  it('auto-shows the velocity chart + a compute button before impact is run', () => {
+  it('auto-shows the velocity chart + a simulating note while the impact runs', () => {
     current = base;
     const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
     expect(container.textContent).toMatch(/Velocity vs time/i);
-    expect(within(container).getByRole('button', { name: /compute activation impact/i })).toBeInTheDocument();
+    expect(container.textContent).toMatch(/Simulating activation impact/i);
     expect(container.textContent).not.toMatch(/Length gained by activation position/i);
   });
 
-  it('shows the impact + frequency charts and the derived rate after compute', () => {
+  it('shows the impact + frequency charts and the derived rate when the impact finishes', () => {
     current = { ...base, impact, impactStatus: 'done', rate: 0.7 };
     const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
     expect(container.textContent).toMatch(/Length gained by activation position/i);

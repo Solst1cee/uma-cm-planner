@@ -15,32 +15,24 @@ describe('useSkillTrace', () => {
     const skillImpact = vi.fn(async () => impact);
     renderHook(() => useSkillTrace('200332', ctx, false, { skillTrace, skillImpact }));
     expect(skillTrace).not.toHaveBeenCalled();
+    expect(skillImpact).not.toHaveBeenCalled();
   });
 
-  it('auto-runs the trace when enabled; impact stays button-gated', async () => {
+  it('auto-runs BOTH the trace and the impact when enabled; derives the rate', async () => {
     const skillTrace = vi.fn(async () => trace);
     const skillImpact = vi.fn(async () => impact);
     const { result } = renderHook(() => useSkillTrace('200332', ctx, true, { skillTrace, skillImpact }));
     await waitFor(() => expect(result.current.status).toBe('done'));
     expect(result.current.run?.L).toBe(2);
-    expect(skillImpact).not.toHaveBeenCalled();
-    expect(result.current.rate).toBeNull();
-  });
-
-  it('computeImpact runs the N-sample sim and derives the activation rate', async () => {
-    const skillTrace = vi.fn(async () => trace);
-    const skillImpact = vi.fn(async () => impact);
-    const { result } = renderHook(() => useSkillTrace('200332', ctx, true, { skillTrace, skillImpact }));
-    await waitFor(() => expect(result.current.status).toBe('done'));
-    act(() => result.current.computeImpact());
     await waitFor(() => expect(result.current.impactStatus).toBe('done'));
+    expect(skillImpact).toHaveBeenCalled();
     expect(result.current.impact?.samples.length).toBe(168);
     expect(result.current.rate).toBeCloseTo(0.42, 5); // 168 / 400
   });
 
   it('na when the build has zero speed', async () => {
     const skillTrace = vi.fn(async () => ({ ...trace, nsamples: 0 }));
-    const skillImpact = vi.fn(async () => impact);
+    const skillImpact = vi.fn(async () => ({ samples: [], nsamples: 0, distance: 0 } as SkillImpact));
     const dead = { ...ctx, build: { ...ctx.build, stats: { ...ctx.build.stats, spd: 0 } } };
     const { result } = renderHook(() => useSkillTrace('200332', dead, true, { skillTrace, skillImpact }));
     await waitFor(() => expect(result.current.status).toBe('na'));
@@ -58,7 +50,7 @@ describe('useSkillTrace', () => {
     expect(skillTrace.mock.calls.length).toBe(calls);
   });
 
-  it('re-runs the trace when a non-speed stat changes', async () => {
+  it('re-runs when a non-speed stat changes', async () => {
     const skillTrace = vi.fn(async () => trace);
     const skillImpact = vi.fn(async () => impact);
     const { result, rerender } = renderHook(

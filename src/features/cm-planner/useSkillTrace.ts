@@ -1,10 +1,11 @@
-/** Run-on-demand skill-trace hook (M4 skill-detail graphs). Auto-runs the cheap
- *  velocity trace when enabled + a context is present; the position-resolved impact
- *  (length-by-activation-position + activation-frequency, both from N samples) is
- *  button-gated via computeImpact(). The activation rate is derived from the impact
- *  samples. runChoice switches between the four representative trace runs returned in
- *  one sim — no re-sim. Module-shared SimClient imported from '@/sim/client' (NOT the
- *  '@/sim' barrel) so the engine bundle stays out of this module's import graph. */
+/** Run-on-demand skill-trace hook (M4 skill-detail graphs). When enabled + a context is
+ *  present it auto-runs BOTH the cheap velocity trace (shows first) AND the heavier
+ *  position-resolved impact (length-by-activation-position + activation-frequency, from N
+ *  samples) — the two queue on the same FIFO worker so velocity paints first, then the
+ *  impact charts. The activation rate is derived from the impact samples. runChoice switches
+ *  between the four representative trace runs returned in one sim — no re-sim. Module-shared
+ *  SimClient imported from '@/sim/client' (NOT the '@/sim' barrel) so the engine bundle stays
+ *  out of this module's import graph. */
 import { useEffect, useRef, useState } from 'react';
 import type { RunChoice, SimBuild, SimRaceParams, SkillImpact, SkillTrace, SkillTraceRun } from '@/sim';
 import { SimClient } from '@/sim/client';
@@ -28,8 +29,7 @@ export interface SkillTraceState {
   setRunChoice: (c: RunChoice) => void;
   impact: SkillImpact | null;
   impactStatus: 'idle' | 'running' | 'done';
-  computeImpact: () => void;
-  /** activation rate (発動率), derived from the impact samples; null until computed. */
+  /** activation rate (発動率), derived from the impact samples; null until the impact run resolves. */
   rate: number | null;
 }
 
@@ -61,36 +61,32 @@ export function useSkillTrace(
     if (!enabled || !ctx || sig === null) return;
     const merged = depsRef.current ?? realDeps();
     const myToken = (token.current += 1);
+    const { build, race } = ctx;
     setStatus('running');
     setTrace(null);
     setImpact(null);
-    setImpactStatus('idle');
-    void Promise.resolve(merged.skillTrace(ctx.build, ctx.race, skillId, merged.traceSamples ?? TRACE_SAMPLES))
+    setImpactStatus('running');
+    // 1. Fast velocity trace — paints first.
+    void Promise.resolve(merged.skillTrace(build, race, skillId, merged.traceSamples ?? TRACE_SAMPLES))
       .then((t) => {
         if (token.current !== myToken) return;
         setTrace(t);
         setStatus(t.nsamples === 0 ? 'na' : 'done');
       })
       .catch(() => { if (token.current === myToken) setStatus('na'); });
+    // 2. Heavier position impact — queued behind the trace on the FIFO worker; paints when ready.
+    void Promise.resolve(merged.skillImpact(build, race, skillId, merged.impactSamples ?? IMPACT_SAMPLES))
+      .then((r) => {
+        if (token.current !== myToken) return;
+        setImpact(r);
+        setImpactStatus(r.nsamples === 0 ? 'idle' : 'done');
+      })
+      .catch(() => { if (token.current === myToken) setImpactStatus('idle'); });
     return () => { token.current += 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, sig]);
 
-  const computeImpact = () => {
-    if (!ctx || impactStatus === 'running') return;
-    const merged = depsRef.current ?? realDeps();
-    const myToken = token.current;
-    setImpactStatus('running');
-    void Promise.resolve(merged.skillImpact(ctx.build, ctx.race, skillId, merged.impactSamples ?? IMPACT_SAMPLES))
-      .then((r) => {
-        if (token.current !== myToken) return;
-        setImpact(r);
-        setImpactStatus('done');
-      })
-      .catch(() => { if (token.current === myToken) setImpactStatus('idle'); });
-  };
-
   const run = trace ? trace.runs[runChoice] : null;
   const rate = impact && impact.nsamples > 0 ? impact.samples.length / impact.nsamples : null;
-  return { status, run, runChoice, setRunChoice, impact, impactStatus, computeImpact, rate };
+  return { status, run, runChoice, setRunChoice, impact, impactStatus, rate };
 }
