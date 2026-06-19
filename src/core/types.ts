@@ -31,6 +31,7 @@ export interface CmRef {
   surface: 'turf' | 'dirt';
   distance: number;
   condition?: string;
+  weather?: string;
   season?: string;
 }
 export interface ParentSparks {
@@ -329,6 +330,7 @@ export type Priority = 1 | 2 | 3; // 1 = core target
 export interface CmPlan {
   id: string;
   name: string;
+  notes?: string;
   planNumber: number;
   remark?: string;
   cmRef: CmRef;

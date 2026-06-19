@@ -124,6 +124,7 @@ export interface CourseEntry {
   readonly distanceType: number; // 1=sprint, 2=mile, 3=medium, 4=long, 5=extra
   readonly surface: number; // 1=Turf, 2=Dirt
   readonly turn: number; // 1=right-handed, 2=left-handed
+  readonly course: number; // uma-tools in/out code: 1=none, 2=inner, 3=outer, 4=outer->inner
   readonly [key: string]: unknown;
 }
 export const coursesService: {

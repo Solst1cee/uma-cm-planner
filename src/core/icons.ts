@@ -8,9 +8,8 @@
  * Layout + manifest shape are the cross-agent contract (plan §4):
  *   data/icons/skill/<iconId>.webp   (skill icon, shared across many skills)
  *   data/icons/support/<cardId>.webp (support-card chip)
- *   data/icons/uma/<umaId>.webp      (uma portrait; 17 alt outfits fall back to
- *                                     the base character portrait at build time,
- *                                     so the manifest still lists the umaId)
+ *   data/icons/uma/<umaId>.webp      (uma portrait; keyed by UmaRecord.umaId
+ *                                     even when the source asset id differs)
  */
 
 /**
@@ -30,8 +29,8 @@ export interface IconManifest {
   /** Available small UI asset ids. */
   ui?: string[];
   /**
-   * umaIds whose portrait fell back to the base character icon (no alt-outfit
-   * trained icon in the dump). Informational; these still appear in `uma`.
+   * umaIds whose portrait fell back to the base character icon. Informational;
+   * these still appear in `uma`.
    */
   _fallbackUmas?: string[];
 }

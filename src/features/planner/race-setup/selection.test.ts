@@ -30,6 +30,7 @@ describe('courseToSelection', () => {
       surface: 'turf',
       distance: 1600,
       distanceClass: 'mile',
+      course: 1,
       turn: 2,
     };
     const sel = courseToSelection(course, { ground: 'firm', weather: 'sunny', season: 'spring' });
@@ -55,9 +56,8 @@ describe('describeSelection', () => {
     expect(chips).toEqual([
       'Hanshin',
       'Turf',
-      '2,200m (Medium)',
+      '2,200m (Inner)',
       'Right-Handed',
-      'Inner',
       'Good',
       'Summer',
       'Cloudy',

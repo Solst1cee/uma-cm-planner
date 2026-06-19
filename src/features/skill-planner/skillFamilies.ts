@@ -119,6 +119,29 @@ export function addOrReplaceWishlistSkill(
   ];
 }
 
+/**
+ * Collapse a skill list to one representative per variant family — the highest
+ * `skillVariantRank` member that is ALSO present in the input set (so the chart
+ * never promotes a variant it isn't ranking). Order-stable on first appearance.
+ */
+export function familyRepresentatives(
+  skills: SkillRecord[],
+  skillById: ReadonlyMap<string, SkillRecord>,
+): SkillRecord[] {
+  const inSet = new Set(skills.map((s) => s.skillId));
+  const out: SkillRecord[] = [];
+  const claimed = new Set<string>();
+  for (const skill of skills) {
+    if (claimed.has(skill.skillId)) continue;
+    const family = skillVariantOptions(skill, skillById).filter((m) => inSet.has(m.skillId));
+    const rep = family[0] ?? skill; // skillVariantOptions is sorted best-first
+    out.push(rep);
+    for (const member of family) claimed.add(member.skillId);
+    claimed.add(skill.skillId);
+  }
+  return out;
+}
+
 export function replaceWishlistSkillVariant(
   wishlist: WishlistItem[],
   currentSkillId: string,

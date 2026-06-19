@@ -1,0 +1,79 @@
+/* M4 §1 Skill chart — collapsible VFalator-style table.
+   Reuses page tokens + shared chart classes (.cmp-run-btn / .cmp-stale /
+   .cmp-uma-progress / .cmp-uma-toolbar / .cmp-showall / .cmp-uma-sort /
+   .cmp-uma-num / .cmp-uma-select / .cmp-uma-plate from uma-chart.css, which is
+   always loaded on this page) + the .cmp-plan-card / .cmp-collapse-head grammar
+   from cm-planner.css. Only the column grid is chart-specific. */
+
+.cmp-skill-chart {
+  padding: 0;
+  overflow: hidden;
+}
+.cmp-skill-chart-title {
+  font-size: inherit;
+  font-weight: 700;
+}
+.cmp-skill-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem 0.7rem;
+}
+
+/* table: thead + scrollable rows share the same fixed grid so columns align.
+   skill (grows) | L | SP | L/100SP | target */
+.cmp-skill-thead,
+.cmp-skill-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.6rem 3.2rem 4.4rem 2.6rem;
+  gap: 0.4rem;
+}
+.cmp-skill-table {
+  max-height: 30rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.cmp-skill-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  align-items: center;
+  justify-items: center;
+  padding: 0.3rem 0.4rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fg-muted);
+}
+.cmp-skill-thead > :first-child {
+  justify-self: start;
+}
+.cmp-skill-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cmp-skill-row {
+  align-items: start;
+  padding: 0.1rem 0.4rem;
+}
+.cmp-skill-row:hover {
+  background: var(--bg-2);
+}
+.cmp-skill-row.is-dim {
+  opacity: 0.55;
+}
+.cmp-skill-row .cmp-skill-detail > summary {
+  justify-content: flex-start;
+}
+.cmp-skill-row .cmp-skill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

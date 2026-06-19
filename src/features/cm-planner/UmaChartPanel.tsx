@@ -44,13 +44,14 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>): UmaStyleL 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSelect, isOpen, onOpenChange, race }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
   unique: SkillSummary | null;
   isRunner: boolean;
   sortMetric: SortMetric;
+  collapseSkillSignal?: number;
   onStyle: (outfitId: string, strategy: Strategy) => void;
   onSelect: (outfitId: string, uniqueSkillId: string) => void;
   isOpen: boolean;
@@ -75,6 +76,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
           traceContext={traceCtx}
           open={isOpen}
           onOpenChange={onOpenChange}
+          collapseSignal={collapseSkillSignal}
         />
       ) : (
         <span className="cmp-missing-skill cmp-uma-plate">No unique-skill data</span>
@@ -114,10 +116,11 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, onStyle, onSe
   );
 }
 
-export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
+export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSignal, deps }: {
   courseId: string;
   plan: CmPlan;
   onSelectRunner: (outfitId: string, uniqueSkillId: string) => void;
+  collapseSkillSignal?: number;
   deps?: UmaChartPanelDeps;
 }) {
   const { umas, umaById } = useGameData();
@@ -253,6 +256,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, deps }: {
                     unique={uniqueByUmaId?.get(row.outfitId) ?? null}
                     isRunner={plan.umaId === row.outfitId}
                     sortMetric={sortMetric}
+                    collapseSkillSignal={collapseSkillSignal}
                     onStyle={onStyle}
                     onSelect={onSelectRunner}
                     race={race}

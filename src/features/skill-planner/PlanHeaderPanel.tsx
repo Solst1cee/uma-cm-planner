@@ -99,6 +99,7 @@ export function PlanHeaderPanel({
         distance: preset.distance,
         season: preset.season,
         condition: preset.ground,
+        weather: preset.weather,
       },
     });
   };

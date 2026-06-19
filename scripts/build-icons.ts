@@ -23,9 +23,9 @@
  *   support → support/support_card_s_<cardId>.png   (256px, has rarity badge)
  *             ⚠ 30024 / 30061 ship ONLY as uppercase `Support_card_s_…` →
  *             lowercase on output (case-sensitive-host 404 hazard).
- *   uma     → chara/trained_chr_icon_<charaId>_<umaId>_02.png (gold frame) when
+ *   uma     → chara/trained_chr_icon_<charaId>_<iconAssetId>_02.png (gold frame) when
  *             present, else fall back to chara/chr_icon_<charaId>.png (base
- *             portrait). 17 alt-outfit (xxxx02) umas use the fallback.
+ *             portrait). Some Global alt outfits use a different icon asset id.
  *
  * GUARD: if the spikes dump is absent (CI), LOG a warning and SKIP — existing
  * committed public/data/icons/ stays intact, and data:build's other 5 outputs
@@ -51,6 +51,27 @@ const ICON_SWAP_RETRIES = 5;
 
 /** Cards that exist in the dump ONLY as uppercase `Support_card_s_…` (provenance §2). */
 const UPPERCASE_SUPPORT_CARD_IDS: ReadonlySet<string> = new Set(['30024', '30061']);
+
+/** Global card_data ids whose trained icon asset id differs from the UmaRecord umaId. */
+const UMA_TRAINED_ICON_ID_OVERRIDES: Readonly<Record<string, string>> = {
+  '100402': '100430',
+  '100502': '100520',
+  '101402': '101416',
+  '101502': '101510',
+  '101702': '101743',
+  '101802': '101826',
+  '102002': '102020',
+  '102202': '102226',
+  '102402': '102426',
+  '102602': '102613',
+  '103702': '103713',
+  '103802': '103826',
+  '104502': '104540',
+  '105202': '105210',
+  '105602': '105623',
+  '106002': '106050',
+  '106102': '106150',
+};
 
 export interface IconManifest {
   dataVersion: string;
@@ -111,16 +132,18 @@ export function supportSourceFile(cardId: string): string {
 
 /**
  * uma source resolver with the trained → base fallback. `trainedExists` answers
- * "does chara/trained_chr_icon_<charaId>_<umaId>_02.png exist?" (injected so
- * this stays pure/testable). Returns the relative source path + whether the
- * base chr_icon fallback was used.
+ * whether the relative trained icon path exists (injected so this stays
+ * pure/testable). Returns the relative source path + whether the base chr_icon
+ * fallback was used.
  */
 export function umaSourceFile(
   umaId: string,
   charaId: string,
   trainedExists: (relPath: string) => boolean,
 ): { source: string; fallback: boolean } {
-  const trained = `chara/trained_chr_icon_${charaId}_${umaId}_02.png`;
+  const iconAssetId = UMA_TRAINED_ICON_ID_OVERRIDES[umaId] ?? umaId;
+  const trained = `chara/trained_chr_icon_${charaId}_${iconAssetId}_02.png`;
+  if (UMA_TRAINED_ICON_ID_OVERRIDES[umaId]) return { source: trained, fallback: false };
   if (trainedExists(trained)) return { source: trained, fallback: false };
   return { source: `chara/chr_icon_${charaId}.png`, fallback: true };
 }

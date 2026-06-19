@@ -311,6 +311,7 @@ export function SkillDetailDisclosure({
   traceContext,
   open: openProp,
   onOpenChange,
+  collapseSignal,
 }: {
   skill: SkillSummary;
   className?: string;
@@ -320,6 +321,7 @@ export function SkillDetailDisclosure({
   traceContext?: TraceContext;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  collapseSignal?: number;
 }) {
   const [openState, setOpenState] = useState(false);
   const isControlled = openProp !== undefined;
@@ -337,6 +339,10 @@ export function SkillDetailDisclosure({
     setError(null);
     setStatus('idle');
   }, [skill.skillId]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [collapseSignal]);
 
   useEffect(() => {
     if (!open || status !== 'idle') return;
