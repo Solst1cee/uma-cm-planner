@@ -18,7 +18,7 @@ import {
 } from 'react';
 import type { CmPreset, CmScheduleRow, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import type { IconManifest } from '@/core/icons';
-import { projectCmSchedule } from '@/core/timeline';
+import { currentCm as selectCurrentCm, projectCmSchedule } from '@/core/timeline';
 import {
   FIXTURE_CARDS,
   FIXTURE_PLAN,
@@ -71,6 +71,12 @@ export interface GameData {
    * reason as `timeline` — consumers should `?? []`.
    */
   cmSchedule?: CmScheduleRow[];
+  /**
+   * The live/next Champions Meeting derived from `timeline` + today (M3 SSOT).
+   * null when the timeline has no CM entries. Optional so pre-M3 GameData
+   * literals keep compiling — consumers should treat undefined as null.
+   */
+  currentCm?: TimelineEntry | null;
   skillById: Map<string, SkillRecord>;
   cardById: Map<string, SupportCardRecord>;
   umaById?: Map<string, UmaRecord>;
@@ -193,6 +199,10 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       iconManifest,
       timeline,
       cmSchedule: projectCmSchedule(timeline),
+      currentCm: selectCurrentCm(
+        timeline.filter((e) => e.type === 'cm'),
+        new Date().toISOString().slice(0, 10),
+      ),
       skillById: new Map(skills.map((s) => [s.skillId, s])),
       cardById: new Map(cards.map((c) => [c.cardId, c])),
       umaById: new Map(umas.map((u) => [u.umaId, u])),
