@@ -61,6 +61,7 @@ Accepted behavior:
 - The epithet keeps the smaller size, is italic, and baseline-aligns with the Uma name so the bottoms of the text sit together.
 - The dropdown result list is absolutely positioned over lower sidebar content and must not push other components down.
 - After selecting from the dropdown, clicking the search field again must reopen/edit it without requiring an outside click first.
+- `ROLE` and its Ace / Debuf / Hybrid buttons sit on the same heading line as `RUNNER`, aligned to the right without wrapping.
 
 Implementation details:
 
@@ -114,29 +115,30 @@ Stamina and Guts had been assigned each other's colors; the final CSS restores S
 
 ## Sidebar Card Scrolling And Cropping
 
-The sidebar itself is a sticky shell; only the inner `cmp-plan-card-body` scrolls when content exceeds viewport height.
+The Current Uma Plan sidebar grows to its full content height and uses the page scrollbar. It has no nested scrollbar or viewport-height cap.
 
 Reason:
 
-- Scrolling the whole `aside.cmp-sidebar` caused the rounded card frame to appear cropped or visually cut off at the top/bottom.
-- Keeping the card frame sticky and scrolling only the body preserves the rounded border.
+- The fixed viewport-height limit hid the lower content behind an internal scrollbar.
+- Normal page flow keeps every sidebar section reachable with one scroll surface and avoids sticky-element cropping when the card is taller than the viewport.
 
 Implementation:
 
-- `aside.cmp-sidebar` has sticky positioning, max height, rounded clipping behavior, and no body-level scroll.
-- `.cmp-sidebar > .cmp-plan-card` is a flex column with inherited max height.
-- `.cmp-sidebar > .cmp-plan-card > .cmp-plan-card-body` has `overflow-y: auto`.
+- `aside.cmp-sidebar` uses `position: static` and `max-height: none`.
+- `.cmp-sidebar > .cmp-plan-card > .cmp-plan-card-body` uses visible vertical overflow so the card expands naturally.
+- The separate Plan Inventory rail remains sticky and internally scrollable.
 
-## Wishlist Clear Button
+## Wishlist Delete All Button
 
-The wishlist clear action was changed from a text button to a transparent bordered icon button.
+Wishlist uses the same hover-expanding Delete all and inline-confirmation pattern as the Plan Inventory header.
 
 Accepted details:
 
-- Uses a trash/bin icon.
-- Transparent container with border.
-- Icon centered vertically in the section title row.
-- Accessible label/title is `Clear wishlist`.
+- At rest it is a transparent bordered trash icon aligned to the right of the Wishlist heading.
+- Hover or keyboard focus expands the `Delete all` label. All expandable inventory/wishlist actions add `0.25rem` of leading space before the icon while expanded.
+- First click replaces the action with `Confirm delete all items?` plus tick and cross buttons; only the tick clears the wishlist.
+- Cross or a pointer click outside the action group cancels without changing the wishlist.
+- Accessible labels distinguish Delete, Confirm, and Cancel for wishlist skills.
 
 ## Uma Portrait Size
 
@@ -186,7 +188,7 @@ The local dev server was responding at:
 http://127.0.0.1:5177/
 ```
 
-Final wrap-up verification on 2026-06-18:
+Final wrap-up verification on 2026-06-19:
 
-- Full Vitest suite: 75 files, 545 tests passed.
+- Full Vitest suite: 76 files, 554 tests passed.
 - `pnpm.cmd build`: typecheck and production Vite build passed.
