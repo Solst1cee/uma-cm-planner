@@ -13,7 +13,11 @@ import { useGameData } from '@/features/data/gameData';
 
 export function SourcingPanel({ plan }: { plan: CmPlan }) {
   const { cards, cardById, skillById } = useGameData();
-  const index = useMemo(() => buildCardHintIndex(cards), [cards]);
+  // P4 guard: only Global-released cards source skills here. Upcoming (server:'jp')
+  // cards exist in the dataset for preview (data-overrides/upcoming_cards.json) but
+  // must not silently appear as sources — the "include upcoming" toggle (M4 §3,
+  // deferred) will opt them in, gated by the CM date.
+  const index = useMemo(() => buildCardHintIndex(cards.filter((c) => c.server === 'global')), [cards]);
 
   return (
     <section className="panel" aria-labelledby="sourcing-h">
