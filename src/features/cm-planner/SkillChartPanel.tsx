@@ -8,9 +8,10 @@
  */
 import './skill-chart.css';
 import { useMemo, useState } from 'react';
-import type { CmPlan, SkillRecord } from '@/core/types';
+import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
+import { isReleasedBy } from '@/core/availability';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { effectiveSpCost } from '@/core/cost';
 import { planToSimBuild } from '@/core/simBuild';
@@ -76,23 +77,41 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   collapseSkillSignal?: number;
   deps?: SkillChartPanelDeps;
 }) {
-  const { skills, skillById, sparkRates } = useGameData();
+  const { skills, skillById, sparkRates, timeline } = useGameData();
   const [open, setOpen] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SkillFilter>('all');
   const [showAll, setShowAll] = useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   const [sortMetric, setSortMetric] = useState<SortMetric>('L');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
+
+  const cmEntry = (timeline as TimelineEntry[] | undefined)
+    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === plan.cmRef?.cmNumber);
+  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
+
   // One representative per (family × rarity): cosmetic tiers (○/◎/×) collapse within a
   // rarity, but white / gold / inherited stay distinct rows so the rarity filters work.
   const reps = useMemo(() => {
     const catalog = acquirableSkills(skills ?? [], plan.server);
-    return (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
+    const baseReps = (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
       familyRepresentatives(catalog.filter((s) => s.rarity === r), skillById),
     );
-  }, [skills, skillById, plan.server]);
+    const upcoming =
+      plan.server === 'global'
+        ? (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
+            familyRepresentatives(
+              (skills ?? []).filter(
+                (s) => s.server === 'jp' && s.rarity === r && isReleasedBy(s, asOfISO),
+              ),
+              skillById,
+            ),
+          )
+        : [];
+    return [...baseReps, ...upcoming];
+  }, [skills, skillById, plan.server, asOfISO]);
   const ids = useMemo(() => (hasSpeed ? reps.map((s) => s.skillId) : []), [reps, hasSpeed]);
   const build = useMemo(() => planToSimBuild(plan), [plan]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
@@ -129,6 +148,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     })
     .filter((v): v is RowView => v !== null)
     .filter((v) => {
+      if (!showUpcoming && v.skill.server === 'jp') return false; // upcoming hidden unless toggled
       if (!showAll && v.row.status === 'inactive') return false; // hide only never-proc skills
       if (!matchesFilter(v.skill.rarity, filter)) return false;
       if (q && !v.skill.nameEn.toLowerCase().includes(q)) return false;
@@ -206,6 +226,12 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Skills whose conditions can never trigger on this track (they never proc). Recovery and other 0-length skills that DO proc stay visible."
                     >
                       <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
+                    </label>
+                    <label
+                      className="cmp-showall small"
+                      title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
+                    >
+                      <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
                     </label>
                   </div>
 

@@ -52,9 +52,37 @@ export interface SimOptions {
   [key: string]: unknown;
 }
 
+/** One recorded skill activation in a run (positions are course metres). */
+export interface ActivationLog {
+  skillId: string;
+  start: number;
+  end: number;
+  [key: string]: unknown;
+}
+/** A full per-frame run trace. Each tuple is [runnerA, runnerB]. */
+export interface SimulationRun {
+  time: [number[], number[]];
+  position: [number[], number[]];
+  velocity: [number[], number[]];
+  hp: [number[], number[]];
+  skillActivations: [Record<string, ActivationLog[]>, Record<string, ActivationLog[]>];
+  [key: string]: unknown;
+}
+export interface RunDataBundle {
+  minrun: SimulationRun;
+  maxrun: SimulationRun;
+  meanrun: SimulationRun;
+  medianrun: SimulationRun;
+}
+
+/** One activating sample for the tracked skill: バ身 gained + activation positions (metres). */
+export interface TrackedActivationMeta {
+  horseLength: number;
+  positions: number[];
+}
 export interface SkillComparisonResult {
   results: number[];
-  skillActivations: Record<string, unknown>;
+  skillActivations: Record<string, TrackedActivationMeta[]>;
   runData: unknown;
   min: number; max: number; mean: number; median: number;
 }
@@ -65,7 +93,7 @@ export interface PlannerCompareResult {
 }
 export interface CompareResult {
   results: number[];
-  runData: unknown;
+  runData: RunDataBundle;
   rushedStats: unknown;
   leadCompetitionStats: unknown;
   spurtInfo: null;

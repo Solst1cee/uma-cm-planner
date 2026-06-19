@@ -59,7 +59,7 @@ export interface RankUmaChartDeps {
   seed?: number;
 }
 
-function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
+export function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
   return {
     umaId: outfitId,
     stats: REFERENCE_STATS,

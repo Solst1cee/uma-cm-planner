@@ -22,12 +22,16 @@ const h = vi.hoisted(() => {
   const bs = (mean: number): BashinStats => ({ mean, median: mean, min: mean, max: mean, nsamples: 30, results: [] });
   const L: Record<string, number> = { g1: 2.0, wA: 1.5, wB: 1.4, s1: 1.0, i1: 0.8 };
   const skillDelta = vi.fn(async (_b: SimBuild, _r: unknown, id: string) => bs(L[id] ?? 0.5));
-  return { skills, skillById, skillDelta };
+
+  const defaultGameData = {
+    status: 'ready', skills, skillById, sparkRates: {}, umas: [], umaById: new Map(),
+    iconManifest: null, timeline: [] as unknown[],
+  };
+  const useGameData = vi.fn(() => defaultGameData);
+  return { skills, skillById, skillDelta, useGameData, defaultGameData };
 });
 
-vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ status: 'ready', skills: h.skills, skillById: h.skillById, sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null }),
-}));
+vi.mock('@/features/data/gameData', () => ({ useGameData: h.useGameData }));
 vi.mock('./skillTechnicalDetails', () => ({
   loadSkillTechnicalDetail: vi.fn(async () => null),
   skillRecordToSummary: (s: unknown) => s,
@@ -54,7 +58,11 @@ async function runFull(onChange = vi.fn()) {
   await waitFor(() => expect(within(list()).getAllByRole('listitem')).toHaveLength(4));
 }
 
-afterEach(() => { cleanup(); vi.clearAllMocks(); });
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+  h.useGameData.mockReturnValue(h.defaultGameData);
+});
 
 describe('SkillChartPanel', () => {
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {
@@ -124,7 +132,7 @@ describe('SkillChartPanel', () => {
     await waitFor(() => expect(within(list()).getAllByRole('listitem')).toHaveLength(3));
     expect(rowTexts().some((t) => t.includes('Solo White'))).toBe(false);
     // the toggle reveals it
-    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('checkbox', { name: /not-activatable/i }));
     await waitFor(() => expect(within(list()).getAllByRole('listitem')).toHaveLength(4));
     expect(rowTexts().some((t) => t.includes('Solo White'))).toBe(true);
   });
@@ -185,5 +193,24 @@ describe('SkillChartPanel', () => {
     await waitFor(() => expect(screen.getByText('ranking 1/4')).toBeInTheDocument());
     await userEvent.click(btn); // stop
     expect(screen.getByText('1/4 skills ran')).toBeInTheDocument();
+  });
+
+  it('hides upcoming (server:jp) skills until "show upcoming" is toggled', async () => {
+    const up = { skillId: 'up1', nameEn: 'Upcoming Gold', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-06-10' } as unknown as SkillRecord;
+    const skills = [...h.skills, up];
+    h.useGameData.mockReturnValue({
+      status: 'ready', skills, skillById: new Map(skills.map((s) => [s.skillId, s])),
+      sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null,
+      timeline: [{ type: 'cm', cm: { cmNumber: 15 }, dates: { start: '2026-06-21' } }],
+    });
+    const plan = { ...basePlan, cmRef: { cmNumber: 15, courseId: '10906' } } as unknown as CmPlan;
+    render(<SkillChartPanel courseId="10906" plan={plan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(within(list()).getAllByRole('listitem').length).toBeGreaterThan(0));
+    expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(false); // hidden by default
+    await userEvent.click(screen.getByRole('checkbox', { name: /show upcoming/i }));
+    await waitFor(() => expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(true));
   });
 });

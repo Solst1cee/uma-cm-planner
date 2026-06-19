@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import type { SkillSummary, SkillTechnicalDetail } from './skillTechnicalDetails';
 import { loadSkillTechnicalDetail } from './skillTechnicalDetails';
 import { GameIcon } from '@/features/data/GameIcon';
+import { SkillTraceSection } from './SkillTraceSection';
+import type { TraceContext } from './useSkillTrace';
 
 type DetailStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error';
 
@@ -306,6 +308,9 @@ export function SkillDetailDisclosure({
   side,
   technicalHeaderSide,
   showCost = true,
+  traceContext,
+  open: openProp,
+  onOpenChange,
   collapseSignal,
 }: {
   skill: SkillSummary;
@@ -313,9 +318,18 @@ export function SkillDetailDisclosure({
   side?: ReactNode;
   technicalHeaderSide?: ReactNode;
   showCost?: boolean;
+  traceContext?: TraceContext;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   collapseSignal?: number;
 }) {
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : openState;
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setOpenState(next);
+    onOpenChange?.(next);
+  };
   const [detail, setDetail] = useState<SkillTechnicalDetail | null>(null);
   const [status, setStatus] = useState<DetailStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -356,7 +370,7 @@ export function SkillDetailDisclosure({
     <details
       className={`cmp-skill-detail cmp-skill-rarity-${skill.rarity} ${className ?? ''}`.trim()}
       open={open}
-      onToggle={(e) => setOpen(e.currentTarget.open)}
+      onToggle={(e) => { if (e.currentTarget.open !== open) setOpen(e.currentTarget.open); }}
     >
       <summary>
         <span className="cmp-skill-summary-main">
@@ -435,6 +449,9 @@ export function SkillDetailDisclosure({
           </div>
         )}
 
+        {traceContext !== undefined && (
+          <SkillTraceSection skillId={skill.skillId} ctx={traceContext} enabled={open} />
+        )}
       </div>
     </details>
   );

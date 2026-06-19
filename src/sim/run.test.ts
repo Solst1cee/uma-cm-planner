@@ -62,3 +62,55 @@ describe('runPlannerCompare', () => {
     expect(Number.isFinite(r.mean)).toBe(true);
   });
 });
+
+import { runSkillTrace } from './run';
+
+describe('runSkillTrace', () => {
+  it('returns per-frame with/without traces and a finite L', () => {
+    const t = runSkillTrace(build, { courseId: '10101' }, '200332', 20, 42);
+    expect(t.nsamples).toBe(20);
+    expect(t.runs.median.withSkill.length).toBeGreaterThan(0);
+    expect(t.runs.median.without.length).toBeGreaterThan(0);
+    const f = t.runs.median.withSkill[0]!;
+    expect(Number.isFinite(f.t)).toBe(true);
+    expect(Number.isFinite(f.v)).toBe(true);
+    expect(Number.isFinite(t.meanL)).toBe(true);
+  });
+
+  it('is empty (no throw) for a non-simulatable skill', () => {
+    const t = runSkillTrace(build, { courseId: '10101' }, '000000', 10, 1);
+    expect(t.nsamples).toBe(0);
+    expect(t.runs.median.withSkill).toHaveLength(0);
+  });
+
+  it('is empty for a zero-speed build (guards firstPositionInLateRace)', () => {
+    const zero = { ...build, stats: { ...build.stats, spd: 0 } };
+    const t = runSkillTrace(zero, { courseId: '10101' }, '200332', 10, 1);
+    expect(t.nsamples).toBe(0);
+  });
+});
+
+import { skillImpact } from './run';
+
+describe('skillImpact', () => {
+  it('returns per-sample {horseLength, positions} + nsamples + course distance for a real skill', () => {
+    const r = skillImpact(build, { courseId: '10101' }, '200332', 50, 5);
+    expect(r.nsamples).toBe(50);
+    expect(r.distance).toBeGreaterThan(0);                 // Sapporo 1200m turf
+    expect(r.samples.length).toBeGreaterThan(0);
+    expect(r.samples.length).toBeLessThanOrEqual(50);      // one entry per activating sample
+    const s = r.samples[0]!;
+    expect(Number.isFinite(s.horseLength)).toBe(true);
+    expect(Array.isArray(s.positions)).toBe(true);
+    for (const p of s.positions) expect(p).toBeGreaterThanOrEqual(0);
+  });
+
+  it('is empty for a non-simulatable skill', () => {
+    expect(skillImpact(build, { courseId: '10101' }, '000000', 20, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
+  });
+
+  it('is empty for a zero-speed build', () => {
+    const zero = { ...build, stats: { ...build.stats, spd: 0 } };
+    expect(skillImpact(zero, { courseId: '10101' }, '200332', 10, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
+  });
+});

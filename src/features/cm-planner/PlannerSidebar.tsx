@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   isCurrentAptitude,
+  planToSimBuild,
   setStrategyTargetAptitude,
   setTargetAptitudeByKey,
   targetAptitude,
 } from '@/core/simBuild';
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
+import type { TraceContext } from './useSkillTrace';
 import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -286,6 +288,10 @@ export function PlannerSidebar({
     const skill = wishlistSkillRecord(item.skillId, skillById);
     return sum + (skill?.baseSpCost ?? 0);
   }, 0);
+  const traceCtx = useMemo<TraceContext>(
+    () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId }, buildLabel: 'your build' }),
+    [plan],
+  );
 
   useEffect(() => {
     if (!umaPickerOpen) setUmaQuery(currentUmaName ?? '');
@@ -531,6 +537,7 @@ export function PlannerSidebar({
                 <SkillDetailDisclosure
                   skill={uniqueSkill}
                   showCost={false}
+                  traceContext={traceCtx}
                   collapseSignal={collapseSkillSignal}
                 />
               ) : (
@@ -816,6 +823,7 @@ export function PlannerSidebar({
                     {summary ? (
                       <SkillDetailDisclosure
                         skill={summary}
+                        traceContext={traceCtx}
                         collapseSignal={collapseSkillSignal}
                         side={
                           item.projectedL !== undefined ? (

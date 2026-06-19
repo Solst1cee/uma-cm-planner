@@ -174,6 +174,12 @@ vi.mock('./skillTechnicalDetails', () => ({
     conditions: skill.conditions,
   }),
 }));
+vi.mock('./useSkillTrace', () => ({
+  useSkillTrace: () => ({
+    status: 'idle', run: null, runChoice: 'median', setRunChoice: vi.fn(),
+    rate: null, rateStatus: 'idle', computeRate: vi.fn(),
+  }),
+}));
 
 import { PlannerSidebar } from './PlannerSidebar';
 

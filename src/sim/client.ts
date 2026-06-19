@@ -1,5 +1,5 @@
 import EngineWorker from './engine.worker?worker';
-import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult } from './types';
+import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult, SkillTrace, SkillImpact } from './types';
 
 type WorkerFactory = () => Worker;
 
@@ -40,21 +40,40 @@ export class SimClient {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'skillDelta', build, race, skillId, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as BashinStats;
+    if (res.kind !== 'skillDelta') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.stats;
   }
 
   async vacuum(a: SimBuild, b: SimBuild, race: SimRaceParams, nsamples: number, seed?: number): Promise<VacuumResult> {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'vacuum', a, b, race, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as VacuumResult;
+    if (res.kind !== 'vacuum') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.stats;
   }
 
   async planner(build: SimBuild, race: SimRaceParams, candidateSkills: string[], nsamples: number, seed?: number): Promise<BashinStats> {
     const id = ++this.seq;
     const res = await this.send({ id, kind: 'planner', build, race, candidateSkills, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    return res.stats as BashinStats;
+    if (res.kind !== 'planner') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.stats;
+  }
+
+  async skillTrace(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillTrace> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'skillTrace', build, race, skillId, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    if (res.kind !== 'skillTrace') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.trace;
+  }
+
+  async skillImpact(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillImpact> {
+    const id = ++this.seq;
+    const res = await this.send({ id, kind: 'skillImpact', build, race, skillId, nsamples, seed });
+    if (!res.ok) throw new Error(res.error);
+    if (res.kind !== 'skillImpact') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.impact;
   }
 
   dispose() { this.worker.terminate(); this.pending.clear(); }

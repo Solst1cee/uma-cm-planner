@@ -128,6 +128,14 @@ const h = vi.hoisted(() => {
 
 // The track + race-setup lazy-import the engine; mock them so the page test stays in jsdom.
 vi.mock('@/sim/courseData', () => ({ courseDataFor: () => h.courseData }));
+// An open SkillDetailDisclosure with a traceContext would construct a real SimClient Worker
+// (jsdom has none). Mock the hook to an idle state — see the jsdom gotcha in the module-4 doc.
+vi.mock('./useSkillTrace', () => ({
+  useSkillTrace: () => ({
+    status: 'idle', run: null, runChoice: 'median', setRunChoice: () => {},
+    impact: null, impactStatus: 'idle', rate: null,
+  }),
+}));
 vi.mock('@/sim/courseCatalog', () => ({
   courseCatalog: () => [
     {
