@@ -3,6 +3,13 @@ import type { SkillFrame, SkillTraceRun } from '@/sim';
 export interface Pt { x: number; y: number; }
 export interface Box { w: number; h: number; }
 export interface Domain { tMax: number; vMax: number; distMax: number; }
+/** Nice-rounded y-range for the L curve; always includes 0. */
+export interface LDomain { top: number; bottom: number; }
+/** A phase background band in viewBox pixels (phase 0=Early, 1=Mid, 2=Late). */
+export interface Band { x: number; w: number; phase: 0 | 1 | 2; }
+
+/** Race phase boundaries as fractions of course distance (Early | Mid | Late). */
+const PHASE_BOUNDS = [1 / 6, 2 / 3];
 
 /** SVG points attribute: "x,y x,y ..." (rounded to 2dp to keep the DOM small). */
 export function polyline(points: Pt[]): string {
@@ -43,15 +50,60 @@ export function gapCurve(run: SkillTraceRun): { dist: number; L: number }[] {
   return out;
 }
 
-/** L-vs-distance points: x = distance, y = L (inverted; zero baseline at box.h/2 handled by caller). */
-export function gapPoints(curve: { dist: number; L: number }[], box: Box, d: Domain, lMax: number): Pt[] {
-  const half = box.h / 2;
-  return curve.map((c) => ({ x: scale(c.dist, d.distMax, box.w), y: half - (lMax > 0 ? (c.L / lMax) * half : 0) }));
+/** Round up to a "nice" axis ceiling (1-2-5 × 10^k). x<=0 → 0.5. */
+export function niceCeil(x: number): number {
+  if (x <= 0) return 0.5;
+  const exp = Math.floor(Math.log10(x));
+  const pow = 10 ** exp;
+  const base = x / pow;
+  const niceBase = base <= 1 ? 1 : base <= 2 ? 2 : base <= 5 ? 5 : 10;
+  return niceBase * pow;
 }
 
-/** Max absolute L on the gap curve (for symmetric y-scaling), min 0.1 to avoid divide-by-zero. */
-export function maxAbsL(curve: { dist: number; L: number }[]): number {
-  return Math.max(0.1, ...curve.map((c) => Math.abs(c.L)));
+/** Auto, nice-rounded y-range for the L curve. Always includes 0 (gains read off a 0 baseline);
+ *  negative dips get a nice-rounded floor. */
+export function lDomain(curve: { dist: number; L: number }[]): LDomain {
+  const ls = curve.map((c) => c.L);
+  const maxL = Math.max(0, ...ls);
+  const minL = Math.min(0, ...ls);
+  return { top: niceCeil(maxL), bottom: minL < 0 ? -niceCeil(-minL) : 0 };
+}
+
+/** L-vs-distance points mapped over [bottom, top]: bottom→y=box.h, top→y=0. */
+export function gapPoints(curve: { dist: number; L: number }[], box: Box, d: Domain, ld: LDomain): Pt[] {
+  const span = ld.top - ld.bottom || 1;
+  return curve.map((c) => ({ x: scale(c.dist, d.distMax, box.w), y: box.h - ((c.L - ld.bottom) / span) * box.h }));
+}
+
+/** y-pixel of the L=0 baseline within [bottom, top] (where the gain curve starts from). */
+export function zeroLineY(box: Box, ld: LDomain): number {
+  const span = ld.top - ld.bottom || 1;
+  return box.h - ((0 - ld.bottom) / span) * box.h;
+}
+
+/** Three phase bands along the distance axis (constant width fractions). */
+export function distancePhaseBands(box: Box): Band[] {
+  return bandsFromEdges([0, ...PHASE_BOUNDS.map((f) => f * box.w), box.w]);
+}
+
+/** Three phase bands along the TIME axis — phase boundaries are distances, mapped to times
+ *  via the with-skill run (so the bands line up with where each phase actually happens in time). */
+export function timePhaseBands(run: SkillTraceRun, box: Box, d: Domain): Band[] {
+  const edges = [
+    0,
+    ...PHASE_BOUNDS.map((f) => scale(timeAtPosition(run.withSkill, f * d.distMax), d.tMax, box.w)),
+    box.w,
+  ];
+  return bandsFromEdges(edges);
+}
+
+function bandsFromEdges(edges: number[]): Band[] {
+  const bands: Band[] = [];
+  for (let i = 0; i < edges.length - 1; i++) {
+    const x0 = edges[i] ?? 0, x1 = edges[i + 1] ?? x0;
+    bands.push({ x: x0, w: Math.max(0, x1 - x0), phase: i as 0 | 1 | 2 });
+  }
+  return bands;
 }
 
 /** Map each activation region's start/end position to the with-skill timeline (for v-t shading). */

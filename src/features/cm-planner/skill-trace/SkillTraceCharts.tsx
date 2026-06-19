@@ -1,8 +1,31 @@
 import './skill-trace.css';
 import type { RunChoice, SkillTraceRun } from '@/sim';
-import { vtPoints, gapCurve, gapPoints, maxAbsL, polyline, domainOf, activationTimes, type Box } from './geometry';
+import {
+  vtPoints, gapCurve, gapPoints, lDomain, zeroLineY, polyline, domainOf, activationTimes,
+  distancePhaseBands, timePhaseBands, type Box, type Band,
+} from './geometry';
 
 const BOX: Box = { w: 280, h: 96 };
+const PHASE_LABELS = ['Early', 'Mid', 'Late'] as const;
+
+/** Low-opacity Early/Mid/Late background bands (colors match the §0 racetrack). */
+function PhaseBands({ bands }: { bands: Band[] }) {
+  return (
+    <>
+      {bands.map((b) => (
+        <rect key={b.phase} className={`cmp-trace-phase is-phase-${b.phase}`} x={b.x} y={0} width={b.w} height={BOX.h}>
+          <title>{PHASE_LABELS[b.phase]} race</title>
+        </rect>
+      ))}
+    </>
+  );
+}
+
+/** Compact axis number: integers bare, else trimmed to 1–2 dp. */
+function num(n: number): string {
+  if (Number.isInteger(n)) return `${n}`;
+  return n.toFixed(Math.abs(n) < 1 ? 2 : 1).replace(/\.?0+$/, '');
+}
 
 export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
   const d = domainOf(run);
@@ -14,12 +37,18 @@ export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
   }));
   return (
     <figure className="cmp-trace-chart">
-      <figcaption>Velocity vs time <small>(m/s)</small></figcaption>
-      <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Velocity over time, with and without the skill" preserveAspectRatio="none">
-        {zones.map((z, i) => <rect key={i} className="cmp-trace-zone" x={z.x} y={0} width={z.w} height={BOX.h} />)}
-        <polyline className="cmp-trace-line is-without" points={withoutPts} fill="none" />
-        <polyline className="cmp-trace-line is-with" points={withPts} fill="none" />
-      </svg>
+      <figcaption>Velocity vs time</figcaption>
+      <div className="cmp-trace-plot">
+        <span className="cmp-axis-ytitle">m/s</span>
+        <span className="cmp-axis-ymax">{num(d.vMax)}</span>
+        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Velocity over time, with and without the skill; race phases shaded" preserveAspectRatio="none">
+          <PhaseBands bands={timePhaseBands(run, BOX, d)} />
+          {zones.map((z, i) => <rect key={i} className="cmp-trace-zone" x={z.x} y={0} width={z.w} height={BOX.h} />)}
+          <polyline className="cmp-trace-line is-without" points={withoutPts} fill="none" />
+          <polyline className="cmp-trace-line is-with" points={withPts} fill="none" />
+        </svg>
+        <span className="cmp-axis-x"><span>0</span><span className="cmp-axis-xtitle">time (s)</span><span>{`${num(d.tMax)}s`}</span></span>
+      </div>
     </figure>
   );
 }
@@ -27,14 +56,23 @@ export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
 export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
   const d = domainOf(run);
   const curve = gapCurve(run);
-  const pts = polyline(gapPoints(curve, BOX, d, maxAbsL(curve)));
+  const ld = lDomain(curve);
+  const pts = polyline(gapPoints(curve, BOX, d, ld));
+  const zeroY = zeroLineY(BOX, ld);
   return (
     <figure className="cmp-trace-chart">
-      <figcaption>Length gained vs distance <small>(バ身)</small></figcaption>
-      <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage over race distance" preserveAspectRatio="none">
-        <line className="cmp-trace-baseline" x1={0} y1={BOX.h / 2} x2={BOX.w} y2={BOX.h / 2} />
-        <polyline className="cmp-trace-line is-gain" points={pts} fill="none" />
-      </svg>
+      <figcaption>Length gained vs distance</figcaption>
+      <div className="cmp-trace-plot">
+        <span className="cmp-axis-ytitle">バ身</span>
+        <span className="cmp-axis-ymax">{`${num(ld.top)}L`}</span>
+        {ld.bottom < 0 && <span className="cmp-axis-ymin">{`${num(ld.bottom)}L`}</span>}
+        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage over race distance; race phases shaded" preserveAspectRatio="none">
+          <PhaseBands bands={distancePhaseBands(BOX)} />
+          <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={BOX.w} y2={zeroY} />
+          <polyline className="cmp-trace-line is-gain" points={pts} fill="none" />
+        </svg>
+        <span className="cmp-axis-x"><span>0</span><span className="cmp-axis-xtitle">distance (m)</span><span>{`${Math.round(d.distMax)}m`}</span></span>
+      </div>
     </figure>
   );
 }

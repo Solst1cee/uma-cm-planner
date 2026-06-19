@@ -22,6 +22,23 @@ describe('SkillTraceCharts', () => {
     expect(container.querySelector('polyline')).not.toBeNull();
   });
 
+  it('both charts render 3 race-phase bands and axis labels', () => {
+    for (const chart of [<VelocityTimeChart run={run} />, <LengthDistanceChart run={run} />]) {
+      const { container, unmount } = render(chart);
+      expect(container.querySelectorAll('rect.cmp-trace-phase').length).toBe(3);
+      expect(container.querySelector('.cmp-axis-x')).not.toBeNull();
+      expect(container.querySelector('.cmp-axis-ytitle')).not.toBeNull();
+      unmount();
+    }
+  });
+
+  it('LengthDistanceChart labels the auto-scaled Y max in バ身', () => {
+    // gain reaches (7.5-5)/2.5 = 1 L → niceCeil(1) = 1 → "1L"
+    const { container } = render(<LengthDistanceChart run={run} />);
+    expect(container.querySelector('.cmp-axis-ymax')?.textContent).toBe('1L');
+    expect(container.querySelector('.cmp-axis-ytitle')?.textContent).toBe('バ身');
+  });
+
   it('ActivationRateBadge shows a Compute button when idle, fires onCompute', async () => {
     const onCompute = vi.fn();
     render(<ActivationRateBadge status="idle" rate={null} onCompute={onCompute} />);
