@@ -4,21 +4,22 @@
 .cmp-trace-chart { margin: 0; }
 .cmp-trace-chart figcaption { font-size: 11px; color: var(--muted, #9aa0a6); margin-bottom: 2px; }
 
-/* Plot = SVG + axis labels around it (labels are HTML so they don't distort under
-   the SVG's non-uniform preserveAspectRatio). */
-.cmp-trace-plot { position: relative; padding: 0 0 13px 26px; }
-.cmp-trace-plot svg { display: block; width: 100%; height: 92px; background: var(--bg-2, #1b1d22); border-radius: 8px; overflow: hidden; }
-.cmp-trace-plot span { font-size: 9px; line-height: 1; color: var(--muted, #9aa0a6); }
-.cmp-axis-ytitle { position: absolute; left: -1px; top: 50%; transform: translateY(-50%) rotate(-90deg); white-space: nowrap; }
-.cmp-axis-ymax { position: absolute; left: 0; top: 1px; width: 24px; text-align: right; }
-.cmp-axis-ymin { position: absolute; left: 0; bottom: 14px; width: 24px; text-align: right; }
-.cmp-axis-x { position: absolute; left: 26px; right: 0; bottom: 0; display: flex; justify-content: space-between; }
-.cmp-axis-xtitle { color: var(--muted, #9aa0a6); }
-/* Distance ticks at the phase transitions (absolute-positioned via inline left%). */
-.cmp-axis-x-ticks { display: block; height: 10px; }
-.cmp-axis-x-ticks .cmp-xtick { position: absolute; bottom: 0; transform: translateX(-50%); white-space: nowrap; }
-.cmp-axis-x-ticks .cmp-xtick:first-child { transform: none; }
-.cmp-axis-x-ticks .cmp-xtick:last-child { transform: translateX(-100%); }
+/* Plot = SVG (shapes stretch to fill) + HTML label overlays (so text never distorts under
+   the SVG's non-uniform preserveAspectRatio). Square corners; labels hug the graph. */
+.cmp-trace-plot { position: relative; padding-bottom: 14px; }
+/* Graph area sits to the right of a thin y-axis gutter (24px). Labels are HTML overlays
+   (so text never distorts under the SVG's non-uniform preserveAspectRatio). */
+.cmp-trace-graph { position: relative; margin-left: 24px; }
+.cmp-trace-graph svg { display: block; width: 100%; height: 96px; background: var(--bg-2, #1b1d22); border-radius: 0; }
+.cmp-trace-graph span { position: absolute; font-size: 8px; line-height: 1; color: var(--muted, #9aa0a6); pointer-events: none; white-space: nowrap; }
+/* Y scale labels — in the thin left gutter, right-aligned tight to the graph. */
+.cmp-ylabel { right: 100%; margin-right: 3px; transform: translateY(-50%); text-align: right; }
+/* X scale labels — just below the graph (every 500 m). */
+.cmp-xlabel { top: 98px; transform: translateX(-50%); }
+/* Phase labels — centered across the top of each band. */
+.cmp-phase-label { top: 2px; transform: translateX(-50%); color: var(--text, #e8e6e3); opacity: 0.55; }
+/* Faint table/grid inside the graph area (visible on the light card). */
+.cmp-trace-grid { stroke: rgba(70, 80, 95, 0.14); stroke-width: 1; vector-effect: non-scaling-stroke; }
 
 .cmp-trace-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .cmp-trace-line.is-with { stroke: var(--accent, #ffcf4a); }
@@ -33,6 +34,7 @@
 .cmp-trace-phase.is-phase-0 { fill: rgba(0, 154, 111, 0.17); }
 .cmp-trace-phase.is-phase-1 { fill: rgba(242, 233, 103, 0.13); }
 .cmp-trace-phase.is-phase-2 { fill: rgba(209, 134, 175, 0.17); }
+.cmp-trace-phase.is-phase-3 { fill: rgba(199, 109, 159, 0.24); }
 /* Skill activation window — outlined so it reads distinctly over the phase bands. */
 .cmp-trace-zone { fill: rgba(255, 207, 74, 0.16); stroke: rgba(255, 207, 74, 0.5); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .cmp-trace-choice { display: inline-flex; gap: 2px; }

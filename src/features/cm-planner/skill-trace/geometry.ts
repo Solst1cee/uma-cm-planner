@@ -3,20 +3,16 @@ import type { SkillFrame, SkillTraceRun, SkillImpactSample } from '@/sim';
 export interface Pt { x: number; y: number; }
 export interface Box { w: number; h: number; }
 export interface Domain { tMax: number; vMax: number; distMax: number; }
-/** Nice-rounded y-range; always includes 0. */
+/** A y-range; always includes 0. */
 export interface LDomain { top: number; bottom: number; }
-/** A phase background band in viewBox pixels (phase 0=Early, 1=Mid, 2=Late). */
-export interface Band { x: number; w: number; phase: 0 | 1 | 2; }
+/** A phase background band in viewBox pixels (0=Early, 1=Mid, 2=Late, 3=Last spurt). */
+export interface Band { x: number; w: number; phase: 0 | 1 | 2 | 3; }
 /** A column (bar) in viewBox pixels; `neg` flags a downward (lost-ground) bar. */
 export interface Col { x: number; y: number; w: number; h: number; neg?: boolean; }
 
-/** Race phase boundaries as fractions of course distance (Early|Mid at 1/6, Mid|Late at 2/3). */
-export const PHASE_FRACTIONS = [1 / 6, 2 / 3] as const;
-
-/** The course distances (metres) at the Early→Mid and Mid→Late transitions. */
-export function phaseBoundaryDistances(distance: number): number[] {
-  return PHASE_FRACTIONS.map((f) => f * distance);
-}
+/** Phase boundaries as fractions of course distance: Early|Mid 1/6, Mid|Late 2/3,
+ *  Late|Last-spurt 5/6 — the §0 racetrack's four phases. */
+export const PHASE_FRACTIONS = [1 / 6, 2 / 3, 5 / 6] as const;
 
 /** SVG points attribute: "x,y x,y ..." (rounded to 2dp to keep the DOM small). */
 export function polyline(points: Pt[]): string {
@@ -43,28 +39,36 @@ export function vtPoints(frames: SkillFrame[], box: Box, d: Domain): Pt[] {
   return frames.map((f) => ({ x: scale(f.t, d.tMax, box.w), y: box.h - scale(f.v, d.vMax, box.h) }));
 }
 
-/** Round up to a "nice" axis ceiling (1-2-5 × 10^k). x<=0 → 0.5. */
-export function niceCeil(x: number): number {
-  if (x <= 0) return 0.5;
-  const exp = Math.floor(Math.log10(x));
-  const pow = 10 ** exp;
-  const base = x / pow;
-  const niceBase = base <= 1 ? 1 : base <= 2 ? 2 : base <= 5 ? 5 : 10;
-  return niceBase * pow;
-}
-
-/** Auto, nice-rounded y-range for a set of values. Always includes 0 (bars read off a 0
- *  baseline); negative values get a nice-rounded floor. */
-export function niceDomain(values: number[]): LDomain {
+/** Integer-L y-range for the length-impact chart (clean 1L gridlines); always includes 0. */
+export function lAxisDomain(values: number[]): LDomain {
   const maxv = Math.max(0, ...values);
   const minv = Math.min(0, ...values);
-  return { top: niceCeil(maxv), bottom: minv < 0 ? -niceCeil(-minv) : 0 };
+  return { top: Math.max(1, Math.ceil(maxv)), bottom: minv < 0 ? Math.floor(minv) : 0 };
 }
 
 /** y-pixel of the value=0 baseline within [bottom, top] (where bars grow from). */
 export function zeroLineY(box: Box, ld: LDomain): number {
   const span = ld.top - ld.bottom || 1;
   return box.h - ((0 - ld.bottom) / span) * box.h;
+}
+
+/** Vertical gridlines (+ values) at every `step` metres across [0, distance]. */
+export function gridLinesX(distance: number, step: number, box: Box): { x: number; value: number }[] {
+  const out: { x: number; value: number }[] = [];
+  if (distance <= 0 || step <= 0) return out;
+  for (let v = 0; v <= distance + 1e-6; v += step) out.push({ x: (v / distance) * box.w, value: v });
+  return out;
+}
+
+/** Horizontal gridlines (+ values) at every `step` (y-domain units) across [bottom, top]. */
+export function gridLinesY(ld: LDomain, step: number, box: Box): { y: number; value: number }[] {
+  const out: { y: number; value: number }[] = [];
+  const span = ld.top - ld.bottom || 1;
+  if (step <= 0) return out;
+  for (let v = Math.ceil(ld.bottom / step) * step; v <= ld.top + 1e-6; v += step) {
+    out.push({ y: box.h - ((v - ld.bottom) / span) * box.h, value: Math.round(v * 1000) / 1000 });
+  }
+  return out;
 }
 
 // --- Position-resolved charts (from N Monte-Carlo samples) ---
@@ -123,14 +127,14 @@ export function binColumns(values: number[], box: Box, ld: LDomain): Col[] {
   return cols;
 }
 
-// --- Phase bands + activation overlay (for the velocity-vs-time chart) ---
+// --- Phase bands + activation overlay ---
 
-/** Three phase bands along the distance axis (constant width fractions). */
+/** Four phase bands along the distance axis (constant width fractions). */
 export function distancePhaseBands(box: Box): Band[] {
   return bandsFromEdges([0, ...PHASE_FRACTIONS.map((f) => f * box.w), box.w]);
 }
 
-/** Three phase bands along the TIME axis — phase boundaries are distances, mapped to times
+/** Four phase bands along the TIME axis — phase boundaries are distances, mapped to times
  *  via the with-skill run (so the bands line up with where each phase happens in time). */
 export function timePhaseBands(run: SkillTraceRun, box: Box, d: Domain): Band[] {
   const edges = [
@@ -145,7 +149,7 @@ function bandsFromEdges(edges: number[]): Band[] {
   const bands: Band[] = [];
   for (let i = 0; i < edges.length - 1; i++) {
     const x0 = edges[i] ?? 0, x1 = edges[i + 1] ?? x0;
-    bands.push({ x: x0, w: Math.max(0, x1 - x0), phase: i as 0 | 1 | 2 });
+    bands.push({ x: x0, w: Math.max(0, x1 - x0), phase: i as 0 | 1 | 2 | 3 });
   }
   return bands;
 }

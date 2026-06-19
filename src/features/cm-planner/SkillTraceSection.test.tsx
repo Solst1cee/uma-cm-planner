@@ -33,13 +33,13 @@ describe('SkillTraceSection', () => {
     const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
     expect(container.textContent).toMatch(/Velocity vs time/i);
     expect(container.textContent).toMatch(/Simulating activation impact/i);
-    expect(container.textContent).not.toMatch(/Length gained by activation position/i);
+    expect(container.textContent).not.toMatch(/L gained by activation position/i);
   });
 
   it('shows the impact + frequency charts and the derived rate when the impact finishes', () => {
     current = { ...base, impact, impactStatus: 'done', rate: 0.7 };
     const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
-    expect(container.textContent).toMatch(/Length gained by activation position/i);
+    expect(container.textContent).toMatch(/L gained by activation position/i);
     expect(container.textContent).toMatch(/Activation frequency by position/i);
     expect(within(container).getByText('70%')).toBeInTheDocument();
   });
