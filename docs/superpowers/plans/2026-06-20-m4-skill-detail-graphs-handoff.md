@@ -33,6 +33,18 @@ Research that settled it: umalator-global's `length-difference-chart.tsx` is the
 - **jsdom gotcha:** an open disclosure with a live `traceContext` constructs a real `SimClient` Worker (crashes jsdom). Tests that open one must `vi.mock('./useSkillTrace')` (done in `UmaChartPanel.test.tsx` + `PlannerSidebar.test.tsx`).
 - **`runComparison` has no `min/max/mean/median` fields** — derive from the sorted `results`. Skill-comparison `runData` carries only `sk` activation logs; full-comparison `runData` carries both runners' per-frame traces — don't conflate.
 
+## ⚠️ Merging this branch — it has DIVERGED from main
+
+This branch forked from `b18e179` (an older main). During this session the **parallel agent advanced `main` to `73dedfc`** with a big M4 line my branch does NOT contain: the **acquirable-skill chart** (`SkillChartPanel`, `useSkillRank`, `rankSkillChart`, `familyRepresentatives`), **plan inventory management**, **saved-plans + sidebar polish**, and a session-handoff doc. `git merge-base main HEAD` = `b18e179`, so this is a **3-way merge, not a fast-forward**.
+
+Expect conflicts in the shared M4 surfaces — resolve by keeping BOTH sides:
+- `CLAUDE.md` — both bumped the test count / M4 status lines (combine; re-run `pnpm test` for the true total).
+- `docs/modules/module-4-skill-acquisition.md` — both edited the M4 status.
+- `src/app/App.tsx` — the documented nav-route merge-collision point.
+- `src/features/cm-planner/*` (esp. `CmPlannerPage.tsx`) — the other line added `SkillChartPanel` to the same page this branch's `UmaChartPanel`/sidebar wiring touches.
+
+Recommended: `git rebase main` (or merge main in) on this branch in the worktree, resolve, re-run `pnpm test` + `pnpm build`, then PR. The sim-engine additions here (`skillTrace`/`skillImpact` in `run.ts`/`types.ts`/`client.ts`/worker) are additive and should merge clean.
+
 ## Worktree housekeeping (not committed, safe to ignore/remove)
 
 - `.../sdd/*.mjs` (Playwright drive/diag scripts) + `*.png` + `*-brief.md`/`*-report.md` live under `.git/worktrees/.../sdd/` — gitignored, never tracked.
