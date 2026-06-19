@@ -29,12 +29,24 @@ function FixtureBanner() {
   );
 }
 
+function CurrentCmBadge() {
+  const { currentCm } = useGameData();
+  if (!currentCm) return null;
+  const date = currentCm.dates.finals ?? currentCm.dates.start ?? '';
+  return (
+    <span className="cmp-now-chip" title="Current / next Champions Meeting (from the timeline)">
+      Now: {currentCm.title}{date ? ` · ${date}` : ''}
+    </span>
+  );
+}
+
 function Shell() {
   return (
     <>
       <header className="app-header">
         <div className="app-title-row">
           <h1>Uma CM Planner</h1>
+          <CurrentCmBadge />
           <SettingsMenu />
         </div>
         <nav aria-label="Modules">

@@ -294,6 +294,20 @@ button:disabled {
 
 /* ---- Badges & chips ---- */
 
+/* App-wide "current CM" pill rendered in the title row. */
+.cmp-now-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  white-space: nowrap;
+  flex: none;
+}
+
 .badge,
 .chip,
 .chip-sm {
