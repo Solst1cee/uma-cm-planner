@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from 'react';
 import './cm-planner.css';
-import { useActivePlan } from '@/app/ActivePlanContext';
+import { makeDefaultPlan, useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
 import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
@@ -53,6 +53,8 @@ export function CmPlannerPage() {
     setPlan,
     selectPlan,
     deleteSavedPlan,
+    importSavedPlans,
+    deleteAllSavedPlans,
     setDraftPlan,
     saveCurrentPlan,
     saveCurrentPlanAs,
@@ -167,12 +169,14 @@ export function CmPlannerPage() {
   };
   const newDefaultPlan = (): CmPlan => {
     const distanceKey = distanceClass(selection.distance);
+    const baseline = makeDefaultPlan();
     const draft: CmPlan = {
-      ...plan,
+      ...baseline,
       id: crypto.randomUUID(),
       name: '',
       notes: '',
       planNumber: 1,
+      scenarioId: plan.scenarioId,
       cmRef: {
         ...plan.cmRef,
         ...(racePreset ? { cmId: racePreset.cmId as CmId, cmNumber: racePreset.cmNumber } : { cmId: 'CM0' as CmId, cmNumber: 0 }),
@@ -183,11 +187,6 @@ export function CmPlannerPage() {
         weather: selection.weather,
         season: selection.season,
       },
-      umaId: '106801',
-      uniqueSkillId: '',
-      role: 'ace',
-      strategy: 'front',
-      statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
       sparkGoals: {
         pink: [
           { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
@@ -196,10 +195,9 @@ export function CmPlannerPage() {
         ],
         blue: {},
       },
-      wishlist: [],
-      lockedDeckSlots: [],
-      parents: {},
-      inheritanceStopgap: undefined,
+      patch: plan.patch,
+      server: plan.server,
+      dataVersion: plan.dataVersion,
     };
     const planNumber = nextPlanNumberForContent(draft, savedPlans);
     const numberedDraft = { ...draft, planNumber };
@@ -221,6 +219,8 @@ export function CmPlannerPage() {
             void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
           }}
           onDeletePlan={deleteSavedPlan}
+          onDeleteAllPlans={deleteAllSavedPlans}
+          onImportPlans={importSavedPlans}
           onSelectPlan={async (id) => {
             const loadedPlan = savedPlans.find((savedPlan) => savedPlan.id === id);
             await selectPlan(id);

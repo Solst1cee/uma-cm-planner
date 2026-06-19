@@ -80,6 +80,7 @@ Accepted behavior:
 
 - Plan names remain freely editable while `Auto` is off.
 - Turning `Auto` on continuously regenerates the name from the current race, Uma, role, strategy, and optional remark, and makes the name field read-only.
+- Auto defaults on when a loaded plan's name exactly matches its generated name (including first-run and New Kitasan plans). Custom names default off; manually turning Auto off remains respected until another plan is loaded.
 - Turning `Auto` off preserves the generated text and unlocks the field.
 - Save generates a name only when the field is blank; a nonblank custom name is never replaced.
 - Auto-generated names no longer include `Plan N`. Example: `CM15 / Kitasan Black / Ace / Front`.

@@ -154,8 +154,14 @@ export function PlannerSidebar({
   const [umaQuery, setUmaQuery] = useState('');
   const [umaPickerOpen, setUmaPickerOpen] = useState(false);
   const [activeUmaIndex, setActiveUmaIndex] = useState(0);
-  const [autoGeneratePlanId, setAutoGeneratePlanId] = useState<string | null>(null);
+  const [wishlistDeleteConfirm, setWishlistDeleteConfirm] = useState(false);
+  const initialUmaName = umaById?.get(plan.umaId)?.nameEn ?? (plan.umaId ? `Uma ${plan.umaId}` : undefined);
+  const [autoGeneratePlanId, setAutoGeneratePlanId] = useState<string | null>(() =>
+    plan.name === generatePlanName(plan, initialUmaName, raceNameLabel) ? plan.id : null,
+  );
+  const previousPlanIdRef = useRef(plan.id);
   const noteTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const wishlistHeaderActionsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -181,6 +187,21 @@ export function PlannerSidebar({
     if (noteTextareaRef.current) resizeNoteTextarea(noteTextareaRef.current);
   }, [plan.notes]);
 
+  useEffect(() => {
+    if (!wishlistDeleteConfirm) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!wishlistHeaderActionsRef.current?.contains(event.target as Node)) {
+        setWishlistDeleteConfirm(false);
+      }
+    };
+    document.addEventListener('pointerdown', dismiss);
+    return () => document.removeEventListener('pointerdown', dismiss);
+  }, [wishlistDeleteConfirm]);
+
+  useEffect(() => {
+    if (plan.wishlist.length === 0) setWishlistDeleteConfirm(false);
+  }, [plan.wishlist.length]);
+
   const globalUmas = useMemo(
     () => (umas ?? []).filter((u) => u.server === plan.server),
     [plan.server, umas],
@@ -189,6 +210,12 @@ export function PlannerSidebar({
   const currentUmaName = currentUma?.nameEn ?? (plan.umaId ? `Uma ${plan.umaId}` : undefined);
   const autoGenerateName = autoGeneratePlanId === plan.id;
   const generatedPlanName = generatePlanName(plan, currentUmaName, raceNameLabel);
+
+  useEffect(() => {
+    if (previousPlanIdRef.current === plan.id) return;
+    previousPlanIdRef.current = plan.id;
+    setAutoGeneratePlanId(plan.name === generatedPlanName ? plan.id : null);
+  }, [generatedPlanName, plan.id, plan.name]);
   const umaResults = useMemo(() => {
     const q = umaQuery.trim().toLowerCase();
     return globalUmas
@@ -396,7 +423,24 @@ export function PlannerSidebar({
           </div>
 
           <section className="cmp-sidebar-section" aria-labelledby="cmp-runner-h">
-            <h3 id="cmp-runner-h">Runner</h3>
+            <div className="cmp-runner-title-row">
+              <h3 id="cmp-runner-h">Runner</h3>
+              <div className="cmp-runner-role">
+                <div className="cmp-mini-label">Role</div>
+                <div className="cmp-control-group" aria-label="Role">
+                  {ROLES.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={plan.role === value}
+                      onClick={() => onChange({ ...plan, role: value })}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             <div className="cmp-runner-card">
               {plan.umaId ? <GameIcon kind="uma" id={plan.umaId} size={70} alt="" /> : <span className="cmp-portrait-ph">uma</span>}
               <div className="cmp-runner-picker">
@@ -478,22 +522,6 @@ export function PlannerSidebar({
                     })}
                   </ul>
                 )}
-              </div>
-            </div>
-
-            <div className="cmp-runner-role">
-              <div className="cmp-mini-label">Role</div>
-              <div className="cmp-control-group" aria-label="Role">
-                {ROLES.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={plan.role === value}
-                    onClick={() => onChange({ ...plan, role: value })}
-                  >
-                    {label}
-                  </button>
-                ))}
               </div>
             </div>
 
@@ -726,19 +754,56 @@ export function PlannerSidebar({
           <section className="cmp-sidebar-section" aria-labelledby="cmp-wishlist-h">
             <div className="cmp-section-title-row">
               <h3 id="cmp-wishlist-h">Wishlist ({plan.wishlist.length})</h3>
-              <button
-                type="button"
-                className="cmp-clear-wishlist-btn"
-                aria-label="Clear wishlist"
-                title="Clear wishlist"
-                disabled={plan.wishlist.length === 0}
-                onClick={() => onChange({ ...plan, wishlist: [] })}
+              <div
+                ref={wishlistHeaderActionsRef}
+                className="cmp-inventory-header-actions cmp-wishlist-header-actions"
               >
-                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                  <path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" />
-                  <path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" />
-                </svg>
-              </button>
+                {wishlistDeleteConfirm ? (
+                  <>
+                    <span className="cmp-inventory-confirm-text">Confirm delete all items?</span>
+                    <button
+                      type="button"
+                      className="cmp-inventory-icon-btn is-confirm"
+                      aria-label="Confirm delete all wishlist skills"
+                      title="Confirm delete all wishlist skills"
+                      onClick={() => {
+                        onChange({ ...plan, wishlist: [] });
+                        setWishlistDeleteConfirm(false);
+                      }}
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="m4 10.2 3.4 3.4L16 5l1.4 1.4-10 10L2.6 11.6 4 10.2Z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="cmp-inventory-icon-btn is-cancel"
+                      aria-label="Cancel delete all wishlist skills"
+                      title="Cancel"
+                      onClick={() => setWishlistDeleteConfirm(false)}
+                    >
+                      <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4.7 4.7 4.7-1.4 1.4-4.7-4.7-4.7 4.7-1.4-1.4L8.6 10 3.9 5.3l1.4-1.4Z" />
+                      </svg>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+                    aria-label="Delete all wishlist skills"
+                    title="Delete all"
+                    disabled={plan.wishlist.length === 0}
+                    onClick={() => setWishlistDeleteConfirm(true)}
+                  >
+                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                      <path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" />
+                      <path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" />
+                    </svg>
+                    <span>Delete all</span>
+                  </button>
+                )}
+              </div>
             </div>
             <div className="cmp-wishlist-list">
               {plan.wishlist.length === 0 && <p className="muted small">No target skills yet.</p>}

@@ -10,7 +10,7 @@
   overflow: hidden;
 }
 .cmp-skill-chart-title {
-  font-size: 0.82rem;
+  font-size: inherit;
   font-weight: 700;
 }
 .cmp-skill-body {

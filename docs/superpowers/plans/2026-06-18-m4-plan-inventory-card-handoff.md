@@ -54,6 +54,24 @@ Clicking the main row loads the saved plan. Clicking trash deletes it without se
 
 After a successful inventory load, all expanded skill details collapse automatically. This covers the current Uma's unique skill, wishlist skills, unique-skill chart rows, and acquirable-skill chart rows. Only the skill disclosures close; chart results, chart filters, and parent panel open/closed state remain intact.
 
+## JSON Transfer Toolbar
+
+A right-aligned icon toolbar sits inside the `Plan Inventory` card header, ordered:
+
+1. Upload plan JSON
+2. Download all plans as ZIP
+3. Delete all plans
+
+The actions are icon-only at rest. Hovering or keyboard-focusing an action expands its visible label to `Upload`, `Download all`, or `Delete all` without increasing the shared card-header height.
+
+Upload accepts multiple `.json` files in one selection. Each file may contain one `CmPlan`, an array of plans, or the app's version-2 full backup blob; only validated plans are imported. Import is additive. Free IDs are preserved, while an ID collision receives a new UUID, the next version number, and a collision-safe name instead of replacing local data.
+
+Download all creates `uma-plans.zip` in the browser with one readable, filename-sanitized JSON file per saved plan. `fflate` supplies browser-side ZIP creation. Each inventory row also has a download icon immediately before its trash icon for downloading that plan as plain JSON.
+
+Each collapsible inventory-group header has a separate download action immediately before its collapse caret. It expands to `Download all` on hover/focus and downloads only that group's plans as `<group>-plans.zip`; activating it must not collapse the group.
+
+Delete all does not use a browser modal. Clicking trash changes the toolbar to `Confirm delete all items?` followed by tick and cross buttons. Tick deletes every saved plan and leaves a fresh unsaved Kitasan draft active. Cross or any pointer click outside the toolbar restores the original three icons without deleting.
+
 ## Delete Semantics
 
 Deletion goes through `ActivePlanContext.deleteSavedPlan()` and Dexie.
@@ -64,6 +82,8 @@ Deletion goes through `ActivePlanContext.deleteSavedPlan()` and Dexie.
 - The empty inventory shows `No saved plans yet.` and must not retain a stale course group or `1 item` count.
 
 Do not save the fallback draft automatically after deleting the final item; doing so recreates the row the user just removed.
+
+Fresh devices start with the same generated CM15 Kitasan baseline as the New action. On load, an exact untouched legacy starter (blank name/Uma, Pace, old `1000 / 600 / 600 / 400 / 400` stats, no targets or wishlist) is replaced only when it is the device's sole saved plan. Edited and user-created plans are never migrated by this check.
 
 ## Inventory Setting
 
@@ -127,6 +147,7 @@ Focused commands used during this session:
 pnpm.cmd vitest run src/features/cm-planner/CmPlannerPage.test.tsx src/features/planner/race-setup/RaceSetup.test.tsx
 pnpm.cmd vitest run src/features/cm-planner/CmPlannerPage.test.tsx src/app/ActivePlanContext.test.tsx src/db/exportImport.test.ts src/features/skill-planner/PlanHeaderPanel.test.tsx
 pnpm.cmd vitest run src/features/cm-planner/CmPlannerPage.test.tsx src/features/cm-planner/PlannerSidebar.test.tsx src/features/cm-planner/UmaChartPanel.test.tsx src/features/cm-planner/SkillChartPanel.test.tsx
+pnpm.cmd vitest run src/features/cm-planner/PlanInventoryCard.test.ts src/features/cm-planner/CmPlannerPage.test.tsx src/app/ActivePlanContext.test.tsx src/db/exportImport.test.ts
 pnpm.cmd typecheck
 pnpm.cmd build
 ```
@@ -136,6 +157,7 @@ Last results:
 - Inventory/Race setup focused suite: 22 tests passed.
 - Plan/storage regression suite: 61 tests passed.
 - Inventory-load skill-collapse suite: 53 tests passed.
+- Inventory JSON transfer/delete-all suite: 56 tests passed.
 - Typecheck passed.
 - Production build passed.
 - Browser verification at `http://127.0.0.1:5177/` confirmed equal-width inventory cards, the settings card below the list, and the slider aligned at the right.

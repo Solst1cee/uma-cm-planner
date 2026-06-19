@@ -358,6 +358,17 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   return row as unknown as CmPlan;
 }
 
+/** Validate inventory upload JSON and return only the contained plans. */
+export function parsePlanFile(data: unknown): CmPlan[] {
+  if (Array.isArray(data)) {
+    return data.map((plan, index) => parseCmPlan(plan, `plans[${index}]`));
+  }
+  if (isRecord(data) && data['version'] === 2 && Array.isArray(data['cmPlans'])) {
+    return parseExportBlobV2(data).cmPlans;
+  }
+  return [parseCmPlan(data, 'plan')];
+}
+
 function parseMatchLog(v: unknown, path: string): MatchLog {
   const row = asRecord(v, path);
   optId(row, path);

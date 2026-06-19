@@ -2,11 +2,10 @@
  * Active-plan persistence: the debounced save must be flushable (export/import
  * snapshot Dexie directly — review 2026-06-12: stale export within the 400ms
  * window) and must flush on pagehide (tab close / mobile background-kill).
- * Also covers makeDefaultPlan's P4 preference for Global presets.
+ * Also covers the shared first-run Kitasan baseline.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
-import type { CmPreset } from '@/core/types';
 import {
   ActivePlanProvider,
   makeDefaultPlan,
@@ -49,6 +48,54 @@ async function renderProvider() {
   vi.mocked(savePlan).mockClear(); // drop the default-plan creation save
   vi.mocked(setSetting).mockClear();
 }
+
+describe('ActivePlanProvider first run', () => {
+  it('persists the Kitasan baseline when the device has no saved plans', async () => {
+    render(
+      <ActivePlanProvider>
+        <Grab />
+      </ActivePlanProvider>,
+    );
+
+    await waitFor(() => expect(savePlan).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(savePlan).mock.calls[0]?.[0]).toMatchObject({
+      name: 'CM15 / Kitasan Black / Ace / Front',
+      umaId: '106801',
+      strategy: 'front',
+      cmRef: { cmId: 'CM15', courseId: '10906' },
+    });
+  });
+
+  it('migrates the untouched legacy starter already stored on a device', async () => {
+    const legacy = {
+      ...makeDefaultPlan(),
+      id: 'legacy-starter',
+      name: '',
+      umaId: '',
+      uniqueSkillId: '',
+      strategy: 'pace' as const,
+      statProfile: { stats: { spd: 1000, sta: 600, pow: 600, gut: 400, wit: 400 }, mood: 2 as const },
+      sparkGoals: { pink: [], blue: {} },
+    };
+    vi.mocked(listPlans).mockResolvedValueOnce([legacy]).mockResolvedValueOnce([]);
+
+    render(
+      <ActivePlanProvider>
+        <Grab />
+      </ActivePlanProvider>,
+    );
+
+    await waitFor(() => expect(ctx.plan?.umaId).toBe('106801'));
+    expect(deletePlan).toHaveBeenCalledWith('legacy-starter');
+    expect(savePlan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'CM15 / Kitasan Black / Ace / Front',
+        umaId: '106801',
+        strategy: 'front',
+      }),
+    );
+  });
+});
 
 describe('ActivePlanProvider flushPendingSave', () => {
   it('persists an edit still inside the debounce window, exactly once', async () => {
@@ -250,44 +297,70 @@ describe('ActivePlanProvider flushPendingSave', () => {
     expect(ctx.savedPlans).toEqual([]);
     expect(savePlan).not.toHaveBeenCalled();
     expect(ctx.plan?.id).not.toBe(activeId);
-    expect(ctx.plan?.name).toBe('');
+    expect(ctx.plan?.name).toBe('CM15 / Kitasan Black / Ace / Front');
+  });
+
+  it('imports an id collision as a named copy instead of overwriting', async () => {
+    await renderProvider();
+    const existing = ctx.plan!;
+    vi.mocked(listPlans).mockResolvedValueOnce([existing]).mockResolvedValueOnce([existing]);
+
+    await act(async () => {
+      await ctx.importSavedPlans([{ ...existing }]);
+    });
+
+    const imported = vi.mocked(savePlan).mock.calls.at(-1)?.[0];
+    expect(imported?.id).not.toBe(existing.id);
+    expect(imported?.name).toBe(`${existing.name} (1)`);
+  });
+
+  it('deletes every saved plan and leaves a fresh unsaved draft', async () => {
+    await renderProvider();
+    const first = ctx.plan!;
+    const second = { ...first, id: 'second-plan', name: 'Second Plan' };
+    vi.mocked(listPlans).mockResolvedValueOnce([first, second]);
+
+    await act(async () => {
+      await ctx.deleteAllSavedPlans();
+    });
+
+    expect(deletePlan).toHaveBeenCalledWith(first.id);
+    expect(deletePlan).toHaveBeenCalledWith(second.id);
+    expect(ctx.savedPlans).toEqual([]);
+    expect(ctx.plan?.id).not.toBe(first.id);
+    expect(savePlan).not.toHaveBeenCalled();
   });
 });
 
-describe('makeDefaultPlan preset preference (P4)', () => {
-  const preset = (over: Partial<CmPreset>): CmPreset => ({
-    name: 'X',
-    date: '2026-01-22',
-    server: 'global',
-    dataVersion: 'fixture',
-    courseId: '10506',
-    surface: 'turf',
-    distance: 2500,
-    ...over,
-  });
-
-  it('prefers the latest Global preset over later JP history', () => {
-    const plan = makeDefaultPlan([
-      preset({ name: 'JP Newest', date: '2026-05-22', server: 'jp' }),
-      preset({ name: 'Global Latest', date: '2026-04-22', courseId: '10811' }),
-      preset({ name: 'Global Older', date: '2025-12-22' }),
-    ]);
-    expect(plan.name).toBe('');
-    expect(plan.cmRef.courseId).toBe('10811');
-  });
-
-  it('falls back to the latest preset overall when none are Global', () => {
-    const plan = makeDefaultPlan([
-      preset({ name: 'JP Old', date: '2025-01-01', server: 'jp' }),
-      preset({ name: 'JP New', date: '2026-02-02', server: 'jp' }),
-    ]);
-    expect(plan.name).toBe('');
-  });
-
-  it('still produces a usable plan with no presets at all', () => {
-    const plan = makeDefaultPlan([]);
-    expect(plan.name).toBe('');
-    expect(plan.statProfile.mood).toBe(2);
+describe('makeDefaultPlan', () => {
+  it('uses the same CM15 Kitasan baseline as the New action', () => {
+    const plan = makeDefaultPlan();
+    expect(plan).toMatchObject({
+      name: 'CM15 / Kitasan Black / Ace / Front',
+      umaId: '106801',
+      uniqueSkillId: '',
+      role: 'ace',
+      strategy: 'front',
+      cmRef: {
+        cmId: 'CM15',
+        cmNumber: 15,
+        courseId: '10906',
+        surface: 'turf',
+        distance: 2200,
+        condition: 'good',
+        weather: 'cloudy',
+        season: 'summer',
+      },
+      statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
+      sparkGoals: {
+        blue: {},
+        pink: [
+          { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
+          { aptKey: { kind: 'distance', key: 'medium' }, target: 'S' },
+          { aptKey: { kind: 'strategy', key: 'front' }, target: 'A' },
+        ],
+      },
+    });
     expect(plan.wishlist).toEqual([]);
   });
 });

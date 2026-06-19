@@ -277,6 +277,16 @@ describe('PlannerSidebar', () => {
     expect(screen.getByLabelText('Plan name')).toHaveAttribute('readonly');
   });
 
+  it('defaults Auto on when a plan arrives with its generated name', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      name: 'CM15 / Special Week / Ace / Front',
+    });
+
+    expect(screen.getByRole('switch', { name: 'Auto-generate plan name' })).toBeChecked();
+    expect(screen.getByLabelText('Plan name')).toHaveAttribute('readonly');
+  });
+
   it('auto-generates custom track plan names from the current course label instead of stale CM metadata', async () => {
     const user = userEvent.setup();
     renderSidebar({
@@ -441,11 +451,27 @@ describe('PlannerSidebar', () => {
     );
   });
 
-  it('clears the wishlist from the section header', async () => {
+  it('requires inline confirmation to delete all wishlist skills and cancels on outside click', async () => {
     const user = userEvent.setup();
     renderSidebar();
 
-    await user.click(screen.getByRole('button', { name: 'Clear wishlist' }));
+    await user.click(screen.getByRole('button', { name: 'Delete all wishlist skills' }));
+    expect(screen.getByText('Confirm delete all items?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm delete all wishlist skills' })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByText('Confirm delete all items?')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete all wishlist skills' })).toBeInTheDocument();
+    expect(h.setPlan).not.toHaveBeenCalled();
+  });
+
+  it('deletes all wishlist skills after inline confirmation', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.click(screen.getByRole('button', { name: 'Delete all wishlist skills' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm delete all wishlist skills' }));
 
     expect(h.setPlan).toHaveBeenCalledWith(expect.objectContaining({ wishlist: [] }));
   });

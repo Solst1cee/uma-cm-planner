@@ -115,6 +115,10 @@
   gap: 0.45rem;
 }
 
+.cmp-plan-inventory > .cmp-plan-card:first-child > .cmp-plan-card-head {
+  padding-block: 0.3rem;
+}
+
 .cmp-plan-inventory {
   display: flex;
   flex-direction: column;
@@ -206,6 +210,38 @@
   background: #fff;
 }
 
+.cmp-inventory-header-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.32rem;
+  margin-left: auto;
+}
+
+.cmp-inventory-header-actions > span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-inventory-action-message {
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-inventory-confirm-text {
+  color: var(--fg);
+  white-space: nowrap;
+}
+
 .cmp-plan-json summary {
   padding: 0.38rem 0.48rem;
   color: var(--fg);
@@ -231,12 +267,15 @@
 }
 
 .cmp-inventory-group-head {
+  display: flex;
   width: 100%;
-  min-height: 2rem;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.25rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #f8fbff;
-  padding: 0.35rem 0.48rem;
+  padding: 0.08rem 0.18rem 0.08rem 0.48rem;
   color: var(--fg);
   font-size: 0.78rem;
   font-weight: 800;
@@ -246,6 +285,47 @@
 .cmp-inventory-group-head:hover {
   border-color: #b8cdf0;
   background: #eef5ff;
+}
+
+.cmp-inventory-group-toggle {
+  min-width: 0;
+  flex: 1 1 auto;
+  align-self: stretch;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+}
+
+.cmp-inventory-group-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-inventory-group-download {
+  flex: 0 0 auto;
+}
+
+.cmp-inventory-group-caret-btn {
+  display: inline-flex;
+  width: 1.45rem;
+  align-self: stretch;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cmp-inventory-group-caret-btn .cmp-collapse-caret {
+  margin-left: 0;
 }
 
 .cmp-inventory-count {
@@ -271,7 +351,7 @@
 
 .cmp-inventory-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 0.42rem;
   align-items: center;
   border: 1px solid var(--border);
@@ -372,7 +452,7 @@
   white-space: nowrap;
 }
 
-.cmp-inventory-delete-btn {
+.cmp-inventory-icon-btn {
   display: inline-flex;
   width: 1.85rem;
   height: 1.85rem;
@@ -387,16 +467,69 @@
   color: #48627f;
 }
 
-.cmp-inventory-delete-btn svg {
+.cmp-inventory-icon-btn svg {
   display: block;
   width: 1rem;
   height: 1rem;
   fill: currentColor;
 }
 
-.cmp-inventory-delete-btn:hover {
+.cmp-inventory-icon-btn:not(:disabled):hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.cmp-inventory-icon-btn:disabled {
+  color: #b6c4d5;
+  cursor: default;
+}
+
+.cmp-inventory-icon-btn.is-confirm {
+  color: #1f9a59;
+}
+
+.cmp-inventory-icon-btn.is-cancel {
+  color: #d83d54;
+}
+
+.cmp-inventory-action-btn {
+  width: auto;
+  min-width: 1.85rem;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.cmp-inventory-action-btn > span {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  color: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  white-space: nowrap;
+  transition: margin 160ms ease, max-width 160ms ease, opacity 120ms ease;
+}
+
+.cmp-inventory-action-btn > svg {
+  margin-left: 0;
+  transition: margin-left 160ms ease;
+}
+
+.cmp-inventory-action-btn:hover > span,
+.cmp-inventory-action-btn:focus-visible > span {
+  max-width: 6rem;
+  margin-left: 0.25rem;
+  margin-right: 0.4rem;
+  opacity: 1;
+}
+
+.cmp-inventory-action-btn:hover > svg,
+.cmp-inventory-action-btn:focus-visible > svg {
+  margin-left: 0.25rem;
 }
 
 /* ---- Planner sidebar ---- */
@@ -458,8 +591,9 @@ main:has(.cmp-page) {
   border-bottom: 1px solid var(--border);
   background: var(--bg-2);
   padding: 0.6rem 0.75rem;
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.1;
 }
 
 .cmp-plan-card-body {
@@ -471,6 +605,17 @@ main:has(.cmp-page) {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.cmp-sidebar {
+  position: static;
+  max-height: none;
+  padding-right: 0;
+}
+
+.cmp-sidebar > .cmp-plan-card > .cmp-plan-card-body {
+  overflow-y: visible;
+  overscroll-behavior: auto;
 }
 
 /* clickable collapsible header (the whole bar toggles) — pairs with .cmp-plan-card-head */
@@ -645,10 +790,12 @@ main:has(.cmp-page) {
 
 .cmp-section-title-row {
   justify-content: space-between;
+  margin-bottom: 0.75rem;
 }
 
-.cmp-section-title-row h3 {
+.cmp-sidebar-section .cmp-section-title-row h3 {
   margin: 0;
+  line-height: 1;
 }
 
 .cmp-clear-wishlist-btn {
@@ -738,6 +885,43 @@ main:has(.cmp-page) {
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.cmp-runner-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.cmp-sidebar-section .cmp-runner-title-row h3 {
+  margin: 0;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.cmp-runner-role {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.cmp-runner-role .cmp-mini-label,
+.cmp-runner-role .cmp-control-group {
+  margin: 0;
+}
+
+.cmp-runner-role .cmp-control-group {
+  flex-wrap: nowrap;
+}
+
+.cmp-runner-role .cmp-control-group button {
+  padding: 0.2rem 0.45rem;
+  white-space: nowrap;
 }
 
 .cmp-runner-card {

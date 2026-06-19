@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 
 const h = vi.hoisted(() => {
@@ -92,6 +93,8 @@ const h = vi.hoisted(() => {
   const savedPlans = [plan, customPlan];
   const selectPlan = vi.fn(async () => undefined);
   const deleteSavedPlan = vi.fn(async () => undefined);
+  const importSavedPlans = vi.fn(async (plans: unknown[]) => plans.length);
+  const deleteAllSavedPlans = vi.fn(async () => undefined);
   const saveCurrentPlan = vi.fn(async () => undefined);
   const saveCurrentPlanAs = vi.fn(async () => undefined);
   const setDraftPlan = vi.fn();
@@ -111,6 +114,8 @@ const h = vi.hoisted(() => {
     listPlans,
     selectPlan,
     deleteSavedPlan,
+    importSavedPlans,
+    deleteAllSavedPlans,
     saveCurrentPlan,
     saveCurrentPlanAs,
     setDraftPlan,
@@ -136,11 +141,15 @@ vi.mock('@/sim/courseCatalog', () => ({
     },
   ],
 }));
-vi.mock('@/db', () => ({
-  listPlans: h.listPlans,
-  getSetting: h.getSetting,
-  setSetting: h.setSetting,
-}));
+vi.mock('@/db', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/db')>();
+  return {
+    ...actual,
+    listPlans: h.listPlans,
+    getSetting: h.getSetting,
+    setSetting: h.setSetting,
+  };
+});
 vi.mock('@/features/data/gameData', () => ({
   useGameData: () => ({
     status: 'ready',
@@ -151,23 +160,29 @@ vi.mock('@/features/data/gameData', () => ({
     iconManifest: null,
   }),
 }));
-vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({
-    plan: h.plan,
-    savedPlans: h.savedPlans,
-    autoSave: false,
-    isSaved: true,
-    setAutoSave: h.setAutoSave,
-    setPlan: h.setPlan,
-    selectPlan: h.selectPlan,
-    deleteSavedPlan: h.deleteSavedPlan,
-    setDraftPlan: h.setDraftPlan,
-    saveCurrentPlan: h.saveCurrentPlan,
-    saveCurrentPlanAs: h.saveCurrentPlanAs,
-    flushPendingSave: h.saveCurrentPlan,
-    loadError: null,
-  }),
-}));
+vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/app/ActivePlanContext')>();
+  return {
+    ...actual,
+    useActivePlan: () => ({
+      plan: h.plan,
+      savedPlans: h.savedPlans,
+      autoSave: false,
+      isSaved: true,
+      setAutoSave: h.setAutoSave,
+      setPlan: h.setPlan,
+      selectPlan: h.selectPlan,
+      deleteSavedPlan: h.deleteSavedPlan,
+      importSavedPlans: h.importSavedPlans,
+      deleteAllSavedPlans: h.deleteAllSavedPlans,
+      setDraftPlan: h.setDraftPlan,
+      saveCurrentPlan: h.saveCurrentPlan,
+      saveCurrentPlanAs: h.saveCurrentPlanAs,
+      flushPendingSave: h.saveCurrentPlan,
+      loadError: null,
+    }),
+  };
+});
 vi.mock('./skillTechnicalDetails', () => ({
   loadUniqueSkillByUmaId: vi.fn(async () => new Map()),
   loadSkillTechnicalDetail: vi.fn(async () => null),
@@ -195,6 +210,8 @@ afterEach(() => {
   h.listPlans.mockClear();
   h.selectPlan.mockClear();
   h.deleteSavedPlan.mockClear();
+  h.importSavedPlans.mockClear();
+  h.deleteAllSavedPlans.mockClear();
   h.saveCurrentPlan.mockClear();
   h.saveCurrentPlanAs.mockClear();
   h.setDraftPlan.mockClear();
@@ -226,14 +243,14 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
     expect(inventory).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: /CM15/ })).toBeInTheDocument();
+    expect(await within(inventory).findByRole('button', { name: /^CM15 1$/ })).toBeInTheDocument();
     expect(await within(inventory).findByText('p')).toBeInTheDocument();
     expect(await within(inventory).findByText('Hanshin Trial')).toBeInTheDocument();
     expect(within(inventory).getAllByText('1200 / 650 / 900 / 400 / 600')).toHaveLength(2);
     expect(within(inventory).getByText('Turf A / Medium S / Front A')).toBeInTheDocument();
     expect(within(inventory).getByText('Turf A / Medium S / Late A')).toBeInTheDocument();
     expect(within(inventory).getAllByRole('button', { name: 'Delete plan' })).toHaveLength(2);
-    expect(await within(inventory).findByRole('button', { name: /Hanshin 2,200m \(Inner\)/ })).toBeInTheDocument();
+    expect(await within(inventory).findByRole('button', { name: /^Hanshin 2,200m \(Inner\) 1$/ })).toBeInTheDocument();
   });
 
   it('shows and persists the inventory track setup switch', async () => {
@@ -279,7 +296,7 @@ describe('CmPlannerPage', () => {
   it('applies saved condition, weather, and season only when the plan is loaded again', async () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
-    const savedPlan = await within(inventory).findByRole('button', { name: /Hanshin Trial/ });
+    const savedPlan = await within(inventory).findByRole('button', { name: /^Hanshin Trial 1200/ });
 
     expect(screen.getByLabelText('Ground')).toHaveValue('good');
     fireEvent.click(savedPlan);
@@ -381,7 +398,7 @@ describe('CmPlannerPage', () => {
   it('selects a saved plan from the inventory list', async () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
-    const savedPlan = await within(inventory).findByRole('button', { name: /Hanshin Trial/ });
+    const savedPlan = await within(inventory).findByRole('button', { name: /^Hanshin Trial 1200/ });
 
     fireEvent.click(savedPlan);
 
@@ -397,7 +414,7 @@ describe('CmPlannerPage', () => {
     expect(skillDetails).toHaveAttribute('open');
 
     const inventory = screen.getByLabelText('Plan Inventory');
-    fireEvent.click(await within(inventory).findByRole('button', { name: /Hanshin Trial/ }));
+    fireEvent.click(await within(inventory).findByRole('button', { name: /^Hanshin Trial 1200/ }));
 
     await waitFor(() => expect(skillDetails).not.toHaveAttribute('open'));
   });
@@ -414,10 +431,67 @@ describe('CmPlannerPage', () => {
     expect(h.selectPlan).not.toHaveBeenCalled();
   });
 
+  it('shows upload, ZIP download, delete-all, and per-plan download controls', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    await within(inventory).findByText('Hanshin Trial');
+    const header = inventory.querySelector<HTMLElement>('.cmp-plan-card-head');
+    expect(header).not.toBeNull();
+
+    expect(within(header!).getByRole('button', { name: 'Upload plan JSON' })).toBeInTheDocument();
+    expect(within(header!).getByRole('button', { name: 'Download all plans as ZIP' })).toBeInTheDocument();
+    expect(within(header!).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
+    const groupDownloads = within(inventory).getAllByRole('button', { name: /^Download all plans in / });
+    expect(groupDownloads).toHaveLength(2);
+    const groupHead = groupDownloads[0]?.closest('.cmp-inventory-group-head');
+    expect(groupHead?.children[1]).toBe(groupDownloads[0]);
+    expect(groupHead?.children[2]).toHaveClass('cmp-inventory-group-caret-btn');
+    expect(within(inventory).getByRole('button', { name: 'Download p' })).toBeInTheDocument();
+    expect(within(inventory).getByRole('button', { name: 'Download Hanshin Trial' })).toBeInTheDocument();
+  });
+
+  it('uploads multiple plan JSON files together', async () => {
+    const user = userEvent.setup();
+    render(<CmPlannerPage />);
+    const input = screen.getByLabelText('Upload plan files');
+    const files = [
+      new File([JSON.stringify(h.plan)], 'plan-one.json', { type: 'application/json' }),
+      new File([JSON.stringify(h.customPlan)], 'plan-two.json', { type: 'application/json' }),
+    ];
+
+    await user.upload(input, files);
+
+    await waitFor(() => expect(h.importSavedPlans).toHaveBeenCalledTimes(1));
+    expect(h.importSavedPlans.mock.calls[0]?.[0]).toHaveLength(2);
+  });
+
+  it('requires inline confirmation for delete all and cancels on outside click', () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Delete all plans' }));
+    expect(within(inventory).getByText('Confirm delete all items?')).toBeInTheDocument();
+    expect(within(inventory).getByRole('button', { name: 'Confirm delete all plans' })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+    expect(within(inventory).queryByText('Confirm delete all items?')).not.toBeInTheDocument();
+    expect(within(inventory).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
+  });
+
+  it('deletes all plans after inline confirmation', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Delete all plans' }));
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans' }));
+
+    await waitFor(() => expect(h.deleteAllSavedPlans).toHaveBeenCalledTimes(1));
+  });
+
   it('collapses and expands inventory track groups', async () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
-    const customGroup = await within(inventory).findByRole('button', { name: /Hanshin 2,200m \(Inner\)/ });
+    const customGroup = await within(inventory).findByRole('button', { name: /^Hanshin 2,200m \(Inner\) 1$/ });
     expect(await within(inventory).findByText('Hanshin Trial')).toBeInTheDocument();
 
     fireEvent.click(customGroup);
