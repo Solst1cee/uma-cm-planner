@@ -37,4 +37,16 @@ describe('useUmaChart', () => {
     expect(result.current.isStale).toBe(true);
     expect(skillDelta.mock.calls.length).toBe(callsAfterRun); // no auto recompute
   });
+
+  it('stop() cancels an in-flight run, settles to done, and ignores later-resolving sims', async () => {
+    const resolvers: Array<(v: BashinStats) => void> = [];
+    const skillDelta = vi.fn(() => new Promise<BashinStats>((res) => { resolvers.push(res); }));
+    const { result } = renderHook(() => useUmaChart(cands, { courseId: '10906' }, { skillDelta }));
+    act(() => result.current.run());
+    expect(result.current.status).toBe('running');
+    act(() => result.current.stop());
+    expect(result.current.status).toBe('done');
+    await act(async () => { resolvers.forEach((r) => r(bs(1))); await Promise.resolve(); });
+    expect(result.current.rows).toHaveLength(0);
+  });
 });

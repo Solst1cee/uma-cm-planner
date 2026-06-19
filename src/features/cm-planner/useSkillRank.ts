@@ -20,6 +20,8 @@ export interface SkillRankState {
   total: number;
   isStale: boolean;
   run: () => void;
+  /** Force-stop an in-flight run: cancels remaining sims and keeps the rows ranked so far. */
+  stop: () => void;
 }
 
 let client: SimClient | null = null;
@@ -77,8 +79,15 @@ export function useSkillRank(
     });
   };
 
+  // Force-stop: bump the token so the in-flight stream's guards (onRow + the final
+  // resolve) all no-op, and settle to 'done' so the already-ranked rows stay visible.
+  const stop = () => {
+    runToken.current += 1;
+    setStatus((s) => (s === 'running' ? 'done' : s));
+  };
+
   const currentSig = sigOf(build, race.courseId, skillIds, depsRef.current?.nsamples);
   const isStale = status !== 'idle' && runSig !== null && currentSig !== runSig;
 
-  return { rows, status, done, total: skillIds.length, isStale, run };
+  return { rows, status, done, total: skillIds.length, isStale, run, stop };
 }

@@ -26,7 +26,22 @@ import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
 
-type RarityFilter = 'all' | 'white' | 'gold';
+type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
+const FILTERS: ReadonlyArray<{ key: SkillFilter; label: string }> = [
+  { key: 'all', label: 'all' },
+  { key: 'non-unique', label: 'non-unique' },
+  { key: 'inherited', label: 'inherited unique' },
+  { key: 'white', label: 'white' },
+  { key: 'gold', label: 'gold' },
+];
+function matchesFilter(rarity: SkillRecord['rarity'], f: SkillFilter): boolean {
+  switch (f) {
+    case 'all': return true;
+    case 'non-unique': return rarity === 'white' || rarity === 'gold';
+    case 'inherited': return rarity === 'inherited_unique';
+    default: return rarity === f; // 'white' | 'gold'
+  }
+}
 type SortMetric = 'L' | 'sp' | 'eff';
 const COLUMNS: ReadonlyArray<{ key: SortMetric; label: string }> = [
   { key: 'L', label: 'L' },
@@ -47,13 +62,12 @@ interface RowView {
   targeted: boolean;
 }
 
-// L and efficiency sort descending (best first); SP sorts ascending (cheapest first)
-// via negation. null/na metrics sort last either way (finite sentinel = NaN-safe).
-function metricOf(v: RowView, m: SortMetric): number {
-  if (m === 'L') return v.row.L ?? Number.MIN_SAFE_INTEGER;
-  if (m === 'sp') return -(v.sp ?? Number.MAX_SAFE_INTEGER);
-  return v.eff ?? Number.MIN_SAFE_INTEGER;
-}
+// L and efficiency rank best-first (desc); SP ranks cheapest-first (asc) by default.
+// Clicking the active column again inverts the direction. null/na metrics always sort last.
+const DEFAULT_DIR: Record<SortMetric, 'asc' | 'desc'> = { L: 'desc', sp: 'asc', eff: 'desc' };
+const rawMetric = (v: RowView, m: SortMetric): number | null =>
+  m === 'L' ? v.row.L : m === 'sp' ? v.sp : v.eff;
+const signed = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(2)}`;
 
 export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, deps }: {
   courseId: string;
@@ -65,21 +79,26 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   const { skills, skillById, sparkRates } = useGameData();
   const [open, setOpen] = useState(true);
   const [query, setQuery] = useState('');
-  const [rarity, setRarity] = useState<RarityFilter>('all');
+  const [filter, setFilter] = useState<SkillFilter>('all');
   const [showAll, setShowAll] = useState(false);
   const [sortMetric, setSortMetric] = useState<SortMetric>('L');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
-  const reps = useMemo(
-    () => familyRepresentatives(acquirableSkills(skills ?? [], plan.server), skillById),
-    [skills, skillById, plan.server],
-  );
+  // One representative per (family × rarity): cosmetic tiers (○/◎/×) collapse within a
+  // rarity, but white / gold / inherited stay distinct rows so the rarity filters work.
+  const reps = useMemo(() => {
+    const catalog = acquirableSkills(skills ?? [], plan.server);
+    return (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
+      familyRepresentatives(catalog.filter((s) => s.rarity === r), skillById),
+    );
+  }, [skills, skillById, plan.server]);
   const ids = useMemo(() => (hasSpeed ? reps.map((s) => s.skillId) : []), [reps, hasSpeed]);
   const build = useMemo(() => planToSimBuild(plan), [plan]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
 
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
-  const { rows, status, done, total, isStale, run } = useSkillRank(build, race, ids, chartDeps);
+  const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
 
   const targetSkill = (rep: SkillRecord, L: number | null) => {
     const wl = addOrReplaceWishlistSkill(plan.wishlist, rep.skillId, skillById);
@@ -94,6 +113,11 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
     });
 
+  const onSortClick = (m: SortMetric) => {
+    if (m === sortMetric) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    else { setSortMetric(m); setSortDir(DEFAULT_DIR[m]); }
+  };
+
   const q = query.trim().toLowerCase();
   const views: RowView[] = rows
     .map((row): RowView | null => {
@@ -105,12 +129,19 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     })
     .filter((v): v is RowView => v !== null)
     .filter((v) => {
-      if (!showAll && v.row.status !== 'live') return false;
-      if (rarity !== 'all' && v.skill.rarity !== rarity) return false;
+      if (!showAll && v.row.status === 'inactive') return false; // hide only never-proc skills
+      if (!matchesFilter(v.skill.rarity, filter)) return false;
       if (q && !v.skill.nameEn.toLowerCase().includes(q)) return false;
       return true;
     })
-    .sort((a, b) => metricOf(b, sortMetric) - metricOf(a, sortMetric));
+    .sort((a, b) => {
+      const av = rawMetric(a, sortMetric);
+      const bv = rawMetric(b, sortMetric);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1; // nulls (na / no-SP) always sort last
+      if (bv == null) return -1;
+      return sortDir === 'desc' ? bv - av : av - bv;
+    });
 
   return (
     <section className="cmp-plan-card cmp-skill-chart">
@@ -128,13 +159,19 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         <button
           type="button"
           className="cmp-run-btn"
-          disabled={!hasSpeed || status === 'running'}
-          onClick={(e) => { e.stopPropagation(); run(); }}
+          disabled={!hasSpeed}
+          aria-label={status === 'running' ? 'Stop ranking' : status === 'idle' ? 'Run' : 'Re-run'}
+          onClick={(e) => { e.stopPropagation(); if (status === 'running') stop(); else run(); }}
         >
-          {status === 'idle' ? 'Run' : 'Re-run'}
+          {status === 'running' ? '■' : status === 'idle' ? 'Run' : 'Re-run'}
         </button>
         {status === 'running' && <span className="muted small cmp-uma-progress" role="status">ranking {done}/{total}</span>}
-        {isStale && status !== 'running' && <span className="cmp-stale small">re-run</span>}
+        {status === 'done' && !isStale && (
+          <span className="muted small cmp-uma-progress" role="status">
+            {done >= total ? 'Done' : `${done}/${total} skills ran`}
+          </span>
+        )}
+        {isStale && status !== 'running' && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
@@ -142,52 +179,60 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         <div className="cmp-skill-body">
           {!hasSpeed ? (
             <p className="muted small">Enter your runner&apos;s stats (Speed is required) in the sidebar to rank skills.</p>
-          ) : status === 'idle' ? (
-            <p className="muted small">
-              Run to rank acquirable skills by length on your build (a simulated estimate, P3). Sort by L / SP /
-              efficiency; expand a skill for its effects and conditions.
-            </p>
           ) : (
             <>
-              <div className="cmp-uma-toolbar">
-                <input
-                  className="search"
-                  type="search"
-                  placeholder="search skill…"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search skills"
-                />
-                {(['all', 'white', 'gold'] as const).map((r) => (
-                  <button key={r} type="button" className="chip" aria-pressed={rarity === r} onClick={() => setRarity(r)}>
-                    {r}
-                  </button>
-                ))}
-                <label className="cmp-showall small">
-                  <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show all
-                </label>
-              </div>
-
-              <div className="cmp-skill-table">
-                <div className="cmp-skill-thead" role="row">
-                  <span>Skill</span>
-                  {COLUMNS.map((c) => (
-                    <button
-                      key={c.key}
-                      type="button"
-                      className={`cmp-uma-sort ${sortMetric === c.key ? 'is-sort' : ''}`.trim()}
-                      onClick={() => setSortMetric(c.key)}
-                      title={`Sort by ${c.label.toLowerCase()}`}
+              <p className="cmp-skill-caption muted small">
+                Run to rank acquirable skills by length on your current uma plan. Editing the plan won&apos;t
+                update the chart until you Re-run.
+              </p>
+              {status !== 'idle' && (
+                <>
+                  <div className="cmp-uma-toolbar">
+                    <input
+                      className="search"
+                      type="search"
+                      placeholder="search skill…"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      aria-label="Search skills"
+                    />
+                    {FILTERS.map((f) => (
+                      <button key={f.key} type="button" className="chip" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
+                        {f.label}
+                      </button>
+                    ))}
+                    <label
+                      className="cmp-showall small"
+                      title="Skills whose conditions can never trigger on this track (they never proc). Recovery and other 0-length skills that DO proc stay visible."
                     >
-                      {c.label}
-                    </button>
-                  ))}
-                  <span />
-                </div>
+                      <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
+                    </label>
+                  </div>
 
+                  <div className="cmp-skill-table">
+                    <div className="cmp-skill-thead" role="row">
+                      <span>Skill</span>
+                      {COLUMNS.map((c) => (
+                        <button
+                          key={c.key}
+                          type="button"
+                          className={`cmp-uma-sort ${sortMetric === c.key ? 'is-sort' : ''}`.trim()}
+                          onClick={() => onSortClick(c.key)}
+                          title={`Sort by ${c.label.toLowerCase()}`}
+                        >
+                          {c.label}
+                          {sortMetric === c.key && (
+                            <span aria-hidden="true"> {sortDir === 'desc' ? '▼' : '▲'}</span>
+                          )}
+                        </button>
+                      ))}
+                      <span />
+                    </div>
+
+                    <div className="cmp-skill-scroll">
                 <ul className="cmp-skill-rows" aria-label="Acquirable skill ranking">
                   {views.map((v) => (
-                    <li key={v.skill.skillId} className={`cmp-skill-row ${v.row.status === 'live' ? '' : 'is-dim'}`.trim()}>
+                    <li key={v.skill.skillId} className={`cmp-skill-row ${v.row.status === 'inactive' ? 'is-dim' : ''}`.trim()}>
                       <SkillDetailDisclosure
                         skill={skillRecordToSummary(v.skill)}
                         collapseSignal={collapseSkillSignal}
@@ -200,7 +245,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         }
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
-                        {v.row.status === 'na' ? 'n/a' : `+${(v.row.L ?? 0).toFixed(2)}`}
+                        {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : signed(v.row.L ?? 0)}
                       </span>
                       <span className={`cmp-uma-num ${sortMetric === 'sp' ? 'is-sort' : ''}`.trim()}>
                         {v.sp ?? '—'}
@@ -220,10 +265,13 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                     </li>
                   ))}
                   {views.length === 0 && (
-                    <li className="muted small">No skills to show{!showAll ? ' (try "show all")' : ''}.</li>
+                    <li className="muted small">No skills to show{!showAll ? ' (try "show not-activatable")' : ''}.</li>
                   )}
                 </ul>
-              </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

@@ -47,7 +47,17 @@ export function resolveCourse(courseId: string): CourseData {
   return course;
 }
 
-/** Project an engine skill/planner result onto our honest BashinStats. */
+/** Project an engine skill/planner result onto our honest BashinStats. The engine sets
+ *  `skillActivations` to `{ [trackedSkillId]: … }` when the skill procced at least once,
+ *  or `{}` when it never did — so a non-empty map means "activated". */
 export function bashinStatsFrom(r: SkillComparisonResult | PlannerCompareResult): BashinStats {
-  return { mean: r.mean, median: r.median, min: r.min, max: r.max, nsamples: r.results.length, results: r.results };
+  return {
+    mean: r.mean,
+    median: r.median,
+    min: r.min,
+    max: r.max,
+    nsamples: r.results.length,
+    results: r.results,
+    activated: Object.keys(r.skillActivations ?? {}).length > 0,
+  };
 }

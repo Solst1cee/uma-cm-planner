@@ -16,8 +16,13 @@ const h = vi.hoisted(() => {
     ['100201', { skillId: 'u2', nameEn: 'Silent Speedline', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'corner!=0' }],
   ]);
   const bs = (mean: number): BashinStats => ({ mean, median: mean, min: mean, max: mean, nsamples: 30, results: [] });
-  // 100201's unique (u2) is stronger -> should rank first
-  const skillDelta = vi.fn(async (_b: SimBuild, _r: unknown, id: string) => bs(id === 'u2' ? 2.0 : 1.0));
+  // Per-style L: u2 is best as an End Closer (2.0); u1 is best as a Front Runner (1.0).
+  // So "rank by best" puts u2 first, but forcing Front Runner flips u1 to the top.
+  const styleL: Record<string, Record<string, number>> = {
+    u1: { front: 1.0, pace: 0.2, late: 0.2, end: 0.3 },
+    u2: { front: 0.3, pace: 0.2, late: 0.2, end: 2.0 },
+  };
+  const skillDelta = vi.fn(async (b: SimBuild, _r: unknown, id: string) => bs(styleL[id]?.[b.strategy] ?? 0.1));
   return { umas, umaById, uniqueByUmaId, skillDelta };
 });
 
@@ -71,5 +76,51 @@ describe('UmaChartPanel', () => {
     const list = screen.getByLabelText('Uma unique-skill ranking');
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);
     expect(h.skillDelta.mock.calls.length).toBe(callsAfterRun); // no re-sim
+  });
+
+  it('shows "Done" in the header after a full run', async () => {
+    render(<UmaChartPanel courseId="10906" plan={plan} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
+  });
+
+  it('turns Run into a Stop control while running and stops on click', async () => {
+    const pending = vi.fn(() => new Promise<BashinStats>(() => {})); // never resolves → stays running
+    render(<UmaChartPanel courseId="10906" plan={plan} onSelectRunner={vi.fn()} deps={{ skillDelta: pending }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    const btn = screen.getByRole('button', { name: 'Run' });
+    await userEvent.click(btn);
+    await waitFor(() => expect(btn).toHaveAttribute('aria-label', 'Stop ranking'));
+    await userEvent.click(btn);
+    expect(btn).toHaveAttribute('aria-label', 'Re-run');
+  });
+
+  it('inverts the min/max/mean/median sort when the active column is clicked again', async () => {
+    render(<UmaChartPanel courseId="10906" plan={plan} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
+    const rankList = () => screen.getByLabelText('Uma unique-skill ranking');
+    // default Mean desc → u2 (Silent Speedline, 2.0) first
+    expect(within(rankList()).getAllByRole('listitem')[0]).toHaveTextContent('Silent Speedline');
+    // click Mean again → invert to asc → u1 (Shooting Star, 1.0) first
+    await userEvent.click(screen.getByRole('button', { name: 'Mean' }));
+    expect(within(rankList()).getAllByRole('listitem')[0]).toHaveTextContent('Shooting Star');
+  });
+
+  it('rank-by-style dropdown re-ranks every uma by the chosen style without re-running', async () => {
+    render(<UmaChartPanel courseId="10906" plan={plan} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
+    const rankList = () => screen.getByLabelText('Uma unique-skill ranking');
+    // "rank by best" → u2 (Silent Speedline, best is End 2.0) first
+    expect(within(rankList()).getAllByRole('listitem')[0]).toHaveTextContent('Silent Speedline');
+    const callsAfterRun = h.skillDelta.mock.calls.length;
+    // force Front Runner → u1 (front 1.0) now beats u2 (front 0.3); pure re-rank, no re-sim
+    await userEvent.selectOptions(screen.getByLabelText('Rank by style'), 'front');
+    expect(within(rankList()).getAllByRole('listitem')[0]).toHaveTextContent('Shooting Star');
+    expect(h.skillDelta.mock.calls.length).toBe(callsAfterRun);
   });
 });

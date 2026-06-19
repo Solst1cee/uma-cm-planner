@@ -35,10 +35,20 @@ export interface UmaChartPanelDeps {
   nsamples?: number;
 }
 
-/** The per-style entry a row is displayed/ranked by (user override, else best-by-mean). */
-function effStyle(row: UmaChartRow, override: Map<string, Strategy>): UmaStyleL | null {
+type RankStyle = 'best' | Strategy;
+const RANK_STYLES: ReadonlyArray<{ value: RankStyle; label: string }> = [
+  { value: 'best', label: 'Rank by best style' },
+  { value: 'front', label: 'Front Runner' },
+  { value: 'pace', label: 'Pace Chaser' },
+  { value: 'late', label: 'Late Surger' },
+  { value: 'end', label: 'End Closer' },
+];
+
+/** The per-style entry a row is displayed/ranked by: a per-row override wins, else the
+ *  chart-wide rank style — a fixed strategy, or each uma's own best when 'best'. */
+function effStyle(row: UmaChartRow, override: Map<string, Strategy>, rankStyle: RankStyle): UmaStyleL | null {
   if (row.perStyle.length === 0) return null;
-  const want = override.get(row.outfitId) ?? row.bestStrategy;
+  const want = override.get(row.outfitId) ?? (rankStyle === 'best' ? row.bestStrategy : rankStyle);
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
@@ -59,7 +69,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
         .join('\n')
     : 'No simulatable unique on this track';
   return (
-    <li className={`cmp-uma-row ${row.status === 'live' ? '' : 'is-dim'}`.trim()} title={hover}>
+    <li className={`cmp-uma-row ${row.status === 'inactive' ? 'is-dim' : ''}`.trim()} title={hover}>
       <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
       {unique ? (
         <SkillDetailDisclosure
@@ -119,6 +129,8 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   const [showAll, setShowAll] = useState(false);
   const [open, setOpen] = useState(true);
   const [sortMetric, setSortMetric] = useState<SortMetric>('mean');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [rankStyle, setRankStyle] = useState<RankStyle>('best');
   const [styleOverride, setStyleOverride] = useState<Map<string, Strategy>>(new Map());
 
   // Memoize so an inline-arrow deps.loadUniqueByUmaId can't make the load effect re-fetch every render.
@@ -138,18 +150,23 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
-  const { rows, status, done, total, isStale, run } = useUmaChart(candidates, race, chartDeps);
+  const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
 
   const onStyle = (outfitId: string, strategy: Strategy) =>
     setStyleOverride((prev) => new Map(prev).set(outfitId, strategy));
 
   const ready = uniqueByUmaId != null;
   const q = query.trim().toLowerCase();
-  const sortKey = (eff: UmaStyleL | null): number => (eff ? metricOf(eff, sortMetric) : Number.MIN_SAFE_INTEGER);
+  // All metrics rank high-first (desc) by default; clicking the active column again inverts.
+  const onSortClick = (m: SortMetric) => {
+    if (m === sortMetric) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    else { setSortMetric(m); setSortDir('desc'); }
+  };
+  const sortKey = (eff: UmaStyleL | null): number | null => (eff ? metricOf(eff, sortMetric) : null);
   const visible = rows
-    .map((row) => ({ row, eff: effStyle(row, styleOverride) }))
+    .map((row) => ({ row, eff: effStyle(row, styleOverride, rankStyle) }))
     .filter(({ row }) => {
-      if (!showAll && row.status !== 'live') return false;
+      if (!showAll && row.status === 'inactive') return false; // hide only never-proc uniques
       if (q) {
         const uma = umaById?.get(row.outfitId);
         const unique = uniqueByUmaId?.get(row.outfitId);
@@ -158,7 +175,14 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
       }
       return true;
     })
-    .sort((a, b) => sortKey(b.eff) - sortKey(a.eff)); // re-rank by each row's effective style + chosen metric
+    .sort((a, b) => {
+      const av = sortKey(a.eff);
+      const bv = sortKey(b.eff);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1; // n/a rows always sort last
+      if (bv == null) return -1;
+      return sortDir === 'desc' ? bv - av : av - bv;
+    });
 
   return (
     <section className="cmp-plan-card cmp-uma-chart">
@@ -179,28 +203,33 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         <button
           type="button"
           className="cmp-run-btn"
-          disabled={!ready || status === 'running'}
+          disabled={!ready}
+          aria-label={status === 'running' ? 'Stop ranking' : status === 'idle' ? 'Run' : 'Re-run'}
           onClick={(e) => {
-            e.stopPropagation(); // don't toggle collapse when running
-            run();
+            e.stopPropagation(); // don't toggle collapse
+            if (status === 'running') stop();
+            else run();
           }}
         >
-          {status === 'idle' ? 'Run' : 'Re-run'}
+          {status === 'running' ? '■' : status === 'idle' ? 'Run' : 'Re-run'}
         </button>
         {status === 'running' && <span className="muted small cmp-uma-progress" role="status">ranking {done}/{total}</span>}
-        {isStale && status !== 'running' && <span className="cmp-stale small">re-run</span>}
+        {status === 'done' && !isStale && (
+          <span className="muted small cmp-uma-progress" role="status">
+            {done >= total ? 'Done' : `${done}/${total} umas ran`}
+          </span>
+        )}
+        {isStale && status !== 'running' && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
       {open && (
         <div className="cmp-uma-body">
-          {status === 'idle' ? (
-            <p className="muted small">
-              Run to rank umas by their unique skill&apos;s length on this track. Uses a fixed standard
-              runner — independent of your build (a relative estimate, P3). Switch each row&apos;s style;
-              sort by mean / min / max / median.
-            </p>
-          ) : (
+          <p className="cmp-uma-caption muted small">
+            Run to rank umas by their unique skill&apos;s length on this track. Uses a fixed standard
+            runner — independent of your build.
+          </p>
+          {status !== 'idle' && (
             <>
               <div className="cmp-uma-toolbar">
                 <input
@@ -211,13 +240,26 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Search uma"
                 />
-                <label className="cmp-showall small">
-                  <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show all
+                <select
+                  className="cmp-rank-style"
+                  aria-label="Rank by style"
+                  value={rankStyle}
+                  onChange={(e) => { setRankStyle(e.target.value as RankStyle); setStyleOverride(new Map()); }}
+                >
+                  {RANK_STYLES.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+                <label
+                  className="cmp-showall small"
+                  title="Uniques whose conditions can never trigger on this track (they never proc)."
+                >
+                  <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
                 </label>
               </div>
 
               <div className="cmp-uma-table">
-                <div className="cmp-uma-thead" aria-hidden="true">
+                <div className="cmp-uma-thead" role="row">
                 <span />
                 <span>Skill</span>
                 <span>Style</span>
@@ -226,10 +268,13 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                     key={m.key}
                     type="button"
                     className={`cmp-uma-sort ${sortMetric === m.key ? 'is-sort' : ''}`.trim()}
-                    onClick={() => setSortMetric(m.key)}
+                    onClick={() => onSortClick(m.key)}
                     title={`Sort by ${m.label.toLowerCase()}`}
                   >
                     {m.label}
+                    {sortMetric === m.key && (
+                      <span aria-hidden="true"> {sortDir === 'desc' ? '▼' : '▲'}</span>
+                    )}
                   </button>
                 ))}
                 <span />

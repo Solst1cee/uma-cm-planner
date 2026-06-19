@@ -84,6 +84,13 @@ describe('rankUmaChart', () => {
     expect(rows[1]).toMatchObject({ outfitId: 'Z', status: 'na' });
   });
 
+  it('classifies a unique that procs in no style as inactive', async () => {
+    const noProc = (): BashinStats => ({ mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [], activated: false });
+    const skillDelta = vi.fn(async () => noProc());
+    const rows = await rankUmaChart([{ outfitId: 'N', uniqueSkillId: 'uN' }], race, { skillDelta });
+    expect(rows[0]).toMatchObject({ outfitId: 'N', status: 'inactive' });
+  });
+
   it('streams one row per uma via onRow', async () => {
     const skillDelta = deltaFrom({ uA: { end: 1 }, uB: { front: 1 } });
     const seen: string[] = [];

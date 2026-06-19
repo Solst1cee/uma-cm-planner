@@ -45,7 +45,11 @@ export interface UmaChartRow {
   bestStrategy: Strategy | null;
   /** faithful per-style values for successfully-simmed styles (for the user to judge). */
   perStyle: UmaStyleL[];
-  status: 'live' | 'zero' | 'na';
+  /**
+   * 'live' = meaningful length; 'zero' = procs but ≤ DEAD_L; 'inactive' = the unique
+   * can never proc here (no style activated it); 'na' = no style was simulatable.
+   */
+  status: 'live' | 'zero' | 'na' | 'inactive';
   nsamples: number;
 }
 export interface RankUmaChartDeps {
@@ -87,6 +91,7 @@ async function rowFor(
     return { outfitId: c.outfitId, uniqueSkillId: null, L: null, bestStrategy: null, perStyle: [], status: 'na', nsamples: 0 };
   }
   const perStyle: UmaStyleL[] = [];
+  let anyActivated = false;
   for (const strategy of UMA_CHART_STRATEGIES) {
     let s: BashinStats;
     try {
@@ -95,13 +100,14 @@ async function rowFor(
       continue; // this style can't be evaluated — faithful: just drop it
     }
     if (s.nsamples === 0) continue;
+    if (s.activated !== false) anyActivated = true; // undefined (older/test stats) counts as activated
     perStyle.push({ strategy, L: s.mean, min: s.min, max: s.max, median: s.median, nsamples: s.nsamples });
   }
   if (perStyle.length === 0) {
     return { outfitId: c.outfitId, uniqueSkillId: c.uniqueSkillId, L: null, bestStrategy: null, perStyle: [], status: 'na', nsamples: 0 };
   }
   const best = perStyle.reduce((a, b) => (b.L > a.L ? b : a));
-  const status = best.L > DEAD_L ? 'live' : 'zero';
+  const status = !anyActivated ? 'inactive' : best.L > DEAD_L ? 'live' : 'zero';
   return {
     outfitId: c.outfitId,
     uniqueSkillId: c.uniqueSkillId,

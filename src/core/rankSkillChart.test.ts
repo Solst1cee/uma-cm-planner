@@ -65,4 +65,15 @@ describe('rankSkillChart', () => {
     const na = { skillId: 'x', L: null, min: null, max: null, median: null, status: 'na' as const, nsamples: 0 };
     expect(Number.isNaN(compareSkillChartRows(na, { ...na, skillId: 'y' }))).toBe(false);
   });
+
+  it('flags a never-procced skill as inactive, but a 0-length skill that DID proc as zero', async () => {
+    const dep = vi.fn((_b: SimBuild, _r: SimRaceParams, id: string): BashinStats =>
+      id === 'never'
+        ? { mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [], activated: false }
+        : { mean: 0.02, median: 0.02, min: -0.1, max: 0.2, nsamples: 30, results: [], activated: true },
+    );
+    const rows = await rankSkillChart(build, race, ['never', 'recov'], { skillDelta: dep, nsamples: 30 });
+    expect(rows.find((r) => r.skillId === 'never')?.status).toBe('inactive');
+    expect(rows.find((r) => r.skillId === 'recov')?.status).toBe('zero');
+  });
 });

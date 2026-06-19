@@ -39,6 +39,13 @@ export interface BashinStats {
   nsamples: number;
   /** Per-sample bashin values, SORTED ascending (distribution/histogram use; not sample-ordered). */
   results: number[];
+  /**
+   * Whether the tracked skill activated in at least one sample (engine's
+   * `skillActivations` was non-empty). Distinguishes "procced but ~0 length"
+   * (e.g. recovery) from "can never proc on this track". Undefined when not
+   * reported (e.g. nsamples 0 / not simulatable).
+   */
+  activated?: boolean;
 }
 
 /** Worker request/response unions. */

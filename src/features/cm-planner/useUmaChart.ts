@@ -20,6 +20,8 @@ export interface UmaChartState {
   total: number;
   isStale: boolean;
   run: () => void;
+  /** Force-stop an in-flight run: cancels remaining sims and keeps the rows ranked so far. */
+  stop: () => void;
 }
 
 let client: SimClient | null = null;
@@ -78,8 +80,15 @@ export function useUmaChart(
     });
   };
 
+  // Force-stop: bump the token so the in-flight stream's guards all no-op, and settle to
+  // 'done' so the already-ranked rows stay visible.
+  const stop = () => {
+    runToken.current += 1;
+    setStatus((s) => (s === 'running' ? 'done' : s));
+  };
+
   const currentSig = sigOf(race.courseId, candidates, depsRef.current?.nsamples);
   const isStale = status !== 'idle' && runSig !== null && currentSig !== runSig;
 
-  return { rows, status, done, total: candidates.length, isStale, run };
+  return { rows, status, done, total: candidates.length, isStale, run, stop };
 }

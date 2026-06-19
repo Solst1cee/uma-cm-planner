@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-17
 **Module:** M4 Skill Acquisition Planner (`/` CmPlannerPage rebuild)
-**Status:** Design approved; ready for implementation plan.
+**Status:** Implemented (2026-06-17, on `main`) + **polished 2026-06-19 (UNCOMMITTED on `main`'s working tree)**. The design below is as-built for the original slice; see the **Addendum (2026-06-19)** at the bottom for what changed/extended since (filter redesign, proc-aware status, run UX, force-activation investigation).
 
 ## Goal
 
@@ -239,3 +239,53 @@ All UI tests run with the dev server stopped (CLAUDE.md: Vitest flakes vs a live
 Card-hint sourcing (§3), uma innate/release/usable-here columns, L-vs-distance duration
 graphs, HP/velocity/skill-activation track zones, and the shared `useRankChart` DRY merge —
 all separate backlog items.
+
+---
+
+## Addendum (2026-06-19) — as-built polish + deviations
+
+Shipped per the design above, then extended in a polish batch (**uncommitted on `main`** —
+see [the session handoff](../plans/2026-06-19-m4-skill-chart-polish-and-force-activation-handoff.md)).
+Where this contradicts the original Decisions, **the Addendum wins.**
+
+**Filter redesign (supersedes Decisions #6–#7 mechanics).** Real `variantSkillIds` families
+bundle the white tiers (○/◎/×) **and** the gold together, so "one row per family / strongest
+variant" (#7) collapsed every white+gold family to its *gold* rep — the white filter then showed
+gold and dropped whites. Fixed:
+- Reps are now **one per (family × rarity)** (`rankSkillChart` builds reps per rarity). Cosmetic
+  ○/◎ tiers collapse *within* a rarity; white / gold / inherited stay as **distinct rows**.
+- The rarity chips became **5 tabs**: `all · non-unique · inherited unique · white · gold`
+  (`non-unique` = white+gold). Filtering is by the row's own rarity. The in-row variant dropdown
+  was dropped (downgrade in the sidebar instead, as #7 already noted).
+
+**Proc-aware status (supersedes the #9 / L-cell `na`-vs-`zero` model).** The engine reports
+`skillActivations`; it's plumbed as **`BashinStats.activated`** (`bashinStatsFrom`, `src/sim/adapter.ts`).
+Row `status` is now `live` / `zero` (procs but ≤ `DEAD_L`, e.g. recovery — shown `+0.0x`) /
+**`inactive`** (`activated===false`, can never proc here — shown `—`) / `na` (unsimulatable).
+The toggle is renamed **"show not-activatable"** and hides **only `inactive`**; `zero`/`na` always
+show. Rows are **dimmed only when `inactive`**. `rankUmaChart` gained the same `inactive` (no style
+activates the unique). `activated===undefined` counts as activated (keeps old/hand-built stats valid).
+
+**Run UX.** Run button toggles to a **`■` stop control** mid-run (`useSkillRank.stop()` /
+`useUmaChart.stop()` — cancels via `runToken`, keeps partial rows, settles `done`). Header shows a
+persistent **run-status**: `ranking n/total` → **"Done"** or **"n/total skills ran"**; and when the
+build/course changed since the run, an orange **"Changed detected!, please re-run"** (the
+Done/ran text hides while stale). The idle prompt became a **persistent italic, 2ch-indented caption
+above the search bar**.
+
+**Sort inverts on re-click** (▼/▲ in an `aria-hidden` span, so the button's accessible name stays the
+column label). Skill chart: L / SP / L·100SP. Unique-skill chart: Min/Max/Mean/Median.
+
+**Unique-skill chart parity.** Same stop button, run-status + stale prompt, sort-invert, italic
+caption, and proc-aware `inactive` — plus a **"Rank by style" dropdown** (`Rank by best style` =
+each uma's best, or force Front/Pace/Late/End Closer for every uma; pure re-rank, no re-sim).
+
+**Force-activation (VFalator "best-case") — investigated, deferred.** Goal: score strongly-
+conditional skills (Barcarole, Festive Miracle) at their intended spot, since players engineer the
+conditions. Spike result: Barcarole `activated:false` (never fires — the skill A/B compare is solo,
+so `order_rate≤40` can't hold), and the exported `runSkillComparison` **ignores** `forcedPositions`/
+`scenarioOverrides.forcedRank` (they're wired to other engine entries). The engine *can* force
+(custom `ActivationSamplePolicy` returning a fixed `Region(P, P+10)`), so this needs a **`pnpm sim:build`
+rebuild** to expose a forced skill-L entry. Mechanics note for the eventual build: force *velocity*
+skills at the **final-leg boundary** (carry higher current speed into the spurt ramp), and show
+best-case *alongside* the realistic L. Full findings + next steps in the handoff linked above.

@@ -36,6 +36,7 @@
 }
 .cmp-uma-progress {
   white-space: nowrap;
+  font-weight: 400; /* the card head is bold; the run-status text shouldn't inherit it */
 }
 .cmp-stale {
   color: #b8702a;
@@ -71,6 +72,25 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.6rem 0.75rem 0.7rem;
+}
+/* persistent caption above the search bar (mirrors the skill chart). */
+.cmp-uma-caption {
+  margin: 0;
+  font-style: italic;
+  text-indent: 2ch;
+}
+/* chart-wide "rank by style" dropdown — sits between the search box and "show all".
+   Fixed compact width so it doesn't reserve space for the longest option. */
+.cmp-rank-style {
+  flex: none;
+  width: 9rem;
+  background: var(--bg-0, #fff);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 4px 6px;
+  font-size: 0.78rem;
+  color: inherit;
+  cursor: pointer;
 }
 .cmp-uma-toolbar {
   display: flex;

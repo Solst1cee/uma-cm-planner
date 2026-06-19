@@ -22,7 +22,11 @@ export interface SkillChartRow {
   min: number | null;
   max: number | null;
   median: number | null;
-  status: 'live' | 'zero' | 'na';
+  /**
+   * 'live' = meaningful length; 'zero' = procs but ≤ DEAD_L length (e.g. recovery);
+   * 'inactive' = can never proc on this track; 'na' = engine can't simulate it.
+   */
+  status: 'live' | 'zero' | 'na' | 'inactive';
   nsamples: number;
 }
 
@@ -38,7 +42,12 @@ function rowFrom(skillId: string, s: BashinStats): SkillChartRow {
   if (s.nsamples === 0) {
     return { skillId, L: null, min: null, max: null, median: null, status: 'na', nsamples: 0 };
   }
-  const status = s.mean > DEAD_L ? 'live' : 'zero';
+  // The engine reports whether the tracked skill ever procced. A skill that can never
+  // activate on this track is 'inactive' (hidden by default); one that procs but yields
+  // ≤ DEAD_L length (e.g. recovery) is 'zero' (still shown). `activated` undefined (older
+  // callers / hand-built stats) is treated as activated, preserving live/zero by mean.
+  const status: SkillChartRow['status'] =
+    s.activated === false ? 'inactive' : s.mean > DEAD_L ? 'live' : 'zero';
   return { skillId, L: s.mean, min: s.min, max: s.max, median: s.median, status, nsamples: s.nsamples };
 }
 

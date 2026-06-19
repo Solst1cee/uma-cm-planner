@@ -61,8 +61,12 @@ describe('resolveCourse', () => {
 });
 
 describe('bashinStatsFrom', () => {
-  it('projects the engine result onto our BashinStats', () => {
+  it('projects the engine result onto our BashinStats; empty skillActivations -> activated false', () => {
     const stats = bashinStatsFrom({ results: [1, 2, 3], min: 1, max: 3, mean: 2, median: 2, skillActivations: {}, runData: null });
-    expect(stats).toEqual({ mean: 2, median: 2, min: 1, max: 3, nsamples: 3, results: [1, 2, 3] });
+    expect(stats).toEqual({ mean: 2, median: 2, min: 1, max: 3, nsamples: 3, results: [1, 2, 3], activated: false });
+  });
+  it('sets activated when the engine recorded an activation for the tracked skill', () => {
+    const stats = bashinStatsFrom({ results: [1], min: 1, max: 1, mean: 1, median: 1, skillActivations: { '200332': [{}] }, runData: null });
+    expect(stats.activated).toBe(true);
   });
 });
