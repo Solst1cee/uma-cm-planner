@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { SkillImpact, SkillTrace, SkillTraceRun } from '@/sim';
-import { useSkillTrace } from './useSkillTrace';
+import { useSkillTrace, clearSkillTraceCache } from './useSkillTrace';
+
+beforeEach(() => clearSkillTraceCache()); // the memo is module-level — isolate each test
 
 const oneRun: SkillTraceRun = { withSkill: [{ t: 0, v: 1, pos: 0, hp: 1 }], without: [{ t: 0, v: 1, pos: 0, hp: 1 }], activation: [], L: 2 };
 const trace: SkillTrace = { runs: { min: oneRun, max: oneRun, mean: oneRun, median: oneRun }, meanL: 2, nsamples: 20 };
@@ -48,6 +50,24 @@ describe('useSkillTrace', () => {
     act(() => result.current.setRunChoice('max'));
     expect(result.current.run?.L).toBe(9);
     expect(skillTrace.mock.calls.length).toBe(calls);
+  });
+
+  it('memoizes by sig — re-enabling the same skill does not re-simulate', async () => {
+    const skillTrace = vi.fn(async () => trace);
+    const skillImpact = vi.fn(async () => impact);
+    const { result, rerender } = renderHook(
+      ({ on }) => useSkillTrace('200332', ctx, on, { skillTrace, skillImpact }),
+      { initialProps: { on: true } },
+    );
+    await waitFor(() => expect(result.current.impactStatus).toBe('done'));
+    expect(skillTrace).toHaveBeenCalledTimes(1);
+    expect(skillImpact).toHaveBeenCalledTimes(1);
+    rerender({ on: false }); // collapse
+    rerender({ on: true });  // re-expand → served from cache
+    await waitFor(() => expect(result.current.impactStatus).toBe('done'));
+    expect(result.current.impact?.samples.length).toBe(168);
+    expect(skillTrace).toHaveBeenCalledTimes(1); // not re-run
+    expect(skillImpact).toHaveBeenCalledTimes(1);
   });
 
   it('re-runs when a non-speed stat changes', async () => {
