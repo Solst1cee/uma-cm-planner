@@ -116,6 +116,10 @@ export interface SkillRecord {
   /** Raw activation-condition DSL string (engine format), Global variant. */
   conditions: string;
   server: Server;
+  /** ISO Global release date; absent = released (global) / unknown. Set on upcoming (server:'jp') records. */
+  releaseDate?: string;
+  /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
+  releaseDatePredicted?: boolean;
   dataVersion: string;
 }
 
@@ -155,6 +159,10 @@ export interface SupportCardRecord {
   /** Derived: count of skills with sourceType === 'hint_pool'. */
   hintPoolSize: number;
   server: Server;
+  /** ISO Global release date; absent = released (global) / unknown. Set on upcoming (server:'jp') records. */
+  releaseDate?: string;
+  /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
+  releaseDatePredicted?: boolean;
   dataVersion: string;
 }
 
