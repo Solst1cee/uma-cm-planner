@@ -29,6 +29,67 @@ describe('projectCmSchedule', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]).toEqual({ date: '2026-05-22', cmId: 'CM15', cmNumber: 15, name: 'Taurus Cup', courseId: '10202' });
   });
+
+  it('yields exactly six rows in date order for CM10–15 fixture', () => {
+    const cm10to15: TimelineEntry[] = [
+      {
+        id: 'cm10-aquarius-cup', type: 'cm', title: 'Aquarius Cup',
+        dates: { start: '2026-03-02', finals: '2026-03-06', end: '2026-03-12' },
+        cm: { cmNumber: 10, courseId: '10611', trackSummary: 'Tokyo dirt 1600m (mile)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/612/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+      {
+        id: 'cm11-pisces-cup', type: 'cm', title: 'Pisces Cup',
+        dates: { start: '2026-03-26', finals: '2026-03-30', end: '2026-04-05' },
+        cm: { cmNumber: 11, courseId: '10914', trackSummary: 'Hanshin turf 3200m (long)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/642/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+      {
+        id: 'cm12-aries-cup', type: 'cm', title: 'Aries Cup',
+        dates: { start: '2026-04-20', finals: '2026-04-23', end: '2026-04-29' },
+        cm: { cmNumber: 12, courseId: '10504', trackSummary: 'Nakayama turf 2000m (medium)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/700/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+      {
+        id: 'cm13-taurus-cup', type: 'cm', title: 'Taurus Cup',
+        dates: { start: '2026-05-10', finals: '2026-05-14', end: '2026-05-20' },
+        cm: { cmNumber: 13, courseId: '10606', trackSummary: 'Tokyo turf 2400m (medium)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/771/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+      {
+        id: 'cm14-gemini-cup', type: 'cm', title: 'Gemini Cup',
+        dates: { start: '2026-05-31', finals: '2026-06-04', end: '2026-06-10' },
+        cm: { cmNumber: 14, courseId: '10602', trackSummary: 'Tokyo turf 1600m (mile)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/790/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+      {
+        id: 'cm15-cancer-cup', type: 'cm', title: 'Cancer Cup',
+        dates: { start: '2026-06-21', finals: '2026-06-24', end: '2026-06-30' },
+        cm: { cmNumber: 15, courseId: '10906', trackSummary: 'Hanshin turf 2200m (inner, right · good/summer/cloudy)' },
+        tier: 'official', status: 'confirmed',
+        source: { kind: 'official_news', url: 'https://umamusume.com/news/829/' },
+        server: 'global', dataVersion: 'global-76214c82',
+      },
+    ];
+    const rows = projectCmSchedule(cm10to15);
+    expect(rows).toHaveLength(6);
+    expect(rows.map((r) => r.cmNumber)).toEqual([10, 11, 12, 13, 14, 15]);
+    expect(rows.map((r) => r.cmId)).toEqual(['CM10', 'CM11', 'CM12', 'CM13', 'CM14', 'CM15']);
+    expect(rows.map((r) => r.courseId)).toEqual(['10611', '10914', '10504', '10606', '10602', '10906']);
+    expect(rows.map((r) => r.date)).toEqual([
+      '2026-03-06', '2026-03-30', '2026-04-23', '2026-05-14', '2026-06-04', '2026-06-24',
+    ]);
+  });
 });
 
 describe('predictGlobalDate', () => {
