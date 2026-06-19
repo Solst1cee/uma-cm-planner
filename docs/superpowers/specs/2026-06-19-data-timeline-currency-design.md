@@ -71,9 +71,11 @@ parallel to active M4 work. The only overlap is the two UI toggles, which land i
 ## Track 1 — Data freshness (pin bump)
 
 **Core move:** in [`scripts/fetch-borrowed.ts`](../../../scripts/fetch-borrowed.ts) bump
-`UPSTREAM_COMMIT` from `c1fa2107…` to the **v0.16.1** tag's commit SHA (record the resolved
-40-char SHA in `fetch-borrowed.ts` + `docs/provenance.md` §1, exactly as `c1fa2107` was), and
-bump `TACHYONS_COMMIT` to its latest commit touching `front/src/app/data/data.json`. Then
+`UPSTREAM_COMMIT` from `c1fa2107…` to the **v0.16.1** commit
+`76214c821a2573a532657c90cb406f3f5fe65f3e` (fallback v0.16.0 =
+`d2f0b056d6894971c9d43eed6e37beb0431d4ed6`; record the new SHA in `docs/provenance.md` §1 as
+`c1fa2107` was), and bump `TACHYONS_COMMIT` to its latest commit touching
+`front/src/app/data/data.json`. Then
 `pnpm data:fetch` → `pnpm data:build`. The vendored engine stays at v0.14.2 — verified safe:
 the v0.15→0.16 data changes are format-compatible and the v0.16.1 parser tweak ("support
 negative integers in skill conditions") is additive.
@@ -100,37 +102,46 @@ negative integers in skill conditions") is additive.
 
 ## Availability model — the bridge between the two tracks
 
-**Schema (additive, `src/core/types.ts`):** add `releaseDate?: string` (ISO) to
-`SupportCardRecord`. `server: 'global' | 'jp'` already exists on every record (P4), so no new
-server field is needed. Add `releaseDatePredicted?: boolean` to mark dates that are projected
-rather than announced (P3 honesty). Skills get **no** stored release date — a skill's
-availability is derived from its sourcing cards (see predicate).
+**Schema (additive, `src/core/types.ts`):** add `releaseDate?: string` (ISO) +
+`releaseDatePredicted?: boolean` to **both** `SupportCardRecord` and `SkillRecord`.
+`server: 'global' | 'jp'` already exists on every record (P4). Giving the *skill* its own
+optional `releaseDate` (set on the upcoming-skill override alongside its upcoming card) keeps
+the skill chart — which ranks skills, not cards — able to gate without a card→skill join.
 
-**Build (`scripts/build-cards.ts`):** stop hard-filtering to the umalator Global cutover set.
-Emit Global-released cards **and** JP-ahead catalog cards, each tagged:
-- `server: 'global'`, `releaseDate` from GameTora `release_en` (provenance §3 / §3.2) for cards
-  already on Global.
-- `server: 'jp'`, `releaseDate` = announced Global date (from a news-sourced override) when
-  known, else **predicted** from the GameTora JP release date via `predictGlobalDateDefault`
-  (JP→Global pace 1.422, `src/core/timeline.ts`) with `releaseDatePredicted: true`.
-JP-ahead cards may carry less-complete event-skill sourcing than Global cards (the
-Tachyons/GameTora event data is Global-centric); this is acceptable for preview and noted in
-the UI. A horizon cap keeps the dataset honest and bounded: emit JP-ahead cards only up to a
-modest forward window (default: the furthest CM date in the timeline, or +6 months) and `log()`
-what was dropped (no silent truncation).
+**Data-sourcing reality (verified 2026-06-19, fact-gathering workflow).** `build-cards.ts`
+emits cards **only** from the umalator `master` support-cards extract (every emitted card is
+hard-coded `server: 'global'`); the GameTora catalog is a per-card *effects-matrix lookup*
+(`GtCard = { support_id, effects }`) with **no release-date field and no JP-ahead card
+records** (name/rarity/type/skills). There is therefore **no borrowed feed to "stop filtering"
+into existence** — and JP-ahead *skills* are likewise dropped (`skills.json` = Global cutover).
+So upcoming content is **curated, not auto-emitted**:
 
-**Predicate (`src/core/availability.ts`, pure):**
+- **Mechanism (always on):** add `releaseDate?: string` + `releaseDatePredicted?: boolean` to
+  `SupportCardRecord` (and `SkillRecord`); the predicate below + the UI toggles work whether or
+  not any upcoming records exist.
+- **Upcoming cards (P5 curation):** a new `data-overrides/upcoming_cards.json` holding full
+  `SupportCardRecord`s for *announced/anticipated* Global banner cards (same schema +
+  validation as `card_additions.json`), tagged `server: 'jp'` with `releaseDate` (announced
+  date from official news, else **predicted** via `predictGlobalDateDefault`, pace 1.422, with
+  `releaseDatePredicted: true`). Their skills, if not yet in the Global cutover, ride along via
+  a `skills` override entry.
+- **Already-Global cards** keep `releaseDate` undefined → the predicate treats them as released
+  (`server === 'global'`). Populating exact Global release dates for the back-catalog is **out
+  of scope** (no borrowed source); only the upcoming layer needs dates.
+- Initially the upcoming layer may be **empty/sparse** (curated when a banner is announced) —
+  honest per P3; the toggle simply surfaces nothing extra until entries are added via the
+  runbook.
+
+**Predicate (`src/core/availability.ts`, pure — generic over `{ releaseDate?, server }`):**
 ```
 isReleasedBy(record, asOfISO): boolean
   // if record.releaseDate is set → releaseDate <= asOfISO
   // else                        → record.server === 'global'   (on Global now, undated)
-skillAvailableBy(skill, cards, asOfISO): boolean
-  // true if any card that sources this skill isReleasedBy(asOfISO);
-  // released-only uma/scenario sources always count
 ```
-So an undated Global card is always available; a dated card (announced or predicted future) is
-available only once `asOfISO` reaches its date; an undated JP-ahead card is never available
-until it gains a date.
+So an undated Global record is always available; a dated record (announced or predicted future)
+is available only once `asOfISO` reaches its date; an undated JP-ahead record is never available
+until it gains a date. The same one predicate serves both the card-source and skill-chart
+toggles.
 The **reference date is supplied by the consumer**, not baked in:
 - the planner passes the active plan's **CM start date** (`cmRef` → timeline `dates.start`,
   fall back to `finals`) → "what can I have for this CM";
@@ -139,12 +150,19 @@ The **reference date is supplied by the consumer**, not baked in:
 ## Track 2 — Timeline as source of truth
 
 **(a) Fill the CM gap (data, P5; P3 — only real sourced entries, never fabricated).** Add
-**CM10–14** (Aquarius / Pisces / Aries / Taurus / **Gemini**) as confirmed Global entries in
-[`timeline_overrides.json`](../../../data-overrides/timeline_overrides.json), dates from
-`umamusume.com/news/` permalinks (Game8 per-CM pages cross-check). Add the missing **CM14
-Gemini** row to `cm_tracks.json`. Verify CM15 Cancer (present); keep CM16–18 as predictions.
-Upstream presets brand these CLASSIC/MILE/LONG; Global uses zodiac names, so override entries
-carry the real names + `/news/` sources.
+**CM10–14** as confirmed Global entries in
+[`timeline_overrides.json`](../../../data-overrides/timeline_overrides.json), two-source
+verified (2026-06-19): **CM10** Aquarius · Tokyo 1600m dirt · courseId `10611` · finals
+`2026-03-06`; **CM11** Pisces · Hanshin 3200m turf · `10914` · `2026-03-30`; **CM12** Aries ·
+Nakayama 2000m turf · `10504` · `2026-04-23`; **CM13** Taurus · Tokyo 2400m turf · `10606` ·
+`2026-05-14`; **CM14** Gemini · Tokyo 1600m turf · `10602` · `2026-06-04`. Add the missing
+**CM14 Gemini** row to `cm_tracks.json` (it skips index 14). **Fix the existing CM15 bug:** the
+committed `cm15-cancer-cup` entry has `finals: 2026-06-30`, but Round 1/finals begins
+**`2026-06-24`** (06-30 is the event *end*) — correct `dates.finals` to `2026-06-24` and keep
+`dates.end: 2026-06-30`. Keep CM16–18 as predictions. Each entry carries the official
+`/news/<id>/` permalink as `source.url` (candidate IDs 612/642/700/771/790; the implementer
+opens each to confirm it announces that CM — the dates/tracks themselves are already
+two-source confirmed).
 
 **(b) Promote the selector to core.** Move `currentCm(entries, todayISO)` from
 [`timelineView.ts:56`](../../../src/features/meta-intel/timelineView.ts#L56) → `src/core/timeline.ts`
