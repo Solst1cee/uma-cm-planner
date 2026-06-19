@@ -1,5 +1,5 @@
 import EngineWorker from './engine.worker?worker';
-import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult, SkillTrace, SkillRate } from './types';
+import type { SimBuild, SimRaceParams, SimRequest, SimResponse, BashinStats, VacuumResult, SkillTrace, SkillImpact } from './types';
 
 type WorkerFactory = () => Worker;
 
@@ -68,12 +68,12 @@ export class SimClient {
     return res.trace;
   }
 
-  async skillRate(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillRate> {
+  async skillImpact(build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed?: number): Promise<SkillImpact> {
     const id = ++this.seq;
-    const res = await this.send({ id, kind: 'skillRate', build, race, skillId, nsamples, seed });
+    const res = await this.send({ id, kind: 'skillImpact', build, race, skillId, nsamples, seed });
     if (!res.ok) throw new Error(res.error);
-    if (res.kind !== 'skillRate') throw new Error(`unexpected response kind: ${res.kind}`);
-    return res.rate;
+    if (res.kind !== 'skillImpact') throw new Error(`unexpected response kind: ${res.kind}`);
+    return res.impact;
   }
 
   dispose() { this.worker.terminate(); this.pending.clear(); }

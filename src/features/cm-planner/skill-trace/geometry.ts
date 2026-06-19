@@ -1,23 +1,21 @@
-import type { SkillFrame, SkillTraceRun } from '@/sim';
+import type { SkillFrame, SkillTraceRun, SkillImpactSample } from '@/sim';
 
 export interface Pt { x: number; y: number; }
 export interface Box { w: number; h: number; }
 export interface Domain { tMax: number; vMax: number; distMax: number; }
-/** Nice-rounded y-range for the L curve; always includes 0. */
+/** Nice-rounded y-range; always includes 0. */
 export interface LDomain { top: number; bottom: number; }
 /** A phase background band in viewBox pixels (phase 0=Early, 1=Mid, 2=Late). */
 export interface Band { x: number; w: number; phase: 0 | 1 | 2; }
-/** A column (bar) in viewBox pixels; `neg` flags a lost-ground (downward) bar. */
+/** A column (bar) in viewBox pixels; `neg` flags a downward (lost-ground) bar. */
 export interface Col { x: number; y: number; w: number; h: number; neg?: boolean; }
-/** One distance bucket's incremental lead: ΔL gained between d0 and d1 (metres). */
-export interface Gain { d0: number; d1: number; dL: number; }
 
 /** Race phase boundaries as fractions of course distance (Early|Mid at 1/6, Mid|Late at 2/3). */
 export const PHASE_FRACTIONS = [1 / 6, 2 / 3] as const;
 
 /** The course distances (metres) at the Early→Mid and Mid→Late transitions. */
-export function phaseBoundaryDistances(d: Domain): number[] {
-  return PHASE_FRACTIONS.map((f) => f * d.distMax);
+export function phaseBoundaryDistances(distance: number): number[] {
+  return PHASE_FRACTIONS.map((f) => f * distance);
 }
 
 /** SVG points attribute: "x,y x,y ..." (rounded to 2dp to keep the DOM small). */
@@ -45,20 +43,6 @@ export function vtPoints(frames: SkillFrame[], box: Box, d: Domain): Pt[] {
   return frames.map((f) => ({ x: scale(f.t, d.tMax, box.w), y: box.h - scale(f.v, d.vMax, box.h) }));
 }
 
-/** Bashin lead the skill buys, sampled per frame: (posWith - posWithout)/2.5 vs distance. */
-export function gapCurve(run: SkillTraceRun): { dist: number; L: number }[] {
-  const a = run.without, b = run.withSkill;
-  const n = Math.min(a.length, b.length);
-  const out: { dist: number; L: number }[] = [];
-  for (let i = 0; i < n; i++) {
-    const bi = b[i], ai = a[i];
-    if (!bi || !ai) continue;
-    // x = the with-skill runner's distance (it's ahead); y = バ身 lead = (posWith - posWithout) / 2.5.
-    out.push({ dist: bi.pos, L: (bi.pos - ai.pos) / 2.5 });
-  }
-  return out;
-}
-
 /** Round up to a "nice" axis ceiling (1-2-5 × 10^k). x<=0 → 0.5. */
 export function niceCeil(x: number): number {
   if (x <= 0) return 0.5;
@@ -77,49 +61,69 @@ export function niceDomain(values: number[]): LDomain {
   return { top: niceCeil(maxv), bottom: minv < 0 ? -niceCeil(-minv) : 0 };
 }
 
-/** The cumulative バ身 lead at a distance (step-held from the trace's gap curve). */
-function cumulativeLAt(curve: { dist: number; L: number }[], dist: number): number {
-  let l = 0;
-  for (const c of curve) {
-    if (c.dist <= dist) l = c.L; else break;
-  }
-  return l;
-}
-
-/** Per-segment (INCREMENTAL) lead: ΔL = cumulativeL(bucket end) − cumulativeL(bucket start).
- *  Non-zero only where the skill is actively adding lead — flat regions (before activation and
- *  the maintained-lead plateau after) contribute 0. The dL values telescope to the total lead. */
-export function incrementalGains(curve: { dist: number; L: number }[], d: Domain, nCols = 48): Gain[] {
-  const out: Gain[] = [];
-  if (curve.length === 0) return out;
-  for (let i = 0; i < nCols; i++) {
-    const d0 = (i / nCols) * d.distMax, d1 = ((i + 1) / nCols) * d.distMax;
-    const dL = Math.round((cumulativeLAt(curve, d1) - cumulativeLAt(curve, d0)) * 10000) / 10000;
-    out.push({ d0, d1, dL });
-  }
-  return out;
-}
-
-/** Map incremental gains to bars, one per bucket, skipping zero buckets (no bar where the skill
- *  added nothing). Bars grow up from the baseline; a negative ΔL (lost ground) grows down. */
-export function gainColumns(gains: Gain[], box: Box, ld: LDomain): Col[] {
-  const zeroY = zeroLineY(box, ld);
-  const span = ld.top - ld.bottom || 1;
-  const colW = gains.length ? box.w / gains.length : box.w;
-  const cols: Col[] = [];
-  gains.forEach((g, i) => {
-    if (g.dL === 0) return;
-    const yL = box.h - ((g.dL - ld.bottom) / span) * box.h;
-    cols.push({ x: i * colW, y: Math.min(zeroY, yL), w: Math.max(0.5, colW - 0.6), h: Math.abs(yL - zeroY), neg: g.dL < 0 });
-  });
-  return cols;
-}
-
-/** y-pixel of the L=0 baseline within [bottom, top] (where bars grow from). */
+/** y-pixel of the value=0 baseline within [bottom, top] (where bars grow from). */
 export function zeroLineY(box: Box, ld: LDomain): number {
   const span = ld.top - ld.bottom || 1;
   return box.h - ((0 - ld.bottom) / span) * box.h;
 }
+
+// --- Position-resolved charts (from N Monte-Carlo samples) ---
+
+function binCount(distance: number, binMeters: number): number {
+  return Math.max(1, Math.ceil(distance / binMeters));
+}
+function binIndex(pos: number, distance: number, nBins: number): number {
+  if (pos < 0 || distance <= 0) return -1;
+  return Math.min(nBins - 1, Math.floor((pos / distance) * nBins));
+}
+
+/** Max バ身 gained among the samples that activate in each position bin (umalator's "Length
+ *  Difference Impact"). Filters to positive gains; bins span [0, distance) by `binMeters`. */
+export function impactByPosition(samples: SkillImpactSample[], distance: number, binMeters = 20): number[] {
+  const n = binCount(distance, binMeters);
+  const out = new Array<number>(n).fill(0);
+  for (const s of samples) {
+    if (s.horseLength <= 0) continue;
+    for (const p of s.positions) {
+      const b = binIndex(p, distance, n);
+      if (b >= 0) out[b] = Math.max(out[b] ?? 0, s.horseLength);
+    }
+  }
+  return out;
+}
+
+/** % of all runs whose tracked skill activates in each position bin (発動率 by position). */
+export function frequencyByPosition(
+  samples: SkillImpactSample[], nsamples: number, distance: number, binMeters = 20,
+): number[] {
+  const n = binCount(distance, binMeters);
+  const count = new Array<number>(n).fill(0);
+  if (nsamples <= 0) return count;
+  for (const s of samples) {
+    const seen = new Set<number>();
+    for (const p of s.positions) {
+      const b = binIndex(p, distance, n);
+      if (b >= 0 && !seen.has(b)) { seen.add(b); count[b] = (count[b] ?? 0) + 1; }
+    }
+  }
+  return count.map((c) => (c / nsamples) * 100);
+}
+
+/** Bars from a per-bin value array across the full width; skip zero bins. */
+export function binColumns(values: number[], box: Box, ld: LDomain): Col[] {
+  const zeroY = zeroLineY(box, ld);
+  const span = ld.top - ld.bottom || 1;
+  const colW = values.length ? box.w / values.length : box.w;
+  const cols: Col[] = [];
+  values.forEach((v, i) => {
+    if (v === 0) return;
+    const yV = box.h - ((v - ld.bottom) / span) * box.h;
+    cols.push({ x: i * colW, y: Math.min(zeroY, yV), w: Math.max(0.5, colW - 0.4), h: Math.abs(yV - zeroY), neg: v < 0 });
+  });
+  return cols;
+}
+
+// --- Phase bands + activation overlay (for the velocity-vs-time chart) ---
 
 /** Three phase bands along the distance axis (constant width fractions). */
 export function distancePhaseBands(box: Box): Band[] {
@@ -127,7 +131,7 @@ export function distancePhaseBands(box: Box): Band[] {
 }
 
 /** Three phase bands along the TIME axis — phase boundaries are distances, mapped to times
- *  via the with-skill run (so the bands line up with where each phase actually happens in time). */
+ *  via the with-skill run (so the bands line up with where each phase happens in time). */
 export function timePhaseBands(run: SkillTraceRun, box: Box, d: Domain): Band[] {
   const edges = [
     0,

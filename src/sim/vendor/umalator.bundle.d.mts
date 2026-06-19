@@ -75,9 +75,14 @@ export interface RunDataBundle {
   medianrun: SimulationRun;
 }
 
+/** One activating sample for the tracked skill: バ身 gained + activation positions (metres). */
+export interface TrackedActivationMeta {
+  horseLength: number;
+  positions: number[];
+}
 export interface SkillComparisonResult {
   results: number[];
-  skillActivations: Record<string, unknown[]>;
+  skillActivations: Record<string, TrackedActivationMeta[]>;
   runData: unknown;
   min: number; max: number; mean: number; median: number;
 }

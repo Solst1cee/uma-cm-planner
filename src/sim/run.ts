@@ -1,7 +1,7 @@
 import { runSkillComparison, skillsService, runComparison, runPlannerComparison } from '@/sim/vendor/umalator.bundle.mjs';
 import type { SimulationRun } from '@/sim/vendor/umalator.bundle.mjs';
 import { toRunnerState, toRaceDef, resolveCourse, bashinStatsFrom } from './adapter';
-import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillRate } from './types';
+import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillImpact } from './types';
 
 const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
 
@@ -104,25 +104,29 @@ function mapRun(run: SimulationRun, skillId: string, L: number): SkillTraceRun {
   return { withSkill: zipFrames(run, 1), without: zipFrames(run, 0), activation: activationRegions(run, skillId), L };
 }
 
-/** Activation rate (発動率): fraction of samples in which `skillId` procs. */
-export function skillActivationRate(
+/** Per-sample activation data for the position-resolved impact/frequency charts (umalator-style).
+ *  From N samples: each activating sample carries the total バ身 it gained and the positions
+ *  (metres) where the tracked skill fired. The activation rate is samples.length / nsamples. */
+export function skillImpact(
   build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
-): SkillRate {
-  if (nsamples < 1 || build.stats.spd <= 0) return { rate: 0, nsamples: 0 };
-  if (!skillsService.isSimulatable(skillId)) return { rate: 0, nsamples: 0 };
+): SkillImpact {
+  if (nsamples < 1 || build.stats.spd <= 0) return { samples: [], nsamples: 0, distance: 0 };
+  if (!skillsService.isSimulatable(skillId)) return { samples: [], nsamples: 0, distance: 0 };
+  const course = resolveCourse(race.courseId);
   const r = runSkillComparison({
     trackedSkillId: skillId,
     nsamples,
-    course: resolveCourse(race.courseId),
+    course,
     racedef: toRaceDef(race),
     runnerA: toRunnerState(build),
     runnerB: toRunnerState({ ...build, skills: [...build.skills, skillId] }),
     options: { seed, ignoreStaminaConsumption: false },
   });
-  // runSkillComparison keys skillActivations flat by tracked skill id (NOT runner-indexed like runComparison's runData).
-  const activations = r.skillActivations[skillId]?.length ?? 0;
-  const rate = Math.min(1, Math.max(0, activations / nsamples));
-  return { rate, nsamples };
+  // runSkillComparison keys skillActivations flat by tracked skill id; each entry is one activating
+  // sample: { horseLength (バ身 that sample gained), positions (activation start positions, metres) }.
+  const samples = r.skillActivations[skillId] ?? [];
+  const distance = typeof course.distance === 'number' ? course.distance : 0;
+  return { samples, nsamples, distance };
 }
 
 /** Per-frame with-vs-without trace for adding `skillId` to `build` (curves + activation zones). */

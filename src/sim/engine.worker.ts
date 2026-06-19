@@ -1,4 +1,4 @@
-import { evalSkillDelta, runVacuumCompare, runPlannerCompare, runSkillTrace, skillActivationRate } from './run';
+import { evalSkillDelta, runVacuumCompare, runPlannerCompare, runSkillTrace, skillImpact } from './run';
 import type { SimRequest, SimResponse } from './types';
 
 /** Pure request handler — unit-testable without a real Worker. */
@@ -13,8 +13,8 @@ export function handleSimRequest(req: SimRequest): SimResponse {
         return { id: req.id, ok: true, kind: 'vacuum', stats: runVacuumCompare(req.a, req.b, req.race, req.nsamples, req.seed) };
       case 'skillTrace':
         return { id: req.id, ok: true, kind: 'skillTrace', trace: runSkillTrace(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'skillRate':
-        return { id: req.id, ok: true, kind: 'skillRate', rate: skillActivationRate(req.build, req.race, req.skillId, req.nsamples, req.seed) };
+      case 'skillImpact':
+        return { id: req.id, ok: true, kind: 'skillImpact', impact: skillImpact(req.build, req.race, req.skillId, req.nsamples, req.seed) };
     }
   } catch (e) {
     return { id: req.id, ok: false, error: e instanceof Error ? e.message : String(e) };

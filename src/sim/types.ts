@@ -67,10 +67,18 @@ export interface SkillTrace {
   nsamples: number;
 }
 
-/** Fraction of sampled runs in which the tracked skill actually procs (発動率). */
-export interface SkillRate {
-  rate: number;     // 0..1
+/** One activating sample: the バ身 it gained and where the tracked skill fired (metres). */
+export interface SkillImpactSample {
+  horseLength: number;
+  positions: number[];
+}
+
+/** Position-resolved activation data from N samples — drives the "length impact" and
+ *  "activation frequency" charts; the activation rate (発動率) is samples.length / nsamples. */
+export interface SkillImpact {
+  samples: SkillImpactSample[];
   nsamples: number;
+  distance: number; // course distance (metres), for the position axis
 }
 
 /** Worker request/response unions. */
@@ -79,7 +87,7 @@ export type SimRequest =
   | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number }
   | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number }
   | { id: number; kind: 'skillTrace'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
-  | { id: number; kind: 'skillRate'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number };
+  | { id: number; kind: 'skillImpact'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number };
 
 export interface VacuumResult extends BashinStats {
   /** Win-rate of A vs B and stamina survival, for the M2 compare panel. */
@@ -93,5 +101,5 @@ export type SimResponse =
   | { id: number; ok: true; kind: 'skillDelta' | 'planner'; stats: BashinStats }
   | { id: number; ok: true; kind: 'vacuum'; stats: VacuumResult }
   | { id: number; ok: true; kind: 'skillTrace'; trace: SkillTrace }
-  | { id: number; ok: true; kind: 'skillRate'; rate: SkillRate }
+  | { id: number; ok: true; kind: 'skillImpact'; impact: SkillImpact }
   | { id: number; ok: false; error: string };

@@ -90,24 +90,27 @@ describe('runSkillTrace', () => {
   });
 });
 
-import { skillActivationRate } from './run';
+import { skillImpact } from './run';
 
-describe('skillActivationRate', () => {
-  it('returns a rate in [0,1] over nsamples for a real skill', () => {
-    const r = skillActivationRate(build, { courseId: '10101' }, '200332', 50, 5);
+describe('skillImpact', () => {
+  it('returns per-sample {horseLength, positions} + nsamples + course distance for a real skill', () => {
+    const r = skillImpact(build, { courseId: '10101' }, '200332', 50, 5);
     expect(r.nsamples).toBe(50);
-    expect(r.rate).toBeGreaterThanOrEqual(0);
-    expect(r.rate).toBeLessThanOrEqual(1);
+    expect(r.distance).toBeGreaterThan(0);                 // Sapporo 1200m turf
+    expect(r.samples.length).toBeGreaterThan(0);
+    expect(r.samples.length).toBeLessThanOrEqual(50);      // one entry per activating sample
+    const s = r.samples[0]!;
+    expect(Number.isFinite(s.horseLength)).toBe(true);
+    expect(Array.isArray(s.positions)).toBe(true);
+    for (const p of s.positions) expect(p).toBeGreaterThanOrEqual(0);
   });
 
-  it('returns rate 0 / nsamples 0 for a non-simulatable skill', () => {
-    const r = skillActivationRate(build, { courseId: '10101' }, '000000', 20, 1);
-    expect(r).toEqual({ rate: 0, nsamples: 0 });
+  it('is empty for a non-simulatable skill', () => {
+    expect(skillImpact(build, { courseId: '10101' }, '000000', 20, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
   });
 
-  it('returns rate 0 / nsamples 0 for a zero-speed build', () => {
+  it('is empty for a zero-speed build', () => {
     const zero = { ...build, stats: { ...build.stats, spd: 0 } };
-    const r = skillActivationRate(zero, { courseId: '10101' }, '200332', 10, 1);
-    expect(r).toEqual({ rate: 0, nsamples: 0 });
+    expect(skillImpact(zero, { courseId: '10101' }, '200332', 10, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
   });
 });

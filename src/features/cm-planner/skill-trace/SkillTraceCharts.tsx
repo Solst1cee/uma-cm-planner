@@ -1,8 +1,10 @@
 import './skill-trace.css';
-import type { RunChoice, SkillTraceRun } from '@/sim';
+import type { RunChoice, SkillImpact, SkillTraceRun } from '@/sim';
 import {
-  vtPoints, gapCurve, incrementalGains, gainColumns, niceDomain, zeroLineY, polyline, domainOf, activationTimes,
-  distancePhaseBands, timePhaseBands, phaseBoundaryDistances, PHASE_FRACTIONS, type Box, type Band,
+  vtPoints, polyline, domainOf, activationTimes, timePhaseBands,
+  impactByPosition, frequencyByPosition, binColumns, niceDomain, zeroLineY,
+  distancePhaseBands, phaseBoundaryDistances, PHASE_FRACTIONS,
+  type Box, type Band, type LDomain,
 } from './geometry';
 
 const BOX: Box = { w: 280, h: 96 };
@@ -53,27 +55,25 @@ export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
   );
 }
 
-export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
-  const d = domainOf(run);
-  const curve = gapCurve(run);
-  const gains = incrementalGains(curve, d);           // ΔL the skill adds in each track segment
-  const ld = niceDomain(gains.map((g) => g.dL));
-  const cols = gainColumns(gains, BOX, ld);
+/** Shared position-binned bar chart: X = course position (with phase-transition ticks),
+ *  Y = a per-bin value (max バ身, or activation %). */
+function PositionBarChart({
+  title, yTitle, yMax, values, ld, distance,
+}: { title: string; yTitle: string; yMax: string; values: number[]; ld: LDomain; distance: number }) {
+  const cols = binColumns(values, BOX, ld);
   const zeroY = zeroLineY(BOX, ld);
-  // x-axis ticks at the phase transitions (Early→Mid, Mid→Late) plus the start/finish.
   const ticks = [
     { left: 0, label: '0' },
-    ...phaseBoundaryDistances(d).map((dist, i) => ({ left: (PHASE_FRACTIONS[i] ?? 0) * 100, label: `${Math.round(dist)}m` })),
-    { left: 100, label: `${Math.round(d.distMax)}m` },
+    ...phaseBoundaryDistances(distance).map((dist, i) => ({ left: (PHASE_FRACTIONS[i] ?? 0) * 100, label: `${Math.round(dist)}m` })),
+    { left: 100, label: `${Math.round(distance)}m` },
   ];
   return (
     <figure className="cmp-trace-chart">
-      <figcaption>Length gained vs distance</figcaption>
+      <figcaption>{title}</figcaption>
       <div className="cmp-trace-plot">
-        <span className="cmp-axis-ytitle">バ身</span>
-        <span className="cmp-axis-ymax">{`${num(ld.top)}L`}</span>
-        {ld.bottom < 0 && <span className="cmp-axis-ymin">{`${num(ld.bottom)}L`}</span>}
-        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage by distance, drawn as columns; race phases shaded" preserveAspectRatio="none">
+        <span className="cmp-axis-ytitle">{yTitle}</span>
+        <span className="cmp-axis-ymax">{yMax}</span>
+        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label={title} preserveAspectRatio="none">
           <PhaseBands bands={distancePhaseBands(BOX)} />
           {cols.map((c, i) => <rect key={i} className={`cmp-trace-col ${c.neg ? 'is-neg' : ''}`.trim()} x={c.x} y={c.y} width={c.w} height={c.h} />)}
           <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={BOX.w} y2={zeroY} />
@@ -86,23 +86,22 @@ export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
   );
 }
 
-export function ActivationRateBadge({
-  status, rate, onCompute,
-}: { status: 'idle' | 'running' | 'done'; rate: number | null; onCompute: () => void }) {
-  if (status === 'done' && rate !== null) {
-    const pct = `${Math.round(rate * 100)}%`;
-    return (
-      <div className="cmp-trace-rate is-done">
-        <span className="cmp-trace-rate-label">Activation rate</span>
-        <span className="cmp-trace-rate-bar"><span style={{ width: pct }} /></span>
-        <strong>{pct}</strong>
-      </div>
-    );
-  }
+/** umalator "Length Difference Impact": max バ身 gained when the skill activates at each position. */
+export function LengthImpactChart({ impact }: { impact: SkillImpact }) {
+  const values = impactByPosition(impact.samples, impact.distance);
+  const ld = niceDomain(values);
   return (
-    <button type="button" className="cmp-trace-rate-btn" disabled={status === 'running'} onClick={onCompute}>
-      {status === 'running' ? 'Measuring activation rate…' : 'Compute activation rate'}
-    </button>
+    <PositionBarChart title="Length gained by activation position" yTitle="バ身" yMax={`${num(ld.top)}L`}
+      values={values} ld={ld} distance={impact.distance} />
+  );
+}
+
+/** % of runs in which the skill activates at each position (発動率 by position). */
+export function ActivationFrequencyChart({ impact }: { impact: SkillImpact }) {
+  const values = frequencyByPosition(impact.samples, impact.nsamples, impact.distance);
+  return (
+    <PositionBarChart title="Activation frequency by position" yTitle="%" yMax="100%"
+      values={values} ld={{ top: 100, bottom: 0 }} distance={impact.distance} />
   );
 }
 
