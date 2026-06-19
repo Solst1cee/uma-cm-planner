@@ -32,6 +32,14 @@ export function sortTimeline(entries: TimelineEntry[]): TimelineEntry[] {
   return [...entries].sort((a, b) => (effectiveDate(a) < effectiveDate(b) ? -1 : effectiveDate(a) > effectiveDate(b) ? 1 : 0));
 }
 
+/** The current/next CM: first CM on/after now, else the most recent past one. */
+export function currentCm(cmEntries: TimelineEntry[], nowISO: string): TimelineEntry | null {
+  if (cmEntries.length === 0) return null;
+  const sorted = sortTimeline(cmEntries);
+  const upcoming = sorted.find((e) => effectiveDate(e) >= nowISO);
+  return upcoming ?? sorted[sorted.length - 1] ?? null;
+}
+
 /** M3→M4: cm entries with a cmNumber → CmScheduleRow (shared-data-model §6). */
 export function projectCmSchedule(entries: TimelineEntry[]): CmScheduleRow[] {
   const rows: CmScheduleRow[] = [];

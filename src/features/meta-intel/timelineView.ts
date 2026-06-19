@@ -52,14 +52,6 @@ export function nowIndex(sorted: TimelineEntry[], nowISO: string): number {
   return i === -1 ? sorted.length : i;
 }
 
-/** The current/next CM: first CM on/after now, else the most recent past one. */
-export function currentCm(cmEntries: TimelineEntry[], nowISO: string): TimelineEntry | null {
-  if (cmEntries.length === 0) return null;
-  const sorted = [...cmEntries].sort(byDateAsc);
-  const upcoming = sorted.find((e) => effectiveDate(e) >= nowISO);
-  return upcoming ?? sorted[sorted.length - 1] ?? null;
-}
-
 export type RangeKey = 'upcoming' | 'year' | 'all';
 
 export const RANGES: readonly { key: RangeKey; label: string }[] = [

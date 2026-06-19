@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TimelineEntry } from '@/core/types';
-import { currentCm, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
+import { filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
 
 /** Minimal TimelineEntry builder — override only what a test cares about. */
 function entry(over: Partial<TimelineEntry> & { id: string }): TimelineEntry {
@@ -66,25 +66,6 @@ describe('nowIndex', () => {
 
   it('returns length when every entry is in the past', () => {
     expect(nowIndex(sorted, '2027-01-01')).toBe(3);
-  });
-});
-
-describe('currentCm', () => {
-  const cms = [
-    entry({ id: 'cm1', dates: { finals: '2026-05-30' } }),
-    entry({ id: 'cm2', dates: { finals: '2026-06-30' } }),
-  ];
-
-  it('picks the first CM on/after now', () => {
-    expect(currentCm(cms, '2026-06-15')?.id).toBe('cm2');
-  });
-
-  it('falls back to the most recent past CM when none are upcoming', () => {
-    expect(currentCm(cms, '2027-01-01')?.id).toBe('cm2');
-  });
-
-  it('returns null for an empty list', () => {
-    expect(currentCm([], '2026-06-15')).toBeNull();
   });
 });
 

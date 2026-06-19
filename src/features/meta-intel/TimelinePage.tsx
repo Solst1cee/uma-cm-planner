@@ -7,9 +7,9 @@
  * `now` is injectable for deterministic tests; it defaults to today.
  */
 import { Fragment, useMemo, useRef, useState } from 'react';
-import { effectiveDate } from '@/core/timeline';
+import { effectiveDate, currentCm } from '@/core/timeline';
 import { useGameData } from '@/features/data/gameData';
-import { LANES, RANGES, type LaneKey, type RangeKey, currentCm, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
+import { LANES, RANGES, type LaneKey, type RangeKey, filterTimeline, nowIndex, partitionByLane, windowTimeline } from './timelineView';
 import { TimelineEntryCard } from './TimelineEntryCard';
 import { TimelineDetailPanel } from './TimelineDetailPanel';
 import './meta-intel.css';

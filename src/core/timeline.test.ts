@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mergeTimeline, projectCmSchedule, predictGlobalDate, timelineBadge, sortTimeline, addMonths } from './timeline';
+import { mergeTimeline, projectCmSchedule, predictGlobalDate, timelineBadge, sortTimeline, addMonths, currentCm } from './timeline';
 import type { TimelineEntry } from './types';
 
 const base: TimelineEntry[] = [
@@ -82,5 +82,21 @@ describe('addMonths', () => {
   });
   it('handles negative months (windowing lower bound)', () => {
     expect(addMonths('2026-06-15', -6)).toBe('2025-12-15');
+  });
+});
+
+describe('currentCm', () => {
+  const cms: TimelineEntry[] = [
+    { id: 'cm1', type: 'cm', title: 'A', dates: { finals: '2026-05-30' }, tier: 'official', status: 'confirmed', source: { kind: 'official_news', url: '' }, server: 'global', dataVersion: 'x' },
+    { id: 'cm2', type: 'cm', title: 'B', dates: { finals: '2026-06-30' }, tier: 'official', status: 'confirmed', source: { kind: 'official_news', url: '' }, server: 'global', dataVersion: 'x' },
+  ];
+  it('picks the first CM on/after now', () => {
+    expect(currentCm(cms, '2026-06-15')?.id).toBe('cm2');
+  });
+  it('falls back to the most recent past CM when none are upcoming', () => {
+    expect(currentCm(cms, '2027-01-01')?.id).toBe('cm2');
+  });
+  it('returns null for an empty list', () => {
+    expect(currentCm([], '2026-06-15')).toBeNull();
   });
 });
