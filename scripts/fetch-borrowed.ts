@@ -17,6 +17,8 @@ import { BORROWED_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR } from './lib/io';
 
 /** v0.14.2 — see docs/provenance.md §1. */
 export const UPSTREAM_COMMIT = 'c1fa2107b6a7be6283bf6414ebb7a23ea0c095ca';
+/** Data version stamped on every generated record = `global-<first 8 of UPSTREAM_COMMIT>`. */
+export const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`;
 const RAW_BASE = `https://raw.githubusercontent.com/jalbarrang/umalator-global/${UPSTREAM_COMMIT}/`;
 
 /**

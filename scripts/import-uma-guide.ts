@@ -15,12 +15,13 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DATA_VERSION } from './fetch-borrowed';
 import { parseUmaGuideSchedule } from './parse-uma-guide';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const html = await fetch('https://uma.guide/cm-schedule/').then((r) => r.text());
 const tracks = parseUmaGuideSchedule(html);
-const out = { dataVersion: 'global-c1fa2107', tracks };
+const out = { dataVersion: DATA_VERSION, tracks };
 mkdirSync(path.join(ROOT, 'public/data'), { recursive: true });
 writeFileSync(path.join(ROOT, 'public/data/cm_tracks.json'), JSON.stringify(out, null, 2) + '\n');
 console.log(`cm_tracks.json: ${tracks.length} CMs`);

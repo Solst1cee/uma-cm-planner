@@ -19,7 +19,7 @@ import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
 import { buildTimeline } from './build-timeline';
 import { buildUmas } from './build-umas';
-import { borrowedFilesPresent, copyFromSpikes, UPSTREAM_COMMIT } from './fetch-borrowed';
+import { borrowedFilesPresent, copyFromSpikes, DATA_VERSION } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
 import type {
@@ -35,8 +35,6 @@ import type {
   UpstreamCmPreset,
 } from './lib/upstream-types';
 import { applyOverrides, loadOverrideFiles } from './merge-overrides';
-
-const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`; // "global-c1fa2107"
 
 export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   if (opts.fromSpikes) {
