@@ -44,6 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Hand-rolled M4 §0 track retired (2026-06-16)** — `src/core/track.ts`, `src/sim/courseGeometry.ts`, and `TrackDiagramPanel` were deleted and replaced by the vendored umalator track (`src/features/planner/racetrack/`).
 
 Key files:
+- [docs/data-refresh-runbook.md](docs/data-refresh-runbook.md) — **how to refresh game data (pin bump), add a confirmed CM, or add an upcoming skill.**
 - [docs/modules/](docs/modules/) — **per-module living docs (read first for any module).**
 - [uma-cm-planner-plan.md](uma-cm-planner-plan.md) — the full project plan and single source of truth (Phase 0 checklist annotated with outcomes; §14 decisions annotated).
 - [docs/provenance.md](docs/provenance.md) — engine vendor pin (umalator-global v0.14.2), licenses (clean GPL chain), all dataset sources/formats, UmaExtractor import spec, rental-site deep-link templates.
