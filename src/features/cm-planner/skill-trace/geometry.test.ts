@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  polyline, gapCurve, vtPoints, domainOf, activationTimes, gapPoints,
-  niceCeil, lDomain, zeroLineY, distancePhaseBands, timePhaseBands,
+  polyline, gapCurve, vtPoints, domainOf, activationTimes, gapColumns,
+  niceCeil, lDomain, zeroLineY, distancePhaseBands, timePhaseBands, phaseBoundaryDistances,
 } from './geometry';
 import type { SkillTraceRun } from '@/sim';
 
@@ -56,27 +56,30 @@ describe('geometry L-axis scaling', () => {
   });
 });
 
-describe('geometry gap mapping', () => {
+describe('geometry gap mapping (columns)', () => {
   const box = { w: 100, h: 80 };
   const dom = { tMax: 1, vMax: 1, distMax: 10 };
-
-  it('gapPoints maps bottom→y=h and top→y=0', () => {
-    const pts = gapPoints([{ dist: 0, L: 0 }, { dist: 10, L: 5 }], box, dom, { top: 5, bottom: 0 });
-    expect(pts[0]!.y).toBe(80); // L=0 (bottom) → y=h
-    expect(pts[1]!.y).toBe(0);  // L=top → y=0
-  });
 
   it('zeroLineY sits at the bottom for a 0-floor range, at center for a symmetric one', () => {
     expect(zeroLineY(box, { top: 5, bottom: 0 })).toBe(80);
     expect(zeroLineY(box, { top: 4, bottom: -4 })).toBe(40);
   });
 
-  it('gapPoints sends positive L up and negative L down relative to the zero line', () => {
-    const ld = { top: 4, bottom: -4 };
-    const zero = zeroLineY(box, ld); // 40
-    const pts = gapPoints([{ dist: 5, L: 2 }, { dist: 5, L: -2 }], box, dom, ld);
-    expect(pts[0]!.y).toBeLessThan(zero);
-    expect(pts[1]!.y).toBeGreaterThan(zero);
+  it('gapColumns bars only where L is non-zero (skips inactive distances)', () => {
+    const curve = [
+      { dist: 0, L: 0 }, { dist: 3, L: 0 },
+      { dist: 6, L: 2 }, { dist: 8, L: 4 }, { dist: 10, L: 5 },
+    ];
+    const cols = gapColumns(curve, box, dom, { top: 5, bottom: 0 }, 10);
+    expect(cols.length).toBeGreaterThan(0);
+    expect(cols.length).toBeLessThan(10);            // inactive buckets produce no bar
+    for (const c of cols) expect(c.y + c.h).toBeCloseTo(80, 5); // bars grow from the baseline
+    const tallest = cols.reduce((a, c) => (c.h > a.h ? c : a));
+    expect(tallest.h).toBeGreaterThan(0);            // bigger L → taller bar
+  });
+
+  it('gapColumns returns [] for an all-zero curve (skill never leads)', () => {
+    expect(gapColumns([{ dist: 0, L: 0 }, { dist: 10, L: 0 }], box, dom, { top: 0.5, bottom: 0 }, 10)).toEqual([]);
   });
 
   it('polyline rounds coordinates to 2dp', () => {
@@ -86,6 +89,10 @@ describe('geometry gap mapping', () => {
 
 describe('geometry phase bands', () => {
   const box = { w: 120, h: 80 };
+
+  it('phaseBoundaryDistances returns the 1/6 and 2/3 course distances', () => {
+    expect(phaseBoundaryDistances({ tMax: 1, vMax: 1, distMax: 1200 })).toEqual([200, 800]);
+  });
 
   it('distancePhaseBands splits width at 1/6 and 2/3 into 3 phases', () => {
     const bands = distancePhaseBands(box);

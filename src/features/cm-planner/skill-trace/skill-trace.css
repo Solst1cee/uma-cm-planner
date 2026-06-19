@@ -14,11 +14,17 @@
 .cmp-axis-ymin { position: absolute; left: 0; bottom: 14px; width: 24px; text-align: right; }
 .cmp-axis-x { position: absolute; left: 26px; right: 0; bottom: 0; display: flex; justify-content: space-between; }
 .cmp-axis-xtitle { color: var(--muted, #9aa0a6); }
+/* Distance ticks at the phase transitions (absolute-positioned via inline left%). */
+.cmp-axis-x-ticks { display: block; height: 10px; }
+.cmp-axis-x-ticks .cmp-xtick { position: absolute; bottom: 0; transform: translateX(-50%); white-space: nowrap; }
+.cmp-axis-x-ticks .cmp-xtick:first-child { transform: none; }
+.cmp-axis-x-ticks .cmp-xtick:last-child { transform: translateX(-100%); }
 
 .cmp-trace-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .cmp-trace-line.is-with { stroke: var(--accent, #ffcf4a); }
 .cmp-trace-line.is-without { stroke: #9aa0a6; stroke-dasharray: 3 3; }
-.cmp-trace-line.is-gain { stroke: var(--accent, #ffcf4a); }
+/* L-vs-distance columns — discrete bars so inactive distances simply show no bar. */
+.cmp-trace-col { fill: var(--accent, #ffcf4a); }
 .cmp-trace-baseline { stroke: #4a4d55; stroke-width: 1; vector-effect: non-scaling-stroke; }
 /* Race-phase bands (colors mirror the §0 racetrack: Early green / Mid yellow / Late pink). */
 .cmp-trace-phase { stroke: none; }

@@ -17,9 +17,17 @@ describe('SkillTraceCharts', () => {
     expect(container.querySelectorAll('polyline').length).toBe(2);
   });
 
-  it('LengthDistanceChart renders the gain polyline', () => {
+  it('LengthDistanceChart renders gain columns, not a connecting line', () => {
     const { container } = render(<LengthDistanceChart run={run} />);
-    expect(container.querySelector('polyline')).not.toBeNull();
+    expect(container.querySelectorAll('rect.cmp-trace-col').length).toBeGreaterThan(0);
+    expect(container.querySelector('polyline')).toBeNull(); // bars, so inactive distances show nothing
+  });
+
+  it('LengthDistanceChart labels distance ticks at the phase transitions', () => {
+    // distMax = 7.5 → ticks at 1/6 (≈1m), 2/3 (5m), plus 0 and round(7.5)=8m.
+    const { container } = render(<LengthDistanceChart run={run} />);
+    const ticks = Array.from(container.querySelectorAll('.cmp-xtick')).map((t) => t.textContent);
+    expect(ticks).toEqual(['0', '1m', '5m', '8m']);
   });
 
   it('both charts render 3 race-phase bands and axis labels', () => {

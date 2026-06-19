@@ -7,9 +7,16 @@ export interface Domain { tMax: number; vMax: number; distMax: number; }
 export interface LDomain { top: number; bottom: number; }
 /** A phase background band in viewBox pixels (phase 0=Early, 1=Mid, 2=Late). */
 export interface Band { x: number; w: number; phase: 0 | 1 | 2; }
+/** A column (bar) in viewBox pixels. */
+export interface Col { x: number; y: number; w: number; h: number; }
 
-/** Race phase boundaries as fractions of course distance (Early | Mid | Late). */
-const PHASE_BOUNDS = [1 / 6, 2 / 3];
+/** Race phase boundaries as fractions of course distance (Early|Mid at 1/6, Mid|Late at 2/3). */
+export const PHASE_FRACTIONS = [1 / 6, 2 / 3] as const;
+
+/** The course distances (metres) at the Early→Mid and Mid→Late transitions. */
+export function phaseBoundaryDistances(d: Domain): number[] {
+  return PHASE_FRACTIONS.map((f) => f * d.distMax);
+}
 
 /** SVG points attribute: "x,y x,y ..." (rounded to 2dp to keep the DOM small). */
 export function polyline(points: Pt[]): string {
@@ -69,13 +76,34 @@ export function lDomain(curve: { dist: number; L: number }[]): LDomain {
   return { top: niceCeil(maxL), bottom: minL < 0 ? -niceCeil(-minL) : 0 };
 }
 
-/** L-vs-distance points mapped over [bottom, top]: bottom→y=box.h, top→y=0. */
-export function gapPoints(curve: { dist: number; L: number }[], box: Box, d: Domain, ld: LDomain): Pt[] {
+/** L-vs-distance as discrete columns. The trace is continuous, but the skill only contributes
+ *  lead in/after its activation window — a connected line implies data across distances where
+ *  nothing happens. Bucketing into bars (and SKIPPING empty/zero buckets) shows the lead only
+ *  where it exists. Each bar spans the baseline→peak-L of its distance bucket. */
+export function gapColumns(curve: { dist: number; L: number }[], box: Box, d: Domain, ld: LDomain, nCols = 56): Col[] {
+  if (curve.length === 0) return [];
+  const zeroY = zeroLineY(box, ld);
   const span = ld.top - ld.bottom || 1;
-  return curve.map((c) => ({ x: scale(c.dist, d.distMax, box.w), y: box.h - ((c.L - ld.bottom) / span) * box.h }));
+  const colW = box.w / nCols;
+  const cols: Col[] = [];
+  for (let i = 0; i < nCols; i++) {
+    const lo = (i / nCols) * d.distMax, hi = ((i + 1) / nCols) * d.distMax;
+    const last = i === nCols - 1;
+    let peak = 0, has = false;
+    for (const c of curve) {
+      if (c.dist >= lo && (c.dist < hi || (last && c.dist <= hi))) {
+        has = true;
+        if (Math.abs(c.L) > Math.abs(peak)) peak = c.L;
+      }
+    }
+    if (!has || peak === 0) continue; // no bar where the skill isn't contributing
+    const yL = box.h - ((peak - ld.bottom) / span) * box.h;
+    cols.push({ x: i * colW, y: Math.min(zeroY, yL), w: Math.max(0.5, colW - 0.6), h: Math.abs(yL - zeroY) });
+  }
+  return cols;
 }
 
-/** y-pixel of the L=0 baseline within [bottom, top] (where the gain curve starts from). */
+/** y-pixel of the L=0 baseline within [bottom, top] (where bars grow from). */
 export function zeroLineY(box: Box, ld: LDomain): number {
   const span = ld.top - ld.bottom || 1;
   return box.h - ((0 - ld.bottom) / span) * box.h;
@@ -83,7 +111,7 @@ export function zeroLineY(box: Box, ld: LDomain): number {
 
 /** Three phase bands along the distance axis (constant width fractions). */
 export function distancePhaseBands(box: Box): Band[] {
-  return bandsFromEdges([0, ...PHASE_BOUNDS.map((f) => f * box.w), box.w]);
+  return bandsFromEdges([0, ...PHASE_FRACTIONS.map((f) => f * box.w), box.w]);
 }
 
 /** Three phase bands along the TIME axis — phase boundaries are distances, mapped to times
@@ -91,7 +119,7 @@ export function distancePhaseBands(box: Box): Band[] {
 export function timePhaseBands(run: SkillTraceRun, box: Box, d: Domain): Band[] {
   const edges = [
     0,
-    ...PHASE_BOUNDS.map((f) => scale(timeAtPosition(run.withSkill, f * d.distMax), d.tMax, box.w)),
+    ...PHASE_FRACTIONS.map((f) => scale(timeAtPosition(run.withSkill, f * d.distMax), d.tMax, box.w)),
     box.w,
   ];
   return bandsFromEdges(edges);

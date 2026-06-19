@@ -1,8 +1,8 @@
 import './skill-trace.css';
 import type { RunChoice, SkillTraceRun } from '@/sim';
 import {
-  vtPoints, gapCurve, gapPoints, lDomain, zeroLineY, polyline, domainOf, activationTimes,
-  distancePhaseBands, timePhaseBands, type Box, type Band,
+  vtPoints, gapCurve, gapColumns, lDomain, zeroLineY, polyline, domainOf, activationTimes,
+  distancePhaseBands, timePhaseBands, phaseBoundaryDistances, PHASE_FRACTIONS, type Box, type Band,
 } from './geometry';
 
 const BOX: Box = { w: 280, h: 96 };
@@ -57,8 +57,14 @@ export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
   const d = domainOf(run);
   const curve = gapCurve(run);
   const ld = lDomain(curve);
-  const pts = polyline(gapPoints(curve, BOX, d, ld));
+  const cols = gapColumns(curve, BOX, d, ld);
   const zeroY = zeroLineY(BOX, ld);
+  // x-axis ticks at the phase transitions (Early→Mid, Mid→Late) plus the start/finish.
+  const ticks = [
+    { left: 0, label: '0' },
+    ...phaseBoundaryDistances(d).map((dist, i) => ({ left: (PHASE_FRACTIONS[i] ?? 0) * 100, label: `${Math.round(dist)}m` })),
+    { left: 100, label: `${Math.round(d.distMax)}m` },
+  ];
   return (
     <figure className="cmp-trace-chart">
       <figcaption>Length gained vs distance</figcaption>
@@ -66,12 +72,14 @@ export function LengthDistanceChart({ run }: { run: SkillTraceRun }) {
         <span className="cmp-axis-ytitle">バ身</span>
         <span className="cmp-axis-ymax">{`${num(ld.top)}L`}</span>
         {ld.bottom < 0 && <span className="cmp-axis-ymin">{`${num(ld.bottom)}L`}</span>}
-        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage over race distance; race phases shaded" preserveAspectRatio="none">
+        <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Length advantage by distance, drawn as columns; race phases shaded" preserveAspectRatio="none">
           <PhaseBands bands={distancePhaseBands(BOX)} />
+          {cols.map((c, i) => <rect key={i} className="cmp-trace-col" x={c.x} y={c.y} width={c.w} height={c.h} />)}
           <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={BOX.w} y2={zeroY} />
-          <polyline className="cmp-trace-line is-gain" points={pts} fill="none" />
         </svg>
-        <span className="cmp-axis-x"><span>0</span><span className="cmp-axis-xtitle">distance (m)</span><span>{`${Math.round(d.distMax)}m`}</span></span>
+        <span className="cmp-axis-x cmp-axis-x-ticks">
+          {ticks.map((t, i) => <span key={i} className="cmp-xtick" style={{ left: `${t.left}%` }}>{t.label}</span>)}
+        </span>
       </div>
     </figure>
   );
