@@ -1,7 +1,8 @@
-/** M4 — the §0 track card IS the umalator main view. uma1 = the active plan; pick uma2
- *  (a saved plan) right on the track and the velocity/HP + activation markers + バ身-gap
- *  overlay renders on the track itself (no separate card). With no uma2 picked it shows the
- *  plain course. Honest: a single representative vacuum run, gap is an estimate (P3). */
+/** M4 — the §0 track (umalator main view) beside a Race-sim settings card. uma1 = the
+ *  active plan; pick uma2 (a saved plan) in the settings card and the velocity/HP +
+ *  activation markers + バ身-gap overlay renders ON the track itself. The settings card sits
+ *  to the right of the track at the sidebar card width. Honest: a single representative
+ *  vacuum run, gap is an estimate (P3). */
 import './race-compare.css';
 import { useState } from 'react';
 import type { CmPlan } from '@/core/types';
@@ -40,20 +41,40 @@ export function TrackComparePanel({
   const comparing = !!ctx;
 
   return (
-    <section className="cmp-plan-card cmp-track-card">
-      <header className="cmp-plan-card-head cmp-track-head">
-        <span className="cmp-track-title">{trackTitle}</span>
-        {comparing && state.status === 'done' && state.meanBashin != null && (
-          <span className="cmp-rc-headline">
-            {state.meanBashin >= 0 ? '+' : ''}
-            {state.meanBashin.toFixed(2)} バ身
-          </span>
-        )}
-      </header>
-      <div className="cmp-plan-card-body cmp-track-body">
-        <div className="cmp-rc-controls">
-          <label>
-            Compare against:{' '}
+    <div className="cmp-track-row">
+      <section className="cmp-plan-card cmp-track-card">
+        <header className="cmp-plan-card-head cmp-track-head">
+          <span className="cmp-track-title">{trackTitle}</span>
+        </header>
+        <div className="cmp-plan-card-body cmp-track-body">
+          <RaceTrackView
+            courseId={courseId}
+            trace={comparing ? state.run ?? undefined : undefined}
+            traceDistance={state.distance}
+            showHp={showHp}
+            skillName={skillName}
+          />
+          <div className="cmp-conditions" aria-label="Race conditions">
+            {conditionChips.map((chip) => (
+              <span key={chip} className="cmp-chip">{chip}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="cmp-plan-card cmp-racesim-card">
+        <header className="cmp-plan-card-head">
+          <span>Race sim</span>
+          {comparing && state.status === 'done' && state.meanBashin != null && (
+            <span className="cmp-rc-headline">
+              {state.meanBashin >= 0 ? '+' : ''}
+              {state.meanBashin.toFixed(2)} バ身
+            </span>
+          )}
+        </header>
+        <div className="cmp-plan-card-body cmp-racesim-body">
+          <label className="cmp-rc-field">
+            <span>Compare against</span>
             <select
               aria-label="Compare against"
               value={uma2Id}
@@ -66,33 +87,30 @@ export function TrackComparePanel({
               ))}
             </select>
           </label>
+
           {comparing && (
             <label className="cmp-rc-hp">
-              <input type="checkbox" checked={showHp} onChange={(e) => setShowHp(e.target.checked)} /> HP
+              <input type="checkbox" checked={showHp} onChange={(e) => setShowHp(e.target.checked)} /> Show HP
             </label>
           )}
-          {comparing && state.run && <RunChoiceToggle value={state.runChoice} onChange={state.setRunChoice} />}
+          {comparing && state.run && (
+            <div className="cmp-rc-field">
+              <span>Representative run</span>
+              <RunChoiceToggle value={state.runChoice} onChange={state.setRunChoice} />
+            </div>
+          )}
           {comparing && state.status === 'running' && <span className="muted small">Simulating…</span>}
           {comparing && state.status === 'na' && <span className="muted small">Not simulatable here.</span>}
+          {!comparing && (
+            <p className="muted small">Pick a saved plan to overlay a head-to-head sim on the track.</p>
+          )}
+          {comparing && (
+            <p className="cmp-rc-caveat muted small">
+              Representative vacuum run — same model as umalator&apos;s main view; gap is an estimate.
+            </p>
+          )}
         </div>
-        <RaceTrackView
-          courseId={courseId}
-          trace={comparing ? state.run ?? undefined : undefined}
-          traceDistance={state.distance}
-          showHp={showHp}
-          skillName={skillName}
-        />
-        <div className="cmp-conditions" aria-label="Race conditions">
-          {conditionChips.map((chip) => (
-            <span key={chip} className="cmp-chip">{chip}</span>
-          ))}
-        </div>
-        {comparing && (
-          <p className="cmp-rc-caveat muted small">
-            Representative vacuum run — same model as umalator&apos;s main view; gap is an estimate.
-          </p>
-        )}
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
