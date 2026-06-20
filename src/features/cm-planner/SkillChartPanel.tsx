@@ -1,7 +1,8 @@
 /**
  * M4 §1 — collapsible "Skill chart" (VFalator-style table). Ranks acquirable
  * skills (white/gold/inherited) by marginal bashin L on the user's plan build
- * (planToSimBuild), with SP cost + efficiency (L per 100 SP). Runs ONLY on Run.
+ * (chartBaselineBuild — vacuum + already-targeted wishlist), with SP cost +
+ * efficiency (L per 100 SP). Runs ONLY on Run.
  * Variant families collapse to one row (strongest variant); + target adds via the
  * family-aware addOrReplaceWishlistSkill and stamps projectedL so the sidebar's L
  * total moves. Reuses GameIcon + SkillDetailDisclosure (effect-chips on expand).
@@ -14,7 +15,7 @@ import type { SkillChartRow } from '@/core/rankSkillChart';
 import { isReleasedBy } from '@/core/availability';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { effectiveSpCost } from '@/core/cost';
-import { planToSimBuild } from '@/core/simBuild';
+import { chartBaselineBuild } from '@/core/simBuild';
 import {
   addOrReplaceWishlistSkill,
   areSkillVariants,
@@ -26,6 +27,8 @@ import { useGameData } from '@/features/data/gameData';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
+import { useStaminaProbe, type UseStaminaProbeDeps } from './useStaminaProbe';
+import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
 const FILTERS: ReadonlyArray<{ key: SkillFilter; label: string }> = [
@@ -52,6 +55,7 @@ const COLUMNS: ReadonlyArray<{ key: SortMetric; label: string }> = [
 
 export interface SkillChartPanelDeps {
   skillDelta?: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => BashinStats | Promise<BashinStats>;
+  vacuum?: UseStaminaProbeDeps['vacuum'];
   nsamples?: number;
 }
 
@@ -113,8 +117,13 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     return [...baseReps, ...upcoming];
   }, [skills, skillById, plan.server, asOfISO]);
   const ids = useMemo(() => (hasSpeed ? reps.map((s) => s.skillId) : []), [reps, hasSpeed]);
-  const build = useMemo(() => planToSimBuild(plan), [plan]);
+  const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
+
+  const [warnThreshold, setWarnThreshold] = useStaminaWarnThreshold();
+  const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
+  const { survival, probe } = useStaminaProbe(build, race, probeDeps);
+  const staminaOut = survival != null && survival < warnThreshold;
 
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
@@ -181,7 +190,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
           className="cmp-run-btn"
           disabled={!hasSpeed}
           aria-label={status === 'running' ? 'Stop ranking' : status === 'idle' ? 'Run' : 'Re-run'}
-          onClick={(e) => { e.stopPropagation(); if (status === 'running') stop(); else run(); }}
+          onClick={(e) => { e.stopPropagation(); if (status === 'running') stop(); else { run(); probe(); } }}
         >
           {status === 'running' ? '■' : status === 'idle' ? 'Run' : 'Re-run'}
         </button>
@@ -205,6 +214,12 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                 Run to rank acquirable skills by length on your current uma plan. Editing the plan won&apos;t
                 update the chart until you Re-run.
               </p>
+              {staminaOut && (
+                <p className="cmp-stamina-warn small" role="status">
+                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
+                  Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
+                </p>
+              )}
               {status !== 'idle' && (
                 <>
                   <div className="cmp-uma-toolbar">
@@ -232,6 +247,16 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
                     >
                       <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
+                    </label>
+                    <label className="cmp-stamina-thresh small" title="Warn when the build's stamina survival is below this percentage.">
+                      warn&nbsp;&lt;&nbsp;
+                      <input
+                        type="number" min={0} max={100} step={5}
+                        aria-label="Stamina warning threshold (%)"
+                        value={Math.round(warnThreshold * 100)}
+                        onChange={(e) => setWarnThreshold(Number(e.target.value) / 100)}
+                      />
+                      %
                     </label>
                   </div>
 

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { BashinStats, SimBuild } from '@/sim';
@@ -36,7 +36,10 @@ vi.mock('./skillTechnicalDetails', () => ({
   loadSkillTechnicalDetail: vi.fn(async () => null),
   skillRecordToSummary: (s: unknown) => s,
 }));
-vi.mock('@/core/simBuild', () => ({ planToSimBuild: () => ({ stats: { spd: 1200 }, strategy: 'end' }) }));
+vi.mock('@/core/simBuild', () => ({
+  planToSimBuild: () => ({ stats: { spd: 1200 }, strategy: 'end' }),
+  chartBaselineBuild: () => ({ stats: { spd: 1200 }, strategy: 'end', skills: [] }),
+}));
 
 import { SkillChartPanel } from './SkillChartPanel';
 
@@ -61,6 +64,7 @@ async function runFull(onChange = vi.fn()) {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  localStorage.clear();
   h.useGameData.mockReturnValue(h.defaultGameData);
 });
 
@@ -212,5 +216,29 @@ describe('SkillChartPanel', () => {
     expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(false); // hidden by default
     await userEvent.click(screen.getByRole('checkbox', { name: /show upcoming/i }));
     await waitFor(() => expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(true));
+  });
+
+  it('shows a stamina-out banner with the survival % when survival is below the threshold', async () => {
+    const vacuum = vi.fn(async () => ({
+      mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
+      aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+    }));
+    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    expect(await screen.findByText(/survives only 50% of runs/i)).toBeInTheDocument();
+  });
+
+  it('hides the banner when the user lowers the threshold below the survival rate (no re-run)', async () => {
+    const vacuum = vi.fn(async () => ({
+      mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
+      aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+    }));
+    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await screen.findByText(/survives only 50% of runs/i);
+    const calls = vacuum.mock.calls.length;
+    fireEvent.change(screen.getByLabelText('Stamina warning threshold (%)'), { target: { value: '40' } });
+    expect(screen.queryByText(/survives only 50% of runs/i)).not.toBeInTheDocument();
+    expect(vacuum.mock.calls.length).toBe(calls); // pure re-evaluate, no extra probe
   });
 });
