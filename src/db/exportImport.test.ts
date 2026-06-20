@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { Parent } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import { db } from './db';
-import { exportBlob, importBlob, type ExportBlobV2 } from './exportImport';
+import { exportBlob, importBlob, parsePlanFile, type ExportBlobV2 } from './exportImport';
 import type { MatchLog } from './types';
 import type { CaptureBundle } from '@/core/spOptimizer';
 import { saveCapture } from '@/db';
@@ -98,7 +98,9 @@ describe('export → clear → import (replace)', () => {
     expect(await db.parents.get('parent-1')).toEqual(PARENT);
     const plan = await db.cmPlans.get(FIXTURE_PLAN.id);
     expect(blob.cmPlans[0]?.notes).toBe('test plan note');
-    expect(plan).toEqual(PLAN_WITH_NOTES);
+    // cmRef is normalized on import: FIXTURE_PLAN has cmNumber:0 → kind:'custom'.
+    const normalizedCmRef = { kind: 'custom', courseId: '10606', surface: 'turf', distance: 2400, ground: 'good', weather: 'sunny', season: 'spring' };
+    expect(plan).toEqual({ ...PLAN_WITH_NOTES, cmRef: normalizedCmRef });
     expect(plan?.parents).toEqual({});
     expect(await db.matchLogs.toArray()).toEqual(blob.matchLogs);
     expect((await db.settings.get('preferredServer'))?.value).toBe('global');
@@ -245,5 +247,45 @@ describe('export/import captures', () => {
     await db.delete(); await db.open();
     const result = await importBlob(legacy, 'replace');
     expect(result.imported.captures ?? 0).toBe(0);
+  });
+});
+
+// Base plan object with all required fields, using a new-shape kind:'cm' cmRef.
+const CM_PLAN_BASE = {
+  ...FIXTURE_PLAN,
+  cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
+} as unknown as typeof FIXTURE_PLAN;
+
+describe('parseCmPlan cmRef normalization', () => {
+  it('legacy-flat cm ref (cmNumber>0) → kind:cm, drops embedded track fields', () => {
+    const legacyFlat = {
+      ...FIXTURE_PLAN,
+      cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' },
+    };
+    const [parsed] = parsePlanFile([legacyFlat]);
+    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+  });
+
+  it('legacy-flat ref with cmNumber:0 → kind:custom', () => {
+    const legacyCustom = {
+      ...FIXTURE_PLAN,
+      cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10606', surface: 'turf', distance: 2400 },
+    };
+    const [parsed] = parsePlanFile([legacyCustom]);
+    expect(parsed.cmRef).toMatchObject({ kind: 'custom', courseId: '10606' });
+  });
+
+  it('new-shape kind:cm passes through unchanged', () => {
+    const newShape = {
+      ...FIXTURE_PLAN,
+      cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
+    };
+    const [parsed] = parsePlanFile([newShape]);
+    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+  });
+
+  it('non-object cmRef fails with a descriptive path error', () => {
+    const bad = { ...FIXTURE_PLAN, cmRef: 'not-an-object' };
+    expect(() => parsePlanFile([bad])).toThrow(/plans\[0\]\.cmRef must be an object/);
   });
 });
