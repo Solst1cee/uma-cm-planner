@@ -2,14 +2,15 @@
  * Module 4 - Skill Acquisition Planner, engine-first rebuild. The root route
  * keeps the planner sidebar beside the umalator-derived track and race setup.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './cm-planner.css';
 import { makeDefaultPlan, useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
 import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
 import { distanceClass } from '@/core/simBuild';
-import type { CmId, CmPlan } from '@/core/types';
+import { cmRaceOptions } from '@/core/cmRace';
+import type { CmPlan } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { PlannerSidebar } from './PlannerSidebar';
 import { SkillChartPanel } from './SkillChartPanel';
@@ -17,33 +18,19 @@ import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
-import { PRESETS, type Ground, type Season, type Weather } from '@/features/planner/race-setup/presets';
 import {
-  courseToSelection,
   describeSelection,
   formatCourseLabel,
-  presetToSelection,
   type RaceSelection,
 } from '@/features/planner/race-setup/selection';
+import { cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
 
-function isGround(value: string | undefined): value is Ground {
-  return value === 'firm' || value === 'good' || value === 'soft' || value === 'heavy';
-}
-
-function isSeason(value: string | undefined): value is Season {
-  return value === 'spring' || value === 'summer' || value === 'fall' || value === 'winter';
-}
-
-function isWeather(value: string | undefined): value is Weather {
-  return value === 'sunny' || value === 'cloudy' || value === 'rainy' || value === 'snowy';
-}
-
 export function CmPlannerPage() {
-  const { status, umaById } = useGameData();
+  const { status, umaById, timeline } = useGameData();
   const {
     plan,
     savedPlans,
@@ -60,10 +47,17 @@ export function CmPlannerPage() {
     saveCurrentPlanAs,
     loadError,
   } = useActivePlan();
-  const [selection, setSelection] = useState<RaceSelection>(() => presetToSelection(PRESETS[0]!));
   const [courseCatalog, setCourseCatalog] = useState<CourseCatalogEntry[]>([]);
   const [autoApplyInventoryTrack, setAutoApplyInventoryTrack] = useState<boolean | null>(null);
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
+
+  const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
+  // Single source of truth: the race view is DERIVED from plan.cmRef (no local
+  // selection state). Loading a plan re-derives the track automatically.
+  const selection: RaceSelection | null = useMemo(
+    () => (plan ? cmRefToSelection(plan.cmRef, courseCatalog, timeline ?? []) : null),
+    [plan, courseCatalog, timeline],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -92,29 +86,6 @@ export function CmPlannerPage() {
     };
   }, []);
 
-  const applyPlanTrackSetup = (loadedPlan: CmPlan) => {
-    const course = courseCatalog.find((entry) => entry.courseId === loadedPlan.cmRef.courseId);
-    if (!course) return;
-    const preset = PRESETS.find((entry) => entry.cmId === loadedPlan.cmRef.cmId);
-    setSelection((current) => {
-      const next = courseToSelection(course, {
-        ground: isGround(loadedPlan.cmRef.condition) ? loadedPlan.cmRef.condition : preset?.ground ?? current.ground,
-        weather: isWeather(loadedPlan.cmRef.weather) ? loadedPlan.cmRef.weather : preset?.weather ?? current.weather,
-        season: isSeason(loadedPlan.cmRef.season) ? loadedPlan.cmRef.season : preset?.season ?? current.season,
-      });
-      if (
-        preset &&
-        preset.courseId === next.courseId &&
-        preset.ground === next.ground &&
-        preset.weather === next.weather &&
-        preset.season === next.season
-      ) {
-        next.presetCmId = preset.cmId;
-      }
-      return next;
-    });
-  };
-
   if (loadError) {
     return (
       <p className="error" role="alert">
@@ -122,43 +93,26 @@ export function CmPlannerPage() {
       </p>
     );
   }
-  if (status === 'loading' || plan === null) {
+  if (status === 'loading' || plan === null || selection === null) {
     return <p className="muted">Loading...</p>;
   }
 
+  // Editing the race writes back into plan.cmRef (the single source of truth);
+  // selection re-derives from it on the next render.
   const handleRaceChange = (next: RaceSelection) => {
-    setSelection(next);
-    const preset = PRESETS.find((p) => p.cmId === next.presetCmId);
-    const nextCmRef = {
-      ...plan.cmRef,
-      ...(preset ? { cmId: preset.cmId as CmId, cmNumber: preset.cmNumber } : { cmId: 'CM0' as CmId, cmNumber: 0 }),
-      courseId: next.courseId,
-      surface: next.surface,
-      distance: next.distance,
-      condition: next.ground,
-      weather: next.weather,
-      season: next.season,
-    };
-    if (
-      nextCmRef.cmId === plan.cmRef.cmId &&
-      nextCmRef.cmNumber === plan.cmRef.cmNumber &&
-      nextCmRef.courseId === plan.cmRef.courseId &&
-      nextCmRef.surface === plan.cmRef.surface &&
-      nextCmRef.distance === plan.cmRef.distance &&
-      nextCmRef.condition === plan.cmRef.condition &&
-      nextCmRef.weather === plan.cmRef.weather &&
-      nextCmRef.season === plan.cmRef.season
-    ) {
-      return;
-    }
-    setPlan({ ...plan, cmRef: nextCmRef });
+    setPlan({ ...plan, cmRef: selectionToCmRef(next, options) });
   };
 
-  const racePreset = PRESETS.find((p) => p.cmId === selection.presetCmId);
-  const trackTitle = racePreset
-    ? racePreset.label
-    : formatCourseLabel(selection);
-  const raceNameLabel = racePreset ? undefined : formatCourseLabel(selection);
+  // The race title/name: CM plans show "CM<n>[ — Name]"; custom shows the course.
+  const cmRef = plan.cmRef;
+  const cmOption = cmRef.kind === 'cm' ? options.find((o) => o.cmNumber === cmRef.cmNumber) : undefined;
+  const trackTitle =
+    cmRef.kind === 'cm'
+      ? cmOption
+        ? `CM${cmOption.cmNumber} — ${cmOption.name}`
+        : `CM${cmRef.cmNumber}`
+      : formatCourseLabel(selection);
+  const raceNameLabel = cmRef.kind === 'cm' ? undefined : formatCourseLabel(selection);
   const planWithFallbackName = (next: CmPlan): CmPlan => {
     if (next.name.trim()) return next;
     const umaName = umaById?.get(next.umaId)?.nameEn;
@@ -177,16 +131,8 @@ export function CmPlannerPage() {
       notes: '',
       planNumber: 1,
       scenarioId: plan.scenarioId,
-      cmRef: {
-        ...plan.cmRef,
-        ...(racePreset ? { cmId: racePreset.cmId as CmId, cmNumber: racePreset.cmNumber } : { cmId: 'CM0' as CmId, cmNumber: 0 }),
-        courseId: selection.courseId,
-        surface: selection.surface,
-        distance: selection.distance,
-        condition: selection.ground,
-        weather: selection.weather,
-        season: selection.season,
-      },
+      // Keep the race you're currently viewing on the new draft.
+      cmRef: plan.cmRef,
       sparkGoals: {
         pink: [
           { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
@@ -222,11 +168,14 @@ export function CmPlannerPage() {
           onDeleteAllPlans={deleteAllSavedPlans}
           onImportPlans={importSavedPlans}
           onSelectPlan={async (id) => {
+            // Auto-apply ON: load the plan as-is (its cmRef re-derives the track).
+            // OFF: load the build but keep the race you're currently viewing.
+            const currentCmRef = plan.cmRef;
             const loadedPlan = savedPlans.find((savedPlan) => savedPlan.id === id);
             await selectPlan(id);
             setCollapseSkillSignal((signal) => signal + 1);
-            if (autoApplyInventoryTrack === true && loadedPlan) {
-              applyPlanTrackSetup(loadedPlan);
+            if (autoApplyInventoryTrack !== true && loadedPlan) {
+              setPlan({ ...loadedPlan, cmRef: currentCmRef });
             }
           }}
         />
@@ -256,7 +205,7 @@ export function CmPlannerPage() {
               </div>
             </div>
           </section>
-          <RaceSetup selection={selection} onChange={handleRaceChange} />
+          <RaceSetup options={options} selection={selection} onChange={handleRaceChange} />
           <UmaChartPanel
             courseId={selection.courseId}
             plan={plan}

@@ -1,26 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
-import { PRESETS } from './presets';
-import { presetToSelection, courseToSelection, describeSelection } from './selection';
+import { courseToSelection, describeSelection, type RaceSelection } from './selection';
 
-describe('presetToSelection', () => {
-  it('maps the CM15 preset to a full selection', () => {
-    const sel = presetToSelection(PRESETS[0]!);
-    expect(sel).toMatchObject({
-      courseId: '10906',
-      racetrack: 'Hanshin',
-      surface: 'turf',
-      distance: 2200,
-      distanceClass: 'medium',
-      direction: 'right',
-      inOut: 'inner',
-      ground: 'good',
-      season: 'summer',
-      weather: 'cloudy',
-      presetCmId: 'CM15',
-    });
-  });
-});
+const CM15_SELECTION: RaceSelection = {
+  courseId: '10906',
+  racetrack: 'Hanshin',
+  surface: 'turf',
+  distance: 2200,
+  distanceClass: 'medium',
+  direction: 'right',
+  inOut: 'inner',
+  ground: 'good',
+  weather: 'cloudy',
+  season: 'summer',
+  presetCmId: 'CM15',
+};
 
 describe('courseToSelection', () => {
   it('maps a catalog course + conditions to a selection (left-handed, no preset/inOut)', () => {
@@ -52,7 +46,7 @@ describe('courseToSelection', () => {
 
 describe('describeSelection', () => {
   it('produces readable condition chips for CM15', () => {
-    const chips = describeSelection(presetToSelection(PRESETS[0]!));
+    const chips = describeSelection(CM15_SELECTION);
     expect(chips).toEqual([
       'Hanshin',
       'Turf',

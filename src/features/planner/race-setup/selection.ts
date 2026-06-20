@@ -5,7 +5,6 @@
  */
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import type { Ground, Season, Weather } from '@/core/raceConditions';
-import type { RacePreset } from './presets';
 import { trackName } from './trackCatalog';
 
 export type { Ground, Season, Weather } from '@/core/raceConditions';
@@ -50,22 +49,6 @@ export function formatDistanceWithLayout(sel: Pick<RaceSelection, 'distance' | '
 
 export function formatCourseLabel(sel: Pick<RaceSelection, 'racetrack' | 'distance' | 'inOut'>): string {
   return `${sel.racetrack} ${formatDistanceWithLayout(sel)}`;
-}
-
-export function presetToSelection(p: RacePreset): RaceSelection {
-  return {
-    courseId: p.courseId,
-    racetrack: p.racetrack,
-    surface: p.surface,
-    distance: p.distance,
-    distanceClass: p.distanceClass,
-    direction: p.direction,
-    inOut: p.inOut,
-    ground: p.ground,
-    weather: p.weather,
-    season: p.season,
-    presetCmId: p.cmId,
-  };
 }
 
 export function courseToSelection(

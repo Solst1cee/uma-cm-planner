@@ -17,7 +17,6 @@ import { isPlanContentSaved, nextPlanNumberForContent } from '@/core/planIdentit
 import { generatePlanName, uniquePlanName } from '@/core/planName';
 import { deletePlan, getPlan, getSetting, listPlans, savePlan, setSetting } from '@/db';
 import { useGameData } from '@/features/data/gameData';
-import { PRESETS } from '@/features/planner/race-setup/presets';
 
 const ACTIVE_PLAN_KEY = 'activePlanId';
 const AUTO_SAVE_KEY = 'cmPlannerAutoSave';
@@ -26,23 +25,14 @@ const SAVE_DEBOUNCE_MS = 400;
 const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
 
 export function makeDefaultPlan(): CmPlan {
-  const race = PRESETS[0]!;
   // Keep first-run and post-delete fallback behavior aligned with the planner's
-  // New action: Kitasan on the first curated current CM preset.
+  // New action: Kitasan on CM15 Cancer. Conditions are derived from the timeline
+  // by the chooser, so the cm ref only carries the union's common geometry.
   const draft: CmPlan = {
     id: crypto.randomUUID(),
     name: '',
     planNumber: 1,
-    cmRef: {
-      cmId: race.cmId as CmId,
-      cmNumber: race.cmNumber,
-      courseId: race.courseId,
-      surface: race.surface,
-      distance: race.distance,
-      condition: race.ground,
-      weather: race.weather,
-      season: race.season,
-    },
+    cmRef: { kind: 'cm', cmId: 'CM15' as CmId, cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
     scenarioId: 4,
     umaId: '106801',
     uniqueSkillId: '',

@@ -43,6 +43,7 @@ import { SkillChartPanel } from './SkillChartPanel';
 const basePlan = {
   server: 'global',
   strategy: 'end',
+  cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
   statProfile: { stats: { spd: 1200, sta: 1000, pow: 1000, gut: 1000, wit: 1000 }, mood: 2 },
   wishlist: [],
 } as unknown as CmPlan;

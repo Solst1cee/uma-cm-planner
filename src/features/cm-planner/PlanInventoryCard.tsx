@@ -5,7 +5,6 @@ import type { CmPlan, Grade, Stat, Strategy } from '@/core/types';
 import { parsePlanFile } from '@/db';
 import { GameIcon } from '@/features/data/GameIcon';
 import { formatCourseLabel, type RaceSelection } from '@/features/planner/race-setup/selection';
-import { PRESETS } from '@/features/planner/race-setup/presets';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
@@ -33,12 +32,11 @@ function layoutForCourse(course: CourseCatalogEntry['course']): RaceSelection['i
 }
 
 function groupForPlan(plan: CmPlan, courseById: Map<string, CourseCatalogEntry>): Omit<PlanGroup, 'plans'> {
-  const preset = PRESETS.find((p) => p.cmId === plan.cmRef.cmId || p.cmNumber === plan.cmRef.cmNumber);
-  if (preset) {
+  if (plan.cmRef.kind === 'cm') {
     return {
-      key: `cm-${preset.cmNumber}`,
-      label: `CM${preset.cmNumber}`,
-      sort: preset.cmNumber,
+      key: `cm-${plan.cmRef.cmNumber}`,
+      label: `CM${plan.cmRef.cmNumber}`,
+      sort: plan.cmRef.cmNumber,
     };
   }
 
