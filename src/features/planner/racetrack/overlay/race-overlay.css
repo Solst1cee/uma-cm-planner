@@ -6,16 +6,22 @@
 .race-overlay .ro-hp { stroke-width: 1.8; stroke-dasharray: 4 2.5; opacity: 0.85; }
 .race-overlay .ro-hp.is-uma1 { stroke: #60a5fa; } /* blue-400 */
 .race-overlay .ro-hp.is-uma2 { stroke: #f87171; } /* red-400 */
-.race-overlay .ro-zone { opacity: 0.16; }
-.race-overlay .ro-zone.is-uma1, .race-overlay .ro-marker.is-uma1 line, .race-overlay .ro-marker.is-uma1 circle { stroke: #2563eb; fill: #2563eb; }
-.race-overlay .ro-zone.is-uma2, .race-overlay .ro-marker.is-uma2 line, .race-overlay .ro-marker.is-uma2 circle { stroke: #dc2626; fill: #dc2626; }
+/* skill activations: tall vertical marker (instant) or shaded zone (duration) + a labelled name */
+.race-overlay .ro-zone { opacity: 0.14; }
 .race-overlay .ro-zone.is-uma1 { fill: #2563eb; }
 .race-overlay .ro-zone.is-uma2 { fill: #dc2626; }
-.race-overlay .ro-marker line { stroke-width: 1.6; }
+.race-overlay .ro-marker { stroke-width: 1.4; opacity: 0.5; }
+.race-overlay .ro-marker.is-uma1 { stroke: #2563eb; }
+.race-overlay .ro-marker.is-uma2 { stroke: #dc2626; }
+.race-overlay .ro-marker-dot.is-uma1 { fill: #2563eb; }
+.race-overlay .ro-marker-dot.is-uma2 { fill: #dc2626; }
+.race-overlay .ro-mark-label { font-size: 7.5px; font-weight: 600; paint-order: stroke; stroke: var(--bg-1, #fff); stroke-width: 2px; }
+.race-overlay .ro-marks.is-uma1 .ro-mark-label { fill: #1d4ed8; }
+.race-overlay .ro-marks.is-uma2 .ro-mark-label { fill: #b91c1c; }
+
 .race-overlay .ro-gap { stroke: #1f9d6b; stroke-width: 2.2; }
 .race-overlay .ro-gap-zero { stroke: var(--color-foreground, #888); opacity: 0.35; stroke-dasharray: 2 2; }
 
-/* speed (m/s) y-axis on the left of the velocity area */
-.race-overlay .ro-yaxis-line { stroke: var(--color-foreground, #888); opacity: 0.16; stroke-width: 0.6; }
+/* speed (m/s) y-axis labels (no horizontal gridlines) */
 .race-overlay .ro-yaxis-label { fill: var(--color-foreground, #555); font-size: 7px; opacity: 0.8; }
 .race-overlay .ro-yaxis-unit { fill: var(--color-foreground, #555); font-size: 7px; opacity: 0.65; font-style: italic; }

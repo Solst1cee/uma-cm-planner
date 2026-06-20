@@ -20,6 +20,9 @@ it('renders both velocity lines, hp lines (when showHp), markers and gap', () =>
   expect(container.querySelector('.ro-zone')).toBeTruthy();   // S1 duration
   expect(container.querySelector('.ro-marker')).toBeTruthy(); // S2 instant
   expect(container.querySelector('.ro-gap')).toBeTruthy();
+  // each activation is labelled with its skill name
+  const labels = Array.from(container.querySelectorAll('.ro-mark-label')).map((n) => n.textContent);
+  expect(labels).toEqual(expect.arrayContaining(['S1', 'S2']));
 });
 
 it('omits hp lines when showHp is false', () => {
