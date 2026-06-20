@@ -1,5 +1,5 @@
 /**
- * Dexie database, schema version 1 (plan §4 "Storage schema (Dexie)").
+ * Dexie database, schema version 4 (plan §4 "Storage schema (Dexie)").
  *
  * Deviation from the plan snippet, by design: `parents` and `cmPlans` use
  * string-uuid primary keys ('id', not '++id') because Parent.id / CmPlan.id
