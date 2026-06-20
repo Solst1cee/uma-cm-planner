@@ -22,19 +22,15 @@
 .cmp-rc-pick-label { flex: 1 1 auto; min-width: 0; color: var(--fg-muted); font-size: 0.85rem; }
 .cmp-rc-pick-trigger { flex: 0 0 auto; }
 
-/* selected uma2 — inventory-style card with a red/maroon accent (uma2 = red theme) */
-.cmp-uma2-card {
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 0.55rem;
-  border: 1px solid #dc2626;
-  border-left: 3px solid #b91c1c;
-  border-radius: 8px;
-  background: rgb(220 38 38 / 0.06);
+/* selected uma2 — the active-inventory-row look (same glow/text) re-tinted red/maroon */
+.cmp-uma2-card.cmp-inventory-row.is-active {
+  border-color: #e79a9a;
+  background: #fdeef0;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.9),
+    0 0 0 2px rgb(220 38 38 / 0.16);
 }
-.cmp-uma2-card .cmp-inventory-plan-main { display: flex; flex-direction: column; min-width: 0; }
 .cmp-uma2-card .cmp-inventory-plan-main strong { color: #b91c1c; }
-.cmp-uma2-card .cmp-inventory-plan-main span { font-size: 0.8rem; color: var(--fg-muted); }
 
 /* anchored popover (drops under the trigger row; page stays interactive) */
 .cmp-uma2-pop {

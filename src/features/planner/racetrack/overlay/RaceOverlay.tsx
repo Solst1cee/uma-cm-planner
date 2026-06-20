@@ -1,12 +1,72 @@
 import './race-overlay.css';
 import type { RaceCompareRun, RaceActivation } from '@/sim';
 import {
-  polyline, posPoints, activationZonesByPos, velocityHpDomain, gapMagnitude, gapPoints, type Box,
+  polyline, posPoints, velocityHpDomain, gapMagnitude, gapPoints, type Box,
 } from '@/features/cm-planner/skill-trace/geometry';
 import { RaceTrackDimensions as D } from '../vendor/types';
 
 export const OVERLAY_VELO_BOX: Box = { w: D.RenderWidth, h: D.OverlayVeloHeight };
 export const OVERLAY_GAP_BOX: Box = { w: D.RenderWidth, h: D.OverlayGapHeight };
+
+// Skill-marker layout (ported from umalator-global's rung-stacking, racetrack/skills): each
+// activation is placed on the first "rung" (lane) whose horizontal extent — the bar OR the label
+// width — doesn't overlap an existing marker, so nothing collides. Rungs stack upward.
+const BAR_H = 9;        // marker / duration-bar height
+const RUNG_STEP = 11;   // vertical distance between rungs
+const CHAR_W = 3.4;     // approx label glyph width (viewBox units) for label-aware packing
+
+interface Placed { a: RaceActivation; rung: number; x: number; w: number; duration: boolean; name: string; }
+
+/** Greedy rung assignment for one uma's activations; the occupied interval is max(bar, label). */
+function placeRungs(acts: RaceActivation[], distance: number, boxW: number, skillName: (id: string) => string): { placed: Placed[]; rungs: number } {
+  if (distance <= 0) return { placed: [], rungs: 0 };
+  const metersPerUnit = distance / boxW;
+  const lanes: { s: number; e: number }[][] = [];
+  const placed = [...acts]
+    .sort((a, b) => a.start - b.start)
+    .map((a) => {
+      const duration = a.end - a.start > 1;
+      const name = skillName(a.skillId);
+      const labelMeters = (name.length * CHAR_W + (duration ? 4 : 7)) * metersPerUnit;
+      const s = a.start;
+      const e = a.start + Math.max(duration ? a.end - a.start : 0, labelMeters);
+      let r = 0;
+      for (; r < lanes.length; r++) {
+        if (!lanes[r]!.some((b) => !(e <= b.s || s >= b.e))) break;
+      }
+      if (r === lanes.length) lanes.push([]);
+      lanes[r]!.push({ s, e });
+      return { a, rung: r, x: (a.start / distance) * boxW, w: ((a.end - a.start) / distance) * boxW, duration, name };
+    });
+  return { placed, rungs: lanes.length };
+}
+
+/** Render one uma's placed markers stacking up from `baseY`: duration → labelled colored bar,
+ *  instant → dot + label (umalator's duration/immediate marker split). */
+function MarkerLayer({ placed, baseY, cls }: { placed: Placed[]; baseY: number; cls: string }) {
+  return (
+    <g className={`ro-marks ${cls}`}>
+      {placed.map((p, i) => {
+        const y = baseY - BAR_H - p.rung * RUNG_STEP;
+        return (
+          <g key={i} transform={`translate(${p.x}, ${y})`}>
+            {p.duration ? (
+              <>
+                <rect className={`ro-zone ${cls}`} x={0} y={0} width={Math.max(2, p.w)} height={BAR_H} rx={2} />
+                <text className="ro-mark-label ro-on-bar" x={3} y={BAR_H / 2} dominantBaseline="central">{p.name}</text>
+              </>
+            ) : (
+              <>
+                <circle className={`ro-marker ${cls}`} cx={1} cy={BAR_H / 2} r={2.4} />
+                <text className="ro-mark-label" x={5} y={BAR_H / 2} dominantBaseline="central">{p.name}</text>
+              </>
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
 
 /** Round speed ticks (m/s) from 0 up to vMax for the velocity y-axis. */
 function speedTicks(vMax: number): number[] {
@@ -28,37 +88,8 @@ function VelocityAxis({ box, vMax }: { box: Box; vMax: number }) {
   );
 }
 
-const LANE_H = 12; // short skill-marker lane height
-
-/** Skill activations in a short horizontal lane: a tick (or a shaded bar for duration skills) at
- *  the fire position + the skill name as horizontal text. Each uma gets its own lane (no overlap
- *  between runners); `laneY` stacks them (red above blue). */
-function MarkerLayer({ acts, distance, box, laneY, cls, skillName }: {
-  acts: RaceActivation[]; distance: number; box: Box; laneY: number; cls: string; skillName: (id: string) => string;
-}) {
-  const zones = activationZonesByPos(acts, box, distance);
-  return (
-    <g className={`ro-marks ${cls}`} transform={`translate(0, ${laneY})`}>
-      {acts.map((a, i) => {
-        const z = zones[i]!;
-        const duration = a.end - a.start > 1;
-        return (
-          <g key={i} transform={`translate(${z.x}, 0)`}>
-            {duration ? (
-              <rect className={`ro-zone ${cls}`} x={0} y={0} width={z.w} height={LANE_H} />
-            ) : (
-              <line className={`ro-marker ${cls}`} x1={0} x2={0} y1={0} y2={LANE_H} />
-            )}
-            <text className="ro-mark-label" x={2.5} y={LANE_H - 3}>{skillName(a.skillId)}</text>
-          </g>
-        );
-      })}
-    </g>
-  );
-}
-
 /** SVG overlay for the race-compare view: two velocity lines + two HP lines (toggle) + a speed
- *  y-axis + per-uma skill markers with labels + バ身-gap sub-band, on the track's distance→x scale. */
+ *  y-axis + rung-stacked skill markers (red uma2 above blue uma1) + バ身-gap sub-band. */
 export function RaceOverlay({ run, distance, showHp, skillName }: {
   run: RaceCompareRun; distance: number; showHp: boolean; skillName: (id: string) => string;
 }) {
@@ -70,6 +101,13 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
   const h2 = polyline(posPoints(run.uma2Frames, velo, distance, (f) => f.hp, hpMax));
   const mag = gapMagnitude(run.gap);
   const gapLine = polyline(gapPoints(run.gap, gapBox, distance, mag));
+
+  // uma1 markers stack up from the bottom; uma2 markers stack up above uma1's stack (red over blue).
+  const m1 = placeRungs(run.uma1Acts, distance, velo.w, skillName);
+  const m2 = placeRungs(run.uma2Acts, distance, velo.w, skillName);
+  const uma1BaseY = velo.h;
+  const uma2BaseY = velo.h - m1.rungs * RUNG_STEP - 3;
+
   return (
     <g className="race-overlay" transform={`translate(${D.marginLeft}, ${D.OverlayBandY})`}>{/* overlay aligns to the XAxis scale because xOffset === marginLeft */}
       <VelocityAxis box={velo} vMax={vMax} />
@@ -80,9 +118,9 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
         <polyline className="ro-velo is-uma2" points={v2} fill="none" />
         <polyline className="ro-velo is-uma1" points={v1} fill="none" />
       </g>
-      {/* skill markers in two short lanes near the bottom — red (uma2) above blue (uma1) */}
-      <MarkerLayer acts={run.uma2Acts} distance={distance} box={velo} laneY={velo.h - 2 * LANE_H - 2} cls="is-uma2" skillName={skillName} />
-      <MarkerLayer acts={run.uma1Acts} distance={distance} box={velo} laneY={velo.h - LANE_H} cls="is-uma1" skillName={skillName} />
+      {/* skill markers — rung-stacked so nothing overlaps; red (uma2) above blue (uma1) */}
+      <MarkerLayer placed={m1.placed} baseY={uma1BaseY} cls="is-uma1" />
+      <MarkerLayer placed={m2.placed} baseY={uma2BaseY} cls="is-uma2" />
       {/* gap sub-band */}
       <g transform={`translate(0, ${D.OverlayVeloHeight + 6})`}>
         <line className="ro-gap-zero" x1={0} y1={gapBox.h / 2} x2={gapBox.w} y2={gapBox.h / 2} />
