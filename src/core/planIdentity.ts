@@ -3,6 +3,30 @@ import { distanceClass, targetAptitude } from '@/core/simBuild';
 
 const STATS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
 
+function trackKey(plan: CmPlan): unknown {
+  const { cmRef } = plan;
+  if (cmRef.kind === 'cm') {
+    return {
+      kind: 'cm',
+      cmNumber: cmRef.cmNumber,
+      courseId: cmRef.courseId,
+      surface: cmRef.surface,
+      distance: cmRef.distance,
+      distanceClass: distanceClass(cmRef.distance),
+    };
+  }
+  return {
+    kind: 'custom',
+    courseId: cmRef.courseId,
+    surface: cmRef.surface,
+    distance: cmRef.distance,
+    distanceClass: distanceClass(cmRef.distance),
+    ground: cmRef.ground,
+    weather: cmRef.weather,
+    season: cmRef.season,
+  };
+}
+
 function aptKeyToken(aptKey: AptKey): string {
   return `${aptKey.kind}:${aptKey.key}`;
 }
@@ -28,12 +52,7 @@ export function planContentKey(plan: CmPlan): string {
 
   return JSON.stringify({
     umaId: plan.umaId,
-    track: {
-      courseId: plan.cmRef.courseId,
-      surface: plan.cmRef.surface,
-      distance: plan.cmRef.distance,
-      distanceClass: distanceClass(plan.cmRef.distance),
-    },
+    track: trackKey(plan),
     stats,
     aptitudes,
     skills,
@@ -47,12 +66,7 @@ export function isSamePlanContent(a: CmPlan, b: CmPlan): boolean {
 export function planVersionGroupKey(plan: CmPlan): string {
   return JSON.stringify({
     umaId: plan.umaId,
-    track: {
-      courseId: plan.cmRef.courseId,
-      surface: plan.cmRef.surface,
-      distance: plan.cmRef.distance,
-      distanceClass: distanceClass(plan.cmRef.distance),
-    },
+    track: trackKey(plan),
   });
 }
 

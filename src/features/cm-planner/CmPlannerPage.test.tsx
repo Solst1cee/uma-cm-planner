@@ -53,11 +53,45 @@ const h = vi.hoisted(() => {
       { start: 2000, length: 125, slope: 20000 },
     ],
   };
+  const timeline = [
+    {
+      id: 'cm15',
+      type: 'cm',
+      title: 'Cancer Cup',
+      dates: { finals: '2026-06-30' },
+      cm: {
+        cmNumber: 15,
+        courseId: '10906',
+        conditions: { ground: 'good', weather: 'cloudy', season: 'summer' },
+      },
+      tier: 'official',
+      status: 'confirmed',
+      source: { kind: 'official', url: '' },
+      server: 'global',
+      dataVersion: 't',
+    },
+    {
+      id: 'cm16',
+      type: 'cm',
+      title: 'Leo Cup',
+      dates: { finals: '2026-07-31' },
+      cm: {
+        cmNumber: 16,
+        courseId: '10501',
+        conditions: { ground: 'firm', weather: 'sunny', season: 'summer' },
+      },
+      tier: 'official',
+      status: 'confirmed',
+      source: { kind: 'official', url: '' },
+      server: 'global',
+      dataVersion: 't',
+    },
+  ];
   const plan = {
     id: 'p',
     name: 'p',
     planNumber: 1,
-    cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
     umaId: '100101',
     uniqueSkillId: 'u',
     role: 'ace',
@@ -77,12 +111,11 @@ const h = vi.hoisted(() => {
     name: 'Hanshin Trial',
     planNumber: 2,
     cmRef: {
-      cmId: 'CM0',
-      cmNumber: 0,
+      kind: 'custom',
       courseId: '10906',
       surface: 'turf',
       distance: 2200,
-      condition: 'soft',
+      ground: 'soft',
       weather: 'rainy',
       season: 'winter',
     },
@@ -91,7 +124,7 @@ const h = vi.hoisted(() => {
   };
   const listPlans = vi.fn(async () => [plan, customPlan]);
   const savedPlans = [plan, customPlan];
-  const selectPlan = vi.fn(async () => undefined);
+  const selectPlan = vi.fn(async (_id: string) => undefined);
   const deleteSavedPlan = vi.fn(async () => undefined);
   const importSavedPlans = vi.fn(async (plans: unknown[]) => plans.length);
   const deleteAllSavedPlans = vi.fn(async () => undefined);
@@ -106,6 +139,7 @@ const h = vi.hoisted(() => {
     skillById,
     skills,
     umas,
+    timeline,
     umaById: new Map(umas.map((u) => [u.umaId, u])),
     courseData,
     plan,
@@ -165,30 +199,47 @@ vi.mock('@/features/data/gameData', () => ({
     skillById: h.skillById,
     umas: h.umas,
     umaById: h.umaById,
+    timeline: h.timeline,
     iconManifest: null,
   }),
 }));
+// Stateful active-plan mock: selecting/setting a plan actually swaps the active
+// plan so the single-state page re-derives its race view from plan.cmRef.
 vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/app/ActivePlanContext')>();
+  const { useState, useCallback } = await import('react');
+  type PlanShape = typeof h.plan;
   return {
     ...actual,
-    useActivePlan: () => ({
-      plan: h.plan,
-      savedPlans: h.savedPlans,
-      autoSave: false,
-      isSaved: true,
-      setAutoSave: h.setAutoSave,
-      setPlan: h.setPlan,
-      selectPlan: h.selectPlan,
-      deleteSavedPlan: h.deleteSavedPlan,
-      importSavedPlans: h.importSavedPlans,
-      deleteAllSavedPlans: h.deleteAllSavedPlans,
-      setDraftPlan: h.setDraftPlan,
-      saveCurrentPlan: h.saveCurrentPlan,
-      saveCurrentPlanAs: h.saveCurrentPlanAs,
-      flushPendingSave: h.saveCurrentPlan,
-      loadError: null,
-    }),
+    useActivePlan: () => {
+      const [plan, setPlanState] = useState<PlanShape>(h.plan);
+      const setPlan = useCallback((next: PlanShape) => {
+        h.setPlan(next);
+        setPlanState(next);
+      }, []);
+      const selectPlan = useCallback(async (id: string) => {
+        await h.selectPlan(id);
+        const found = h.savedPlans.find((p) => p.id === id);
+        if (found) setPlanState(found as PlanShape);
+      }, []);
+      return {
+        plan,
+        savedPlans: h.savedPlans,
+        autoSave: false,
+        isSaved: true,
+        setAutoSave: h.setAutoSave,
+        setPlan,
+        selectPlan,
+        deleteSavedPlan: h.deleteSavedPlan,
+        importSavedPlans: h.importSavedPlans,
+        deleteAllSavedPlans: h.deleteAllSavedPlans,
+        setDraftPlan: h.setDraftPlan,
+        saveCurrentPlan: h.saveCurrentPlan,
+        saveCurrentPlanAs: h.saveCurrentPlanAs,
+        flushPendingSave: h.saveCurrentPlan,
+        loadError: null,
+      };
+    },
   };
 });
 vi.mock('./skillTechnicalDetails', () => ({
@@ -240,10 +291,11 @@ describe('CmPlannerPage', () => {
     await waitFor(() => expect(document.querySelector('#race-phases')).toBeInTheDocument());
   });
 
-  it('shows CM15 conditions in the readout (Hanshin, inner layout)', () => {
+  it('shows CM15 conditions in the readout (Hanshin, inner layout)', async () => {
     render(<CmPlannerPage />);
     const cond = within(screen.getByLabelText('Race conditions'));
-    expect(cond.getByText('Hanshin')).toBeInTheDocument();
+    // The course catalog resolves async; the racetrack/layout appear once it does.
+    expect(await cond.findByText('Hanshin')).toBeInTheDocument();
     expect(cond.getByText('2,200m (Inner)')).toBeInTheDocument();
   });
 
@@ -282,9 +334,9 @@ describe('CmPlannerPage', () => {
 
     expect(h.setPlan.mock.calls).toEqual(
       expect.arrayContaining([
-        [expect.objectContaining({ cmRef: expect.objectContaining({ condition: 'soft' }) })],
-        [expect.objectContaining({ cmRef: expect.objectContaining({ weather: 'rainy' }) })],
-        [expect.objectContaining({ cmRef: expect.objectContaining({ season: 'winter' }) })],
+        [expect.objectContaining({ cmRef: expect.objectContaining({ kind: 'custom', ground: 'soft' }) })],
+        [expect.objectContaining({ cmRef: expect.objectContaining({ kind: 'custom', weather: 'rainy' }) })],
+        [expect.objectContaining({ cmRef: expect.objectContaining({ kind: 'custom', season: 'winter' }) })],
       ]),
     );
   });
@@ -450,9 +502,15 @@ describe('CmPlannerPage', () => {
     expect(within(header!).getByRole('button', { name: 'Download all plans as ZIP' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
     const groupDownloads = within(inventory).getAllByRole('button', { name: /^Download all plans in / });
+    const groupDeletes = within(inventory).getAllByRole('button', { name: /^Delete all plans in / });
     expect(groupDownloads).toHaveLength(2);
-    const groupHead = groupDownloads[0]?.closest('.cmp-inventory-group-head');
-    expect(groupHead?.children[1]).toBe(groupDownloads[0]);
+    expect(groupDeletes).toHaveLength(2);
+    const groupHead = groupDownloads[0]?.closest<HTMLElement>('.cmp-inventory-group-head');
+    const groupActions = groupDownloads[0]?.closest<HTMLElement>('.cmp-inventory-group-actions');
+    expect(groupActions).not.toBeNull();
+    expect(within(groupActions!).getByRole('button', { name: /^Download all plans in / })).toBe(groupDownloads[0]);
+    expect(within(groupActions!).getByRole('button', { name: /^Delete all plans in / })).toBe(groupDeletes[0]);
+    expect(groupHead?.children[1]).toBe(groupActions);
     expect(groupHead?.children[2]).toHaveClass('cmp-inventory-group-caret-btn');
     expect(within(inventory).getByRole('button', { name: 'Download p' })).toBeInTheDocument();
     expect(within(inventory).getByRole('button', { name: 'Download Hanshin Trial' })).toBeInTheDocument();
@@ -494,6 +552,40 @@ describe('CmPlannerPage', () => {
     fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans' }));
 
     await waitFor(() => expect(h.deleteAllSavedPlans).toHaveBeenCalledTimes(1));
+  });
+
+  it('requires inline confirmation for group delete and cancels on outside click', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    fireEvent.click(deleteGroup);
+    const groupHead = within(inventory)
+      .getByRole('button', { name: 'Confirm delete all plans in CM15' })
+      .closest<HTMLElement>('.cmp-inventory-group-head');
+    expect(groupHead).not.toBeNull();
+    expect(within(groupHead!).getByText('Confirm delete all items?')).toBeInTheDocument();
+    expect(within(groupHead!).getByRole('button', { name: 'Cancel delete all plans in CM15' })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(within(inventory).queryByRole('button', { name: 'Confirm delete all plans in CM15' })).not.toBeInTheDocument();
+    expect(within(inventory).getByRole('button', { name: 'Delete all plans in CM15' })).toBeInTheDocument();
+    expect(h.deleteSavedPlan).not.toHaveBeenCalled();
+  });
+
+  it('deletes only the plans in a confirmed inventory group', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    const groupLabel = 'Hanshin 2,200m (Inner)';
+
+    const deleteGroup = await within(inventory).findByRole('button', { name: `Delete all plans in ${groupLabel}` });
+    fireEvent.click(deleteGroup);
+    fireEvent.click(within(inventory).getByRole('button', { name: `Confirm delete all plans in ${groupLabel}` }));
+
+    await waitFor(() => expect(h.deleteSavedPlan).toHaveBeenCalledTimes(1));
+    expect(h.deleteSavedPlan).toHaveBeenCalledWith('custom-hanshin');
+    expect(h.deleteSavedPlan).not.toHaveBeenCalledWith('p');
   });
 
   it('collapses and expands inventory track groups', async () => {

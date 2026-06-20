@@ -311,6 +311,21 @@
   flex: 0 0 auto;
 }
 
+.cmp-inventory-group-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.cmp-inventory-group-actions > .cmp-inventory-confirm-text {
+  overflow: hidden;
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+}
+
 .cmp-inventory-group-caret-btn {
   display: inline-flex;
   width: 1.45rem;

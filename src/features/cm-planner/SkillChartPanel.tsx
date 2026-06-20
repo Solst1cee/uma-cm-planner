@@ -14,7 +14,7 @@ import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
 import { isReleasedBy } from '@/core/availability';
 import { acquirableSkills } from '@/core/skillCatalog';
-import { effectiveSpCost } from '@/core/cost';
+import { purchaseSpCost } from '@/core/cost';
 import { chartBaselineBuild } from '@/core/simBuild';
 import {
   addOrReplaceWishlistSkill,
@@ -93,8 +93,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
 
+  const cmNumber = plan.cmRef.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
   const cmEntry = (timeline as TimelineEntry[] | undefined)
-    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === plan.cmRef?.cmNumber);
+    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
   const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
 
   // One representative per (family × rarity): cosmetic tiers (○/◎/×) collapse within a
@@ -160,7 +161,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       const rec = wishlistSkillRecord(it.skillId, skillById);
       if (!rec || !reps.some((rep) => areSkillVariants(rep, rec))) return null;
       const L = it.projectedL ?? null;
-      const sp = sparkRates ? effectiveSpCost(rec, 0, sparkRates) : null;
+      const sp = sparkRates ? purchaseSpCost(rec, skillById, 0, sparkRates) : null;
       const eff = L != null && sp != null && sp > 0 ? (100 * L) / sp : null;
       const row: SkillChartRow = { skillId: rec.skillId, L, min: null, max: null, median: null, status: 'live', nsamples: 0 };
       return { row, skill: rec, sp, eff, targeted: true, inBuild: true };
@@ -171,7 +172,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     .map((row): RowView | null => {
       const skill = skillById.get(row.skillId);
       if (!skill) return null;
-      const sp = sparkRates ? effectiveSpCost(skill, 0, sparkRates) : null;
+      // Gold skills bundle their white prerequisite — price the full purchase, not the
+      // gold's own base alone (otherwise every gold reads ~one white too cheap).
+      const sp = sparkRates ? purchaseSpCost(skill, skillById, 0, sparkRates) : null;
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })

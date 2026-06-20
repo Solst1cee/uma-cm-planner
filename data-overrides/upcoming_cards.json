@@ -1,0 +1,4 @@
+{
+  "_comment": "Full SupportCardRecord entries for UPCOMING (server:'jp') support cards not yet released on Global, so a card-source view can include them (gated by the CM date via isReleasedBy) when the user opts in. Each entry MUST have server:'jp' + a releaseDate (announced from official news, else predicted via JP->Global pace with releaseDatePredicted:true). Inserted after card_additions, before overrides. Skills are validated by FORMAT only (an upcoming card may grant upcoming skills curated in skill_additions.json). Delete an entry once the card releases on Global (the collision check fails the build). Never fabricate entries (P3).",
+  "records": []
+}

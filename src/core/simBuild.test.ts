@@ -13,7 +13,8 @@ import {
 
 function plan(over: Partial<CmPlan> = {}): CmPlan {
   return {
-    id: 'p', name: 'p', planNumber: 1, cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    id: 'p', name: 'p', planNumber: 1,
+    cmRef: { kind: 'custom', courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'sunny', season: 'summer' },
     umaId: '100101', uniqueSkillId: '', role: 'ace', strategy: 'pace',
     statProfile: { stats: { spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},

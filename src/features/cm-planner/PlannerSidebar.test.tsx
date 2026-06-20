@@ -82,7 +82,7 @@ const h = vi.hoisted(() => {
     id: 'p',
     name: 'Plan 2 / CM15 / Special',
     planNumber: 2,
-    cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    cmRef: { kind: 'cm' as const, cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf' as const, distance: 2200 },
     umaId: '100101',
     uniqueSkillId: 'u',
     role: 'ace',
@@ -297,7 +297,7 @@ describe('PlannerSidebar', () => {
     const user = userEvent.setup();
     renderSidebar({
       ...(h.plan as CmPlan),
-      cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10906', surface: 'turf', distance: 2200 },
+      cmRef: { kind: 'custom' as const, courseId: '10906', surface: 'turf' as const, distance: 2200, ground: 'good' as const, weather: 'sunny' as const, season: 'spring' as const },
     }, 'Hanshin 2,200m (Inner)');
 
     await user.click(screen.getByRole('switch', { name: 'Auto-generate plan name' }));

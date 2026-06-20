@@ -1,8 +1,10 @@
 import 'fake-indexeddb/auto'; // must precede any dexie import
 import { beforeEach, describe, expect, it } from 'vitest';
+import Dexie from 'dexie';
 import type { CmPlan } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import {
+  DB_NAME,
   addOwnedCard,
   db,
   deletePlan,
@@ -84,5 +86,39 @@ describe('settings', () => {
   it('stores structured values', async () => {
     await setSetting('ui', { sidebar: true, zoom: 1.25 });
     expect(await getSetting('ui')).toEqual({ sidebar: true, zoom: 1.25 });
+  });
+});
+
+describe('v3→v4 migration: cmRef normalization', () => {
+  it('rewrites a legacy CM-backed cmRef to kind:cm', async () => {
+    // Seed the db at v3 (bypassing v4 upgrade) via a bare Dexie instance.
+    await db.delete();
+    const v3 = new Dexie(DB_NAME);
+    v3.version(3).stores({ ownedCards: '++id, cardId', parents: 'id, umaId', cmPlans: 'id, name', matchLogs: '++id, cmPlanId, date', settings: 'key', captures: 'id, label' });
+    await v3.open();
+    const legacyCm = { ...FIXTURE_PLAN, id: 'mig-cm', cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' } };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (v3.table('cmPlans') as Dexie.Table<any, string>).put(legacyCm);
+    await v3.close();
+
+    // Re-open via the app db (v4): upgrade should normalize cmRef (keeping geometry).
+    await db.open();
+    const migrated = await db.cmPlans.get('mig-cm');
+    expect(migrated?.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
+  });
+
+  it('rewrites a legacy custom cmRef (cmNumber:0) to kind:custom', async () => {
+    await db.delete();
+    const v3 = new Dexie(DB_NAME);
+    v3.version(3).stores({ ownedCards: '++id, cardId', parents: 'id, umaId', cmPlans: 'id, name', matchLogs: '++id, cmPlanId, date', settings: 'key', captures: 'id, label' });
+    await v3.open();
+    const legacyCustom = { ...FIXTURE_PLAN, id: 'mig-custom', cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' } };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (v3.table('cmPlans') as Dexie.Table<any, string>).put(legacyCustom);
+    await v3.close();
+
+    await db.open();
+    const migrated = await db.cmPlans.get('mig-custom');
+    expect(migrated?.cmRef).toEqual({ kind: 'custom', courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'cloudy', season: 'summer' });
   });
 });

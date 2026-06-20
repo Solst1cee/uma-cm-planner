@@ -748,7 +748,12 @@
       "cm": {
         "cmNumber": 15,
         "courseId": "10906",
-        "trackSummary": "Hanshin turf 2200m (inner, right · good/summer/cloudy)"
+        "trackSummary": "Hanshin turf 2200m (inner, right · good/summer/cloudy)",
+        "conditions": {
+          "ground": "good",
+          "weather": "cloudy",
+          "season": "summer"
+        }
       },
       "tier": "official",
       "status": "confirmed",
@@ -760,15 +765,21 @@
       "dataVersion": "global-76214c82"
     },
     {
-      "id": "cm16-leo-cup-predicted",
+      "id": "cm16-leo-cup",
       "type": "cm",
       "title": "Leo Cup",
       "dates": {
-        "finals": "2026-07-24"
+        "finals": "2026-07-30"
       },
       "cm": {
         "cmNumber": 16,
-        "trackSummary": "Nakayama turf 1200m (sprint)"
+        "courseId": "10501",
+        "trackSummary": "Nakayama turf 1200m (sprint)",
+        "conditions": {
+          "ground": "firm",
+          "weather": "sunny",
+          "season": "summer"
+        }
       },
       "tier": "prediction",
       "status": "unconfirmed",
@@ -784,7 +795,7 @@
       "type": "cm",
       "title": "Virgo Cup",
       "dates": {
-        "finals": "2026-08-24"
+        "finals": "2026-08-30"
       },
       "cm": {
         "cmNumber": 17,
@@ -804,11 +815,31 @@
       "type": "cm",
       "title": "Libra Cup",
       "dates": {
-        "finals": "2026-09-24"
+        "finals": "2026-09-30"
       },
       "cm": {
         "cmNumber": 18,
         "trackSummary": "Hanshin turf 1600m (mile)"
+      },
+      "tier": "prediction",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umaguide",
+        "url": "https://uma.guide/cm-schedule/"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "cm19-scorpio-cup-predicted",
+      "type": "cm",
+      "title": "Scorpio Cup",
+      "dates": {
+        "finals": "2026-10-30"
+      },
+      "cm": {
+        "cmNumber": 19,
+        "trackSummary": "Kyoto turf 2200m (medium)"
       },
       "tier": "prediction",
       "status": "unconfirmed",
