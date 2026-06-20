@@ -13,7 +13,7 @@ import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
 import { isReleasedBy } from '@/core/availability';
 import { acquirableSkills } from '@/core/skillCatalog';
-import { effectiveSpCost } from '@/core/cost';
+import { purchaseSpCost } from '@/core/cost';
 import { planToSimBuild } from '@/core/simBuild';
 import {
   addOrReplaceWishlistSkill,
@@ -143,7 +143,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     .map((row): RowView | null => {
       const skill = skillById.get(row.skillId);
       if (!skill) return null;
-      const sp = sparkRates ? effectiveSpCost(skill, 0, sparkRates) : null;
+      // Gold skills bundle their white prerequisite — price the full purchase, not the
+      // gold's own base alone (otherwise every gold reads ~one white too cheap).
+      const sp = sparkRates ? purchaseSpCost(skill, skillById, 0, sparkRates) : null;
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })

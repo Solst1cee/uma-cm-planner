@@ -14,7 +14,7 @@ const h = vi.hoisted(() => {
   // One family "Adept": two white cosmetic tiers (◎/○) + a gold version; all linked.
   const wA = mk({ skillId: 'wA', nameEn: 'Adept ◎', rarity: 'white', baseSpCost: 90, variantSkillIds: ['wB', 'g1'] });
   const wB = mk({ skillId: 'wB', nameEn: 'Adept ○', rarity: 'white', baseSpCost: 60, variantSkillIds: ['wA', 'g1'] });
-  const g1 = mk({ skillId: 'g1', nameEn: 'Adept Demon', rarity: 'gold', baseSpCost: 170, variantSkillIds: ['wA', 'wB'] });
+  const g1 = mk({ skillId: 'g1', nameEn: 'Adept Demon', rarity: 'gold', baseSpCost: 170, variantSkillIds: ['wA', 'wB'], prereqSkillId: 'wA' });
   const s1 = mk({ skillId: 's1', nameEn: 'Solo White', rarity: 'white', baseSpCost: 120 });
   const i1 = mk({ skillId: 'i1', nameEn: 'Inherited One', rarity: 'inherited_unique', baseSpCost: 0 });
   const skills = [wA, wB, g1, s1, i1];
@@ -157,8 +157,15 @@ describe('SkillChartPanel', () => {
   it('sorts by SP ascending (cheapest first) when the SP header is clicked', async () => {
     await runFull();
     await userEvent.click(screen.getByRole('button', { name: 'SP' }));
-    // cheapest SP first: i1 (0) → wA (90) → s1 (120) → g1 (170)
+    // cheapest SP first: i1 (0) → wA (90) → s1 (120) → g1 (170+90 prereq = 260)
     expect(within(list()).getAllByRole('listitem')[0]).toHaveTextContent('Inherited One');
+  });
+
+  it('prices a gold skill as gold + white prerequisite (bundled SP)', async () => {
+    await runFull();
+    await userEvent.click(screen.getByRole('button', { name: 'gold' }));
+    // g1 gold base 170 + its white prereq wA base 90 = 260 (no hint discount in chart)
+    expect(within(list()).getAllByRole('listitem')[0]).toHaveTextContent('260');
   });
 
   it('clicking the active sort column again inverts the direction', async () => {
