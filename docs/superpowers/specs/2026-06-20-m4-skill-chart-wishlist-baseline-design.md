@@ -92,12 +92,26 @@ On Run, a one-shot baseline probe reports the build's **engine-authoritative** s
   worker already supports the `'vacuum'` request kind
   ([src/sim/types.ts:94](../../../src/sim/types.ts#L94)). Comparing the build against itself is
   fine — survival is computed per-runner, so `aStaminaSurvival` is the build's own survival rate.
-- If survival is below a tunable threshold (`STAMINA_WARN_THRESHOLD`, default **0.85**), the chart
-  body shows a banner:
+- If survival is below the **warning threshold**, the chart body shows a banner:
   > ⚠ This build survives only **N%** of runs (stamina-out). Recovery is inflated and speed skills
   > are undervalued here — secure stamina/recovery, then Re-run.
 - The probe re-runs on every Run, so once recovery/stamina fixes the build, the banner clears.
 - Honest-numbers (P3): show the actual survival percentage, never a fabricated verdict.
+
+**User-adjustable threshold, persisted locally.** The threshold is **not** a hardcoded constant —
+it is a user preference:
+- Default **95%** (`DEFAULT_STAMINA_WARN_THRESHOLD = 0.95`). A cautious default: most CM builds
+  want near-certain stamina survival, so 95% surfaces the warning for any build that gasses in a
+  meaningful share of runs.
+- A small control in the chart (near the banner / toolbar) lets the user set the threshold — a
+  number input rendered as a percentage (e.g. 0–100%, step 5). Changing it re-evaluates the banner
+  against the last probe result immediately (no Re-run needed — the survival % is already known).
+- Persisted to `localStorage` (local-first, P2; survives reloads, independent of the plan).
+  No existing localStorage usage in the app, so introduce one small focused hook —
+  `useStaminaWarnThreshold()` → `[threshold, setThreshold]` — backed by a tiny typed
+  `localStorage` getter/setter (key e.g. `cmp.staminaWarnThreshold`). Guard against malformed /
+  out-of-range stored values by clamping to `[0, 1]` and falling back to the default. Keep it
+  generic enough to extend later but YAGNI — only this one setting for now.
 
 ### Piece 3 — Already-targeted skills display
 
@@ -132,6 +146,12 @@ Targeted skills are now part of the baseline, so their fresh marginal L ≈ 0. T
 - Stamina probe (hook/unit with an injected `vacuum` dep):
   - survival below threshold → banner visible with the percentage.
   - survival at/above threshold → no banner.
+- `useStaminaWarnThreshold` (unit, with a mocked/`jsdom` `localStorage`):
+  - default is `0.95` when nothing stored.
+  - `setThreshold` persists and a fresh read returns the stored value.
+  - malformed / out-of-range stored value clamps to `[0, 1]` and falls back to the default.
+  - banner re-evaluates when the threshold changes (lowering it below survival hides the banner
+    without a Re-run).
 - Component (`SkillChartPanel.test.tsx`, jsdom — stub `useSkillTrace` per the existing gotcha):
   - a targeted skill renders the "in build" badge + stamped L and is **not** passed to `skillDelta`.
   - empty wishlist → identical behavior to today (regression guard).
@@ -143,6 +163,8 @@ Targeted skills are now part of the baseline, so their fresh marginal L ≈ 0. T
   in-build rows, stamina banner.
 - `src/features/cm-planner/useSkillRank.ts` (or a small `useStaminaProbe`) — fire the vacuum probe
   at Run start, expose `staminaSurvival`. Wire `SimClient.vacuum` if not already exposed.
+- `src/features/cm-planner/useStaminaWarnThreshold.ts` (new) — localStorage-backed threshold hook
+  (default 0.95, clamp `[0,1]`); plus a tiny typed `localStorage` helper it wraps.
 - `src/sim` — ensure a lazily-importable `isSimulatable` predicate + `SimClient.vacuum` are
   reachable (no new engine build).
 - `src/features/cm-planner/skill-chart.css` — banner + "in build" badge styles.
