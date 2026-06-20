@@ -61,27 +61,23 @@ export function RaceTrackView({ courseId, deps, trace, traceDistance, showHp = t
   if (error) return <p className="muted">Track unavailable: {error}</p>;
   if (!course) return <p className="muted small">Loading track…</p>;
 
-  const overlayActive = !!trace;
-  const shift = overlayActive ? RaceTrackDimensions.OverlayBandHeight : 0;
-  const vbHeight = RaceTrackDimensions.ViewHeight + shift;
   return (
     <div className="rt-view">
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox={`0 0 ${RaceTrackDimensions.ViewWidth} ${vbHeight}`}
+        viewBox={`0 0 ${RaceTrackDimensions.ViewWidth} ${RaceTrackDimensions.ViewHeight}`}
         preserveAspectRatio="xMidYMid meet"
         className="racetrackView"
         data-courseid={courseId}
       >
-        <g transform={`translate(0, ${shift})`}>
-          <SlopeVisualization course={course} />
-          <SlopeLabelBar course={course} />
-          <SectionTypesBar course={course} />
-          <PhaseBar course={course} />
-          <SectionNumbersBar />
-          <XAxis courseDistance={course.distance} />
-        </g>
+        <SlopeVisualization course={course} />
+        <SlopeLabelBar course={course} />
+        <SectionTypesBar course={course} />
+        <PhaseBar course={course} />
+        <SectionNumbersBar />
+        <XAxis courseDistance={course.distance} />
+        {/* Overlay drawn LAST so the velocity/HP curves + markers + gap sit on top of the track. */}
         {trace && (
           <RaceOverlay
             run={trace}

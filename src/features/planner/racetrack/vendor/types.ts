@@ -54,14 +54,14 @@ export namespace RaceTrackDimensions {
   export const SlopeVisualizationHeight = 50;
   export const SlopeVisualizationY = SlopeLabelBarY - SlopeVisualizationHeight;
 
-  // Race-compare overlay: an ADDITIVE band rendered ABOVE the track only when a trace is present.
-  // RaceTrackView grows its viewBox to ViewHeight + OverlayBandHeight and shifts the track down by
-  // OverlayBandHeight; the no-trace track keeps viewBox height = ViewHeight (zero regression).
-  export const OverlayBandHeight = 132;                                   // additive top-band height
-  export const OverlayBandY = marginTop;                                  // content offset within the band
-  export const OverlayContentHeight = OverlayBandHeight - marginTop;      // usable height (116)
-  export const OverlayGapHeight = 34;                                     // bottom strip = バ身 gap
-  export const OverlayVeloHeight = OverlayContentHeight - OverlayGapHeight - 6; // velocity/HP area (76)
+  // Race-compare overlay is drawn ON TOP of the track, filling the plot area
+  // [marginTop, xAxisY] — velocity/HP curves + activation markers + バ身-gap superimposed
+  // over the slope/phase bands (umalator main view). ViewHeight is unchanged; the no-trace
+  // track renders identically (the overlay layer simply isn't drawn).
+  export const OverlayBandY = marginTop;                                  // overlay starts at the top margin
+  export const OverlayContentHeight = xAxisY - marginTop;                 // full plot height (down to the x-axis)
+  export const OverlayGapHeight = 40;                                     // bottom strip = バ身 gap
+  export const OverlayVeloHeight = OverlayContentHeight - OverlayGapHeight - 8; // velocity/HP area
 
   // Other
 
