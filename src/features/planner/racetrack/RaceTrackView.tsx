@@ -9,8 +9,7 @@
  * the engine's per-frame run trace) land in a later slice.
  */
 import { useEffect, useState } from 'react';
-import type { CourseData } from '@/sim';
-import type { RaceCompareRun } from '@/sim';
+import type { CourseData, RaceCompareRun } from '@/sim';
 import { RaceTrackDimensions } from './vendor/types';
 import { SlopeVisualization } from './vendor/layers/slope-visualization';
 import { SlopeLabelBar } from './vendor/layers/slope-label-bar';

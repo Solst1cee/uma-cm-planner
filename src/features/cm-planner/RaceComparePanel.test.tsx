@@ -1,7 +1,5 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent } from '@testing-library/react';
-
-afterEach(cleanup);
 import { RaceComparePanel } from './RaceComparePanel';
 import { makeDefaultPlan } from '@/app/ActivePlanContext';
 import type { RaceCompareState } from './useRaceCompare';
@@ -9,6 +7,8 @@ import type { RaceCompareState } from './useRaceCompare';
 vi.mock('@/features/planner/racetrack/RaceTrackView', () => ({
   RaceTrackView: (p: { trace?: unknown }) => <div data-testid="track" data-has-trace={p.trace ? '1' : '0'} />,
 }));
+
+afterEach(cleanup);
 
 const active = { ...makeDefaultPlan(), id: 'A', name: 'Active' };
 const other = { ...makeDefaultPlan(), id: 'B', name: 'Rival B' };

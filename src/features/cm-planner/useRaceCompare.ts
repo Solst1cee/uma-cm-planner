@@ -39,7 +39,7 @@ function realDeps(): UseRaceCompareDeps {
 
 function buildSig(b: SimBuild): string {
   const s = b.stats;
-  return `${b.umaId}/${b.strategy}/${s.spd}-${s.sta}-${s.pow}-${s.gut}-${s.wit}/${[...b.skills].sort().join(',')}`;
+  return `${b.umaId}/${b.strategy}/${s.spd}-${s.sta}-${s.pow}-${s.gut}-${s.wit}/${[...b.skills].sort().join(',')}/${b.aptitudes.distance}${b.aptitudes.surface}${b.aptitudes.strategy}`;
 }
 
 export function useRaceCompare(ctx: RaceCompareCtx | undefined, enabled: boolean, deps?: UseRaceCompareDeps): RaceCompareState {
@@ -69,7 +69,7 @@ export function useRaceCompare(ctx: RaceCompareCtx | undefined, enabled: boolean
       .catch(() => { if (token.current === myToken) setStatus('na'); });
     return () => { token.current += 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, sig, dead]);
+  }, [enabled, sig]);
 
   return {
     status, run: data ? data.runs[runChoice] : null, runChoice, setRunChoice,

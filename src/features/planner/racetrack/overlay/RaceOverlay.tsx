@@ -45,7 +45,7 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
   const mag = gapMagnitude(run.gap);
   const gapLine = polyline(gapPoints(run.gap, gapBox, distance, mag));
   return (
-    <g className="race-overlay" transform={`translate(${D.marginLeft}, ${D.OverlayBandY})`}>
+    <g className="race-overlay" transform={`translate(${D.marginLeft}, ${D.OverlayBandY})`}>{/* overlay aligns to the XAxis scale because xOffset === marginLeft */}
       {/* velocity + HP */}
       <g>
         {showHp && <polyline className="ro-hp is-uma1" points={h1} fill="none" />}
