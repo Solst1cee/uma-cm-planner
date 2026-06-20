@@ -139,7 +139,12 @@ patched. For a new CM, insert a full entry:
   "cm": {
     "cmNumber": 16,
     "courseId": "<id from step 2a>",
-    "trackSummary": "<human label, e.g. Tokyo turf 2400m (medium)>"
+    "trackSummary": "<human label, e.g. Tokyo turf 2400m (medium)>",
+    "conditions": {                // the planner derives the race chooser's
+      "ground": "good",            //   ground/weather/season from HERE — the
+      "weather": "cloudy",         //   timeline is the SSOT for CM conditions
+      "season": "summer"           //   (omit and it falls back to defaults:
+    }                              //   good / sunny / season-from-finals-month)
   },
   "tier": "official",
   "status": "confirmed",
@@ -151,6 +156,14 @@ patched. For a new CM, insert a full entry:
   "dataVersion": "global-76214c82"             // current DATA_VERSION
 }
 ```
+
+> **`cm.conditions` values** (from [`src/core/raceConditions.ts`](../src/core/raceConditions.ts)):
+> `ground` ∈ `firm | good | soft | heavy`, `weather` ∈ `sunny | cloudy | rainy | snowy`,
+> `season` ∈ `spring | summer | fall | winter`. Since 2026-06-20 the M4 race chooser
+> is a derived view of `CmPlan.cmRef`, and a `kind:'cm'` ref reads its conditions
+> straight from this timeline entry — so curating `conditions` here is what makes a
+> saved CM plan show the real ground/weather/season. No `cm_presets.json` / `PRESETS`
+> edit is needed; adding the timeline entry auto-populates the chooser.
 
 ### 2c — regenerate
 
