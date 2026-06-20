@@ -32,7 +32,7 @@ export type CmId = `CM${number}`;
  *   kind:'custom' → self-contained: courseId + conditions fully specified.
  */
 export type CmRefV2 =
-  | { kind: 'cm'; cmId: CmId; cmNumber: number }
+  | { kind: 'cm'; cmId: CmId; cmNumber: number; courseId: string; surface: 'turf' | 'dirt'; distance: number }
   | { kind: 'custom'; courseId: string; surface: 'turf' | 'dirt'; distance: number; ground: Ground; weather: Weather; season: Season };
 
 /** One entry in the CM chooser dropdown: timeline CMs with a known courseId. */

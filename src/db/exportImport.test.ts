@@ -251,13 +251,13 @@ describe('export/import captures', () => {
 });
 
 describe('parseCmPlan cmRef normalization', () => {
-  it('legacy-flat cm ref (cmNumber>0) → kind:cm, drops embedded track fields', () => {
+  it('legacy-flat cm ref (cmNumber>0) → kind:cm, keeps geometry, drops conditions', () => {
     const legacyFlat = {
       ...FIXTURE_PLAN,
       cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' },
     };
     const parsed = parsePlanFile([legacyFlat])[0]!;
-    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
 
   it('legacy-flat ref with cmNumber:0 → kind:custom', () => {
@@ -269,13 +269,13 @@ describe('parseCmPlan cmRef normalization', () => {
     expect(parsed.cmRef).toMatchObject({ kind: 'custom', courseId: '10606' });
   });
 
-  it('new-shape kind:cm passes through unchanged', () => {
+  it('new-shape kind:cm passes through unchanged (with geometry)', () => {
     const newShape = {
       ...FIXTURE_PLAN,
-      cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
+      cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
     };
     const parsed = parsePlanFile([newShape])[0]!;
-    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+    expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
 
   it('non-object cmRef fails with a descriptive path error', () => {

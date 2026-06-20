@@ -7,7 +7,7 @@ function namedPlan(id: string, name: string): CmPlan {
     id,
     name,
     planNumber: 1,
-    cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
+    cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf' as const, distance: 2200 },
     scenarioId: 4,
     umaId: '100101',
     uniqueSkillId: '',

@@ -23,7 +23,7 @@ const dep = (_b: SimBuild, _r: SimRaceParams, id: string): BashinStats =>
   ({ a: S(2.1), g: S(1.4), n: S(0, 0) }[id] ?? S(0));
 
 function plan(): CmPlan {
-  return { id: 'p', name: 'p', planNumber: 1, cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+  return { id: 'p', name: 'p', planNumber: 1, cmRef: { kind: 'cm' as const, cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf' as const, distance: 2200 },
     umaId: '', uniqueSkillId: '', role: 'ace', strategy: 'pace', statProfile: { stats: { spd: 1, sta: 1, pow: 1, gut: 1, wit: 1 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {}, patch: { version: 't' }, server: 'global', dataVersion: 't' } as CmPlan;
 }

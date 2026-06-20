@@ -15,16 +15,17 @@ const entries: TimelineEntry[] = [
 ];
 
 describe('normalizeCmRef', () => {
-  it('classifies a legacy CM ref (cmNumber>0) as kind:cm, dropping the track', () => {
+  it('classifies a legacy CM ref (cmNumber>0) as kind:cm, keeping geometry, dropping conditions', () => {
     expect(normalizeCmRef({ cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' }))
-      .toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+      .toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
   it('classifies a legacy custom ref (cmNumber 0) as kind:custom, mapping condition→ground', () => {
     expect(normalizeCmRef({ cmId: 'CM0', cmNumber: 0, courseId: '10906', surface: 'turf', distance: 2200, condition: 'soft', weather: 'rainy', season: 'fall' }))
       .toEqual({ kind: 'custom', courseId: '10906', surface: 'turf', distance: 2200, ground: 'soft', weather: 'rainy', season: 'fall' });
   });
-  it('passes a new-shape cm ref through unchanged', () => {
-    expect(normalizeCmRef({ kind: 'cm', cmId: 'CM15', cmNumber: 15 })).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+  it('passes a new-shape cm ref through (preserving geometry fields)', () => {
+    expect(normalizeCmRef({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 }))
+      .toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
 });
 

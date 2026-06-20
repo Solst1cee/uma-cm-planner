@@ -101,10 +101,10 @@ describe('v3→v4 migration: cmRef normalization', () => {
     await (v3.table('cmPlans') as Dexie.Table<any, string>).put(legacyCm);
     await v3.close();
 
-    // Re-open via the app db (v4): upgrade should normalize cmRef.
+    // Re-open via the app db (v4): upgrade should normalize cmRef (keeping geometry).
     await db.open();
     const migrated = await db.cmPlans.get('mig-cm');
-    expect(migrated?.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
+    expect(migrated?.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
 
   it('rewrites a legacy custom cmRef (cmNumber:0) to kind:custom', async () => {

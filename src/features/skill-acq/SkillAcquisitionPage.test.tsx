@@ -8,7 +8,7 @@ const PLAN = {
   id: 'p',
   name: 'My Plan',
   planNumber: 1,
-  cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good' },
+  cmRef: { kind: 'cm' as const, cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf' as const, distance: 2200 },
   umaId: '',
   uniqueSkillId: '',
   role: 'ace',

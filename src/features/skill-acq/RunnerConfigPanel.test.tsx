@@ -10,7 +10,7 @@ import { RunnerConfigPanel } from '@/features/skill-acq/RunnerConfigPanel';
 function plan(over: Partial<CmPlan> = {}): CmPlan {
   return {
     id: 'p', name: 'p', planNumber: 1,
-    cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    cmRef: { kind: 'cm' as const, cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf' as const, distance: 2200 },
     umaId: '100101', uniqueSkillId: '', role: 'ace', strategy: 'pace',
     statProfile: { stats: { spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},

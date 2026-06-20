@@ -39,13 +39,13 @@ export function SkillAcquisitionPage() {
         <section className="panel" aria-labelledby="race-h">
           <h2 id="race-h">Race</h2>
           <p>
-            CM{cmRef.cmNumber} · course {cmRef.courseId}
+            {cmRef.kind === 'cm' ? `CM${cmRef.cmNumber}` : 'Custom'} · course {cmRef.courseId}
           </p>
           <p>
             {cmRef.surface} · {cmRef.distance}m
           </p>
-          {cmRef.condition && <p>Condition: {cmRef.condition}</p>}
-          {cmRef.season && <p>Season: {cmRef.season}</p>}
+          {cmRef.kind === 'custom' && cmRef.ground && <p>Condition: {cmRef.ground}</p>}
+          {cmRef.kind === 'custom' && cmRef.season && <p>Season: {cmRef.season}</p>}
         </section>
         <SkillChartPanel plan={plan} onChange={setPlan} />
         <SourcingPanel plan={plan} />

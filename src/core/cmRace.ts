@@ -13,14 +13,20 @@ import { effectiveDate } from './timeline';
 /** Classify a legacy/flat or new-shape cmRef into the discriminated union. */
 export function normalizeCmRef(raw: unknown): CmRefV2 {
   const r = (raw ?? {}) as Record<string, unknown>;
-  if (r['kind'] === 'cm') return { kind: 'cm', cmId: r['cmId'] as CmId, cmNumber: Number(r['cmNumber']) };
+  if (r['kind'] === 'cm') {
+    return { kind: 'cm', cmId: r['cmId'] as CmId, cmNumber: Number(r['cmNumber']),
+      courseId: String(r['courseId'] ?? ''), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf', distance: Number(r['distance'] ?? 0) };
+  }
   if (r['kind'] === 'custom') {
     return { kind: 'custom', courseId: String(r['courseId']), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf',
       distance: Number(r['distance']), ground: r['ground'] as Ground, weather: r['weather'] as Weather, season: r['season'] as Season };
   }
-  // legacy flat: cmNumber>0 → cm reference (drop the track); else custom.
+  // legacy flat: cmNumber>0 → cm reference (keep geometry, drop conditions); else custom.
   const cmNumber = Number(r['cmNumber'] ?? 0);
-  if (cmNumber > 0) return { kind: 'cm', cmId: (r['cmId'] as CmId) ?? (`CM${cmNumber}` as CmId), cmNumber };
+  if (cmNumber > 0) {
+    return { kind: 'cm', cmId: (r['cmId'] as CmId) ?? (`CM${cmNumber}` as CmId), cmNumber,
+      courseId: String(r['courseId'] ?? ''), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf', distance: Number(r['distance'] ?? 0) };
+  }
   return {
     kind: 'custom', courseId: String(r['courseId'] ?? ''), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf',
     distance: Number(r['distance'] ?? 0),

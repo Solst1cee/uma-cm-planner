@@ -88,8 +88,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
 
+  const cmNumber = plan.cmRef.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
   const cmEntry = (timeline as TimelineEntry[] | undefined)
-    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === plan.cmRef?.cmNumber);
+    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
   const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
 
   // One representative per (family × rarity): cosmetic tiers (○/◎/×) collapse within a

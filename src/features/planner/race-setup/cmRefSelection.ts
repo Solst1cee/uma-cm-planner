@@ -22,10 +22,11 @@ function fallbackSelection(courseId: string, c: RaceConditions, surface: 'turf' 
 export function cmRefToSelection(cmRef: CmRefV2, catalog: CourseCatalogEntry[], entries: TimelineEntry[]): RaceSelection {
   if (cmRef.kind === 'cm') {
     const entry = entries.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmRef.cmNumber && e.cm.courseId);
-    const courseId = entry?.cm?.courseId ?? '';
+    // Conditions are DERIVED from the timeline; geometry falls back to the ref's stored fields.
+    const courseId = entry?.cm?.courseId ?? cmRef.courseId;
     const conditions = entry ? conditionsFor(entry) : defaultConditions(undefined);
     const course = catalog.find((c) => c.courseId === courseId);
-    const sel = course ? courseToSelection(course, conditions) : fallbackSelection(courseId, conditions);
+    const sel = course ? courseToSelection(course, conditions) : fallbackSelection(courseId, conditions, cmRef.surface, cmRef.distance);
     return { ...sel, presetCmId: cmRef.cmId };
   }
   const course = catalog.find((c) => c.courseId === cmRef.courseId);
@@ -38,6 +39,6 @@ export function cmRefToSelection(cmRef: CmRefV2, catalog: CourseCatalogEntry[], 
 export function selectionToCmRef(sel: RaceSelection, options: CmRaceOption[]): CmRefV2 {
   const match = options.find((o) =>
     o.courseId === sel.courseId && o.conditions.ground === sel.ground && o.conditions.weather === sel.weather && o.conditions.season === sel.season);
-  if (match) return { kind: 'cm', cmId: match.cmId, cmNumber: match.cmNumber };
+  if (match) return { kind: 'cm', cmId: match.cmId, cmNumber: match.cmNumber, courseId: sel.courseId, surface: sel.surface, distance: sel.distance };
   return { kind: 'custom', courseId: sel.courseId, surface: sel.surface, distance: sel.distance, ground: sel.ground, weather: sel.weather, season: sel.season };
 }
