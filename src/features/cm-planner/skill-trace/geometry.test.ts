@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   polyline, vtPoints, domainOf, activationTimes,
   lAxisDomain, zeroLineY, gridLinesX, gridLinesY,
-  impactByPosition, frequencyByPosition, binColumns,
+  impactByPosition, frequencyByPosition, binColumns, peakImpactPosition, activationCounts,
   distancePhaseBands, timePhaseBands, PHASE_FRACTIONS,
+  velocityWindow, vtWindowPoints, timePhaseBandsWindowed,
 } from './geometry';
 import type { SkillTraceRun, SkillImpactSample } from '@/sim';
 
@@ -73,6 +74,21 @@ describe('geometry — position-resolved charts', () => {
     expect(frequencyByPosition(samples, 4, 1200, 400)).toEqual([75, 0, 50]);
   });
 
+  it('activationCounts = integer fire-count distribution over all runs (non-firing omitted)', () => {
+    const xs: SkillImpactSample[] = [
+      { horseLength: 1, positions: [800] },       // ×1
+      { horseLength: 1, positions: [820] },       // ×1
+      { horseLength: 2, positions: [400, 1100] }, // ×2
+      { horseLength: 0, positions: [] },          // didn't fire → omitted
+    ];
+    expect(activationCounts(xs, 8)).toEqual([{ count: 1, pct: 25 }, { count: 2, pct: 12.5 }]);
+  });
+
+  it('peakImpactPosition = exact firing position + L of the highest-バ身 sample', () => {
+    // max positive horseLength is 5 (fires at 100 & 800) → its first position, 100 m
+    expect(peakImpactPosition(samples)).toEqual({ pos: 100, L: 5 });
+  });
+
   it('binColumns draws a bar only for non-zero bins, growing from the baseline', () => {
     const cols = binColumns([0, 0.4, 0], { w: 90, h: 80 }, { top: 0.5, bottom: 0 });
     expect(cols).toHaveLength(1);
@@ -108,5 +124,52 @@ describe('geometry — four phase bands', () => {
     expect(bands[1]!.x).toBeCloseTo(20, 5);  // 1/6 dist (100m) → t=1
     expect(bands[2]!.x).toBeCloseTo(80, 5);  // 2/3 dist (400m) → t=4
     expect(bands[3]!.x).toBeCloseTo(100, 5); // 5/6 dist (500m) → t=5
+  });
+});
+
+describe('geometry — windowed velocity (zoom + floor + convergence)', () => {
+  // 30 s race; same build ± one skill. Skill fires pos 150–160 (t 15–16), bumping v 20 → 25,
+  // then the two runners re-converge at t 17.
+  const wrun: SkillTraceRun = {
+    without: Array.from({ length: 31 }, (_, i) => ({ t: i, v: 20, pos: i * 10, hp: 100 })),
+    withSkill: Array.from({ length: 31 }, (_, i) => ({ t: i, v: i >= 15 && i <= 16 ? 25 : 20, pos: i * 10, hp: 100 })),
+    activation: [{ start: 150, end: 160 }],
+    L: 1,
+  };
+
+  it('velocityWindow zooms ±10 s around the activation, floors y, finds the re-convergence', () => {
+    const w = velocityWindow(wrun);
+    expect(w.winStart).toBe(5);          // 15 − 10
+    expect(w.winEnd).toBe(26);           // 16 + 10
+    expect(w.vMin).toBe(18);             // floored, not 0
+    expect(w.vMax).toBe(26);             // ceil(25) + 1
+    expect(w.tStart).toBe(15);
+    expect(w.convergenceT).toBe(17);     // first frame after the skill ends where with ≈ without
+  });
+
+  it('velocityWindow falls back to the whole race when the skill never fired', () => {
+    const noAct: SkillTraceRun = { ...wrun, withSkill: wrun.without, activation: [] };
+    const w = velocityWindow(noAct);
+    expect(w.winStart).toBe(0);
+    expect(w.winEnd).toBe(30);
+    expect(w.tStart).toBeNull();
+  });
+
+  it('vtWindowPoints maps the window to the box and can clip the with-skill line to the divergence', () => {
+    const w = velocityWindow(wrun);
+    const box = { w: 100, h: 50 };
+    const base = vtWindowPoints(wrun.without, box, w);
+    expect(base[0]!.x).toBe(0);                       // first in-window frame (t=5) → left edge
+    expect(base[base.length - 1]!.x).toBeCloseTo(100, 5); // last (t=26) → right edge
+    expect(base[0]!.y).toBeCloseTo(37.5, 5);          // v=20 in [18,26]: 50 − (2/8)*50
+    const withClipped = vtWindowPoints(wrun.withSkill, box, w, { start: w.tStart!, end: w.convergenceT });
+    expect(withClipped).toHaveLength(3);              // only t = 15, 16, 17
+  });
+
+  it('timePhaseBandsWindowed shows only the phases the window spans, with true phase indices', () => {
+    const w = velocityWindow(wrun);
+    const bands = timePhaseBandsWindowed(wrun, { w: 100, h: 50 }, w);
+    expect(bands.map((b) => b.phase)).toEqual([1, 2, 3]); // window [5,26] skips Early (ends t5)
+    expect(bands[0]!.x).toBeCloseTo(0, 5);
   });
 });

@@ -113,6 +113,34 @@ export function frequencyByPosition(
   return count.map((c) => (c / nsamples) * 100);
 }
 
+/** How many times the skill fired per run, as a distribution over ALL runs — integer counts only
+ *  (e.g. ×1 in 65% of runs, ×2 in 35%). Non-firing runs (count 0) are omitted; the percentages sum
+ *  to the overall activation rate. Skills practically fire 1–2× (cooldown re-procs on later corners). */
+export function activationCounts(samples: SkillImpactSample[], nsamples: number): { count: number; pct: number }[] {
+  if (nsamples <= 0) return [];
+  const byCount = new Map<number, number>();
+  for (const s of samples) {
+    const n = s.positions.length;
+    if (n <= 0) continue;
+    byCount.set(n, (byCount.get(n) ?? 0) + 1);
+  }
+  return [...byCount.entries()].sort((a, b) => a[0] - b[0]).map(([count, runs]) => ({ count, pct: (runs / nsamples) * 100 }));
+}
+
+/** The exact firing position (course metres) of the single highest-バ身 sample, plus that L — the
+ *  run where this skill paid off most. Exact (not bin-quantised) so it lines up with the velocity
+ *  chart's Best-run activation. Null when nothing activates with a positive gain. */
+export function peakImpactPosition(samples: SkillImpactSample[]): { pos: number; L: number } | null {
+  let best: { pos: number; L: number } | null = null;
+  for (const s of samples) {
+    if (s.horseLength <= 0) continue;
+    const pos = s.positions[0]; // where it fired in that sample (first activation)
+    if (pos === undefined) continue;
+    if (best === null || s.horseLength > best.L) best = { pos: Math.round(pos), L: s.horseLength };
+  }
+  return best;
+}
+
 /** Bars from a per-bin value array across the full width; skip zero bins. */
 export function binColumns(values: number[], box: Box, ld: LDomain): Col[] {
   const zeroY = zeroLineY(box, ld);
@@ -165,4 +193,77 @@ function timeAtPosition(frames: SkillFrame[], pos: number): number {
   for (const f of frames) if (f.pos >= pos) return f.t;
   const last = frames[frames.length - 1];
   return last ? last.t : 0;
+}
+
+// --- Windowed velocity-vs-time (utools / kachi-uma-tools VelocityChart style): zoom the x-axis to
+//     the skill activation, floor the y-axis (don't start at 0), and trim the with-skill line where
+//     the two runners re-converge. Our two runners are the same build ± the one skill (runner 0 =
+//     without, runner 1 = with), so the lines genuinely re-converge after the skill ends. ---
+
+/** ±s padding around the activation window; m/s y-floor; m/s re-convergence epsilon (kachi defaults). */
+export const V_WINDOW_PAD = 10;
+export const V_FLOOR = 18;
+const V_CONVERGE_EPS = 0.02;
+
+export interface VWindow {
+  winStart: number; winEnd: number; // visible time window (s)
+  vMin: number; vMax: number;       // velocity y-range (floored — not 0-based)
+  tStart: number | null;            // activation start time (where the with-skill line begins); null = skill never fired
+  convergenceT: number;             // time the two runners re-converge after the skill (≤ winEnd)
+}
+
+/** Zoom window + floored y-range + convergence time for the velocity chart. Falls back to the whole
+ *  race (no trim) when the tracked skill never fired in this representative run. */
+export function velocityWindow(run: SkillTraceRun): VWindow {
+  const all = [...run.withSkill, ...run.without];
+  const tMaxAll = Math.max(1, ...all.map((f) => f.t));
+  const vMaxRace = Math.max(1, ...all.map((f) => f.v));
+  const vMax = Math.max(V_FLOOR, Math.ceil(vMaxRace) + 1);
+  const acts = activationTimes(run);
+  if (acts.length === 0) {
+    const vMinRace = all.length ? Math.min(...all.map((f) => f.v)) : 0;
+    return { winStart: 0, winEnd: tMaxAll, vMin: Math.min(V_FLOOR, vMinRace), vMax, tStart: null, convergenceT: tMaxAll };
+  }
+  const { tStart, tEnd } = acts[0]!;
+  const winStart = Math.max(0, tStart - V_WINDOW_PAD);
+  const winEnd = Math.min(tMaxAll, tEnd + V_WINDOW_PAD);
+  const inWin = all.filter((f) => f.t >= winStart && f.t <= winEnd).map((f) => f.v);
+  const vMinWin = inWin.length ? Math.min(...inWin) : 0;
+  // First frame after the skill ends where with ≈ without (re-converged) — both runners share frame
+  // indices (same sim), so compare by index.
+  let convergenceT = winEnd;
+  const n = Math.min(run.withSkill.length, run.without.length);
+  for (let i = 0; i < n; i++) {
+    const fw = run.withSkill[i]!, fo = run.without[i]!;
+    if (fw.t >= tEnd && Math.abs(fw.v - fo.v) <= V_CONVERGE_EPS) { convergenceT = Math.min(winEnd, fw.t); break; }
+  }
+  return { winStart, winEnd, vMin: Math.min(V_FLOOR, vMinWin), vMax, tStart, convergenceT };
+}
+
+/** Velocity points inside the window, mapped with the floored y-range. Optionally clip to [start, end]
+ *  seconds — used to trim the with-skill line to [activation start, convergence]. */
+export function vtWindowPoints(frames: SkillFrame[], box: Box, w: VWindow, clip?: { start?: number; end?: number }): Pt[] {
+  const tspan = (w.winEnd - w.winStart) || 1;
+  const vspan = (w.vMax - w.vMin) || 1;
+  const lo = Math.max(w.winStart, clip?.start ?? w.winStart);
+  const hi = Math.min(w.winEnd, clip?.end ?? w.winEnd);
+  return frames
+    .filter((f) => f.t >= lo && f.t <= hi)
+    .map((f) => ({ x: ((f.t - w.winStart) / tspan) * box.w, y: box.h - ((f.v - w.vMin) / vspan) * box.h }));
+}
+
+/** Four phase bands mapped onto the zoomed time window and clipped to it — only the phases the
+ *  window actually spans appear (with their true phase index, so labels stay correct). */
+export function timePhaseBandsWindowed(run: SkillTraceRun, box: Box, w: VWindow): Band[] {
+  const distMax = Math.max(1, ...[...run.withSkill, ...run.without].map((f) => f.pos));
+  const edges = [0, ...PHASE_FRACTIONS.map((f) => timeAtPosition(run.withSkill, f * distMax)), Infinity];
+  const tspan = (w.winEnd - w.winStart) || 1;
+  const bands: Band[] = [];
+  for (let i = 0; i < edges.length - 1; i++) {
+    const t0 = Math.max(w.winStart, edges[i] ?? 0);
+    const t1 = Math.min(w.winEnd, edges[i + 1] ?? w.winEnd);
+    if (t1 <= t0) continue;
+    bands.push({ x: ((t0 - w.winStart) / tspan) * box.w, w: ((t1 - t0) / tspan) * box.w, phase: i as 0 | 1 | 2 | 3 });
+  }
+  return bands;
 }
