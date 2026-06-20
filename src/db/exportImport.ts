@@ -20,6 +20,7 @@
  * `null` there and normalizes it back to `undefined`.
  */
 import type { CmPlan, LimitBreak, OwnedCard, Parent, ParentRef } from '@/core/types';
+import { normalizeCmRef } from '@/core/cmRace';
 import { db } from './db';
 import type { MatchLog, SettingRecord, StoredCapture } from './types';
 import { listCaptures } from '@/db/capturesApi';
@@ -301,15 +302,8 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   reqNumber(row, 'planNumber', path);
   optString(row, 'remark', path);
 
-  const cmRef = asRecord(row['cmRef'], `${path}.cmRef`);
-  reqString(cmRef, 'cmId', `${path}.cmRef`);
-  reqNumber(cmRef, 'cmNumber', `${path}.cmRef`);
-  reqString(cmRef, 'courseId', `${path}.cmRef`);
-  reqOneOf(cmRef, 'surface', ['turf', 'dirt'] as const, `${path}.cmRef`);
-  reqNumber(cmRef, 'distance', `${path}.cmRef`);
-  optString(cmRef, 'condition', `${path}.cmRef`);
-  optString(cmRef, 'weather', `${path}.cmRef`);
-  optString(cmRef, 'season', `${path}.cmRef`);
+  asRecord(row['cmRef'], `${path}.cmRef`);
+  (row as Rec)['cmRef'] = normalizeCmRef(row['cmRef']);
 
   optNumber(row, 'scenarioId', path);
   reqString(row, 'umaId', path);

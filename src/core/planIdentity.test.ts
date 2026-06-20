@@ -35,7 +35,7 @@ describe('plan content identity', () => {
 
   it('detects meaningful content changes', () => {
     expect(isSamePlanContent(plan(), plan({ umaId: '106801' }))).toBe(false);
-    expect(isSamePlanContent(plan(), plan({ cmRef: { ...FIXTURE_PLAN.cmRef, courseId: '10906' } }))).toBe(false);
+    expect(isSamePlanContent(plan(), plan({ cmRef: { kind: 'custom', courseId: '10906', surface: 'turf', distance: 2400, ground: 'good', weather: 'sunny', season: 'spring' } }))).toBe(false);
     expect(
       isSamePlanContent(
         plan(),

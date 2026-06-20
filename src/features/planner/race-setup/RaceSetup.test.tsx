@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
+import type { CmRaceOption } from '@/core/types';
 import { RaceSetup } from './RaceSetup';
 
 afterEach(cleanup);
@@ -15,38 +16,75 @@ const CATALOG: CourseCatalogEntry[] = [
 ];
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
+/** Timeline-derived CM options (mirrors what cmRaceOptions() would produce). */
+const OPTIONS: CmRaceOption[] = [
+  {
+    cmId: 'CM15',
+    cmNumber: 15,
+    name: 'Cancer Cup',
+    courseId: '10906',
+    conditions: { ground: 'good', weather: 'cloudy', season: 'summer' },
+  },
+  {
+    cmId: 'CM16',
+    cmNumber: 16,
+    name: 'Leo Cup',
+    courseId: '10501',
+    conditions: { ground: 'firm', weather: 'sunny', season: 'summer' },
+  },
+];
+
 describe('RaceSetup', () => {
-  it('defaults to CM15: preset selected, controls show its track data, emits CM15', async () => {
+  it('renders CM options from the options prop (not PRESETS)', async () => {
     const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={deps} />);
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
+    // Both CM labels appear in the dropdown
+    expect(screen.getByRole('option', { name: 'CM15 — Cancer Cup' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'CM16 — Leo Cup' })).toBeInTheDocument();
+  });
+
+  it('defaults to first option: preset selected, controls show track data, emits CM15', async () => {
+    const onChange = vi.fn();
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ courseId: '10906', presetCmId: 'CM15' }),
     );
     expect(screen.getByLabelText('CM preset')).toHaveValue('CM15');
     // controls populate once the catalog loads, showing the preset's track data
-    const track = await screen.findByLabelText('Track');
-    expect(track).toHaveValue('10009'); // Hanshin
+    await waitFor(() => expect(screen.getByLabelText('Track')).toHaveValue('10009')); // Hanshin
     expect(screen.getByLabelText('Distance')).toHaveValue('10906');
     expect(screen.getByRole('option', { name: '2,200m (Inner)' })).toBeInTheDocument();
-    // (the condition chips moved to the track card in CmPlannerPage; tested via describeSelection)
   });
 
   it('selecting CM16 fills the track data and emits Leo Cup', async () => {
     const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={deps} />);
-    await screen.findByLabelText('Track');
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
+    // wait until catalog resolves (Track enabled = catalog ready)
+    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
     fireEvent.change(screen.getByLabelText('CM preset'), { target: { value: 'CM16' } });
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ courseId: '10501', presetCmId: 'CM16' }),
     );
-    expect(screen.getByLabelText('Track')).toHaveValue('10005'); // Nakayama
+    await waitFor(() => expect(screen.getByLabelText('Track')).toHaveValue('10005')); // Nakayama
     expect(screen.getByLabelText('CM preset')).toHaveValue('CM16');
   });
 
-  it('editing a condition away from the preset blanks the preset (— Custom —)', async () => {
+  it('emitted selection carries the option conditions (ground/weather/season)', async () => {
     const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={deps} />);
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     await screen.findByLabelText('Track');
+    fireEvent.change(screen.getByLabelText('CM preset'), { target: { value: 'CM16' } });
+    const last = onChange.mock.lastCall![0];
+    expect(last.ground).toBe('firm');
+    expect(last.weather).toBe('sunny');
+    expect(last.season).toBe('summer');
+  });
+
+  it('editing a condition away from the option blanks the preset (— Custom —)', async () => {
+    const onChange = vi.fn();
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
+    // wait for catalog to be ready (Track enabled)
+    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
     fireEvent.change(screen.getByLabelText('Weather'), { target: { value: 'rainy' } });
     const last = onChange.mock.lastCall![0];
     expect(last.weather).toBe('rainy');
@@ -56,8 +94,9 @@ describe('RaceSetup', () => {
 
   it('changing the Track to Tokyo turf emits a custom left-handed course (preset blanks)', async () => {
     const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={deps} />);
-    await screen.findByLabelText('Track');
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
+    // wait for catalog to be ready (Track enabled)
+    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
     fireEvent.change(screen.getByLabelText('Track'), { target: { value: '10006' } }); // Tokyo
     const last = onChange.mock.lastCall![0];
     expect(last.racetrack).toBe('Tokyo');
@@ -68,7 +107,7 @@ describe('RaceSetup', () => {
 
   it('treats an empty catalog as not-ready: still emits CM15 and disables the cascade selects', async () => {
     const onChange = vi.fn();
-    render(<RaceSetup onChange={onChange} deps={{ loadCatalog: () => Promise.resolve([]) }} />);
+    render(<RaceSetup onChange={onChange} options={OPTIONS} deps={{ loadCatalog: () => Promise.resolve([]) }} />);
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ courseId: '10906', presetCmId: 'CM15' }),
     );
@@ -79,12 +118,13 @@ describe('RaceSetup', () => {
 
   it('syncs its controls from an externally loaded selection', async () => {
     const onChange = vi.fn();
-    const { rerender } = render(<RaceSetup onChange={onChange} deps={deps} />);
+    const { rerender } = render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     await screen.findByLabelText('Track');
 
     rerender(
       <RaceSetup
         onChange={onChange}
+        options={OPTIONS}
         deps={deps}
         selection={{
           courseId: '10602',
@@ -104,5 +144,14 @@ describe('RaceSetup', () => {
     expect(screen.getByLabelText('Ground')).toHaveValue('soft');
     expect(screen.getByLabelText('Weather')).toHaveValue('rainy');
     expect(screen.getByLabelText('Season')).toHaveValue('winter');
+  });
+
+  it('empty options array: no CM options except — Custom — in the dropdown', () => {
+    const onChange = vi.fn();
+    render(<RaceSetup onChange={onChange} options={[]} deps={deps} />);
+    const select = screen.getByLabelText('CM preset');
+    // only the placeholder option present
+    expect(select.querySelectorAll('option').length).toBe(1);
+    expect(screen.getByRole('option', { name: '— Custom —' })).toBeInTheDocument();
   });
 });

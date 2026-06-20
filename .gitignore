@@ -26,3 +26,6 @@ eng.traineddata
 
 # Claude Code local state (git worktrees live under .claude/worktrees/)
 .claude/
+
+# Local Windows dev-server launcher (reads gitignored .env.local)
+dev.bat

@@ -22,6 +22,7 @@ import { buildUmas } from './build-umas';
 import { borrowedFilesPresent, copyFromSpikes, DATA_VERSION } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
 import { loadSkillAdditions } from './lib/skill-additions';
+import { loadUpcomingCards } from './lib/upcoming-cards';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
 import type {
   CourseDataJson,
@@ -81,6 +82,16 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   if (additions.length > 0) {
     cards = [...cards, ...additions].sort((a, b) => Number(a.cardId) - Number(b.cardId));
     console.log(`applied card_additions.json → ${additions.length} record(s): ${additions.map((c) => c.cardId).join(', ')}`);
+  }
+  // Upcoming: full records for announced/anticipated Global cards not yet released
+  // (server:'jp' + releaseDate) — preview, gated by CM date in the UI (P4). Inserted
+  // after card_additions, before overrides so overrides can still patch them.
+  const upcomingCards = loadUpcomingCards(join(OVERRIDES_DIR, 'upcoming_cards.json'), {
+    existingCardIds: new Set(cards.map((c) => c.cardId)),
+  });
+  if (upcomingCards.length > 0) {
+    cards = [...cards, ...upcomingCards].sort((a, b) => Number(a.cardId) - Number(b.cardId));
+    console.log(`applied upcoming_cards.json → ${upcomingCards.length} upcoming card(s)`);
   }
   let presets = buildCmPresets({
     presets: readBorrowedJson<UpstreamCmPreset[]>('cm-presets.json'),

@@ -23,6 +23,18 @@ describe('mergeTimeline (insert-or-patch by id)', () => {
   });
 });
 
+describe('mergeTimeline — cm.conditions', () => {
+  it('carries cm.conditions through mergeTimeline overrides', () => {
+    const base: TimelineEntry[] = [{ id: 'cm15', type: 'cm', title: 'Cancer Cup',
+      dates: { finals: '2026-06-24' }, cm: { cmNumber: 15, courseId: '10906' },
+      tier: 'official', status: 'confirmed', source: { kind: 'official_news', url: '' },
+      server: 'global', dataVersion: 'x' }];
+    const merged = mergeTimeline(base, [{ id: 'cm15', cm: { conditions: { ground: 'good', weather: 'cloudy', season: 'summer' } } }]);
+    expect(merged[0]?.cm?.conditions).toEqual({ ground: 'good', weather: 'cloudy', season: 'summer' });
+    expect(merged[0]?.cm?.courseId).toBe('10906'); // unrelated cm fields preserved by the deep merge
+  });
+});
+
 describe('projectCmSchedule', () => {
   it('emits a row only for cm entries with a cmNumber', () => {
     const rows = projectCmSchedule(base);
@@ -159,5 +171,16 @@ describe('currentCm', () => {
   });
   it('returns null for an empty list', () => {
     expect(currentCm([], '2026-06-15')).toBeNull();
+  });
+
+  it('keeps a CM current until its END date, not just its finals', () => {
+    const running: TimelineEntry[] = [
+      { id: 'cm1', type: 'cm', title: 'Cancer', dates: { start: '2026-06-21', finals: '2026-06-24', end: '2026-06-30' }, tier: 'official', status: 'confirmed', source: { kind: 'official_news', url: '' }, server: 'global', dataVersion: 'x' },
+      { id: 'cm2', type: 'cm', title: 'Leo', dates: { finals: '2026-07-30' }, tier: 'prediction', status: 'unconfirmed', source: { kind: 'umaguide', url: '' }, server: 'global', dataVersion: 'x' },
+    ];
+    // 2026-06-26 is AFTER cm1's finals (06-24) but BEFORE its end (06-30) — cm1 is still running.
+    expect(currentCm(running, '2026-06-26')?.id).toBe('cm1');
+    // After cm1 ends, the next CM takes over.
+    expect(currentCm(running, '2026-07-01')?.id).toBe('cm2');
   });
 });

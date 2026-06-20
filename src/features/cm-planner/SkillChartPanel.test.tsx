@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { BashinStats, SimBuild } from '@/sim';
@@ -14,7 +14,7 @@ const h = vi.hoisted(() => {
   // One family "Adept": two white cosmetic tiers (◎/○) + a gold version; all linked.
   const wA = mk({ skillId: 'wA', nameEn: 'Adept ◎', rarity: 'white', baseSpCost: 90, variantSkillIds: ['wB', 'g1'] });
   const wB = mk({ skillId: 'wB', nameEn: 'Adept ○', rarity: 'white', baseSpCost: 60, variantSkillIds: ['wA', 'g1'] });
-  const g1 = mk({ skillId: 'g1', nameEn: 'Adept Demon', rarity: 'gold', baseSpCost: 170, variantSkillIds: ['wA', 'wB'] });
+  const g1 = mk({ skillId: 'g1', nameEn: 'Adept Demon', rarity: 'gold', baseSpCost: 170, variantSkillIds: ['wA', 'wB'], prereqSkillId: 'wA' });
   const s1 = mk({ skillId: 's1', nameEn: 'Solo White', rarity: 'white', baseSpCost: 120 });
   const i1 = mk({ skillId: 'i1', nameEn: 'Inherited One', rarity: 'inherited_unique', baseSpCost: 0 });
   const skills = [wA, wB, g1, s1, i1];
@@ -36,13 +36,17 @@ vi.mock('./skillTechnicalDetails', () => ({
   loadSkillTechnicalDetail: vi.fn(async () => null),
   skillRecordToSummary: (s: unknown) => s,
 }));
-vi.mock('@/core/simBuild', () => ({ planToSimBuild: () => ({ stats: { spd: 1200 }, strategy: 'end' }) }));
+vi.mock('@/core/simBuild', () => ({
+  planToSimBuild: () => ({ stats: { spd: 1200 }, strategy: 'end' }),
+  chartBaselineBuild: () => ({ stats: { spd: 1200 }, strategy: 'end', skills: [] }),
+}));
 
 import { SkillChartPanel } from './SkillChartPanel';
 
 const basePlan = {
   server: 'global',
   strategy: 'end',
+  cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
   statProfile: { stats: { spd: 1200, sta: 1000, pow: 1000, gut: 1000, wit: 1000 }, mood: 2 },
   wishlist: [],
 } as unknown as CmPlan;
@@ -61,10 +65,50 @@ async function runFull(onChange = vi.fn()) {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  localStorage.clear();
   h.useGameData.mockReturnValue(h.defaultGameData);
 });
 
 describe('SkillChartPanel', () => {
+  const TARGET_ID = h.skills[0]!.skillId;
+  const TARGET_NAME = h.skills[0]!.nameEn;
+  const GOLD_ID = 'g1';
+  const GOLD_NAME = 'Adept Demon';
+
+  it('shows exactly one "in build" row when a gold variant is targeted (no family duplicate)', async () => {
+    const targetedPlan = {
+      ...basePlan,
+      wishlist: [{ skillId: GOLD_ID, priority: 1, source: 'targeted', projectedL: 2.5 }],
+    } as typeof basePlan;
+    render(<SkillChartPanel courseId="10906" plan={targetedPlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
+    // exactly one "in build" badge (the L-cell pill), not the header annotation
+    const inBuildBadges = within(list()).getAllByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false);
+    expect(inBuildBadges).toHaveLength(1);
+    // and it is the gold skill, with its stamped L
+    const row = inBuildBadges[0]!.closest('li')!;
+    expect(within(row).getByText(GOLD_NAME)).toBeInTheDocument();
+  });
+
+  it('excludes a targeted skill from the ranked sims and shows it as an "in build" row', async () => {
+    const targetedPlan = {
+      ...basePlan,
+      wishlist: [{ skillId: TARGET_ID, priority: 1, source: 'targeted', projectedL: 1.23 }],
+    } as typeof basePlan;
+    render(<SkillChartPanel courseId="10906" plan={targetedPlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
+    // the targeted skill was NOT re-simmed
+    expect(h.skillDelta.mock.calls.map((c) => c[2])).not.toContain(TARGET_ID);
+    // …but it is shown, badged "in build", with its stamped L
+    const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
+    const badge = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false);
+    expect(badge).toBeInTheDocument();
+    // its stamped L renders alongside the "in build" badge in the L cell
+    expect(badge.parentElement).toHaveTextContent(/\+1\.23/);
+  });
+
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {
     await runFull();
     const rows = within(list()).getAllByRole('listitem');
@@ -156,8 +200,15 @@ describe('SkillChartPanel', () => {
   it('sorts by SP ascending (cheapest first) when the SP header is clicked', async () => {
     await runFull();
     await userEvent.click(screen.getByRole('button', { name: 'SP' }));
-    // cheapest SP first: i1 (0) → wA (90) → s1 (120) → g1 (170)
+    // cheapest SP first: i1 (0) → wA (90) → s1 (120) → g1 (170+90 prereq = 260)
     expect(within(list()).getAllByRole('listitem')[0]).toHaveTextContent('Inherited One');
+  });
+
+  it('prices a gold skill as gold + white prerequisite (bundled SP)', async () => {
+    await runFull();
+    await userEvent.click(screen.getByRole('button', { name: 'gold' }));
+    // g1 gold base 170 + its white prereq wA base 90 = 260 (no hint discount in chart)
+    expect(within(list()).getAllByRole('listitem')[0]).toHaveTextContent('260');
   });
 
   it('clicking the active sort column again inverts the direction', async () => {
@@ -212,5 +263,29 @@ describe('SkillChartPanel', () => {
     expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(false); // hidden by default
     await userEvent.click(screen.getByRole('checkbox', { name: /show upcoming/i }));
     await waitFor(() => expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(true));
+  });
+
+  it('shows a stamina-out banner with the survival % when survival is below the threshold', async () => {
+    const vacuum = vi.fn(async () => ({
+      mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
+      aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+    }));
+    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    expect(await screen.findByText(/survives only 50% of runs/i)).toBeInTheDocument();
+  });
+
+  it('hides the banner when the user lowers the threshold below the survival rate (no re-run)', async () => {
+    const vacuum = vi.fn(async () => ({
+      mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
+      aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+    }));
+    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await screen.findByText(/survives only 50% of runs/i);
+    const calls = vacuum.mock.calls.length;
+    fireEvent.change(screen.getByLabelText('Stamina warning threshold (%)'), { target: { value: '40' } });
+    expect(screen.queryByText(/survives only 50% of runs/i)).not.toBeInTheDocument();
+    expect(vacuum.mock.calls.length).toBe(calls); // pure re-evaluate, no extra probe
   });
 });

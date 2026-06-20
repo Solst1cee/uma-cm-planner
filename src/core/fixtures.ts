@@ -196,7 +196,7 @@ export const FIXTURE_SPARK_RATES: SparkRates = {
 
 export const FIXTURE_PLAN: CmPlan = {
   id: 'fixture-plan', name: 'Fixture Cup', planNumber: 1,
-  cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10606', surface: 'turf', distance: 2400 },
+  cmRef: { kind: 'custom', courseId: '10606', surface: 'turf', distance: 2400, ground: 'good', weather: 'sunny', season: 'spring' },
   scenarioId: 4, umaId: '100201', uniqueSkillId: '',
   role: 'ace', strategy: 'late',
   statProfile: { stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 }, mood: 0 },

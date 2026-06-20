@@ -139,7 +139,12 @@ patched. For a new CM, insert a full entry:
   "cm": {
     "cmNumber": 16,
     "courseId": "<id from step 2a>",
-    "trackSummary": "<human label, e.g. Tokyo turf 2400m (medium)>"
+    "trackSummary": "<human label, e.g. Tokyo turf 2400m (medium)>",
+    "conditions": {                // the planner derives the race chooser's
+      "ground": "good",            //   ground/weather/season from HERE — the
+      "weather": "cloudy",         //   timeline is the SSOT for CM conditions
+      "season": "summer"           //   (omit and it falls back to defaults:
+    }                              //   good / sunny / season-from-finals-month)
   },
   "tier": "official",
   "status": "confirmed",
@@ -151,6 +156,14 @@ patched. For a new CM, insert a full entry:
   "dataVersion": "global-76214c82"             // current DATA_VERSION
 }
 ```
+
+> **`cm.conditions` values** (from [`src/core/raceConditions.ts`](../src/core/raceConditions.ts)):
+> `ground` ∈ `firm | good | soft | heavy`, `weather` ∈ `sunny | cloudy | rainy | snowy`,
+> `season` ∈ `spring | summer | fall | winter`. Since 2026-06-20 the M4 race chooser
+> is a derived view of `CmPlan.cmRef`, and a `kind:'cm'` ref reads its conditions
+> straight from this timeline entry — so curating `conditions` here is what makes a
+> saved CM plan show the real ground/weather/season. No `cm_presets.json` / `PRESETS`
+> edit is needed; adding the timeline entry auto-populates the chooser.
 
 ### 2c — regenerate
 
@@ -230,14 +243,39 @@ skill_additions record "<skillId>": already emitted by the generator — delete 
 
 Delete that record from `skill_additions.json` and rebuild.
 
-### Support cards — deferred (Phase C)
+### Support cards — `data-overrides/upcoming_cards.json`
 
-The `isReleasedBy` predicate in `src/core/availability.ts` is already ready
-for upcoming-card gating. The data half — an `upcoming_cards.json` insert
-loader mirroring `scripts/lib/skill-additions.ts` (but for `SupportCardRecord`,
-`server:'jp'`) — is the only remaining piece. It lands when M4 §3 builds the
-card-source "include upcoming" toggle in the support-card sourcing UI. Until
-then, upcoming cards are not surfaced in the skill-chart's sourcing panel.
+Append a full `SupportCardRecord` to the `records` array — same shape as
+`card_additions.json` but `server:'jp'` + a required `releaseDate` (skills are
+validated by format only, so an upcoming card may grant upcoming skills you also
+add to `skill_additions.json`):
+
+```jsonc
+// data-overrides/upcoming_cards.json → records array
+{
+  "cardId": "<numeric string id>",
+  "nameEn": "...", "charName": "...",
+  "rarity": "SSR", "type": "speed",
+  "perLevel": [ /* exactly 5 entries, limitBreak 0-4 */ ],
+  "skills": [ { "skillId": "...", "sourceType": "hint_pool", "hintLevels": 1 } ],
+  "hintPoolSize": 1,             // must equal the hint_pool entry count
+  "server": "jp",               // REQUIRED: P4 — upcoming preview
+  "releaseDate": "2026-10-15",  // announced Global date, else predictGlobalDateDefault(jpDate)
+  "releaseDatePredicted": true, // set when releaseDate is a prediction (P3)
+  "dataVersion": "global-<pin8>"
+}
+```
+
+Then `pnpm data:build`. The card lands in `public/data/support_cards.json` with
+`server:'jp'`. Delete the entry once it releases on Global (the build fails with
+`already emitted as a Global card — move it to card_additions.json or delete`).
+
+**Where it shows + the guard (deferred toggle):** the legacy sourcing panel
+(`src/features/skill-acq/SourcingPanel.tsx`) is **guarded to Global-only cards**
+(P4), so upcoming cards do NOT appear as sources there. The card-source
+**"include upcoming" toggle** — which opts them in, gated by the CM date via
+`isReleasedBy` — is **deferred to M4 §3** (the main-planner sourcing table). The
+data pipeline + predicate are built and ready; only that toggle UI remains.
 
 ---
 
@@ -249,5 +287,5 @@ then, upcoming cards are not surfaced in the skill-chart's sourcing panel.
 | Update test counts | `scripts/outputs.test.ts` | — |
 | Add confirmed CM | `data-overrides/timeline_overrides.json` | `pnpm data:build` |
 | Add upcoming skill | `data-overrides/skill_additions.json` | `pnpm data:build` |
-| Add upcoming card (Phase C) | `data-overrides/upcoming_cards.json` (TBD) | `pnpm data:build` |
+| Add upcoming card | `data-overrides/upcoming_cards.json` | `pnpm data:build` |
 | Full rebuild from local mdb | — | `pnpm data:build -- --from-spikes` |

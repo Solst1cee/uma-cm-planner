@@ -5,6 +5,7 @@
  * Shapes follow plan §5, amended by Phase 0 findings (docs/provenance.md,
  * docs/mechanics-notes.md). Changes here ripple everywhere: discuss before editing.
  */
+import type { Ground, RaceConditions, Season, Weather } from './raceConditions';
 
 export type Server = 'global' | 'jp';
 
@@ -23,17 +24,26 @@ export type AptKey =
   | { kind: 'surface'; key: 'turf' | 'dirt' }
   | { kind: 'strategy'; key: Strategy };
 export type CmId = `CM${number}`;
-export interface CmRef {
+
+/**
+ * Discriminated union for the CM race reference (Phase 1 — new standalone type;
+ * CmPlan.cmRef still uses the legacy CmRef until Phase 2).
+ *   kind:'cm'     → points at a timeline CM; track+conditions derived from the timeline.
+ *   kind:'custom' → self-contained: courseId + conditions fully specified.
+ */
+export type CmRefV2 =
+  | { kind: 'cm'; cmId: CmId; cmNumber: number; courseId: string; surface: 'turf' | 'dirt'; distance: number }
+  | { kind: 'custom'; courseId: string; surface: 'turf' | 'dirt'; distance: number; ground: Ground; weather: Weather; season: Season };
+
+/** One entry in the CM chooser dropdown: timeline CMs with a known courseId. */
+export interface CmRaceOption {
   cmId: CmId;
   cmNumber: number;
+  name: string;
   courseId: string;
-  // Superset of the minimal spec CmRef: geometry carried until M3's cm_schedule derives it.
-  surface: 'turf' | 'dirt';
-  distance: number;
-  condition?: string;
-  weather?: string;
-  season?: string;
+  conditions: RaceConditions;
 }
+
 export interface ParentSparks {
   pink: Array<{ aptKey: AptKey; stars: 1 | 2 | 3 }>;
   blue: Array<{ stat: Stat; stars: 1 | 2 | 3 }>;
@@ -273,7 +283,7 @@ export interface TimelineEntry {
   title: string;
   /** ISO dates; CM uses finals (and optionally signup start). */
   dates: { start?: string; finals?: string; end?: string };
-  cm?: { cmNumber?: number; courseId?: string; trackSummary?: string };
+  cm?: { cmNumber?: number; courseId?: string; trackSummary?: string; conditions?: RaceConditions };
   banner?: { kind: 'char' | 'support'; umaId?: string; cardId?: string };
   patch?: { version?: string; summary?: string };
   tier: TimelineTier;
@@ -341,7 +351,7 @@ export interface CmPlan {
   notes?: string;
   planNumber: number;
   remark?: string;
-  cmRef: CmRef;
+  cmRef: CmRefV2;
   scenarioId?: number;
   umaId: string;
   uniqueSkillId: string;

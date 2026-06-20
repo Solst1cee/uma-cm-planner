@@ -24,11 +24,6 @@ function nextPriority(p: Priority): Priority {
   return p === 3 ? 1 : ((p + 1) as Priority);
 }
 
-function cmNumberFromName(name: string): number {
-  const m = name.match(/CM\s*0*(\d+)/i);
-  return m ? Number(m[1]) : 0;
-}
-
 /**
  * Identity match: presets sharing a (courseId, surface, distance) key exist,
  * so we also match on name to disambiguate (the preset name is written onto
@@ -86,25 +81,23 @@ export function PlanHeaderPanel({
     }
     const preset = cmPresets[Number(value)];
     if (!preset) return;
-    const cmNumber = cmNumberFromName(preset.name);
     setCustomMode(false);
     onChange({
       ...plan,
       name: preset.name,
       cmRef: {
-        cmId: `CM${cmNumber}`,
-        cmNumber,
+        kind: 'custom' as const,
         courseId: preset.courseId,
         surface: preset.surface,
         distance: preset.distance,
-        season: preset.season,
-        condition: preset.ground,
-        weather: preset.weather,
+        season: (preset.season ?? 'spring') as import('@/core/raceConditions').Season,
+        ground: (preset.ground ?? 'good') as import('@/core/raceConditions').Ground,
+        weather: (preset.weather ?? 'sunny') as import('@/core/raceConditions').Weather,
       },
     });
   };
 
-  const setCmRef = (patch: Partial<CmPlan['cmRef']>) => {
+  const setCmRef = (patch: { courseId?: string; surface?: 'turf' | 'dirt'; distance?: number }) => {
     onChange({ ...plan, cmRef: { ...plan.cmRef, ...patch } });
   };
 

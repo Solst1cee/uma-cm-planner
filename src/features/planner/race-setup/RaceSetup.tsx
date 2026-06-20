@@ -8,14 +8,14 @@
  * ground / weather / season feed the simulation later, not the static diagram.
  */
 import { useEffect, useRef, useState } from 'react';
+import type { CmRaceOption } from '@/core/types';
+import type { Ground, Season, Weather } from '@/core/raceConditions';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
-import { PRESETS, type Ground, type RacePreset, type Season, type Weather } from './presets';
 import { TRACKS, coursesForTrackSurface, surfacesForTrack } from './trackCatalog';
 import {
   cap,
   courseToSelection,
   formatDistanceWithLayout,
-  presetToSelection,
   type RaceSelection,
 } from './selection';
 
@@ -32,37 +32,80 @@ interface Fields {
   season: Season;
 }
 
-function fieldsFromPreset(p: RacePreset): Fields {
+function fieldsFromOption(o: CmRaceOption, catalog: CourseCatalogEntry[]): Fields {
+  const course = catalog.find((c) => c.courseId === o.courseId);
+  const track = course ? TRACKS.find((t) => t.raceTrackId === course.raceTrackId) : undefined;
   return {
-    trackId: TRACKS.find((t) => t.name === p.racetrack)?.raceTrackId ?? TRACKS[0]!.raceTrackId,
-    surface: p.surface,
-    courseId: p.courseId,
-    ground: p.ground,
-    weather: p.weather,
-    season: p.season,
+    trackId: track?.raceTrackId ?? TRACKS[0]!.raceTrackId,
+    surface: course?.surface ?? 'turf',
+    courseId: o.courseId,
+    ground: o.conditions.ground,
+    weather: o.conditions.weather,
+    season: o.conditions.season,
   };
 }
 
-/** The preset whose course + conditions exactly match the current fields, if any. */
-function matchPreset(f: Fields): RacePreset | undefined {
-  return PRESETS.find(
-    (p) =>
-      p.courseId === f.courseId &&
-      p.ground === f.ground &&
-      p.weather === f.weather &&
-      p.season === f.season,
+/** The option whose courseId + all 3 conditions exactly match the current fields, if any. */
+function matchOption(f: Fields, options: CmRaceOption[]): CmRaceOption | undefined {
+  return options.find(
+    (o) =>
+      o.courseId === f.courseId &&
+      o.conditions.ground === f.ground &&
+      o.conditions.weather === f.weather &&
+      o.conditions.season === f.season,
   );
 }
 
-function resolveSelection(f: Fields, catalog: CourseCatalogEntry[] | null): RaceSelection | null {
-  const m = matchPreset(f);
-  if (m) return presetToSelection(m);
+function resolveSelection(f: Fields, catalog: CourseCatalogEntry[] | null, matchedOption?: CmRaceOption): RaceSelection | null {
   const course = catalog?.find((c) => c.courseId === f.courseId);
-  if (course) return courseToSelection(course, { ground: f.ground, weather: f.weather, season: f.season });
+  if (course) {
+    const sel = courseToSelection(course, { ground: f.ground, weather: f.weather, season: f.season });
+    return { ...sel, presetCmId: matchedOption?.cmId };
+  }
   return null;
 }
 
+/** Build initial fields from a CmRaceOption without the catalog (catalog loads async). */
+function initialFieldsFromOption(o: CmRaceOption): Fields {
+  return {
+    trackId: TRACKS[0]!.raceTrackId,
+    surface: 'turf',
+    courseId: o.courseId,
+    ground: o.conditions.ground,
+    weather: o.conditions.weather,
+    season: o.conditions.season,
+  };
+}
+
+/** Initial fields when no options are provided (empty catalog-pending state). */
+const EMPTY_FIELDS: Fields = {
+  trackId: TRACKS[0]!.raceTrackId,
+  surface: 'turf',
+  courseId: '',
+  ground: 'good',
+  weather: 'sunny',
+  season: 'spring',
+};
+
+/** Initial RaceSelection emitted when options[0] exists but the catalog hasn't loaded yet. */
+function fallbackSelectionFromOption(o: CmRaceOption): RaceSelection {
+  return {
+    courseId: o.courseId,
+    racetrack: '',
+    surface: 'turf',
+    distance: 0,
+    distanceClass: '',
+    direction: 'right',
+    inOut: undefined,
+    ground: o.conditions.ground,
+    weather: o.conditions.weather,
+    season: o.conditions.season,
+    presetCmId: o.cmId,
+  };
+}
+
 interface RaceSetupProps {
+  options: CmRaceOption[];
   onChange: (sel: RaceSelection) => void;
   selection?: RaceSelection;
   deps?: { loadCatalog: () => Promise<CourseCatalogEntry[]> };
@@ -93,23 +136,32 @@ function sameFields(a: Fields, b: Fields): boolean {
   );
 }
 
-export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
+export function RaceSetup({ options, onChange, selection, deps }: RaceSetupProps) {
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
+  const firstOption = options[0];
   const [fields, setFields] = useState<Fields>(() =>
-    selection ? fieldsFromSelection(selection) : fieldsFromPreset(PRESETS[0]!),
+    selection
+      ? fieldsFromSelection(selection)
+      : firstOption
+      ? initialFieldsFromOption(firstOption)
+      : EMPTY_FIELDS,
   );
   const [catalog, setCatalog] = useState<CourseCatalogEntry[] | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [open, setOpen] = useState(true);
 
-  // Emit the initial selection once (matched preset needs no catalog).
+  // Emit the initial selection once (first option emits immediately without waiting for catalog).
   const emitted = useRef(false);
   useEffect(() => {
     if (selection || emitted.current) return;
     emitted.current = true;
-    const sel = resolveSelection(fields, null);
-    if (sel) onChange(sel);
-  }, [fields, onChange, selection]);
+    if (firstOption) {
+      // Try to resolve via catalog if it's already loaded, else emit fallback.
+      const sel = resolveSelection(fields, catalog, firstOption) ?? fallbackSelectionFromOption(firstOption);
+      onChange(sel);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!selection) return;
@@ -132,16 +184,32 @@ export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
     };
   }, [loadCatalog]);
 
+  // Once the catalog loads, re-resolve the initial fields from the first option
+  // (so the Track/Surface selects show the right values).
+  useEffect(() => {
+    if (!catalog || selection || !firstOption) return;
+    setFields((current) => {
+      const resolved = fieldsFromOption(firstOption, catalog);
+      return sameFields(current, resolved) ? current : resolved;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog]);
+
+  const matched = matchOption(fields, options);
+
   const apply = (next: Fields) => {
-    const sel = resolveSelection(next, catalog);
-    if (!sel) return; // unresolvable (empty/malformed catalog) — keep fields ↔ emitted selection in sync
+    const matchedOpt = matchOption(next, options);
+    const sel = resolveSelection(next, catalog, matchedOpt);
+    if (!sel) return; // unresolvable (empty/malformed catalog)
     setFields(next);
     onChange(sel);
   };
 
   const onPreset = (cmId: string) => {
-    const p = PRESETS.find((x) => x.cmId === cmId);
-    if (p) apply(fieldsFromPreset(p)); // '' (— Custom —) keeps the current fields
+    if (!cmId) return; // '— Custom —' keeps current fields
+    const opt = options.find((x) => x.cmId === cmId);
+    if (!opt || !catalog) return;
+    apply(fieldsFromOption(opt, catalog));
   };
 
   const onTrack = (trackId: number) => {
@@ -157,8 +225,7 @@ export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
     apply({ ...fields, surface, courseId });
   };
 
-  const matched = matchPreset(fields);
-  const sel = resolveSelection(fields, catalog) ?? presetToSelection(PRESETS[0]!);
+  const sel = resolveSelection(fields, catalog, matched) ?? (firstOption ? fallbackSelectionFromOption(firstOption) : null);
   const ready = catalog != null && catalog.length > 0;
   const surfaceOptions = catalog ? surfacesForTrack(catalog, fields.trackId) : [];
   const distanceOptions = catalog ? coursesForTrackSurface(catalog, fields.trackId, fields.surface) : [];
@@ -191,9 +258,9 @@ export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
           <span className="cmp-field-label">Preset</span>
           <select aria-label="CM preset" value={matched?.cmId ?? ''} onChange={(e) => onPreset(e.target.value)}>
             <option value="">— Custom —</option>
-            {PRESETS.map((p) => (
-              <option key={p.cmId} value={p.cmId}>
-                {p.label}
+            {options.map((o) => (
+              <option key={o.cmId} value={o.cmId}>
+                {`CM${o.cmNumber} — ${o.name}`}
               </option>
             ))}
           </select>
@@ -245,9 +312,9 @@ export function RaceSetup({ onChange, selection, deps }: RaceSetupProps) {
                   {formatDistanceWithLayout(courseToSelection(c, { ground: fields.ground, weather: fields.weather, season: fields.season }))}
                 </option>
               ))
-            ) : (
+            ) : sel ? (
               <option value={fields.courseId}>{formatDistanceWithLayout(sel)}</option>
-            )}
+            ) : null}
           </select>
         </label>
 

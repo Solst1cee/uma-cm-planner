@@ -31,7 +31,9 @@ function realDeps(): UseSkillRankDeps {
 }
 
 function sigOf(build: SimBuild, courseId: string, skillIds: string[], nsamples: number | undefined): string {
-  return JSON.stringify([courseId, build.strategy, build.stats, build.aptitudes, build.mood ?? null, skillIds, nsamples ?? null]);
+  // Includes build.skills so a baseline change (e.g. targeting a wishlist skill that isn't a
+  // ranked candidate) still flips isStale and prompts a re-run — the candidate ids alone miss it.
+  return JSON.stringify([courseId, build.strategy, build.stats, build.aptitudes, build.mood ?? null, build.skills, skillIds, nsamples ?? null]);
 }
 
 export function useSkillRank(

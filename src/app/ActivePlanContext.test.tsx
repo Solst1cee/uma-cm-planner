@@ -342,14 +342,12 @@ describe('makeDefaultPlan', () => {
       role: 'ace',
       strategy: 'front',
       cmRef: {
+        kind: 'cm',
         cmId: 'CM15',
         cmNumber: 15,
         courseId: '10906',
         surface: 'turf',
         distance: 2200,
-        condition: 'good',
-        weather: 'cloudy',
-        season: 'summer',
       },
       statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
       sparkGoals: {

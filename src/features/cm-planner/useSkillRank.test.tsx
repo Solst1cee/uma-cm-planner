@@ -36,6 +36,20 @@ describe('useSkillRank', () => {
     expect(skillDelta.mock.calls.length).toBe(callsAfterRun); // no auto recompute
   });
 
+  it('flips isStale when the baseline build.skills changes (wishlist baseline)', async () => {
+    const skillDelta = vi.fn(async () => bs(1));
+    const base = { stats: { spd: 1200 }, strategy: 'end', skills: [] } as unknown as SimBuild;
+    const { result, rerender } = renderHook(
+      ({ b }) => useSkillRank(b, { courseId: '10906' }, ['a'], { skillDelta }),
+      { initialProps: { b: base } },
+    );
+    act(() => result.current.run());
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    // targeting a non-ranked wishlist skill grows the baseline deck (ids unchanged)
+    rerender({ b: { ...base, skills: ['recovery-1'] } as unknown as SimBuild });
+    expect(result.current.isStale).toBe(true);
+  });
+
   it('stop() cancels an in-flight run, settles to done, and ignores later-resolving sims', async () => {
     const resolvers: Array<(v: BashinStats) => void> = [];
     const skillDelta = vi.fn(() => new Promise<BashinStats>((res) => { resolvers.push(res); }));
