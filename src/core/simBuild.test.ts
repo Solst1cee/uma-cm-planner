@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, SkillRecord } from '@/core/types';
 import {
+  chartBaselineBuild,
   distanceClass,
   planToSimBuild,
   simAptitudes,
@@ -80,6 +81,40 @@ describe('setTargetAptitude', () => {
     expect(next.sparkGoals.pink).toContainEqual({ aptKey: { kind: 'strategy', key: 'pace' }, target: 'A' });
     expect(next.sparkGoals.pink).toContainEqual({ aptKey: { kind: 'surface', key: 'turf' }, target: 'A' });
     expect(next.sparkGoals.pink.filter((goal) => goal.aptKey.kind === 'strategy')).toHaveLength(1);
+  });
+});
+
+function skill(over: Partial<SkillRecord> & { skillId: string }): SkillRecord {
+  return {
+    nameEn: 'S', rarity: 'white', baseSpCost: 100, server: 'global',
+    dataVersion: 't', iconId: '0', ...over,
+  } as SkillRecord;
+}
+
+describe('chartBaselineBuild', () => {
+  const white = skill({ skillId: '200332', rarity: 'white' });
+  const skillById = new Map<string, SkillRecord>([[white.skillId, white]]);
+
+  it('matches planToSimBuild but injects targeted wishlist ids as skills', () => {
+    const p = plan({ wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] });
+    const b = chartBaselineBuild(p, skillById);
+    expect(b.skills).toEqual(['200332']);
+    // everything else identical to the vacuum build
+    const { skills: _s, ...rest } = b;
+    const { skills: _v, ...vac } = planToSimBuild(p);
+    expect(rest).toEqual(vac);
+  });
+
+  it('is vacuum-equivalent for an empty wishlist (no regression)', () => {
+    expect(chartBaselineBuild(plan(), skillById).skills).toEqual([]);
+  });
+
+  it('de-duplicates repeated wishlist ids', () => {
+    const p = plan({ wishlist: [
+      { skillId: '200332', priority: 1, source: 'targeted' },
+      { skillId: '200332', priority: 1, source: 'targeted' },
+    ] });
+    expect(chartBaselineBuild(p, skillById).skills).toEqual(['200332']);
   });
 });
 
