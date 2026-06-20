@@ -65,6 +65,7 @@ interface RowView {
   sp: number | null;
   eff: number | null;
   targeted: boolean;
+  inBuild?: boolean;
 }
 
 // L and efficiency rank best-first (desc); SP ranks cheapest-first (asc) by default.
@@ -116,7 +117,16 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         : [];
     return [...baseReps, ...upcoming];
   }, [skills, skillById, plan.server, asOfISO]);
-  const ids = useMemo(() => (hasSpeed ? reps.map((s) => s.skillId) : []), [reps, hasSpeed]);
+  const isTargeted = (rep: SkillRecord): boolean =>
+    plan.wishlist.some((it) => {
+      const rec = wishlistSkillRecord(it.skillId, skillById);
+      return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
+    });
+
+  const ids = useMemo(
+    () => (hasSpeed ? reps.filter((s) => !isTargeted(s)).map((s) => s.skillId) : []),
+    [reps, hasSpeed, plan.wishlist, skillById],
+  );
   const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
 
@@ -135,19 +145,31 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     onChange({ ...plan, wishlist: wl.map((it) => (it.skillId === resolvedId ? { ...it, ...patch } : it)) });
   };
 
-  const isTargeted = (rep: SkillRecord): boolean =>
-    plan.wishlist.some((it) => {
-      const rec = wishlistSkillRecord(it.skillId, skillById);
-      return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
-    });
-
   const onSortClick = (m: SortMetric) => {
     if (m === sortMetric) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else { setSortMetric(m); setSortDir(DEFAULT_DIR[m]); }
   };
 
   const q = query.trim().toLowerCase();
-  const views: RowView[] = rows
+
+  // Already-targeted reps aren't re-simmed (their marginal L on the baseline ≈ 0, since
+  // they're already baked in). Synthesize non-simmed rows showing the wishlist's stamped
+  // projectedL, badged "in build", so the user still sees them ranked among the rest.
+  const inBuildViews: RowView[] = reps
+    .filter((rep) => isTargeted(rep))
+    .map((rep): RowView => {
+      const item = plan.wishlist.find((it) => {
+        const rec = wishlistSkillRecord(it.skillId, skillById);
+        return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
+      });
+      const L = item?.projectedL ?? null;
+      const sp = sparkRates ? effectiveSpCost(rep, 0, sparkRates) : null;
+      const eff = L != null && sp != null && sp > 0 ? (100 * L) / sp : null;
+      const row: SkillChartRow = { skillId: rep.skillId, L, min: null, max: null, median: null, status: 'live', nsamples: 0 };
+      return { row, skill: rep, sp, eff, targeted: true, inBuild: true };
+    });
+
+  const rankedViews: RowView[] = rows
     .map((row): RowView | null => {
       const skill = skillById.get(row.skillId);
       if (!skill) return null;
@@ -155,7 +177,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })
-    .filter((v): v is RowView => v !== null)
+    .filter((v): v is RowView => v !== null);
+
+  const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
       if (!showUpcoming && v.skill.server === 'jp') return false; // upcoming hidden unless toggled
       if (!showAll && v.row.status === 'inactive') return false; // hide only never-proc skills
@@ -296,6 +320,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         }
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
+                        {v.inBuild && <span className="cmp-inbuild">in build</span>}
                         {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : signed(v.row.L ?? 0)}
                       </span>
                       <span className={`cmp-uma-num ${sortMetric === 'sp' ? 'is-sort' : ''}`.trim()}>

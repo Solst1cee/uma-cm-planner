@@ -69,6 +69,27 @@ afterEach(() => {
 });
 
 describe('SkillChartPanel', () => {
+  const TARGET_ID = h.skills[0]!.skillId;
+  const TARGET_NAME = h.skills[0]!.nameEn;
+
+  it('excludes a targeted skill from the ranked sims and shows it as an "in build" row', async () => {
+    const targetedPlan = {
+      ...basePlan,
+      wishlist: [{ skillId: TARGET_ID, priority: 1, source: 'targeted', projectedL: 1.23 }],
+    } as typeof basePlan;
+    render(<SkillChartPanel courseId="10906" plan={targetedPlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
+    // the targeted skill was NOT re-simmed
+    expect(h.skillDelta.mock.calls.map((c) => c[2])).not.toContain(TARGET_ID);
+    // …but it is shown, badged "in build", with its stamped L
+    const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
+    const badge = within(row).getByText(/in build/i);
+    expect(badge).toBeInTheDocument();
+    // its stamped L renders alongside the "in build" badge in the L cell
+    expect(badge.parentElement).toHaveTextContent(/\+1\.23/);
+  });
+
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {
     await runFull();
     const rows = within(list()).getAllByRole('listitem');

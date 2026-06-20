@@ -121,3 +121,14 @@
 }
 .cmp-stamina-thresh { display: inline-flex; align-items: center; gap: 0.15rem; white-space: nowrap; }
 .cmp-stamina-thresh input { width: 3.2rem; }
+
+.cmp-inbuild {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  border-radius: 6px;
+  border: 1px solid var(--accent, #5b8def);
+  color: var(--accent, #5b8def);
+  vertical-align: middle;
+}
