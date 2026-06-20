@@ -5,6 +5,7 @@
  * Shapes follow plan §5, amended by Phase 0 findings (docs/provenance.md,
  * docs/mechanics-notes.md). Changes here ripple everywhere: discuss before editing.
  */
+import type { RaceConditions } from './raceConditions';
 
 export type Server = 'global' | 'jp';
 
@@ -273,7 +274,7 @@ export interface TimelineEntry {
   title: string;
   /** ISO dates; CM uses finals (and optionally signup start). */
   dates: { start?: string; finals?: string; end?: string };
-  cm?: { cmNumber?: number; courseId?: string; trackSummary?: string };
+  cm?: { cmNumber?: number; courseId?: string; trackSummary?: string; conditions?: RaceConditions };
   banner?: { kind: 'char' | 'support'; umaId?: string; cardId?: string };
   patch?: { version?: string; summary?: string };
   tier: TimelineTier;

@@ -66,12 +66,23 @@
       "type": "cm",
       "title": "Cancer Cup",
       "dates": { "start": "2026-06-21", "finals": "2026-06-24", "end": "2026-06-30" },
-      "cm": { "cmNumber": 15, "courseId": "10906", "trackSummary": "Hanshin turf 2200m (inner, right · good/summer/cloudy)" },
+      "cm": { "cmNumber": 15, "courseId": "10906", "trackSummary": "Hanshin turf 2200m (inner, right · good/summer/cloudy)", "conditions": { "ground": "good", "weather": "cloudy", "season": "summer" } },
       "tier": "official",
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/829/" },
       "server": "global",
       "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "cm16-leo-cup",
+      "type": "cm",
+      "title": "Leo Cup",
+      "dates": { "finals": "2026-07-30" },
+      "cm": { "cmNumber": 16, "courseId": "10501", "trackSummary": "Nakayama turf 1200m (sprint)",
+              "conditions": { "ground": "firm", "weather": "sunny", "season": "summer" } },
+      "tier": "prediction", "status": "unconfirmed",
+      "source": { "kind": "umaguide", "url": "https://uma.guide/cm-schedule/" },
+      "server": "global", "dataVersion": "global-76214c82"
     }
   ]
 }

@@ -23,6 +23,18 @@ describe('mergeTimeline (insert-or-patch by id)', () => {
   });
 });
 
+describe('mergeTimeline — cm.conditions', () => {
+  it('carries cm.conditions through mergeTimeline overrides', () => {
+    const base: TimelineEntry[] = [{ id: 'cm15', type: 'cm', title: 'Cancer Cup',
+      dates: { finals: '2026-06-24' }, cm: { cmNumber: 15, courseId: '10906' },
+      tier: 'official', status: 'confirmed', source: { kind: 'official_news', url: '' },
+      server: 'global', dataVersion: 'x' }];
+    const merged = mergeTimeline(base, [{ id: 'cm15', cm: { conditions: { ground: 'good', weather: 'cloudy', season: 'summer' } } }]);
+    expect(merged[0]?.cm?.conditions).toEqual({ ground: 'good', weather: 'cloudy', season: 'summer' });
+    expect(merged[0]?.cm?.courseId).toBe('10906'); // unrelated cm fields preserved by the deep merge
+  });
+});
+
 describe('projectCmSchedule', () => {
   it('emits a row only for cm entries with a cmNumber', () => {
     const rows = projectCmSchedule(base);
