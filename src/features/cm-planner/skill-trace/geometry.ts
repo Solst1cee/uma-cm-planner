@@ -166,3 +166,32 @@ function timeAtPosition(frames: SkillFrame[], pos: number): number {
   const last = frames[frames.length - 1];
   return last ? last.t : 0;
 }
+
+// --- Distance-axis overlay (umalator main view): velocity/HP/gap vs course position ---
+
+/** Max velocity + max HP across BOTH runners (overlay y-domains). */
+export function velocityHpDomain(a: SkillFrame[], b: SkillFrame[]): { vMax: number; hpMax: number } {
+  const all = [...a, ...b];
+  return { vMax: Math.max(1, ...all.map((f) => f.v)), hpMax: Math.max(1, ...all.map((f) => f.hp)) };
+}
+
+/** Per-frame series vs course position: x = pos/distance, y = pick(f)/max inverted (up = larger). */
+export function posPoints(frames: SkillFrame[], box: Box, distance: number, pick: (f: SkillFrame) => number, max: number): Pt[] {
+  return frames.map((f) => ({ x: scale(f.pos, distance, box.w), y: box.h - scale(pick(f), max, box.h) }));
+}
+
+/** Activation regions (metres) → x/width boxes on the distance axis (1px min width). */
+export function activationZonesByPos(acts: { start: number; end: number }[], box: Box, distance: number): { x: number; w: number }[] {
+  return acts.map(({ start, end }) => ({ x: scale(start, distance, box.w), w: Math.max(1, scale(end - start, distance, box.w)) }));
+}
+
+/** Largest absolute バ身 gap (symmetric y-domain; always ≥1). */
+export function gapMagnitude(gap: { bashin: number }[]): number {
+  return Math.max(1, ...gap.map((g) => Math.abs(g.bashin)));
+}
+
+/** Gap curve on a zero-centred band: y = h/2 − (bashin/mag)·(h/2). + = uma1 ahead = up. */
+export function gapPoints(gap: { pos: number; bashin: number }[], box: Box, distance: number, mag: number): Pt[] {
+  const half = box.h / 2;
+  return gap.map((g) => ({ x: scale(g.pos, distance, box.w), y: half - (g.bashin / mag) * half }));
+}

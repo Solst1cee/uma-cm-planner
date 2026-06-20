@@ -4,6 +4,7 @@ import {
   lAxisDomain, zeroLineY, gridLinesX, gridLinesY,
   impactByPosition, frequencyByPosition, binColumns,
   distancePhaseBands, timePhaseBands, PHASE_FRACTIONS,
+  velocityHpDomain, posPoints, activationZonesByPos, gapMagnitude, gapPoints,
 } from './geometry';
 import type { SkillTraceRun, SkillImpactSample } from '@/sim';
 
@@ -108,5 +109,28 @@ describe('geometry — four phase bands', () => {
     expect(bands[1]!.x).toBeCloseTo(20, 5);  // 1/6 dist (100m) → t=1
     expect(bands[2]!.x).toBeCloseTo(80, 5);  // 2/3 dist (400m) → t=4
     expect(bands[3]!.x).toBeCloseTo(100, 5); // 5/6 dist (500m) → t=5
+  });
+});
+
+const f = (pos: number, v: number, hp: number) => ({ t: 0, pos, v, hp });
+
+describe('distance-axis overlay geometry', () => {
+  const box = { w: 100, h: 50 };
+  it('velocityHpDomain takes the max across both runners', () => {
+    expect(velocityHpDomain([f(0, 10, 100)], [f(0, 20, 50)])).toEqual({ vMax: 20, hpMax: 100 });
+  });
+  it('posPoints maps pos→x and inverts the picked value', () => {
+    const pts = posPoints([f(600, 20, 0)], box, 1200, (fr) => fr.v, 20);
+    expect(pts[0]).toEqual({ x: 50, y: 0 }); // half distance → x50; v at max → y0 (top)
+  });
+  it('activationZonesByPos maps start/width with a 1px floor', () => {
+    expect(activationZonesByPos([{ start: 600, end: 600 }], box, 1200)).toEqual([{ x: 50, w: 1 }]);
+  });
+  it('gap maps to a zero-centred band, + up', () => {
+    const mag = gapMagnitude([{ bashin: 2 }, { bashin: -1 }]);
+    expect(mag).toBe(2);
+    const pts = gapPoints([{ pos: 0, bashin: 2 }, { pos: 1200, bashin: -2 }], box, 1200, mag);
+    expect(pts[0]).toEqual({ x: 0, y: 0 });   // +2 (== mag) → top
+    expect(pts[1]).toEqual({ x: 100, y: 50 }); // -2 → bottom
   });
 });
