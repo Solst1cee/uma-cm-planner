@@ -153,3 +153,13 @@ on old data once run (export a backup before first run in dev).
 
 Wiring conditions into the engine/sim; a time-of-day field; sparse CM-condition overrides
 (tweaking a CM race becomes custom instead); M1/M2/M3 changes; the §3 sourcing toggles.
+
+## Amendment — 2026-06-20 (decision B): cm refs store geometry, derive only conditions
+
+Implementation revealed that a pure `cmNumber`-only `cm` ref forces the entire sim/aptitude chain (~12–15 files, incl. the legacy page) to resolve race geometry. Decision (owner): make **geometry common** to both variants; derive only **conditions** for `cm`.
+
+- `CmRefV2 = { kind:'cm'; cmId; cmNumber; courseId; surface; distance } | { kind:'custom'; courseId; surface; distance; ground; weather; season }`. `courseId`/`surface`/`distance` are **common** → consumers read them without narrowing; `simBuild`/`planToSimBuild` keep their plan-only signatures (NO `race` param); chart panels, hooks, and the legacy page are **unaffected**.
+- A `cm` ref does NOT store conditions — `cmRefToSelection` derives them from the matching timeline entry (`cm.conditions` or `defaultConditions`). A `custom` ref stores conditions.
+- `normalizeCmRef`: legacy flat `cmNumber>0` → `{kind:'cm', cmId, cmNumber, courseId, surface, distance}` (keep geometry, drop stored conditions); `cmNumber===0` → `custom`.
+- Consistency: on **import**, a `cm` ref's geometry is re-resolved from its `cmNumber` via the app timeline + course catalog (a hand-edited "CM15 with the wrong track" is corrected). The Dexie migration of existing plans trusts their stored geometry (valid when saved).
+- "Edit any field → custom" still holds: editing the track OR a condition away from the CM's flips it to `custom`.
