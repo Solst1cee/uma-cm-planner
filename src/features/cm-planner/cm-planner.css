@@ -549,14 +549,27 @@
 
 /* ---- Planner sidebar ---- */
 main:has(.cmp-page) {
-  max-width: 119rem;
+  /* widened by one 27.9rem rail + gap so the main column keeps its width when the
+     right race-sim sidebar is added (was 119rem). */
+  max-width: 148rem;
 }
 
 .cmp-page {
   display: grid;
-  grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr);
+  /* inventory · plan sidebar · main · race-sim sidebar (right) */
+  grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr) minmax(372px, 27.9rem);
   gap: 1rem;
   align-items: start;
+}
+
+/* Drop the right race-sim sidebar to full width under the main column when space is tight. */
+@media (max-width: 1500px) {
+  .cmp-page {
+    grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr);
+  }
+  .cmp-right {
+    grid-column: 1 / -1;
+  }
 }
 
 .cmp-main {
@@ -567,7 +580,8 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar,
-.cmp-plan-inventory {
+.cmp-plan-inventory,
+.cmp-right {
   position: sticky;
   top: 5.6rem;
   min-width: 0;
@@ -592,7 +606,8 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar > .cmp-plan-card,
-.cmp-plan-inventory > .cmp-plan-card {
+.cmp-plan-inventory > .cmp-plan-card,
+.cmp-right > .cmp-plan-card {
   display: flex;
   max-height: inherit;
   min-height: 0;

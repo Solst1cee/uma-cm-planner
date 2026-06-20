@@ -16,7 +16,9 @@ import { PlannerSidebar } from './PlannerSidebar';
 import { SkillChartPanel } from './SkillChartPanel';
 import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
-import { TrackComparePanel } from './TrackComparePanel';
+import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
+import { RaceSimCard } from './RaceSimCard';
+import { useRaceCompareController } from './useRaceCompareController';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import {
   describeSelection,
@@ -85,6 +87,10 @@ export function CmPlannerPage() {
       cancelled = true;
     };
   }, []);
+
+  // Race-sim comparison state (overlay on the track ← controls in the right sidebar).
+  // Called before the loading guards, so it tolerates a null plan/selection.
+  const raceSim = useRaceCompareController(plan, savedPlans, selection?.courseId ?? '');
 
   if (loadError) {
     return (
@@ -192,14 +198,25 @@ export function CmPlannerPage() {
           collapseSkillSignal={collapseSkillSignal}
         />
         <div className="cmp-main">
-          <TrackComparePanel
-            plan={plan}
-            savedPlans={savedPlans}
-            courseId={selection.courseId}
-            trackTitle={trackTitle}
-            conditionChips={describeSelection(selection)}
-            skillName={(id) => skillById?.get(id)?.nameEn ?? id}
-          />
+          <section className="cmp-plan-card cmp-track-card">
+            <header className="cmp-plan-card-head cmp-track-head">{trackTitle}</header>
+            <div className="cmp-plan-card-body cmp-track-body">
+              <RaceTrackView
+                courseId={selection.courseId}
+                trace={raceSim.comparing ? raceSim.state.run ?? undefined : undefined}
+                traceDistance={raceSim.state.distance}
+                showHp={raceSim.showHp}
+                skillName={(id) => skillById?.get(id)?.nameEn ?? id}
+              />
+              <div className="cmp-conditions" aria-label="Race conditions">
+                {describeSelection(selection).map((chip) => (
+                  <span key={chip} className="cmp-chip">
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
           <RaceSetup options={options} selection={selection} onChange={handleRaceChange} />
           <UmaChartPanel
             courseId={selection.courseId}
@@ -214,6 +231,9 @@ export function CmPlannerPage() {
             onChange={setPlan}
           />
         </div>
+        <aside className="cmp-right" aria-label="Race simulation">
+          <RaceSimCard ctl={raceSim} />
+        </aside>
       </div>
     </SelectedSkillProvider>
   );

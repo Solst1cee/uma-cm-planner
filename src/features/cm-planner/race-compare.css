@@ -1,14 +1,5 @@
-/* The §0 track (umalator main view) sits beside a Race-sim settings card.
-   Settings column width = the sidebar/inventory card width (27.9rem) so the three
-   rails line up; the track takes the remaining width and its overlay draws on top. */
-.cmp-track-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 27.9rem;
-  gap: 0.85rem;
-  align-items: start;
-}
-.cmp-track-row > .cmp-track-card { min-width: 0; }
-
+/* Race-sim settings card — lives in the right sidebar; its controls drive the velocity/HP/
+   gap overlay drawn on the §0 track (main column). */
 .cmp-racesim-body {
   display: flex;
   flex-direction: column;
@@ -20,8 +11,3 @@
 .cmp-racesim-card .cmp-rc-field > span { font-size: 0.85rem; color: var(--fg-muted); }
 .cmp-racesim-card .cmp-rc-hp { display: inline-flex; align-items: center; gap: 6px; }
 .cmp-racesim-card .cmp-rc-caveat { margin-top: 0.1rem; }
-
-/* Stack the settings card under the track when the row gets too narrow. */
-@media (max-width: 980px) {
-  .cmp-track-row { grid-template-columns: minmax(0, 1fr); }
-}
