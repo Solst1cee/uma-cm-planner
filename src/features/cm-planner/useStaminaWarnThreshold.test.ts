@@ -40,4 +40,9 @@ describe('useStaminaWarnThreshold', () => {
     localStorage.setItem(KEY, '5');
     expect(renderHook(() => useStaminaWarnThreshold()).result.current[0]).toBe(1);
   });
+
+  it('treats a blank stored value as default (not Number("")===0, which would disable the warning)', () => {
+    localStorage.setItem(KEY, '   ');
+    expect(renderHook(() => useStaminaWarnThreshold()).result.current[0]).toBe(0.95);
+  });
 });

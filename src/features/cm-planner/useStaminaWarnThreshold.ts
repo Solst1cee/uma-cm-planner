@@ -14,9 +14,9 @@ export function clampThreshold(n: number): number {
 function read(): number {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw == null) return DEFAULT_STAMINA_WARN_THRESHOLD;
-    const n = Number(raw);
-    return Number.isFinite(n) ? clampThreshold(n) : DEFAULT_STAMINA_WARN_THRESHOLD;
+    // null = nothing stored; blank = Number('')===0 would silently disable the warning.
+    if (raw == null || raw.trim() === '') return DEFAULT_STAMINA_WARN_THRESHOLD;
+    return clampThreshold(Number(raw)); // clampThreshold already defaults non-finite input
   } catch {
     return DEFAULT_STAMINA_WARN_THRESHOLD;
   }
