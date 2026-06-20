@@ -7,6 +7,10 @@ const build: SimBuild = {
   umaId: '', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },
   strategy: 'pace', aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, skills: [],
 };
+const buildB: SimBuild = {
+  umaId: '', stats: { spd: 1100, sta: 750, pow: 950, gut: 480, wit: 820 },
+  strategy: 'pace', aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, skills: [],
+};
 
 describe('handleSimRequest', () => {
   it('handles a skillDelta request', () => {
@@ -22,6 +26,14 @@ describe('handleSimRequest', () => {
   it('handles a vacuum request with first-place rates', () => {
     const res = handleSimRequest({ id: 3, kind: 'vacuum', a: build, b: build, race: { courseId: '10101' }, nsamples: 10, seed: 2 });
     expect(res.ok && res.kind === 'vacuum').toBe(true);
+  });
+});
+
+describe('handleSimRequest — raceCompare', () => {
+  it('handles raceCompare', () => {
+    const res = handleSimRequest({ id: 9, kind: 'raceCompare', uma1: build, uma2: buildB, race: { courseId: '10101' }, nsamples: 8, seed: 1 });
+    expect(res.ok).toBe(true);
+    if (res.ok && res.kind === 'raceCompare') expect(res.result.nsamples).toBe(8);
   });
 });
 

@@ -31,6 +31,19 @@ describe('SimClient error handling', () => {
   });
 });
 
+const buildA = { umaId: '', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 }, strategy: 'pace' as const, aptitudes: { distance: 'A' as const, surface: 'A' as const, strategy: 'A' as const }, skills: [] };
+const buildB = { umaId: '', stats: { spd: 1100, sta: 750, pow: 950, gut: 480, wit: 820 }, strategy: 'pace' as const, aptitudes: { distance: 'A' as const, surface: 'A' as const, strategy: 'A' as const }, skills: [] };
+
+describe('SimClient raceCompare', () => {
+  it('raceCompare posts kind:raceCompare and resolves result', async () => {
+    const client = new SimClient(() => new FakeWorker() as unknown as Worker);
+    const out = await client.raceCompare(buildA, buildB, { courseId: '10101' }, 20, 1);
+    expect(out.distance).toBeGreaterThan(0);
+    expect(out.nsamples).toBe(20);
+    expect(typeof out.meanBashin).toBe('number');
+  });
+});
+
 describe('SimClient', () => {
   it('resolves a skillDelta request to BashinStats', async () => {
     const client = new SimClient(() => new FakeWorker() as unknown as Worker);
