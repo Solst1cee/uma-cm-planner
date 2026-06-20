@@ -102,9 +102,9 @@ describe('planToOverlayBuild', () => {
     const p = plan({
       uniqueSkillId: 'U1',
       wishlist: [
-        { skillId: 'S1', priority: 'high', source: 'targeted' },
-        { skillId: 'S2', priority: 'low', source: 'targeted' },
-        { skillId: 'U1', priority: 'low', source: 'targeted' }, // dup of unique
+        { skillId: 'S1', priority: 1, source: 'targeted' },
+        { skillId: 'S2', priority: 3, source: 'targeted' },
+        { skillId: 'U1', priority: 3, source: 'targeted' }, // dup of unique
       ],
     });
     const build = planToOverlayBuild(p);
@@ -116,7 +116,7 @@ describe('planToOverlayBuild', () => {
   it('drops empty ids and a missing unique', () => {
     const p = plan({
       uniqueSkillId: '',
-      wishlist: [{ skillId: 'S1', priority: 'high', source: 'targeted' }],
+      wishlist: [{ skillId: 'S1', priority: 1, source: 'targeted' }],
     });
     expect(planToOverlayBuild(p).skills).toEqual(['S1']);
   });
