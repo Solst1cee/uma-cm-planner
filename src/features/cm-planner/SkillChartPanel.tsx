@@ -254,7 +254,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         type="number" min={0} max={100} step={5}
                         aria-label="Stamina warning threshold (%)"
                         value={Math.round(warnThreshold * 100)}
-                        onChange={(e) => setWarnThreshold(Number(e.target.value) / 100)}
+                        onChange={(e) => { const v = e.target.value; if (v !== '') setWarnThreshold(Number(v) / 100); }}
                       />
                       %
                     </label>
