@@ -116,6 +116,13 @@ describe('chartBaselineBuild', () => {
     ] });
     expect(chartBaselineBuild(p, skillById).skills).toEqual(['200332']);
   });
+
+  it('falls back to the raw id for an unresolvable wishlist id (no undefined injected)', () => {
+    // wishlistSkillId returns the raw id when skillById has no entry; the engine-side
+    // simulatableBase filter is what drops it later. Guards against a future null return.
+    const p = plan({ wishlist: [{ skillId: 'nope', priority: 1, source: 'targeted' }] });
+    expect(chartBaselineBuild(p, skillById).skills).toEqual(['nope']);
+  });
 });
 
 describe('planToSimBuild', () => {
