@@ -114,3 +114,39 @@ describe('skillImpact', () => {
     expect(skillImpact(zero, { courseId: '10101' }, '200332', 10, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
   });
 });
+
+import { runRaceCompare } from './run';
+
+describe('runRaceCompare', () => {
+  const uma1: SimBuild = { ...build, skills: ['200332'] };       // Corner Adept ○
+  const uma2: SimBuild = { ...buildB, skills: [] };
+
+  it('maps both runners + gap over a real run', () => {
+    const rc = runRaceCompare(uma1, uma2, { courseId: '10101' }, 20, 42);
+    expect(rc.nsamples).toBe(20);
+    expect(rc.distance).toBeGreaterThan(0);
+    expect(Number.isFinite(rc.meanBashin)).toBe(true);
+    const m = rc.runs.median;
+    expect(m.uma1Frames.length).toBeGreaterThan(0);
+    expect(m.uma2Frames.length).toBeGreaterThan(0);
+    // gap is computed at uma1 positions, value = (pos1 - pos2)/2.5
+    expect(m.gap.length).toBe(m.uma1Frames.length);
+    expect(m.gap[0]!.pos).toBeCloseTo(m.uma1Frames[0]!.pos, 5);
+    // uma1 has a skill → at least one activation region somewhere across the reps
+    const anyAct = Object.values(rc.runs).some((r) => r.uma1Acts.length > 0);
+    expect(anyAct).toBe(true);
+  });
+
+  it('is deterministic for a fixed seed', () => {
+    const a = runRaceCompare(uma1, uma2, { courseId: '10101' }, 15, 7);
+    const b = runRaceCompare(uma1, uma2, { courseId: '10101' }, 15, 7);
+    expect(b.meanBashin).toBe(a.meanBashin);
+    expect(b.runs.median.gap.map((g) => g.bashin)).toEqual(a.runs.median.gap.map((g) => g.bashin));
+  });
+
+  it('guards 0-speed and nsamples<1 (empty, no crash)', () => {
+    const dead: SimBuild = { ...uma1, stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 } };
+    expect(runRaceCompare(dead, uma2, { courseId: '10101' }, 10, 1).nsamples).toBe(0);
+    expect(runRaceCompare(uma1, uma2, { courseId: '10101' }, 0, 1).nsamples).toBe(0);
+  });
+});

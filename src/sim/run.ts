@@ -1,7 +1,7 @@
 import { runSkillComparison, skillsService, runComparison, runPlannerComparison } from '@/sim/vendor/umalator.bundle.mjs';
 import type { SimulationRun } from '@/sim/vendor/umalator.bundle.mjs';
 import { toRunnerState, toRaceDef, resolveCourse, bashinStatsFrom } from './adapter';
-import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillImpact } from './types';
+import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillImpact, RaceCompare, RaceCompareRun, RaceActivation, GapPoint } from './types';
 
 const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
 
@@ -155,5 +155,68 @@ export function runSkillTrace(
     },
     meanL: _mean(results),
     nsamples: results.length,
+  };
+}
+
+function allActivationRegions(run: SimulationRun, runner: 0 | 1): RaceActivation[] {
+  const acts = run.skillActivations[runner] ?? {};
+  const out: RaceActivation[] = [];
+  for (const [skillId, logs] of Object.entries(acts)) {
+    for (const l of logs) out.push({ skillId, start: l.start, end: l.end });
+  }
+  return out;
+}
+
+function gapCurve(run: SimulationRun): GapPoint[] {
+  const p1 = run.position[0], p2 = run.position[1];
+  const n = Math.min(p1.length, p2.length);
+  const out: GapPoint[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = p1[i] ?? 0, b = p2[i] ?? 0;
+    out.push({ pos: a, bashin: (a - b) / 2.5 });
+  }
+  return out;
+}
+
+function mapCompareRun(run: SimulationRun): RaceCompareRun {
+  return {
+    uma1Frames: zipFrames(run, 0),
+    uma2Frames: zipFrames(run, 1),
+    uma1Acts: allActivationRegions(run, 0),
+    uma2Acts: allActivationRegions(run, 1),
+    gap: gapCurve(run),
+  };
+}
+
+function emptyCompareRun(): RaceCompareRun {
+  return { uma1Frames: [], uma2Frames: [], uma1Acts: [], uma2Acts: [], gap: [] };
+}
+const EMPTY_RACE_COMPARE: RaceCompare = {
+  runs: { min: emptyCompareRun(), max: emptyCompareRun(), mean: emptyCompareRun(), median: emptyCompareRun() },
+  distance: 0, nsamples: 0, meanBashin: 0,
+};
+
+/** Full-race two-build comparison (umalator main view): both runners' per-frame
+ *  trace + all-skill activations + バ身-gap curve, from one runComparison sim. */
+export function runRaceCompare(
+  uma1: SimBuild, uma2: SimBuild, race: SimRaceParams, nsamples: number, seed = 0,
+): RaceCompare {
+  if (nsamples < 1 || uma1.stats.spd <= 0 || uma2.stats.spd <= 0) return EMPTY_RACE_COMPARE;
+  const course = resolveCourse(race.courseId);
+  const r = runComparison({
+    nsamples, course, racedef: toRaceDef(race),
+    uma1: toRunnerState(uma1), uma2: toRunnerState(uma2),
+    options: { seed, ignoreStaminaConsumption: false },
+  });
+  return {
+    runs: {
+      min: mapCompareRun(r.runData.minrun),
+      max: mapCompareRun(r.runData.maxrun),
+      mean: mapCompareRun(r.runData.meanrun),
+      median: mapCompareRun(r.runData.medianrun),
+    },
+    distance: typeof course.distance === 'number' ? course.distance : 0,
+    nsamples: r.results.length,
+    meanBashin: _mean(r.results),
   };
 }
