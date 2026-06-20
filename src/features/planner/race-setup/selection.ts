@@ -4,8 +4,11 @@
  * conditions-chip formatter.
  */
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
-import type { Ground, RacePreset, Season, Weather } from './presets';
+import type { Ground, Season, Weather } from '@/core/raceConditions';
+import type { RacePreset } from './presets';
 import { trackName } from './trackCatalog';
+
+export type { Ground, Season, Weather } from '@/core/raceConditions';
 
 export interface RaceConditions {
   ground: Ground;
