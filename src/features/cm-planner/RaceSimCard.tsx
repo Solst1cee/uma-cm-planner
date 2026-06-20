@@ -5,13 +5,14 @@ import './race-compare.css';
 import { useEffect, useRef, useState } from 'react';
 import { RunChoiceToggle } from './skill-trace/SkillTraceCharts';
 import { Uma2PickerPopover } from './Uma2PickerPopover';
+import { Uma2Card } from './Uma2Card';
 import type { RaceCompareController } from './useRaceCompareController';
 
 export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
   const { uma2Id, setUma2Id, showHp, setShowHp, others, state, comparing } = ctl;
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickRef = useRef<HTMLDivElement>(null);
-  const selectedName = uma2Id ? others.find((p) => p.id === uma2Id)?.name ?? 'Selected plan' : 'None (course only)';
+  const uma2Plan = uma2Id ? others.find((p) => p.id === uma2Id) : undefined;
 
   // Close the popover on click-outside / Esc (the page stays interactive — no modal backdrop).
   useEffect(() => {
@@ -42,22 +43,29 @@ export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
         <div className="cmp-rc-field">
           <span>Compare against</span>
           <div className="cmp-rc-pick" ref={pickRef}>
-            <span className="cmp-rc-pick-name" title={selectedName}>
-              {others.length === 0 ? 'Save another plan to compare' : selectedName}
-            </span>
-            <button
-              type="button"
-              className="cmp-inventory-icon-btn cmp-rc-pick-trigger"
-              aria-label="Compare against"
-              aria-haspopup="dialog"
-              aria-expanded={pickerOpen}
-              disabled={others.length === 0}
-              onClick={() => setPickerOpen((o) => !o)}
-            >
-              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                <path d="M3 3h6v6H3V3Zm8 0h6v6h-6V3ZM3 11h6v6H3v-6Zm8 0h6v6h-6v-6Z" />
-              </svg>
-            </button>
+            <div className="cmp-rc-pick-head">
+              <span className="cmp-rc-pick-label">
+                {others.length === 0
+                  ? 'Save another plan to compare'
+                  : uma2Plan
+                    ? 'Comparing against'
+                    : 'None (course only)'}
+              </span>
+              <button
+                type="button"
+                className="cmp-inventory-icon-btn cmp-rc-pick-trigger"
+                aria-label="Compare against"
+                aria-haspopup="dialog"
+                aria-expanded={pickerOpen}
+                disabled={others.length === 0}
+                onClick={() => setPickerOpen((o) => !o)}
+              >
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 3h6v6H3V3Zm8 0h6v6h-6V3ZM3 11h6v6H3v-6Zm8 0h6v6h-6v-6Z" />
+                </svg>
+              </button>
+            </div>
+            {uma2Plan && <Uma2Card plan={uma2Plan} />}
             {pickerOpen && (
               <Uma2PickerPopover
                 plans={others}

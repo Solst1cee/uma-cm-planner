@@ -28,29 +28,28 @@ function VelocityAxis({ box, vMax }: { box: Box; vMax: number }) {
   );
 }
 
-/** Skill activations over the full velocity area: a tall vertical marker (or shaded zone for
- *  duration skills) at the fire position, with the skill name labelled vertically beside it. */
-function MarkerLayer({ acts, distance, box, cls, skillName }: {
-  acts: RaceActivation[]; distance: number; box: Box; cls: string; skillName: (id: string) => string;
+const LANE_H = 12; // short skill-marker lane height
+
+/** Skill activations in a short horizontal lane: a tick (or a shaded bar for duration skills) at
+ *  the fire position + the skill name as horizontal text. Each uma gets its own lane (no overlap
+ *  between runners); `laneY` stacks them (red above blue). */
+function MarkerLayer({ acts, distance, box, laneY, cls, skillName }: {
+  acts: RaceActivation[]; distance: number; box: Box; laneY: number; cls: string; skillName: (id: string) => string;
 }) {
   const zones = activationZonesByPos(acts, box, distance);
   return (
-    <g className={`ro-marks ${cls}`}>
+    <g className={`ro-marks ${cls}`} transform={`translate(0, ${laneY})`}>
       {acts.map((a, i) => {
         const z = zones[i]!;
         const duration = a.end - a.start > 1;
-        const name = skillName(a.skillId);
         return (
           <g key={i} transform={`translate(${z.x}, 0)`}>
             {duration ? (
-              <rect className={`ro-zone ${cls}`} x={0} y={0} width={z.w} height={box.h} />
+              <rect className={`ro-zone ${cls}`} x={0} y={0} width={z.w} height={LANE_H} />
             ) : (
-              <line className={`ro-marker ${cls}`} x1={0} x2={0} y1={0} y2={box.h} />
+              <line className={`ro-marker ${cls}`} x1={0} x2={0} y1={0} y2={LANE_H} />
             )}
-            <circle className={`ro-marker-dot ${cls}`} cx={0} cy={box.h} r={2.2} />
-            <text className="ro-mark-label" x={3} y={box.h - 3} transform={`rotate(-90, 3, ${box.h - 3})`}>
-              {name}
-            </text>
+            <text className="ro-mark-label" x={2.5} y={LANE_H - 3}>{skillName(a.skillId)}</text>
           </g>
         );
       })}
@@ -81,9 +80,9 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
         <polyline className="ro-velo is-uma2" points={v2} fill="none" />
         <polyline className="ro-velo is-uma1" points={v1} fill="none" />
       </g>
-      {/* skill markers + labels (drawn on top, over the full velocity area) */}
-      <MarkerLayer acts={run.uma1Acts} distance={distance} box={velo} cls="is-uma1" skillName={skillName} />
-      <MarkerLayer acts={run.uma2Acts} distance={distance} box={velo} cls="is-uma2" skillName={skillName} />
+      {/* skill markers in two short lanes near the bottom — red (uma2) above blue (uma1) */}
+      <MarkerLayer acts={run.uma2Acts} distance={distance} box={velo} laneY={velo.h - 2 * LANE_H - 2} cls="is-uma2" skillName={skillName} />
+      <MarkerLayer acts={run.uma1Acts} distance={distance} box={velo} laneY={velo.h - LANE_H} cls="is-uma1" skillName={skillName} />
       {/* gap sub-band */}
       <g transform={`translate(0, ${D.OverlayVeloHeight + 6})`}>
         <line className="ro-gap-zero" x1={0} y1={gapBox.h / 2} x2={gapBox.w} y2={gapBox.h / 2} />

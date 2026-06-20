@@ -49,4 +49,11 @@ describe('RaceSimCard', () => {
     expect(headline.textContent).toMatch(/\+2\.50/);
     expect(screen.getByText(/show hp/i)).toBeTruthy();
   });
+
+  it('renders the selected uma2 as an inventory-style card', () => {
+    const { container } = render(<RaceSimCard ctl={ctl({ comparing: true, uma2Id: 'B' })} />);
+    const card = container.querySelector('.cmp-uma2-card');
+    expect(card).toBeTruthy();
+    expect(card?.textContent).toContain('Rival B');
+  });
 });

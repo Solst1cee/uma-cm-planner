@@ -17,19 +17,24 @@
 .cmp-racesim-card.cmp-plan-card { overflow: visible; }
 .cmp-racesim-card .cmp-plan-card-head { border-radius: 11px 11px 0 0; }
 
-.cmp-rc-pick { position: relative; display: flex; align-items: center; gap: 0.4rem; }
-.cmp-rc-pick-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.35rem 0.55rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-2);
-}
+.cmp-rc-pick { position: relative; display: flex; flex-direction: column; gap: 0.4rem; }
+.cmp-rc-pick-head { display: flex; align-items: center; gap: 0.4rem; }
+.cmp-rc-pick-label { flex: 1 1 auto; min-width: 0; color: var(--fg-muted); font-size: 0.85rem; }
 .cmp-rc-pick-trigger { flex: 0 0 auto; }
+
+/* selected uma2 — inventory-style card with a red/maroon accent (uma2 = red theme) */
+.cmp-uma2-card {
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #dc2626;
+  border-left: 3px solid #b91c1c;
+  border-radius: 8px;
+  background: rgb(220 38 38 / 0.06);
+}
+.cmp-uma2-card .cmp-inventory-plan-main { display: flex; flex-direction: column; min-width: 0; }
+.cmp-uma2-card .cmp-inventory-plan-main strong { color: #b91c1c; }
+.cmp-uma2-card .cmp-inventory-plan-main span { font-size: 0.8rem; color: var(--fg-muted); }
 
 /* anchored popover (drops under the trigger row; page stays interactive) */
 .cmp-uma2-pop {

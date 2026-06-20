@@ -2,11 +2,9 @@
  *  the page stays interactive) for choosing uma2. Lists eligible saved plans as selectable rows
  *  (portrait + name + stats), plus a "no comparison" option. Closing is handled by the caller
  *  (click-outside / Esc on the trigger wrapper). */
-import type { CmPlan, Stat } from '@/core/types';
+import type { CmPlan } from '@/core/types';
 import { GameIcon } from '@/features/data/GameIcon';
-
-const STAT_ORDER: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
-const statLine = (p: CmPlan): string => STAT_ORDER.map((s) => p.statProfile.stats[s]).join(' / ');
+import { statLine } from './planSummary';
 
 export function Uma2PickerPopover({
   plans, selectedId, onSelect,
