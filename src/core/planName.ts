@@ -6,7 +6,7 @@ function displayToken(value: string): string {
 
 export function generatePlanName(plan: CmPlan, umaName: string | undefined, raceNameLabel?: string): string {
   const parts = [
-    raceNameLabel ?? (plan.cmRef.cmNumber > 0 ? `CM${plan.cmRef.cmNumber}` : plan.cmRef.cmId),
+    raceNameLabel ?? (plan.cmRef.kind === 'cm' ? `CM${plan.cmRef.cmNumber}` : 'Custom'),
     umaName ?? (plan.umaId ? `Uma ${plan.umaId}` : 'No Uma'),
     displayToken(plan.role),
     displayToken(plan.strategy),

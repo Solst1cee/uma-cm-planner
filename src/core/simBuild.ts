@@ -19,23 +19,29 @@ function sameAptKey(a: AptKey, b: AptKey): boolean {
   return a.kind === b.kind && a.key === b.key;
 }
 
+/** Resolved race fields needed by aptitude functions (supplied by caller from the CM timeline or custom fields). */
+export interface ResolvedRace {
+  distance: number;
+  surface: 'turf' | 'dirt';
+}
+
 /** The AptKey used to store a plan's active target aptitude for each dimension. */
-function aptKeyFor(plan: CmPlan, dim: AptDim): AptKey {
-  if (dim === 'distance') return { kind: 'distance' as const, key: distanceClass(plan.cmRef.distance) };
-  if (dim === 'surface') return { kind: 'surface' as const, key: plan.cmRef.surface };
+function aptKeyFor(plan: CmPlan, dim: AptDim, race: ResolvedRace): AptKey {
+  if (dim === 'distance') return { kind: 'distance' as const, key: distanceClass(race.distance) };
+  if (dim === 'surface') return { kind: 'surface' as const, key: race.surface };
   return { kind: 'strategy' as const, key: plan.strategy };
 }
 
-export function currentAptitudeKeys(plan: CmPlan): { distance: AptKey; surface: AptKey; strategy: AptKey } {
+export function currentAptitudeKeys(plan: CmPlan, race: ResolvedRace): { distance: AptKey; surface: AptKey; strategy: AptKey } {
   return {
-    distance: aptKeyFor(plan, 'distance'),
-    surface: aptKeyFor(plan, 'surface'),
-    strategy: aptKeyFor(plan, 'strategy'),
+    distance: aptKeyFor(plan, 'distance', race),
+    surface: aptKeyFor(plan, 'surface', race),
+    strategy: aptKeyFor(plan, 'strategy', race),
   };
 }
 
-export function isCurrentAptitude(plan: CmPlan, aptKey: AptKey): boolean {
-  return Object.values(currentAptitudeKeys(plan)).some((current) => sameAptKey(current, aptKey));
+export function isCurrentAptitude(plan: CmPlan, aptKey: AptKey, race: ResolvedRace): boolean {
+  return Object.values(currentAptitudeKeys(plan, race)).some((current) => sameAptKey(current, aptKey));
 }
 
 function storedTargetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
@@ -47,16 +53,16 @@ function storedTargetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
  * defaults to S (displayed as A/S in the UI) because S requires pink inheritance;
  * the active surface and strategy default to A.
  */
-function defaultTargetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
-  const current = currentAptitudeKeys(plan);
+function defaultTargetAptitude(plan: CmPlan, aptKey: AptKey, race: ResolvedRace): Grade | undefined {
+  const current = currentAptitudeKeys(plan, race);
   if (sameAptKey(aptKey, current.distance)) return 'S';
   if (sameAptKey(aptKey, current.surface)) return 'A';
   if (sameAptKey(aptKey, current.strategy)) return 'A';
   return undefined;
 }
 
-export function targetAptitude(plan: CmPlan, aptKey: AptKey): Grade | undefined {
-  return storedTargetAptitude(plan, aptKey) ?? defaultTargetAptitude(plan, aptKey);
+export function targetAptitude(plan: CmPlan, aptKey: AptKey, race: ResolvedRace): Grade | undefined {
+  return storedTargetAptitude(plan, aptKey) ?? defaultTargetAptitude(plan, aptKey, race);
 }
 
 export function setTargetAptitudeByKey(plan: CmPlan, aptKey: AptKey, grade: Grade | ''): CmPlan {
@@ -78,26 +84,26 @@ export function setStrategyTargetAptitude(
 }
 
 /** Upsert a target aptitude grade for a dimension (keyed by course/strategy). Returns a new plan. */
-export function setTargetAptitude(plan: CmPlan, dim: AptDim, grade: Grade): CmPlan {
-  return setTargetAptitudeByKey(plan, aptKeyFor(plan, dim), grade);
+export function setTargetAptitude(plan: CmPlan, dim: AptDim, grade: Grade, race: ResolvedRace): CmPlan {
+  return setTargetAptitudeByKey(plan, aptKeyFor(plan, dim, race), grade);
 }
 
 /** Read the three SimBuild aptitude grades from sparkGoals.pink and active defaults. */
-export function simAptitudes(plan: CmPlan): { distance: Grade; surface: Grade; strategy: Grade } {
-  const current = currentAptitudeKeys(plan);
+export function simAptitudes(plan: CmPlan, race: ResolvedRace): { distance: Grade; surface: Grade; strategy: Grade } {
+  const current = currentAptitudeKeys(plan, race);
   return {
-    distance: targetAptitude(plan, current.distance) ?? 'A',
-    surface: targetAptitude(plan, current.surface) ?? 'A',
-    strategy: targetAptitude(plan, current.strategy) ?? 'A',
+    distance: targetAptitude(plan, current.distance, race) ?? 'A',
+    surface: targetAptitude(plan, current.surface, race) ?? 'A',
+    strategy: targetAptitude(plan, current.strategy, race) ?? 'A',
   };
 }
 
-export function planToSimBuild(plan: CmPlan): SimBuild {
+export function planToSimBuild(plan: CmPlan, race: ResolvedRace): SimBuild {
   return {
     umaId: plan.umaId,
     stats: plan.statProfile.stats,
     strategy: plan.strategy,
-    aptitudes: simAptitudes(plan),
+    aptitudes: simAptitudes(plan, race),
     skills: [],
     mood: plan.statProfile.mood,
   };

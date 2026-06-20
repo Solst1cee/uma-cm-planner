@@ -10,9 +10,12 @@ import {
   targetAptitude,
 } from './simBuild';
 
+const RACE = { distance: 2200, surface: 'turf' as const };
+
 function plan(over: Partial<CmPlan> = {}): CmPlan {
   return {
-    id: 'p', name: 'p', planNumber: 1, cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    id: 'p', name: 'p', planNumber: 1,
+    cmRef: { kind: 'custom', courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'sunny', season: 'summer' },
     umaId: '100101', uniqueSkillId: '', role: 'ace', strategy: 'pace',
     statProfile: { stats: { spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},
@@ -31,7 +34,7 @@ describe('distanceClass', () => {
 
 describe('simAptitudes', () => {
   it('prefills active distance as S and active surface/strategy as A when no spark goals are set', () => {
-    expect(simAptitudes(plan())).toEqual({ distance: 'S', surface: 'A', strategy: 'A' });
+    expect(simAptitudes(plan(), RACE)).toEqual({ distance: 'S', surface: 'A', strategy: 'A' });
   });
   it('reads target grades from sparkGoals.pink by the course/strategy keys', () => {
     const p = plan({ sparkGoals: { pink: [
@@ -39,26 +42,26 @@ describe('simAptitudes', () => {
       { aptKey: { kind: 'surface', key: 'turf' }, target: 'B' },
       { aptKey: { kind: 'strategy', key: 'pace' }, target: 'C' },
     ], blue: {} } });
-    expect(simAptitudes(p)).toEqual({ distance: 'S', surface: 'B', strategy: 'C' });
+    expect(simAptitudes(p, RACE)).toEqual({ distance: 'S', surface: 'B', strategy: 'C' });
   });
 });
 
 describe('setTargetAptitude', () => {
   it('upserts the matching pink goal keyed by course/strategy', () => {
-    const p = setTargetAptitude(plan(), 'distance', 'S');
+    const p = setTargetAptitude(plan(), 'distance', 'S', RACE);
     expect(p.sparkGoals.pink).toContainEqual({ aptKey: { kind: 'distance', key: 'medium' }, target: 'S' });
-    const p2 = setTargetAptitude(p, 'distance', 'B'); // replace, not duplicate
+    const p2 = setTargetAptitude(p, 'distance', 'B', RACE); // replace, not duplicate
     expect(p2.sparkGoals.pink.filter((g) => g.aptKey.kind === 'distance')).toHaveLength(1);
-    expect(simAptitudes(p2).distance).toBe('B');
+    expect(simAptitudes(p2, RACE).distance).toBe('B');
   });
 
   it('sets and clears an explicit non-current aptitude target by key', () => {
     const p = setTargetAptitudeByKey(plan(), { kind: 'surface', key: 'dirt' }, 'B');
-    expect(targetAptitude(p, { kind: 'surface', key: 'dirt' })).toBe('B');
-    expect(simAptitudes(p).surface).toBe('A');
+    expect(targetAptitude(p, { kind: 'surface', key: 'dirt' }, RACE)).toBe('B');
+    expect(simAptitudes(p, RACE).surface).toBe('A');
 
     const cleared = setTargetAptitudeByKey(p, { kind: 'surface', key: 'dirt' }, '');
-    expect(targetAptitude(cleared, { kind: 'surface', key: 'dirt' })).toBeUndefined();
+    expect(targetAptitude(cleared, { kind: 'surface', key: 'dirt' }, RACE)).toBeUndefined();
   });
 
   it('keeps only the selected strategy aptitude target', () => {
@@ -85,7 +88,7 @@ describe('setTargetAptitude', () => {
 
 describe('planToSimBuild', () => {
   it('maps stats/strategy/mood/aptitudes and uses an empty skill base (chart vacuum)', () => {
-    const b = planToSimBuild(plan());
+    const b = planToSimBuild(plan(), RACE);
     expect(b.stats).toEqual({ spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 });
     expect(b.strategy).toBe('pace');
     expect(b.mood).toBe(0);

@@ -1,7 +1,35 @@
-import type { AptKey, CmPlan, Stat } from '@/core/types';
-import { distanceClass, targetAptitude } from '@/core/simBuild';
+import type { AptKey, CmPlan, CmRefV2, Stat } from '@/core/types';
+import { distanceClass, targetAptitude, type ResolvedRace } from '@/core/simBuild';
 
 const STATS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
+
+/**
+ * Derive a ResolvedRace for aptitude-default computation from the plan's cmRef.
+ * For kind:'cm' plans the actual track is in the timeline (not in the plan), so
+ * we use a sentinel that won't match any real aptKey — stored goals still compare
+ * correctly and the sentinel is consistent across all cm plans with the same cmRef.
+ */
+function resolvedRaceFromCmRef(cmRef: CmRefV2): ResolvedRace {
+  if (cmRef.kind === 'custom') return { distance: cmRef.distance, surface: cmRef.surface };
+  // kind:'cm': sentinel — real defaults come from the UI layer that has the timeline lookup
+  return { distance: 0, surface: 'turf' };
+}
+
+function trackKey(cmRef: CmRefV2): unknown {
+  if (cmRef.kind === 'cm') {
+    return { kind: 'cm', cmNumber: cmRef.cmNumber };
+  }
+  return {
+    kind: 'custom',
+    courseId: cmRef.courseId,
+    surface: cmRef.surface,
+    distance: cmRef.distance,
+    distanceClass: distanceClass(cmRef.distance),
+    ground: cmRef.ground,
+    weather: cmRef.weather,
+    season: cmRef.season,
+  };
+}
 
 function aptKeyToken(aptKey: AptKey): string {
   return `${aptKey.kind}:${aptKey.key}`;
@@ -20,20 +48,16 @@ function contentAptitudeKeys(plan: CmPlan): AptKey[] {
 }
 
 export function planContentKey(plan: CmPlan): string {
+  const race = resolvedRaceFromCmRef(plan.cmRef);
   const aptitudes = contentAptitudeKeys(plan)
-    .map((aptKey) => `${aptKeyToken(aptKey)}=${targetAptitude(plan, aptKey) ?? ''}`)
+    .map((aptKey) => `${aptKeyToken(aptKey)}=${targetAptitude(plan, aptKey, race) ?? ''}`)
     .sort();
   const skills = plan.wishlist.map((item) => item.skillId).sort();
   const stats = STATS.map((stat) => `${stat}:${plan.statProfile.stats[stat] ?? 0}`);
 
   return JSON.stringify({
     umaId: plan.umaId,
-    track: {
-      courseId: plan.cmRef.courseId,
-      surface: plan.cmRef.surface,
-      distance: plan.cmRef.distance,
-      distanceClass: distanceClass(plan.cmRef.distance),
-    },
+    track: trackKey(plan.cmRef),
     stats,
     aptitudes,
     skills,
@@ -47,12 +71,7 @@ export function isSamePlanContent(a: CmPlan, b: CmPlan): boolean {
 export function planVersionGroupKey(plan: CmPlan): string {
   return JSON.stringify({
     umaId: plan.umaId,
-    track: {
-      courseId: plan.cmRef.courseId,
-      surface: plan.cmRef.surface,
-      distance: plan.cmRef.distance,
-      distanceClass: distanceClass(plan.cmRef.distance),
-    },
+    track: trackKey(plan.cmRef),
   });
 }
 

@@ -250,19 +250,13 @@ describe('export/import captures', () => {
   });
 });
 
-// Base plan object with all required fields, using a new-shape kind:'cm' cmRef.
-const CM_PLAN_BASE = {
-  ...FIXTURE_PLAN,
-  cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
-} as unknown as typeof FIXTURE_PLAN;
-
 describe('parseCmPlan cmRef normalization', () => {
   it('legacy-flat cm ref (cmNumber>0) → kind:cm, drops embedded track fields', () => {
     const legacyFlat = {
       ...FIXTURE_PLAN,
       cmRef: { cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200, condition: 'good', weather: 'cloudy', season: 'summer' },
     };
-    const [parsed] = parsePlanFile([legacyFlat]);
+    const parsed = parsePlanFile([legacyFlat])[0]!;
     expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
   });
 
@@ -271,7 +265,7 @@ describe('parseCmPlan cmRef normalization', () => {
       ...FIXTURE_PLAN,
       cmRef: { cmId: 'CM0', cmNumber: 0, courseId: '10606', surface: 'turf', distance: 2400 },
     };
-    const [parsed] = parsePlanFile([legacyCustom]);
+    const parsed = parsePlanFile([legacyCustom])[0]!;
     expect(parsed.cmRef).toMatchObject({ kind: 'custom', courseId: '10606' });
   });
 
@@ -280,7 +274,7 @@ describe('parseCmPlan cmRef normalization', () => {
       ...FIXTURE_PLAN,
       cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15 },
     };
-    const [parsed] = parsePlanFile([newShape]);
+    const parsed = parsePlanFile([newShape])[0]!;
     expect(parsed.cmRef).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15 });
   });
 
