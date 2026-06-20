@@ -601,8 +601,8 @@ describe('CmPlannerPage', () => {
     expect(within(inventory).getByText('Hanshin Trial')).toBeInTheDocument();
   });
 
-  it('renders the Race comparison panel', async () => {
+  it('renders the on-track compare control', async () => {
     render(<CmPlannerPage />);
-    expect(await screen.findByText(/Race comparison/i)).toBeTruthy();
+    expect(await screen.findByLabelText(/compare against/i)).toBeTruthy();
   });
 });

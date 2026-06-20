@@ -1,3 +1,6 @@
-.cmp-race-compare .cmp-rc-headline { margin-left: auto; font-weight: 600; }
-.cmp-race-compare .cmp-rc-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-.cmp-race-compare .cmp-rc-caveat { margin-top: 6px; }
+/* Comparison controls + overlay readouts live ON the §0 track card (umalator main view). */
+.cmp-track-card .cmp-track-head { display: flex; align-items: center; gap: 8px; }
+.cmp-track-card .cmp-rc-headline { margin-left: auto; font-weight: 600; }
+.cmp-track-card .cmp-rc-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.cmp-track-card .cmp-rc-hp { display: inline-flex; align-items: center; gap: 4px; }
+.cmp-track-card .cmp-rc-caveat { margin-top: 6px; }

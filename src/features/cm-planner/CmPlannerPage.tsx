@@ -16,7 +16,7 @@ import { PlannerSidebar } from './PlannerSidebar';
 import { SkillChartPanel } from './SkillChartPanel';
 import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
-import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
+import { TrackComparePanel } from './TrackComparePanel';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import {
   describeSelection,
@@ -25,7 +25,6 @@ import {
 } from '@/features/planner/race-setup/selection';
 import { cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
 import { PlanInventoryCard } from './PlanInventoryCard';
-import { RaceComparePanel } from './RaceComparePanel';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -193,19 +192,14 @@ export function CmPlannerPage() {
           collapseSkillSignal={collapseSkillSignal}
         />
         <div className="cmp-main">
-          <section className="cmp-plan-card cmp-track-card">
-            <header className="cmp-plan-card-head cmp-track-head">{trackTitle}</header>
-            <div className="cmp-plan-card-body cmp-track-body">
-              <RaceTrackView courseId={selection.courseId} />
-              <div className="cmp-conditions" aria-label="Race conditions">
-                {describeSelection(selection).map((chip) => (
-                  <span key={chip} className="cmp-chip">
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </section>
+          <TrackComparePanel
+            plan={plan}
+            savedPlans={savedPlans}
+            courseId={selection.courseId}
+            trackTitle={trackTitle}
+            conditionChips={describeSelection(selection)}
+            skillName={(id) => skillById?.get(id)?.nameEn ?? id}
+          />
           <RaceSetup options={options} selection={selection} onChange={handleRaceChange} />
           <UmaChartPanel
             courseId={selection.courseId}
@@ -218,13 +212,6 @@ export function CmPlannerPage() {
             plan={plan}
             collapseSkillSignal={collapseSkillSignal}
             onChange={setPlan}
-          />
-          <RaceComparePanel
-            plan={plan}
-            savedPlans={savedPlans}
-            courseId={selection.courseId}
-            collapseSkillSignal={collapseSkillSignal}
-            skillName={(id) => skillById?.get(id)?.nameEn ?? id}
           />
         </div>
       </div>
