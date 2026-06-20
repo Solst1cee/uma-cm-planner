@@ -8,6 +8,7 @@
 import Dexie, { type Table } from 'dexie';
 import type { CmPlan, OwnedCard, Parent } from '@/core/types';
 import type { MatchLog, SettingRecord, StoredCapture } from './types';
+import { normalizeCmRef } from '@/core/cmRace';
 
 export const DB_NAME = 'uma-cm-planner';
 
@@ -41,6 +42,12 @@ export class UmaCmPlannerDb extends Dexie {
     // v3: M2 captures store (CaptureBundle persistence).
     this.version(3).stores({
       captures: 'id, label',
+    });
+    // v4: cmRef → discriminated reference (kind:'cm' | 'custom'). See 2026-06-20 spec.
+    this.version(4).stores({ cmPlans: 'id, name' }).upgrade(async (tx) => {
+      await tx.table('cmPlans').toCollection().modify((plan: { cmRef: unknown }) => {
+        plan.cmRef = normalizeCmRef(plan.cmRef);
+      });
     });
   }
 }

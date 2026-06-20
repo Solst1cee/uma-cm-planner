@@ -44,17 +44,6 @@ export interface CmRaceOption {
   conditions: RaceConditions;
 }
 
-export interface CmRef {
-  cmId: CmId;
-  cmNumber: number;
-  courseId: string;
-  // Superset of the minimal spec CmRef: geometry carried until M3's cm_schedule derives it.
-  surface: 'turf' | 'dirt';
-  distance: number;
-  condition?: string;
-  weather?: string;
-  season?: string;
-}
 export interface ParentSparks {
   pink: Array<{ aptKey: AptKey; stars: 1 | 2 | 3 }>;
   blue: Array<{ stat: Stat; stars: 1 | 2 | 3 }>;
@@ -362,7 +351,7 @@ export interface CmPlan {
   notes?: string;
   planNumber: number;
   remark?: string;
-  cmRef: CmRef;
+  cmRef: CmRefV2;
   scenarioId?: number;
   umaId: string;
   uniqueSkillId: string;
