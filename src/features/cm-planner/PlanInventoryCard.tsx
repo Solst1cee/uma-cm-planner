@@ -170,9 +170,11 @@ export function PlanInventoryCard({
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<{ tone: 'status' | 'error'; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const groupDeleteToolbarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!deleteAllConfirm) return;
@@ -182,6 +184,15 @@ export function PlanInventoryCard({
     document.addEventListener('pointerdown', dismiss);
     return () => document.removeEventListener('pointerdown', dismiss);
   }, [deleteAllConfirm]);
+
+  useEffect(() => {
+    if (!deleteGroupConfirm) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!groupDeleteToolbarRef.current?.contains(event.target as Node)) setDeleteGroupConfirm(null);
+    };
+    document.addEventListener('pointerdown', dismiss);
+    return () => document.removeEventListener('pointerdown', dismiss);
+  }, [deleteGroupConfirm]);
 
   const refreshPlans = useCallback(async () => {
     const courses = await import('@/sim/courseCatalog')
@@ -263,6 +274,18 @@ export function PlanInventoryCard({
     }
   };
 
+  const handleDeleteGroup = async (group: PlanGroup) => {
+    try {
+      for (const plan of group.plans) {
+        await onDeletePlan(plan.id);
+      }
+      setDeleteGroupConfirm(null);
+      setActionMessage(null);
+    } catch {
+      setActionMessage({ tone: 'error', text: `${group.label} plans could not be deleted.` });
+    }
+  };
+
   return (
     <aside className="cmp-plan-inventory" aria-labelledby="cmp-inventory-h">
       <section className="cmp-plan-card">
@@ -332,6 +355,7 @@ export function PlanInventoryCard({
                   disabled={plans.length === 0}
                   onClick={() => {
                     setActionMessage(null);
+                    setDeleteGroupConfirm(null);
                     setDeleteAllConfirm(true);
                   }}
                 >
@@ -388,19 +412,71 @@ export function PlanInventoryCard({
                     <span className="cmp-inventory-group-label">{group.label}</span>
                     <span className="cmp-inventory-count">{group.plans.length}</span>
                   </button>
-                  <button
-                    type="button"
-                    className="cmp-inventory-icon-btn cmp-inventory-action-btn cmp-inventory-group-download"
-                    aria-label={`Download all plans in ${group.label}`}
-                    title="Download all"
-                    onClick={() => downloadAllPlans(group.plans, `${safeFileName(group.label)}-plans.zip`)}
+                  <div
+                    ref={deleteGroupConfirm === group.key ? groupDeleteToolbarRef : undefined}
+                    className="cmp-inventory-group-actions"
                   >
-                    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                      <path d="M9 3h2v6.2l2.6-2.6L15 8l-5 5-5-5 1.4-1.4L9 9.2V3Z" />
-                      <path d="M3 12h2v3h10v-3h2v5H3v-5Z" />
-                    </svg>
-                    <span>Download all</span>
-                  </button>
+                    {deleteGroupConfirm === group.key ? (
+                      <>
+                        <span className="cmp-inventory-confirm-text">Confirm delete all items?</span>
+                        <button
+                          type="button"
+                          className="cmp-inventory-icon-btn is-confirm"
+                          aria-label={`Confirm delete all plans in ${group.label}`}
+                          title={`Confirm delete all plans in ${group.label}`}
+                          onClick={() => void handleDeleteGroup(group)}
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="m4 10.2 3.4 3.4L16 5l1.4 1.4-10 10L2.6 11.6 4 10.2Z" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="cmp-inventory-icon-btn is-cancel"
+                          aria-label={`Cancel delete all plans in ${group.label}`}
+                          title="Cancel"
+                          onClick={() => setDeleteGroupConfirm(null)}
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4.7 4.7 4.7-1.4 1.4-4.7-4.7-4.7 4.7-1.4-1.4L8.6 10 3.9 5.3l1.4-1.4Z" />
+                          </svg>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="cmp-inventory-icon-btn cmp-inventory-action-btn cmp-inventory-group-download"
+                          aria-label={`Download all plans in ${group.label}`}
+                          title="Download all"
+                          onClick={() => downloadAllPlans(group.plans, `${safeFileName(group.label)}-plans.zip`)}
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M9 3h2v6.2l2.6-2.6L15 8l-5 5-5-5 1.4-1.4L9 9.2V3Z" />
+                            <path d="M3 12h2v3h10v-3h2v5H3v-5Z" />
+                          </svg>
+                          <span>Download all</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+                          aria-label={`Delete all plans in ${group.label}`}
+                          title="Delete all"
+                          onClick={() => {
+                            setActionMessage(null);
+                            setDeleteAllConfirm(false);
+                            setDeleteGroupConfirm(group.key);
+                          }}
+                        >
+                          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" />
+                            <path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" />
+                          </svg>
+                          <span>Delete all</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
                   <button
                     type="button"
                     className="cmp-inventory-group-caret-btn"

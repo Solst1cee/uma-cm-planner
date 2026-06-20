@@ -450,9 +450,15 @@ describe('CmPlannerPage', () => {
     expect(within(header!).getByRole('button', { name: 'Download all plans as ZIP' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
     const groupDownloads = within(inventory).getAllByRole('button', { name: /^Download all plans in / });
+    const groupDeletes = within(inventory).getAllByRole('button', { name: /^Delete all plans in / });
     expect(groupDownloads).toHaveLength(2);
-    const groupHead = groupDownloads[0]?.closest('.cmp-inventory-group-head');
-    expect(groupHead?.children[1]).toBe(groupDownloads[0]);
+    expect(groupDeletes).toHaveLength(2);
+    const groupHead = groupDownloads[0]?.closest<HTMLElement>('.cmp-inventory-group-head');
+    const groupActions = groupDownloads[0]?.closest<HTMLElement>('.cmp-inventory-group-actions');
+    expect(groupActions).not.toBeNull();
+    expect(within(groupActions!).getByRole('button', { name: /^Download all plans in / })).toBe(groupDownloads[0]);
+    expect(within(groupActions!).getByRole('button', { name: /^Delete all plans in / })).toBe(groupDeletes[0]);
+    expect(groupHead?.children[1]).toBe(groupActions);
     expect(groupHead?.children[2]).toHaveClass('cmp-inventory-group-caret-btn');
     expect(within(inventory).getByRole('button', { name: 'Download p' })).toBeInTheDocument();
     expect(within(inventory).getByRole('button', { name: 'Download Hanshin Trial' })).toBeInTheDocument();
@@ -494,6 +500,40 @@ describe('CmPlannerPage', () => {
     fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans' }));
 
     await waitFor(() => expect(h.deleteAllSavedPlans).toHaveBeenCalledTimes(1));
+  });
+
+  it('requires inline confirmation for group delete and cancels on outside click', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    fireEvent.click(deleteGroup);
+    const groupHead = within(inventory)
+      .getByRole('button', { name: 'Confirm delete all plans in CM15' })
+      .closest<HTMLElement>('.cmp-inventory-group-head');
+    expect(groupHead).not.toBeNull();
+    expect(within(groupHead!).getByText('Confirm delete all items?')).toBeInTheDocument();
+    expect(within(groupHead!).getByRole('button', { name: 'Cancel delete all plans in CM15' })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(within(inventory).queryByRole('button', { name: 'Confirm delete all plans in CM15' })).not.toBeInTheDocument();
+    expect(within(inventory).getByRole('button', { name: 'Delete all plans in CM15' })).toBeInTheDocument();
+    expect(h.deleteSavedPlan).not.toHaveBeenCalled();
+  });
+
+  it('deletes only the plans in a confirmed inventory group', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    const groupLabel = 'Hanshin 2,200m (Inner)';
+
+    const deleteGroup = await within(inventory).findByRole('button', { name: `Delete all plans in ${groupLabel}` });
+    fireEvent.click(deleteGroup);
+    fireEvent.click(within(inventory).getByRole('button', { name: `Confirm delete all plans in ${groupLabel}` }));
+
+    await waitFor(() => expect(h.deleteSavedPlan).toHaveBeenCalledTimes(1));
+    expect(h.deleteSavedPlan).toHaveBeenCalledWith('custom-hanshin');
+    expect(h.deleteSavedPlan).not.toHaveBeenCalledWith('p');
   });
 
   it('collapses and expands inventory track groups', async () => {
