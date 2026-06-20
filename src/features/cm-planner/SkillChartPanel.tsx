@@ -152,22 +152,20 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const q = query.trim().toLowerCase();
 
-  // Already-targeted reps aren't re-simmed (their marginal L on the baseline ≈ 0, since
-  // they're already baked in). Synthesize non-simmed rows showing the wishlist's stamped
-  // projectedL, badged "in build", so the user still sees them ranked among the rest.
-  const inBuildViews: RowView[] = reps
-    .filter((rep) => isTargeted(rep))
-    .map((rep): RowView => {
-      const item = plan.wishlist.find((it) => {
-        const rec = wishlistSkillRecord(it.skillId, skillById);
-        return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
-      });
-      const L = item?.projectedL ?? null;
-      const sp = sparkRates ? effectiveSpCost(rep, 0, sparkRates) : null;
+  // One non-simmed "in build" row per targeted wishlist item (NOT per rep — reps hold a
+  // white AND gold rep per family, which would double-render a targeted gold variant).
+  // Show the actually-targeted record; limit to skills this chart ranks (matches a rep).
+  const inBuildViews: RowView[] = plan.wishlist
+    .map((it): RowView | null => {
+      const rec = wishlistSkillRecord(it.skillId, skillById);
+      if (!rec || !reps.some((rep) => areSkillVariants(rep, rec))) return null;
+      const L = it.projectedL ?? null;
+      const sp = sparkRates ? effectiveSpCost(rec, 0, sparkRates) : null;
       const eff = L != null && sp != null && sp > 0 ? (100 * L) / sp : null;
-      const row: SkillChartRow = { skillId: rep.skillId, L, min: null, max: null, median: null, status: 'live', nsamples: 0 };
-      return { row, skill: rep, sp, eff, targeted: true, inBuild: true };
-    });
+      const row: SkillChartRow = { skillId: rec.skillId, L, min: null, max: null, median: null, status: 'live', nsamples: 0 };
+      return { row, skill: rec, sp, eff, targeted: true, inBuild: true };
+    })
+    .filter((v): v is RowView => v !== null);
 
   const rankedViews: RowView[] = rows
     .map((row): RowView | null => {
@@ -315,7 +313,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         className="cmp-uma-plate"
                         technicalHeaderSide={
                           v.row.L != null
-                            ? <span className="muted small">L +{v.row.L.toFixed(2)} · min {(v.row.min ?? 0).toFixed(2)} · max {(v.row.max ?? 0).toFixed(2)} · med {(v.row.median ?? 0).toFixed(2)} · n={v.row.nsamples}</span>
+                            ? v.inBuild
+                              ? <span className="muted small">L +{v.row.L.toFixed(2)} · in build</span>
+                              : <span className="muted small">L +{v.row.L.toFixed(2)} · min {(v.row.min ?? 0).toFixed(2)} · max {(v.row.max ?? 0).toFixed(2)} · med {(v.row.median ?? 0).toFixed(2)} · n={v.row.nsamples}</span>
                             : undefined
                         }
                       />
