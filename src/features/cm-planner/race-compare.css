@@ -1,0 +1,3 @@
+.cmp-race-compare .cmp-rc-headline { margin-left: auto; font-weight: 600; }
+.cmp-race-compare .cmp-rc-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.cmp-race-compare .cmp-rc-caveat { margin-top: 6px; }
