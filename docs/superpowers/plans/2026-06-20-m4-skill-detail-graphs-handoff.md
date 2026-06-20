@@ -1,6 +1,17 @@
 # M4 skill-detail graphs — session handoff (2026-06-20)
 
-**Branch:** `feat/m4-skill-detail-graphs` — **local-only, NOT merged/pushed** (the user deferred the push/merge decision). 26 commits ahead of `main`. **518 tests green, `pnpm build` clean.** Built in an isolated worktree (`.claude/worktrees/m4-skill-detail-graphs/`).
+**Status:** **MERGED to `main` (`003f14d`, 2026-06-20).** 671 tests green, typecheck + build clean. Merged cleanly with the parallel session's main line (no conflicts). A second pass on 2026-06-20 **polished** the section — see *Polish pass* below.
+
+## Polish pass (2026-06-20, merged)
+
+The skill graph is now a **"Simulated performance"** section (`SkillTraceSection.tsx`):
+- **Summary block** (numbers only; graphs below are visual): avg バ身 gain (`meanL`, 2dp, skill-chart styling), biggest gain + exact fire position (`peakImpactPosition`), integer **×1/×2 fire-count breakdown** (`activationCounts` = % of runs; no fractional average).
+- **Windowed velocity-vs-time** (utools/kachi-style — `velocityWindow`/`vtWindowPoints`/`timePhaseBandsWindowed`): zoom to the activation (±10s), floor the y-axis (`V_FLOOR=18`), trim the with-skill line at re-convergence. **Worst/Typical/Best picker moved into the chart title** (shared `.cmp-control-group` segmented control). A "skill didn't fire in this run" note shows when the chosen run has no activation (Worst/Typical are often non-firing for sub-100%-proc skills).
+- Activation-frequency chart on its own line, half-height, 0/50/100% y; **250m minor gridlines** (same colour as 500m).
+- **"?" help popup** (click-outside closes) explaining how each graph is simulated; the inline P3 note was folded into it.
+- **Velocity-vs-_distance_ + HP was prototyped here then reverted** — it belongs on the racetrack overlay. Captured in [the racetrack-overlay handoff](2026-06-20-m4-velocity-hp-vs-distance-racetrack-overlay-handoff.md).
+
+**⚠️ Multi-fire limitation (open):** `velocityWindow` + `peakImpactPosition` use only the **first** activation (`acts[0]`); `impactByPosition`/`frequencyByPosition`/`activationCounts` handle every fire, and total バ身 already sums all cooldown re-procs (whole-race sim). The velocity-chart fix (widen window to span all procs) is undecided — see *Next up*.
 
 ## What shipped
 
@@ -23,8 +34,10 @@ Research that settled it: umalator-global's `length-difference-chart.tsx` is the
 
 ## Next up (resume here)
 
-1. **Full-race uma1-vs-uma2 compare** (umalator's *main* view, explicitly deferred this session) — both full builds + **all wishlist skills**, one run over the **entire race**, velocity + バ身 gap vs distance, all activation positions marked, "where you pull ahead / slow down." **Open decision: what is uma2?** (your build minus wishlist skills / a rival build / two fully-editable umas). This is a new panel, not per-skill — likely its own component, not inside `SkillDetailDisclosure`. The engine path exists (`runComparison` already returns both runners' per-frame traces).
-2. White/gold acquirable-skill chart; card-hint sourcing + wishlist; HP/velocity/activation zones overlaid on the §0 racetrack (needs the per-frame trace piped into `RaceTrackView`).
+1. **Velocity-chart multi-fire** (open decision) — widen `velocityWindow` to span all activations (`first.start − pad` → `last.end + pad`), shade every zone, trim through the **last** re-convergence; make `peakImpactPosition` / the "fires at" line list all positions. User was asked (widen vs "fires N×" badge vs leave) and pivoted to the fire-count breakdown instead, so the chart fix is still undecided.
+2. **Full-race uma1-vs-uma2 compare** (umalator's *main* view) — both full builds + **all wishlist skills**, one run over the **entire race**, velocity + バ身 gap vs distance, all activation positions marked. **Open decision: what is uma2?** A new panel, not per-skill. `runComparison` already returns both runners' per-frame traces. [Handoff](2026-06-20-m4-full-race-compare-handoff.md).
+3. **Racetrack overlay** — HP / velocity / activation zones on the §0 racetrack: reuse the reverted velocity+HP-vs-distance geometry ([handoff](2026-06-20-m4-velocity-hp-vs-distance-racetrack-overlay-handoff.md)); pipe the per-frame trace into `RaceTrackView`.
+4. Card-hint sourcing + wishlist; uma innate/release/usable-here columns. True **per-proc バ身 attribution** needs forced single-activation sims (the deferred force-activation task).
 
 ## Known / not-bugs
 
@@ -33,17 +46,9 @@ Research that settled it: umalator-global's `length-difference-chart.tsx` is the
 - **jsdom gotcha:** an open disclosure with a live `traceContext` constructs a real `SimClient` Worker (crashes jsdom). Tests that open one must `vi.mock('./useSkillTrace')` (done in `UmaChartPanel.test.tsx` + `PlannerSidebar.test.tsx`).
 - **`runComparison` has no `min/max/mean/median` fields** — derive from the sorted `results`. Skill-comparison `runData` carries only `sk` activation logs; full-comparison `runData` carries both runners' per-frame traces — don't conflate.
 
-## ⚠️ Merging this branch — it has DIVERGED from main
+## Merge — RESOLVED (2026-06-20)
 
-This branch forked from `b18e179` (an older main). During this session the **parallel agent advanced `main` to `73dedfc`** with a big M4 line my branch does NOT contain: the **acquirable-skill chart** (`SkillChartPanel`, `useSkillRank`, `rankSkillChart`, `familyRepresentatives`), **plan inventory management**, **saved-plans + sidebar polish**, and a session-handoff doc. `git merge-base main HEAD` = `b18e179`, so this is a **3-way merge, not a fast-forward**.
-
-Expect conflicts in the shared M4 surfaces — resolve by keeping BOTH sides:
-- `CLAUDE.md` — both bumped the test count / M4 status lines (combine; re-run `pnpm test` for the true total).
-- `docs/modules/module-4-skill-acquisition.md` — both edited the M4 status.
-- `src/app/App.tsx` — the documented nav-route merge-collision point.
-- `src/features/cm-planner/*` (esp. `CmPlannerPage.tsx`) — the other line added `SkillChartPanel` to the same page this branch's `UmaChartPanel`/sidebar wiring touches.
-
-Recommended: `git rebase main` (or merge main in) on this branch in the worktree, resolve, re-run `pnpm test` + `pnpm build`, then PR. The sim-engine additions here (`skillTrace`/`skillImpact` in `run.ts`/`types.ts`/`client.ts`/worker) are additive and should merge clean.
+This branch was merged with the parallel session's main line (acquirable-skill chart, plan inventory, cmRef/timeline race-setup) into `main` (`003f14d`) with **no conflicts** — the two sessions touched mostly disjoint files. 671 tests + build green on the merged tree. *(An earlier note warned of a 3-way merge with conflicts; in the end the bases had already reconciled and it was clean.)*
 
 ## Worktree housekeeping (not committed, safe to ignore/remove)
 
