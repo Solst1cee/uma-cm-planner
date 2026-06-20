@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { TimelineEntry } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { cmRaceOptions } from '@/core/cmRace';
-import { cmRefToSelection, selectionToCmRef } from './cmRefSelection';
+import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from './cmRefSelection';
 
 const entries: TimelineEntry[] = [
   { id: 'cm15', type: 'cm', title: 'Cancer Cup', dates: { finals: '2026-06-24' },
@@ -32,5 +32,16 @@ describe('cmRefToSelection / selectionToCmRef', () => {
     const sel = cmRefToSelection({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 }, catalog, entries);
     const edited = { ...sel, weather: 'rainy' as const }; // diverges from CM15's cloudy
     expect(selectionToCmRef(edited, opts)).toMatchObject({ kind: 'custom', courseId: '10906', weather: 'rainy' });
+  });
+});
+
+describe('cmRefForEntry', () => {
+  it('builds a cm ref with geometry resolved from the catalog', () => {
+    expect(cmRefForEntry(entries[0], catalog)).toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
+  });
+  it('returns null when the entry is missing, has no courseId, or the catalog lacks the course', () => {
+    expect(cmRefForEntry(null, catalog)).toBeNull();
+    expect(cmRefForEntry({ ...entries[0]!, cm: { cmNumber: 99 } }, catalog)).toBeNull(); // no courseId
+    expect(cmRefForEntry(entries[0], [])).toBeNull(); // catalog not loaded
   });
 });

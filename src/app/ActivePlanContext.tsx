@@ -12,11 +12,12 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { CmId, CmPlan } from '@/core/types';
+import type { CmId, CmPlan, CmRefV2, TimelineEntry } from '@/core/types';
 import { isPlanContentSaved, nextPlanNumberForContent } from '@/core/planIdentity';
 import { generatePlanName, uniquePlanName } from '@/core/planName';
 import { deletePlan, getPlan, getSetting, listPlans, savePlan, setSetting } from '@/db';
 import { useGameData } from '@/features/data/gameData';
+import { cmRefForEntry } from '@/features/planner/race-setup/cmRefSelection';
 
 const ACTIVE_PLAN_KEY = 'activePlanId';
 const AUTO_SAVE_KEY = 'cmPlannerAutoSave';
@@ -24,15 +25,15 @@ const SAVE_DEBOUNCE_MS = 400;
 
 const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
 
-export function makeDefaultPlan(): CmPlan {
-  // Keep first-run and post-delete fallback behavior aligned with the planner's
-  // New action: Kitasan on CM15 Cancer. Conditions are derived from the timeline
-  // by the chooser, so the cm ref only carries the union's common geometry.
+export function makeDefaultPlan(cmRefOverride?: CmRefV2): CmPlan {
+  // First-run / post-delete default. `cmRefOverride` (the current CM, resolved by
+  // the provider/page) is used when available; the CM15 Cancer fallback applies
+  // before the timeline/catalog have loaded. Conditions derive from the timeline.
   const draft: CmPlan = {
     id: crypto.randomUUID(),
     name: '',
     planNumber: 1,
-    cmRef: { kind: 'cm', cmId: 'CM15' as CmId, cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
+    cmRef: cmRefOverride ?? { kind: 'cm', cmId: 'CM15' as CmId, cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
     scenarioId: 4,
     umaId: '106801',
     uniqueSkillId: '',
@@ -116,7 +117,7 @@ interface ActivePlanValue {
 const ActivePlanContext = createContext<ActivePlanValue | null>(null);
 
 export function ActivePlanProvider({ children }: { children: ReactNode }) {
-  const { status } = useGameData();
+  const { status, currentCm } = useGameData();
   const [plan, setPlanState] = useState<CmPlan | null>(null);
   const [savedPlans, setSavedPlans] = useState<CmPlan[]>([]);
   const [autoSave, setAutoSaveState] = useState(false);
@@ -125,6 +126,20 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
   const pendingSave = useRef<CmPlan | null>(null);
   const planRef = useRef<CmPlan | null>(null);
   const autoSaveRef = useRef(false);
+
+  // Latest current CM (from the timeline) for the async default-creation paths.
+  const currentCmRef = useRef<TimelineEntry | null>(null);
+  currentCmRef.current = currentCm ?? null;
+  // Resolve the current CM's cmRef (geometry from the course catalog, loaded on
+  // demand). Returns undefined until they're available → makeDefaultPlan falls back.
+  const resolveDefaultCmRef = useCallback(async (): Promise<CmRefV2 | undefined> => {
+    const entry = currentCmRef.current;
+    // No track-known current CM → keep the CM15 fallback, and skip the (heavy)
+    // catalog load entirely. Geometry needs the catalog; conditions derive later.
+    if (!entry?.cm?.courseId || entry.cm.cmNumber === undefined) return undefined;
+    const catalog = await import('@/sim/courseCatalog').then((m) => m.courseCatalog()).catch(() => []);
+    return cmRefForEntry(entry, catalog) ?? undefined;
+  }, []);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -139,11 +154,11 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       }
       if (loaded && allPlans.length === 1 && isLegacyStarterPlan(loaded)) {
         await deletePlan(loaded.id);
-        loaded = makeDefaultPlan();
+        loaded = makeDefaultPlan(await resolveDefaultCmRef());
         await savePlan(loaded);
       }
       if (!loaded) {
-        const fresh = makeDefaultPlan();
+        const fresh = makeDefaultPlan(await resolveDefaultCmRef());
         if (cancelled) return; // StrictMode remount guard: don't double-create
         await savePlan(fresh);
         loaded = fresh;
@@ -164,7 +179,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [status]);
+  }, [status, resolveDefaultCmRef]);
 
   const setPlan = useCallback((next: CmPlan) => {
     setPlanState(next);
@@ -253,12 +268,12 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
 
     if (planRef.current?.id !== id) return;
 
-    const next = refreshedPlans.at(-1) ?? makeDefaultPlan();
+    const next = refreshedPlans.at(-1) ?? makeDefaultPlan(await resolveDefaultCmRef());
     await setSetting(ACTIVE_PLAN_KEY, next.id);
     pendingSave.current = null;
     planRef.current = next;
     setPlanState(next);
-  }, []);
+  }, [resolveDefaultCmRef]);
 
   const importSavedPlans = useCallback(async (incomingPlans: CmPlan[]) => {
     const existing = await listPlans();
@@ -288,12 +303,12 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     pendingSave.current = null;
     const existing = await listPlans();
     await Promise.all(existing.map((savedPlan) => deletePlan(savedPlan.id)));
-    const next = makeDefaultPlan();
+    const next = makeDefaultPlan(await resolveDefaultCmRef());
     await setSetting(ACTIVE_PLAN_KEY, next.id);
     setSavedPlans([]);
     planRef.current = next;
     setPlanState(next);
-  }, []);
+  }, [resolveDefaultCmRef]);
 
   const setDraftPlan = useCallback((next: CmPlan) => {
     window.clearTimeout(saveTimer.current);

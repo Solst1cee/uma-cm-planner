@@ -23,14 +23,14 @@ import {
   formatCourseLabel,
   type RaceSelection,
 } from '@/features/planner/race-setup/selection';
-import { cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
+import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
 
 export function CmPlannerPage() {
-  const { status, umaById, timeline } = useGameData();
+  const { status, umaById, timeline, currentCm } = useGameData();
   const {
     plan,
     savedPlans,
@@ -122,8 +122,11 @@ export function CmPlannerPage() {
     };
   };
   const newDefaultPlan = (): CmPlan => {
-    const distanceKey = distanceClass(selection.distance);
     const baseline = makeDefaultPlan();
+    // Default a new plan to the CURRENT CM (fall back to the race you're viewing
+    // until the timeline/catalog have loaded).
+    const cmRef = cmRefForEntry(currentCm, courseCatalog) ?? plan.cmRef;
+    const distanceKey = distanceClass(cmRef.distance);
     const draft: CmPlan = {
       ...baseline,
       id: crypto.randomUUID(),
@@ -131,11 +134,10 @@ export function CmPlannerPage() {
       notes: '',
       planNumber: 1,
       scenarioId: plan.scenarioId,
-      // Keep the race you're currently viewing on the new draft.
-      cmRef: plan.cmRef,
+      cmRef,
       sparkGoals: {
         pink: [
-          { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
+          { aptKey: { kind: 'surface', key: cmRef.surface }, target: 'A' },
           { aptKey: { kind: 'distance', key: distanceKey }, target: 'S' },
           { aptKey: { kind: 'strategy', key: 'front' }, target: 'A' },
         ],
