@@ -22,8 +22,7 @@ export namespace RaceTrackDimensions {
   export const ViewWidth = 960;
   export const RankBarHeight = 24;
   export const RankBarY = 2;
-  export const OverlayBandHeight = 132; // local mod: space at top for the race-compare overlay
-  export const ViewHeight = 240 + OverlayBandHeight; // was 240; overlay band added above the slope viz
+  export const ViewHeight = 240; // the track's own height — UNCHANGED (no-overlay render identical to before)
 
   export const marginTop = 16;
   export const marginBottom = 0;
@@ -55,11 +54,14 @@ export namespace RaceTrackDimensions {
   export const SlopeVisualizationHeight = 50;
   export const SlopeVisualizationY = SlopeLabelBarY - SlopeVisualizationHeight;
 
-  // Race-compare overlay band: the new top space [marginTop, SlopeVisualizationY].
-  export const OverlayBandY = marginTop;
-  export const OverlayBandRenderHeight = SlopeVisualizationY - marginTop;
-  export const OverlayGapHeight = 34;                                  // bottom strip = バ身 gap
-  export const OverlayVeloHeight = OverlayBandRenderHeight - OverlayGapHeight - 6; // top = velocity/HP
+  // Race-compare overlay: an ADDITIVE band rendered ABOVE the track only when a trace is present.
+  // RaceTrackView grows its viewBox to ViewHeight + OverlayBandHeight and shifts the track down by
+  // OverlayBandHeight; the no-trace track keeps viewBox height = ViewHeight (zero regression).
+  export const OverlayBandHeight = 132;                                   // additive top-band height
+  export const OverlayBandY = marginTop;                                  // content offset within the band
+  export const OverlayContentHeight = OverlayBandHeight - marginTop;      // usable height (116)
+  export const OverlayGapHeight = 34;                                     // bottom strip = バ身 gap
+  export const OverlayVeloHeight = OverlayContentHeight - OverlayGapHeight - 6; // velocity/HP area (76)
 
   // Other
 
