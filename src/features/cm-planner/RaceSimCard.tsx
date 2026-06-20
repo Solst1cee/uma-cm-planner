@@ -2,11 +2,15 @@
  *  representative-run toggle) + the mean-バ身 readout. Presentational: the shared state comes
  *  from useRaceCompareController; the overlay it drives is rendered on the track (main column). */
 import './race-compare.css';
+import { useState } from 'react';
 import { RunChoiceToggle } from './skill-trace/SkillTraceCharts';
+import { Uma2PickerModal } from './Uma2PickerModal';
 import type { RaceCompareController } from './useRaceCompareController';
 
 export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
   const { uma2Id, setUma2Id, showHp, setShowHp, others, state, comparing } = ctl;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const selectedName = uma2Id ? others.find((p) => p.id === uma2Id)?.name ?? 'Selected plan' : 'None (course only)';
   return (
     <section className="cmp-plan-card cmp-racesim-card" aria-labelledby="cmp-racesim-h">
       <header className="cmp-plan-card-head">
@@ -19,20 +23,27 @@ export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
         )}
       </header>
       <div className="cmp-plan-card-body cmp-racesim-body">
-        <label className="cmp-rc-field">
+        <div className="cmp-rc-field">
           <span>Compare against</span>
-          <select
+          <button
+            type="button"
+            className="cmp-rc-pick-btn"
             aria-label="Compare against"
-            value={uma2Id}
-            onChange={(e) => setUma2Id(e.target.value)}
+            aria-haspopup="dialog"
+            onClick={() => setPickerOpen(true)}
             disabled={others.length === 0}
           >
-            <option value="">{others.length ? '— none (course only) —' : '— save another plan to compare —'}</option>
-            {others.map((p) => (
-              <option key={p.id} value={p.id}>{p.name || p.id}</option>
-            ))}
-          </select>
-        </label>
+            {others.length === 0 ? 'Save another plan to compare' : selectedName}
+          </button>
+        </div>
+        {pickerOpen && (
+          <Uma2PickerModal
+            plans={others}
+            selectedId={uma2Id}
+            onSelect={setUma2Id}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
 
         {comparing && (
           <label className="cmp-rc-hp">

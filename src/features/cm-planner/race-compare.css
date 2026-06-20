@@ -11,3 +11,71 @@
 .cmp-racesim-card .cmp-rc-field > span { font-size: 0.85rem; color: var(--fg-muted); }
 .cmp-racesim-card .cmp-rc-hp { display: inline-flex; align-items: center; gap: 6px; }
 .cmp-racesim-card .cmp-rc-caveat { margin-top: 0.1rem; }
+
+/* uma2 picker trigger (opens the inventory-style popup) */
+.cmp-rc-pick-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cmp-rc-pick-btn:hover:not(:disabled) { border-color: var(--accent); }
+.cmp-rc-pick-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* popup */
+.cmp-uma2-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.45);
+}
+.cmp-uma2-modal {
+  width: min(30rem, 94vw);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+}
+.cmp-uma2-modal .cmp-uma2-close {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--fg-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.cmp-uma2-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.cmp-uma2-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cmp-uma2-row:hover { background: var(--bg-2); }
+.cmp-uma2-row.is-active { border-color: var(--accent); }
+.cmp-uma2-row .cmp-inventory-plan-main { display: flex; flex-direction: column; min-width: 0; }
+.cmp-uma2-none { font-weight: 600; }

@@ -8,6 +8,32 @@ import { RaceTrackDimensions as D } from '../vendor/types';
 export const OVERLAY_VELO_BOX: Box = { w: D.RenderWidth, h: D.OverlayVeloHeight };
 export const OVERLAY_GAP_BOX: Box = { w: D.RenderWidth, h: D.OverlayGapHeight };
 
+/** Round speed ticks (m/s) from 0 up to vMax for the velocity y-axis. */
+function speedTicks(vMax: number): number[] {
+  const step = vMax > 24 ? 10 : vMax > 12 ? 5 : 2;
+  const out: number[] = [];
+  for (let s = 0; s <= vMax + 1e-6; s += step) out.push(Math.round(s));
+  return out;
+}
+
+/** Velocity (m/s) y-axis: faint gridlines + left-margin labels across the velocity area. */
+function VelocityAxis({ box, vMax }: { box: Box; vMax: number }) {
+  return (
+    <g className="ro-yaxis" aria-hidden>
+      {speedTicks(vMax).map((s) => {
+        const y = box.h - (s / vMax) * box.h;
+        return (
+          <g key={s}>
+            <line className="ro-yaxis-line" x1={0} x2={box.w} y1={y} y2={y} />
+            <text className="ro-yaxis-label" x={-2} y={y + 2.4} textAnchor="end">{s}</text>
+          </g>
+        );
+      })}
+      <text className="ro-yaxis-unit" x={-2} y={7} textAnchor="end">m/s</text>
+    </g>
+  );
+}
+
 function MarkerLane({ acts, distance, box, cls, skillName, dy }: {
   acts: RaceActivation[]; distance: number; box: Box; cls: string; skillName: (id: string) => string; dy: number;
 }) {
@@ -46,6 +72,8 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
   const gapLine = polyline(gapPoints(run.gap, gapBox, distance, mag));
   return (
     <g className="race-overlay" transform={`translate(${D.marginLeft}, ${D.OverlayBandY})`}>{/* overlay aligns to the XAxis scale because xOffset === marginLeft */}
+      {/* speed y-axis (under the curves) */}
+      <VelocityAxis box={velo} vMax={vMax} />
       {/* velocity + HP */}
       <g>
         {showHp && <polyline className="ro-hp is-uma1" points={h1} fill="none" />}

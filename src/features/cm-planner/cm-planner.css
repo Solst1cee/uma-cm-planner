@@ -549,9 +549,9 @@
 
 /* ---- Planner sidebar ---- */
 main:has(.cmp-page) {
-  /* widened by one 27.9rem rail + gap so the main column keeps its width when the
-     right race-sim sidebar is added (was 119rem). */
-  max-width: 148rem;
+  /* widened so the main column (track + charts) grows on wide screens while the three
+     27.9rem rails keep their width; the track scales up with the main column. */
+  max-width: 176rem;
 }
 
 .cmp-page {

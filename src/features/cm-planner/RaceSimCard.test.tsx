@@ -1,5 +1,10 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+
+vi.mock('@/features/data/GameIcon', () => ({
+  GameIcon: () => <span data-testid="game-icon" />,
+}));
+
 import { RaceSimCard } from './RaceSimCard';
 import type { RaceCompareController } from './useRaceCompareController';
 import type { CmPlan } from '@/core/types';
@@ -22,10 +27,13 @@ const ctl = (over: Partial<RaceCompareController> = {}): RaceCompareController =
 });
 
 describe('RaceSimCard', () => {
-  it('lists the eligible saved plans in the compare picker', () => {
-    render(<RaceSimCard ctl={ctl()} />);
-    const select = screen.getByLabelText(/compare against/i) as HTMLSelectElement;
-    expect(Array.from(select.options).map((o) => o.textContent)).toContain('Rival B');
+  it('opens an inventory-style popup and selects a plan', () => {
+    const setUma2Id = vi.fn();
+    render(<RaceSimCard ctl={ctl({ setUma2Id })} />);
+    fireEvent.click(screen.getByLabelText(/compare against/i)); // open the popup
+    expect(screen.getByRole('dialog', { name: /select comparison plan/i })).toBeTruthy();
+    fireEvent.click(screen.getByText('Rival B'));
+    expect(setUma2Id).toHaveBeenCalledWith('B');
   });
 
   it('prompts to pick a plan and shows no headline before comparing', () => {
