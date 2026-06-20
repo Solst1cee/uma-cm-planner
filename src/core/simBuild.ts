@@ -102,3 +102,11 @@ export function planToSimBuild(plan: CmPlan): SimBuild {
     mood: plan.statProfile.mood,
   };
 }
+
+/** Build with the plan's skills ACTIVE (unique + wishlist) — for full-race sims
+ *  (umalator-style overlay). Unlike planToSimBuild (vacuum, skills:[]). Dedup
+ *  preserves order: unique first, then wishlist. Engine layer filters to simulatable. */
+export function planToOverlayBuild(plan: CmPlan): SimBuild {
+  const ids = [plan.uniqueSkillId, ...plan.wishlist.map((w) => w.skillId)].filter(Boolean);
+  return { ...planToSimBuild(plan), skills: [...new Set(ids)] };
+}

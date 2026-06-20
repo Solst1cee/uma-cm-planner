@@ -3,6 +3,7 @@ import type { CmPlan } from '@/core/types';
 import {
   distanceClass,
   planToSimBuild,
+  planToOverlayBuild,
   simAptitudes,
   setTargetAptitude,
   setTargetAptitudeByKey,
@@ -93,5 +94,30 @@ describe('planToSimBuild', () => {
     expect(b.aptitudes).toEqual({ distance: 'S', surface: 'A', strategy: 'A' });
     expect(b.skills).toEqual([]);
     expect(b.umaId).toBe('100101');
+  });
+});
+
+describe('planToOverlayBuild', () => {
+  it('includes the unique skill and every wishlist skill, deduped', () => {
+    const p = plan({
+      uniqueSkillId: 'U1',
+      wishlist: [
+        { skillId: 'S1', priority: 'high', source: 'targeted' },
+        { skillId: 'S2', priority: 'low', source: 'targeted' },
+        { skillId: 'U1', priority: 'low', source: 'targeted' }, // dup of unique
+      ],
+    });
+    const build = planToOverlayBuild(p);
+    expect(build.skills).toEqual(['U1', 'S1', 'S2']);
+    expect(build.stats).toEqual(p.statProfile.stats);
+    expect(build.strategy).toBe(p.strategy);
+  });
+
+  it('drops empty ids and a missing unique', () => {
+    const p = plan({
+      uniqueSkillId: '',
+      wishlist: [{ skillId: 'S1', priority: 'high', source: 'targeted' }],
+    });
+    expect(planToOverlayBuild(p).skills).toEqual(['S1']);
   });
 });
