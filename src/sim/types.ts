@@ -88,13 +88,37 @@ export interface SkillImpact {
   distance: number; // course distance (metres), for the position axis
 }
 
+/** One skill activation region on a full-race run (course metres), with its skill id. */
+export interface RaceActivation { skillId: string; start: number; end: number; }
+
+/** バ身 gap of uma1 over uma2 at uma1's course position (positive = uma1 ahead). */
+export interface GapPoint { pos: number; bashin: number; }
+
+/** One representative full-race run comparing two builds (umalator main view). */
+export interface RaceCompareRun {
+  uma1Frames: SkillFrame[];
+  uma2Frames: SkillFrame[];
+  uma1Acts: RaceActivation[];
+  uma2Acts: RaceActivation[];
+  gap: GapPoint[];
+}
+
+/** Two-build race comparison: 4 representative runs + summary, from one sim. */
+export interface RaceCompare {
+  runs: Record<RunChoice, RaceCompareRun>;
+  distance: number;     // course metres (x-axis domain)
+  nsamples: number;
+  meanBashin: number;   // mean バ身 gap of uma1 over uma2
+}
+
 /** Worker request/response unions. */
 export type SimRequest =
   | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
   | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number }
   | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number }
   | { id: number; kind: 'skillTrace'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
-  | { id: number; kind: 'skillImpact'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number };
+  | { id: number; kind: 'skillImpact'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
+  | { id: number; kind: 'raceCompare'; uma1: SimBuild; uma2: SimBuild; race: SimRaceParams; nsamples: number; seed?: number };
 
 export interface VacuumResult extends BashinStats {
   /** Win-rate of A vs B and stamina survival, for the M2 compare panel. */
@@ -109,4 +133,5 @@ export type SimResponse =
   | { id: number; ok: true; kind: 'vacuum'; stats: VacuumResult }
   | { id: number; ok: true; kind: 'skillTrace'; trace: SkillTrace }
   | { id: number; ok: true; kind: 'skillImpact'; impact: SkillImpact }
+  | { id: number; ok: true; kind: 'raceCompare'; result: RaceCompare }
   | { id: number; ok: false; error: string };
