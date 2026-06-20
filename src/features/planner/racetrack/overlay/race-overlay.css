@@ -1,0 +1,14 @@
+.race-overlay .ro-velo { stroke-width: 1.4; }
+.race-overlay .ro-velo.is-uma1 { stroke: #2f6fed; }
+.race-overlay .ro-velo.is-uma2 { stroke: #e0823d; }
+.race-overlay .ro-hp { stroke-width: 1; stroke-dasharray: 3 2; opacity: 0.8; }
+.race-overlay .ro-hp.is-uma1 { stroke: #7c4dff; }
+.race-overlay .ro-hp.is-uma2 { stroke: #b06bd9; }
+.race-overlay .ro-zone { opacity: 0.16; }
+.race-overlay .ro-zone.is-uma1, .race-overlay .ro-marker.is-uma1 line, .race-overlay .ro-marker.is-uma1 circle { stroke: #2f6fed; fill: #2f6fed; }
+.race-overlay .ro-zone.is-uma2, .race-overlay .ro-marker.is-uma2 line, .race-overlay .ro-marker.is-uma2 circle { stroke: #e0823d; fill: #e0823d; }
+.race-overlay .ro-zone.is-uma1 { fill: #2f6fed; }
+.race-overlay .ro-zone.is-uma2 { fill: #e0823d; }
+.race-overlay .ro-marker line { stroke-width: 1; }
+.race-overlay .ro-gap { stroke: #1f9d6b; stroke-width: 1.3; }
+.race-overlay .ro-gap-zero { stroke: var(--color-foreground, #888); opacity: 0.35; stroke-dasharray: 2 2; }
