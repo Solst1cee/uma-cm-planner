@@ -25,12 +25,13 @@ import {
 } from '@/features/planner/race-setup/selection';
 import { cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
 import { PlanInventoryCard } from './PlanInventoryCard';
+import { RaceComparePanel } from './RaceComparePanel';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
 
 export function CmPlannerPage() {
-  const { status, umaById, timeline } = useGameData();
+  const { status, umaById, skillById, timeline } = useGameData();
   const {
     plan,
     savedPlans,
@@ -217,6 +218,13 @@ export function CmPlannerPage() {
             plan={plan}
             collapseSkillSignal={collapseSkillSignal}
             onChange={setPlan}
+          />
+          <RaceComparePanel
+            plan={plan}
+            savedPlans={savedPlans}
+            courseId={selection.courseId}
+            collapseSkillSignal={collapseSkillSignal}
+            skillName={(id) => skillById?.get(id)?.nameEn ?? id}
           />
         </div>
       </div>

@@ -600,4 +600,9 @@ describe('CmPlannerPage', () => {
     fireEvent.click(customGroup);
     expect(within(inventory).getByText('Hanshin Trial')).toBeInTheDocument();
   });
+
+  it('renders the Race comparison panel', async () => {
+    render(<CmPlannerPage />);
+    expect(await screen.findByText(/Race comparison/i)).toBeTruthy();
+  });
 });
