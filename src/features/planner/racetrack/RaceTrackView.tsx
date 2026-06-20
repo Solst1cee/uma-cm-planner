@@ -10,6 +10,7 @@
  */
 import { useEffect, useState } from 'react';
 import type { CourseData } from '@/sim';
+import type { RaceCompareRun } from '@/sim';
 import { RaceTrackDimensions } from './vendor/types';
 import { SlopeVisualization } from './vendor/layers/slope-visualization';
 import { SlopeLabelBar } from './vendor/layers/slope-label-bar';
@@ -17,18 +18,23 @@ import { SectionTypesBar } from './vendor/layers/section-bar';
 import { PhaseBar } from './vendor/layers/phase-bar';
 import { SectionNumbersBar } from './vendor/layers/section-numbers';
 import { XAxis } from './vendor/axes/x-axis';
+import { RaceOverlay } from './overlay/RaceOverlay';
 import './vendor/RaceTrack.css';
 import './racetrack.css';
 
 interface RaceTrackViewProps {
   courseId: string;
   deps?: { loadCourse: (courseId: string) => Promise<CourseData> };
+  trace?: RaceCompareRun;
+  traceDistance?: number;
+  showHp?: boolean;
+  skillName?: (id: string) => string;
 }
 
 const defaultLoadCourse = (courseId: string): Promise<CourseData> =>
   import('@/sim/courseData').then((m) => m.courseDataFor(courseId));
 
-export function RaceTrackView({ courseId, deps }: RaceTrackViewProps) {
+export function RaceTrackView({ courseId, deps, trace, traceDistance, showHp = true, skillName }: RaceTrackViewProps) {
   const loadCourse = deps?.loadCourse ?? defaultLoadCourse;
   const [course, setCourse] = useState<CourseData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -56,22 +62,35 @@ export function RaceTrackView({ courseId, deps }: RaceTrackViewProps) {
   if (error) return <p className="muted">Track unavailable: {error}</p>;
   if (!course) return <p className="muted small">Loading track…</p>;
 
+  const overlayActive = !!trace;
+  const shift = overlayActive ? RaceTrackDimensions.OverlayBandHeight : 0;
+  const vbHeight = RaceTrackDimensions.ViewHeight + shift;
   return (
     <div className="rt-view">
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox={`0 0 ${RaceTrackDimensions.ViewWidth} ${RaceTrackDimensions.ViewHeight}`}
+        viewBox={`0 0 ${RaceTrackDimensions.ViewWidth} ${vbHeight}`}
         preserveAspectRatio="xMidYMid meet"
         className="racetrackView"
         data-courseid={courseId}
       >
-        <SlopeVisualization course={course} />
-        <SlopeLabelBar course={course} />
-        <SectionTypesBar course={course} />
-        <PhaseBar course={course} />
-        <SectionNumbersBar />
-        <XAxis courseDistance={course.distance} />
+        <g transform={`translate(0, ${shift})`}>
+          <SlopeVisualization course={course} />
+          <SlopeLabelBar course={course} />
+          <SectionTypesBar course={course} />
+          <PhaseBar course={course} />
+          <SectionNumbersBar />
+          <XAxis courseDistance={course.distance} />
+        </g>
+        {trace && (
+          <RaceOverlay
+            run={trace}
+            distance={traceDistance ?? course.distance}
+            showHp={showHp}
+            skillName={skillName ?? ((id) => id)}
+          />
+        )}
       </svg>
     </div>
   );

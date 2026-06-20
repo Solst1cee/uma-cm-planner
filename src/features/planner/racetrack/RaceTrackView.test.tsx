@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { RaceTrackView } from './RaceTrackView';
+import type { RaceCompareRun } from '@/sim';
 
 afterEach(cleanup);
 
@@ -51,5 +52,28 @@ describe('RaceTrackView', () => {
     render(<RaceTrackView courseId="999" deps={failing} />);
     expect(await screen.findByText(/unavailable/i)).toBeInTheDocument();
     expect(document.querySelector('#race-phases')).not.toBeInTheDocument();
+  });
+});
+
+const traceRun: RaceCompareRun = {
+  uma1Frames: [{ t: 0, pos: 0, v: 18, hp: 100 }, { t: 1, pos: 1200, v: 16, hp: 10 }],
+  uma2Frames: [{ t: 0, pos: 0, v: 17, hp: 100 }, { t: 1, pos: 1180, v: 15, hp: 20 }],
+  uma1Acts: [], uma2Acts: [], gap: [{ pos: 0, bashin: 0 }, { pos: 1200, bashin: 1 }],
+};
+
+describe('RaceTrackView overlay', () => {
+  it('renders the overlay when a trace is supplied', async () => {
+    const { container } = render(
+      <RaceTrackView courseId="10906" deps={deps} trace={traceRun} traceDistance={1200} showHp />,
+    );
+    await waitFor(() => expect(container.querySelector('.racetrackView')).toBeTruthy());
+    expect(container.querySelector('.race-overlay')).toBeTruthy();
+    expect(container.querySelectorAll('.ro-velo').length).toBe(2);
+  });
+
+  it('renders no overlay without a trace', async () => {
+    const { container } = render(<RaceTrackView courseId="10906" deps={deps} />);
+    await waitFor(() => expect(container.querySelector('.racetrackView')).toBeTruthy());
+    expect(container.querySelector('.race-overlay')).toBeNull();
   });
 });
