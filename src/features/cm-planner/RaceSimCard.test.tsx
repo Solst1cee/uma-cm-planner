@@ -27,11 +27,12 @@ const ctl = (over: Partial<RaceCompareController> = {}): RaceCompareController =
 });
 
 describe('RaceSimCard', () => {
-  it('opens an inventory-style popup and selects a plan', () => {
+  it('opens an inventory-style popover and selects a plan', () => {
     const setUma2Id = vi.fn();
     render(<RaceSimCard ctl={ctl({ setUma2Id })} />);
-    fireEvent.click(screen.getByLabelText(/compare against/i)); // open the popup
-    expect(screen.getByRole('dialog', { name: /select comparison plan/i })).toBeTruthy();
+    expect(screen.queryByText('Rival B')).toBeNull(); // closed initially
+    fireEvent.click(screen.getByLabelText(/compare against/i)); // toggle the popover open
+    expect(screen.getByText('Rival B')).toBeTruthy();
     fireEvent.click(screen.getByText('Rival B'));
     expect(setUma2Id).toHaveBeenCalledWith('B');
   });

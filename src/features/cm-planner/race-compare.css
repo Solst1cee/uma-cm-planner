@@ -12,54 +12,44 @@
 .cmp-racesim-card .cmp-rc-hp { display: inline-flex; align-items: center; gap: 6px; }
 .cmp-racesim-card .cmp-rc-caveat { margin-top: 0.1rem; }
 
-/* uma2 picker trigger (opens the inventory-style popup) */
-.cmp-rc-pick-btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0.45rem 0.6rem;
+/* uma2 picker: a name field + an inventory-icon button that opens an anchored popover.
+   Let the card overflow so the popover isn't clipped (it's not a modal — no backdrop). */
+.cmp-racesim-card.cmp-plan-card { overflow: visible; }
+.cmp-racesim-card .cmp-plan-card-head { border-radius: 11px 11px 0 0; }
+
+.cmp-rc-pick { position: relative; display: flex; align-items: center; gap: 0.4rem; }
+.cmp-rc-pick-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.35rem 0.55rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-2);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
 }
-.cmp-rc-pick-btn:hover:not(:disabled) { border-color: var(--accent); }
-.cmp-rc-pick-btn:disabled { opacity: 0.6; cursor: default; }
+.cmp-rc-pick-trigger { flex: 0 0 auto; }
 
-/* popup */
-.cmp-uma2-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgb(15 23 42 / 0.45);
-}
-.cmp-uma2-modal {
-  width: min(30rem, 94vw);
-  max-height: 82vh;
+/* anchored popover (drops under the trigger row; page stays interactive) */
+.cmp-uma2-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 60vh;
   display: flex;
   flex-direction: column;
-}
-.cmp-uma2-modal .cmp-uma2-close {
-  margin-left: auto;
-  border: none;
-  background: none;
-  color: var(--fg-muted);
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgb(36 54 78 / 0.20);
 }
 .cmp-uma2-list {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  padding: 0.5rem;
 }
 .cmp-uma2-row {
   display: flex;

@@ -2,15 +2,31 @@
  *  representative-run toggle) + the mean-バ身 readout. Presentational: the shared state comes
  *  from useRaceCompareController; the overlay it drives is rendered on the track (main column). */
 import './race-compare.css';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RunChoiceToggle } from './skill-trace/SkillTraceCharts';
-import { Uma2PickerModal } from './Uma2PickerModal';
+import { Uma2PickerPopover } from './Uma2PickerPopover';
 import type { RaceCompareController } from './useRaceCompareController';
 
 export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
   const { uma2Id, setUma2Id, showHp, setShowHp, others, state, comparing } = ctl;
   const [pickerOpen, setPickerOpen] = useState(false);
+  const pickRef = useRef<HTMLDivElement>(null);
   const selectedName = uma2Id ? others.find((p) => p.id === uma2Id)?.name ?? 'Selected plan' : 'None (course only)';
+
+  // Close the popover on click-outside / Esc (the page stays interactive — no modal backdrop).
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (!pickRef.current?.contains(e.target as Node)) setPickerOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPickerOpen(false); };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [pickerOpen]);
   return (
     <section className="cmp-plan-card cmp-racesim-card" aria-labelledby="cmp-racesim-h">
       <header className="cmp-plan-card-head">
@@ -25,25 +41,32 @@ export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
       <div className="cmp-plan-card-body cmp-racesim-body">
         <div className="cmp-rc-field">
           <span>Compare against</span>
-          <button
-            type="button"
-            className="cmp-rc-pick-btn"
-            aria-label="Compare against"
-            aria-haspopup="dialog"
-            onClick={() => setPickerOpen(true)}
-            disabled={others.length === 0}
-          >
-            {others.length === 0 ? 'Save another plan to compare' : selectedName}
-          </button>
+          <div className="cmp-rc-pick" ref={pickRef}>
+            <span className="cmp-rc-pick-name" title={selectedName}>
+              {others.length === 0 ? 'Save another plan to compare' : selectedName}
+            </span>
+            <button
+              type="button"
+              className="cmp-inventory-icon-btn cmp-rc-pick-trigger"
+              aria-label="Compare against"
+              aria-haspopup="dialog"
+              aria-expanded={pickerOpen}
+              disabled={others.length === 0}
+              onClick={() => setPickerOpen((o) => !o)}
+            >
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M3 3h6v6H3V3Zm8 0h6v6h-6V3ZM3 11h6v6H3v-6Zm8 0h6v6h-6v-6Z" />
+              </svg>
+            </button>
+            {pickerOpen && (
+              <Uma2PickerPopover
+                plans={others}
+                selectedId={uma2Id}
+                onSelect={(id) => { setUma2Id(id); setPickerOpen(false); }}
+              />
+            )}
+          </div>
         </div>
-        {pickerOpen && (
-          <Uma2PickerModal
-            plans={others}
-            selectedId={uma2Id}
-            onSelect={setUma2Id}
-            onClose={() => setPickerOpen(false)}
-          />
-        )}
 
         {comparing && (
           <label className="cmp-rc-hp">
