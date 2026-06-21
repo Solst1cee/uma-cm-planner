@@ -17,8 +17,9 @@ const CHAR_W = 3.4;     // approx label glyph width (viewBox units) for label-aw
 
 interface Placed { a: RaceActivation; rung: number; x: number; w: number; duration: boolean; name: string; }
 
-/** Greedy rung assignment for one uma's activations; the occupied interval is max(bar, label). */
-function placeRungs(acts: RaceActivation[], distance: number, boxW: number, skillName: (id: string) => string): { placed: Placed[]; rungs: number } {
+/** Greedy rung assignment for one uma's activations; the occupied interval is max(bar, label).
+ *  Exported for unit testing the stacking/overlap math. */
+export function placeRungs(acts: RaceActivation[], distance: number, boxW: number, skillName: (id: string) => string): { placed: Placed[]; rungs: number } {
   if (distance <= 0) return { placed: [], rungs: 0 };
   const metersPerUnit = distance / boxW;
   const lanes: { s: number; e: number }[][] = [];
