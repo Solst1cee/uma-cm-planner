@@ -52,9 +52,9 @@ describe('simulatableBase', () => {
     expect(out.skills).toEqual([]);
   });
 
-  it('removes a bogus baseline id while leaving the rest of the build intact', () => {
+  it('removes a bogus baseline id while leaving valid ids + the rest of the build intact', () => {
     const out = simulatableBase({ ...base, skills: ['200332', 'zzz-bogus-id'] });
-    expect(out.skills).not.toContain('zzz-bogus-id');
+    expect(out.skills).toEqual(['200332']);   // valid id MUST survive (guards against over-eager filtering)
     expect(out.stats).toEqual(base.stats);
     expect(out.strategy).toBe('pace');
   });
@@ -119,6 +119,12 @@ describe('runSkillTrace', () => {
     const t = runSkillTrace(zero, { courseId: '10101' }, '200332', 10, 1);
     expect(t.nsamples).toBe(0);
   });
+
+  it('does not throw on an engine-unknown baseline id (filtered via simulatableBase)', () => {
+    const withBogus = { ...build, skills: ['zzz-bogus-id'] };
+    expect(() => runSkillTrace(withBogus, { courseId: '10101' }, '200332', 6, 1)).not.toThrow();
+    expect(runSkillTrace(withBogus, { courseId: '10101' }, '200332', 6, 1).nsamples).toBeGreaterThan(0);
+  });
 });
 
 import { skillImpact } from './run';
@@ -143,6 +149,12 @@ describe('skillImpact', () => {
   it('is empty for a zero-speed build', () => {
     const zero = { ...build, stats: { ...build.stats, spd: 0 } };
     expect(skillImpact(zero, { courseId: '10101' }, '200332', 10, 1)).toEqual({ samples: [], nsamples: 0, distance: 0 });
+  });
+
+  it('does not throw on an engine-unknown baseline id (filtered via simulatableBase)', () => {
+    const withBogus = { ...build, skills: ['zzz-bogus-id'] };
+    expect(() => skillImpact(withBogus, { courseId: '10101' }, '200332', 8, 1)).not.toThrow();
+    expect(skillImpact(withBogus, { courseId: '10101' }, '200332', 8, 1).nsamples).toBe(8);
   });
 });
 
@@ -179,5 +191,14 @@ describe('runRaceCompare', () => {
     const dead: SimBuild = { ...uma1, stats: { spd: 0, sta: 0, pow: 0, gut: 0, wit: 0 } };
     expect(runRaceCompare(dead, uma2, { courseId: '10101' }, 10, 1).nsamples).toBe(0);
     expect(runRaceCompare(uma1, uma2, { courseId: '10101' }, 0, 1).nsamples).toBe(0);
+  });
+
+  it('does not throw on an engine-unknown skill id in either deck (filtered via simulatableBase)', () => {
+    // A single bad id (inherited-unique 9… / JP-only / imported) must not blank the whole overlay.
+    const badUma1: SimBuild = { ...build, skills: ['200332', 'zzz-bogus-id'] };
+    const badUma2: SimBuild = { ...buildB, skills: ['zzz-bogus-id'] };
+    expect(() => runRaceCompare(badUma1, badUma2, { courseId: '10101' }, 6, 1)).not.toThrow();
+    const rc = runRaceCompare(badUma1, badUma2, { courseId: '10101' }, 6, 1);
+    expect(rc.nsamples).toBeGreaterThan(0);
   });
 });
