@@ -1,7 +1,7 @@
 import './skill-trace.css';
 import type { RunChoice, SkillImpact, SkillTraceRun } from '@/sim';
 import {
-  polyline, activationTimes, velocityWindow, vtWindowPoints, timePhaseBandsWindowed,
+  polyline, activationTimes, velocityWindow, vtWindowPoints, timePhaseBandsWindowed, tToX,
   impactByPosition, frequencyByPosition, binColumns, lAxisDomain, zeroLineY,
   distancePhaseBands, gridLinesX, gridLinesY,
   type Box, type Band, type LDomain,
@@ -52,16 +52,20 @@ export function VelocityTimeChart({ run, runChoice, onRunChoice }: {
   const baseline = polyline(vtWindowPoints(run.without, BOX, w)); // no-skill line spans the whole window
   const withClip = w.tStart !== null ? { start: w.tStart, end: w.convergenceT } : undefined;
   const withPts = polyline(vtWindowPoints(run.withSkill, BOX, w, withClip)); // trimmed to the divergence
-  const tspan = (w.winEnd - w.winStart) || 1;
-  const zones = (w.tStart !== null ? activationTimes(run) : []).map(({ tStart, tEnd }, i) => {
-    const x0 = Math.max(w.winStart, tStart), x1 = Math.min(w.winEnd, tEnd);
-    return {
-      x: ((x0 - w.winStart) / tspan) * BOX.w,
-      w: Math.max(1, ((x1 - x0) / tspan) * BOX.w),
-      dur: tEnd - tStart,            // activation length (s)
-      pos: run.activation[i]?.start ?? 0, // where it fires (course metres)
-    };
-  });
+  // Only the activations the zoomed window actually spans — a later proc (multi-fire) outside the
+  // window would otherwise draw an off-canvas sliver + a label leaking past the right margin.
+  const zones = (w.tStart !== null ? activationTimes(run) : [])
+    .map(({ tStart, tEnd }, i) => ({ tStart, tEnd, pos: run.activation[i]?.start ?? 0 }))
+    .filter((z) => z.tEnd >= w.winStart && z.tStart <= w.winEnd)
+    .map((z) => {
+      const x0 = Math.max(w.winStart, z.tStart), x1 = Math.min(w.winEnd, z.tEnd);
+      return {
+        x: tToX(x0, w, BOX),
+        w: Math.max(1, tToX(x1, w, BOX) - tToX(x0, w, BOX)),
+        dur: z.tEnd - z.tStart,   // activation length (s)
+        pos: z.pos,               // where it fires (course metres)
+      };
+    });
   return (
     <figure className="cmp-trace-chart">
       <figcaption className="cmp-trace-caphead">

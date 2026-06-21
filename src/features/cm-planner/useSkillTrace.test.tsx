@@ -8,7 +8,7 @@ beforeEach(() => clearSkillTraceCache()); // the memo is module-level — isolat
 const oneRun: SkillTraceRun = { withSkill: [{ t: 0, v: 1, pos: 0, hp: 1 }], without: [{ t: 0, v: 1, pos: 0, hp: 1 }], activation: [], L: 2 };
 const trace: SkillTrace = { runs: { min: oneRun, max: oneRun, mean: oneRun, median: oneRun }, meanL: 2, nsamples: 20 };
 const ctx = { build: { umaId: 'x', stats: { spd: 1000, sta: 1, pow: 1, gut: 1, wit: 1 }, strategy: 'pace' as const, aptitudes: { distance: 'A' as const, surface: 'A' as const, strategy: 'A' as const }, skills: [] }, race: { courseId: '10101' } };
-// 168 activating samples of 400 → derived rate 0.42.
+// 168 activating samples of 400.
 const impact: SkillImpact = { samples: Array.from({ length: 168 }, () => ({ horseLength: 1, positions: [800] })), nsamples: 400, distance: 1200 };
 
 describe('useSkillTrace', () => {
@@ -20,7 +20,7 @@ describe('useSkillTrace', () => {
     expect(skillImpact).not.toHaveBeenCalled();
   });
 
-  it('auto-runs BOTH the trace and the impact when enabled; derives the rate', async () => {
+  it('auto-runs BOTH the trace and the impact when enabled', async () => {
     const skillTrace = vi.fn(async () => trace);
     const skillImpact = vi.fn(async () => impact);
     const { result } = renderHook(() => useSkillTrace('200332', ctx, true, { skillTrace, skillImpact }));
@@ -30,7 +30,6 @@ describe('useSkillTrace', () => {
     await waitFor(() => expect(result.current.impactStatus).toBe('done'));
     expect(skillImpact).toHaveBeenCalled();
     expect(result.current.impact?.samples.length).toBe(168);
-    expect(result.current.rate).toBeCloseTo(0.42, 5); // 168 / 400
   });
 
   it('na when the build has zero speed', async () => {

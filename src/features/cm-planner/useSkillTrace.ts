@@ -4,7 +4,7 @@
  *  samples) — the two queue on the same FIFO worker so velocity paints first, then the
  *  impact charts. Results are MEMOIZED by sig (skill + build + course) in a module-level
  *  LRU, so re-opening a skill (or re-running the chart with the same build) is instant and
- *  never re-simulates. The activation rate is derived from the impact samples. runChoice
+ *  never re-simulates. The fire-count breakdown is derived from the impact samples. runChoice
  *  switches between the four representative trace runs returned in one sim — no re-sim.
  *  Module-shared SimClient imported from '@/sim/client' (NOT the '@/sim' barrel) so the
  *  engine bundle stays out of this module's import graph. */
@@ -34,8 +34,6 @@ export interface SkillTraceState {
   meanL: number | null;
   impact: SkillImpact | null;
   impactStatus: 'idle' | 'running' | 'done';
-  /** activation rate (発動率), derived from the impact samples; null until the impact run resolves. */
-  rate: number | null;
 }
 
 // --- module-level LRU memo of completed sims, keyed by sig ---
@@ -128,6 +126,5 @@ export function useSkillTrace(
   }, [enabled, sig]);
 
   const run = trace ? trace.runs[runChoice] : null;
-  const rate = impact && impact.nsamples > 0 ? impact.samples.length / impact.nsamples : null;
-  return { status, run, runChoice, setRunChoice, meanL: trace?.meanL ?? null, impact, impactStatus, rate };
+  return { status, run, runChoice, setRunChoice, meanL: trace?.meanL ?? null, impact, impactStatus };
 }
