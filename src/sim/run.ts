@@ -172,11 +172,19 @@ export function runSkillTrace(
   };
 }
 
-function allActivationRegions(run: SimulationRun, runner: 0 | 1): RaceActivation[] {
+export function allActivationRegions(run: SimulationRun, runner: 0 | 1): RaceActivation[] {
   const acts = run.skillActivations[runner] ?? {};
   const out: RaceActivation[] = [];
   for (const [skillId, logs] of Object.entries(acts)) {
-    for (const l of logs) out.push({ skillId, start: l.start, end: l.end });
+    // One activation can log MULTIPLE effects at the same start position; collapse them to a
+    // single marker (umalator's buildSelfSkillRegions), keeping the longest as the representative
+    // window. Genuine multi-fire (distinct starts) stays as separate regions.
+    const byStart = new Map<number, { start: number; end: number }>();
+    for (const l of logs) {
+      const prev = byStart.get(l.start);
+      if (!prev || l.end - l.start > prev.end - prev.start) byStart.set(l.start, { start: l.start, end: l.end });
+    }
+    for (const r of byStart.values()) out.push({ skillId, start: r.start, end: r.end });
   }
   return out;
 }
