@@ -283,3 +283,20 @@ describe('parseCmPlan cmRef normalization', () => {
     expect(() => parsePlanFile([bad])).toThrow(/plans\[0\]\.cmRef must be an object/);
   });
 });
+
+describe('parsePlanFile upload branches', () => {
+  it('extracts the plans from a v2 export blob (the backup-export shape)', () => {
+    const blob = { ...emptyBlob(), cmPlans: [FIXTURE_PLAN] };
+    const plans = parsePlanFile(blob);
+    expect(plans).toHaveLength(1);
+    expect(plans[0]!.id).toBe(FIXTURE_PLAN.id);
+    expect(plans[0]!.cmRef).toHaveProperty('kind'); // ran through parseCmPlan → normalizeCmRef
+  });
+
+  it('accepts a bare single plan object (the downloadPlan shape)', () => {
+    const plans = parsePlanFile({ ...FIXTURE_PLAN });
+    expect(plans).toHaveLength(1);
+    expect(plans[0]!.id).toBe(FIXTURE_PLAN.id);
+    expect(plans[0]!.cmRef).toHaveProperty('kind');
+  });
+});

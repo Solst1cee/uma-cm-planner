@@ -12,6 +12,7 @@ import type { CmPlan } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { UmaChartRow, UmaChartCandidate, UmaStyleL } from '@/core/rankUmaChart';
 import { referenceBuild } from '@/core/rankUmaChart';
+import { nullsLast } from '@/core/compare';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
@@ -186,14 +187,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
       }
       return true;
     })
-    .sort((a, b) => {
-      const av = sortKey(a.eff);
-      const bv = sortKey(b.eff);
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1; // n/a rows always sort last
-      if (bv == null) return -1;
-      return sortDir === 'desc' ? bv - av : av - bv;
-    });
+    .sort(nullsLast((r) => sortKey(r.eff), sortDir)); // n/a rows always sort last
 
   return (
     <section className="cmp-plan-card cmp-uma-chart">
