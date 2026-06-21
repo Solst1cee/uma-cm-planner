@@ -167,7 +167,7 @@ vi.mock('@/sim/courseData', () => ({ courseDataFor: () => h.courseData }));
 vi.mock('./useSkillTrace', () => ({
   useSkillTrace: () => ({
     status: 'idle', run: null, runChoice: 'median', setRunChoice: () => {},
-    impact: null, impactStatus: 'idle', rate: null,
+    impact: null, impactStatus: 'idle',
   }),
 }));
 vi.mock('@/sim/courseCatalog', () => ({
@@ -586,6 +586,30 @@ describe('CmPlannerPage', () => {
     await waitFor(() => expect(h.deleteSavedPlan).toHaveBeenCalledTimes(1));
     expect(h.deleteSavedPlan).toHaveBeenCalledWith('custom-hanshin');
     expect(h.deleteSavedPlan).not.toHaveBeenCalledWith('p');
+  });
+
+  it('surfaces an error (not a silent failure) when a group delete rejects', async () => {
+    h.deleteSavedPlan.mockRejectedValueOnce(new Error('db fail'));
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    fireEvent.click(deleteGroup);
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans in CM15' }));
+
+    expect(await within(inventory).findByText('CM15 plans could not be deleted.')).toBeInTheDocument();
+    expect(h.deleteSavedPlan).toHaveBeenCalledTimes(1); // the group's single plan was attempted; failure surfaced
+  });
+
+  it('surfaces an error when delete-all rejects', async () => {
+    h.deleteAllSavedPlans.mockRejectedValueOnce(new Error('db fail'));
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Delete all plans' }));
+    fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans' }));
+
+    expect(await within(inventory).findByText('Plans could not be deleted.')).toBeInTheDocument();
   });
 
   it('collapses and expands inventory track groups', async () => {

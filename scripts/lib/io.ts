@@ -31,3 +31,20 @@ export function writeJsonDeterministic(path: string, data: unknown): void {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
+
+/** True for a non-null, non-array object literal. */
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Deep-copy with documentation keys ('_'-prefixed) stripped — the data-overrides /
+ *  *_additions convention (a `_comment` etc. on a record is doc, not data). */
+export function stripMeta<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(stripMeta) as T;
+  if (isPlainObject(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value)) if (!k.startsWith('_')) out[k] = stripMeta(v);
+    return out as T;
+  }
+  return value;
+}

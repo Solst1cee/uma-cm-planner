@@ -175,9 +175,9 @@ vi.mock('./skillTechnicalDetails', () => ({
   }),
 }));
 vi.mock('./useSkillTrace', () => ({
-  useSkillTrace: () => ({
+  useSkillTrace: (): import('./useSkillTrace').SkillTraceState => ({
     status: 'idle', run: null, runChoice: 'median', setRunChoice: vi.fn(),
-    rate: null, rateStatus: 'idle', computeRate: vi.fn(),
+    meanL: null, impact: null, impactStatus: 'idle',
   }),
 }));
 

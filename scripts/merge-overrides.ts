@@ -15,7 +15,7 @@
  */
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { readJson } from './lib/io';
+import { isPlainObject, readJson, stripMeta } from './lib/io';
 
 export interface OverrideFile {
   /** Dataset name, e.g. "skills" → patches the records destined for public/data/skills.json. */
@@ -29,23 +29,6 @@ export interface LoadedOverrideFile extends OverrideFile {
 }
 
 const ELEMENT_ID_KEYS = ['skillId', 'cardId', 'id'] as const;
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/** Deep-copy with documentation keys ('_'-prefixed) stripped. */
-function stripMeta(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stripMeta);
-  if (isPlainObject(value)) {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value)) {
-      if (!k.startsWith('_')) out[k] = stripMeta(v);
-    }
-    return out;
-  }
-  return value;
-}
 
 function arrayIdentityKey(base: unknown[], patch: unknown[]): string | undefined {
   for (const key of ELEMENT_ID_KEYS) {

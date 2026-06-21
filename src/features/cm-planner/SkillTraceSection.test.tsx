@@ -28,7 +28,7 @@ const impact: SkillImpact = {
 
 const base: SkillTraceState = {
   status: 'done', run, runChoice: 'median', setRunChoice: vi.fn(),
-  meanL: 2.3, impact: null, impactStatus: 'running', rate: null,
+  meanL: 2.3, impact: null, impactStatus: 'running',
 };
 let current: SkillTraceState = base;
 vi.mock('./useSkillTrace', async (importOriginal) => ({
@@ -59,7 +59,7 @@ describe('SkillTraceSection', () => {
   });
 
   it('shows the impact + frequency charts, fire-count breakdown, and peak when the impact finishes', () => {
-    current = { ...base, impact, impactStatus: 'done', rate: 0.75 };
+    current = { ...base, impact, impactStatus: 'done' };
     const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
     expect(container.textContent).toMatch(/L gained by activation position/i);
     expect(container.textContent).toMatch(/Activation frequency by position/i);
@@ -70,6 +70,25 @@ describe('SkillTraceSection', () => {
     expect(container.textContent).toMatch(/biggest gain/i);
     expect(container.textContent).toMatch(/fires at 400m/i);
     expect(container.textContent).toMatch(/\+3\.00 L/);
+  });
+
+  it('suppresses the biggest-gain line rather than render it below the average (cross-sim guard)', () => {
+    // Impact max horseLength (1.5) is below meanL (2.3) — showing "+1.50 biggest" under "+2.30 average"
+    // would be a contradiction, so the biggest line is omitted.
+    const lowImpact: SkillImpact = { samples: [{ horseLength: 1.5, positions: [400] }], nsamples: 4, distance: 1200 };
+    current = { ...base, impact: lowImpact, impactStatus: 'done' };
+    const { container } = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
+    expect(container.textContent).toMatch(/average gain/i);
+    expect(container.textContent).not.toMatch(/biggest gain/i);
+  });
+
+  it('Escape closes the help popup', () => {
+    current = base;
+    const view = render(<SkillTraceSection skillId="200332" ctx={ctx} enabled />);
+    fireEvent.click(view.getByRole('button', { name: /how these graphs work/i }));
+    expect(view.container.textContent).toMatch(/How these graphs work/i);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(view.container.textContent).not.toMatch(/How these graphs work/i);
   });
 
   it('renders the na message when the trace is empty', () => {

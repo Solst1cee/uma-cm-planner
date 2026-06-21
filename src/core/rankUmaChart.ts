@@ -7,6 +7,7 @@
  */
 import type { BashinStats, Grade, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { Stat } from '@/core/types';
+import { nullsLast } from './compare';
 import { DEAD_L, DISCOVERY_NSAMPLES } from './rankSkillChart';
 
 /** Fixed reference runner. basinnhyou's cmdef baseStats are JP-tuned and exceed
@@ -70,16 +71,9 @@ export function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
   };
 }
 
-function rankValue(r: UmaChartRow): number {
-  // Finite sentinel (not -Infinity) so an na-vs-na comparison yields 0, not NaN.
-  return r.status === 'na' ? Number.MIN_SAFE_INTEGER : (r.L ?? 0);
-}
-
-/** Chart order comparator: L desc, na last. Exported so the hook can keep the
- *  streamed list sorted as rows arrive (no end-of-run reshuffle). */
-export function compareUmaChartRows(a: UmaChartRow, b: UmaChartRow): number {
-  return rankValue(b) - rankValue(a);
-}
+/** Chart order comparator: L desc, na last (na → null key so it sinks; NaN-safe for na-vs-na).
+ *  Exported so the hook keeps the streamed list sorted as rows arrive (no end-of-run reshuffle). */
+export const compareUmaChartRows = nullsLast<UmaChartRow>((r) => (r.status === 'na' ? null : (r.L ?? 0)), 'desc');
 
 async function rowFor(
   c: UmaChartCandidate,

@@ -2,7 +2,6 @@ import type { SkillFrame, SkillTraceRun, SkillImpactSample } from '@/sim';
 
 export interface Pt { x: number; y: number; }
 export interface Box { w: number; h: number; }
-export interface Domain { tMax: number; vMax: number; distMax: number; }
 /** A y-range; always includes 0. */
 export interface LDomain { top: number; bottom: number; }
 /** A phase background band in viewBox pixels (0=Early, 1=Mid, 2=Late, 3=Last spurt). */
@@ -23,20 +22,6 @@ function round(n: number): number { return Math.round(n * 100) / 100; }
 function scale(value: number, domainMax: number, range: number): number {
   if (domainMax <= 0) return 0;
   return (value / domainMax) * range;
-}
-
-/** Axis domains for a run (max time, max velocity across both lines, max distance). */
-export function domainOf(run: SkillTraceRun): Domain {
-  const all = [...run.withSkill, ...run.without];
-  const tMax = Math.max(1, ...all.map((f) => f.t));
-  const vMax = Math.max(1, ...all.map((f) => f.v));
-  const distMax = Math.max(1, ...all.map((f) => f.pos));
-  return { tMax, vMax, distMax };
-}
-
-/** Velocity-vs-time: x = t, y = v (inverted so up = faster). */
-export function vtPoints(frames: SkillFrame[], box: Box, d: Domain): Pt[] {
-  return frames.map((f) => ({ x: scale(f.t, d.tMax, box.w), y: box.h - scale(f.v, d.vMax, box.h) }));
 }
 
 /** Integer-L y-range for the length-impact chart (clean 1L gridlines); always includes 0. */
@@ -162,17 +147,6 @@ export function distancePhaseBands(box: Box): Band[] {
   return bandsFromEdges([0, ...PHASE_FRACTIONS.map((f) => f * box.w), box.w]);
 }
 
-/** Four phase bands along the TIME axis — phase boundaries are distances, mapped to times
- *  via the with-skill run (so the bands line up with where each phase happens in time). */
-export function timePhaseBands(run: SkillTraceRun, box: Box, d: Domain): Band[] {
-  const edges = [
-    0,
-    ...PHASE_FRACTIONS.map((f) => scale(timeAtPosition(run.withSkill, f * d.distMax), d.tMax, box.w)),
-    box.w,
-  ];
-  return bandsFromEdges(edges);
-}
-
 function bandsFromEdges(edges: number[]): Band[] {
   const bands: Band[] = [];
   for (let i = 0; i < edges.length - 1; i++) {
@@ -208,11 +182,6 @@ export function posPoints(frames: SkillFrame[], box: Box, distance: number, pick
   return frames.map((f) => ({ x: scale(f.pos, distance, box.w), y: box.h - scale(pick(f), max, box.h) }));
 }
 
-/** Activation regions (metres) → x/width boxes on the distance axis (1px min width). */
-export function activationZonesByPos(acts: { start: number; end: number }[], box: Box, distance: number): { x: number; w: number }[] {
-  return acts.map(({ start, end }) => ({ x: scale(start, distance, box.w), w: Math.max(1, scale(end - start, distance, box.w)) }));
-}
-
 /** Largest absolute バ身 gap (symmetric y-domain; always ≥1). */
 export function gapMagnitude(gap: { bashin: number }[]): number {
   return Math.max(1, ...gap.map((g) => Math.abs(g.bashin)));
@@ -246,18 +215,21 @@ export interface VWindow {
 export function velocityWindow(run: SkillTraceRun): VWindow {
   const all = [...run.withSkill, ...run.without];
   const tMaxAll = Math.max(1, ...all.map((f) => f.t));
-  const vMaxRace = Math.max(1, ...all.map((f) => f.v));
-  const vMax = Math.max(V_FLOOR, Math.ceil(vMaxRace) + 1);
   const acts = activationTimes(run);
   if (acts.length === 0) {
+    const vMaxRace = Math.max(1, ...all.map((f) => f.v));
     const vMinRace = all.length ? Math.min(...all.map((f) => f.v)) : 0;
-    return { winStart: 0, winEnd: tMaxAll, vMin: Math.min(V_FLOOR, vMinRace), vMax, tStart: null, convergenceT: tMaxAll };
+    return { winStart: 0, winEnd: tMaxAll, vMin: Math.min(V_FLOOR, vMinRace), vMax: Math.max(V_FLOOR, Math.ceil(vMaxRace) + 1), tStart: null, convergenceT: tMaxAll };
   }
   const { tStart, tEnd } = acts[0]!;
   const winStart = Math.max(0, tStart - V_WINDOW_PAD);
   const winEnd = Math.min(tMaxAll, tEnd + V_WINDOW_PAD);
   const inWin = all.filter((f) => f.t >= winStart && f.t <= winEnd).map((f) => f.v);
   const vMinWin = inWin.length ? Math.min(...inWin) : 0;
+  // Floor the y-range to the WINDOW (not the whole race): a last-spurt top speed outside the window
+  // would otherwise stretch the axis and flatten the with/without gap this chart exists to show.
+  const vMaxWin = inWin.length ? Math.max(...inWin) : 1;
+  const vMax = Math.max(V_FLOOR, Math.ceil(vMaxWin) + 1);
   // First frame after the skill ends where with ≈ without (re-converged) — both runners share frame
   // indices (same sim), so compare by index.
   let convergenceT = winEnd;
@@ -269,16 +241,22 @@ export function velocityWindow(run: SkillTraceRun): VWindow {
   return { winStart, winEnd, vMin: Math.min(V_FLOOR, vMinWin), vMax, tStart, convergenceT };
 }
 
+/** Map a window-relative time (s) to an x-pixel within the zoomed velocity chart. Single source of
+ *  truth for the time→x projection (velocity points, phase bands, and the activation zones). */
+export function tToX(t: number, w: VWindow, box: Box): number {
+  const tspan = (w.winEnd - w.winStart) || 1;
+  return ((t - w.winStart) / tspan) * box.w;
+}
+
 /** Velocity points inside the window, mapped with the floored y-range. Optionally clip to [start, end]
  *  seconds — used to trim the with-skill line to [activation start, convergence]. */
 export function vtWindowPoints(frames: SkillFrame[], box: Box, w: VWindow, clip?: { start?: number; end?: number }): Pt[] {
-  const tspan = (w.winEnd - w.winStart) || 1;
   const vspan = (w.vMax - w.vMin) || 1;
   const lo = Math.max(w.winStart, clip?.start ?? w.winStart);
   const hi = Math.min(w.winEnd, clip?.end ?? w.winEnd);
   return frames
     .filter((f) => f.t >= lo && f.t <= hi)
-    .map((f) => ({ x: ((f.t - w.winStart) / tspan) * box.w, y: box.h - ((f.v - w.vMin) / vspan) * box.h }));
+    .map((f) => ({ x: tToX(f.t, w, box), y: box.h - ((f.v - w.vMin) / vspan) * box.h }));
 }
 
 /** Four phase bands mapped onto the zoomed time window and clipped to it — only the phases the
@@ -286,13 +264,12 @@ export function vtWindowPoints(frames: SkillFrame[], box: Box, w: VWindow, clip?
 export function timePhaseBandsWindowed(run: SkillTraceRun, box: Box, w: VWindow): Band[] {
   const distMax = Math.max(1, ...[...run.withSkill, ...run.without].map((f) => f.pos));
   const edges = [0, ...PHASE_FRACTIONS.map((f) => timeAtPosition(run.withSkill, f * distMax)), Infinity];
-  const tspan = (w.winEnd - w.winStart) || 1;
   const bands: Band[] = [];
   for (let i = 0; i < edges.length - 1; i++) {
     const t0 = Math.max(w.winStart, edges[i] ?? 0);
     const t1 = Math.min(w.winEnd, edges[i + 1] ?? w.winEnd);
     if (t1 <= t0) continue;
-    bands.push({ x: ((t0 - w.winStart) / tspan) * box.w, w: ((t1 - t0) / tspan) * box.w, phase: i as 0 | 1 | 2 | 3 });
+    bands.push({ x: tToX(t0, w, box), w: tToX(t1, w, box) - tToX(t0, w, box), phase: i as 0 | 1 | 2 | 3 });
   }
   return bands;
 }

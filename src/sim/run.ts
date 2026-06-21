@@ -121,13 +121,16 @@ export function skillImpact(
   if (nsamples < 1 || build.stats.spd <= 0) return { samples: [], nsamples: 0, distance: 0 };
   if (!skillsService.isSimulatable(skillId)) return { samples: [], nsamples: 0, distance: 0 };
   const course = resolveCourse(race.courseId);
+  // simulatableBase drops engine-unknown baseline ids that would otherwise throw (the tracked
+  // skillId is already isSimulatable-guarded above) — mirrors evalSkillDelta/runVacuumCompare.
+  const base = simulatableBase(build);
   const r = runSkillComparison({
     trackedSkillId: skillId,
     nsamples,
     course,
     racedef: toRaceDef(race),
-    runnerA: toRunnerState(build),
-    runnerB: toRunnerState({ ...build, skills: [...build.skills, skillId] }),
+    runnerA: toRunnerState(base),
+    runnerB: toRunnerState({ ...base, skills: [...base.skills, skillId] }),
     options: { seed, ignoreStaminaConsumption: false },
   });
   // runSkillComparison keys skillActivations flat by tracked skill id; each entry is one activating
@@ -143,12 +146,15 @@ export function runSkillTrace(
 ): SkillTrace {
   if (nsamples < 1 || build.stats.spd <= 0) return EMPTY_TRACE;
   if (!skillsService.isSimulatable(skillId)) return EMPTY_TRACE;
+  // simulatableBase drops engine-unknown baseline ids that would otherwise throw — mirrors the
+  // other engine entries (the tracked skillId is already isSimulatable-guarded above).
+  const base = simulatableBase(build);
   const r = runComparison({
     nsamples,
     course: resolveCourse(race.courseId),
     racedef: toRaceDef(race),
-    uma1: toRunnerState(build),
-    uma2: toRunnerState({ ...build, skills: [...build.skills, skillId] }),
+    uma1: toRunnerState(base),
+    uma2: toRunnerState({ ...base, skills: [...base.skills, skillId] }),
     options: { seed, ignoreStaminaConsumption: false },
   });
   const results = r.results; // engine returns these sorted ascending
@@ -213,7 +219,9 @@ export function runRaceCompare(
   const course = resolveCourse(race.courseId);
   const r = runComparison({
     nsamples, course, racedef: toRaceDef(race),
-    uma1: toRunnerState(uma1), uma2: toRunnerState(uma2),
+    // simulatableBase drops engine-unknown ids (inherited-unique 9… / JP-only / imported) that
+    // would otherwise THROW — mirroring runVacuumCompare so one bad id can't blank the overlay.
+    uma1: toRunnerState(simulatableBase(uma1)), uma2: toRunnerState(simulatableBase(uma2)),
     options: { seed, ignoreStaminaConsumption: false },
   });
   return {

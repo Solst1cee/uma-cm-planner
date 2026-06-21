@@ -13,6 +13,7 @@ import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
 import { isReleasedBy } from '@/core/availability';
+import { nullsLast } from '@/core/compare';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { purchaseSpCost } from '@/core/cost';
 import { chartBaselineBuild } from '@/core/simBuild';
@@ -188,14 +189,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       if (q && !v.skill.nameEn.toLowerCase().includes(q)) return false;
       return true;
     })
-    .sort((a, b) => {
-      const av = rawMetric(a, sortMetric);
-      const bv = rawMetric(b, sortMetric);
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1; // nulls (na / no-SP) always sort last
-      if (bv == null) return -1;
-      return sortDir === 'desc' ? bv - av : av - bv;
-    });
+    .sort(nullsLast((v) => rawMetric(v, sortMetric), sortDir)); // nulls (na / no-SP) always sort last
 
   return (
     <section className="cmp-plan-card cmp-skill-chart">
@@ -324,7 +318,8 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
                         {v.inBuild && <span className="cmp-inbuild">in build</span>}
-                        {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : signed(v.row.L ?? 0)}
+                        {/* L == null = un-simmed (e.g. an in-build row added before any Run) → "—", NOT a fabricated +0.00 */}
+                        {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                       </span>
                       <span className={`cmp-uma-num ${sortMetric === 'sp' ? 'is-sort' : ''}`.trim()}>
                         {v.sp ?? '—'}

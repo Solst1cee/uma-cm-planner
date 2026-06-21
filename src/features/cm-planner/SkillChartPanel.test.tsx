@@ -109,6 +109,20 @@ describe('SkillChartPanel', () => {
     expect(badge.parentElement).toHaveTextContent(/\+1\.23/);
   });
 
+  it('renders "—" (not a fabricated +0.00) for an in-build row with no projected L yet', async () => {
+    const targetedPlan = {
+      ...basePlan,
+      wishlist: [{ skillId: TARGET_ID, priority: 1, source: 'targeted' }], // un-simmed: no projectedL
+    } as typeof basePlan;
+    render(<SkillChartPanel courseId="10906" plan={targetedPlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
+    const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
+    const cell = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false).parentElement!;
+    expect(cell).toHaveTextContent('—');
+    expect(cell).not.toHaveTextContent(/\+0\.00/);
+  });
+
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {
     await runFull();
     const rows = within(list()).getAllByRole('listitem');

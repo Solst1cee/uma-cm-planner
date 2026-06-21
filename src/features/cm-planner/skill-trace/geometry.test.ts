@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
-  polyline, vtPoints, domainOf, activationTimes,
+  polyline, activationTimes,
   lAxisDomain, zeroLineY, gridLinesX, gridLinesY,
   impactByPosition, frequencyByPosition, binColumns, peakImpactPosition, activationCounts,
-  distancePhaseBands, timePhaseBands, PHASE_FRACTIONS,
-  velocityHpDomain, posPoints, activationZonesByPos, gapMagnitude, gapPoints,
+  distancePhaseBands, PHASE_FRACTIONS,
+  velocityHpDomain, posPoints, gapMagnitude, gapPoints,
   velocityWindow, vtWindowPoints, timePhaseBandsWindowed,
 } from './geometry';
 import type { SkillTraceRun, SkillImpactSample } from '@/sim';
@@ -19,12 +19,6 @@ const run: SkillTraceRun = {
 describe('geometry — velocity/time', () => {
   it('polyline joins points as "x,y x,y"', () => {
     expect(polyline([{ x: 0, y: 1 }, { x: 2, y: 3 }])).toBe('0,1 2,3');
-  });
-
-  it('vtPoints maps t→x and v→y inside the box (y inverted)', () => {
-    const pts = vtPoints(run.withSkill, { w: 100, h: 50 }, domainOf(run));
-    expect(pts[0]!).toEqual({ x: 0, y: 50 });
-    expect(pts[1]!).toEqual({ x: 100, y: 0 });
   });
 
   it('activationTimes maps activation positions to with-skill frame times', () => {
@@ -90,6 +84,11 @@ describe('geometry — position-resolved charts', () => {
     expect(peakImpactPosition(samples)).toEqual({ pos: 100, L: 5 });
   });
 
+  it('peakImpactPosition is null when nothing activates with a positive gain', () => {
+    expect(peakImpactPosition([{ horseLength: 0, positions: [100] }, { horseLength: -1, positions: [200] }])).toBeNull();
+    expect(peakImpactPosition([])).toBeNull();
+  });
+
   it('binColumns draws a bar only for non-zero bins, growing from the baseline', () => {
     const cols = binColumns([0, 0.4, 0], { w: 90, h: 80 }, { top: 0.5, bottom: 0 });
     expect(cols).toHaveLength(1);
@@ -113,19 +112,6 @@ describe('geometry — four phase bands', () => {
     expect(bands[2]).toEqual({ x: 80, w: 20, phase: 2 });  // 2/3 – 5/6
     expect(bands[3]).toEqual({ x: 100, w: 20, phase: 3 }); // 5/6 – end
   });
-
-  it('timePhaseBands maps the three distance boundaries onto the time axis', () => {
-    const linear: SkillTraceRun = {
-      withSkill: Array.from({ length: 7 }, (_, i) => ({ t: i, v: 1, pos: i * 100, hp: 1 })),
-      without: [], activation: [], L: 0,
-    };
-    const d = domainOf(linear); // distMax 600, tMax 6
-    const bands = timePhaseBands(linear, box, d);
-    expect(bands).toHaveLength(4);
-    expect(bands[1]!.x).toBeCloseTo(20, 5);  // 1/6 dist (100m) → t=1
-    expect(bands[2]!.x).toBeCloseTo(80, 5);  // 2/3 dist (400m) → t=4
-    expect(bands[3]!.x).toBeCloseTo(100, 5); // 5/6 dist (500m) → t=5
-  });
 });
 
 const f = (pos: number, v: number, hp: number) => ({ t: 0, pos, v, hp });
@@ -138,9 +124,6 @@ describe('distance-axis overlay geometry', () => {
   it('posPoints maps pos→x and inverts the picked value', () => {
     const pts = posPoints([f(600, 20, 0)], box, 1200, (fr) => fr.v, 20);
     expect(pts[0]).toEqual({ x: 50, y: 0 }); // half distance → x50; v at max → y0 (top)
-  });
-  it('activationZonesByPos maps start/width with a 1px floor', () => {
-    expect(activationZonesByPos([{ start: 600, end: 600 }], box, 1200)).toEqual([{ x: 50, w: 1 }]);
   });
   it('gap maps to a zero-centred band, + up', () => {
     const mag = gapMagnitude([{ bashin: 2 }, { bashin: -1 }]);
@@ -177,6 +160,19 @@ describe('geometry — windowed velocity (zoom + floor + convergence)', () => {
     expect(w.winStart).toBe(0);
     expect(w.winEnd).toBe(30);
     expect(w.tStart).toBeNull();
+  });
+
+  it('convergenceT falls through to winEnd when the runners never re-converge in the window', () => {
+    // withSkill stays elevated (v=25) through the window end — no frame returns within eps of without.
+    const noConverge: SkillTraceRun = {
+      without: Array.from({ length: 31 }, (_, i) => ({ t: i, v: 20, pos: i * 10, hp: 100 })),
+      withSkill: Array.from({ length: 31 }, (_, i) => ({ t: i, v: i >= 15 ? 25 : 20, pos: i * 10, hp: 100 })),
+      activation: [{ start: 150, end: 160 }],
+      L: 1,
+    };
+    const w = velocityWindow(noConverge);
+    expect(w.convergenceT).toBe(w.winEnd);   // not trimmed early — the with-line runs to the window edge
+    expect(w.winEnd).toBe(26);
   });
 
   it('vtWindowPoints maps the window to the box and can clip the with-skill line to the divergence', () => {

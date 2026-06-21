@@ -1,7 +1,7 @@
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
-import { RaceOverlay } from './RaceOverlay';
-import type { RaceCompareRun } from '@/sim';
+import { RaceOverlay, placeRungs } from './RaceOverlay';
+import type { RaceCompareRun, RaceActivation } from '@/sim';
 
 const run: RaceCompareRun = {
   uma1Frames: [{ t: 0, pos: 0, v: 18, hp: 100 }, { t: 1, pos: 600, v: 20, hp: 60 }, { t: 2, pos: 1200, v: 16, hp: 10 }],
@@ -28,4 +28,35 @@ it('renders both velocity lines, hp lines (when showHp), markers and gap', () =>
 it('omits hp lines when showHp is false', () => {
   const { container } = render(<svg><RaceOverlay run={run} distance={1200} showHp={false} skillName={(id) => id} /></svg>);
   expect(container.querySelectorAll('.ro-hp').length).toBe(0);
+});
+
+describe('placeRungs (greedy rung-stacking)', () => {
+  const id = (s: string) => s;                 // skillId is the label
+  const act = (skillId: string, start: number, end: number): RaceActivation => ({ skillId, start, end });
+  // distance === boxW → metersPerUnit = 1, so meter intervals map 1:1 to layout units.
+
+  it('stacks two overlapping duration bars onto separate rungs', () => {
+    const { placed, rungs } = placeRungs([act('S1', 600, 650), act('S2', 640, 690)], 1200, 1200, id);
+    expect(rungs).toBe(2);
+    expect(placed[0]!.rung).toBe(0);   // sorted by start: S1 first
+    expect(placed[1]!.rung).toBe(1);   // overlaps S1 → bumped up a rung
+  });
+
+  it('keeps two far-apart activations on the same rung', () => {
+    const { placed, rungs } = placeRungs([act('S1', 200, 250), act('S2', 900, 950)], 1200, 1200, id);
+    expect(rungs).toBe(1);
+    expect(placed[0]!.rung).toBe(0);
+    expect(placed[1]!.rung).toBe(0);
+  });
+
+  it("stacks two near long-named INSTANT markers — proves the label extent (not just bar width) is honored", () => {
+    // Instant markers have ~0 bar width; they only collide because labelMeters reserves horizontal space.
+    const longName = () => 'x'.repeat(20);
+    const { rungs } = placeRungs([act('A', 600, 600), act('B', 610, 610)], 1200, 1200, longName);
+    expect(rungs).toBe(2);
+  });
+
+  it('returns nothing for a non-positive distance', () => {
+    expect(placeRungs([act('S1', 600, 650)], 0, 1200, id)).toEqual({ placed: [], rungs: 0 });
+  });
 });

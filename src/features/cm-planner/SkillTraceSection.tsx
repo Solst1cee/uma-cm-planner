@@ -1,23 +1,17 @@
 import './skill-trace/skill-trace.css';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSkillTrace, type TraceContext, IMPACT_SAMPLES } from './useSkillTrace';
 import { VelocityTimeChart, LengthImpactChart, ActivationFrequencyChart } from './skill-trace/SkillTraceCharts';
 import { peakImpactPosition, activationCounts } from './skill-trace/geometry';
+import { useDismissOnOutside } from './useDismissOnOutside';
 
 export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; ctx: TraceContext; enabled: boolean }) {
   const s = useSkillTrace(skillId, ctx, enabled);
   const [helpOpen, setHelpOpen] = useState(false);
   const helpRef = useRef<HTMLDivElement>(null);
 
-  // Close the help popup on any click outside it (the button + popup live inside helpRef).
-  useEffect(() => {
-    if (!helpOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (helpRef.current && !helpRef.current.contains(e.target as Node)) setHelpOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [helpOpen]);
+  // Close the help popup on click-outside / Esc (the button + popup live inside helpRef).
+  useDismissOnOutside(helpRef, helpOpen, () => setHelpOpen(false), { esc: true });
 
   if (s.status === 'na') {
     return <p className="muted small cmp-trace-note">No simulated trace for this skill on this build/course.</p>;
@@ -25,8 +19,13 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
   if (s.status === 'running' || s.run === null) {
     return <p className="muted small">Simulating trace…</p>;
   }
-  const peak = s.impact && s.impact.nsamples > 0 ? peakImpactPosition(s.impact.samples) : null;
-  const counts = s.impact && s.impact.nsamples > 0 ? activationCounts(s.impact.samples, s.impact.nsamples) : [];
+  const impact = s.impact && s.impact.nsamples > 0 ? s.impact : null;
+  const peak = impact ? peakImpactPosition(impact.samples) : null;
+  const counts = impact ? activationCounts(impact.samples, impact.nsamples) : [];
+  // "Average" (trace: 20 mixed runs incl. non-firing) and "biggest" (impact: 400 activating runs) come
+  // from two different sims, so the sampled max can rarely dip below the mean — never render a
+  // "biggest < average" contradiction; suppress the biggest line in that case (honest numbers, P3).
+  const showPeak = peak !== null && peak.L >= (s.meanL ?? 0);
   const build = ctx.buildLabel ?? 'this build';
   return (
     <section className="cmp-alt cmp-trace">
@@ -69,7 +68,7 @@ export function SkillTraceSection({ skillId, ctx, enabled }: { skillId: string; 
         {s.meanL != null && (
           <p className="cmp-trace-headline"><strong>{s.meanL >= 0 ? '+' : ''}{s.meanL.toFixed(2)} L</strong> average gain</p>
         )}
-        {peak && (
+        {showPeak && peak && (
           <p className="cmp-trace-headline"><strong>+{peak.L.toFixed(2)} L</strong> biggest gain — fires at {peak.pos}m</p>
         )}
         {counts.map(({ count, pct }) => (

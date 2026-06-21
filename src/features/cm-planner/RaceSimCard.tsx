@@ -2,10 +2,11 @@
  *  representative-run toggle) + the mean-バ身 readout. Presentational: the shared state comes
  *  from useRaceCompareController; the overlay it drives is rendered on the track (main column). */
 import './race-compare.css';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { RunChoiceToggle } from './skill-trace/SkillTraceCharts';
 import { Uma2PickerPopover } from './Uma2PickerPopover';
 import { Uma2Card } from './Uma2Card';
+import { useDismissOnOutside } from './useDismissOnOutside';
 import type { RaceCompareController } from './useRaceCompareController';
 
 export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
@@ -15,19 +16,7 @@ export function RaceSimCard({ ctl }: { ctl: RaceCompareController }) {
   const uma2Plan = uma2Id ? others.find((p) => p.id === uma2Id) : undefined;
 
   // Close the popover on click-outside / Esc (the page stays interactive — no modal backdrop).
-  useEffect(() => {
-    if (!pickerOpen) return;
-    const onDown = (e: PointerEvent) => {
-      if (!pickRef.current?.contains(e.target as Node)) setPickerOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPickerOpen(false); };
-    document.addEventListener('pointerdown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('pointerdown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [pickerOpen]);
+  useDismissOnOutside(pickRef, pickerOpen, () => setPickerOpen(false), { esc: true });
   return (
     <section className="cmp-plan-card cmp-racesim-card" aria-labelledby="cmp-racesim-h">
       <header className="cmp-plan-card-head">

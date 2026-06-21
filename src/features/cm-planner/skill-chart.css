@@ -114,10 +114,10 @@
 .cmp-stamina-warn {
   margin: 0 0 0.5rem;
   padding: 0.4rem 0.6rem;
-  border: 1px solid var(--warn-border, #b9892a);
+  border: 1px solid var(--warn-border);
   border-radius: 8px;
-  background: var(--warn-bg, rgba(185, 137, 42, 0.12));
-  color: var(--warn-fg, #e7c074);
+  background: var(--warn-bg);
+  color: var(--warn-fg);
 }
 .cmp-stamina-thresh { display: inline-flex; align-items: center; gap: 0.15rem; white-space: nowrap; }
 .cmp-stamina-thresh input { width: 3.2rem; }

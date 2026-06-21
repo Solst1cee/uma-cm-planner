@@ -2,6 +2,7 @@
  *  engine bashin delta on the fixed base build. nsamples===0 ⇒ the engine can't
  *  evaluate it → 'na' (never a misleading 0 L, P3). mean ≤ DEAD_L ⇒ 'zero'. */
 import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
+import { nullsLast } from './compare';
 
 export const DEAD_L = 0.1;
 
@@ -51,16 +52,8 @@ function rowFrom(skillId: string, s: BashinStats): SkillChartRow {
   return { skillId, L: s.mean, min: s.min, max: s.max, median: s.median, status, nsamples: s.nsamples };
 }
 
-/** Finite sentinel (not -Infinity) so comparing two 'na' rows never yields NaN. */
-const NA_RANK = Number.MIN_SAFE_INTEGER;
-function rankValue(r: SkillChartRow): number {
-  return r.status === 'na' ? NA_RANK : (r.L ?? 0);
-}
-
-/** Sort comparator: L desc, na last; NaN-safe for na-vs-na. */
-export function compareSkillChartRows(a: SkillChartRow, b: SkillChartRow): number {
-  return rankValue(b) - rankValue(a);
-}
+/** Sort comparator: L desc, na last (na → null key so it sinks; NaN-safe for na-vs-na). */
+export const compareSkillChartRows = nullsLast<SkillChartRow>((r) => (r.status === 'na' ? null : (r.L ?? 0)), 'desc');
 
 /** Resolve each skill's L (streaming via onRow), return rows sorted L desc (na last).
  *  shouldContinue (optional) is checked before each skill so callers can cancel. */

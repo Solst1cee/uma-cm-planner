@@ -26,8 +26,7 @@ export type AptKey =
 export type CmId = `CM${number}`;
 
 /**
- * Discriminated union for the CM race reference (Phase 1 — new standalone type;
- * CmPlan.cmRef still uses the legacy CmRef until Phase 2).
+ * Discriminated union for the CM race reference (the type of `CmPlan.cmRef`).
  *   kind:'cm'     → points at a timeline CM; track+conditions derived from the timeline.
  *   kind:'custom' → self-contained: courseId + conditions fully specified.
  */
