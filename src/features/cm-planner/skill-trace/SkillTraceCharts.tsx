@@ -1,21 +1,23 @@
 import './skill-trace.css';
 import type { RunChoice, SkillImpact, SkillTraceRun } from '@/sim';
 import {
-  vtPoints, polyline, domainOf, activationTimes, timePhaseBands,
+  polyline, activationTimes, velocityWindow, vtWindowPoints, timePhaseBandsWindowed,
   impactByPosition, frequencyByPosition, binColumns, lAxisDomain, zeroLineY,
   distancePhaseBands, gridLinesX, gridLinesY,
   type Box, type Band, type LDomain,
 } from './geometry';
 
 const BOX: Box = { w: 280, h: 96 };
+/** Activation-frequency chart only — half height (user pref); its own box keeps the others full size. */
+const FREQ_BOX: Box = { w: 280, h: 48 };
 const PHASE_LABELS = ['Early', 'Mid', 'Late', 'Spurt'] as const;
 const X_STEP = 500; // metres between x gridlines
 
-function PhaseBands({ bands }: { bands: Band[] }) {
+function PhaseBands({ bands, box }: { bands: Band[]; box: Box }) {
   return (
     <>
       {bands.map((b) => (
-        <rect key={b.phase} className={`cmp-trace-phase is-phase-${b.phase}`} x={b.x} y={0} width={b.w} height={BOX.h} />
+        <rect key={b.phase} className={`cmp-trace-phase is-phase-${b.phase}`} x={b.x} y={0} width={b.w} height={box.h} />
       ))}
     </>
   );
@@ -39,30 +41,53 @@ function num(n: number): string {
   return n.toFixed(Math.abs(n) < 1 ? 2 : 1).replace(/\.?0+$/, '');
 }
 
-export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
-  const d = domainOf(run);
-  const withPts = polyline(vtPoints(run.withSkill, BOX, d));
-  const withoutPts = polyline(vtPoints(run.without, BOX, d));
-  const bands = timePhaseBands(run, BOX, d);
-  const zones = activationTimes(run).map(({ tStart, tEnd }) => ({
-    x: (tStart / d.tMax) * BOX.w,
-    w: Math.max(1, ((tEnd - tStart) / d.tMax) * BOX.w),
-  }));
+/** Velocity vs time (utools / VFalator-style) — zoomed to the skill activation (±window padding),
+ *  y-axis floored (not 0-based) so the with/without gap reads, and the with-skill line trimmed to
+ *  where it re-converges with the no-skill baseline. Race phases shaded behind. */
+export function VelocityTimeChart({ run, runChoice, onRunChoice }: {
+  run: SkillTraceRun; runChoice?: RunChoice; onRunChoice?: (c: RunChoice) => void;
+}) {
+  const w = velocityWindow(run);
+  const bands = timePhaseBandsWindowed(run, BOX, w);
+  const baseline = polyline(vtWindowPoints(run.without, BOX, w)); // no-skill line spans the whole window
+  const withClip = w.tStart !== null ? { start: w.tStart, end: w.convergenceT } : undefined;
+  const withPts = polyline(vtWindowPoints(run.withSkill, BOX, w, withClip)); // trimmed to the divergence
+  const tspan = (w.winEnd - w.winStart) || 1;
+  const zones = (w.tStart !== null ? activationTimes(run) : []).map(({ tStart, tEnd }, i) => {
+    const x0 = Math.max(w.winStart, tStart), x1 = Math.min(w.winEnd, tEnd);
+    return {
+      x: ((x0 - w.winStart) / tspan) * BOX.w,
+      w: Math.max(1, ((x1 - x0) / tspan) * BOX.w),
+      dur: tEnd - tStart,            // activation length (s)
+      pos: run.activation[i]?.start ?? 0, // where it fires (course metres)
+    };
+  });
   return (
     <figure className="cmp-trace-chart">
-      <figcaption>Velocity vs time <small>(m/s)</small></figcaption>
+      <figcaption className="cmp-trace-caphead">
+        <span>Velocity vs time <small>(m/s)</small></span>
+        {runChoice !== undefined && onRunChoice !== undefined && (
+          <RunChoiceToggle value={runChoice} onChange={onRunChoice} />
+        )}
+      </figcaption>
       <div className="cmp-trace-plot">
         <div className="cmp-trace-graph">
-          <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Velocity over time, with and without the skill; race phases shaded" preserveAspectRatio="none">
-            <PhaseBands bands={bands} />
+          <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label="Velocity over time around the skill activation, with and without the skill; race phases shaded" preserveAspectRatio="none">
+            <PhaseBands bands={bands} box={BOX} />
             {zones.map((z, i) => <rect key={i} className="cmp-trace-zone" x={z.x} y={0} width={z.w} height={BOX.h} />)}
-            <polyline className="cmp-trace-line is-without" points={withoutPts} fill="none" />
+            <polyline className="cmp-trace-line is-without" points={baseline} fill="none" />
             <polyline className="cmp-trace-line is-with" points={withPts} fill="none" />
           </svg>
           <PhaseLabels bands={bands} />
-          <span className="cmp-ylabel" style={{ top: '6px' }}>{num(d.vMax)}</span>
-          <span className="cmp-xlabel" style={{ left: '0', transform: 'none' }}>0</span>
-          <span className="cmp-xlabel" style={{ left: '100%', transform: 'translateX(-100%)' }}>{`${num(d.tMax)}s`}</span>
+          {zones.map((z, i) => (
+            <span key={`zl${i}`} className="cmp-zone-label" style={{ left: `${((z.x + z.w / 2) / BOX.w) * 100}%` }}>
+              {num(z.dur)}s · ~{Math.round(z.pos)}m
+            </span>
+          ))}
+          <span className="cmp-ylabel" style={{ top: '6px' }}>{num(w.vMax)}</span>
+          <span className="cmp-ylabel" style={{ top: `${BOX.h - 6}px` }}>{num(w.vMin)}</span>
+          <span className="cmp-xlabel" style={{ left: '0', transform: 'none' }}>{`${num(w.winStart)}s`}</span>
+          <span className="cmp-xlabel" style={{ left: '100%', transform: 'translateX(-100%)' }}>{`${num(w.winEnd)}s`}</span>
         </div>
       </div>
     </figure>
@@ -71,35 +96,39 @@ export function VelocityTimeChart({ run }: { run: SkillTraceRun }) {
 
 /** Shared position-binned bar chart: X = course position (500 m gridlines + labels),
  *  Y = a per-bin value with `yStep` gridlines + labels; 4 phase bands + labels behind. */
-function PositionBarChart({ title, values, ld, distance, yStep, yUnit }: {
-  title: string; values: number[]; ld: LDomain; distance: number; yStep: number; yUnit: string;
+function PositionBarChart({ title, values, ld, distance, yStep, yUnit, box = BOX }: {
+  title: string; values: number[]; ld: LDomain; distance: number; yStep: number; yUnit: string; box?: Box;
 }) {
-  const cols = binColumns(values, BOX, ld);
-  const zeroY = zeroLineY(BOX, ld);
-  const xGrid = gridLinesX(distance, X_STEP, BOX);
-  const yGrid = gridLinesY(ld, yStep, BOX);
-  const bands = distancePhaseBands(BOX);
+  const cols = binColumns(values, box, ld);
+  const zeroY = zeroLineY(box, ld);
+  const xGrid = gridLinesX(distance, X_STEP, box); // 500 m: lines + labels
+  // 250 m: fainter half-step lines, no labels (skip those already drawn as a 500 m major line).
+  const xMinor = gridLinesX(distance, X_STEP / 2, box).filter((g) => g.value % X_STEP !== 0);
+  const yGrid = gridLinesY(ld, yStep, box);
+  const bands = distancePhaseBands(box);
+  const graphCls = box.h < BOX.h ? 'cmp-trace-graph cmp-trace-graph--short' : 'cmp-trace-graph';
   return (
     <figure className="cmp-trace-chart">
       <figcaption>{title}</figcaption>
       <div className="cmp-trace-plot">
-        <div className="cmp-trace-graph">
-          <svg viewBox={`0 0 ${BOX.w} ${BOX.h}`} role="img" aria-label={title} preserveAspectRatio="none">
-            <PhaseBands bands={bands} />
-            {yGrid.map((g) => <line key={`y${g.value}`} className="cmp-trace-grid" x1={0} y1={g.y} x2={BOX.w} y2={g.y} />)}
-            {xGrid.map((g) => <line key={`x${g.value}`} className="cmp-trace-grid" x1={g.x} y1={0} x2={g.x} y2={BOX.h} />)}
+        <div className={graphCls}>
+          <svg viewBox={`0 0 ${box.w} ${box.h}`} role="img" aria-label={title} preserveAspectRatio="none">
+            <PhaseBands bands={bands} box={box} />
+            {yGrid.map((g) => <line key={`y${g.value}`} className="cmp-trace-grid" x1={0} y1={g.y} x2={box.w} y2={g.y} />)}
+            {xMinor.map((g) => <line key={`xm${g.value}`} className="cmp-trace-grid is-minor" x1={g.x} y1={0} x2={g.x} y2={box.h} />)}
+            {xGrid.map((g) => <line key={`x${g.value}`} className="cmp-trace-grid" x1={g.x} y1={0} x2={g.x} y2={box.h} />)}
             {cols.map((c, i) => <rect key={i} className={`cmp-trace-col ${c.neg ? 'is-neg' : ''}`.trim()} x={c.x} y={c.y} width={c.w} height={c.h} />)}
-            <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={BOX.w} y2={zeroY} />
+            <line className="cmp-trace-baseline" x1={0} y1={zeroY} x2={box.w} y2={zeroY} />
           </svg>
           <PhaseLabels bands={bands} />
           {yGrid.map((g) => (
-            <span key={`yl${g.value}`} className="cmp-ylabel" style={{ top: `${Math.max(5, Math.min(91, g.y))}px` }}>
+            <span key={`yl${g.value}`} className="cmp-ylabel" style={{ top: `${Math.max(4, Math.min(box.h - 4, g.y))}px` }}>
               {`${num(g.value)}${yUnit}`}
             </span>
           ))}
           {xGrid.map((g) => (
             <span key={`xl${g.value}`} className="cmp-xlabel"
-              style={{ left: `${(g.x / BOX.w) * 100}%`, transform: g.value === 0 ? 'none' : 'translateX(-50%)' }}>
+              style={{ left: `${(g.x / box.w) * 100}%`, transform: g.value === 0 ? 'none' : 'translateX(-50%)' }}>
               {g.value === 0 ? '0' : `${g.value}m`}
             </span>
           ))}
@@ -122,7 +151,7 @@ export function LengthImpactChart({ impact }: { impact: SkillImpact }) {
 export function ActivationFrequencyChart({ impact }: { impact: SkillImpact }) {
   const values = frequencyByPosition(impact.samples, impact.nsamples, impact.distance);
   return (
-    <PositionBarChart title="Activation frequency by position" values={values} ld={{ top: 100, bottom: 0 }} distance={impact.distance} yStep={25} yUnit="%" />
+    <PositionBarChart title="Activation frequency by position" values={values} ld={{ top: 100, bottom: 0 }} distance={impact.distance} yStep={50} yUnit="%" box={FREQ_BOX} />
   );
 }
 
@@ -134,12 +163,11 @@ const CHOICES: { label: string; value: RunChoice }[] = [
 
 export function RunChoiceToggle({ value, onChange }: { value: RunChoice; onChange: (c: RunChoice) => void }) {
   return (
-    <div className="cmp-trace-choice" role="group" aria-label="Representative run">
+    <div className="cmp-control-group cmp-trace-choice" role="group" aria-label="Representative run">
       {CHOICES.map((c) => (
         <button
           key={c.value}
           type="button"
-          className={`cmp-trace-choice-btn ${value === c.value ? 'is-active' : ''}`.trim()}
           aria-pressed={value === c.value}
           onClick={() => onChange(c.value)}
         >

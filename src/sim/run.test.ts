@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { evalSkillDelta } from './run';
+import { evalSkillDelta, simulatableBase } from './run';
 import type { SimBuild } from './types';
 
 const build: SimBuild = {
@@ -37,6 +37,37 @@ describe('evalSkillDelta', () => {
     const stats = evalSkillDelta(build, { courseId: '10101' }, '200332', 0, 1);
     expect(stats.nsamples).toBe(0);
     expect(stats.mean).toBe(0);
+  });
+});
+
+describe('simulatableBase', () => {
+  const base = {
+    umaId: '100201', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },
+    strategy: 'pace' as const, aptitudes: { distance: 'A', surface: 'A', strategy: 'A' } as const,
+    skills: [],
+  };
+
+  it('drops ids the engine cannot simulate (no throw on unknown ids)', () => {
+    const out = simulatableBase({ ...base, skills: ['zzz-bogus-id'] });
+    expect(out.skills).toEqual([]);
+  });
+
+  it('removes a bogus baseline id while leaving the rest of the build intact', () => {
+    const out = simulatableBase({ ...base, skills: ['200332', 'zzz-bogus-id'] });
+    expect(out.skills).not.toContain('zzz-bogus-id');
+    expect(out.stats).toEqual(base.stats);
+    expect(out.strategy).toBe('pace');
+  });
+});
+
+describe('evalSkillDelta with a non-simulatable baseline skill', () => {
+  it('does not throw — a bogus baseline id is filtered out before the sim runs', () => {
+    const buildWithBogus = {
+      umaId: '100201', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },
+      strategy: 'pace' as const, aptitudes: { distance: 'A', surface: 'A', strategy: 'A' } as const,
+      skills: ['zzz-bogus-id'],
+    };
+    expect(() => evalSkillDelta(buildWithBogus, { courseId: '10101' }, '200332', 4, 1)).not.toThrow();
   });
 });
 

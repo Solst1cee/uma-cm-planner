@@ -26,6 +26,7 @@ describe('useSkillTrace', () => {
     const { result } = renderHook(() => useSkillTrace('200332', ctx, true, { skillTrace, skillImpact }));
     await waitFor(() => expect(result.current.status).toBe('done'));
     expect(result.current.run?.L).toBe(2);
+    expect(result.current.meanL).toBe(2); // mean バ身 from the trace, for the headline
     await waitFor(() => expect(result.current.impactStatus).toBe('done'));
     expect(skillImpact).toHaveBeenCalled();
     expect(result.current.impact?.samples.length).toBe(168);

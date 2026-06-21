@@ -5,14 +5,22 @@ import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, Sk
 
 const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
 
+/** Drop baseline skills the engine can't simulate. The engine THROWS on an unknown
+ *  id in a runner's deck, but isSimulatable returns false (no throw) for unknown ids,
+ *  so this neutralizes the only crash vector (e.g. inherited-unique 9… ids). */
+export function simulatableBase(build: SimBuild): SimBuild {
+  return { ...build, skills: build.skills.filter((id) => skillsService.isSimulatable(id)) };
+}
+
 /** With-vs-without bashin delta for adding `skillId` to `build` on `race`'s course. */
 export function evalSkillDelta(
   build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
 ): BashinStats {
   if (nsamples < 1) return { ...EMPTY };
   if (!skillsService.isSimulatable(skillId)) return { ...EMPTY };
-  const runnerA = toRunnerState(build);
-  const runnerB = toRunnerState({ ...build, skills: [...build.skills, skillId] });
+  const base = simulatableBase(build);
+  const runnerA = toRunnerState(base);
+  const runnerB = toRunnerState({ ...base, skills: [...base.skills, skillId] });
   const result = runSkillComparison({
     trackedSkillId: skillId,
     nsamples,
@@ -33,8 +41,8 @@ export function runVacuumCompare(
     nsamples,
     course: resolveCourse(race.courseId),
     racedef: toRaceDef(race),
-    uma1: toRunnerState(a),
-    uma2: toRunnerState(b),
+    uma1: toRunnerState(simulatableBase(a)),
+    uma2: toRunnerState(simulatableBase(b)),
     options: { seed, ignoreStaminaConsumption: false },
   });
   return {

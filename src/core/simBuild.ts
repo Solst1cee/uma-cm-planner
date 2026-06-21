@@ -3,8 +3,9 @@
  * marginal L on a FIXED base build with no owned skills (vacuum), so skills:[].
  * Target aptitudes live in sparkGoals.pink (shared-data-model); default A.
  */
-import type { AptKey, CmPlan, Grade, Strategy } from '@/core/types';
+import type { AptKey, CmPlan, Grade, SkillRecord, Strategy } from '@/core/types';
 import type { SimBuild } from '@/sim';
+import { wishlistSkillId } from '@/features/skill-planner/skillFamilies';
 
 export type AptDim = 'distance' | 'surface' | 'strategy';
 
@@ -109,4 +110,19 @@ export function planToSimBuild(plan: CmPlan): SimBuild {
 export function planToOverlayBuild(plan: CmPlan): SimBuild {
   const ids = [plan.uniqueSkillId, ...plan.wishlist.map((w) => w.skillId)].filter(Boolean);
   return { ...planToSimBuild(plan), skills: [...new Set(ids)] };
+}
+
+/**
+ * Chart baseline: the vacuum build PLUS the user's already-targeted wishlist skills,
+ * so each ranked candidate's L is its marginal value on top of what's already picked
+ * (recovery → re-run → speed skills show their true value). Resolves each wishlist id
+ * to its engine id; the engine-side `simulatableBase` filter later drops any the engine
+ * can't simulate (e.g. inherited-unique 9… ids). Empty wishlist ⇒ today's vacuum.
+ */
+export function chartBaselineBuild(
+  plan: CmPlan,
+  skillById: ReadonlyMap<string, SkillRecord>,
+): SimBuild {
+  const skills = [...new Set(plan.wishlist.map((it) => wishlistSkillId(it.skillId, skillById)))];
+  return { ...planToSimBuild(plan), skills };
 }

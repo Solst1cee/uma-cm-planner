@@ -1,7 +1,8 @@
 /**
  * M4 §1 — collapsible "Skill chart" (VFalator-style table). Ranks acquirable
  * skills (white/gold/inherited) by marginal bashin L on the user's plan build
- * (planToSimBuild), with SP cost + efficiency (L per 100 SP). Runs ONLY on Run.
+ * (chartBaselineBuild — vacuum + already-targeted wishlist), with SP cost +
+ * efficiency (L per 100 SP). Runs ONLY on Run.
  * Variant families collapse to one row (strongest variant); + target adds via the
  * family-aware addOrReplaceWishlistSkill and stamps projectedL so the sidebar's L
  * total moves. Reuses GameIcon + SkillDetailDisclosure (effect-chips on expand).
@@ -13,8 +14,8 @@ import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
 import { isReleasedBy } from '@/core/availability';
 import { acquirableSkills } from '@/core/skillCatalog';
-import { effectiveSpCost } from '@/core/cost';
-import { planToSimBuild } from '@/core/simBuild';
+import { purchaseSpCost } from '@/core/cost';
+import { chartBaselineBuild } from '@/core/simBuild';
 import {
   addOrReplaceWishlistSkill,
   areSkillVariants,
@@ -26,6 +27,8 @@ import { useGameData } from '@/features/data/gameData';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
+import { useStaminaProbe, type UseStaminaProbeDeps } from './useStaminaProbe';
+import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
 const FILTERS: ReadonlyArray<{ key: SkillFilter; label: string }> = [
@@ -52,6 +55,7 @@ const COLUMNS: ReadonlyArray<{ key: SortMetric; label: string }> = [
 
 export interface SkillChartPanelDeps {
   skillDelta?: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => BashinStats | Promise<BashinStats>;
+  vacuum?: UseStaminaProbeDeps['vacuum'];
   nsamples?: number;
 }
 
@@ -61,6 +65,7 @@ interface RowView {
   sp: number | null;
   eff: number | null;
   targeted: boolean;
+  inBuild?: boolean;
 }
 
 // L and efficiency rank best-first (desc); SP ranks cheapest-first (asc) by default.
@@ -113,9 +118,23 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         : [];
     return [...baseReps, ...upcoming];
   }, [skills, skillById, plan.server, asOfISO]);
-  const ids = useMemo(() => (hasSpeed ? reps.map((s) => s.skillId) : []), [reps, hasSpeed]);
-  const build = useMemo(() => planToSimBuild(plan), [plan]);
+  const isTargeted = (rep: SkillRecord): boolean =>
+    plan.wishlist.some((it) => {
+      const rec = wishlistSkillRecord(it.skillId, skillById);
+      return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
+    });
+
+  const ids = useMemo(
+    () => (hasSpeed ? reps.filter((s) => !isTargeted(s)).map((s) => s.skillId) : []),
+    [reps, hasSpeed, plan.wishlist, skillById],
+  );
+  const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
+
+  const [warnThreshold, setWarnThreshold] = useStaminaWarnThreshold();
+  const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
+  const { survival, probe } = useStaminaProbe(build, race, probeDeps);
+  const staminaOut = survival != null && survival < warnThreshold;
 
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
@@ -127,27 +146,41 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     onChange({ ...plan, wishlist: wl.map((it) => (it.skillId === resolvedId ? { ...it, ...patch } : it)) });
   };
 
-  const isTargeted = (rep: SkillRecord): boolean =>
-    plan.wishlist.some((it) => {
-      const rec = wishlistSkillRecord(it.skillId, skillById);
-      return rec ? areSkillVariants(rec, rep) : it.skillId === rep.skillId;
-    });
-
   const onSortClick = (m: SortMetric) => {
     if (m === sortMetric) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else { setSortMetric(m); setSortDir(DEFAULT_DIR[m]); }
   };
 
   const q = query.trim().toLowerCase();
-  const views: RowView[] = rows
+
+  // One non-simmed "in build" row per targeted wishlist item (NOT per rep — reps hold a
+  // white AND gold rep per family, which would double-render a targeted gold variant).
+  // Show the actually-targeted record; limit to skills this chart ranks (matches a rep).
+  const inBuildViews: RowView[] = plan.wishlist
+    .map((it): RowView | null => {
+      const rec = wishlistSkillRecord(it.skillId, skillById);
+      if (!rec || !reps.some((rep) => areSkillVariants(rep, rec))) return null;
+      const L = it.projectedL ?? null;
+      const sp = sparkRates ? purchaseSpCost(rec, skillById, 0, sparkRates) : null;
+      const eff = L != null && sp != null && sp > 0 ? (100 * L) / sp : null;
+      const row: SkillChartRow = { skillId: rec.skillId, L, min: null, max: null, median: null, status: 'live', nsamples: 0 };
+      return { row, skill: rec, sp, eff, targeted: true, inBuild: true };
+    })
+    .filter((v): v is RowView => v !== null);
+
+  const rankedViews: RowView[] = rows
     .map((row): RowView | null => {
       const skill = skillById.get(row.skillId);
       if (!skill) return null;
-      const sp = sparkRates ? effectiveSpCost(skill, 0, sparkRates) : null;
+      // Gold skills bundle their white prerequisite — price the full purchase, not the
+      // gold's own base alone (otherwise every gold reads ~one white too cheap).
+      const sp = sparkRates ? purchaseSpCost(skill, skillById, 0, sparkRates) : null;
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })
-    .filter((v): v is RowView => v !== null)
+    .filter((v): v is RowView => v !== null);
+
+  const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
       if (!showUpcoming && v.skill.server === 'jp') return false; // upcoming hidden unless toggled
       if (!showAll && v.row.status === 'inactive') return false; // hide only never-proc skills
@@ -182,7 +215,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
           className="cmp-run-btn"
           disabled={!hasSpeed}
           aria-label={status === 'running' ? 'Stop ranking' : status === 'idle' ? 'Run' : 'Re-run'}
-          onClick={(e) => { e.stopPropagation(); if (status === 'running') stop(); else run(); }}
+          onClick={(e) => { e.stopPropagation(); if (status === 'running') stop(); else { run(); probe(); } }}
         >
           {status === 'running' ? '■' : status === 'idle' ? 'Run' : 'Re-run'}
         </button>
@@ -206,6 +239,12 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                 Run to rank acquirable skills by length on your current uma plan. Editing the plan won&apos;t
                 update the chart until you Re-run.
               </p>
+              {staminaOut && (
+                <p className="cmp-stamina-warn small" role="status">
+                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
+                  Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
+                </p>
+              )}
               {status !== 'idle' && (
                 <>
                   <div className="cmp-uma-toolbar">
@@ -233,6 +272,16 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
                     >
                       <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
+                    </label>
+                    <label className="cmp-stamina-thresh small" title="Warn when the build's stamina survival is below this percentage.">
+                      warn&nbsp;&lt;&nbsp;
+                      <input
+                        type="number" min={0} max={100} step={5}
+                        aria-label="Stamina warning threshold (%)"
+                        value={Math.round(warnThreshold * 100)}
+                        onChange={(e) => { const v = e.target.value; if (v !== '') setWarnThreshold(Number(v) / 100); }}
+                      />
+                      %
                     </label>
                   </div>
 
@@ -267,11 +316,14 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         className="cmp-uma-plate"
                         technicalHeaderSide={
                           v.row.L != null
-                            ? <span className="muted small">L +{v.row.L.toFixed(2)} · min {(v.row.min ?? 0).toFixed(2)} · max {(v.row.max ?? 0).toFixed(2)} · med {(v.row.median ?? 0).toFixed(2)} · n={v.row.nsamples}</span>
+                            ? v.inBuild
+                              ? <span className="muted small">L +{v.row.L.toFixed(2)} · in build</span>
+                              : <span className="muted small">L +{v.row.L.toFixed(2)} · min {(v.row.min ?? 0).toFixed(2)} · max {(v.row.max ?? 0).toFixed(2)} · med {(v.row.median ?? 0).toFixed(2)} · n={v.row.nsamples}</span>
                             : undefined
                         }
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
+                        {v.inBuild && <span className="cmp-inbuild">in build</span>}
                         {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : signed(v.row.L ?? 0)}
                       </span>
                       <span className={`cmp-uma-num ${sortMetric === 'sp' ? 'is-sort' : ''}`.trim()}>

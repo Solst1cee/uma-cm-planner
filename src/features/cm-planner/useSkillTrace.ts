@@ -30,6 +30,8 @@ export interface SkillTraceState {
   run: SkillTraceRun | null;
   runChoice: RunChoice;
   setRunChoice: (c: RunChoice) => void;
+  /** Mean バ身 the skill is worth over the trace samples (incl. non-firing 0-L runs); null until resolved. */
+  meanL: number | null;
   impact: SkillImpact | null;
   impactStatus: 'idle' | 'running' | 'done';
   /** activation rate (発動率), derived from the impact samples; null until the impact run resolves. */
@@ -127,5 +129,5 @@ export function useSkillTrace(
 
   const run = trace ? trace.runs[runChoice] : null;
   const rate = impact && impact.nsamples > 0 ? impact.samples.length / impact.nsamples : null;
-  return { status, run, runChoice, setRunChoice, impact, impactStatus, rate };
+  return { status, run, runChoice, setRunChoice, meanL: trace?.meanL ?? null, impact, impactStatus, rate };
 }

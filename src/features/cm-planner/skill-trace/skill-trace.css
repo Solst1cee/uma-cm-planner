@@ -1,24 +1,50 @@
 .cmp-trace { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-.cmp-trace-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 640px) { .cmp-trace-charts { grid-template-columns: 1fr; } }
+/* Heading row: title on the left, a "?" help toggle stuck to the right. */
+.cmp-trace-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cmp-trace-head h4 { margin: 0; }
+/* Summary block: the numbers (avg / biggest gain / activation rate). Graphs below are visual only. */
+.cmp-trace-summary { display: flex; flex-direction: column; gap: 1px; margin: 2px 0; }
+.cmp-trace-headline { margin: 0; font-size: 11px; color: var(--fg-muted, #637083); }
+.cmp-trace-headline strong { font-size: 14px; color: var(--accent, #3478f6); font-weight: 700; font-variant-numeric: tabular-nums; margin-right: 4px; }
+
+/* "?" help toggle + popup. The popup overlays the graphs below; click-outside closes it (JS). */
+.cmp-trace-help { position: relative; display: flex; }
+.cmp-trace-help-btn { width: 16px; height: 16px; padding: 0; border-radius: 50%; border: 1px solid var(--border, #d7dee8); background: var(--bg-1, #fff); color: var(--fg-muted, #637083); font-size: 10px; font-weight: 700; line-height: 1; cursor: pointer; }
+.cmp-trace-help-btn:hover, .cmp-trace-help-btn[aria-expanded="true"] { color: var(--accent, #3478f6); border-color: var(--accent, #3478f6); }
+.cmp-trace-help-pop { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; width: 280px; padding: 10px 12px; background: var(--bg-1, #fff); border: 1px solid var(--border, #d7dee8); border-radius: 8px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.18); font-size: 11px; line-height: 1.45; color: var(--fg, #172033); text-align: left; }
+.cmp-trace-help-pop p { margin: 0 0 6px; }
+.cmp-trace-help-pop .cmp-help-title { font-weight: 700; }
+.cmp-trace-help-pop ul { margin: 0 0 6px; padding-left: 15px; }
+.cmp-trace-help-pop li { margin-bottom: 5px; }
+/* Each position chart on its own full-width line (L gained, then Activation frequency),
+   so both share the same width + left gutter and read at the same scale. */
+.cmp-trace-charts { display: flex; flex-direction: column; gap: 10px; }
 .cmp-trace-chart { margin: 0; }
 /* Title matches the page text; unit suffix + in-graph labels are lighter (muted). */
 .cmp-trace-chart figcaption { font-size: 11px; font-weight: 600; color: var(--fg, #172033); margin-bottom: 2px; }
 .cmp-trace-chart figcaption small { font-weight: 400; color: var(--fg-muted, #637083); }
+/* Title row: chart title on the left, the worst/typical/best run picker on the right. */
+.cmp-trace-caphead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
 /* Graph area sits to the right of a thin y-axis gutter. SVG shapes stretch to fill; text labels
    are HTML overlays so they never distort under the SVG's non-uniform preserveAspectRatio. */
 .cmp-trace-plot { position: relative; padding-bottom: 14px; }
-.cmp-trace-graph { position: relative; margin-left: 24px; }
+.cmp-trace-graph { position: relative; margin-left: 24px; margin-right: 24px; }
 .cmp-trace-graph svg { display: block; width: 100%; height: 96px; background: var(--bg-2, #eef3f9); border-radius: 0; }
+/* Activation-frequency chart only — half height (its viewBox is 48 so labels stay aligned). */
+.cmp-trace-graph--short svg { height: 48px; }
 .cmp-trace-graph span { position: absolute; font-size: 8px; line-height: 1; color: var(--fg-muted, #637083); pointer-events: none; white-space: nowrap; }
 /* Y scale labels — in the thin left gutter, right-aligned tight to the graph. */
 .cmp-ylabel { right: 100%; margin-right: 3px; transform: translateY(-50%); text-align: right; }
 /* X scale labels — just below the graph (every 500 m). */
 .cmp-xlabel { top: 98px; transform: translateX(-50%); }
+.cmp-trace-graph--short .cmp-xlabel { top: 50px; }
 /* Phase labels — centered across the top of each band; lighter still so bars read first. */
 .cmp-phase-label { top: 2px; transform: translateX(-50%); opacity: 0.65; }
-/* Faint table/grid inside the graph area. */
+/* Activation-zone label — duration + fire position, on the amber box (amber text + faint backing). */
+.cmp-zone-label { top: 72px; transform: translateX(-50%); color: #b45309; font-weight: 600; background: rgba(255, 255, 255, 0.72); padding: 0 2px; border-radius: 2px; }
+/* Faint table/grid inside the graph area. Half-step (250 m) lines use the same
+   stroke as the labelled 500 m lines (.is-minor only marks them as unlabelled). */
 .cmp-trace-grid { stroke: var(--fg-muted, #637083); stroke-opacity: 0.18; stroke-width: 1; vector-effect: non-scaling-stroke; }
 
 .cmp-trace-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
@@ -36,15 +62,7 @@
 .cmp-trace-phase.is-phase-3 { fill: rgba(199, 109, 159, 0.24); }
 /* Skill activation window (velocity chart) — amber so it reads distinctly over the blue line + phase bands. */
 .cmp-trace-zone { fill: rgba(234, 179, 8, 0.14); stroke: rgba(234, 179, 8, 0.55); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.cmp-trace-choice { display: inline-flex; gap: 2px; }
-.cmp-trace-choice-btn { font-size: 11px; padding: 2px 8px; background: var(--bg-1, #fff); border: 1px solid var(--border, #d7dee8); color: var(--fg-muted, #637083); cursor: pointer; }
-.cmp-trace-choice-btn:first-child { border-radius: 6px 0 0 6px; }
-.cmp-trace-choice-btn:last-child { border-radius: 0 6px 6px 0; }
-.cmp-trace-choice-btn.is-active { background: var(--accent, #3478f6); color: #fff; border-color: var(--accent, #3478f6); }
-.cmp-trace-rate, .cmp-trace-rate-btn { font-size: 12px; }
-.cmp-trace-rate { display: flex; align-items: center; gap: 8px; color: var(--fg, #172033); }
-.cmp-trace-rate-bar { flex: 1; height: 6px; background: var(--bg-2, #eef3f9); border-radius: 3px; overflow: hidden; }
-.cmp-trace-rate-bar > span { display: block; height: 100%; background: var(--accent, #3478f6); }
-.cmp-trace-rate-btn { padding: 4px 10px; background: var(--bg-1, #fff); border: 1px solid var(--border, #d7dee8); border-radius: 6px; color: var(--fg, #172033); cursor: pointer; }
-.cmp-trace-rate-btn:disabled { opacity: 0.6; cursor: default; }
+/* Run picker — reuses the app's segmented control (like Save / Save as / New), just smaller. */
+.cmp-trace-choice.cmp-control-group { margin: 0; border-radius: 5px; }
+.cmp-trace-choice.cmp-control-group button { font-size: 0.58rem; padding: 0 5px; line-height: 1.5; }
 .cmp-trace-note { font-size: 10px; color: var(--fg-muted, #637083); }

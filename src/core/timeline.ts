@@ -36,8 +36,11 @@ export function sortTimeline(entries: TimelineEntry[]): TimelineEntry[] {
 export function currentCm(cmEntries: TimelineEntry[], nowISO: string): TimelineEntry | null {
   if (cmEntries.length === 0) return null;
   const sorted = sortTimeline(cmEntries);
-  const upcoming = sorted.find((e) => effectiveDate(e) >= nowISO);
-  return upcoming ?? sorted[sorted.length - 1] ?? null;
+  // A CM stays "current" until its END date — it's still running through then —
+  // so the badge/default don't jump to the next CM between finals and end.
+  const until = (e: TimelineEntry): string => e.dates.end ?? e.dates.finals ?? e.dates.start ?? '';
+  const active = sorted.find((e) => until(e) >= nowISO);
+  return active ?? sorted[sorted.length - 1] ?? null;
 }
 
 /** M3→M4: cm entries with a cmNumber → CmScheduleRow (shared-data-model §6). */

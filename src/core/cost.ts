@@ -69,3 +69,24 @@ export function bundledSpCost(
       discountedComponent(whitePrereq, hintLevelWhite, rates, opts),
   );
 }
+
+/**
+ * Total SP to actually *buy* a skill from the shop. A gold skill can only be bought
+ * after its white prerequisite, so its true price is the bundle (gold + white base,
+ * one ceil). White/unique skills (no prereq, or a prereq missing from the catalog)
+ * cost their own effective price. The same hint level is applied to both components —
+ * callers tracking per-skill hint levels (e.g. M2) should call bundledSpCost directly.
+ */
+export function purchaseSpCost(
+  skill: SkillRecord,
+  skillById: ReadonlyMap<string, SkillRecord>,
+  hintLevel: HintLevel,
+  rates: SparkRates,
+  opts?: { fastLearner?: boolean },
+): number {
+  const prereq =
+    skill.prereqSkillId !== undefined ? skillById.get(skill.prereqSkillId) : undefined;
+  return prereq
+    ? bundledSpCost(skill, prereq, hintLevel, hintLevel, rates, opts)
+    : effectiveSpCost(skill, hintLevel, rates, opts);
+}
