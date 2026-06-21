@@ -118,6 +118,22 @@ Reused: `PlanHeaderPanel`/`SkillPicker` (from `skill-planner/`), `useActivePlan`
 
 After a saved plan is loaded from Plan Inventory, every expanded `SkillDetailDisclosure` closes automatically. This includes the current Uma's unique skill, wishlist skills, unique-skill chart rows, and acquirable-skill chart rows. The collapse signal is emitted after `selectPlan()` succeeds and does not reset chart results, filters, or parent panel open/closed state.
 
+## Two-build race-sim compare + on-track overlay (SHIPPED 2026-06-21)
+
+The §0 track is the **umalator main view**. uma1 = the active plan; pick **uma2** = a saved plan in the right-sidebar **Race sim** card, and the comparison overlays directly on the track. Spec: [2026-06-20-m4-two-build-race-compare-track-overlay-design.md](../superpowers/specs/2026-06-20-m4-two-build-race-compare-track-overlay-design.md); plan: [2026-06-20-m4-two-build-race-compare-track-overlay.md](../superpowers/plans/2026-06-20-m4-two-build-race-compare-track-overlay.md).
+
+**Pipeline:** `planToOverlayBuild(plan)` (build with uma + unique + wishlist skills *active*, vs `planToSimBuild`'s vacuum) → `runRaceCompare(uma1, uma2, race, n, seed)` (`src/sim/run.ts`, wraps the vendored `runComparison`) returns `RaceCompare` = 4 representative runs (`min/max/mean/median`), each with **both** runners' per-frame `{t,v,pos,hp}`, **all-skill** activation regions per runner, and the per-frame **バ身 gap** `(pos1−pos2)/2.5` at uma1's position; plus `distance`/`meanBashin`. Worker kind `raceCompare` + `SimClient.raceCompare`. `useRaceCompare` (hook, LRU-memoized by course + both builds' stats/skills/**aptitudes**, Best/Typical/Worst toggle with no re-sim). `useRaceCompareController` lifts the shared state so the overlay (in `.cmp-main`) and the controls (in `.cmp-right`) — separate grid columns — stay in sync.
+
+**Render:** `RaceOverlay` (`src/features/planner/racetrack/overlay/`) draws on the `RaceTrackView` SVG (optional `trace` props; `ViewHeight` unchanged at 240, overlay drawn on top — the no-trace render is unchanged): two velocity polylines (blue uma1 `#2563eb`, red uma2 `#dc2626`) + two dashed HP lines (`#60a5fa`/`#f87171`, toggle), a speed (m/s) y-axis, **rung-stacked** skill markers (`placeRungs` = umalator greedy interval-coloring on bar-OR-label extent; duration → labelled colored bar, instant → dot + label; red uma2 rungs stack above blue uma1), and the green バ身-gap sub-band. `RaceSimCard` (right rail) hosts the inventory-style **popover** uma2 picker (`Uma2PickerPopover`), the selected **`Uma2Card`** (active-inventory-row look, red accent), Show-HP + run-choice toggles, and the mean-バ身 headline.
+
+**uma2 source is pluggable** (`resolveUma2` / `Uma2Source`): `savedPlan` shipped; `minusWishlist` / `reference` are typed follow-ups (return `null`).
+
+### Known limitations / follow-ups
+- **One representative run** drives the curves (honest: a single vacuum run, gap is an estimate). The バ身 distribution exists if a histogram is later wanted.
+- **Multi-fire:** the per-frame trace is whole-race-correct, but velocity-window niceties inherited from the skill-detail chart still center on the first activation; the position/gap data covers every proc.
+- **Same-uma label crowding** is handled by rung-stacking (bar-or-label extent); very dense races still grow tall (rungs stack upward into the bands above the velocity area).
+- `minusWishlist` / `reference` uma2 sources not implemented yet.
+
 ## Gotchas (M4-specific)
 
 - **0-speed runner throws** `firstPositionInLateRace` — never feed `evalSkillDelta` an all-zero build. `makeDefaultPlan` seeds non-zero stats; the chart guards `spd > 0`.
