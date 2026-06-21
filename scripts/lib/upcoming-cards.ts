@@ -10,7 +10,7 @@
  */
 import { existsSync } from 'node:fs';
 import type { CardSkill, SupportCardRecord } from '@/core/types';
-import { readJson } from './io';
+import { readJson, stripMeta } from './io';
 
 export interface UpcomingCardsFile {
   _comment?: string;
@@ -20,21 +20,6 @@ export interface UpcomingCardsFile {
 const CARD_RARITIES = new Set(['R', 'SR', 'SSR']);
 const CARD_TYPES = new Set(['speed', 'stamina', 'power', 'guts', 'wit', 'friend', 'group']);
 const SOURCE_TYPES = new Set(['chain', 'hint_pool', 'random_event', 'date_event']);
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/** Deep-copy with documentation keys ('_'-prefixed) stripped (same convention as card-additions). */
-function stripMeta<T>(value: T): T {
-  if (Array.isArray(value)) return value.map(stripMeta) as T;
-  if (isPlainObject(value)) {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value)) if (!k.startsWith('_')) out[k] = stripMeta(v);
-    return out as T;
-  }
-  return value;
-}
 
 function validate(record: SupportCardRecord, problems: string[]): void {
   const where = `upcoming_cards record "${record.cardId}"`;

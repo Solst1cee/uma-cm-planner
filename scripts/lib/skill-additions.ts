@@ -6,7 +6,7 @@
  */
 import { existsSync } from 'node:fs';
 import type { SkillRecord } from '@/core/types';
-import { readJson } from './io';
+import { readJson, stripMeta } from './io';
 
 export interface SkillAdditionsFile {
   _comment?: string;
@@ -14,19 +14,6 @@ export interface SkillAdditionsFile {
 }
 
 const RARITIES = new Set(['white', 'gold', 'unique', 'inherited_unique']);
-
-function isPlainObject(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
-}
-function stripMeta<T>(value: T): T {
-  if (Array.isArray(value)) return value.map(stripMeta) as T;
-  if (isPlainObject(value)) {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value)) if (!k.startsWith('_')) out[k] = stripMeta(v);
-    return out as T;
-  }
-  return value;
-}
 
 function validate(r: SkillRecord, problems: string[]): void {
   const w = `skill_additions record "${r.skillId}"`;
