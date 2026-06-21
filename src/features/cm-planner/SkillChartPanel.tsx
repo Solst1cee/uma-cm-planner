@@ -307,6 +307,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         skill={skillRecordToSummary(v.skill)}
                         collapseSignal={collapseSkillSignal}
                         showCost={false}
+                        showSourcing
                         className="cmp-uma-plate"
                         technicalHeaderSide={
                           v.row.L != null

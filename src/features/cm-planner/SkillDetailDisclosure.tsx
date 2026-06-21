@@ -3,6 +3,7 @@ import type { SkillSummary, SkillTechnicalDetail } from './skillTechnicalDetails
 import { loadSkillTechnicalDetail } from './skillTechnicalDetails';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillTraceSection } from './SkillTraceSection';
+import { SourcingSection } from './SourcingSection';
 import type { TraceContext } from './useSkillTrace';
 
 type DetailStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error';
@@ -308,6 +309,7 @@ export function SkillDetailDisclosure({
   side,
   technicalHeaderSide,
   showCost = true,
+  showSourcing = false,
   traceContext,
   open: openProp,
   onOpenChange,
@@ -318,6 +320,8 @@ export function SkillDetailDisclosure({
   side?: ReactNode;
   technicalHeaderSide?: ReactNode;
   showCost?: boolean;
+  /** Render the "Where to get it" card-hint sourcing section (acquirable skills only). */
+  showSourcing?: boolean;
   traceContext?: TraceContext;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -448,6 +452,8 @@ export function SkillDetailDisclosure({
             ))}
           </div>
         )}
+
+        {showSourcing && open && <SourcingSection skillId={skill.skillId} rarity={skill.rarity} />}
 
         {traceContext !== undefined && (
           <SkillTraceSection skillId={skill.skillId} ctx={traceContext} enabled={open} />

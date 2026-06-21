@@ -1,0 +1,75 @@
+/* "Where to get it" sourcing section inside an expanded skill disclosure. */
+.cmp-sourcing {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+.cmp-sourcing h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.cmp-sourcing h4 small {
+  font-weight: 400;
+  color: var(--fg-muted);
+  font-size: 0.7rem;
+}
+.cmp-sourcing-gap {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--warn-fg);
+}
+.cmp-sourcing-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.cmp-sourcing-card {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.cmp-sourcing-card-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+.cmp-sourcing-more {
+  padding-left: 0.1rem;
+}
+
+/* Tier badge — a reliability dot (shared --tier-* tokens) + neutral text, so it stays readable
+ *  on the light theme where the bright dark-mode tier colours would have too little contrast. */
+.cmp-tier-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.cmp-tier-badge::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--tier-uncovered);
+}
+.cmp-tier-badge.is-tier-chain::before { background: var(--tier-chain); }
+.cmp-tier-badge.is-tier-date_event::before { background: var(--tier-date_event); }
+.cmp-tier-badge.is-tier-hint_strong::before { background: var(--tier-hint_strong); }
+.cmp-tier-badge.is-tier-hint_weak::before { background: var(--tier-hint_weak); }
+.cmp-tier-badge.is-tier-random::before { background: var(--tier-random); }
