@@ -14,8 +14,14 @@ import { effectiveDate } from './timeline';
 export function normalizeCmRef(raw: unknown): CmRefV2 {
   const r = (raw ?? {}) as Record<string, unknown>;
   if (r['kind'] === 'cm') {
-    return { kind: 'cm', cmId: r['cmId'] as CmId, cmNumber: Number(r['cmNumber']),
-      courseId: String(r['courseId'] ?? ''), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf', distance: Number(r['distance'] ?? 0) };
+    // Backfill cmId + require a finite cmNumber, like the legacy branch — a malformed cm ref
+    // (NaN/≤0 cmNumber) must NOT be stored as `{ cmNumber: NaN }` (it would render "CM NaN" and
+    // never match the timeline); fall through to the legacy/custom normalization instead.
+    const cmNumber = Number(r['cmNumber']);
+    if (Number.isFinite(cmNumber) && cmNumber > 0) {
+      return { kind: 'cm', cmId: (r['cmId'] as CmId) ?? (`CM${cmNumber}` as CmId), cmNumber,
+        courseId: String(r['courseId'] ?? ''), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf', distance: Number(r['distance'] ?? 0) };
+    }
   }
   if (r['kind'] === 'custom') {
     return { kind: 'custom', courseId: String(r['courseId']), surface: r['surface'] === 'dirt' ? 'dirt' : 'turf',
@@ -35,7 +41,9 @@ export function normalizeCmRef(raw: unknown): CmRefV2 {
   };
 }
 
-function conditionsFor(e: TimelineEntry): RaceConditions {
+/** Conditions for a timeline CM entry: curated if present, else month-derived defaults.
+ *  The single derive-conditions-from-timeline rule (the cmRef↔selection mappers reuse it). */
+export function conditionsFor(e: TimelineEntry): RaceConditions {
   return e.cm?.conditions ?? defaultConditions(e.dates.finals ?? e.dates.start);
 }
 

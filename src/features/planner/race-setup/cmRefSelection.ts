@@ -6,12 +6,9 @@
 import type { CmId, CmRaceOption, CmRefV2, TimelineEntry } from '@/core/types';
 import type { RaceConditions } from '@/core/raceConditions';
 import { defaultConditions } from '@/core/raceConditions';
+import { conditionsFor } from '@/core/cmRace';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { courseToSelection, type RaceSelection } from './selection';
-
-function conditionsFor(e: TimelineEntry): RaceConditions {
-  return e.cm?.conditions ?? defaultConditions(e.dates.finals ?? e.dates.start);
-}
 
 /** Minimal selection when the catalog hasn't resolved a courseId yet (no flicker). */
 function fallbackSelection(courseId: string, c: RaceConditions, surface: 'turf' | 'dirt' = 'turf', distance = 0): RaceSelection {

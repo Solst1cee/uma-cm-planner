@@ -33,6 +33,18 @@ describe('cmRefToSelection / selectionToCmRef', () => {
     const edited = { ...sel, weather: 'rainy' as const }; // diverges from CM15's cloudy
     expect(selectionToCmRef(edited, opts)).toMatchObject({ kind: 'custom', courseId: '10906', weather: 'rainy' });
   });
+
+  it('derives default conditions (good/sunny/spring) when no timeline entry matches the cm ref', () => {
+    // CM dropped from the timeline (or a stale ref): geometry survives, conditions fall back to defaults.
+    const sel = cmRefToSelection({ kind: 'cm', cmId: 'CM99', cmNumber: 99, courseId: '10906', surface: 'turf', distance: 2200 }, catalog, entries);
+    expect(sel).toMatchObject({ courseId: '10906', distance: 2200, surface: 'turf', ground: 'good', weather: 'sunny', season: 'spring', presetCmId: 'CM99' });
+  });
+
+  it('keeps the ref geometry via fallbackSelection when the catalog has not loaded the course', () => {
+    const sel = cmRefToSelection({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 }, [], entries);
+    expect(sel).toMatchObject({ courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'cloudy', season: 'summer' });
+    expect(sel.racetrack).toBe(''); // fallback selection (no catalog course resolved)
+  });
 });
 
 describe('cmRefForEntry', () => {

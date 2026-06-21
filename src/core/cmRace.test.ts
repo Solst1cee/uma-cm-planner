@@ -27,6 +27,16 @@ describe('normalizeCmRef', () => {
     expect(normalizeCmRef({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 }))
       .toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
   });
+  it('backfills a missing cmId on a new-shape cm ref from cmNumber', () => {
+    expect(normalizeCmRef({ kind: 'cm', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 }))
+      .toEqual({ kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 });
+  });
+  it('falls back to custom (no NaN cmNumber) for a malformed cm ref missing a numeric cmNumber', () => {
+    // hand-edited/corrupt import — must NOT produce { kind:'cm', cmNumber:NaN } (renders "CM NaN", never matches the timeline)
+    const out = normalizeCmRef({ kind: 'cm', courseId: '10906', surface: 'turf', distance: 2200 });
+    expect(out.kind).toBe('custom');
+    expect(out).toMatchObject({ courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'sunny', season: 'spring' });
+  });
 });
 
 describe('cmRaceOptions', () => {
