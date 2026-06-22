@@ -43,7 +43,7 @@ export function runVacuumCompare(
     racedef: toRaceDef(race),
     uma1: toRunnerState(simulatableBase(a)),
     uma2: toRunnerState(simulatableBase(b)),
-    options: { seed, ignoreStaminaConsumption: false },
+    options: { seed, ignoreStaminaConsumption: false, cooldownReactivation: true },
   });
   return {
     mean: _mean(r.results), median: _median(r.results),
@@ -155,7 +155,7 @@ export function runSkillTrace(
     racedef: toRaceDef(race),
     uma1: toRunnerState(base),
     uma2: toRunnerState({ ...base, skills: [...base.skills, skillId] }),
-    options: { seed, ignoreStaminaConsumption: false },
+    options: { seed, ignoreStaminaConsumption: false, cooldownReactivation: true },
   });
   const results = r.results; // engine returns these sorted ascending
   const min = results[0] ?? 0;
@@ -230,7 +230,7 @@ export function runRaceCompare(
     // simulatableBase drops engine-unknown ids (inherited-unique 9… / JP-only / imported) that
     // would otherwise THROW — mirroring runVacuumCompare so one bad id can't blank the overlay.
     uma1: toRunnerState(simulatableBase(uma1)), uma2: toRunnerState(simulatableBase(uma2)),
-    options: { seed, ignoreStaminaConsumption: false },
+    options: { seed, ignoreStaminaConsumption: false, cooldownReactivation: true },
   });
   return {
     runs: {

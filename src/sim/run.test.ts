@@ -203,6 +203,8 @@ describe('runRaceCompare', () => {
   });
 });
 
+import { runComparison } from './vendor/umalator.bundle.mjs';
+import { toRunnerState, toRaceDef, resolveCourse } from './adapter';
 import { allActivationRegions } from './run';
 import type { SimulationRun } from './vendor/umalator.bundle.mjs';
 
@@ -229,5 +231,51 @@ describe('allActivationRegions (effect-log grouping)', () => {
       { skillId: 'B', start: 200, end: 210 },
       { skillId: 'B', start: 500, end: 510 },
     ]);
+  });
+});
+
+const GOLDEN_MEANBASHIN = 0.460891;
+
+describe('cooldown multi-fire', () => {
+  const stayer = {
+    umaId: '', stats: { spd: 1150, sta: 1100, pow: 1000, gut: 600, wit: 900 },
+    strategy: 'pace' as const, aptitudes: { distance: 'A' as const, surface: 'A' as const, strategy: 'A' as const }, skills: [],
+  };
+  const profPositions = (courseId: string, cooldownReactivation: boolean) => {
+    const r = runComparison({
+      nsamples: 60, course: resolveCourse(courseId), racedef: toRaceDef({ courseId }),
+      uma1: toRunnerState(stayer), uma2: toRunnerState({ ...stayer, skills: ['200331'] }),
+      options: { seed: 1234, ignoreStaminaConsumption: false, cooldownReactivation },
+    });
+    // distinct activation starts for Prof in the max-bashin representative run
+    const logs = r.runData.maxrun.skillActivations[1]?.['200331'] ?? [];
+    return new Set(logs.map((l: { start: number }) => Math.round(l.start))).size;
+  };
+
+  it('flag ON: Prof fires twice on Hanshin 3200m', () => {
+    expect(profPositions('10811', true)).toBe(2);
+  });
+  it('flag ON: Prof fires once on a mile (1600m)', () => {
+    // 10304 = a 1600m turf course (see courseCatalog)
+    expect(profPositions('10304', true)).toBe(1);
+  });
+  it('flag OFF: Prof fires once on Hanshin 3200m (upstream behavior)', () => {
+    expect(profPositions('10811', false)).toBe(1);
+  });
+  it('flag OFF reproduces the fidelity golden meanBashin', () => {
+    const r = runComparison({
+      nsamples: 200, course: resolveCourse('10811'), racedef: toRaceDef({ courseId: '10811' }),
+      uma1: toRunnerState(stayer), uma2: toRunnerState({ ...stayer, skills: ['200331'] }),
+      options: { seed: 1234, ignoreStaminaConsumption: false, cooldownReactivation: false },
+    });
+    const mean = r.results.reduce((a: number, b: number) => a + b, 0) / r.results.length;
+    expect(mean).toBeCloseTo(GOLDEN_MEANBASHIN, 4);
+  });
+  it('overlay surfaces both fires: runRaceCompare yields 2 Prof markers (flag default ON)', () => {
+    // uma2 has Prof, uma1 does not — the max-gap run biases toward samples where Prof fired
+    // (especially twice on 3200 m), so uma2Acts on the max run reliably shows 2 regions.
+    const rc = runRaceCompare(stayer, { ...stayer, skills: ['200331'] }, { courseId: '10811' }, 60, 1234);
+    const markers = rc.runs.max.uma2Acts.filter((a) => a.skillId === '200331').length;
+    expect(markers).toBe(2);
   });
 });
