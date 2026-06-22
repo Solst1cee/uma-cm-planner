@@ -1,0 +1,320 @@
+diff --git a/src/lib/sunday-tools/common/race.ts b/src/lib/sunday-tools/common/race.ts
+index 64c5210..7631508 100644
+--- a/src/lib/sunday-tools/common/race.ts
++++ b/src/lib/sunday-tools/common/race.ts
+@@ -55,6 +55,11 @@ export type SimulationSettings = {
+    * Whether the simulation should account for the dueling
+    */
+   dueling: boolean;
++  /**
++   * Whether short-cooldown corner/straight skills may re-activate within a race
++   * (distance-scaled cooldown). Default ON; OFF reproduces upstream single-fire.
++   */
++  cooldownReactivation: boolean;
+   /**
+    * Whether the simulation should account for wit checks
+    *
+diff --git a/src/lib/sunday-tools/common/runner.ts b/src/lib/sunday-tools/common/runner.ts
+index 090b60e..f13df4b 100644
+--- a/src/lib/sunday-tools/common/runner.ts
++++ b/src/lib/sunday-tools/common/runner.ts
+@@ -156,6 +156,7 @@ export class Runner {
+   public syncRng!: PRNG;
+ 
+   public accumulateTime!: Timer;
++  public skillLastFireTime: Map<string, number> = new Map();
+   public timers!: Array<Timer>;
+   public phase!: IPhase;
+   public nextPhaseTransition!: number;
+@@ -558,9 +559,22 @@ export class Runner {
+       }
+ 
+       if (this.position >= skill.trigger.start && skill.extraCondition(this)) {
++        // cooldown gate: suppress a re-fire still within the distance-scaled cooldown (real race time)
++        if (this.race.settings.cooldownReactivation) {
++          const last = this.skillLastFireTime.get(skill.skillId);
++          if (last !== undefined) {
++            const effectiveCooldown = (skill.cooldownTime / 10000) * (this.race.course.distance / 1000);
++            if (this.accumulateTime.t - last < effectiveCooldown) {
++              this.pendingSkills.splice(i, 1); // on cooldown — consume without firing
++              continue;
++            }
++          }
++        }
++
+         if (this.shouldSkipWitCheck(skill)) {
+           // Wit check skipped - activate skill
+           this.activateSkill(skill);
++          this.skillLastFireTime.set(skill.skillId, this.accumulateTime.t);
+           this.pendingSkills.splice(i, 1);
+           continue;
+         }
+@@ -568,6 +582,7 @@ export class Runner {
+         if (this.doWitCheck()) {
+           // Wisdom check passed - activate skill
+           this.activateSkill(skill);
++          this.skillLastFireTime.set(skill.skillId, this.accumulateTime.t);
+           this.pendingSkills.splice(i, 1);
+           continue;
+         }
+@@ -1772,6 +1787,7 @@ export class Runner {
+     this.healsActivatedCount = 0;
+ 
+     this.pendingSkills = [];
++    this.skillLastFireTime = new Map();
+     this.pendingTargetedSkills = [];
+     this.usedSkills = new Set();
+     this.usedTargetedSkills = [];
+@@ -1804,33 +1820,39 @@ export class Runner {
+       })
+     );
+ 
+-    const triggers = skillTrigers.map((skillTrigger) => {
++    const roundIteration = this.race.roundIteration;
++    const multiFire = this.race.settings.cooldownReactivation;
++
++    this.pendingSkills = skillTrigers.flatMap((skillTrigger) => {
+       const baseSkillId = skillTrigger.skillId.split('-')[0] ?? skillTrigger.skillId;
+       const forcedPosition = this.forcedPositions[baseSkillId];
++      const base = {
++        skillId: skillTrigger.skillId,
++        rarity: skillTrigger.rarity,
++        extraCondition: skillTrigger.extraCondition,
++        effects: skillTrigger.effects,
++        cooldownTime: skillTrigger.cooldownTime,
++      };
+ 
+       if (forcedPosition !== undefined) {
+         const fixedPolicy = createFixedPositionPolicy(forcedPosition);
+-        return fixedPolicy.sample(skillTrigger.regions, this.race.skillSamples, this.skillRng);
++        const samples = fixedPolicy.sample(skillTrigger.regions, this.race.skillSamples, this.skillRng);
++        if (samples.length === 0) return [];
++        return [{ ...base, trigger: samples[roundIteration % samples.length] }];
+       }
+ 
+-      const samplePolicy = skillTrigger.samplePolicy;
+-      return samplePolicy.sample(skillTrigger.regions, this.race.skillSamples, this.skillRng);
+-    });
++      const policy = skillTrigger.samplePolicy;
+ 
+-    const roundIteration = this.race.roundIteration;
++      // multi-fire: short-cooldown skills whose policy can surface multiple candidate windows
++      if (multiFire && typeof policy.sampleMulti === 'function' && skillTrigger.cooldownTime < 5000000) {
++        const sets = policy.sampleMulti(skillTrigger.regions, this.race.skillSamples, this.skillRng);
++        const candidates = sets.length === 0 ? [] : (sets[roundIteration % sets.length] ?? []);
++        return candidates.map((trigger) => ({ ...base, trigger }));
++      }
+ 
+-    this.pendingSkills = skillTrigers.flatMap((skillTrigger, index) => {
+-      const samples = triggers[index];
++      const samples = policy.sample(skillTrigger.regions, this.race.skillSamples, this.skillRng);
+       if (samples.length === 0) return [];
+-      return [
+-        {
+-          skillId: skillTrigger.skillId,
+-          rarity: skillTrigger.rarity,
+-          trigger: samples[roundIteration % samples.length],
+-          extraCondition: skillTrigger.extraCondition,
+-          effects: skillTrigger.effects
+-        }
+-      ];
++      return [{ ...base, trigger: samples[roundIteration % samples.length] }];
+     });
+ 
+     this.initializeTargetedSkillTracking(roundIteration);
+diff --git a/src/lib/sunday-tools/runner/runner.utils.ts b/src/lib/sunday-tools/runner/runner.utils.ts
+index bfc90a2..98eaf02 100644
+--- a/src/lib/sunday-tools/runner/runner.utils.ts
++++ b/src/lib/sunday-tools/runner/runner.utils.ts
+@@ -148,7 +148,8 @@ export function buildSkillData(params: BuildSkillDataParams): Array<SkillTrigger
+         samplePolicy: parsedOperator.samplePolicy,
+         regions: regions,
+         extraCondition: extraCondition,
+-        effects: effects
++        effects: effects,
++        cooldownTime: skillAlternative.cooldownTime ?? 5000000
+       });
+     }
+   }
+@@ -178,7 +179,8 @@ export function buildSkillData(params: BuildSkillDataParams): Array<SkillTrigger
+       samplePolicy: ImmediatePolicy,
+       regions: afterEnd,
+       extraCondition: (_) => false,
+-      effects: effects
++      effects: effects,
++      cooldownTime: 5000000
+     }
+   ];
+ }
+diff --git a/src/lib/sunday-tools/skills/policies/ActivationSamplePolicy.ts b/src/lib/sunday-tools/skills/policies/ActivationSamplePolicy.ts
+index 52cb0ca..daf465c 100644
+--- a/src/lib/sunday-tools/skills/policies/ActivationSamplePolicy.ts
++++ b/src/lib/sunday-tools/skills/policies/ActivationSamplePolicy.ts
+@@ -5,6 +5,9 @@ import { Region } from '@/lib/sunday-tools/shared/region';
+ export interface ActivationSamplePolicy {
+   sample: (regions: RegionList, nsamples: number, rng: PRNG) => Array<Region>;
+ 
++  // optional: per-sample SET of candidate trigger windows for cooldown-based multi-fire
++  sampleMulti?: (regions: RegionList, nsamples: number, rng: PRNG) => Array<Array<Region>>;
++
+   // essentially, when two conditions are combined with an AndOperator one should take precedence over the other
+   // immediate transitions into anything and straight_random/all_corner_random dominate everything except each other
+   // NB. currently there are no skills that combine straight_random or all_corner_random with anything other than
+@@ -275,6 +278,24 @@ export const StraightRandomPolicy = {
+     }
+     return samples.map((pos) => new Region(pos, pos + 10));
+   },
++  sampleMulti(regions: RegionList, nsamples: number, rng: PRNG): Array<Array<Region>> {
++    if (regions.length == 0) {
++      return [];
++    }
++    const sorted = regions.toSorted((a, b) => a.start - b.start);
++    const out: Array<Array<Region>> = [];
++    for (let i = 0; i < nsamples; ++i) {
++      const startIdx = rng.uniform(sorted.length); // random first straight (preserves single-fire randomness)
++      const set: Array<Region> = [];
++      for (let j = startIdx; j < sorted.length; ++j) {
++        const r = sorted[j];
++        const pos = r.start + rng.uniform(r.end - r.start - 10);
++        set.push(new Region(pos, pos + 10));
++      }
++      out.push(set);
++    }
++    return out;
++  },
+   reconcile(other: ActivationSamplePolicy) {
+     return other.reconcileStraightRandom(this);
+   },
+@@ -296,32 +317,36 @@ export const StraightRandomPolicy = {
+ };
+ 
+ export const AllCornerRandomPolicy = {
+-  placeTriggers(regions: RegionList, rng: PRNG) {
+-    const triggers = [];
+-
++  placeTriggerPositions(regions: RegionList, rng: PRNG): Array<number> {
++    const triggers: Array<number> = [];
+     const regionCandidates = regions.toSorted((a, b) => a.start - b.start);
+-
+     while (triggers.length < 4 && regionCandidates.length > 0) {
+       const candidateIndex = rng.uniform(regionCandidates.length);
+-
+       const regionCandidate = regionCandidates[candidateIndex];
+-      const start =
+-        regionCandidate.start + rng.uniform(regionCandidate.end - regionCandidate.start - 10);
+-
+-      // note that as each corner's end cannot come after the start of the next corner, this maintains that the candidates
+-      // are sorted by start
++      const start = regionCandidate.start + rng.uniform(regionCandidate.end - regionCandidate.start - 10);
+       if (start + 20 <= regionCandidate.end) {
+         regionCandidates.splice(candidateIndex, 1, new Region(start + 10, regionCandidate.end));
+       } else {
+         regionCandidates.splice(candidateIndex, 1);
+       }
+-
+-      regionCandidates.splice(0, candidateIndex); // everything before this corner in the array is guaranteed to be before it in distance
++      regionCandidates.splice(0, candidateIndex);
+       triggers.push(start);
+     }
++    return triggers;
++  },
+ 
+-    // TODO support multiple triggers for skills with cooldown
+-    return new Region(triggers[0], triggers[0] + 10); // guaranteed to be the earliest trigger since each trigger is placed after the last one
++  placeTriggers(regions: RegionList, rng: PRNG) {
++    const triggers = this.placeTriggerPositions(regions, rng);
++    return new Region(triggers[0], triggers[0] + 10);
++  },
++
++  sampleMulti(regions: RegionList, nsamples: number, rng: PRNG): Array<Array<Region>> {
++    const out: Array<Array<Region>> = [];
++    for (let i = 0; i < nsamples; ++i) {
++      const positions = this.placeTriggerPositions(regions, rng);
++      out.push(positions.map((p) => new Region(p, p + 10)));
++    }
++    return out;
+   },
+ 
+   sample(regions: RegionList, nsamples: number, rng: PRNG) {
+diff --git a/src/lib/sunday-tools/skills/skill.types.ts b/src/lib/sunday-tools/skills/skill.types.ts
+index 98164be..ea6f0de 100644
+--- a/src/lib/sunday-tools/skills/skill.types.ts
++++ b/src/lib/sunday-tools/skills/skill.types.ts
+@@ -23,6 +23,7 @@ export type SkillTrigger = {
+   regions: RegionList;
+   effects: Array<SkillEffect>;
+   extraCondition: DynamicCondition;
++  cooldownTime: number;
+ };
+ 
+ export type PendingSkill = {
+@@ -31,6 +32,7 @@ export type PendingSkill = {
+   trigger: Region;
+   effects: Array<SkillEffect>;
+   extraCondition: DynamicCondition;
++  cooldownTime: number;
+ };
+ 
+ export type TargetedSkillOrigin = 'injection' | 'runner';
+diff --git a/src/modules/simulation/simulators/shared.ts b/src/modules/simulation/simulators/shared.ts
+index 45399e1..36d73bf 100644
+--- a/src/modules/simulation/simulators/shared.ts
++++ b/src/modules/simulation/simulators/shared.ts
+@@ -153,6 +153,7 @@ export function createCompareSettings(
+     downhill: false,
+     spotStruggle: false,
+     dueling: false,
++    cooldownReactivation: true,
+     witChecks: false,
+     positionKeepMode: 0,
+     staminaDrainOverrides: {},
+diff --git a/src/modules/simulation/simulators/skill-compare.ts b/src/modules/simulation/simulators/skill-compare.ts
+index 024e454..9ce11d8 100644
+--- a/src/modules/simulation/simulators/skill-compare.ts
++++ b/src/modules/simulation/simulators/skill-compare.ts
+@@ -54,7 +54,8 @@ export function createSkillCompareSettings(options: RunComparisonParams['options
+   const ignoreStaminaConsumption = options.ignoreStaminaConsumption ?? true;
+   return createCompareSettings({
+     healthSystem: !ignoreStaminaConsumption,
+-    staminaDrainOverrides: ignoreStaminaConsumption ? {} : options.staminaDrainOverrides
++    staminaDrainOverrides: ignoreStaminaConsumption ? {} : options.staminaDrainOverrides,
++    cooldownReactivation: options.cooldownReactivation ?? true
+   });
+ }
+ 
+diff --git a/src/modules/simulation/simulators/vacuum-compare.ts b/src/modules/simulation/simulators/vacuum-compare.ts
+index 0688795..48c473d 100644
+--- a/src/modules/simulation/simulators/vacuum-compare.ts
++++ b/src/modules/simulation/simulators/vacuum-compare.ts
+@@ -63,7 +63,8 @@ export function runComparison(params: CompareParams): CompareResult {
+       rushed: options.allowRushedUma1,
+       downhill: options.allowDownhillUma1,
+       witChecks: options.skillCheckChanceUma1,
+-      staminaDrainOverrides: options.staminaDrainOverrides
++      staminaDrainOverrides: options.staminaDrainOverrides,
++      cooldownReactivation: options.cooldownReactivation ?? true
+     }),
+     duelingRates: DEFAULT_DUELING_RATES,
+     skillSamples: nsamples,
+@@ -81,7 +82,8 @@ export function runComparison(params: CompareParams): CompareResult {
+       rushed: options.allowRushedUma2,
+       downhill: options.allowDownhillUma2,
+       witChecks: options.skillCheckChanceUma2,
+-      staminaDrainOverrides: options.staminaDrainOverrides
++      staminaDrainOverrides: options.staminaDrainOverrides,
++      cooldownReactivation: options.cooldownReactivation ?? true
+     }),
+     duelingRates: DEFAULT_DUELING_RATES,
+     skillSamples: nsamples,
+diff --git a/src/modules/simulation/types.ts b/src/modules/simulation/types.ts
+index af9d7a1..104e73e 100644
+--- a/src/modules/simulation/types.ts
++++ b/src/modules/simulation/types.ts
+@@ -60,6 +60,7 @@ export interface SimulationOptions {
+   skillCheckChanceUma1: boolean;
+   skillCheckChanceUma2: boolean;
+   staminaDrainOverrides?: Record<string, number>;
++  cooldownReactivation?: boolean;
+ }
+ 
+ export type RunComparisonParams = {
