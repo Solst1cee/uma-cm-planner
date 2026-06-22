@@ -202,3 +202,32 @@ describe('runRaceCompare', () => {
     expect(rc.nsamples).toBeGreaterThan(0);
   });
 });
+
+import { allActivationRegions } from './run';
+import type { SimulationRun } from './vendor/umalator.bundle.mjs';
+
+describe('allActivationRegions (effect-log grouping)', () => {
+  // Only skillActivations[runner] is read; synthesize a minimal run.
+  const mk = (acts: Record<string, { skillId: string; start: number; end: number }[]>): SimulationRun =>
+    ({ skillActivations: [{}, acts] } as unknown as SimulationRun);
+
+  it('collapses multiple effect-logs at the same start into ONE region (longest window wins)', () => {
+    // e.g. Nimble Navigator: a 2-effect activation logs two entries at the same start.
+    const r = allActivationRegions(
+      mk({ A: [{ skillId: 'A', start: 100, end: 100 }, { skillId: 'A', start: 100, end: 130 }] }),
+      1,
+    );
+    expect(r).toEqual([{ skillId: 'A', start: 100, end: 130 }]);
+  });
+
+  it('keeps genuine multi-fire (distinct starts) as separate regions', () => {
+    const r = allActivationRegions(
+      mk({ B: [{ skillId: 'B', start: 200, end: 210 }, { skillId: 'B', start: 500, end: 510 }] }),
+      1,
+    );
+    expect(r).toEqual([
+      { skillId: 'B', start: 200, end: 210 },
+      { skillId: 'B', start: 500, end: 510 },
+    ]);
+  });
+});
