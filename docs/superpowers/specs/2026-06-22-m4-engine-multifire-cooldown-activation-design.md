@@ -18,7 +18,7 @@ This is an **engine modelling gap**, not an app-side bug: the collector and over
 **Goal:** model cooldown-based re-activation so re-firing skills are simulated firing the correct, **per-course** number of times, and the race-compare overlay surfaces every fire — generally, so current and future short-cooldown skills are handled without per-skill code.
 
 **Non-goals (explicitly out of scope for v1):**
-- **Continuous-condition skills** (`infront_near_lane_time` / `behind_near_lane_time`: Slipstream, Playtime's Over!, See Ya Later!, No Stopping Me!, Nimble Navigator). They depend on live opponent lane positions re-evaluated each tick; `runComparison` runs each runner in a **vacuum** with no real opponents, so a faithful re-fire model isn't possible. Deferred.
+- **Continuous-condition skills** (`infront_near_lane_time` / `behind_near_lane_time`: Slipstream, Playtime's Over!, See Ya Later!, No Stopping Me!, Nimble Navigator). They depend on live opponent lane positions re-evaluated each tick; `runComparison` runs each runner in a **vacuum** with no real opponents, so a faithful re-fire model isn't possible. **Deferred, not designed out** — the engine mechanism extends to them via a second recurrence source (§12); the blocker is faithfulness (the vacuum sim has no opponents), not the cooldown machinery.
 - **Per-proc L attribution.** The engine measures only *total* バ身 (end-position difference). We will not fabricate a per-fire L breakdown (see §7).
 - **Matching upstream v0.14.2 numbers when the feature is ON.** Multi-fire intentionally diverges; fidelity is preserved via the OFF fallback (§6).
 
@@ -75,6 +75,8 @@ L collapses to zero near the line. **Total L for a multi-fire skill is therefore
 
 **Approach 2 — dynamic cooldown gate** (chosen over static distance-filtering). Cooldown is enforced during the race tick against **real sim time**, so no velocity estimate or calibration knob is needed. Flag-gated, default ON, with a byte-identical OFF fallback.
 
+Structurally the feature is **two parts**: a *recurrence source* that yields a skill's repeat fire opportunities, and a *shared cooldown gate* that decides which of them actually fire. The gate is policy- and condition-agnostic; v1 ships one recurrence source (static course-geometry windows), and further sources (e.g. continuous opponent-relative conditions) plug into the same gate later without changing it (§12).
+
 ## 5. Design
 
 ### 5.1 The flag
@@ -128,4 +130,13 @@ A condition that resolves to a **single** window (e.g. `last_straight_random`, w
 
 ## 11. Scope summary
 **In:** `all_corner_random` + `straight_random` short-cd skills (10), dynamic cooldown gate, distance-scaled cooldown, flag-gated default-ON, overlay surfaces all fires (no app change), total-L correctness.
-**Out:** continuous near-lane skills, per-proc L attribution, skill-detail velocity-chart multi-fire, matching upstream numbers when ON.
+**Out (v1):** continuous near-lane skills (deferred but architecturally accommodated — §12), per-proc L attribution, skill-detail velocity-chart multi-fire, matching upstream numbers when ON.
+
+## 12. Extensibility — future recurrence sources
+
+The cooldown gate (§5.3 step 3) is the reusable primitive: policy- and condition-agnostic, it decides *which* of a skill's fire opportunities actually fire. v1 supplies opportunities from one **recurrence source** — static course-geometry windows (corner/straight policies). Other multi-fire skills are added by supplying a new recurrence source feeding the **same** gate, with no gate changes:
+
+- **Continuous opponent-relative skills** (near-lane: Slipstream, Playtime's Over!, See Ya Later!, No Stopping Me!, Nimble Navigator). Mechanism: instead of consuming the pending trigger on fire, keep the skill **armed** and re-evaluate its `extraCondition` each tick, gated by the same distance-scaled cooldown — small, localized engine work. **The real blocker is faithfulness, not the mechanism:** `runComparison` runs each runner in a vacuum with no opponents, so `infront/behind_near_lane_time` can't be observed truthfully; enabling these needs opponent modelling (or a principled lane-proximity proxy) — a separate, larger effort. Until then they correctly remain single-fire.
+- **Other future short-cd recurring conditions.** Any new condition whose recurrence the sim can observe (geometry- or self-state-based) slots in identically: add its recurrence source, reuse the gate. The §5.2 eligibility predicate is intended to grow, not a fixed list.
+
+v1 is deliberately structured as the first of N recurrence sources behind one shared gate, so the deferred categories are an **additive** change rather than a redesign.
