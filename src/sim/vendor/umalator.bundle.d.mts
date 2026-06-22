@@ -49,6 +49,7 @@ export interface RaceDef {
 export interface SimOptions {
   seed?: number;
   ignoreStaminaConsumption?: boolean;
+  cooldownReactivation?: boolean;
   [key: string]: unknown;
 }
 
