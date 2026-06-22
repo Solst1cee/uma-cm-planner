@@ -4,6 +4,7 @@ import { SectionText } from '../primitives/section-text';
 import { DistanceMarker } from '../primitives/distance-marker';
 import type { CourseData } from '../../shims/course';
 import { RaceTrackDimensions } from '../types';
+import { cornerNumber } from '@/core/corners';
 
 interface Straight {
   readonly start: number;
@@ -77,7 +78,7 @@ export const SectionTypesBar = React.memo<SectionTypesBarProps>((props) => {
       const x = (c.start / distance) * 100;
       const width = (c.length / distance) * 100;
 
-      const fields = { n: 4 - ((corners.length - i - 1) % 4) };
+      const fields = { n: cornerNumber(corners.length, i) };
 
       return (
         <svg

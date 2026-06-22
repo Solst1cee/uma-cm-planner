@@ -84,6 +84,7 @@ export function RaceTrackView({ courseId, deps, trace, traceDistance, showHp = t
             distance={traceDistance ?? course.distance}
             showHp={showHp}
             skillName={skillName ?? ((id) => id)}
+            corners={course.corners}
           />
         )}
       </svg>

@@ -30,8 +30,32 @@ it('omits hp lines when showHp is false', () => {
   expect(container.querySelectorAll('.ro-hp').length).toBe(0);
 });
 
+it('suffixes a marker with its physical corner (wrap-around aware) when corners are supplied', () => {
+  // 6 corners (1.5-lap track) → physical numbers C3,C4,C1,C2,C3,C4.
+  const corners = [
+    { start: 200, length: 100 }, { start: 500, length: 100 }, { start: 800, length: 100 },
+    { start: 1100, length: 100 }, { start: 1400, length: 100 }, { start: 1700, length: 100 },
+  ];
+  const cr: RaceCompareRun = { ...run, uma1Acts: [{ skillId: 'Prof', start: 1450, end: 1450 }], uma2Acts: [] };
+  const { container } = render(
+    <svg><RaceOverlay run={cr} distance={2000} showHp skillName={(id) => id} corners={corners} /></svg>,
+  );
+  const labels = Array.from(container.querySelectorAll('.ro-mark-label')).map((n) => n.textContent);
+  expect(labels).toContain('Prof C3'); // pos 1450 → corner index 4 of 6 → C3
+});
+
+it('leaves the label un-suffixed for an activation on a straight (no corner)', () => {
+  const corners = [{ start: 200, length: 100 }, { start: 1700, length: 100 }];
+  const cr: RaceCompareRun = { ...run, uma1Acts: [{ skillId: 'Spd', start: 600, end: 600 }], uma2Acts: [] };
+  const { container } = render(
+    <svg><RaceOverlay run={cr} distance={2000} showHp skillName={(id) => id} corners={corners} /></svg>,
+  );
+  const labels = Array.from(container.querySelectorAll('.ro-mark-label')).map((n) => n.textContent);
+  expect(labels).toContain('Spd'); // pos 600 is on a straight → no corner suffix
+});
+
 describe('placeRungs (greedy rung-stacking)', () => {
-  const id = (s: string) => s;                 // skillId is the label
+  const id = (a: RaceActivation) => a.skillId;  // label = the skillId
   const act = (skillId: string, start: number, end: number): RaceActivation => ({ skillId, start, end });
   // distance === boxW → metersPerUnit = 1, so meter intervals map 1:1 to layout units.
 

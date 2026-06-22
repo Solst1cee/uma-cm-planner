@@ -4,6 +4,10 @@ import {
   polyline, posPoints, velocityHpDomain, gapMagnitude, gapPoints, type Box,
 } from '@/features/cm-planner/skill-trace/geometry';
 import { RaceTrackDimensions as D } from '../vendor/types';
+import { cornerIndexAt, cornerLabel } from '@/core/corners';
+
+/** A course corner segment (position metres). */
+export type Corner = { readonly start: number; readonly length: number };
 
 export const OVERLAY_VELO_BOX: Box = { w: D.RenderWidth, h: D.OverlayVeloHeight };
 export const OVERLAY_GAP_BOX: Box = { w: D.RenderWidth, h: D.OverlayGapHeight };
@@ -18,8 +22,9 @@ const CHAR_W = 3.4;     // approx label glyph width (viewBox units) for label-aw
 interface Placed { a: RaceActivation; rung: number; x: number; w: number; duration: boolean; name: string; }
 
 /** Greedy rung assignment for one uma's activations; the occupied interval is max(bar, label).
- *  Exported for unit testing the stacking/overlap math. */
-export function placeRungs(acts: RaceActivation[], distance: number, boxW: number, skillName: (id: string) => string): { placed: Placed[]; rungs: number } {
+ *  `label(a)` is the full marker text (skill name + optional corner) — used for both packing and
+ *  rendering so the corner suffix reserves horizontal space. Exported for unit testing. */
+export function placeRungs(acts: RaceActivation[], distance: number, boxW: number, label: (a: RaceActivation) => string): { placed: Placed[]; rungs: number } {
   if (distance <= 0) return { placed: [], rungs: 0 };
   const metersPerUnit = distance / boxW;
   const lanes: { s: number; e: number }[][] = [];
@@ -27,7 +32,7 @@ export function placeRungs(acts: RaceActivation[], distance: number, boxW: numbe
     .sort((a, b) => a.start - b.start)
     .map((a) => {
       const duration = a.end - a.start > 1;
-      const name = skillName(a.skillId);
+      const name = label(a);
       const labelMeters = (name.length * CHAR_W + (duration ? 4 : 7)) * metersPerUnit;
       const s = a.start;
       const e = a.start + Math.max(duration ? a.end - a.start : 0, labelMeters);
@@ -90,9 +95,12 @@ function VelocityAxis({ box, vMax }: { box: Box; vMax: number }) {
 }
 
 /** SVG overlay for the race-compare view: two velocity lines + two HP lines (toggle) + a speed
- *  y-axis + rung-stacked skill markers (red uma2 above blue uma1) + バ身-gap sub-band. */
-export function RaceOverlay({ run, distance, showHp, skillName }: {
+ *  y-axis + rung-stacked skill markers (red uma2 above blue uma1) + バ身-gap sub-band. When
+ *  `corners` is supplied, a marker that fired inside a corner is suffixed with its physical
+ *  corner (e.g. "Professor of Curvature C3"), wrap-around aware (Hanshin 3200m → C3,C4,C1,C2,C3,C4). */
+export function RaceOverlay({ run, distance, showHp, skillName, corners }: {
   run: RaceCompareRun; distance: number; showHp: boolean; skillName: (id: string) => string;
+  corners?: ReadonlyArray<Corner>;
 }) {
   const velo = OVERLAY_VELO_BOX, gapBox = OVERLAY_GAP_BOX;
   const { vMax, hpMax } = velocityHpDomain(run.uma1Frames, run.uma2Frames);
@@ -103,9 +111,17 @@ export function RaceOverlay({ run, distance, showHp, skillName }: {
   const mag = gapMagnitude(run.gap);
   const gapLine = polyline(gapPoints(run.gap, gapBox, distance, mag));
 
+  // Marker text = skill name, plus the physical corner it fired in (if any).
+  const label = (a: RaceActivation): string => {
+    const name = skillName(a.skillId);
+    if (!corners || corners.length === 0) return name;
+    const ci = cornerIndexAt(corners, a.start);
+    return ci >= 0 ? `${name} ${cornerLabel(corners.length, ci)}` : name;
+  };
+
   // uma1 markers stack up from the bottom; uma2 markers stack up above uma1's stack (red over blue).
-  const m1 = placeRungs(run.uma1Acts, distance, velo.w, skillName);
-  const m2 = placeRungs(run.uma2Acts, distance, velo.w, skillName);
+  const m1 = placeRungs(run.uma1Acts, distance, velo.w, label);
+  const m2 = placeRungs(run.uma2Acts, distance, velo.w, label);
   const uma1BaseY = velo.h;
   const uma2BaseY = velo.h - m1.rungs * RUNG_STEP - 3;
 
