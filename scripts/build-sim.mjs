@@ -1,5 +1,7 @@
 // Builds the vendored umalator engine into one self-contained ESM bundle.
 // Source: spikes/repos/umalator-global @ v0.14.2 (c1fa2107), GPL-3.0-only.
+// Local modification: cooldown-aware multi-fire skill activation — apply
+// engine-patches/2026-06-22-multifire.patch to the pinned source before sim:build.
 // The engine runs headless given the import.meta.env define (proven by its own
 // adversarial-smoke). We re-export only the surface src/sim needs.
 import { build } from 'esbuild';

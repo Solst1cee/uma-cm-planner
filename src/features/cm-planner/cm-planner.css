@@ -1562,9 +1562,11 @@ main:has(.cmp-page) {
 
 .cmp-skill-rarity-white > summary,
 .cmp-skill-rarity-white.cmp-skill-plate {
+  --skill-text: #46505f;
+  --skill-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
   background:
-    linear-gradient(90deg, rgb(255, 243, 247), rgb(181, 178, 198)) padding-box,
-    linear-gradient(90deg, rgb(214, 207, 231), rgb(148, 150, 189)) border-box;
+    linear-gradient(90deg, #f8fafc, #d3d9e3) padding-box,
+    linear-gradient(90deg, #c9d1dd, #8b96a7) border-box;
 }
 
 .cmp-skill-rarity-gold > summary,
@@ -1583,11 +1585,9 @@ main:has(.cmp-page) {
 
 .cmp-skill-rarity-inherited_unique > summary,
 .cmp-skill-rarity-inherited_unique.cmp-skill-plate {
-  --skill-text: #46505f;
-  --skill-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
   background:
-    linear-gradient(90deg, #f8fafc, #d3d9e3) padding-box,
-    linear-gradient(90deg, #c9d1dd, #8b96a7) border-box;
+    linear-gradient(90deg, rgb(255, 243, 247), rgb(181, 178, 198)) padding-box,
+    linear-gradient(90deg, rgb(214, 207, 231), rgb(148, 150, 189)) border-box;
 }
 
 .cmp-skill-detail > summary::-webkit-details-marker {

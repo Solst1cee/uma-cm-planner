@@ -12,7 +12,7 @@ const smokeBuild: SimBuild = {
   aptitudes: { distance: 'A', surface: 'A', strategy: 'A' },
   skills: [],
 };
-const EXPECTED_MEAN = 0.2202; // Recorded from bundle smoke (same code as upstream v0.14.2): mean=0.2202 (seed 12345, 50 samples)
+const EXPECTED_MEAN = 0.2202; // Recorded from bundle smoke on the cooldownReactivation:false (upstream-identical) path: mean=0.2202 (seed 12345, 50 samples)
 
 describe('vendored bundle fidelity', () => {
   it('reproduces the upstream adversarial-smoke mean for the same seed', () => {
@@ -26,7 +26,9 @@ describe('vendored bundle fidelity', () => {
       trackedSkillId: '200332', nsamples: 50, course,
       racedef: { ground: 1, weather: 1, season: 3, time: 2, grade: 100 },
       runnerA: runner, runnerB: { ...runner, skills: ['200332'] },
-      options: { seed: 12345, ignoreStaminaConsumption: true },
+      // OFF path: this is the canonical upstream-parity anchor, so it must ride the
+      // byte-identical single-fire path (200332 is an eligible multi-fire skill).
+      options: { seed: 12345, ignoreStaminaConsumption: true, cooldownReactivation: false },
     });
     expect(r.results).toHaveLength(50);
     expect(Number(r.mean.toFixed(4))).toBe(Number(EXPECTED_MEAN.toFixed(4)));
