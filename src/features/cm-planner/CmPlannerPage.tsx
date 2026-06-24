@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import './cm-planner.css';
 import { makeDefaultPlan, useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
+import { copyPlanInto } from '@/core/cmPlanCopy';
 import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
 import { distanceClass } from '@/core/simBuild';
@@ -46,6 +47,7 @@ export function CmPlannerPage() {
     isSaved,
     setAutoSave,
     setPlan,
+    setUma2Plan,
     selectPlan,
     deleteSavedPlan,
     importSavedPlans,
@@ -182,6 +184,21 @@ export function CmPlannerPage() {
     };
   };
 
+  const onDuplicateUma1ToUma2 = () => {
+    const draft = copyPlanInto(plan);
+    draft.name = generatePlanName(draft, umaById?.get(draft.umaId)?.nameEn, raceNameLabel);
+    setUma2Plan(draft);
+    setFocused('uma2');
+  };
+
+  const onReplicateUma2ToUma1 = () => {
+    if (!uma2Plan) return;
+    if (!window.confirm("Overwrite uma1 with uma2's build?")) return;
+    const draft = copyPlanInto(uma2Plan, { keepName: false });
+    draft.name = generatePlanName(draft, umaById?.get(draft.umaId)?.nameEn, raceNameLabel);
+    setPlan({ ...draft, id: plan.id, planNumber: plan.planNumber });
+  };
+
   return (
     <SelectedSkillProvider>
       <div className="cmp-page" data-inv-collapsed={String(invCollapsed)}>
@@ -236,6 +253,8 @@ export function CmPlannerPage() {
           focused={focused}
           onFocusChange={setFocused}
           uma2Empty={uma2Plan === null}
+          onDuplicateUma1ToUma2={onDuplicateUma1ToUma2}
+          onReplicateUma2ToUma1={onReplicateUma2ToUma1}
         />
         <div className="cmp-main">
           <section className="cmp-plan-card cmp-track-card">

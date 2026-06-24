@@ -217,4 +217,16 @@ describe('PlannerSidebar flip card', () => {
     expect(screen.getByTestId('cmp-flip-card')).toHaveAttribute('data-uma', 'uma1');
     expect(screen.getByLabelText('Plan name')).toBeInTheDocument();
   });
+
+  it('duplicate uma1 -> uma2 calls handler from the empty uma2 face', () => {
+    const onDup = vi.fn();
+    render(<PlannerSidebar {...sidebarProps} focused="uma2" uma2Empty onDuplicateUma1ToUma2={onDup} onReplicateUma2ToUma1={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /duplicate uma1/i }));
+    expect(onDup).toHaveBeenCalled();
+  });
+
+  it('replicate uma2 -> uma1 is disabled when uma2 is empty', () => {
+    render(<PlannerSidebar {...sidebarProps} focused="uma1" uma2Empty onReplicateUma2ToUma1={vi.fn()} onDuplicateUma1ToUma2={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /replicate uma2/i })).toBeDisabled();
+  });
 });

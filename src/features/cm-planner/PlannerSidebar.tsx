@@ -141,6 +141,8 @@ export function PlannerSidebar({
   focused = 'uma1',
   onFocusChange = () => undefined,
   uma2Empty = false,
+  onDuplicateUma1ToUma2,
+  onReplicateUma2ToUma1,
 }: {
   plan: CmPlan;
   autoSave: boolean;
@@ -155,6 +157,8 @@ export function PlannerSidebar({
   focused?: 'uma1' | 'uma2';
   onFocusChange?: (slot: 'uma1' | 'uma2') => void;
   uma2Empty?: boolean;
+  onDuplicateUma1ToUma2?: () => void;
+  onReplicateUma2ToUma1?: () => void;
 }) {
   const { skillById, umas, umaById } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
@@ -383,7 +387,15 @@ export function PlannerSidebar({
           </span>
         </header>
         {focused === 'uma2' && uma2Empty ? (
-          <div className="cmp-uma2-empty">No uma2 yet.</div>
+          <div className="cmp-uma2-empty">
+            <p>No uma2 yet.</p>
+            {onDuplicateUma1ToUma2 && (
+              <button type="button" onClick={onDuplicateUma1ToUma2}>
+                ⤓ Duplicate uma1 →
+              </button>
+            )}
+            <p className="muted small">Or load a plan from the inventory.</p>
+          </div>
         ) : (
         <div className="cmp-plan-card-body">
           <div className="cmp-name-row">
@@ -423,6 +435,23 @@ export function PlannerSidebar({
               rows={1}
             />
           </label>
+          <div className="cmp-copy-row">
+            {focused === 'uma2' && onDuplicateUma1ToUma2 && (
+              <button type="button" className="cmp-copy-btn" onClick={onDuplicateUma1ToUma2}>
+                ⤓ Duplicate uma1 → uma2
+              </button>
+            )}
+            {focused === 'uma1' && onReplicateUma2ToUma1 && (
+              <button
+                type="button"
+                className="cmp-copy-btn"
+                disabled={uma2Empty}
+                onClick={onReplicateUma2ToUma1}
+              >
+                ⤓ Replicate uma2 → uma1
+              </button>
+            )}
+          </div>
           <div className="cmp-save-row">
             <span
               className={`cmp-save-status ${isSaved ? 'is-saved' : 'is-unsaved'}`}

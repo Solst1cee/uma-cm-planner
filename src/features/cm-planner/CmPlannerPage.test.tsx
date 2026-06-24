@@ -133,6 +133,7 @@ const h = vi.hoisted(() => {
   const setDraftPlan = vi.fn();
   const setAutoSave = vi.fn();
   const setPlan = vi.fn();
+  const setUma2Plan = vi.fn();
   const getSetting = vi.fn(async (key?: string) =>
     key === 'cmPlannerInventoryCollapsed' ? false : true,
   );
@@ -157,6 +158,7 @@ const h = vi.hoisted(() => {
     setDraftPlan,
     setAutoSave,
     setPlan,
+    setUma2Plan,
     getSetting,
     setSetting,
   };
@@ -242,6 +244,7 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         isSaved: true,
         setAutoSave: h.setAutoSave,
         setPlan,
+        setUma2Plan: h.setUma2Plan,
         selectPlan,
         deleteSavedPlan: h.deleteSavedPlan,
         importSavedPlans: h.importSavedPlans,
@@ -289,6 +292,7 @@ afterEach(() => {
   h.setDraftPlan.mockClear();
   h.setAutoSave.mockClear();
   h.setPlan.mockClear();
+  h.setUma2Plan.mockClear();
   h.getSetting.mockClear();
   h.setSetting.mockClear();
 });
