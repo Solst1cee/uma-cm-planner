@@ -11,7 +11,7 @@ import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
 import { distanceClass } from '@/core/simBuild';
 import { cmRaceOptions } from '@/core/cmRace';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, CmRefV2 } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { PlannerSidebar } from './PlannerSidebar';
 import { SkillChartPanel } from './SkillChartPanel';
@@ -32,7 +32,6 @@ import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaCheckerTab } from './StaminaCheckerTab';
 import { AccelCheckerTab } from './AccelCheckerTab';
 import { trackChangeNeedsConfirm, tracksDiffer } from './trackChange';
-import type { CmRefV2 } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -64,6 +63,7 @@ export function CmPlannerPage() {
   } = useActivePlan();
   const [courseCatalog, setCourseCatalog] = useState<CourseCatalogEntry[]>([]);
   const [autoApplyInventoryTrack, setAutoApplyInventoryTrack] = useState<boolean | null>(null);
+  const autoApplyOn = autoApplyInventoryTrack ?? true;
   const [invCollapsed, setInvCollapsed] = useState<boolean>(false);
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
   const [trackOverrideRef, setTrackOverrideRef] = useState<CmRefV2 | null>(null);
@@ -86,14 +86,14 @@ export function CmPlannerPage() {
   // the auto-follow until the user confirms or cancels.
   const autoFollowRef = useMemo(() => {
     if (
-      autoApplyInventoryTrack === true &&
+      autoApplyOn &&
       !(focused === 'uma2' && uma2Plan === null) &&
       focusedPlan !== null
     ) {
       return focusedPlan.cmRef;
     }
     return plan?.cmRef ?? null;
-  }, [autoApplyInventoryTrack, focused, uma2Plan, focusedPlan, plan]);
+  }, [autoApplyOn, focused, uma2Plan, focusedPlan, plan]);
   const trackCmRef = trackOverrideRef ?? autoFollowRef;
   const selection: RaceSelection | null = useMemo(
     () => (trackCmRef ? cmRefToSelection(trackCmRef, courseCatalog, timeline ?? []) : null),
@@ -170,10 +170,10 @@ export function CmPlannerPage() {
   };
 
   // Determines whether a flip or load should show the confirm bar or just apply.
-  // Uses `?? true` so that a pending settings load (null) defaults to auto-apply ON.
+  // Uses `autoApplyOn` (null → true) so that a pending settings load defaults to auto-apply ON.
   const applyTrackTransition = (nextFollowRef: CmRefV2 | null) => {
     const prev = trackCmRef;
-    const autoApply = (autoApplyInventoryTrack ?? true) === true;
+    const autoApply = autoApplyOn;
     if (
       prev && nextFollowRef &&
       trackChangeNeedsConfirm({
@@ -290,7 +290,7 @@ export function CmPlannerPage() {
           uma1PlanId={plan.id}
           uma2PlanId={uma2Plan?.id}
           onLoadPlanIntoSlot={async (id, slot) => {
-            const keepTrackRef = slot === 'uma1' && autoApplyInventoryTrack !== true ? plan.cmRef : null;
+            const keepTrackRef = slot === 'uma1' && !autoApplyOn ? plan.cmRef : null;
             await loadPlanIntoSlot(id, slot);
             setCollapseSkillSignal((signal) => signal + 1);
             // auto-apply OFF: keep the race you're viewing by overriding the loaded
@@ -331,9 +331,8 @@ export function CmPlannerPage() {
             if (slot === focused) return;
             setFocused(slot);
             const nextFocused = slot === 'uma1' ? plan : uma2Plan;
-            const autoApply = (autoApplyInventoryTrack ?? true) === true;
             applyTrackTransition(
-              autoApply && !(slot === 'uma2' && uma2Plan === null) && nextFocused
+              autoApplyOn && !(slot === 'uma2' && uma2Plan === null) && nextFocused
                 ? nextFocused.cmRef
                 : null,
             );
