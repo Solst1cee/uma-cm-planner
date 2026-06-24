@@ -1,9 +1,10 @@
-export function hpStats(finalHp: number[]): { min: number; max: number; median: number } {
-  if (finalHp.length === 0) return { min: 0, max: 0, median: 0 };
+export function hpStats(finalHp: number[]): { min: number; max: number; median: number; mean: number } {
+  if (finalHp.length === 0) return { min: 0, max: 0, median: 0, mean: 0 };
   const s = [...finalHp].sort((a, b) => a - b);
   const m = s.length >> 1;
   const median = s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
-  return { min: s[0]!, max: s[s.length - 1]!, median };
+  const mean = s.reduce((acc, v) => acc + v, 0) / s.length;
+  return { min: s[0]!, max: s[s.length - 1]!, median, mean };
 }
 
 export function histogram(

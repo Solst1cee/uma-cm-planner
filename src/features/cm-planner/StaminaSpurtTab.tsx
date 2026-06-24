@@ -65,6 +65,11 @@ function fmtRange(lo: Required, hi: Required): string {
   return `${fmtRequired(lo)}–${fmtRequired(hi)}`;
 }
 
+/** A rounded HP value coloured by sign: green when positive (HP left), red when negative (ran out). */
+function HpNum({ n }: { n: number }) {
+  return <span className={n >= 0 ? 'cmp-hp-pos' : 'cmp-hp-neg'}>{Math.round(n)}</span>;
+}
+
 /** SVG bar histogram of per-sample finish HP, with labelled axes.
  *  The lowest bin (zero/near-zero HP = ran out) is error-red; others use the accent. */
 function FinalHpHistogram({ finalHp }: { finalHp: number[] }) {
@@ -376,10 +381,9 @@ export function StaminaSpurtTab({
             </label>
           </div>
 
-          <hr className="cmp-stamina-sep" />
-
           {result && (
             <>
+              <hr className="cmp-stamina-sep" />
               {(() => {
                 const saving =
                   result.baseNo.reachable && result.downNo.reachable
@@ -406,8 +410,8 @@ export function StaminaSpurtTab({
 
                     {hp && (
                       <span className="cmp-sr-subline small">
-                        remaining HP — min {Math.round(hp.min)} · median {Math.round(hp.median)} · max{' '}
-                        {Math.round(hp.max)}
+                        remaining HP — min <HpNum n={hp.min} /> · median <HpNum n={hp.median} /> · max{' '}
+                        <HpNum n={hp.max} /> · mean <HpNum n={hp.mean} />
                       </span>
                     )}
 

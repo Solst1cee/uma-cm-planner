@@ -2132,10 +2132,12 @@ main:has(.cmp-page) {
 }
 
 .cmp-tabstrip button {
+  flex: 1 1 0;
+  text-align: center;
   border: 1px solid transparent;
   border-radius: var(--cmp-tab-radius);
   background: transparent;
-  padding: 0.25rem 0.65rem;
+  padding: 0.35rem 0.65rem;
   color: var(--fg-muted);
   font-size: 0.82rem;
   font-weight: 700;
@@ -2272,11 +2274,22 @@ main:has(.cmp-page) {
   color: var(--fg-muted);
 }
 
-/* Indented sub-line (e.g. remaining-HP min/median/max) under a result row. */
+/* Indented sub-line (e.g. remaining-HP min/median/max/mean) under a result row. */
 .cmp-sr-subline {
   grid-column: 1 / -1;
   padding-left: 0.9rem;
   color: var(--fg-muted);
+}
+
+/* HP value coloured by sign: green = HP left, red = ran out. */
+.cmp-hp-pos {
+  color: #2e9657;
+  font-weight: 600;
+}
+
+.cmp-hp-neg {
+  color: var(--error, #c2414b);
+  font-weight: 600;
 }
 
 /* All result numbers: blue accent, same weight + size, right-aligned in their column. */

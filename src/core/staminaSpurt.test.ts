@@ -2,11 +2,11 @@ import { expect, test, describe } from 'vitest';
 import { hpStats, histogram, requiredStaminaForSpurt } from './staminaSpurt';
 
 describe('hpStats', () => {
-  test('min/max/median', () => {
-    expect(hpStats([10, 0, 5, 20])).toEqual({ min: 0, max: 20, median: 7.5 });
+  test('min/max/median/mean', () => {
+    expect(hpStats([10, 0, 5, 20])).toEqual({ min: 0, max: 20, median: 7.5, mean: 8.75 });
   });
   test('empty', () => {
-    expect(hpStats([])).toEqual({ min: 0, max: 0, median: 0 });
+    expect(hpStats([])).toEqual({ min: 0, max: 0, median: 0, mean: 0 });
   });
 });
 
