@@ -84,7 +84,24 @@ function isLegacyStarterPlan(plan: CmPlan): boolean {
 }
 
 interface ActivePlanValue {
+  /** @deprecated Use `uma1Plan` instead. Kept as alias so existing consumers compile. */
   plan: CmPlan | null;
+  /** Primary build (blue). Persisted + restored across page loads. Never null once loaded. */
+  uma1Plan: CmPlan | null;
+  /** Comparison build (red). Session-scratch: starts null on every page load, never restores. */
+  uma2Plan: CmPlan | null;
+  /** Which slot is currently focused. Defaults to 'uma1'. */
+  focused: 'uma1' | 'uma2';
+  setFocused: (slot: 'uma1' | 'uma2') => void;
+  /** uma1Plan when focused==='uma1', else uma2Plan. */
+  focusedPlan: CmPlan | null;
+  /** Routes to the focused slot's setter. */
+  setFocusedPlan: (next: CmPlan) => void;
+  /**
+   * Set the uma2 (comparison) slot. Autosaves + autonames when non-null.
+   * Never writes activePlanId. Pass null to clear the slot.
+   */
+  setUma2Plan: (next: CmPlan | null) => void;
   savedPlans: CmPlan[];
   autoSave: boolean;
   isSaved: boolean;
@@ -126,6 +143,14 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
   const pendingSave = useRef<CmPlan | null>(null);
   const planRef = useRef<CmPlan | null>(null);
   const autoSaveRef = useRef(false);
+
+  // uma2: session-scratch comparison slot (never restored from settings on load)
+  const [uma2Plan, setUma2PlanState] = useState<CmPlan | null>(null);
+  const saveTimer2 = useRef<number | undefined>(undefined);
+  const pendingSave2 = useRef<CmPlan | null>(null);
+
+  // focused slot selector
+  const [focused, setFocused] = useState<'uma1' | 'uma2'>('uma1');
 
   // Latest current CM (from the timeline) for the async default-creation paths.
   const currentCmRef = useRef<TimelineEntry | null>(null);
@@ -355,12 +380,54 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const setUma2Plan = useCallback((next: CmPlan | null) => {
+    if (next === null) {
+      window.clearTimeout(saveTimer2.current);
+      pendingSave2.current = null;
+      setUma2PlanState(null);
+      return;
+    }
+    // Ensure a name before saving (umaName unknown here — generatePlanName falls back gracefully)
+    const named: CmPlan = next.name.trim()
+      ? next
+      : { ...next, name: generatePlanName(next, undefined) };
+    setUma2PlanState(named);
+    pendingSave2.current = named;
+    window.clearTimeout(saveTimer2.current);
+    saveTimer2.current = window.setTimeout(() => {
+      pendingSave2.current = null;
+      savePlan(named).then(async () => {
+        // Never write ACTIVE_PLAN_KEY for uma2
+        setSavedPlans(await listPlans());
+      }).catch((err: unknown) => {
+        setLoadError(err instanceof Error ? err.message : String(err));
+      });
+    }, SAVE_DEBOUNCE_MS);
+  }, []);
+
+  const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
+
+  const setFocusedPlan = useCallback((next: CmPlan) => {
+    if (focused === 'uma1') {
+      setPlan(next);
+    } else {
+      setUma2Plan(next);
+    }
+  }, [focused, setPlan, setUma2Plan]);
+
   const isSaved = plan ? isPlanContentSaved(plan, savedPlans) : true;
 
   return (
     <ActivePlanContext.Provider
       value={{
         plan,
+        uma1Plan: plan,
+        uma2Plan,
+        focused,
+        setFocused,
+        focusedPlan,
+        setFocusedPlan,
+        setUma2Plan,
         savedPlans,
         autoSave,
         isSaved,
