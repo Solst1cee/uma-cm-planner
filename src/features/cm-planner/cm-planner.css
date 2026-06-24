@@ -2203,9 +2203,9 @@ main:has(.cmp-page) {
 
 .cmp-stamina-controls {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
 
 .cmp-stamina-controls label.small {
@@ -2215,6 +2215,14 @@ main:has(.cmp-page) {
   color: var(--fg);
   font-size: 0.8rem;
   white-space: nowrap;
+}
+
+/* Divider between the input controls and the result area. */
+.cmp-stamina-sep {
+  border: none;
+  border-top: 1px solid var(--border);
+  width: 100%;
+  margin: 0.2rem 0;
 }
 
 .cmp-stamina-controls input[type='number'] {

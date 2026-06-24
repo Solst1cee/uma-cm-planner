@@ -150,6 +150,7 @@ export function StaminaSpurtTab({
   const [goldDebuffs, setGoldDebuffs] = useState(0);
   const [status, setStatus] = useState<'idle' | 'running' | 'done'>('idle');
   const [result, setResult] = useState<StaminaSpurtResult | null>(null);
+  const [runSig, setRunSig] = useState<string | null>(null);
   const token = useRef(0);
 
   // Mirror StaminaCheckerTab's dep list so wishlist edits re-run cleanly.
@@ -179,8 +180,26 @@ export function StaminaSpurtTab({
   const distance = plan.cmRef.distance;
   const spd = plan.statProfile.stats.spd;
 
+  // Inputs that affect the result — when they change after a run, prompt a re-run.
+  const sig = useMemo(
+    () =>
+      JSON.stringify([
+        baseBuild.stats,
+        [...baseBuild.skills].sort(),
+        baseBuild.strategy,
+        baseBuild.mood ?? null,
+        race.courseId,
+        threshold,
+        whiteDebuffs,
+        goldDebuffs,
+      ]),
+    [baseBuild, race.courseId, threshold, whiteDebuffs, goldDebuffs],
+  );
+  const isStale = runSig !== null && sig !== runSig;
+
   const run = async () => {
     const t = (token.current += 1);
+    setRunSig(sig);
     let d: StaminaSpurtDeps;
     try {
       d = deps ?? realDeps();
@@ -259,6 +278,19 @@ export function StaminaSpurtTab({
         }}
       >
         <span className="cmp-stamina-title">Stamina Calculator</span>
+        <button
+          type="button"
+          className="cmp-run-btn"
+          disabled={status === 'running'}
+          aria-label={status === 'running' ? 'Running' : status === 'idle' ? 'Run' : 'Re-run'}
+          onClick={(e) => {
+            e.stopPropagation();
+            void run();
+          }}
+        >
+          {status === 'running' ? '…' : status === 'idle' ? 'Run' : 'Re-run'}
+        </button>
+        {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
@@ -302,15 +334,9 @@ export function StaminaSpurtTab({
                 aria-label="Expected gold stamina debuffs"
               />
             </label>
-            <button
-              type="button"
-              className="cmp-run-btn"
-              onClick={() => void run()}
-              disabled={status === 'running'}
-            >
-              {status === 'running' ? '…' : status === 'idle' ? 'Run' : 'Re-run'}
-            </button>
           </div>
+
+          <hr className="cmp-stamina-sep" />
 
           {result && (
             <>
@@ -326,34 +352,34 @@ export function StaminaSpurtTab({
                 return (
                   <div className="cmp-stamina-results">
                     <span className="cmp-sr-label">Spurt rate</span>
-                    <span className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</span>
                     <span className="cmp-sr-delta" />
+                    <span className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</span>
 
                     <span className="cmp-sr-label">Stamina survival</span>
+                    <span className="cmp-sr-delta" />
                     <span className="cmp-stamina-num">{result.survival.toFixed(0)}%</span>
-                    <span className="cmp-sr-delta" />
 
-                    <span className="cmp-sr-label">Stamina needed for {result.threshold}%</span>
-                    <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                    <span className="cmp-sr-label">Stamina needed for {result.threshold}% (Mean)</span>
                     <span className="cmp-sr-delta" />
+                    <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
 
                     <span className="cmp-sr-sub small">Breakdown</span>
 
                     <span className="cmp-sr-label cmp-sr-indent">Base (no downhill)</span>
-                    <span className="cmp-stamina-num">{fmtRequired(result.baseNo)}</span>
                     <span className="cmp-sr-delta" />
+                    <span className="cmp-stamina-num">{fmtRequired(result.baseNo)}</span>
 
                     <span className="cmp-sr-label cmp-sr-indent">Downhill saving</span>
+                    <span className="cmp-sr-delta cmp-sr-save">{saving > 0 ? `0 to −${saving}` : ''}</span>
                     <span className="cmp-stamina-num">{fmtRange(result.downNo, result.baseNo)}</span>
-                    <span className="cmp-sr-delta cmp-sr-save">{saving > 0 ? `−${saving}` : ''}</span>
 
                     {result.hasDebuffs && (
                       <>
                         <span className="cmp-sr-label cmp-sr-indent">
                           Debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
                         </span>
-                        <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
                         <span className="cmp-sr-delta cmp-sr-cost">{cost > 0 ? `+${cost}` : ''}</span>
+                        <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
                       </>
                     )}
                   </div>

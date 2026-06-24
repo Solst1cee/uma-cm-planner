@@ -98,13 +98,28 @@ describe('StaminaSpurtTab', () => {
     expect(vacuumSpy).not.toHaveBeenCalled();
   });
 
+  it('shows a "Changed detected" prompt when an input changes after a run', async () => {
+    render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => {
+      expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // Fresh run — no stale prompt yet.
+    expect(screen.queryByText(/Changed detected/i)).not.toBeInTheDocument();
+
+    // Editing the target threshold makes the displayed result stale.
+    fireEvent.change(screen.getByLabelText(/Target spurt rate/i), { target: { value: '90' } });
+    expect(screen.getByText(/Changed detected/i)).toBeInTheDocument();
+  });
+
   it('Run reports spurt rate and required stamina', async () => {
     render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
 
     // Spurt rate should not be visible before Run
     expect(screen.queryByText(/Spurt rate/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     // Wait for results to render
     await waitFor(() => {
@@ -137,7 +152,7 @@ describe('StaminaSpurtTab', () => {
     const thresholdInput = screen.getByLabelText(/Target spurt rate/i);
     fireEvent.change(thresholdInput, { target: { value: '90' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     // Wait for results with 90% threshold header
     await waitFor(() => {
@@ -149,7 +164,7 @@ describe('StaminaSpurtTab', () => {
 
     // Re-run at 50% threshold — sta needed = lo (since current sta=700 already gives 50%)
     fireEvent.change(thresholdInput, { target: { value: '50' } });
-    fireEvent.click(screen.getByRole('button', { name: /re-run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Re-run' }));
 
     await waitFor(() => {
       expect(screen.getByText(/Stamina needed for 50%/i)).toBeInTheDocument();
@@ -164,7 +179,7 @@ describe('StaminaSpurtTab', () => {
     const { deps, captured } = makeDepsWithCapture();
     render(<StaminaSpurtTab plan={plan} deps={deps} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     await waitFor(() => {
       expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
@@ -188,7 +203,7 @@ describe('StaminaSpurtTab', () => {
     const goldInput = screen.getByLabelText(/Expected gold stamina debuffs/i);
     fireEvent.change(goldInput, { target: { value: '1' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     await waitFor(() => {
       expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
@@ -218,7 +233,7 @@ describe('StaminaSpurtTab', () => {
       nsamples: 2,
     };
     render(<StaminaSpurtTab plan={plan} deps={deps} />);
-    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     // Wait for the histogram section to appear
     await waitFor(() => {
