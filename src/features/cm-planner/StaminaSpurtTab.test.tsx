@@ -45,13 +45,15 @@ const plan = {
 };
 
 // ---------------------------------------------------------------------------
-// Fake vacuum dep: aFullSpurtRate = clamp((sta - 400) / 600, 0, 1)
+// Fake vacuum dep: aFullSpurtRate = clamp((sta - 400 + downhillBonus) / 600, 0, 1)
+// downhill saving lowers the stamina need by 60 (so the downhill RANGE is exercised).
 // This gives a monotonic function so requiredStaminaForSpurt binary search works.
-// sta=700 → (700-400)/600 = 0.5 → 50% spurt rate
-// sta=970 → (970-400)/600 = 0.95 → 95% spurt rate (exact threshold)
+// no downhill: sta=970 → 95% (threshold) ; sta=700 → 50%
+// downhill:    sta=910 → 95%  (60 less stamina needed)
 // ---------------------------------------------------------------------------
-function makeFakeResult(sta: number, aFinalHp?: number[]): VacuumResult {
-  const aFullSpurtRate = Math.min(1, Math.max(0, (sta - 400) / 600));
+function makeFakeResult(sta: number, opts?: VacuumOpts, aFinalHp?: number[]): VacuumResult {
+  const bonus = opts?.downhill ? 60 : 0;
+  const aFullSpurtRate = Math.min(1, Math.max(0, (sta - 400 + bonus) / 600));
   return {
     mean: 0, median: 0, min: 0, max: 0, nsamples: 2, results: [],
     aFirstPlaceRate: 0.5, bFirstPlaceRate: 0.5,
@@ -72,15 +74,14 @@ function makeDepsWithCapture(): { deps: StaminaSpurtDeps; captured: { firstOpts?
   const vacuum: StaminaSpurtDeps['vacuum'] = (build, _b, _race, _n, _seed, opts) => {
     callCount++;
     if (callCount === 1) captured.firstOpts = opts; // main `cur` call
-    const sta = build.stats.sta;
-    return Promise.resolve(makeFakeResult(sta));
+    return Promise.resolve(makeFakeResult(build.stats.sta, opts));
   };
   return { deps: { vacuum, nsamples: 2 }, captured };
 }
 
 function makeDeps(): StaminaSpurtDeps {
   return {
-    vacuum: (build, _b, _race, _n, _seed, _opts) => Promise.resolve(makeFakeResult(build.stats.sta)),
+    vacuum: (build, _b, _race, _n, _seed, opts) => Promise.resolve(makeFakeResult(build.stats.sta, opts)),
     nsamples: 2,
   };
 }
@@ -120,10 +121,13 @@ describe('StaminaSpurtTab', () => {
     // sta needed for 95% = 400 + 0.95*600 = 970 (appears in both dd and breakdown)
     expect(screen.getAllByText(/970/).length).toBeGreaterThanOrEqual(1);
 
-    // The breakdown lists base / downhill / debuffs as separate rows.
+    // The breakdown lists base + the downhill-saving range; no debuff row when 0 debuffs.
     expect(screen.getByText(/Base \(no downhill\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/With downhill saving/i)).toBeInTheDocument();
-    expect(screen.getByText(/With debuffs/i)).toBeInTheDocument();
+    expect(screen.getByText(/Downhill saving/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Debuffs/i)).not.toBeInTheDocument();
+
+    // Downhill saving is shown as a RANGE: with-downhill 910 .. no-downhill 970.
+    expect(screen.getByText('910–970')).toBeInTheDocument();
   });
 
   it('threshold input changes the required-stamina target', async () => {
@@ -156,7 +160,7 @@ describe('StaminaSpurtTab', () => {
     // Actually sta=700 gives exactly 50% so binary search might land at or near 700
   });
 
-  it('runs the realistic scenario (downhill saving) for the current readout', async () => {
+  it('current readout is conservative (no downhill) and downhill is not a toggle', async () => {
     const { deps, captured } = makeDepsWithCapture();
     render(<StaminaSpurtTab plan={plan} deps={deps} />);
 
@@ -166,9 +170,9 @@ describe('StaminaSpurtTab', () => {
       expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
     }, { timeout: 5000 });
 
-    // Downhill is no longer a toggle — the current readout always assumes downhill saving.
-    expect(captured.firstOpts?.downhill).toBe(true);
-    // ...and there's no downhill checkbox in the UI anymore.
+    // The current readout (first vacuum call) does NOT bank on downhill RNG — downhill
+    // shows up only as a breakdown range, never as a toggle.
+    expect(captured.firstOpts?.downhill).toBeFalsy();
     expect(screen.queryByRole('checkbox', { name: /downhill/i })).not.toBeInTheDocument();
   });
 
@@ -209,7 +213,8 @@ describe('StaminaSpurtTab', () => {
     // Provide a fake vacuum that returns 30 HP samples spread across 0..800
     const fakeHp = Array.from({ length: 30 }, (_, i) => i * 27); // 0..783
     const deps: StaminaSpurtDeps = {
-      vacuum: (build) => Promise.resolve(makeFakeResult(build.stats.sta, fakeHp)),
+      vacuum: (build, _b, _race, _n, _seed, opts) =>
+        Promise.resolve(makeFakeResult(build.stats.sta, opts, fakeHp)),
       nsamples: 2,
     };
     render(<StaminaSpurtTab plan={plan} deps={deps} />);

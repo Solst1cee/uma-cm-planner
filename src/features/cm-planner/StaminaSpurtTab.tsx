@@ -52,9 +52,16 @@ interface Required {
   reachable: boolean;
 }
 
-/** Format a required-stamina result: the value, or "> hi" when even max stamina misses. */
+/** Format a single required-stamina result: the value, or "> hi" when even max stamina misses. */
 function fmtRequired(r: Required): string {
   return r.reachable ? String(r.sta) : `> ${STA_RANGE.hi}`;
+}
+
+/** Format a required-stamina RANGE (lo = fewer stamina e.g. with downhill, hi = more).
+ *  Downhill saving is RNG-gated in-race, so its benefit is a range, not one number. */
+function fmtRange(lo: Required, hi: Required): string {
+  if (lo.reachable && hi.reachable && lo.sta === hi.sta) return String(lo.sta);
+  return `${fmtRequired(lo)}–${fmtRequired(hi)}`;
 }
 
 /** SVG bar histogram of per-sample finish HP, with labelled axes.
@@ -118,13 +125,15 @@ function FinalHpHistogram({ finalHp }: { finalHp: number[] }) {
 }
 
 interface StaminaSpurtResult {
+  threshold: number;
   spurtRate: number;
   survival: number;
-  base: Required; // no downhill, no debuffs
-  downhill: Required; // downhill saving, no debuffs
-  final: { sta: number; rate: number; reachable: boolean }; // downhill + debuffs
+  baseNo: Required; // no downhill, no debuffs
+  downNo: Required; // downhill saving, no debuffs (low end of the downhill range)
+  baseDb: Required; // no downhill, WITH debuffs (the conservative requirement)
   whiteDebuffs: number;
   goldDebuffs: number;
+  hasDebuffs: boolean;
   finalHp: number[];
 }
 
@@ -180,10 +189,9 @@ export function StaminaSpurtTab({
     }
     setStatus('running');
     const n = d.nsamples ?? NSAMPLES;
-    // The "realistic" scenario = downhill saving ON + the expected debuffs; the current
-    // readout (spurt rate, survival, histogram) and the headline requirement use it.
-    const optsFinal: VacuumOpts = {
-      downhill: true,
+    const th = threshold;
+    const hasDebuffs = whiteDebuffs + goldDebuffs > 0;
+    const debuffOpts: VacuumOpts = {
       injectedDebuffs: buildInjectedDebuffs(whiteDebuffs, goldDebuffs, distance),
     };
 
@@ -191,33 +199,31 @@ export function StaminaSpurtTab({
       const b: SimBuild = { ...baseBuild, stats: { ...baseBuild.stats, sta } };
       return Promise.resolve(d.vacuum(b, b, race, n, 1, o)).then((r) => r.aFullSpurtRate * 100);
     };
+    const req = (o: VacuumOpts) => requiredStaminaForSpurt((sta) => withSta(sta, o), th, STA_RANGE);
 
     try {
-      // Current stats under the realistic scenario (downhill + debuffs).
-      const cur = await Promise.resolve(d.vacuum(baseBuild, baseBuild, race, n, 1, optsFinal));
+      // Current readout (spurt rate / survival / histogram): the build as-is WITH the
+      // expected debuffs but WITHOUT downhill — the reliable floor (don't bank on downhill RNG).
+      const cur = await Promise.resolve(d.vacuum(baseBuild, baseBuild, race, n, 1, debuffOpts));
 
-      // Required-stamina breakdown: base → with downhill → with debuffs (final).
-      const base = await requiredStaminaForSpurt((sta) => withSta(sta, {}), threshold, STA_RANGE);
-      const downhill = await requiredStaminaForSpurt(
-        (sta) => withSta(sta, { downhill: true }),
-        threshold,
-        STA_RANGE,
-      );
-      const final = await requiredStaminaForSpurt(
-        (sta) => withSta(sta, optsFinal),
-        threshold,
-        STA_RANGE,
-      );
+      // Required-stamina requirements. Downhill is a RANGE (downNo..baseNo): in-race downhill
+      // mode is RNG-gated, so the saving lands somewhere between full-downhill and none.
+      const baseNo = await req({});
+      const downNo = await req({ downhill: true });
+      // The debuff cost only needs the conservative (no-downhill) requirement; skip when none.
+      const baseDb = hasDebuffs ? await req(debuffOpts) : baseNo;
 
       if (token.current !== t) return;
       setResult({
+        threshold: th,
         spurtRate: cur.aFullSpurtRate * 100,
         survival: cur.aStaminaSurvival * 100,
-        base: { sta: base.sta, reachable: base.reachable },
-        downhill: { sta: downhill.sta, reachable: downhill.reachable },
-        final,
+        baseNo: { sta: baseNo.sta, reachable: baseNo.reachable },
+        downNo: { sta: downNo.sta, reachable: downNo.reachable },
+        baseDb: { sta: baseDb.sta, reachable: baseDb.reachable },
         whiteDebuffs,
         goldDebuffs,
+        hasDebuffs,
         finalHp: cur.aFinalHp,
       });
       setStatus('done');
@@ -260,7 +266,7 @@ export function StaminaSpurtTab({
         <div className="cmp-stamina-tab">
           <div className="cmp-stamina-controls">
             <label className="small">
-              target spurt&nbsp;
+              Target spurt&nbsp;
               <input
                 type="number"
                 min={0}
@@ -308,37 +314,51 @@ export function StaminaSpurtTab({
 
           {result && (
             <>
-              <dl className="cmp-stamina-details">
-                <dt>Spurt rate</dt>
-                <dd className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</dd>
-                <dt>Stamina survival</dt>
-                <dd className="cmp-stamina-num">{result.survival.toFixed(0)}%</dd>
-                <dt>Stamina needed for {threshold}%</dt>
-                <dd className="cmp-stamina-num">
-                  {fmtRequired(result.final)}
-                  {result.final.reachable && (
-                    <span className="muted small"> (spurt {result.final.rate.toFixed(0)}%)</span>
-                  )}
-                </dd>
-              </dl>
+              {(() => {
+                const saving =
+                  result.baseNo.reachable && result.downNo.reachable
+                    ? result.baseNo.sta - result.downNo.sta
+                    : 0;
+                const cost =
+                  result.hasDebuffs && result.baseDb.reachable && result.baseNo.reachable
+                    ? result.baseDb.sta - result.baseNo.sta
+                    : 0;
+                return (
+                  <div className="cmp-stamina-results">
+                    <span className="cmp-sr-label">Spurt rate</span>
+                    <span className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</span>
+                    <span className="cmp-sr-delta" />
 
-              <div className="cmp-stamina-breakdown">
-                <span className="cmp-stamina-breakdown-title small">Breakdown</span>
-                <div className="cmp-stamina-breakdown-row small">
-                  <span>Base (no downhill)</span>
-                  <span className="cmp-stamina-num">{fmtRequired(result.base)}</span>
-                </div>
-                <div className="cmp-stamina-breakdown-row small">
-                  <span>With downhill saving</span>
-                  <span className="cmp-stamina-num">{fmtRequired(result.downhill)}</span>
-                </div>
-                <div className="cmp-stamina-breakdown-row small">
-                  <span>
-                    With debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
-                  </span>
-                  <span className="cmp-stamina-num">{fmtRequired(result.final)}</span>
-                </div>
-              </div>
+                    <span className="cmp-sr-label">Stamina survival</span>
+                    <span className="cmp-stamina-num">{result.survival.toFixed(0)}%</span>
+                    <span className="cmp-sr-delta" />
+
+                    <span className="cmp-sr-label">Stamina needed for {result.threshold}%</span>
+                    <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                    <span className="cmp-sr-delta" />
+
+                    <span className="cmp-sr-sub small">Breakdown</span>
+
+                    <span className="cmp-sr-label cmp-sr-indent">Base (no downhill)</span>
+                    <span className="cmp-stamina-num">{fmtRequired(result.baseNo)}</span>
+                    <span className="cmp-sr-delta" />
+
+                    <span className="cmp-sr-label cmp-sr-indent">Downhill saving</span>
+                    <span className="cmp-stamina-num">{fmtRange(result.downNo, result.baseNo)}</span>
+                    <span className="cmp-sr-delta cmp-sr-save">{saving > 0 ? `−${saving}` : ''}</span>
+
+                    {result.hasDebuffs && (
+                      <>
+                        <span className="cmp-sr-label cmp-sr-indent">
+                          Debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
+                        </span>
+                        <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                        <span className="cmp-sr-delta cmp-sr-cost">{cost > 0 ? `+${cost}` : ''}</span>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
 
               {result.finalHp.length > 0 && <FinalHpHistogram finalHp={result.finalHp} />}
             </>

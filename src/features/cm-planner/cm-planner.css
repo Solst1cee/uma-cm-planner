@@ -2227,32 +2227,57 @@ main:has(.cmp-page) {
   color: var(--fg);
 }
 
-.cmp-stamina-details {
+/* Results — one grid so every number aligns in the same column, same style + size.
+   Columns: label | value | delta. */
+.cmp-stamina-results {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.2rem 0.75rem;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.25rem 0.9rem;
+  align-items: baseline;
   font-size: 0.82rem;
+  max-width: 24rem;
   margin: 0;
 }
 
-.cmp-stamina-details dt {
-  color: var(--fg-muted);
+.cmp-sr-label {
+  color: var(--fg);
   white-space: nowrap;
 }
 
-.cmp-stamina-details dd {
-  margin: 0;
-  font-weight: 600;
+.cmp-sr-indent {
+  padding-left: 0.9rem;
+  color: var(--fg-muted);
 }
 
-.cmp-stamina-details dd.muted {
-  font-weight: 400;
-}
-
-/* Result numbers in the blue accent. */
+/* All result numbers: blue accent, same weight + size, right-aligned in their column. */
 .cmp-stamina-num {
   color: var(--accent);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cmp-sr-delta {
+  font-size: 0.72rem;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-sr-save {
+  color: #2e9657;
+}
+
+.cmp-sr-cost {
+  color: var(--error, #c2414b);
+}
+
+.cmp-sr-sub {
+  grid-column: 1 / -1;
+  margin-top: 0.3rem;
+  color: var(--fg-muted);
+  font-weight: 600;
 }
 
 .cmp-stamina-title {
@@ -2262,29 +2287,6 @@ main:has(.cmp-page) {
 .cmp-debuff-icon {
   border-radius: 4px;
   flex: none;
-}
-
-/* Indented breakdown — one line per scenario. */
-.cmp-stamina-breakdown {
-  padding-left: 1rem;
-  border-left: 2px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.cmp-stamina-breakdown-title {
-  color: var(--fg-muted);
-  font-weight: 600;
-  margin-bottom: 0.1rem;
-}
-
-.cmp-stamina-breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  max-width: 20rem;
-  color: var(--fg-muted);
 }
 
 /* Finish-HP histogram — narrow + tall with labelled axes. */
