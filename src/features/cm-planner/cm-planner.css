@@ -28,7 +28,7 @@
   --cmp-tab-radius: 6px;
   --cmp-tab-gap: 0.25rem;
 
-  --cmp-sliver-width: 2.4rem;
+  --cmp-sliver-width: 3rem;
   --cmp-sliver-radius: 12px;
 }
 
@@ -626,7 +626,7 @@
   font-weight: 800;
 }
 
-.cmp-sliver-backpack { width: 1.6rem; height: 1.6rem; }       /* big icon in the square sliver */
+.cmp-sliver-backpack { width: 2.4rem; height: 2.4rem; }       /* 1.5x — big icon in the square sliver */
 .cmp-sliver-backpack svg { width: 100%; height: 100%; }
 /* Backpack is a stroke (outline) icon — override the fill-based icon-button / sliver svg rules. */
 .cmp-backpack-ico,
@@ -657,7 +657,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-page[data-inv-collapsed='true'] {
-  grid-template-columns: 2.4rem minmax(360px, 26rem) minmax(0, 1fr);
+  grid-template-columns: var(--cmp-sliver-width) minmax(360px, 26rem) minmax(0, 1fr);
 }
 
 .cmp-main {
