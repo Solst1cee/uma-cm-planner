@@ -435,7 +435,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       return;
     }
     await selectPlan(id);
-  }, [selectPlan, setUma2Plan, uma2Plan]);
+  }, [selectPlan, setDraftPlan, setUma2Plan, uma2Plan]);
 
   const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
 

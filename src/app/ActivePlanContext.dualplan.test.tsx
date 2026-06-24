@@ -78,3 +78,29 @@ test('loadPlanIntoSlot into uma2 with no collision loads the plan as-is', async 
 
   await waitFor(() => expect(value.uma2Plan?.id).toBe('other-id'));
 });
+
+test('loadPlanIntoSlot into uma1 with collision (id already in uma2) creates fresh-id draft', async () => {
+  let value!: ReturnType<typeof useActivePlan>;
+  render(harness((v) => { value = v; }));
+  await waitFor(() => expect(value.uma1Plan).toBeTruthy());
+
+  const originalUma1Id = value.uma1Plan!.id;
+
+  // Put a plan with 'shared-id' into uma2
+  await act(async () => {
+    value.setUma2Plan({ ...value.uma1Plan!, id: 'shared-id', name: 'In Uma2' });
+  });
+  await waitFor(() => expect(value.uma2Plan?.id).toBe('shared-id'));
+
+  // Seed getPlan so loadPlanIntoSlot can fetch it
+  vi.mocked(getPlan).mockResolvedValue({ ...value.uma1Plan!, id: 'shared-id', name: 'In Uma2' });
+
+  // Load the same plan into uma1 → collision → should create a fresh-id draft
+  await act(async () => { await value.loadPlanIntoSlot('shared-id', 'uma1'); });
+
+  // The resulting uma1Plan id must be neither 'shared-id' nor the original uma1 id
+  expect(value.uma1Plan!.id).not.toBe('shared-id');
+  expect(value.uma1Plan!.id).not.toBe(originalUma1Id);
+  // uma2 still holds the original 'shared-id' (slots don't share an id)
+  expect(value.uma2Plan?.id).toBe('shared-id');
+});
