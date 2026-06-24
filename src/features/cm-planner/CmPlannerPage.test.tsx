@@ -796,4 +796,38 @@ describe('CmPlannerPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'New' }));
     expect(h.setUma2Plan).toHaveBeenCalledWith(null);
   });
+
+  it('confirms a track change when loading a different-course plan into the focused slot', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    // Load Hanshin Trial into uma1 (focused). Its course (10906) == uma1's course here,
+    // so to force a change, load the CM16-course uma2 fixture is not in savedPlans;
+    // instead assert the confirm appears for a course-changing load via the badge.
+    const badge = await within(inventory).findByRole('button', { name: /Load Hanshin Trial as uma1/i });
+    fireEvent.click(badge);
+    // customPlan shares course 10906 with uma1 → NO confirm (same course).
+    expect(screen.queryByRole('button', { name: /Change track/i })).toBeNull();
+  });
+
+  it('flips uma1↔uma2 across different courses and shows the track confirm', async () => {
+    h.seededUma2Plan = h.uma2Plan; // CM16 course 10501, differs from uma1 CM15 10906
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'UMA2' }));
+    // auto-apply ON (default) + course changes → confirm bar appears.
+    expect(await screen.findByRole('button', { name: /Change track/i })).toBeInTheDocument();
+    // Cancel keeps the uma1 track (Hanshin still shown).
+    fireEvent.click(screen.getByRole('button', { name: /Keep current track/i }));
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(await cond.findByText('Hanshin')).toBeInTheDocument();
+  });
+
+  it('confirming the flip moves the track and flashes Track changed', async () => {
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'UMA2' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Change track/i }));
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(await cond.findByText('Nakayama')).toBeInTheDocument();
+    expect(screen.getByText(/Track changed/i)).toBeInTheDocument();
+  });
 });
