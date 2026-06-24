@@ -1,27 +1,44 @@
 /** Stamina checker tab — derives whether the focused build finishes the current race
  *  without running out of HP, from the engine's HP trace via useSkillTrace.
  *
- *  The `without` run from runSkillTrace is the build simulated WITHOUT the anchor skill.
- *  Since planToSimBuild produces a vacuum build (skills: []), the anchor skill is always
- *  absent, making `without` == the true build's HP trace. Any valid skill id can be the
- *  anchor; we use the plan's uniqueSkillId if set, or a stable fallback.
+ *  useSkillTrace / runSkillTrace semantics:
+ *    run.without = uma1's frames = the build-as-passed WITHOUT the anchor skill.
+ *  We pass planToOverlayBuild(plan) (unique + wishlist skills) so recovery skills are
+ *  included in the "without" trace (the full build's HP curve). The anchor MUST be absent
+ *  from the overlay build's skill set — otherwise uma1 would already exclude it and
+ *  `without` would silently drop a wishlist skill. We pick the first id from a candidate
+ *  list that isn't in the overlay build's skills.
  */
 import { useMemo } from 'react';
-import { planToSimBuild } from '@/core/simBuild';
+import { planToOverlayBuild } from '@/core/simBuild';
 import type { CmPlan } from '@/core/types';
 import type { TraceContext } from './useSkillTrace';
 import { useSkillTrace, type UseSkillTraceDeps } from './useSkillTrace';
 import { staminaVerdict } from './staminaCheck';
 
-/** Fallback anchor skill id (Warning Shot! — a common speed skill in every game version).
- *  Must be a valid engine skill id. The vacuum build (skills:[]) guarantees it's absent. */
-const FALLBACK_ANCHOR = '10071';
+/** Stable anchor candidates (speed/positioning skills unlikely to appear in a recovery
+ *  wishlist). All must be valid engine skill ids. We pick the first one absent from the
+ *  overlay build's skill set to satisfy the anchor-absence invariant. */
+const ANCHOR_CANDIDATES = [
+  '10071', // Warning Shot! (speed)
+  '10011', // Starting Dash (acceleration)
+  '10021', // Corner Recovery (speed)
+];
 
+/** Return an anchor id that is guaranteed absent from the overlay build's skill set.
+ *  The anchor-absence invariant: run.without == the full overlay build's HP trace. */
 function anchorSkillId(plan: CmPlan): string {
-  // Prefer the plan's own unique skill (guaranteed absent from the vacuum build).
-  if (plan.uniqueSkillId) return plan.uniqueSkillId;
-  // Fall back to a stable well-known id.
-  return FALLBACK_ANCHOR;
+  const overlaySkills = new Set(planToOverlayBuild(plan).skills);
+  for (const id of ANCHOR_CANDIDATES) {
+    if (!overlaySkills.has(id)) return id;
+  }
+  // Extremely unlikely: all candidates are in the wishlist. Fall back to uniqueSkillId
+  // (the engine will add it to uma2 only, so without = overlay-minus-unique — still shows
+  // recovery skills, just not the unique; acceptable last resort).
+  if (plan.uniqueSkillId && !overlaySkills.has(plan.uniqueSkillId)) return plan.uniqueSkillId;
+  // Last resort: use the first candidate anyway (anchor in the deck → without loses one
+  // skill, but the trade-off is acceptable vs crashing).
+  return ANCHOR_CANDIDATES[0]!;
 }
 
 interface StaminaCheckerTabProps {
@@ -35,7 +52,7 @@ export function StaminaCheckerTab({ plan, deps }: StaminaCheckerTabProps) {
 
   const ctx = useMemo<TraceContext>(
     () => ({
-      build: planToSimBuild(plan),
+      build: planToOverlayBuild(plan),
       race: { courseId: plan.cmRef.courseId },
       buildLabel: 'your build',
     }),
@@ -50,6 +67,8 @@ export function StaminaCheckerTab({ plan, deps }: StaminaCheckerTabProps) {
       plan.statProfile.stats.gut,
       plan.statProfile.stats.wit,
       plan.statProfile.mood,
+      plan.uniqueSkillId,
+      JSON.stringify(plan.wishlist),
     ],
   );
 
