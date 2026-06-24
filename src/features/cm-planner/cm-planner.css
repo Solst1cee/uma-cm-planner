@@ -2127,7 +2127,7 @@ main:has(.cmp-page) {
 .cmp-tabstrip {
   display: flex;
   gap: var(--cmp-tab-gap);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid transparent;
   padding: 0.4rem 0.5rem;
 }
 
