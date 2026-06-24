@@ -258,6 +258,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                   Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
                 </p>
               )}
+              {status === 'idle' && (
+                <p className="muted small">Press Run to score skills for your current build.</p>
+              )}
               {status !== 'idle' && (
                 <>
                   <div className="cmp-uma-toolbar">

@@ -248,6 +248,9 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
 
       {open && (
         <div className="cmp-uma-body">
+          {status === 'idle' && (
+            <p className="muted small">Press Run to score uma unique skills on this track.</p>
+          )}
           {status !== 'idle' && (
             <>
               <div className="cmp-uma-toolbar">

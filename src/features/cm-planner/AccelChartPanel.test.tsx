@@ -33,9 +33,9 @@ const h = vi.hoisted(() => {
 
   // Default accel IDs: only A and B are accel, C is excluded
   const defaultAccelIds = new Set<string>(['accelA', 'accelB']);
-  // Effect values are RAW engine modifiers (large); the table shows them ÷100 as integers.
-  // A = 2000 → "20", B = 3500 → "35".
-  const defaultEffectValues = new Map<string, number>([['accelA', 2000], ['accelB', 3500]]);
+  // Effect = acceleration × duration (m/s); the table shows it with 2 decimals.
+  // A = 1.0 → "1.00", B = 1.6 → "1.60".
+  const defaultEffectValues = new Map<string, number>([['accelA', 1.0], ['accelB', 1.6]]);
 
   const loadAccelSkillIds = vi.fn(async () => defaultAccelIds);
   const loadSkillEffectValues = vi.fn(async () => defaultEffectValues);
@@ -129,16 +129,16 @@ describe('AccelChartPanel', () => {
     expect(rowA.textContent).toContain('≤40% back');
     // Wit cell: no random condition → '✗'
     expect(rowA.textContent).toContain('✗');
-    // Effect value: 2000 ÷ 100 = 20
-    expect(rowA.textContent).toContain('20');
+    // Effect = accel × duration = 1.0 → "1.00"
+    expect(rowA.textContent).toContain('1.00');
 
     // Find the row for Accel B (conditions: all_corner_random==1 → wit check required)
     const rowB = rows.find((r) => r.textContent?.includes('Accel B'))!;
     expect(rowB).toBeDefined();
     // Wit cell: witCheckPassChance(1000) = round(max(100-9000/1000,20)) = round(max(91,20)) = 91
     expect(rowB.textContent).toContain('91%');
-    // Effect value: 3500 ÷ 100 = 35
-    expect(rowB.textContent).toContain('35');
+    // Effect = accel × duration = 1.6 → "1.60"
+    expect(rowB.textContent).toContain('1.60');
   });
 
   it('sort by effect value orders rows by magnitude', async () => {
@@ -146,7 +146,7 @@ describe('AccelChartPanel', () => {
     // Default sort is L. Click Effect header to sort by effect value descending.
     await userEvent.click(screen.getByRole('button', { name: /effect/i }));
     const rows = within(list()).getAllByRole('listitem');
-    // accelB effect=0.35 > accelA effect=0.20, so B should be first
+    // accelB effect=1.6 > accelA effect=1.0, so B should be first
     expect(rows[0]).toHaveTextContent('Accel B');
     expect(rows[1]).toHaveTextContent('Accel A');
   });

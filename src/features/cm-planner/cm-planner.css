@@ -2189,11 +2189,12 @@ main:has(.cmp-page) {
     2.4rem;        /* target button */
 }
 
-/* Position data cell: wider column, centered horizontally. */
+/* Position data cell: wider column, centered both axes (the row aligns cells to the top). */
 .cmp-accel-pos-cell {
   font-size: 0.72rem;
   color: var(--fg-muted);
   justify-self: center;
+  align-self: center;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2205,6 +2206,7 @@ main:has(.cmp-page) {
   font-size: 0.72rem;
   color: var(--fg-muted);
   justify-self: center;
+  align-self: center;
   text-align: center;
 }
 

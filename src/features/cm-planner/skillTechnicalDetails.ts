@@ -130,6 +130,13 @@ export async function loadAccelSkillIds(): Promise<Set<string>> {
   return accelIdsPromise;
 }
 
+/** Per accel skill id, the representative acceleration "effect" = the velocity (m/s) the skill
+ *  adds over its activation = acceleration × duration.
+ *
+ *  Engine units (verified against skills.json): a type-31 effect's `modifier` is acceleration in
+ *  1e-4 m/s² (e.g. 2000 → 0.2 m/s²); an alternative's `baseDuration` is in 1e-4 s (50000 → 5.0 s).
+ *  So effect = (modifier / 10000) × (baseDuration / 10000). We take the strongest such product
+ *  across the skill's alternatives. */
 let effectValuesPromise: Promise<Map<string, number>> | null = null;
 export async function loadSkillEffectValues(): Promise<Map<string, number>> {
   if (effectValuesPromise === null) {
@@ -138,10 +145,12 @@ export async function loadSkillEffectValues(): Promise<Map<string, number>> {
       for (const raw of Object.values(skills)) {
         let best = 0;
         for (const a of raw.alternatives ?? []) {
+          const durationS = (a.baseDuration ?? 0) / 10000;
           for (const e of a.effects ?? []) {
             if (e.type === ACCEL_EFFECT_TYPE) {
-              const mag = e.modifier ?? e.value ?? 0;
-              if (Math.abs(mag) > Math.abs(best)) best = mag;
+              const accel = (e.modifier ?? e.value ?? 0) / 10000; // m/s²
+              const product = accel * durationS; // m/s gained over the effect
+              if (Math.abs(product) > Math.abs(best)) best = product;
             }
           }
         }

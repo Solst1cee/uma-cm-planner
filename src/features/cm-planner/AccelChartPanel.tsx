@@ -272,11 +272,16 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
           </p>
           <ul>
             <li>
-              <b>Effect</b> — relative acceleration magnitude: the engine modifier ÷ 100 (so a typical
-              accel skill reads ~20–40). Bigger = stronger acceleration. Sortable.
+              <b>Effect</b> — the speed it adds: acceleration × duration (m/s). E.g. a +0.2 m/s²
+              accel for 5&nbsp;s ≈ 1.00. Computed from the skill&apos;s strongest acceleration effect
+              (modifier ÷ 10000 m/s²) times its base duration (÷ 10000 s). Bigger = more speed. Sortable.
             </li>
             <li><b>Position</b> — where it needs you to be, parsed from its activation conditions.</li>
-            <li><b>Wit</b> — <b>✗</b> if it always procs, else the wit-check pass chance (your wit stat).</li>
+            <li>
+              <b>Wit</b> — <b>✗</b> = no wit check (it has no random/陥入 trigger), so the skill fires
+              <i>whenever its other conditions are met</i> — not necessarily always. A number = the
+              wit-check pass chance (from your wit stat) on top of those conditions.
+            </li>
           </ul>
         </HeaderHelp>
         <button
@@ -309,6 +314,9 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                   ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
                   Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
                 </p>
+              )}
+              {status === 'idle' && (
+                <p className="muted small">Press Run to score acceleration skills for your build.</p>
               )}
               {status !== 'idle' && (
                 <>
@@ -403,7 +411,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                               {v.eff != null ? v.eff.toFixed(2) : '—'}
                             </span>
                             <span className={`cmp-uma-num ${sortMetric === 'effect' ? 'is-sort' : ''}`.trim()}>
-                              {v.effectValue != null ? Math.round(v.effectValue / 100) : '—'}
+                              {v.effectValue != null ? v.effectValue.toFixed(2) : '—'}
                             </span>
                             <span className="cmp-accel-pos-cell" title={v.skill.conditions}>
                               {v.positioning}
