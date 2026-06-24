@@ -583,14 +583,15 @@
 .cmp-sliver-btn {
   display: flex;
   width: 100%;
+  aspect-ratio: 1;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
   border: 1px solid var(--border);
-  border-radius: var(--cmp-sliver-radius);
+  border-radius: 10px;
   background: var(--bg-1);
   box-shadow: var(--cmp-card-shadow);
-  padding: 0.75rem 0.25rem;
+  padding: 0.25rem;
   color: var(--fg-muted);
   cursor: pointer;
   transition: border-color 120ms ease, color 120ms ease;
@@ -620,11 +621,12 @@
   font-weight: 800;
 }
 
-.cmp-inventory-title { display: inline-flex; align-items: center; gap: 0.4rem; }
-.cmp-inventory-backpack { display: inline-flex; width: 1.05rem; height: 1.05rem; }
-.cmp-inventory-backpack svg { width: 100%; height: 100%; fill: currentColor; }
-.cmp-sliver-backpack { width: 1.9rem; height: 1.9rem; }       /* 2× of the heading icon */
-.cmp-sliver-backpack svg { width: 100%; height: 100%; fill: currentColor; }
+.cmp-sliver-backpack { width: 1.6rem; height: 1.6rem; }       /* big icon in the square sliver */
+.cmp-sliver-backpack svg { width: 100%; height: 100%; }
+/* Backpack is a stroke (outline) icon — override the fill-based icon-button / sliver svg rules. */
+.cmp-backpack-ico,
+.cmp-inventory-collapse-btn .cmp-backpack-ico,
+.cmp-sliver-backpack .cmp-backpack-ico { fill: none; stroke: currentColor; }
 .cmp-inventory-edit-btn.is-on { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .cmp-inventory-row-actions { display: inline-flex; gap: 0.2rem; }
 
@@ -2194,12 +2196,15 @@ main:has(.cmp-page) {
 .cmp-inventory-row:hover .cmp-slot-badges,
 .cmp-slot-badge:focus-visible { opacity: 1; }
 .cmp-slot-badge {
-  width: 1.4rem; height: 1.4rem; border-radius: 50%;
-  font-size: 0.8rem; font-weight: 700; line-height: 1;
-  border: 1px solid transparent; cursor: pointer; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.45rem; height: 1.45rem; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 700; line-height: 1;
+  border: 1px solid transparent; background: transparent; cursor: pointer; padding: 0;
 }
-.cmp-slot-badge.is-uma1 { background: #5aa0ff; }
-.cmp-slot-badge.is-uma2 { background: #e0564f; }
+.cmp-slot-badge.is-uma1 { border-color: #5aa0ff; color: #5aa0ff; }
+.cmp-slot-badge.is-uma2 { border-color: #e0564f; color: #e0564f; }
+.cmp-slot-badge.is-uma1:hover { background: color-mix(in srgb, #5aa0ff 14%, transparent); }
+.cmp-slot-badge.is-uma2:hover { background: color-mix(in srgb, #e0564f 14%, transparent); }
 .cmp-inventory-row.is-uma1 {
   background: color-mix(in srgb, #5aa0ff 10%, transparent);
   box-shadow: inset 0 0 0 1.5px #5aa0ff;

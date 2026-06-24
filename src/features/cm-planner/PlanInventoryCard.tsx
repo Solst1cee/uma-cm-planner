@@ -126,9 +126,25 @@ const UploadIcon = () => <IconSvg><path d="M9 13h2V6.8l2.6 2.6L15 8l-5-5-5 5 1.4
 const DownloadIcon = () => <IconSvg><path d="M9 3h2v6.2l2.6-2.6L15 8l-5 5-5-5 1.4-1.4L9 9.2V3Z" /><path d="M3 12h2v3h10v-3h2v5H3v-5Z" /></IconSvg>;
 const TrashIcon = () => <IconSvg><path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" /><path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" /></IconSvg>;
 const BackpackIcon = () => (
-  <IconSvg>
-    <path d="M7 2.5a3 3 0 0 1 6 0V4h.2A2.8 2.8 0 0 1 16 6.8v8.7A1.5 1.5 0 0 1 14.5 17h-9A1.5 1.5 0 0 1 4 15.5V6.8A2.8 2.8 0 0 1 6.8 4H7V2.5Zm1.5 0V4h3V2.5a1.5 1.5 0 0 0-3 0ZM7 9.5v3h6v-3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1Z" />
-  </IconSvg>
+  <svg
+    className="cmp-backpack-ico"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.7}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9.5 6V5a2.5 2.5 0 0 1 5 0v1" />
+    <path d="M6.5 8.5C6.5 6.57 8.07 5 10 5h4c1.93 0 3.5 1.57 3.5 3.5V19a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V8.5Z" />
+    <path d="M6.5 14H5.5A1.5 1.5 0 0 0 4 15.5v1A1.5 1.5 0 0 0 5.5 18h1" />
+    <path d="M17.5 14h1A1.5 1.5 0 0 1 20 15.5v1A1.5 1.5 0 0 1 18.5 18h-1" />
+    <path d="M6.5 11h11" />
+    <path d="M10 9v2.5M14 9v2.5" />
+    <path d="M9 15h6v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 18z" />
+  </svg>
 );
 const EditIcon = () => <IconSvg><path d="M13.4 3.3 16.7 6.6 7.3 16H4v-3.3l9.4-9.4Z" /></IconSvg>;
 
@@ -310,10 +326,7 @@ export function PlanInventoryCard({
     <aside className="cmp-plan-inventory" aria-labelledby="cmp-inventory-h">
       <section className="cmp-plan-card">
         <header className="cmp-plan-card-head">
-          <span id="cmp-inventory-h" className="cmp-inventory-title">
-            <span className="cmp-inventory-backpack"><BackpackIcon /></span>
-            Plan Inventory
-          </span>
+          <span id="cmp-inventory-h">Plan Inventory</span>
           <div ref={toolbarRef} className="cmp-inventory-header-actions">
             {deleteAllConfirm ? (
               <ConfirmDeleteToolbar
@@ -395,7 +408,7 @@ export function PlanInventoryCard({
               title="Collapse"
               onClick={() => onCollapsedChange(true)}
             >
-              <span className="cmp-sliver-glyph">▤</span>
+              <BackpackIcon />
             </button>
           )}
         </header>
