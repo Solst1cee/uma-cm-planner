@@ -79,6 +79,21 @@ test('loadPlanIntoSlot into uma2 with no collision loads the plan as-is', async 
   await waitFor(() => expect(value.uma2Plan?.id).toBe('other-id'));
 });
 
+test('deleting the loaded plan keeps it in the sidebar and flips the saved indicator', async () => {
+  let value!: ReturnType<typeof useActivePlan>;
+  render(harness((v) => { value = v; }));
+  await waitFor(() => expect(value.uma1Plan).toBeTruthy());
+  const loaded = value.uma1Plan!;
+
+  // After delete: saved set is empty → isSaved must flip to false.
+  vi.mocked(listPlans).mockResolvedValue([]);
+
+  await act(async () => { await value.deleteSavedPlan(loaded.id); });
+
+  await waitFor(() => expect(value.isSaved).toBe(false)); // indicator updated
+  expect(value.uma1Plan!.id).toBe(loaded.id);             // still loaded, not swapped
+});
+
 test('loadPlanIntoSlot into uma1 with collision (id already in uma2) creates fresh-id draft', async () => {
   let value!: ReturnType<typeof useActivePlan>;
   render(harness((v) => { value = v; }));

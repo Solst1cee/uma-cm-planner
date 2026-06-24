@@ -291,19 +291,11 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(saveTimer.current);
       pendingSave.current = null;
     }
-
     await deletePlan(id);
-    const refreshedPlans = await listPlans();
-    setSavedPlans(refreshedPlans);
-
-    if (planRef.current?.id !== id) return;
-
-    const next = refreshedPlans.at(-1) ?? makeDefaultPlan(await resolveDefaultCmRef());
-    await setSetting(ACTIVE_PLAN_KEY, next.id);
-    pendingSave.current = null;
-    planRef.current = next;
-    setPlanState(next);
-  }, [resolveDefaultCmRef]);
+    setSavedPlans(await listPlans());
+    // Never mutate the loaded slots. If the deleted record was a loaded plan's
+    // source, it drops out of the saved set and `isSaved` derives to false.
+  }, []);
 
   const importSavedPlans = useCallback(async (incomingPlans: CmPlan[]) => {
     const existing = await listPlans();
@@ -447,7 +439,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     }
   }, [focused, setPlan, setUma2Plan]);
 
-  const isSaved = plan ? isPlanContentSaved(plan, savedPlans) : true;
+  const isSaved = focusedPlan ? isPlanContentSaved(focusedPlan, savedPlans) : true;
 
   return (
     <ActivePlanContext.Provider
