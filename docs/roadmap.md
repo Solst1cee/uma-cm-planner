@@ -53,6 +53,9 @@ Swap private-feed defaults → `ManualStatTargets` / curated JSON before any pub
   - **Now / Upcoming / Future** release tiers (needs per-record release dates — see Phase 3).
   - **Uma innate-skill / usable-here** columns/filters (shared with M1 — see Phase 3).
 - **Velocity-chart multi-fire** — *narrowed (engine multi-fire + §0 overlay + ×1/×2 breakdown shipped 2026-06-22):* the only piece left is that the **windowed velocity chart** + `peakImpactPosition` still use only the **first** activation. Widen the window to span all procs, or keep first-fire + a caveat.
+- **Engine-derived build-viability cues** (UX framings confirmed worth borrowing from UmaTools after a source-level review — computed from our *own* per-frame trace, zero of their code/data):
+  - **Stamina viability badge** — a green/red "can this build finish?" read straight from the HP trace (does HP reach 0 before the line?); also feeds an **M2** over/under-invest-in-stamina hint.
+  - **Per-skill accel-timing label** — tag accel skills *"fires in final straight (optimal)"* vs *"fires too early"* from `runSkillTrace` / `skillImpact` activation positions.
 
 **Exit:** M4 ≈ the M4 mockup (~90%+); design system proven reusable; tests green.
 
@@ -102,7 +105,7 @@ Build the UI **and** land the **hakuraku harvest** (full detail in [hakuraku-m1-
 
 - **UX mining (re-implement patterns, don't lift):**
   - **hakuraku** *(MIT)* — the primary UX reference (see Phase 1). Mine its information architecture and interaction patterns: data-dense tables, drill-down detail modals, ECharts data-viz, inline lookups, the transparent data browser. Since it's MIT and React, its component code is a legitimate study source — but re-derive in our stack/visual language, don't paste.
-  - **UmaTools** — breadth/feature presentation: skill-optimizer UI, support-hint finder, rating-ladder. **Read its actual LICENSE first** (GPL unconfirmed). Do **not** pull its GameTora data path (cite/deep-link only). Vanilla JS → re-implement in React.
+  - **UmaTools** — breadth/feature presentation: skill-optimizer UI, support-hint finder, rating-ladder. **No LICENSE file exists** (GPL-3.0 claimed only in README/UI) → treat as effectively unlicensed: clean-room reimplement concepts only, never copy code. Do **not** pull its GameTora data path (its hint data is GameTora-scraped). Source-level review (2026-06-24) found its **hint finder / stamina / accel checkers redundant with our engine** — the only worthwhile harvest is the **two UX framings** in Phase 2 (stamina badge, accel-timing label), derived from our own trace.
 - **Honest numbers (P3)** — surface caveats in every estimate-bearing UI; spark-chance per-parent split is theory-validated, not Cygames-confirmed; the factor optimizer is a heuristic pre-rank, not a verdict.
 - **Keep the Resource Map (plan §3) alive** — log every useful resource found.
 
