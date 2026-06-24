@@ -6,6 +6,10 @@ import type { VacuumOpts } from '@/sim/types';
 import type { StaminaSpurtDeps } from './StaminaSpurtTab';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 
+// GameIcon pulls the game-data context (and would throw without a provider) — stub it,
+// the debuff icons are decorative beside their visible labels.
+vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
+
 afterEach(cleanup);
 
 // ---------------------------------------------------------------------------
@@ -115,6 +119,11 @@ describe('StaminaSpurtTab', () => {
 
     // sta needed for 95% = 400 + 0.95*600 = 970 (appears in both dd and breakdown)
     expect(screen.getAllByText(/970/).length).toBeGreaterThanOrEqual(1);
+
+    // The breakdown lists base / downhill / debuffs as separate rows.
+    expect(screen.getByText(/Base \(no downhill\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/With downhill saving/i)).toBeInTheDocument();
+    expect(screen.getByText(/With debuffs/i)).toBeInTheDocument();
   });
 
   it('threshold input changes the required-stamina target', async () => {
@@ -147,14 +156,9 @@ describe('StaminaSpurtTab', () => {
     // Actually sta=700 gives exactly 50% so binary search might land at or near 700
   });
 
-  it('downhill checkbox passes downhill:true to the first vacuum call (cur)', async () => {
+  it('runs the realistic scenario (downhill saving) for the current readout', async () => {
     const { deps, captured } = makeDepsWithCapture();
     render(<StaminaSpurtTab plan={plan} deps={deps} />);
-
-    // Check the downhill checkbox
-    const checkbox = screen.getByRole('checkbox', { name: /downhill/i });
-    fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
 
     fireEvent.click(screen.getByRole('button', { name: /run/i }));
 
@@ -162,8 +166,10 @@ describe('StaminaSpurtTab', () => {
       expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
     }, { timeout: 5000 });
 
-    // The first vacuum call (current stats check) should have downhill: true
+    // Downhill is no longer a toggle — the current readout always assumes downhill saving.
     expect(captured.firstOpts?.downhill).toBe(true);
+    // ...and there's no downhill checkbox in the UI anymore.
+    expect(screen.queryByRole('checkbox', { name: /downhill/i })).not.toBeInTheDocument();
   });
 
   it('debuff inputs inject debuffs into the first vacuum call opts', async () => {

@@ -2248,3 +2248,89 @@ main:has(.cmp-page) {
 .cmp-stamina-details dd.muted {
   font-weight: 400;
 }
+
+/* Result numbers in the blue accent. */
+.cmp-stamina-num {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.cmp-stamina-title {
+  font-weight: 700;
+}
+
+.cmp-debuff-icon {
+  border-radius: 4px;
+  flex: none;
+}
+
+/* Indented breakdown — one line per scenario. */
+.cmp-stamina-breakdown {
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cmp-stamina-breakdown-title {
+  color: var(--fg-muted);
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+
+.cmp-stamina-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 20rem;
+  color: var(--fg-muted);
+}
+
+/* Finish-HP histogram — narrow + tall with labelled axes. */
+.cmp-stamina-hist {
+  margin: 0;
+  max-width: 250px;
+}
+
+.cmp-stamina-hist-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.cmp-stamina-hist-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--bg-2, #eef3f9);
+  border-radius: 4px;
+}
+
+.cmp-hist-bar {
+  fill: var(--accent, #3478f6);
+  opacity: 0.85;
+}
+
+.cmp-hist-bar--out {
+  fill: var(--error, #c2414b);
+}
+
+.cmp-hist-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.cmp-hist-tick {
+  fill: var(--fg-muted);
+  font-size: 8px;
+}
+
+.cmp-hist-axis-label {
+  fill: var(--fg-muted);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.cmp-stamina-hist-stats {
+  margin: 3px 0 0;
+}
