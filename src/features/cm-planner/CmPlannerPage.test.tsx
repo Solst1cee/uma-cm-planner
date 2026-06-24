@@ -404,6 +404,11 @@ describe('CmPlannerPage', () => {
     );
   });
 
+  // Contract: when focused==='uma2', onSave/onSaveAs/onNew are no-ops (they never
+  // call saveCurrentPlan/saveCurrentPlanAs/setDraftPlan). Not tested here because
+  // uma2Plan is null in this mock (sidebar renders the empty placeholder, hiding
+  // the save buttons) — exercise in an integration test once uma2 is populated.
+
   it('auto-generates the plan name on save only when the name is blank', async () => {
     const originalName = h.plan.name;
     h.plan.name = '';

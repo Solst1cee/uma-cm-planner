@@ -219,17 +219,18 @@ export function CmPlannerPage() {
           isSaved={isSaved}
           onAutoSaveChange={setAutoSave}
           onChange={setFocusedPlan}
+          // uma2 save/new are intentional no-ops here — uma2 autosaves via its own
+          // debounce path (which correctly skips ACTIVE_PLAN_KEY). Proper uma2
+          // copy/save actions land in Task 6.
           onSave={(next) =>
-            focused === 'uma1'
-              ? saveCurrentPlan(planWithFallbackName(next))
-              : saveCurrentPlan(next)
+            focused === 'uma1' ? saveCurrentPlan(planWithFallbackName(next)) : Promise.resolve()
           }
           onSaveAs={(next) =>
             focused === 'uma1'
               ? saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)
-              : saveCurrentPlanAs(next).then(() => undefined)
+              : Promise.resolve()
           }
-          onNew={() => setDraftPlan(newDefaultPlan())}
+          onNew={() => { if (focused === 'uma1') setDraftPlan(newDefaultPlan()); }}
           raceNameLabel={raceNameLabel}
           collapseSkillSignal={collapseSkillSignal}
           focused={focused}
