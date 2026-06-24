@@ -2192,3 +2192,59 @@ main:has(.cmp-page) {
   color: var(--fg-muted);
   text-align: center;
 }
+
+/* ── Stamina Spurt Tab ─────────────────────────────────────────────────── */
+.cmp-stamina-tab {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cmp-stamina-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.cmp-stamina-controls label.small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--fg);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.cmp-stamina-controls input[type='number'] {
+  width: 4.5rem;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--fg);
+}
+
+.cmp-stamina-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.75rem;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.cmp-stamina-details dt {
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.cmp-stamina-details dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.cmp-stamina-details dd.muted {
+  font-weight: 400;
+}

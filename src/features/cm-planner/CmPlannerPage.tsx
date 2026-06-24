@@ -29,7 +29,7 @@ import {
 import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
 import { WorkingTabs } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
-import { StaminaCheckerTab } from './StaminaCheckerTab';
+import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
@@ -322,7 +322,7 @@ export function CmPlannerPage() {
               {
                 key: 'stamina',
                 label: 'Stamina',
-                node: <StaminaCheckerTab key={selection.courseId} plan={focusedPlan ?? plan} />,
+                node: <StaminaSpurtTab key={selection.courseId} plan={focusedPlan ?? plan} />,
               },
               {
                 key: 'accel',
