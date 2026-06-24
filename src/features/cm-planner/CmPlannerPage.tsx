@@ -253,6 +253,8 @@ export function CmPlannerPage() {
   };
 
   const onDuplicateUma1ToUma2 = () => {
+    // Confirm only when uma2 already holds a build (the blank-face duplicate has nothing to overwrite).
+    if (uma2Plan && !window.confirm('Overwrite uma2 with a copy of uma1?')) return;
     const draft = copyPlanInto(plan);
     draft.name = generatePlanName(draft, umaById?.get(draft.umaId)?.nameEn, raceNameLabel);
     setUma2Plan(draft);
