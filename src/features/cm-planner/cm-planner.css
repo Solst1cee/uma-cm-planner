@@ -575,11 +575,13 @@
 }
 
 /* ---- Inventory sliver (collapsed mode) ---- */
-.cmp-inventory-sliver {
+.cmp-plan-inventory.cmp-inventory-sliver {
   width: var(--cmp-sliver-width);
   min-width: var(--cmp-sliver-width);
-  /* drop the expanded card's right gutter so the collapsed sliver↔sidebar gap
-     equals the grid gap (matches the sidebar↔main gap). */
+  /* Drop the expanded card's right gutter. NOTE the compound selector: the plain
+     `.cmp-plan-inventory { padding-right: 0.15rem }` rule lives LATER in the file at
+     equal specificity, so it would win and re-add the gutter — this bumps specificity
+     so the collapsed sliver↔sidebar gap equals the grid gap (= the sidebar↔main gap). */
   padding-right: 0;
 }
 
@@ -2193,6 +2195,10 @@ main:has(.cmp-page) {
 /* role (Ace/Debuf/Hybrid) selected button */
 .cmp-flip-card .cmp-control-group button[aria-pressed='true'] {
   background: var(--uma-accent);
+}
+/* accent-colored separator under the flip-card header (reads as the card body's top border) */
+.cmp-flip-card .cmp-flip-head {
+  border-bottom: 2px solid var(--uma-accent);
 }
 
 .cmp-track-mismatch-row {
