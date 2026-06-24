@@ -3,7 +3,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { ActivePlanProvider, useActivePlan } from './ActivePlanContext';
-import { setSetting } from '@/db';
+import { getPlan, listPlans, setSetting } from '@/db';
 
 vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
@@ -49,4 +49,32 @@ test('setUma2Plan fills the slot and setFocused routes focusedPlan', async () =>
   await waitFor(() => expect(value.focusedPlan?.id).toBe('uma2-test'));
   // Contract: uma2 must NEVER write activePlanId to settings
   expect(setSetting).not.toHaveBeenCalledWith('activePlanId', expect.anything());
+});
+
+test('loadPlanIntoSlot duplicates when the same plan is loaded in the other slot', async () => {
+  let value!: ReturnType<typeof useActivePlan>;
+  render(harness((v) => { value = v; }));
+  await waitFor(() => expect(value.uma1Plan).toBeTruthy());
+
+  const uma1 = value.uma1Plan!;
+  // Put uma1's plan into uma2 by id → collision → uma2 gets a fresh-id duplicate.
+  vi.mocked(getPlan).mockResolvedValue(uma1);
+  vi.mocked(listPlans).mockResolvedValue([uma1]);
+  await act(async () => { await value.loadPlanIntoSlot(uma1.id, 'uma2'); });
+
+  await waitFor(() => expect(value.uma2Plan).toBeTruthy());
+  expect(value.uma2Plan!.id).not.toBe(uma1.id); // duplicated, not shared
+});
+
+test('loadPlanIntoSlot into uma2 with no collision loads the plan as-is', async () => {
+  let value!: ReturnType<typeof useActivePlan>;
+  render(harness((v) => { value = v; }));
+  await waitFor(() => expect(value.uma1Plan).toBeTruthy());
+
+  const other = { ...value.uma1Plan!, id: 'other-id', name: 'Other' };
+  vi.mocked(getPlan).mockResolvedValue(other);
+  vi.mocked(listPlans).mockResolvedValue([value.uma1Plan!, other]);
+  await act(async () => { await value.loadPlanIntoSlot('other-id', 'uma2'); });
+
+  await waitFor(() => expect(value.uma2Plan?.id).toBe('other-id'));
 });
