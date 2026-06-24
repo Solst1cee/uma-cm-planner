@@ -84,6 +84,23 @@ describe('runVacuumCompare', () => {
     expect(r.aFirstPlaceRate).toBeLessThanOrEqual(1);
     expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
   });
+
+  it('surfaces full-spurt rate in [0,1]', () => {
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 1);
+    expect(r.aFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.aFullSpurtRate).toBeLessThanOrEqual(1);
+    expect(r.bFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.bFullSpurtRate).toBeLessThanOrEqual(1);
+  });
+
+  it('accepts downhill option and returns a valid stamina survival number', () => {
+    // 10811 = Hanshin 3200m (long course with downhill slopes); option must be accepted, no throw.
+    const r = runVacuumCompare(build, buildB, { courseId: '10811' }, 30, 7, { downhill: true });
+    expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
+    expect(r.aStaminaSurvival).toBeLessThanOrEqual(1);
+    expect(r.aFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.aFullSpurtRate).toBeLessThanOrEqual(1);
+  });
 });
 
 describe('runPlannerCompare', () => {

@@ -50,6 +50,11 @@ export interface SimOptions {
   seed?: number;
   ignoreStaminaConsumption?: boolean;
   cooldownReactivation?: boolean;
+  allowDownhillUma1?: boolean;
+  allowDownhillUma2?: boolean;
+  skillCheckChanceUma1?: boolean;
+  skillCheckChanceUma2?: boolean;
+  staminaDrainOverrides?: Record<string, number>;
   [key: string]: unknown;
 }
 
@@ -110,6 +115,10 @@ export function runSkillComparison(params: {
 export function runComparison(params: {
   nsamples: number; course: CourseData; racedef: RaceDef;
   uma1: IRunnerState; uma2: IRunnerState; options: SimOptions;
+  /** Inject debuffs at fixed positions; consumed by vacuum-compare at the TOP LEVEL (not inside options). */
+  injectedDebuffs?: { uma1: Array<{ skillId: string; position: number }>; uma2: Array<{ skillId: string; position: number }> };
+  forcedPositions?: unknown;
+  scenarioOverrides?: unknown;
 }): CompareResult;
 
 export function runPlannerComparison(params: {

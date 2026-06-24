@@ -8,6 +8,7 @@ const race: SimRaceParams = { courseId: '10906' };
 const vac = (survival: number): VacuumResult => ({
   mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
   aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: survival, bStaminaSurvival: survival,
+  aFullSpurtRate: 0, bFullSpurtRate: 0,
 });
 
 describe('useStaminaProbe', () => {

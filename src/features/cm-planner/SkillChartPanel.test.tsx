@@ -283,6 +283,7 @@ describe('SkillChartPanel', () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
       aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+      aFullSpurtRate: 0, bFullSpurtRate: 0,
     }));
     render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
@@ -293,6 +294,7 @@ describe('SkillChartPanel', () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
       aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+      aFullSpurtRate: 0, bFullSpurtRate: 0,
     }));
     render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
