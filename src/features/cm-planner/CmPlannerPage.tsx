@@ -31,6 +31,7 @@ import { WorkingTabs } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaCheckerTab } from './StaminaCheckerTab';
 import { AccelCheckerTab } from './AccelCheckerTab';
+import { tracksDiffer } from './trackChange';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -51,7 +52,7 @@ export function CmPlannerPage() {
     setAutoSave,
     setPlan,
     setUma2Plan,
-    selectPlan,
+    loadPlanIntoSlot,
     deleteSavedPlan,
     importSavedPlans,
     deleteAllSavedPlans,
@@ -166,6 +167,10 @@ export function CmPlannerPage() {
         : `CM${titleCmRef.cmNumber}`
       : formatCourseLabel(selection);
   const raceNameLabel = cmRef.kind === 'cm' ? undefined : formatCourseLabel(selection);
+  const trackMismatchLabel =
+    uma2Plan && plan && tracksDiffer(plan.cmRef, uma2Plan.cmRef)
+      ? `⚠ Different track from uma${focused === 'uma1' ? '2' : '1'}`
+      : undefined;
   const planWithFallbackName = (next: CmPlan): CmPlan => {
     if (next.name.trim()) return next;
     const umaName = umaById?.get(next.umaId)?.nameEn;
@@ -242,15 +247,18 @@ export function CmPlannerPage() {
           onDeletePlan={deleteSavedPlan}
           onDeleteAllPlans={deleteAllSavedPlans}
           onImportPlans={importSavedPlans}
-          onSelectPlan={async (id) => {
-            // Auto-apply ON: load the plan as-is (its cmRef re-derives the track).
-            // OFF: load the build but keep the race you're currently viewing.
-            const currentCmRef = plan.cmRef;
-            const loadedPlan = savedPlans.find((savedPlan) => savedPlan.id === id);
-            await selectPlan(id);
+          focused={focused}
+          uma1PlanId={plan.id}
+          uma2PlanId={uma2Plan?.id}
+          onLoadPlanIntoSlot={async (id, slot) => {
+            const keepTrackRef = slot === 'uma1' && autoApplyInventoryTrack !== true ? plan.cmRef : null;
+            await loadPlanIntoSlot(id, slot);
             setCollapseSkillSignal((signal) => signal + 1);
-            if (autoApplyInventoryTrack !== true && loadedPlan) {
-              setPlan({ ...loadedPlan, cmRef: currentCmRef });
+            // auto-apply OFF: keep the race you're viewing by overriding the loaded
+            // uma1 plan's cmRef (preserves the long-standing behavior).
+            if (keepTrackRef) {
+              const loaded = savedPlans.find((p) => p.id === id);
+              if (loaded) setPlan({ ...loaded, cmRef: keepTrackRef });
             }
           }}
         />
@@ -271,8 +279,9 @@ export function CmPlannerPage() {
               ? saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)
               : Promise.resolve()
           }
-          onNew={() => { if (focused === 'uma1') setDraftPlan(newDefaultPlan()); }}
+          onNew={() => { if (focused === 'uma1') setDraftPlan(newDefaultPlan()); else setUma2Plan(null); }}
           raceNameLabel={raceNameLabel}
+          trackMismatchLabel={trackMismatchLabel}
           collapseSkillSignal={collapseSkillSignal}
           focused={focused}
           onFocusChange={setFocused}

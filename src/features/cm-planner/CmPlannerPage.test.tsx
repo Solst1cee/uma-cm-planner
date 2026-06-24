@@ -275,6 +275,13 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         const found = h.savedPlans.find((p) => p.id === id);
         if (found) setPlanState(found as PlanShape);
       }, []);
+      const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2') => {
+        await h.selectPlan(id); // record the call for assertions
+        const found = h.savedPlans.find((p) => p.id === id);
+        if (!found) return;
+        if (slot === 'uma2') setUma2PlanState(found as PlanShape);
+        else setPlanState(found as PlanShape);
+      }, []);
       const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
       return {
         plan,
@@ -291,6 +298,7 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         setPlan,
         setUma2Plan: h.setUma2Plan,
         selectPlan,
+        loadPlanIntoSlot,
         deleteSavedPlan: h.deleteSavedPlan,
         importSavedPlans: h.importSavedPlans,
         deleteAllSavedPlans: h.deleteAllSavedPlans,
@@ -771,5 +779,21 @@ describe('CmPlannerPage', () => {
     );
     // uma1's title must NOT appear in the track header.
     expect(document.querySelector('.cmp-track-head')?.textContent).not.toBe('CM15 — Cancer Cup');
+  });
+
+  it('loads a plan into uma2 via the inventory "2" badge', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    const badge = await within(inventory).findByRole('button', { name: /Load Hanshin Trial as uma2/i });
+    fireEvent.click(badge);
+    await waitFor(() => expect(h.selectPlan).toHaveBeenCalledWith('custom-hanshin'));
+  });
+
+  it('clears the uma2 slot when New is pressed while focused on uma2', async () => {
+    h.focused = 'uma2';
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'New' }));
+    expect(h.setUma2Plan).toHaveBeenCalledWith(null);
   });
 });
