@@ -2155,6 +2155,14 @@ main:has(.cmp-page) {
   border-color: var(--border);
 }
 
+/* "Changed — re-run" marker on a tab whose chart is stale. */
+.cmp-tab-warn {
+  margin-left: 0.3rem;
+  color: #e8870c;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
 .cmp-tab-body {
   /* The chart panels manage their own internal padding via cmp-plan-card-body */
 }

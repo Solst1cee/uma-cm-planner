@@ -58,6 +58,24 @@ describe('WorkingTabs', () => {
     expect(screen.getByRole('tab', { name: 'Skills' })).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('marks a stale tab with a "Changed — re-run" warning', () => {
+    render(
+      <WorkingTabs
+        initial="unique"
+        tabs={[
+          { key: 'unique', label: 'Unique', node: <div>UNIQUE</div> },
+          { key: 'skills', label: 'Skills', node: <div>SKILLS</div>, stale: true },
+        ]}
+      />,
+    );
+    // The stale tab carries the warning; the fresh tab does not.
+    const skillsTab = screen.getByRole('tab', { name: /Skills/ });
+    expect(skillsTab).toContainElement(screen.getByLabelText('Changed — re-run'));
+    expect(screen.getByRole('tab', { name: 'Unique' })).not.toContainElement(
+      screen.queryByLabelText('Changed — re-run'),
+    );
+  });
+
   it('does not render unvisited tab nodes on initial mount', () => {
     render(
       <WorkingTabs

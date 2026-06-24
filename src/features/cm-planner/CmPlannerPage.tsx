@@ -2,7 +2,7 @@
  * Module 4 - Skill Acquisition Planner, engine-first rebuild. The root route
  * keeps the planner sidebar beside the umalator-derived track and race setup.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './cm-planner.css';
 import { makeDefaultPlan, useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
@@ -27,7 +27,7 @@ import {
   type RaceSelection,
 } from '@/features/planner/race-setup/selection';
 import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
-import { WorkingTabs } from './WorkingTabs';
+import { WorkingTabs, type TabKey } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
@@ -64,6 +64,11 @@ export function CmPlannerPage() {
   const [autoApplyInventoryTrack, setAutoApplyInventoryTrack] = useState<boolean | null>(null);
   const [invCollapsed, setInvCollapsed] = useState<boolean>(false);
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
+  // Per-tab "changed — re-run" flags, reported up by each chart so the tabstrip can mark them.
+  const [staleTabs, setStaleTabs] = useState<Partial<Record<TabKey, boolean>>>({});
+  const setTabStale = useCallback((key: TabKey, stale: boolean) => {
+    setStaleTabs((prev) => (prev[key] === stale ? prev : { ...prev, [key]: stale }));
+  }, []);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
   // Single source of truth: the race view is DERIVED from a cmRef (no local
@@ -307,12 +312,14 @@ export function CmPlannerPage() {
               {
                 key: 'unique',
                 label: 'Unique',
+                stale: staleTabs.unique,
                 node: (
                   <UmaChartPanel
                     key={selection.courseId}
                     courseId={selection.courseId}
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('unique', s)}
                     onSelectRunner={(umaId, uniqueSkillId) =>
                       setFocusedPlan({ ...(focusedPlan ?? plan), umaId, uniqueSkillId })
                     }
@@ -322,17 +329,26 @@ export function CmPlannerPage() {
               {
                 key: 'stamina',
                 label: 'Stamina',
-                node: <StaminaSpurtTab key={selection.courseId} plan={focusedPlan ?? plan} />,
+                stale: staleTabs.stamina,
+                node: (
+                  <StaminaSpurtTab
+                    key={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    onStaleChange={(s) => setTabStale('stamina', s)}
+                  />
+                ),
               },
               {
                 key: 'accel',
                 label: 'Accel',
+                stale: staleTabs.accel,
                 node: (
                   <AccelChartPanel
                     key={selection.courseId}
                     courseId={selection.courseId}
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('accel', s)}
                     onChange={setFocusedPlan}
                   />
                 ),
@@ -340,12 +356,14 @@ export function CmPlannerPage() {
               {
                 key: 'skills',
                 label: 'Skills',
+                stale: staleTabs.skills,
                 node: (
                   <SkillChartPanel
                     key={selection.courseId}
                     courseId={selection.courseId}
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('skills', s)}
                     onChange={setFocusedPlan}
                   />
                 ),

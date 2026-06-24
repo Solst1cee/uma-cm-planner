@@ -202,12 +202,12 @@ describe('SkillChartPanel', () => {
     expect(h.skillDelta).not.toHaveBeenCalled();
   });
 
-  it('shows the plan caption before Run and keeps it after Run', async () => {
+  it('explains the chart via the help popup (not an inline caption)', async () => {
     render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
-    const caption = /rank acquirable skills by length on your current uma plan/i;
-    expect(screen.getByText(caption)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
-    await waitFor(() => expect(within(list()).getAllByRole('listitem')).toHaveLength(4));
+    const caption = /rank acquirable/i;
+    // No inline caption — the explanation is behind the "?" help button.
+    expect(screen.queryByText(caption)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /how the skill chart works/i }));
     expect(screen.getByText(caption)).toBeInTheDocument();
   });
 

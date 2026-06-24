@@ -8,7 +8,7 @@
  *
  *  The sim runs on demand (Run button), NOT on mount, to avoid cold-start overhead.
  */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { planToOverlayBuild } from '@/core/simBuild';
 import type { CmPlan } from '@/core/types';
 import type { SimBuild, SimRaceParams, VacuumResult } from '@/sim';
@@ -17,6 +17,7 @@ import { SimClient } from '@/sim/client';
 import { GameIcon } from '@/features/data/GameIcon';
 import { requiredStaminaForSpurt, hpStats, histogram } from '@/core/staminaSpurt';
 import { buildInjectedDebuffs, STAMINA_DEBUFF_ICON } from './staminaDebuffs';
+import { HeaderHelp } from './HeaderHelp';
 
 export interface StaminaSpurtDeps {
   vacuum: (
@@ -137,9 +138,11 @@ interface StaminaSpurtResult {
 export function StaminaSpurtTab({
   plan,
   deps,
+  onStaleChange,
 }: {
   plan: CmPlan;
   deps?: StaminaSpurtDeps;
+  onStaleChange?: (stale: boolean) => void;
 }) {
   const [open, setOpen] = useState(true);
   const [threshold, setThreshold] = useState(95);
@@ -193,6 +196,13 @@ export function StaminaSpurtTab({
     [baseBuild, race.courseId, threshold, whiteDebuffs, goldDebuffs],
   );
   const isStale = runSig !== null && sig !== runSig;
+
+  // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
+  const onStaleRef = useRef(onStaleChange);
+  onStaleRef.current = onStaleChange;
+  useEffect(() => {
+    onStaleRef.current?.(isStale);
+  }, [isStale]);
 
   const run = async () => {
     const t = (token.current += 1);
@@ -275,6 +285,30 @@ export function StaminaSpurtTab({
         }}
       >
         <span className="cmp-stamina-title">Stamina Calculator</span>
+        <HeaderHelp label="How the Stamina Calculator works">
+          <p className="cmp-help-title">Stamina Calculator</p>
+          <p>
+            Simulates your full build (unique + wishlist skills, incl. recovery, green stat-ups, and
+            guts) over many races to estimate stamina. All numbers are Monte-Carlo estimates.
+          </p>
+          <ul>
+            <li><b>Spurt rate</b> — share of runs that sustain a full max-speed last spurt to the line.</li>
+            <li><b>Stamina survival</b> — share of runs that finish without hitting 0 HP.</li>
+            <li>
+              <b>Stamina needed for X% (Mean)</b> — the stamina stat to reach that spurt rate, found
+              by re-simulating across stamina values.
+            </li>
+            <li>
+              <b>Downhill saving</b> — downhill mode (in-race RNG) lowers HP use, so its benefit is a
+              range: <b>0</b> (never activates) to the full saving.
+            </li>
+            <li>
+              <b>Debuffs</b> — expected opponent stamina debuffs (white / gold) injected as an estimate;
+              the vacuum sim has no real opponents.
+            </li>
+            <li><b>Finish HP</b> — distribution of HP left at the line; the red bar = ran out.</li>
+          </ul>
+        </HeaderHelp>
         <button
           type="button"
           className="cmp-run-btn"

@@ -11,7 +11,7 @@
  * scaffolding is duplicated (owner-approved blast-radius limit).
  */
 import './skill-chart.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
 import type { SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
@@ -29,6 +29,7 @@ import {
 } from '@/features/skill-planner/skillFamilies';
 import { useGameData } from '@/features/data/gameData';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
+import { HeaderHelp } from './HeaderHelp';
 import {
   loadAccelSkillIds as defaultLoadAccelSkillIds,
   loadSkillEffectValues as defaultLoadSkillEffectValues,
@@ -90,11 +91,12 @@ const rawMetric = (v: RowView, m: SortMetric): number | null =>
   m === 'L' ? v.row.L : m === 'sp' ? v.sp : m === 'eff' ? v.eff : v.effectValue;
 const signed = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(2)}`;
 
-export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal, deps }: {
+export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal, onStaleChange, deps }: {
   courseId: string;
   plan: CmPlan;
   onChange: (next: CmPlan) => void;
   collapseSkillSignal?: number;
+  onStaleChange?: (stale: boolean) => void;
   deps?: AccelChartPanelDeps;
 }) {
   const { skills, skillById, sparkRates, timeline } = useGameData();
@@ -184,6 +186,13 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
 
+  // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
+  const onStaleRef = useRef(onStaleChange);
+  onStaleRef.current = onStaleChange;
+  useEffect(() => {
+    onStaleRef.current?.(isStale);
+  }, [isStale]);
+
   const targetSkill = (rep: SkillRecord, L: number | null) => {
     const wl = addOrReplaceWishlistSkill(plan.wishlist, rep.skillId, skillById);
     const resolvedId = wishlistSkillId(rep.skillId, skillById);
@@ -254,6 +263,18 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         }}
       >
         <span className="cmp-skill-chart-title">Accel skill chart</span>
+        <HeaderHelp label="How the accel chart works">
+          <p className="cmp-help-title">Accel skill chart</p>
+          <p>
+            Like the Skill chart, but only <b>acceleration</b> skills (excludes uniques). Run to rank by
+            the バ身 each adds to your current uma plan. Re-run after editing the plan.
+          </p>
+          <ul>
+            <li><b>Effect</b> — the skill&apos;s raw acceleration value (sortable).</li>
+            <li><b>Position</b> — where it needs you to be, parsed from its activation conditions.</li>
+            <li><b>Wit</b> — <b>✗</b> if it always procs, else the wit-check pass chance (your wit stat).</li>
+          </ul>
+        </HeaderHelp>
         <button
           type="button"
           className="cmp-run-btn"
@@ -279,10 +300,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
             <p className="muted small">Enter your runner&apos;s stats (Speed is required) in the sidebar to rank skills.</p>
           ) : (
             <>
-              <p className="cmp-skill-caption muted small">
-                Acceleration skills only (excludes uniques). Run to rank by length on your current uma plan. Editing the plan won&apos;t
-                update the chart until you Re-run.
-              </p>
               {staminaOut && (
                 <p className="cmp-stamina-warn small" role="status">
                   ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).

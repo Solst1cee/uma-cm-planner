@@ -8,7 +8,7 @@ export function WorkingTabs({
   tabs,
   initial,
 }: {
-  tabs: { key: TabKey; label: string; node: ReactNode }[];
+  tabs: { key: TabKey; label: string; node: ReactNode; stale?: boolean }[];
   initial?: TabKey;
 }) {
   const [active, setActive] = useState<TabKey>(initial ?? tabs[0]!.key);
@@ -34,6 +34,11 @@ export function WorkingTabs({
             onClick={() => select(t.key)}
           >
             {t.label}
+            {t.stale && (
+              <span className="cmp-tab-warn" role="img" aria-label="Changed — re-run" title="Changed — re-run">
+                ⚠
+              </span>
+            )}
           </button>
         ))}
       </div>

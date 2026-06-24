@@ -7,7 +7,7 @@
  * column header to sort by it. Reuses GameIcon + SkillDetailDisclosure (skill plate).
  */
 import './uma-chart.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CmPlan } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { UmaChartRow, UmaChartCandidate, UmaStyleL } from '@/core/rankUmaChart';
@@ -18,6 +18,7 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
+import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
 
 const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
@@ -127,11 +128,12 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
   );
 }
 
-export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSignal, deps }: {
+export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSignal, onStaleChange, deps }: {
   courseId: string;
   plan: CmPlan;
   onSelectRunner: (outfitId: string, uniqueSkillId: string) => void;
   collapseSkillSignal?: number;
+  onStaleChange?: (stale: boolean) => void;
   deps?: UmaChartPanelDeps;
 }) {
   const { umas, umaById } = useGameData();
@@ -163,6 +165,13 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
+
+  // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
+  const onStaleRef = useRef(onStaleChange);
+  onStaleRef.current = onStaleChange;
+  useEffect(() => {
+    onStaleRef.current?.(isStale);
+  }, [isStale]);
 
   const onStyle = (outfitId: string, strategy: Strategy) =>
     setStyleOverride((prev) => new Map(prev).set(outfitId, strategy));
@@ -205,6 +214,15 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         }}
       >
         <span className="cmp-uma-title">Unique-skill chart</span>
+        <HeaderHelp label="How the unique-skill chart works">
+          <p className="cmp-help-title">Unique-skill chart</p>
+          <p>
+            Run to rank every Global uma by the バ身 (horse-length) gained from its <b>unique skill</b> on
+            this track. Uses a fixed standard reference runner — <b>independent of your build</b> — so it
+            compares the uniques themselves, best of the 4 running styles.
+          </p>
+          <p>Columns are the engine&apos;s min / max / mean / median across samples. Pick a runner with ›.</p>
+        </HeaderHelp>
         <button
           type="button"
           className="cmp-run-btn"
@@ -230,10 +248,6 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
 
       {open && (
         <div className="cmp-uma-body">
-          <p className="cmp-uma-caption muted small">
-            Run to rank umas by their unique skill&apos;s length on this track. Uses a fixed standard
-            runner — independent of your build.
-          </p>
           {status !== 'idle' && (
             <>
               <div className="cmp-uma-toolbar">
