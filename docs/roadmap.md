@@ -25,6 +25,15 @@ Our pin is ~7 releases behind upstream `jalbarrang/umalator-global` (incl. the 2
 ### S2 — Public-release data swap *(only if/when sharing publicly)*
 Swap private-feed defaults → `ManualStatTargets` / curated JSON before any public deploy (per the scraping-exception posture). Parked until a public release is an actual goal.
 
+### S3 — M4 chart/UI polish + mechanics review + provenance *(surfaced 2026-06-25)*
+Small, non-blocking follow-ups from the inventory/sidebar refinements pass. Do opportunistically or fold into Phase 2 (M4 fidelity).
+- **Recompute wishlist `projectedL` on every chart run** — the accel/skill chart should refresh each wishlist skill's projected バ身 (L) per run so the sidebar totals stay current.
+- **Polish the per-tab hint ("?") buttons** — the help/explainer popups on the WorkingTabs (Stamina · Accel · Skills · Mini-sim, + the skill-detail "?" popup): clearer copy, consistent styling/placement/dismiss.
+- **Accel-tab / Position-column label readability** — replace the `≥`/`≤` notation with exact/range forms: exact `CM = 6 · LoH = 8`; ranges `CM 5–6 · LoH 6–8` (instead of `CM ≤6 · LoH ≤8` / `CM ≥5 · LoH ≥6`).
+- **Cap skill-plate max width in the charts** — the skill-name plate runs too long; set a sensible max-width / truncation.
+- **Verify stamina mechanics for rushed (かかり), position-struggle, and dueling** — how each state affects HP/stamina consumption (engine vs in-game); cross-check + record in [docs/mechanics-notes.md](mechanics-notes.md) §10.
+- **Add provenance/attribution per submodule for adopted tools** — per **P1 (REUSE FIRST)**: record source URL + retrieval date in code comments **and** [docs/provenance.md](provenance.md) wherever an algorithm/dataset/UX pattern was borrowed from a community tool.
+
 ---
 
 ## Phase 1 — Design-system foundation
@@ -121,6 +130,7 @@ Build the UI **and** land the **hakuraku harvest** (full detail in [hakuraku-m1-
 |---|---|---|
 | S1 Engine update | ⬜ not started | v0.14.2 → v0.18.0; see engine-update-todo.md |
 | S2 Public data swap | ⬜ parked | only when public release is a goal |
+| S3 M4 polish + mechanics | ⬜ not started | wishlist projectedL refresh, accel label/plate readability, per-tab hint-button polish, rushed/struggle/dueling stamina review, per-submodule provenance |
 | P1 Design system | ⬜ not started | the one-time re-skin foundation |
 | P2 M4 fidelity | ⬜ not started | flagship; proves the system |
 | P3 Data tasks | ⬜ not started | duration, innate, release dates |
