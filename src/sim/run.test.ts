@@ -109,6 +109,23 @@ describe('runVacuumCompare', () => {
     expect(r.aFullSpurtRate).toBeGreaterThanOrEqual(0);
     expect(r.aFullSpurtRate).toBeLessThanOrEqual(1);
   });
+
+  it('accepts injected stamina debuffs (representative ids stay simulatable)', () => {
+    // The Stamina tab injects these representative debuff ids (white 201222 "Stamina Eater" /
+    // gold 201221 "Stamina Siphon"). They bypass simulatableBase (injectedDebuffs is a top-level
+    // runComparison param), so guard that they stay engine-simulatable across data refreshes:
+    // a wrong/unknown id would make the engine throw at runtime, only behind the tab's Run button.
+    const injectedDebuffs = {
+      uma1: [
+        { skillId: '201222', position: 400 }, // white: Stamina Eater
+        { skillId: '201221', position: 800 }, // gold: Stamina Siphon
+      ],
+      uma2: [],
+    };
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 20, 1, { injectedDebuffs });
+    expect(r.aFinalHp).toHaveLength(20);
+    expect(r.aFinalHp.every((h) => typeof h === 'number')).toBe(true);
+  });
 });
 
 describe('runPlannerCompare', () => {
