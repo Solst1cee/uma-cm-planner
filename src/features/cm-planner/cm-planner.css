@@ -2215,13 +2215,16 @@ main:has(.cmp-page) {
   padding: 0.1rem 0.5rem;
 }
 
-.cmp-slot-badges { display: inline-flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
+/* match .cmp-inventory-row-actions gap so the 1/2 badges sit exactly where the
+   edit-mode download/delete buttons appear */
+.cmp-slot-badges { display: inline-flex; align-items: center; gap: 0.2rem; opacity: 0; transition: opacity 0.12s; }
 .cmp-inventory-row:hover .cmp-slot-badges,
 .cmp-slot-badge:focus-visible { opacity: 1; }
 .cmp-slot-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.45rem; height: 1.45rem; border-radius: 6px;
-  font-size: 0.78rem; font-weight: 700; line-height: 1;
+  /* same box as .cmp-inventory-icon-btn (the delete button) so they align across edit mode */
+  width: 1.85rem; height: 1.85rem; border-radius: 7px;
+  font-size: 0.9rem; font-weight: 700; line-height: 1;
   border: 1px solid transparent; background: transparent; cursor: pointer; padding: 0;
 }
 .cmp-slot-badge.is-uma1 { border-color: #5aa0ff; color: #5aa0ff; }
