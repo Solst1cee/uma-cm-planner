@@ -111,6 +111,48 @@ export async function loadSkillTechnicalDetail(
   };
 }
 
+const ACCEL_EFFECT_TYPE = 31;
+
+let accelIdsPromise: Promise<Set<string>> | null = null;
+export async function loadAccelSkillIds(): Promise<Set<string>> {
+  if (accelIdsPromise === null) {
+    accelIdsPromise = loadSkillCollection().then((skills) => {
+      const set = new Set<string>();
+      for (const raw of Object.values(skills)) {
+        const hasAccel = (raw.alternatives ?? []).some((a) =>
+          (a.effects ?? []).some((e) => e.type === ACCEL_EFFECT_TYPE),
+        );
+        if (hasAccel) set.add(String(raw.id));
+      }
+      return set;
+    });
+  }
+  return accelIdsPromise;
+}
+
+let effectValuesPromise: Promise<Map<string, number>> | null = null;
+export async function loadSkillEffectValues(): Promise<Map<string, number>> {
+  if (effectValuesPromise === null) {
+    effectValuesPromise = loadSkillCollection().then((skills) => {
+      const map = new Map<string, number>();
+      for (const raw of Object.values(skills)) {
+        let best = 0;
+        for (const a of raw.alternatives ?? []) {
+          for (const e of a.effects ?? []) {
+            if (e.type === ACCEL_EFFECT_TYPE) {
+              const mag = e.modifier ?? e.value ?? 0;
+              if (Math.abs(mag) > Math.abs(best)) best = mag;
+            }
+          }
+        }
+        if (best !== 0) map.set(String(raw.id), best);
+      }
+      return map;
+    });
+  }
+  return effectValuesPromise;
+}
+
 export async function loadUniqueSkillByUmaId(): Promise<Map<string, SkillSummary>> {
   if (uniqueByUmaPromise === null) {
     uniqueByUmaPromise = loadSkillCollection().then((skills) => {
