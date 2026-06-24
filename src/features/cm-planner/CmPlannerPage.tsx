@@ -30,6 +30,7 @@ import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/pl
 import { WorkingTabs } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaCheckerTab } from './StaminaCheckerTab';
+import { AccelCheckerTab } from './AccelCheckerTab';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -323,6 +324,11 @@ export function CmPlannerPage() {
                 node: <StaminaCheckerTab plan={focusedPlan ?? plan} />,
               },
               {
+                key: 'accel',
+                label: 'Accel',
+                node: <AccelCheckerTab plan={focusedPlan ?? plan} />,
+              },
+              {
                 key: 'skills',
                 label: 'Skills',
                 node: (
@@ -339,7 +345,6 @@ export function CmPlannerPage() {
                 label: 'Mini-sim',
                 node: <MiniSimTab ctl={raceSim} />,
               },
-              // accel tab added in Task 11
             ]}
           />
         </div>
