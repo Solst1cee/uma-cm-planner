@@ -79,7 +79,8 @@ export function useSkillTrace(
   const token = useRef(0);
 
   // Auto-run when enabled + a context is present. Re-run on skill/course/build change.
-  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}` : null;
+  // Include sorted skills so wishlist edits bust the cache (mirrors useRaceCompare's buildSig).
+  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}|${[...ctx.build.skills].sort().join(',')}` : null;
   useEffect(() => {
     if (!enabled || !ctx || sig === null) return;
     const merged = depsRef.current ?? realDeps();

@@ -57,7 +57,8 @@ function cacheSet(sig: string, impact: SkillImpact) {
 }
 
 function impactSig(skillId: string, build: SimBuild, race: SimRaceParams): string {
-  return `accel|${skillId}|${race.courseId}|${build.umaId}|${build.strategy}|${build.stats.spd}/${build.stats.sta}/${build.stats.pow}/${build.stats.gut}/${build.stats.wit}`;
+  // Include sorted skills so wishlist edits bust the cache (mirrors useRaceCompare's buildSig).
+  return `accel|${skillId}|${race.courseId}|${build.umaId}|${build.strategy}|${build.stats.spd}/${build.stats.sta}/${build.stats.pow}/${build.stats.gut}/${build.stats.wit}|${[...build.skills].sort().join(',')}`;
 }
 
 // --- median helper ---

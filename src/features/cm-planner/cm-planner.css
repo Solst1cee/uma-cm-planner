@@ -685,8 +685,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar > .cmp-plan-card,
-.cmp-plan-inventory > .cmp-plan-card,
-.cmp-right > .cmp-plan-card {
+.cmp-plan-inventory > .cmp-plan-card {
   display: flex;
   max-height: inherit;
   min-height: 0;
