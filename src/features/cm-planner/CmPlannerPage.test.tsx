@@ -138,6 +138,8 @@ const h = vi.hoisted(() => {
   const deleteAllSavedPlans = vi.fn(async () => undefined);
   const saveCurrentPlan = vi.fn(async () => undefined);
   const saveCurrentPlanAs = vi.fn(async () => undefined);
+  const saveUma2Plan = vi.fn(async () => undefined);
+  const saveUma2PlanAs = vi.fn(async () => undefined);
   const setDraftPlan = vi.fn();
   const setAutoSave = vi.fn();
   const setPlan = vi.fn();
@@ -168,6 +170,8 @@ const h = vi.hoisted(() => {
     deleteAllSavedPlans,
     saveCurrentPlan,
     saveCurrentPlanAs,
+    saveUma2Plan,
+    saveUma2PlanAs,
     setDraftPlan,
     setAutoSave,
     setPlan,
@@ -305,6 +309,8 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         setDraftPlan: h.setDraftPlan,
         saveCurrentPlan: h.saveCurrentPlan,
         saveCurrentPlanAs: h.saveCurrentPlanAs,
+        saveUma2Plan: h.saveUma2Plan,
+        saveUma2PlanAs: h.saveUma2PlanAs,
         flushPendingSave: h.saveCurrentPlan,
         loadError: null,
       };

@@ -3,7 +3,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { ActivePlanProvider, useActivePlan } from './ActivePlanContext';
-import { getPlan, listPlans, setSetting } from '@/db';
+import { getPlan, listPlans, savePlan, setSetting } from '@/db';
 
 vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
@@ -118,4 +118,23 @@ test('loadPlanIntoSlot into uma1 with collision (id already in uma2) creates fre
   expect(value.uma1Plan!.id).not.toBe(originalUma1Id);
   // uma2 still holds the original 'shared-id' (slots don't share an id)
   expect(value.uma2Plan?.id).toBe('shared-id');
+});
+
+test('saveUma2Plan persists the uma2 slot to inventory but never writes activePlanId', async () => {
+  let value!: ReturnType<typeof useActivePlan>;
+  render(harness((v) => { value = v; }));
+  await waitFor(() => expect(value.uma1Plan).toBeTruthy());
+
+  await act(async () => {
+    value.setUma2Plan({ ...value.uma1Plan!, id: 'u2-save', name: 'Uma2 manual save' });
+  });
+  await waitFor(() => expect(value.uma2Plan?.id).toBe('u2-save'));
+
+  vi.mocked(savePlan).mockClear();
+  vi.mocked(setSetting).mockClear();
+  await act(async () => { await value.saveUma2Plan(); });
+
+  // Persisted to inventory, but the session-scratch contract holds: no activePlanId write.
+  expect(savePlan).toHaveBeenCalled();
+  expect(setSetting).not.toHaveBeenCalledWith('activePlanId', expect.anything());
 });

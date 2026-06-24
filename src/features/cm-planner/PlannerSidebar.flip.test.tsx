@@ -245,11 +245,11 @@ describe('PlannerSidebar action row + mismatch', () => {
     expect(screen.queryByRole('button', { name: /Replicate uma1/i })).toBeNull();
   });
 
-  it('focused uma2: action row shows Replicate uma1 + New, Save/Save as disabled', () => {
+  it('focused uma2: action row shows Replicate uma1 + enabled Save/Save as/New', () => {
     render(<PlannerSidebar {...sidebarProps} focused="uma2" uma2Empty={false} onDuplicateUma1ToUma2={vi.fn()} onReplicateUma2ToUma1={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Replicate uma1/i })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Save as' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save as' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'New' })).toBeEnabled();
   });
 

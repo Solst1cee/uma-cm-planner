@@ -127,6 +127,10 @@ interface ActivePlanValue {
   saveCurrentPlan: (next?: CmPlan) => Promise<void>;
   /** Persist the active plan as a new version with the next available plan number. */
   saveCurrentPlanAs: (next?: CmPlan) => Promise<CmPlan>;
+  /** Persist the uma2 (comparison) plan over its current id — never writes activePlanId. */
+  saveUma2Plan: (next?: CmPlan) => Promise<void>;
+  /** Persist the uma2 plan as a new version (new id) and make it the uma2 slot — never writes activePlanId. */
+  saveUma2PlanAs: (next?: CmPlan) => Promise<CmPlan>;
   /**
    * Persist any edit still sitting in the save debounce, immediately.
    * Await before reading Dexie directly (export) or replacing it (import) —
@@ -358,6 +362,21 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     } else {
       window.clearTimeout(saveTimer.current);
     }
+    // uma2 mirrors uma1: flush its pending edit on enable, cancel on disable. Never writes activePlanId.
+    if (enabled && pendingSave2.current) {
+      const toSave2 = pendingSave2.current;
+      window.clearTimeout(saveTimer2.current);
+      saveTimer2.current = window.setTimeout(() => {
+        pendingSave2.current = null;
+        savePlan(toSave2).then(async () => {
+          setSavedPlans(await listPlans());
+        }).catch((err: unknown) => {
+          setLoadError(err instanceof Error ? err.message : String(err));
+        });
+      }, SAVE_DEBOUNCE_MS);
+    } else if (!enabled) {
+      window.clearTimeout(saveTimer2.current);
+    }
   }, []);
 
   // Flush on pagehide (tab close / mobile background-kill — plan §6 says
@@ -370,11 +389,11 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       const toSave = pendingSave.current;
       pendingSave.current = null;
       if (toSave && autoSaveRef.current) void savePlan(toSave).catch(() => undefined);
-      // uma2 flush (never writes ACTIVE_PLAN_KEY)
+      // uma2 flush (never writes ACTIVE_PLAN_KEY; gated on auto-save like uma1)
       window.clearTimeout(saveTimer2.current);
       const toSave2 = pendingSave2.current;
       pendingSave2.current = null;
-      if (toSave2) void savePlan(toSave2).catch(() => undefined);
+      if (toSave2 && autoSaveRef.current) void savePlan(toSave2).catch(() => undefined);
     };
     window.addEventListener('pagehide', flushSync);
     return () => {
@@ -397,6 +416,8 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     setUma2PlanState(named);
     pendingSave2.current = named;
     window.clearTimeout(saveTimer2.current);
+    // Mirror uma1: only auto-persist when auto-save is on (one toggle governs both builds).
+    if (!autoSaveRef.current) return;
     saveTimer2.current = window.setTimeout(() => {
       pendingSave2.current = null;
       savePlan(named).then(async () => {
@@ -407,6 +428,39 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
       });
     }, SAVE_DEBOUNCE_MS);
   }, []);
+
+  // uma2 manual Save / Save As — mirror uma1's saveCurrentPlan/saveCurrentPlanAs for the
+  // comparison slot: persist to inventory, refresh, update the slot. They NEVER write
+  // ACTIVE_PLAN_KEY (uma2 stays session-scratch — cleared on reload).
+  const saveUma2Plan = useCallback(async (nextPlan?: CmPlan) => {
+    window.clearTimeout(saveTimer2.current);
+    const toSave = nextPlan ?? pendingSave2.current ?? uma2Plan;
+    pendingSave2.current = null;
+    if (!toSave) return;
+    const refreshedBeforeSave = await listPlans();
+    const named = { ...toSave, name: uniquePlanName(toSave.name, refreshedBeforeSave, toSave.id) };
+    await savePlan(named);
+    setSavedPlans(await listPlans());
+    setUma2PlanState(named);
+  }, [uma2Plan]);
+
+  const saveUma2PlanAs = useCallback(async (nextPlan?: CmPlan) => {
+    window.clearTimeout(saveTimer2.current);
+    const draft = nextPlan ?? pendingSave2.current ?? uma2Plan;
+    pendingSave2.current = null;
+    if (!draft) throw new Error('No uma2 plan to save');
+    const refreshedBeforeSave = await listPlans();
+    const next: CmPlan = {
+      ...draft,
+      id: crypto.randomUUID(),
+      name: uniquePlanName(draft.name, refreshedBeforeSave),
+      planNumber: nextPlanNumberForContent(draft, refreshedBeforeSave),
+    };
+    await savePlan(next);
+    setSavedPlans(await listPlans());
+    setUma2PlanState(next);
+    return next;
+  }, [uma2Plan]);
 
   const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2') => {
     const source = await getPlan(id);
@@ -465,6 +519,8 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
         setDraftPlan,
         saveCurrentPlan,
         saveCurrentPlanAs,
+        saveUma2Plan,
+        saveUma2PlanAs,
         flushPendingSave,
         loadError,
       }}

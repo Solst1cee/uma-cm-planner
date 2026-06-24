@@ -477,10 +477,10 @@ export function PlannerSidebar({
                   Replicate uma1
                 </button>
               )}
-              <button type="button" disabled={focused === 'uma2'} onClick={() => void handleSave()}>
+              <button type="button" onClick={() => void handleSave()}>
                 Save
               </button>
-              <button type="button" disabled={focused === 'uma2'} onClick={() => void handleSaveAs()}>
+              <button type="button" onClick={() => void handleSaveAs()}>
                 Save as
               </button>
               <button type="button" onClick={onNew}>

@@ -59,6 +59,8 @@ export function CmPlannerPage() {
     setDraftPlan,
     saveCurrentPlan,
     saveCurrentPlanAs,
+    saveUma2Plan,
+    saveUma2PlanAs,
     loadError,
   } = useActivePlan();
   const [courseCatalog, setCourseCatalog] = useState<CourseCatalogEntry[]>([]);
@@ -313,16 +315,17 @@ export function CmPlannerPage() {
           isSaved={isSaved}
           onAutoSaveChange={setAutoSave}
           onChange={setFocusedPlan}
-          // uma2 save/new are intentional no-ops here — uma2 autosaves via its own
-          // debounce path (which correctly skips ACTIVE_PLAN_KEY). Proper uma2
-          // copy/save actions land in Task 6.
+          // Save / Save As route to the focused slot. uma2's variants persist to
+          // inventory but never write activePlanId (it stays session-scratch).
           onSave={(next) =>
-            focused === 'uma1' ? saveCurrentPlan(planWithFallbackName(next)) : Promise.resolve()
+            focused === 'uma1'
+              ? saveCurrentPlan(planWithFallbackName(next))
+              : saveUma2Plan(planWithFallbackName(next))
           }
           onSaveAs={(next) =>
             focused === 'uma1'
               ? saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)
-              : Promise.resolve()
+              : saveUma2PlanAs(planWithFallbackName(next)).then(() => undefined)
           }
           onNew={() => { if (focused === 'uma1') setDraftPlan(newDefaultPlan()); else setUma2Plan(null); }}
           raceNameLabel={raceNameLabel}
