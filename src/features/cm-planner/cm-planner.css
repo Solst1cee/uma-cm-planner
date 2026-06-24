@@ -2174,3 +2174,17 @@ main:has(.cmp-page) {
   outline: 2px solid var(--uma-accent);
   outline-offset: 1px;
 }
+
+.cmp-track-mismatch-row {
+  margin-bottom: 0.4rem;
+}
+.cmp-track-mismatch-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e0954f;
+  background: color-mix(in srgb, #e0954f 14%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, #e0954f 40%, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
