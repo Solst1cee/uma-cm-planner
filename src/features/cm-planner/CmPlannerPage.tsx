@@ -30,7 +30,7 @@ import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/pl
 import { WorkingTabs } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaCheckerTab } from './StaminaCheckerTab';
-import { AccelCheckerTab } from './AccelCheckerTab';
+import { AccelChartPanel } from './AccelChartPanel';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -327,7 +327,15 @@ export function CmPlannerPage() {
               {
                 key: 'accel',
                 label: 'Accel',
-                node: <AccelCheckerTab key={selection.courseId} plan={focusedPlan ?? plan} />,
+                node: (
+                  <AccelChartPanel
+                    key={selection.courseId}
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onChange={setFocusedPlan}
+                  />
+                ),
               },
               {
                 key: 'skills',
