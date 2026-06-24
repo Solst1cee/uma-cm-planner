@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { BashinStats, SimBuild } from '@/sim';
@@ -291,17 +291,21 @@ describe('SkillChartPanel', () => {
     expect(await screen.findByText(/survives only 50% of runs/i)).toBeInTheDocument();
   });
 
-  it('hides the banner when the user lowers the threshold below the survival rate (no re-run)', async () => {
+  it('hides the banner when the shared threshold drops below the survival rate (no re-run)', async () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
       aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
       aFullSpurtRate: 0, bFullSpurtRate: 0, aFinalHp: [], bFinalHp: [],
     }));
-    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    const deps = { skillDelta: h.skillDelta, vacuum };
+    const { rerender } = render(
+      <SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} warnThresholdPct={95} deps={deps} />,
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await screen.findByText(/survives only 50% of runs/i);
     const calls = vacuum.mock.calls.length;
-    fireEvent.change(screen.getByLabelText('Stamina warning threshold (%)'), { target: { value: '40' } });
+    // The Stamina tab's target spurt drops to 40% → survival 50% is no longer "out".
+    rerender(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} warnThresholdPct={40} deps={deps} />);
     expect(screen.queryByText(/survives only 50% of runs/i)).not.toBeInTheDocument();
     expect(vacuum.mock.calls.length).toBe(calls); // pure re-evaluate, no extra probe
   });

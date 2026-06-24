@@ -31,6 +31,7 @@ import { WorkingTabs, type TabKey } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
+import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -69,6 +70,10 @@ export function CmPlannerPage() {
   const setTabStale = useCallback((key: TabKey, stale: boolean) => {
     setStaleTabs((prev) => (prev[key] === stale ? prev : { ...prev, [key]: stale }));
   }, []);
+  // One shared spurt-rate threshold: the Stamina tab's "target spurt" also drives the Skill/Accel
+  // stamina-out warning (persisted 0–1; surfaced as a % to the tabs).
+  const [warnThreshold01, setWarnThreshold01] = useStaminaWarnThreshold();
+  const staminaThresholdPct = Math.round(warnThreshold01 * 100);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
   // Single source of truth: the race view is DERIVED from a cmRef (no local
@@ -334,6 +339,8 @@ export function CmPlannerPage() {
                   <StaminaSpurtTab
                     key={selection.courseId}
                     plan={focusedPlan ?? plan}
+                    threshold={staminaThresholdPct}
+                    onThresholdChange={(pct) => setWarnThreshold01(pct / 100)}
                     onStaleChange={(s) => setTabStale('stamina', s)}
                   />
                 ),
@@ -349,6 +356,7 @@ export function CmPlannerPage() {
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
                     onStaleChange={(s) => setTabStale('accel', s)}
+                    warnThresholdPct={staminaThresholdPct}
                     onChange={setFocusedPlan}
                   />
                 ),
@@ -364,6 +372,7 @@ export function CmPlannerPage() {
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
                     onStaleChange={(s) => setTabStale('skills', s)}
+                    warnThresholdPct={staminaThresholdPct}
                     onChange={setFocusedPlan}
                   />
                 ),

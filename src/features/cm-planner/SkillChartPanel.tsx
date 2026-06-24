@@ -30,7 +30,6 @@ import { HeaderHelp } from './HeaderHelp';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
 import { useStaminaProbe, type UseStaminaProbeDeps } from './useStaminaProbe';
-import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
 const FILTERS: ReadonlyArray<{ key: SkillFilter; label: string }> = [
@@ -77,12 +76,14 @@ const rawMetric = (v: RowView, m: SortMetric): number | null =>
   m === 'L' ? v.row.L : m === 'sp' ? v.sp : v.eff;
 const signed = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(2)}`;
 
-export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, onStaleChange, deps }: {
+export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, onStaleChange, warnThresholdPct = 95, deps }: {
   courseId: string;
   plan: CmPlan;
   onChange: (next: CmPlan) => void;
   collapseSkillSignal?: number;
   onStaleChange?: (stale: boolean) => void;
+  /** Stamina-out warning fires when survival < this %. Shared with the Stamina tab's target spurt. */
+  warnThresholdPct?: number;
   deps?: SkillChartPanelDeps;
 }) {
   const { skills, skillById, sparkRates, timeline } = useGameData();
@@ -134,10 +135,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
 
-  const [warnThreshold, setWarnThreshold] = useStaminaWarnThreshold();
   const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
   const { survival, probe } = useStaminaProbe(build, race, probeDeps);
-  const staminaOut = survival != null && survival < warnThreshold;
+  const staminaOut = survival != null && survival < warnThresholdPct / 100;
 
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
@@ -285,16 +285,6 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
                     >
                       <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
-                    </label>
-                    <label className="cmp-stamina-thresh small" title="Warn when the build's stamina survival is below this percentage.">
-                      warn&nbsp;&lt;&nbsp;
-                      <input
-                        type="number" min={0} max={100} step={5}
-                        aria-label="Stamina warning threshold (%)"
-                        value={Math.round(warnThreshold * 100)}
-                        onChange={(e) => { const v = e.target.value; if (v !== '') setWarnThreshold(Number(v) / 100); }}
-                      />
-                      %
                     </label>
                   </div>
 

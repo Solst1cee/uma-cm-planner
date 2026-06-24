@@ -144,13 +144,21 @@ export function StaminaSpurtTab({
   plan,
   deps,
   onStaleChange,
+  threshold: thresholdProp,
+  onThresholdChange,
 }: {
   plan: CmPlan;
   deps?: StaminaSpurtDeps;
   onStaleChange?: (stale: boolean) => void;
+  /** Target spurt-rate % (0–100). Shared with the Skill/Accel stamina-out warning; falls back to
+   *  local state when rendered standalone (tests). */
+  threshold?: number;
+  onThresholdChange?: (pct: number) => void;
 }) {
   const [open, setOpen] = useState(true);
-  const [threshold, setThreshold] = useState(95);
+  const [thresholdLocal, setThresholdLocal] = useState(95);
+  const threshold = thresholdProp ?? thresholdLocal;
+  const setThreshold = onThresholdChange ?? setThresholdLocal;
   const [whiteDebuffs, setWhiteDebuffs] = useState(0);
   const [goldDebuffs, setGoldDebuffs] = useState(0);
   const [status, setStatus] = useState<'idle' | 'running' | 'done'>('idle');
