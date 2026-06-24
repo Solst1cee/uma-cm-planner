@@ -110,6 +110,9 @@ export function runSkillComparison(params: {
 export function runComparison(params: {
   nsamples: number; course: CourseData; racedef: RaceDef;
   uma1: IRunnerState; uma2: IRunnerState; options: SimOptions;
+  injectedDebuffs?: { uma1?: { skillId: string; position: number }[]; uma2?: { skillId: string; position: number }[] };
+  forcedPositions?: unknown;
+  scenarioOverrides?: unknown;
 }): CompareResult;
 
 export function runPlannerComparison(params: {

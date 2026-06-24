@@ -84,6 +84,21 @@ describe('runVacuumCompare', () => {
     expect(r.aFirstPlaceRate).toBeLessThanOrEqual(1);
     expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
   });
+
+  it('accepts injected stamina debuffs (representative ids stay simulatable)', () => {
+    const injectedDebuffs = {
+      uma1: [
+        { skillId: '201222', position: 300 }, // white: Stamina Eater
+        { skillId: '201221', position: 600 }, // gold: Stamina Siphon
+      ],
+      uma2: [],
+    };
+    // must not throw, and must still return valid results
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 20, 1, injectedDebuffs);
+    expect(r.nsamples).toBe(20);
+    expect(r.results).toHaveLength(20);
+    expect(r.results.every((h) => typeof h === 'number')).toBe(true);
+  });
 });
 
 describe('runPlannerCompare', () => {

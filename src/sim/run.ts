@@ -33,9 +33,12 @@ export function evalSkillDelta(
   return bashinStatsFrom(result);
 }
 
-/** A-vs-B head-to-head (M1 inheritance compare, M2 vs-veteran). */
+/** A-vs-B head-to-head (M1 inheritance compare, M2 vs-veteran).
+ *  @param injectedDebuffs optional injected stamina-debuff skills (stamina checker uses this).
+ */
 export function runVacuumCompare(
   a: SimBuild, b: SimBuild, race: SimRaceParams, nsamples: number, seed = 0,
+  injectedDebuffs?: { uma1?: { skillId: string; position: number }[]; uma2?: { skillId: string; position: number }[] },
 ): VacuumResult {
   const r = runComparison({
     nsamples,
@@ -44,6 +47,7 @@ export function runVacuumCompare(
     uma1: toRunnerState(simulatableBase(a)),
     uma2: toRunnerState(simulatableBase(b)),
     options: { seed, ignoreStaminaConsumption: false },
+    injectedDebuffs,
   });
   return {
     mean: _mean(r.results), median: _median(r.results),
