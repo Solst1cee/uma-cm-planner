@@ -133,7 +133,9 @@ const h = vi.hoisted(() => {
   const setDraftPlan = vi.fn();
   const setAutoSave = vi.fn();
   const setPlan = vi.fn();
-  const getSetting = vi.fn(async () => true);
+  const getSetting = vi.fn(async (key?: string) =>
+    key === 'cmPlannerInventoryCollapsed' ? false : true,
+  );
   const setSetting = vi.fn(async () => undefined);
   return {
     skillById,
