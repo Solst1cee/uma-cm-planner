@@ -12,7 +12,13 @@ export function WorkingTabs({
   initial?: TabKey;
 }) {
   const [active, setActive] = useState<TabKey>(initial ?? tabs[0]!.key);
-  const current = tabs.find((t) => t.key === active) ?? tabs[0]!;
+  const [visited, setVisited] = useState<Set<TabKey>>(() => new Set([initial ?? tabs[0]!.key]));
+
+  const select = (key: TabKey) => {
+    setActive(key);
+    setVisited((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
+  };
+
   return (
     <section className="cmp-plan-card cmp-tabs-card">
       <div className="cmp-tabstrip" role="tablist">
@@ -23,22 +29,28 @@ export function WorkingTabs({
             role="tab"
             type="button"
             aria-selected={t.key === active}
-            aria-controls={PANEL_ID}
+            aria-controls={`${PANEL_ID}-${t.key}`}
             className={t.key === active ? 'on' : ''}
-            onClick={() => setActive(t.key)}
+            onClick={() => select(t.key)}
           >
             {t.label}
           </button>
         ))}
       </div>
-      <div
-        id={PANEL_ID}
-        className="cmp-tab-body"
-        role="tabpanel"
-        aria-labelledby={`cmp-tab-${current.key}`}
-      >
-        {current.node}
-      </div>
+      {tabs
+        .filter((t) => visited.has(t.key))
+        .map((t) => (
+          <div
+            key={t.key}
+            id={`${PANEL_ID}-${t.key}`}
+            className="cmp-tab-body"
+            role="tabpanel"
+            aria-labelledby={`cmp-tab-${t.key}`}
+            hidden={t.key !== active}
+          >
+            {t.node}
+          </div>
+        ))}
     </section>
   );
 }
