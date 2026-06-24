@@ -27,6 +27,7 @@ import {
   type RaceSelection,
 } from '@/features/planner/race-setup/selection';
 import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
+import { WorkingTabs } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
@@ -298,17 +299,37 @@ export function CmPlannerPage() {
             </div>
           </section>
           <RaceSetup options={options} selection={selection} onChange={handleRaceChange} />
-          <UmaChartPanel
-            courseId={selection.courseId}
-            plan={plan}
-            collapseSkillSignal={collapseSkillSignal}
-            onSelectRunner={(umaId, uniqueSkillId) => setPlan({ ...plan, umaId, uniqueSkillId })}
-          />
-          <SkillChartPanel
-            courseId={selection.courseId}
-            plan={plan}
-            collapseSkillSignal={collapseSkillSignal}
-            onChange={setPlan}
+          <WorkingTabs
+            initial="unique"
+            tabs={[
+              {
+                key: 'unique',
+                label: 'Unique',
+                node: (
+                  <UmaChartPanel
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onSelectRunner={(umaId, uniqueSkillId) =>
+                      setFocusedPlan({ ...(focusedPlan ?? plan), umaId, uniqueSkillId })
+                    }
+                  />
+                ),
+              },
+              {
+                key: 'skills',
+                label: 'Skills',
+                node: (
+                  <SkillChartPanel
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onChange={setFocusedPlan}
+                  />
+                ),
+              },
+              // stamina / accel / minisim tabs added in Tasks 9–11
+            ]}
           />
           <RaceSimCard ctl={raceSim} />
         </div>

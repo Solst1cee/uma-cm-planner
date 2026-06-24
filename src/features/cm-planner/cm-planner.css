@@ -2088,3 +2088,39 @@ main:has(.cmp-page) {
   font-size: 0.85rem;
   font-style: italic;
 }
+
+/* ---- Working tabs (Unique / Skills / future tabs) ---- */
+.cmp-tabstrip {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0.5rem;
+}
+
+.cmp-tabstrip button {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  padding: 0.25rem 0.65rem;
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.cmp-tabstrip button:hover {
+  background: var(--bg-1);
+  color: var(--fg);
+}
+
+.cmp-tabstrip button.on {
+  background: var(--bg-2);
+  color: var(--fg);
+  font-weight: 700;
+  border-color: var(--border);
+}
+
+.cmp-tab-body {
+  /* The chart panels manage their own internal padding via cmp-plan-card-body */
+}
