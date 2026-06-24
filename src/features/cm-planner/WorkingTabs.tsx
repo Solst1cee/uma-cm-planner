@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react';
 
 export type TabKey = 'unique' | 'stamina' | 'accel' | 'skills' | 'minisim';
 
+const PANEL_ID = 'cmp-working-tabpanel';
+
 export function WorkingTabs({
   tabs,
   initial,
@@ -17,9 +19,11 @@ export function WorkingTabs({
         {tabs.map((t) => (
           <button
             key={t.key}
+            id={`cmp-tab-${t.key}`}
             role="tab"
             type="button"
             aria-selected={t.key === active}
+            aria-controls={PANEL_ID}
             className={t.key === active ? 'on' : ''}
             onClick={() => setActive(t.key)}
           >
@@ -27,7 +31,12 @@ export function WorkingTabs({
           </button>
         ))}
       </div>
-      <div className="cmp-tab-body" role="tabpanel">
+      <div
+        id={PANEL_ID}
+        className="cmp-tab-body"
+        role="tabpanel"
+        aria-labelledby={`cmp-tab-${current.key}`}
+      >
         {current.node}
       </div>
     </section>

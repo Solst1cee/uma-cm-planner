@@ -1,3 +1,37 @@
+/* M4 redesign tokens — candidates for the shared design-system.css (roadmap Phase 1)
+   ─────────────────────────────────────────────────────────────────────────────
+   Uma accent colours (set as inline --uma-accent on .cmp-flip-card)
+     --cmp-uma1-accent   blue ring / active-tab fill for UMA1 focus
+     --cmp-uma2-accent   red ring / active-tab fill for UMA2 focus
+
+   Card / panel chrome
+     --cmp-card-radius   corner radius shared by all cmp-plan-card panels
+     --cmp-card-shadow   ambient drop-shadow shared by all cmp-plan-card panels
+     --cmp-head-min-h    minimum header bar height (matches Run-button height)
+
+   Tab strip
+     --cmp-tab-radius    border-radius of individual tab buttons
+     --cmp-tab-gap       gap between tab buttons in the strip
+
+   Inventory sliver
+     --cmp-sliver-width  collapsed-inventory column width
+     --cmp-sliver-radius border-radius of the sliver expand-button
+   ──────────────────────────────────────────────────────────────────────────── */
+:root {
+  --cmp-uma1-accent: #5aa0ff;
+  --cmp-uma2-accent: #e0564f;
+
+  --cmp-card-radius: 12px;
+  --cmp-card-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  --cmp-head-min-h: 2.6rem;
+
+  --cmp-tab-radius: 6px;
+  --cmp-tab-gap: 0.25rem;
+
+  --cmp-sliver-width: 2.4rem;
+  --cmp-sliver-radius: 12px;
+}
+
 /* M4 planner page — the §0 race-track diagram on top (large), the race-setup
    chooser below. (The old hand-rolled track styles were retired with Slice A;
    the vendored track styles live in features/planner/racetrack/.) */
@@ -549,8 +583,8 @@
 
 /* ---- Inventory sliver (collapsed mode) ---- */
 .cmp-inventory-sliver {
-  width: 2.4rem;
-  min-width: 2.4rem;
+  width: var(--cmp-sliver-width);
+  min-width: var(--cmp-sliver-width);
 }
 
 .cmp-sliver-btn {
@@ -560,9 +594,9 @@
   align-items: center;
   gap: 0.4rem;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--cmp-sliver-radius);
   background: var(--bg-1);
-  box-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  box-shadow: var(--cmp-card-shadow);
   padding: 0.75rem 0.25rem;
   color: var(--fg-muted);
   cursor: pointer;
@@ -600,8 +634,9 @@
 
 /* ---- Planner sidebar ---- */
 main:has(.cmp-page) {
-  /* widened so the main column (track + charts) grows on wide screens while the three
-     27.9rem rails keep their width; the track scales up with the main column. */
+  /* widened so the main column (track + charts) grows on wide screens while the two
+     ~26rem fixed rails (inventory + plan-sidebar) keep their width; the track
+     scales up with the main column. */
   max-width: 176rem;
 }
 
@@ -638,9 +673,9 @@ main:has(.cmp-page) {
 .cmp-plan-card {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--cmp-card-radius);
   background: var(--bg-1);
-  box-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  box-shadow: var(--cmp-card-shadow);
 }
 
 .cmp-sidebar .cmp-plan-card-head,
@@ -661,7 +696,7 @@ main:has(.cmp-page) {
 .cmp-plan-card-head {
   display: flex;
   align-items: center;
-  min-height: 2.6rem; /* match the chart head's Run-button height so all card heads are equal */
+  min-height: var(--cmp-head-min-h); /* match the chart head's Run-button height so all card heads are equal */
   border-bottom: 1px solid var(--border);
   background: var(--bg-2);
   padding: 0.6rem 0.75rem;
@@ -2092,14 +2127,14 @@ main:has(.cmp-page) {
 /* ---- Working tabs (Unique / Skills / future tabs) ---- */
 .cmp-tabstrip {
   display: flex;
-  gap: 0.25rem;
+  gap: var(--cmp-tab-gap);
   border-bottom: 1px solid var(--border);
   padding: 0.4rem 0.5rem;
 }
 
 .cmp-tabstrip button {
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--cmp-tab-radius);
   background: transparent;
   padding: 0.25rem 0.65rem;
   color: var(--fg-muted);
