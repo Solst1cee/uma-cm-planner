@@ -2158,3 +2158,37 @@ main:has(.cmp-page) {
 .cmp-tab-body {
   /* The chart panels manage their own internal padding via cmp-plan-card-body */
 }
+
+/* ── Accel chart — grid with 3 extra columns (Effect, Position, Wit) ──────
+   Base grid (skill-chart.css):
+     skill (grows) | L | SP | L/100SP | target
+     minmax(0,1fr)   3.6r  3.2r  4.4r    2.6r
+   Accel override adds:
+     skill | L | SP | L/100SP | Effect | Position | Wit | target
+   ────────────────────────────────────────────────────────────── */
+.cmp-accel-chart .cmp-skill-thead,
+.cmp-accel-chart .cmp-skill-row {
+  grid-template-columns:
+    minmax(0, 1fr) /* skill name */
+    3.6rem         /* L */
+    3.2rem         /* SP */
+    4.4rem         /* L/100SP */
+    3.6rem         /* Effect */
+    6rem           /* Position */
+    3.2rem         /* Wit */
+    2.6rem;        /* target button */
+}
+
+.cmp-accel-pos-cell {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-accel-wit-cell {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+  text-align: center;
+}
