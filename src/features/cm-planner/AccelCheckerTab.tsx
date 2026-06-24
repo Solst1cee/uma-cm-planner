@@ -129,9 +129,10 @@ export function AccelCheckerTab({ plan, deps }: AccelCheckerTabProps) {
       if (cancelled) return;
       const cd = m.courseDataFor(courseId);
       // The final straight ends at course.distance; frontType === 1 = home straight.
+      // Fallback uses findLast so we pick the LAST home straight, not the opener.
       const finalStraight = [...(cd.straights ?? [])].find(
         (s) => s.frontType === 1 && s.end === cd.distance,
-      ) ?? [...(cd.straights ?? [])].find((s) => s.frontType === 1);
+      ) ?? [...(cd.straights ?? [])].findLast((s) => s.frontType === 1);
       setFs(finalStraight?.start ?? null);
     }).catch(() => { /* geometry unavailable — leave fs null */ });
     return () => { cancelled = true; };
@@ -235,6 +236,7 @@ export function AccelCheckerTab({ plan, deps }: AccelCheckerTabProps) {
 
   return (
     <div className="cmp-accel-tab">
+      <p className="muted small">All plan skills — accel skills ideally fire in the final straight (Optimal).</p>
       <table className="cmp-accel-table" aria-label="Accel timing">
         <thead>
           <tr>

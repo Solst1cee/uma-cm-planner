@@ -3,25 +3,29 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { SkillImpact } from '@/sim';
 import { AccelCheckerTab } from './AccelCheckerTab';
+import { courseDataFor } from '@/sim/courseData';
 
 afterEach(cleanup);
 
+// Default course data: distance 2200, final straight starts at 1850 (frontType 1, ends at 2200).
+const defaultCourseData = {
+  courseId: 10906,
+  distance: 2200,
+  surface: 1,
+  turn: 1,
+  corners: [],
+  straights: [
+    { start: 0, end: 520, frontType: 1 },    // spurious first straight (frontType 1 but not at course end)
+    { start: 900, end: 1250, frontType: 2 },  // back straight
+    { start: 1850, end: 2200, frontType: 1 }, // final straight — ends at distance
+  ],
+  slopes: [],
+} as const;
+
 // Mock courseData so tests don't touch the real engine bundle.
-// course: distance 2200, final straight starts at 1850 (frontType 1, ends at 2200).
+// Uses vi.fn() so individual tests can override via mockReturnValueOnce.
 vi.mock('@/sim/courseData', () => ({
-  courseDataFor: () => ({
-    courseId: 10906,
-    distance: 2200,
-    surface: 1,
-    turn: 1,
-    corners: [],
-    straights: [
-      { start: 0, end: 520, frontType: 1 },    // spurious first straight (frontType 1 but not at course end)
-      { start: 900, end: 1250, frontType: 2 },  // back straight
-      { start: 1850, end: 2200, frontType: 1 }, // final straight — ends at distance
-    ],
-    slopes: [],
-  }),
+  courseDataFor: vi.fn(() => defaultCourseData),
 }));
 
 // --- plan fixture ---
@@ -149,5 +153,40 @@ describe('AccelCheckerTab', () => {
 
     // unique 'u' + wishlist 'w1' = 2 calls
     await waitFor(() => expect(deps.skillImpact).toHaveBeenCalledTimes(2));
+  });
+
+  it('mid-corner course: skill at 600 m is NOT optimal (fs from last home straight, not opener)', async () => {
+    // Straights: opener [0,520] frontType 1, back [520,1400] frontType 0,
+    // last home straight [1400,1580] frontType 1. distance=1600 (no straight ends at 1600).
+    // Correct fs = 1400 (last frontType 1). A skill firing at 600 < 1400 → NOT optimal.
+    vi.mocked(courseDataFor).mockReturnValueOnce({
+      courseId: 10501,
+      distance: 1600,
+      surface: 1,
+      turn: 1,
+      corners: [],
+      straights: [
+        { start: 0,    end: 520,  frontType: 1 }, // opener — the wrong fallback target
+        { start: 520,  end: 1400, frontType: 0 }, // back straight
+        { start: 1400, end: 1580, frontType: 1 }, // last home straight — correct fs
+      ],
+      slopes: [],
+    } as ReturnType<typeof courseDataFor>);
+
+    const singlePlan = {
+      ...plan,
+      cmRef: { ...plan.cmRef, courseId: '10501', distance: 1600 },
+      wishlist: [],
+    };
+    // skill fires at 600 m — would be 'optimal' if fs=0 (opener), but 'early' when fs=1400
+    const impact: SkillImpact = { nsamples: 100, distance: 1600, samples: [{ horseLength: 1, positions: [600] }] };
+    const deps = { skillImpact: vi.fn(async () => impact) };
+    render(<AccelCheckerTab plan={singlePlan} deps={deps} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Optimal (final straight)')).not.toBeInTheDocument();
+    });
+    // Also confirm it landed on 'Too early' (600 < 800 = 1600*0.5)
+    await waitFor(() => expect(screen.getByText('Too early')).toBeInTheDocument());
   });
 });
