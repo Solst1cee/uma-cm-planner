@@ -21,6 +21,7 @@ import {
   wishlistSkillRecord,
 } from '@/features/skill-planner/skillFamilies';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
+import { StatInput } from './StatInputField';
 import {
   loadUniqueSkillByUmaId,
   skillRecordToSummary,
@@ -616,12 +617,10 @@ export function PlannerSidebar({
                     <span>{label}</span>
                   </span>
                   <span className="cmp-stat-value-row">
-                    <input
-                      type="number"
-                      min={0}
-                      aria-label={shortLabel}
+                    <StatInput
                       value={plan.statProfile.stats[key]}
-                      onChange={(e) => onChange(setStat(plan, key, Number(e.target.value)))}
+                      label={shortLabel}
+                      onValueChange={(n) => onChange(setStat(plan, key, n))}
                     />
                   </span>
                   <span className="cmp-stat-growth">{statGrowthLabel(currentUma?.statGrowth?.[key])}</span>

@@ -2158,3 +2158,19 @@ main:has(.cmp-page) {
 .cmp-tab-body {
   /* The chart panels manage their own internal padding via cmp-plan-card-body */
 }
+
+/* uma2 (red) / uma1 (blue) accent on sidebar input surfaces, not just the card ring.
+   --uma-accent is set inline on .cmp-flip-card (blue uma1 / red uma2). */
+.cmp-flip-card .cmp-name-field input,
+.cmp-flip-card .cmp-stat-field input,
+.cmp-flip-card .cmp-tile-select,
+.cmp-flip-card .cmp-note-field textarea {
+  background: color-mix(in srgb, var(--uma-accent) 8%, var(--bg-1));
+}
+.cmp-flip-card .cmp-name-field input:focus-visible,
+.cmp-flip-card .cmp-stat-field input:focus-visible,
+.cmp-flip-card .cmp-tile-select:focus-visible,
+.cmp-flip-card .cmp-note-field textarea:focus-visible {
+  outline: 2px solid var(--uma-accent);
+  outline-offset: 1px;
+}
