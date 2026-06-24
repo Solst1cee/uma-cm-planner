@@ -52,7 +52,7 @@ Swap private-feed defaults → `ManualStatTargets` / curated JSON before any pub
   - **Skill duration labels** in the effect/detail viewer.
   - **Now / Upcoming / Future** release tiers (needs per-record release dates — see Phase 3).
   - **Uma innate-skill / usable-here** columns/filters (shared with M1 — see Phase 3).
-- Resolve the open **velocity-chart multi-fire** question (currently the windowed velocity chart + `peakImpactPosition` only use the first activation; widen window to span all procs, or leave first-fire + caveat).
+- **Velocity-chart multi-fire** — *narrowed (engine multi-fire + §0 overlay + ×1/×2 breakdown shipped 2026-06-22):* the only piece left is that the **windowed velocity chart** + `peakImpactPosition` still use only the **first** activation. Widen the window to span all procs, or keep first-fire + a caveat.
 
 **Exit:** M4 ≈ the M4 mockup (~90%+); design system proven reusable; tests green.
 
