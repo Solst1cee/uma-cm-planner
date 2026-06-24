@@ -147,7 +147,9 @@ export function PlanInventoryCard({
   activePlan,
   autoApplyTrack,
   plans,
+  collapsed,
   onAutoApplyTrackChange,
+  onCollapsedChange,
   onDeletePlan,
   onDeleteAllPlans,
   onImportPlans,
@@ -156,7 +158,9 @@ export function PlanInventoryCard({
   activePlan: CmPlan;
   autoApplyTrack: boolean;
   plans: CmPlan[];
+  collapsed?: boolean;
   onAutoApplyTrackChange: (enabled: boolean) => void;
+  onCollapsedChange?: (v: boolean) => void;
   onDeletePlan: (id: string) => Promise<void>;
   onDeleteAllPlans: () => Promise<void>;
   onImportPlans: (plans: CmPlan[]) => Promise<number>;
@@ -265,6 +269,22 @@ export function PlanInventoryCard({
     );
   };
 
+  if (collapsed) {
+    return (
+      <aside className="cmp-plan-inventory cmp-inventory-sliver">
+        <button
+          type="button"
+          className="cmp-sliver-btn"
+          aria-label="Expand inventory"
+          onClick={() => onCollapsedChange?.(false)}
+        >
+          <span className="cmp-sliver-glyph">▤</span>
+          <span className="cmp-sliver-count">{plans.length}</span>
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="cmp-plan-inventory" aria-labelledby="cmp-inventory-h">
       <section className="cmp-plan-card">
@@ -332,6 +352,17 @@ export function PlanInventoryCard({
               }}
             />
           </div>
+          {onCollapsedChange && (
+            <button
+              type="button"
+              className="cmp-inventory-icon-btn cmp-inventory-collapse-btn"
+              aria-label="Collapse inventory"
+              title="Collapse"
+              onClick={() => onCollapsedChange(true)}
+            >
+              <span className="cmp-sliver-glyph">▤</span>
+            </button>
+          )}
         </header>
         <div className="cmp-plan-card-body">
           {actionMessage && (

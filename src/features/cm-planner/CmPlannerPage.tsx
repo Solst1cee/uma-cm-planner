@@ -30,6 +30,7 @@ import { PlanInventoryCard } from './PlanInventoryCard';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
+const INVENTORY_COLLAPSED_KEY = 'cmPlannerInventoryCollapsed';
 
 export function CmPlannerPage() {
   const { status, umaById, skillById, timeline, currentCm } = useGameData();
@@ -51,6 +52,7 @@ export function CmPlannerPage() {
   } = useActivePlan();
   const [courseCatalog, setCourseCatalog] = useState<CourseCatalogEntry[]>([]);
   const [autoApplyInventoryTrack, setAutoApplyInventoryTrack] = useState<boolean | null>(null);
+  const [invCollapsed, setInvCollapsed] = useState<boolean>(false);
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
@@ -69,6 +71,20 @@ export function CmPlannerPage() {
       })
       .catch(() => {
         if (!cancelled) setAutoApplyInventoryTrack(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getSetting<boolean>(INVENTORY_COLLAPSED_KEY)
+      .then((saved) => {
+        if (!cancelled) setInvCollapsed(saved ?? false);
+      })
+      .catch(() => {
+        if (!cancelled) setInvCollapsed(false);
       });
     return () => {
       cancelled = true;
@@ -163,11 +179,16 @@ export function CmPlannerPage() {
 
   return (
     <SelectedSkillProvider>
-      <div className="cmp-page">
+      <div className="cmp-page" data-inv-collapsed={String(invCollapsed)}>
         <PlanInventoryCard
           activePlan={plan}
           autoApplyTrack={autoApplyInventoryTrack ?? true}
           plans={savedPlans}
+          collapsed={invCollapsed}
+          onCollapsedChange={(v) => {
+            setInvCollapsed(v);
+            void setSetting(INVENTORY_COLLAPSED_KEY, v);
+          }}
           onAutoApplyTrackChange={(enabled) => {
             setAutoApplyInventoryTrack(enabled);
             void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
