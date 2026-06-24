@@ -2,18 +2,22 @@ import { describe, expect, test } from 'vitest';
 import { describePositioning, requiresWitCheck, witCheckPassChance } from './skillConditions';
 
 describe('describePositioning', () => {
-  test('order_rate upper bound', () => {
-    expect(describePositioning('order_rate<=40&phase>=2')).toBe('≤40% back');
+  test('order_rate → exact place for CM (9) and LoH (12)', () => {
+    // round(0.4×9)=4, round(0.4×12)=5
+    expect(describePositioning('order_rate<=40&phase>=2')).toBe('CM ≤4 · LoH ≤5');
+    // round(0.5×9)=5 (Math.round(4.5)=5), round(0.5×12)=6 — matches GameTora's "CM >5, LoH >6"
+    expect(describePositioning('order_rate>50')).toBe('CM >5 · LoH >6');
   });
-  test('absolute order', () => {
-    expect(describePositioning('order==1')).toBe('pos =1');
-    expect(describePositioning('order>=3')).toBe('pos ≥3');
+  test('absolute order is an exact place already', () => {
+    expect(describePositioning('order==1')).toBe('place =1');
+    expect(describePositioning('order>=3')).toBe('place ≥3');
   });
   test('bashin diff', () => {
     expect(describePositioning('bashin_diff_infront<=1&remain_distance<=200')).toBe('within 1 ahead');
   });
   test('alternatives joined with slash', () => {
-    expect(describePositioning('order_rate<=20@order_rate<=50')).toBe('≤20% back / ≤50% back');
+    // round(0.2×9)=2, round(0.2×12)=2  /  round(0.5×9)=5, round(0.5×12)=6
+    expect(describePositioning('order_rate<=20@order_rate<=50')).toBe('CM ≤2 · LoH ≤2 / CM ≤5 · LoH ≤6');
   });
   test('no positional token', () => {
     expect(describePositioning('phase>=2&is_lastspurt==1')).toBe('—');

@@ -246,13 +246,8 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
-      {open && (
+      {open && status !== 'idle' && (
         <div className="cmp-uma-body">
-          {status === 'idle' && (
-            <p className="muted small">Press Run to score uma unique skills on this track.</p>
-          )}
-          {status !== 'idle' && (
-            <>
               <div className="cmp-uma-toolbar">
                 <input
                   className="search"
@@ -325,8 +320,6 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                 )}
               </ul>
               </div>
-            </>
-          )}
         </div>
       )}
     </section>

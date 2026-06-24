@@ -125,8 +125,8 @@ describe('AccelChartPanel', () => {
     // Find the row for Accel A (conditions: order_rate<=40 → '≤40% back')
     const rowA = rows.find((r) => r.textContent?.includes('Accel A'))!;
     expect(rowA).toBeDefined();
-    // Position cell: describePositioning('order_rate<=40') = '≤40% back'
-    expect(rowA.textContent).toContain('≤40% back');
+    // Position cell: describePositioning('order_rate<=40') = 'CM ≤4 · LoH ≤5'
+    expect(rowA.textContent).toContain('CM ≤4');
     // Wit cell: no random condition → '✗'
     expect(rowA.textContent).toContain('✗');
     // Effect = accel × duration = 1.0 → "1.00"

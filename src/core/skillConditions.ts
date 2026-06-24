@@ -16,6 +16,11 @@ export function witCheckPassChance(wit: number): number {
   return Math.round(Math.max(100 - 9000 / wit, 20));
 }
 
+// Field sizes per race mode (upstream umalator constants — order_rate is a % of the field).
+// place = round((order_rate / 100) × fieldSize). E.g. order_rate>50 → CM round(4.5)=5, LoH round(6)=6.
+const FIELD_CM = 9;
+const FIELD_LOH = 12;
+
 /** Human-readable positioning requirement parsed from one alternative's tokens. */
 function describeOneAlternative(alt: string): string | null {
   const parts = alt.split('&').map((p) => p.trim()).filter(Boolean);
@@ -23,9 +28,14 @@ function describeOneAlternative(alt: string): string | null {
   for (const p of parts) {
     let m: RegExpMatchArray | null;
     if ((m = p.match(/^order_rate(<=|>=|==|<|>)(\d+)/))) {
-      out.push(`${opWord(m[1]!)}${m[2]}% back`);
+      // order_rate is a percentile of the field — show the exact place for CM (9) and LoH (12).
+      const op = sym(m[1]!);
+      const rate = Number(m[2]);
+      const cm = Math.round((rate / 100) * FIELD_CM);
+      const loh = Math.round((rate / 100) * FIELD_LOH);
+      out.push(`CM ${op}${cm} · LoH ${op}${loh}`);
     } else if ((m = p.match(/^order(<=|>=|==|<|>)(\d+)/))) {
-      out.push(`pos ${sym(m[1]!)}${m[2]}`);
+      out.push(`place ${sym(m[1]!)}${m[2]}`);
     } else if ((m = p.match(/^bashin_diff_infront(<=|>=|==|<|>)(\d+)/))) {
       out.push(`within ${m[2]} ahead`);
     } else if ((m = p.match(/^bashin_diff_behind(<=|>=|==|<|>)(\d+)/))) {
@@ -35,10 +45,6 @@ function describeOneAlternative(alt: string): string | null {
   return out.length ? out.join(', ') : null;
 }
 
-function opWord(op: string): string {
-  // order_rate<=40 means "no more than 40% back" → "≤40% back"
-  return op === '<=' || op === '<' ? '≤' : op === '>=' || op === '>' ? '≥' : '=';
-}
 function sym(op: string): string {
   return op === '<=' ? '≤' : op === '>=' ? '≥' : op === '<' ? '<' : op === '>' ? '>' : '=';
 }

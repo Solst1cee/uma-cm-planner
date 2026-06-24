@@ -276,7 +276,11 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
               accel for 5&nbsp;s ≈ 1.00. Computed from the skill&apos;s strongest acceleration effect
               (modifier ÷ 10000 m/s²) times its base duration (÷ 10000 s). Bigger = more speed. Sortable.
             </li>
-            <li><b>Position</b> — where it needs you to be, parsed from its activation conditions.</li>
+            <li>
+              <b>Position</b> — where you must be, from its activation conditions. An
+              <code>order_rate</code> percentile is shown as the exact place for <b>CM</b> (9-runner
+              field) and <b>LoH</b> (12-runner), e.g. <i>order_rate≤40</i> → CM ≤4 · LoH ≤5.
+            </li>
             <li>
               <b>Wit</b> — <b>✗</b> = no wit check (it has no random/陥入 trigger), so the skill fires
               <i>whenever its other conditions are met</i> — not necessarily always. A number = the
@@ -303,7 +307,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
-      {open && (
+      {open && (!hasSpeed || status !== 'idle') && (
         <div className="cmp-skill-body">
           {!hasSpeed ? (
             <p className="muted small">Enter your runner&apos;s stats (Speed is required) in the sidebar to rank skills.</p>
@@ -314,9 +318,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                   ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
                   Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
                 </p>
-              )}
-              {status === 'idle' && (
-                <p className="muted small">Press Run to score acceleration skills for your build.</p>
               )}
               {status !== 'idle' && (
                 <>

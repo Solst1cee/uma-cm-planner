@@ -246,7 +246,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
-      {open && (
+      {open && (!hasSpeed || status !== 'idle') && (
         <div className="cmp-skill-body">
           {!hasSpeed ? (
             <p className="muted small">Enter your runner&apos;s stats (Speed is required) in the sidebar to rank skills.</p>
@@ -257,9 +257,6 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                   ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
                   Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
                 </p>
-              )}
-              {status === 'idle' && (
-                <p className="muted small">Press Run to score skills for your current build.</p>
               )}
               {status !== 'idle' && (
                 <>

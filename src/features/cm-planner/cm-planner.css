@@ -2189,25 +2189,20 @@ main:has(.cmp-page) {
     2.4rem;        /* target button */
 }
 
-/* Position data cell: wider column, centered both axes (the row aligns cells to the top). */
-.cmp-accel-pos-cell {
-  font-size: 0.72rem;
-  color: var(--fg-muted);
-  justify-self: center;
-  align-self: center;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-
+/* Position + Wit data cells: top-aligned with a first-line min-height that centres the content,
+   so they line up with the number columns whether the skill plate is collapsed OR expanded
+   (mirrors .cmp-uma-num — don't use align-self:center, which floats to the middle when expanded). */
+.cmp-accel-pos-cell,
 .cmp-accel-wit-cell {
-  font-size: 0.72rem;
-  color: var(--fg-muted);
-  justify-self: center;
-  align-self: center;
+  align-self: start;
+  min-height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  color: var(--fg-muted);
 }
 
 /* ── Stamina Spurt Tab ─────────────────────────────────────────────────── */
@@ -2342,9 +2337,10 @@ main:has(.cmp-page) {
   font-weight: 700;
 }
 
-.cmp-debuff-icon {
-  border-radius: 4px;
+/* Debuff icons render as-is (square) — override the global .game-icon 5px radius. */
+.cmp-stamina-controls .cmp-debuff-icon {
   flex: none;
+  border-radius: 0;
 }
 
 /* Finish-HP histogram — narrow + tall with labelled axes. */
