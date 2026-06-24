@@ -21,6 +21,8 @@ const planA: CmPlan = { ...FIXTURE_PLAN, id: 'a', name: 'Plan A' };
 const planB: CmPlan = { ...FIXTURE_PLAN, id: 'b', name: 'Plan B' };
 const planC: CmPlan = { ...FIXTURE_PLAN, id: 'c', name: 'Plan C' };
 
+const planP: CmPlan = { ...FIXTURE_PLAN, id: 'p', name: 'p' };
+
 const baseProps = {
   activePlan: planA,
   autoApplyTrack: true,
@@ -29,7 +31,7 @@ const baseProps = {
   onDeletePlan: vi.fn(async () => undefined),
   onDeleteAllPlans: vi.fn(async () => undefined),
   onImportPlans: vi.fn(async () => 0),
-  onSelectPlan: vi.fn(async () => undefined),
+  onLoadPlanIntoSlot: vi.fn(async () => undefined),
 };
 
 // --- existing zip tests (non-render) ---
@@ -56,21 +58,21 @@ describe('createPlansZip', () => {
 async function renderInventory(overrides: Partial<Parameters<typeof PlanInventoryCard>[0]> = {}) {
   render(
     <PlanInventoryCard
-      activePlan={planA}
-      plans={[planA, planB]}
+      activePlan={planP}
+      plans={[planP]}
       autoApplyTrack={false}
       onAutoApplyTrackChange={vi.fn()}
       onDeletePlan={vi.fn(async () => {})}
       onDeleteAllPlans={vi.fn(async () => {})}
       onImportPlans={vi.fn(async () => 0)}
-      onSelectPlan={vi.fn(async () => {})}
+      onLoadPlanIntoSlot={vi.fn(async () => {})}
       {...overrides}
     />,
   );
   // Wait for the async course catalog load to complete so groups are rendered.
   // For collapsed mode there are no groups, so just wait a tick.
   if (!overrides.collapsed) {
-    await screen.findByText(planA.name);
+    await screen.findByText(planP.name);
   }
 }
 
@@ -121,5 +123,35 @@ describe('PlanInventoryCard edit mode', () => {
     await renderInventory({ collapsed: true });
     expect(screen.queryByText(/^\d+$/)).toBeNull(); // no plan count number
     expect(screen.getByRole('button', { name: /Expand inventory/i })).toBeInTheDocument();
+  });
+});
+
+describe('PlanInventoryCard slot picking', () => {
+  it('row body loads the focused slot; badges load the explicit slot', async () => {
+    const onLoad = vi.fn();
+    renderInventory({ focused: 'uma2', onLoadPlanIntoSlot: onLoad });
+    const planName = await screen.findByText('p'); // fixture plan name
+    fireEvent.click(planName.closest('button')!);   // row body
+    expect(onLoad).toHaveBeenLastCalledWith('p', 'uma2');
+
+    fireEvent.click(screen.getByRole('button', { name: /load .* as uma1/i }));
+    expect(onLoad).toHaveBeenLastCalledWith('p', 'uma1');
+    fireEvent.click(screen.getByRole('button', { name: /load .* as uma2/i }));
+    expect(onLoad).toHaveBeenLastCalledWith('p', 'uma2');
+  });
+
+  it('glows the uma1 row blue and the uma2 row red', async () => {
+    renderInventory({ plans: [planA, planB], uma1PlanId: planA.id, uma2PlanId: planB.id });
+    await screen.findByText(planA.name);
+    expect(document.querySelector(`.cmp-inventory-row.is-uma1`)).not.toBeNull();
+    expect(document.querySelector(`.cmp-inventory-row.is-uma2`)).not.toBeNull();
+  });
+
+  it('hides slot badges in edit mode', async () => {
+    renderInventory();
+    await screen.findByText('p');
+    expect(screen.getByRole('button', { name: /load .* as uma1/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Edit inventory/i }));
+    expect(screen.queryByRole('button', { name: /load .* as uma1/i })).toBeNull();
   });
 });

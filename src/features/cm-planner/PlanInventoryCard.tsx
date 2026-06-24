@@ -154,23 +154,29 @@ export function PlanInventoryCard({
   autoApplyTrack,
   plans,
   collapsed,
+  focused = 'uma1',
+  uma1PlanId,
+  uma2PlanId,
   onAutoApplyTrackChange,
   onCollapsedChange,
   onDeletePlan,
   onDeleteAllPlans,
   onImportPlans,
-  onSelectPlan,
+  onLoadPlanIntoSlot,
 }: {
   activePlan: CmPlan;
   autoApplyTrack: boolean;
   plans: CmPlan[];
   collapsed?: boolean;
+  focused?: 'uma1' | 'uma2';
+  uma1PlanId?: string;
+  uma2PlanId?: string;
   onAutoApplyTrackChange: (enabled: boolean) => void;
   onCollapsedChange?: (v: boolean) => void;
   onDeletePlan: (id: string) => Promise<void>;
   onDeleteAllPlans: () => Promise<void>;
   onImportPlans: (plans: CmPlan[]) => Promise<number>;
-  onSelectPlan: (id: string) => Promise<void>;
+  onLoadPlanIntoSlot: (id: string, slot: 'uma1' | 'uma2') => void | Promise<void>;
 }) {
   const [courseById, setCourseById] = useState<Map<string, CourseCatalogEntry>>(new Map());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -231,9 +237,9 @@ export function PlanInventoryCard({
     });
   };
 
-  const handleSelectPlan = async (id: string) => {
+  const handleLoadSlot = async (id: string, slot: 'uma1' | 'uma2') => {
     try {
-      await onSelectPlan(id);
+      await onLoadPlanIntoSlot(id, slot);
     } catch {
       setLoadState('error');
     }
@@ -479,12 +485,12 @@ export function PlanInventoryCard({
                     {group.plans.map((plan) => (
                       <article
                         key={plan.id}
-                        className={`cmp-inventory-row ${plan.id === activePlan.id ? 'is-active' : ''}`.trim()}
+                        className={`cmp-inventory-row ${plan.id === uma1PlanId ? 'is-uma1' : ''} ${plan.id === uma2PlanId ? 'is-uma2' : ''}`.trim()}
                       >
                         <button
                           type="button"
                           className="cmp-inventory-select"
-                          onClick={() => void handleSelectPlan(plan.id)}
+                          onClick={() => void handleLoadSlot(plan.id, focused)}
                         >
                           {plan.umaId ? (
                             <GameIcon kind="uma" id={plan.umaId} size={34} alt="" />
@@ -497,6 +503,28 @@ export function PlanInventoryCard({
                             <span>{aptitudeLine(plan)}</span>
                           </div>
                         </button>
+                        {!editMode && (
+                          <span className="cmp-slot-badges" aria-hidden={false}>
+                            <button
+                              type="button"
+                              className="cmp-slot-badge is-uma1"
+                              aria-label={`Load ${plan.name} as uma1`}
+                              title="Load as uma1"
+                              onClick={(e) => { e.stopPropagation(); void handleLoadSlot(plan.id, 'uma1'); }}
+                            >
+                              1
+                            </button>
+                            <button
+                              type="button"
+                              className="cmp-slot-badge is-uma2"
+                              aria-label={`Load ${plan.name} as uma2`}
+                              title="Load as uma2"
+                              onClick={(e) => { e.stopPropagation(); void handleLoadSlot(plan.id, 'uma2'); }}
+                            >
+                              2
+                            </button>
+                          </span>
+                        )}
                         {editMode && (
                           <span className="cmp-inventory-row-actions" data-edit-stay>
                             <button
