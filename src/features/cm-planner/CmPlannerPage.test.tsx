@@ -213,7 +213,12 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
     ...actual,
     useActivePlan: () => {
       const [plan, setPlanState] = useState<PlanShape>(h.plan);
+      const [focused, setFocused] = useState<'uma1' | 'uma2'>('uma1');
       const setPlan = useCallback((next: PlanShape) => {
+        h.setPlan(next);
+        setPlanState(next);
+      }, []);
+      const setFocusedPlan = useCallback((next: PlanShape) => {
         h.setPlan(next);
         setPlanState(next);
       }, []);
@@ -224,6 +229,12 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
       }, []);
       return {
         plan,
+        uma1Plan: plan,
+        uma2Plan: null,
+        focused,
+        setFocused,
+        focusedPlan: plan,
+        setFocusedPlan,
         savedPlans: h.savedPlans,
         autoSave: false,
         isSaved: true,

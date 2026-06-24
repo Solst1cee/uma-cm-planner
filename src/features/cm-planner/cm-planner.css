@@ -2027,3 +2027,64 @@ main:has(.cmp-page) {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Flip-card sidebar (UMA1 / UMA2 focus toggle) ---- */
+.cmp-flip-card {
+  /* Accent ring: inset 2px border using the --uma-accent CSS variable.
+     Falls back to transparent when no focus prop is set. */
+  box-shadow:
+    0 12px 28px rgb(36 54 78 / 0.08),
+    inset 0 0 0 2px var(--uma-accent, transparent);
+  transition: box-shadow 120ms ease;
+}
+
+.cmp-flip-head {
+  gap: 0;
+  padding: 0;
+  justify-content: stretch;
+}
+
+.cmp-flip-seg {
+  display: inline-flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border-radius: 11px 11px 0 0; /* match the card's top border-radius */
+}
+
+.cmp-flip-seg button {
+  flex: 1 1 auto;
+  min-height: 2.6rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-2);
+  padding: 0.4rem 0.75rem;
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.cmp-flip-seg button + button {
+  border-left: 1px solid var(--border);
+}
+
+.cmp-flip-seg button.on {
+  background: var(--uma-accent, var(--accent));
+  color: #fff;
+}
+
+.cmp-flip-seg button:not(.on):hover {
+  background: var(--bg-1);
+  color: var(--fg);
+}
+
+/* Empty-uma2 placeholder face */
+.cmp-uma2-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}

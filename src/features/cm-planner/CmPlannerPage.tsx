@@ -36,6 +36,11 @@ export function CmPlannerPage() {
   const { status, umaById, skillById, timeline, currentCm } = useGameData();
   const {
     plan,
+    uma2Plan,
+    focused,
+    setFocused,
+    focusedPlan,
+    setFocusedPlan,
     savedPlans,
     autoSave,
     isSaved,
@@ -209,16 +214,27 @@ export function CmPlannerPage() {
           }}
         />
         <PlannerSidebar
-          plan={plan}
+          plan={focusedPlan ?? plan}
           autoSave={autoSave}
           isSaved={isSaved}
           onAutoSaveChange={setAutoSave}
-          onChange={setPlan}
-          onSave={(next) => saveCurrentPlan(planWithFallbackName(next))}
-          onSaveAs={(next) => saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)}
+          onChange={setFocusedPlan}
+          onSave={(next) =>
+            focused === 'uma1'
+              ? saveCurrentPlan(planWithFallbackName(next))
+              : saveCurrentPlan(next)
+          }
+          onSaveAs={(next) =>
+            focused === 'uma1'
+              ? saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)
+              : saveCurrentPlanAs(next).then(() => undefined)
+          }
           onNew={() => setDraftPlan(newDefaultPlan())}
           raceNameLabel={raceNameLabel}
           collapseSkillSignal={collapseSkillSignal}
+          focused={focused}
+          onFocusChange={setFocused}
+          uma2Empty={uma2Plan === null}
         />
         <div className="cmp-main">
           <section className="cmp-plan-card cmp-track-card">

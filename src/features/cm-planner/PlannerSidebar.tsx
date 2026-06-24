@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   isCurrentAptitude,
   planToSimBuild,
@@ -138,6 +138,9 @@ export function PlannerSidebar({
   onAutoSaveChange,
   raceNameLabel,
   collapseSkillSignal,
+  focused = 'uma1',
+  onFocusChange = () => undefined,
+  uma2Empty = false,
 }: {
   plan: CmPlan;
   autoSave: boolean;
@@ -149,6 +152,9 @@ export function PlannerSidebar({
   onAutoSaveChange: (enabled: boolean) => void;
   raceNameLabel?: string;
   collapseSkillSignal?: number;
+  focused?: 'uma1' | 'uma2';
+  onFocusChange?: (slot: 'uma1' | 'uma2') => void;
+  uma2Empty?: boolean;
 }) {
   const { skillById, umas, umaById } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
@@ -348,12 +354,37 @@ export function PlannerSidebar({
     setUmaPickerOpen(false);
   };
 
+  const accentColor = focused === 'uma1' ? '#5aa0ff' : '#e0564f';
+
   return (
     <aside className="cmp-sidebar" aria-labelledby="cmp-plan-h">
-      <section className="cmp-plan-card">
-        <header className="cmp-plan-card-head" id="cmp-plan-h">
-          Current Uma Plan
+      <section
+        className="cmp-plan-card cmp-flip-card"
+        data-testid="cmp-flip-card"
+        data-uma={focused}
+        style={{ '--uma-accent': accentColor } as React.CSSProperties}
+      >
+        <header className="cmp-plan-card-head cmp-flip-head" id="cmp-plan-h">
+          <span className="cmp-flip-seg">
+            <button
+              type="button"
+              className={focused === 'uma1' ? 'on' : ''}
+              onClick={() => onFocusChange('uma1')}
+            >
+              UMA1
+            </button>
+            <button
+              type="button"
+              className={focused === 'uma2' ? 'on' : ''}
+              onClick={() => onFocusChange('uma2')}
+            >
+              UMA2
+            </button>
+          </span>
         </header>
+        {focused === 'uma2' && uma2Empty ? (
+          <div className="cmp-uma2-empty">No uma2 yet.</div>
+        ) : (
         <div className="cmp-plan-card-body">
           <div className="cmp-name-row">
             <label className={`cmp-name-field ${autoGenerateName ? 'is-auto' : ''}`.trim()}>
@@ -904,6 +935,7 @@ export function PlannerSidebar({
             />
           </section>
         </div>
+        )}
       </section>
     </aside>
   );
