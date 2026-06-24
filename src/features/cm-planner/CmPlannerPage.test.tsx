@@ -192,6 +192,18 @@ vi.mock('./useSkillTrace', () => ({
     impact: null, impactStatus: 'idle',
   }),
 }));
+// useRaceCompare would construct a real SimClient/Worker when uma2Plan is non-null.
+// Stub it to an idle state (the page test only checks race-derived track/conditions,
+// not the sim output). See the jsdom Worker gotcha in the module-4 doc.
+vi.mock('./useRaceCompare', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./useRaceCompare')>();
+  return {
+    ...actual,
+    useRaceCompare: () => ({
+      status: 'idle', run: null, runChoice: 'median', setRunChoice: () => {}, distance: 0, meanBashin: null,
+    }),
+  };
+});
 vi.mock('@/sim/courseCatalog', () => ({
   courseCatalog: () => [
     {
@@ -683,9 +695,10 @@ describe('CmPlannerPage', () => {
     expect(within(inventory).getByText('Hanshin Trial')).toBeInTheDocument();
   });
 
-  it('renders the on-track compare control', async () => {
+  it('renders the Mini-sim tab with an empty-state prompt when uma2 is not set', async () => {
     render(<CmPlannerPage />);
-    expect(await screen.findByLabelText(/compare against/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: 'Mini-sim' }));
+    expect(await screen.findByText(/load or duplicate a uma2/i)).toBeInTheDocument();
   });
 
   it('track follows uma2 race when auto-apply ON and focused=uma2 with a non-null uma2Plan', async () => {

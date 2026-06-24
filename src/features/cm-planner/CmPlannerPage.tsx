@@ -18,7 +18,7 @@ import { SkillChartPanel } from './SkillChartPanel';
 import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
-import { RaceSimCard } from './RaceSimCard';
+import { MiniSimTab } from './MiniSimTab';
 import { useRaceCompareController } from './useRaceCompareController';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import {
@@ -124,9 +124,9 @@ export function CmPlannerPage() {
     };
   }, []);
 
-  // Race-sim comparison state (overlay on the track ← controls in the right sidebar).
+  // Race-sim comparison state (overlay on the track ← controls in the Mini-sim tab).
   // Called before the loading guards, so it tolerates a null plan/selection.
-  const raceSim = useRaceCompareController(plan, savedPlans, selection?.courseId ?? '');
+  const raceSim = useRaceCompareController(plan, uma2Plan, selection?.courseId ?? '');
 
   if (loadError) {
     return (
@@ -328,10 +328,14 @@ export function CmPlannerPage() {
                   />
                 ),
               },
-              // stamina / accel / minisim tabs added in Tasks 9–11
+              {
+                key: 'minisim',
+                label: 'Mini-sim',
+                node: <MiniSimTab ctl={raceSim} />,
+              },
+              // stamina / accel tabs added in Tasks 10–11
             ]}
           />
-          <RaceSimCard ctl={raceSim} />
         </div>
       </div>
     </SelectedSkillProvider>
