@@ -315,8 +315,9 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
             <>
               {staminaOut && (
                 <p className="cmp-stamina-warn small" role="status">
-                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
-                  Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
+                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs — under your{' '}
+                  {warnThresholdPct}% target (stamina-out). Recovery is inflated and speed skills
+                  undervalued — secure stamina/recovery, then Re-run.
                 </p>
               )}
               {status !== 'idle' && (
