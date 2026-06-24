@@ -3,6 +3,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { ActivePlanProvider, useActivePlan } from './ActivePlanContext';
+import { setSetting } from '@/db';
 
 vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
@@ -40,8 +41,12 @@ test('setUma2Plan fills the slot and setFocused routes focusedPlan', async () =>
   render(harness((v) => { value = v; }));
   await waitFor(() => expect(value.uma1Plan).toBeTruthy());
   const draft = { ...value.uma1Plan!, id: 'uma2-test', name: 'U2' };
+  // Reset setSetting call history so we only observe calls caused by setUma2Plan
+  vi.mocked(setSetting).mockClear();
   await act(async () => { value.setUma2Plan(draft); });
   await waitFor(() => expect(value.uma2Plan?.id).toBe('uma2-test'));
   await act(async () => { value.setFocused('uma2'); });
   await waitFor(() => expect(value.focusedPlan?.id).toBe('uma2-test'));
+  // Contract: uma2 must NEVER write activePlanId to settings
+  expect(setSetting).not.toHaveBeenCalledWith('activePlanId', expect.anything());
 });

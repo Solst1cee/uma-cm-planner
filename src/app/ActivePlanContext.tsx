@@ -368,10 +368,16 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
   // async but normally completes from pagehide.
   useEffect(() => {
     const flushSync = () => {
+      // uma1 flush
       window.clearTimeout(saveTimer.current);
       const toSave = pendingSave.current;
       pendingSave.current = null;
       if (toSave && autoSaveRef.current) void savePlan(toSave).catch(() => undefined);
+      // uma2 flush (never writes ACTIVE_PLAN_KEY)
+      window.clearTimeout(saveTimer2.current);
+      const toSave2 = pendingSave2.current;
+      pendingSave2.current = null;
+      if (toSave2) void savePlan(toSave2).catch(() => undefined);
     };
     window.addEventListener('pagehide', flushSync);
     return () => {
