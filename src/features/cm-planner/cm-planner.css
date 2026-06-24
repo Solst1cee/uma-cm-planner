@@ -556,20 +556,10 @@ main:has(.cmp-page) {
 
 .cmp-page {
   display: grid;
-  /* inventory · plan sidebar · main · race-sim sidebar (right) */
-  grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr) minmax(372px, 27.9rem);
+  /* inventory · plan sidebar · main */
+  grid-template-columns: minmax(360px, 26rem) minmax(360px, 26rem) minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
-}
-
-/* Drop the right race-sim sidebar to full width under the main column when space is tight. */
-@media (max-width: 1500px) {
-  .cmp-page {
-    grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr);
-  }
-  .cmp-right {
-    grid-column: 1 / -1;
-  }
 }
 
 .cmp-main {
@@ -580,8 +570,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar,
-.cmp-plan-inventory,
-.cmp-right {
+.cmp-plan-inventory {
   position: sticky;
   top: 5.6rem;
   min-width: 0;

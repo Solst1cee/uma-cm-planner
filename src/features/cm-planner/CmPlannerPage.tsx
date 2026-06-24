@@ -232,10 +232,8 @@ export function CmPlannerPage() {
             collapseSkillSignal={collapseSkillSignal}
             onChange={setPlan}
           />
-        </div>
-        <aside className="cmp-right" aria-label="Race simulation">
           <RaceSimCard ctl={raceSim} />
-        </aside>
+        </div>
       </div>
     </SelectedSkillProvider>
   );

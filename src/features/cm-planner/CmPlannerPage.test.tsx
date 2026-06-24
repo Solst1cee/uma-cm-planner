@@ -629,4 +629,10 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     expect(await screen.findByLabelText(/compare against/i)).toBeTruthy();
   });
+
+  it('main page no longer renders the standalone race-sim rail', async () => {
+    render(<CmPlannerPage />);
+    await screen.findByText(/Plan Inventory/i);
+    expect(screen.queryByLabelText('Race simulation')).toBeNull();
+  });
 });
