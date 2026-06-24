@@ -54,6 +54,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Skill-trace test files with ≥ 2 `render`-and-query tests need `afterEach(cleanup)`** — without it the DOM accumulates and `getByRole`/`screen` queries hit duplicate buttons across tests (bit us with the run-picker; `SkillTraceCharts.test.tsx` + `SkillTraceSection.test.tsx` now register cleanup).
 
 Key files:
+- [docs/roadmap.md](docs/roadmap.md) — **the sequencing layer (design-fidelity-first): design-system → M4 deep → M2/M3/M1, + engine-update & public-data sidelists. Set 2026-06-24 after a hakuraku/UmaTools/TheCing competitive analysis (fork nothing; keep our engine; harvest hakuraku for M1).**
+- [docs/engine-update-todo.md](docs/engine-update-todo.md) — **sidelist: bump vendored engine v0.14.2 → v0.18.0 (~7 releases behind upstream `jalbarrang/umalator-global`) + data refresh, gated behind a `fidelity.test.ts` re-baseline. NOT TheCing (sibling Preact fork, no versioned engine).**
+- [docs/hakuraku-m1-harvest.md](docs/hakuraku-m1-harvest.md) — **what to port from hakuraku (MIT) into M1: new `src/core/sparkChance.ts` (individual-affinity spark proc), affinity race-bonus + same-chara-guard refinements, `rankParents` factor optimizer. Re-derive + validate vs umamily.moe, don't transcribe.**
 - [docs/data-refresh-runbook.md](docs/data-refresh-runbook.md) — **how to refresh game data (pin bump), add a confirmed CM, or add an upcoming skill.**
 - [docs/modules/](docs/modules/) — **per-module living docs (read first for any module).**
 - [uma-cm-planner-plan.md](uma-cm-planner-plan.md) — the full project plan and single source of truth (Phase 0 checklist annotated with outcomes; §14 decisions annotated).
