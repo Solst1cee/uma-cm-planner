@@ -351,25 +351,6 @@ export function CmPlannerPage() {
             <header className="cmp-plan-card-head cmp-track-head">
               <span>{trackTitle}</span>
               {trackChanged && <span className="cmp-track-changed">Track changed!</span>}
-              {trackConfirmOpen && (
-                <span className="cmp-track-confirm" role="group" aria-label="Confirm track change">
-                  <span className="cmp-track-confirm-text">Change track to the loaded plan?</span>
-                  <button
-                    type="button"
-                    className="cmp-track-confirm-cancel"
-                    onClick={() => setTrackConfirmOpen(false)}
-                  >
-                    Keep current track
-                  </button>
-                  <button
-                    type="button"
-                    className="cmp-track-confirm-ok"
-                    onClick={() => { setTrackOverrideRef(null); setTrackConfirmOpen(false); flashTrackChanged(); }}
-                  >
-                    Change track
-                  </button>
-                </span>
-              )}
             </header>
             <div className="cmp-plan-card-body cmp-track-body">
               <RaceTrackView
@@ -379,6 +360,36 @@ export function CmPlannerPage() {
                 showHp={raceSim.showHp}
                 skillName={(id) => skillById?.get(id)?.nameEn ?? id}
               />
+              {trackConfirmOpen && (
+                <div
+                  className="cmp-track-confirm-overlay"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Confirm track change"
+                >
+                  <div className="cmp-track-confirm-box">
+                    <p className="cmp-track-confirm-q">
+                      Change track to Uma {focused === 'uma1' ? '1' : '2'}&apos;s race?
+                    </p>
+                    <div className="cmp-track-confirm-actions">
+                      <button
+                        type="button"
+                        className="cmp-track-confirm-cancel"
+                        onClick={() => setTrackConfirmOpen(false)}
+                      >
+                        Keep current track
+                      </button>
+                      <button
+                        type="button"
+                        className="cmp-track-confirm-ok"
+                        onClick={() => { setTrackOverrideRef(null); setTrackConfirmOpen(false); flashTrackChanged(); }}
+                      >
+                        Change track
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="cmp-conditions" aria-label="Race conditions">
                 {describeSelection(selection).map((chip) => (
                   <span key={chip} className="cmp-chip">

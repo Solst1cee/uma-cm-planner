@@ -2243,8 +2243,46 @@ main:has(.cmp-page) {
   80% { opacity: 1; }
   100% { opacity: 0; }
 }
-.cmp-track-confirm { display: inline-flex; align-items: center; gap: 0.4rem; margin-left: auto; }
-.cmp-track-confirm-text { font-size: 0.78rem; color: var(--fg-2); }
-.cmp-track-confirm button { font-size: 0.76rem; padding: 0.12rem 0.5rem; border-radius: 6px; cursor: pointer; }
+/* Track-change confirm: a centered prompt over a greyed-out track. */
+.cmp-track-body { position: relative; }
+.cmp-track-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: rgb(22 32 47 / 0.5);
+  backdrop-filter: grayscale(0.7) blur(1.5px);
+  border-radius: inherit;
+}
+.cmp-track-confirm-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: 90%;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-1);
+  box-shadow: 0 10px 30px rgb(18 28 43 / 0.4);
+  text-align: center;
+}
+.cmp-track-confirm-q {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.cmp-track-confirm-actions { display: flex; gap: 0.6rem; }
+.cmp-track-confirm-actions button {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.42rem 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
 .cmp-track-confirm-ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
 .cmp-track-confirm-cancel { background: transparent; border: 1px solid var(--border); color: var(--fg-2); }
