@@ -186,10 +186,10 @@ export function CmPlannerPage() {
       setTrackOverrideRef(prev); // pin old so the track doesn't jump until confirmed
       setTrackConfirmOpen(true);
     } else {
+      // No confirm needed (same course, auto-apply off, or first track): resume
+      // auto-follow. A course change under auto-apply always takes the confirm
+      // branch above, so the only "Track changed!" flash fires from Confirm.
       setTrackOverrideRef(null);
-      if (prev && nextFollowRef && autoApply && prev.courseId !== nextFollowRef.courseId) {
-        flashTrackChanged();
-      }
     }
   };
 
