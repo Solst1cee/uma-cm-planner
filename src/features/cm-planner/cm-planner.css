@@ -2180,26 +2180,31 @@ main:has(.cmp-page) {
 .cmp-accel-chart .cmp-skill-row {
   grid-template-columns:
     minmax(0, 1fr) /* skill name */
-    3.6rem         /* L */
-    3.2rem         /* SP */
-    4.4rem         /* L/100SP */
-    3.6rem         /* Effect */
-    6rem           /* Position */
-    3.2rem         /* Wit */
-    2.6rem;        /* target button */
+    3.4rem         /* L */
+    3.4rem         /* SP */
+    4rem           /* L/100SP */
+    3.4rem         /* Effect */
+    8.5rem         /* Position (wide, centered) */
+    3.4rem         /* Wit */
+    2.4rem;        /* target button */
 }
 
+/* Position data cell: wider column, centered horizontally. */
 .cmp-accel-pos-cell {
   font-size: 0.72rem;
   color: var(--fg-muted);
+  justify-self: center;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .cmp-accel-wit-cell {
   font-size: 0.72rem;
   color: var(--fg-muted);
+  justify-self: center;
   text-align: center;
 }
 
@@ -2316,11 +2321,19 @@ main:has(.cmp-page) {
   color: var(--error, #c2414b);
 }
 
-.cmp-sr-sub {
-  grid-column: 1 / -1;
-  margin-top: 0.3rem;
+.cmp-stamina-breakdown-title {
+  max-width: 24rem;
+  margin: 0.4rem 0 0.2rem;
   color: var(--fg-muted);
   font-weight: 600;
+}
+
+/* The breakdown re-uses .cmp-stamina-results' aligned grid, plus a left rule + indent.
+   border-box keeps its value column right edge at 24rem so it lines up with the headline. */
+.cmp-stamina-breakdown-grid {
+  box-sizing: border-box;
+  border-left: 2px solid var(--border);
+  padding-left: 0.85rem;
 }
 
 .cmp-stamina-title {

@@ -395,46 +395,49 @@ export function StaminaSpurtTab({
                     : 0;
                 const hp = result.finalHp.length > 0 ? hpStats(result.finalHp) : null;
                 return (
-                  <div className="cmp-stamina-results">
-                    <span className="cmp-sr-label">Spurt rate</span>
-                    <span className="cmp-sr-delta" />
-                    <span className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</span>
+                  <>
+                    <div className="cmp-stamina-results">
+                      <span className="cmp-sr-label">Spurt rate</span>
+                      <span className="cmp-sr-delta" />
+                      <span className="cmp-stamina-num">{result.spurtRate.toFixed(0)}%</span>
 
-                    <span className="cmp-sr-label">Stamina survival</span>
-                    <span className="cmp-sr-delta" />
-                    <span className="cmp-stamina-num">{result.survival.toFixed(0)}%</span>
+                      <span className="cmp-sr-label">Stamina survival</span>
+                      <span className="cmp-sr-delta" />
+                      <span className="cmp-stamina-num">{result.survival.toFixed(0)}%</span>
 
-                    <span className="cmp-sr-label">Stamina needed for {result.threshold}% (Mean)</span>
-                    <span className="cmp-sr-delta" />
-                    <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                      <span className="cmp-sr-label">Stamina needed for {result.threshold}% (Mean)</span>
+                      <span className="cmp-sr-delta" />
+                      <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
 
-                    {hp && (
-                      <span className="cmp-sr-subline small">
-                        remaining HP — min <HpNum n={hp.min} /> · median <HpNum n={hp.median} /> · max{' '}
-                        <HpNum n={hp.max} /> · mean <HpNum n={hp.mean} />
-                      </span>
-                    )}
-
-                    <span className="cmp-sr-sub small">Breakdown</span>
-
-                    <span className="cmp-sr-label cmp-sr-indent">Base (no downhill)</span>
-                    <span className="cmp-sr-delta" />
-                    <span className="cmp-stamina-num">{fmtRequired(result.baseNo)}</span>
-
-                    <span className="cmp-sr-label cmp-sr-indent">Downhill saving</span>
-                    <span className="cmp-sr-delta cmp-sr-save">{saving > 0 ? `0 to −${saving}` : ''}</span>
-                    <span className="cmp-stamina-num">{fmtRange(result.downNo, result.baseNo)}</span>
-
-                    {result.hasDebuffs && (
-                      <>
-                        <span className="cmp-sr-label cmp-sr-indent">
-                          Debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
+                      {hp && (
+                        <span className="cmp-sr-subline small">
+                          remaining HP — min <HpNum n={hp.min} /> · median <HpNum n={hp.median} /> · max{' '}
+                          <HpNum n={hp.max} /> · mean <HpNum n={hp.mean} />
                         </span>
-                        <span className="cmp-sr-delta cmp-sr-cost">{cost > 0 ? `+${cost}` : ''}</span>
-                        <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
-                      </>
-                    )}
-                  </div>
+                      )}
+                    </div>
+
+                    <p className="cmp-stamina-breakdown-title small">Breakdown</p>
+                    <div className="cmp-stamina-results cmp-stamina-breakdown-grid">
+                      <span className="cmp-sr-label">Base (no downhill)</span>
+                      <span className="cmp-sr-delta" />
+                      <span className="cmp-stamina-num">{fmtRequired(result.baseNo)}</span>
+
+                      <span className="cmp-sr-label">Downhill saving</span>
+                      <span className="cmp-sr-delta cmp-sr-save">{saving > 0 ? `0 to −${saving}` : ''}</span>
+                      <span className="cmp-stamina-num">{fmtRange(result.downNo, result.baseNo)}</span>
+
+                      {result.hasDebuffs && (
+                        <>
+                          <span className="cmp-sr-label">
+                            Debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
+                          </span>
+                          <span className="cmp-sr-delta cmp-sr-cost">{cost > 0 ? `+${cost}` : ''}</span>
+                          <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                        </>
+                      )}
+                    </div>
+                  </>
                 );
               })()}
 

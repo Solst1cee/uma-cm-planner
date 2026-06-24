@@ -188,7 +188,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })
-    .filter((v): v is RowView => v !== null);
+    // A targeted skill is shown once — as its in-build row — so drop its ranked duplicate
+    // (the chart doesn't re-run on target, so the ranked row would otherwise linger).
+    .filter((v): v is RowView => v !== null && !v.targeted);
 
   const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
@@ -326,6 +328,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         showCost={false}
                         showSourcing
                         className="cmp-uma-plate"
+                        side={v.inBuild ? <span className="cmp-inbuild">in build</span> : undefined}
                         technicalHeaderSide={
                           v.row.L != null
                             ? v.inBuild
@@ -335,7 +338,6 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         }
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
-                        {v.inBuild && <span className="cmp-inbuild">in build</span>}
                         {/* L == null = un-simmed (e.g. an in-build row added before any Run) → "—", NOT a fabricated +0.00 */}
                         {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                       </span>

@@ -238,7 +238,8 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       if (!skill) return null;
       return makeRowView(skill, row, isTargeted(skill));
     })
-    .filter((v): v is RowView => v !== null);
+    // A targeted skill is shown once — as its in-build row — so drop its ranked duplicate.
+    .filter((v): v is RowView => v !== null && !v.targeted);
 
   const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
@@ -270,7 +271,10 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
             the バ身 each adds to your current uma plan. Re-run after editing the plan.
           </p>
           <ul>
-            <li><b>Effect</b> — the skill&apos;s raw acceleration value (sortable).</li>
+            <li>
+              <b>Effect</b> — relative acceleration magnitude: the engine modifier ÷ 100 (so a typical
+              accel skill reads ~20–40). Bigger = stronger acceleration. Sortable.
+            </li>
             <li><b>Position</b> — where it needs you to be, parsed from its activation conditions.</li>
             <li><b>Wit</b> — <b>✗</b> if it always procs, else the wit-check pass chance (your wit stat).</li>
           </ul>
@@ -363,9 +367,10 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                           )}
                         </button>
                       ))}
-                      {/* Non-sortable headers for Position and Wit */}
-                      <span className="cmp-accel-pos-cell">Position</span>
-                      <span className="cmp-accel-wit-cell">Wit</span>
+                      {/* Non-sortable headers — plain spans so they match the sortable headers'
+                          uppercase styling (don't reuse the muted data-cell classes here). */}
+                      <span>Position</span>
+                      <span>Wit</span>
                       <span />
                     </div>
 
@@ -379,6 +384,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                               showCost={false}
                               showSourcing
                               className="cmp-uma-plate"
+                              side={v.inBuild ? <span className="cmp-inbuild">in build</span> : undefined}
                               technicalHeaderSide={
                                 v.row.L != null
                                   ? v.inBuild
@@ -388,7 +394,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                               }
                             />
                             <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
-                              {v.inBuild && <span className="cmp-inbuild">in build</span>}
                               {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                             </span>
                             <span className={`cmp-uma-num ${sortMetric === 'sp' ? 'is-sort' : ''}`.trim()}>
@@ -398,7 +403,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                               {v.eff != null ? v.eff.toFixed(2) : '—'}
                             </span>
                             <span className={`cmp-uma-num ${sortMetric === 'effect' ? 'is-sort' : ''}`.trim()}>
-                              {v.effectValue != null ? v.effectValue.toFixed(2) : '—'}
+                              {v.effectValue != null ? Math.round(v.effectValue / 100) : '—'}
                             </span>
                             <span className="cmp-accel-pos-cell" title={v.skill.conditions}>
                               {v.positioning}

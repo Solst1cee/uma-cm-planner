@@ -101,12 +101,11 @@ describe('SkillChartPanel', () => {
     await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
     // the targeted skill was NOT re-simmed
     expect(h.skillDelta.mock.calls.map((c) => c[2])).not.toContain(TARGET_ID);
-    // …but it is shown, badged "in build", with its stamped L
+    // …but it is shown, badged "in build" (in the skill plate), with its stamped L in the L column.
     const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
     const badge = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false);
     expect(badge).toBeInTheDocument();
-    // its stamped L renders alongside the "in build" badge in the L cell
-    expect(badge.parentElement).toHaveTextContent(/\+1\.23/);
+    expect(row.querySelector('.cmp-uma-num')).toHaveTextContent(/\+1\.23/);
   });
 
   it('renders "—" (not a fabricated +0.00) for an in-build row with no projected L yet', async () => {
@@ -118,9 +117,11 @@ describe('SkillChartPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
     const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
-    const cell = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false).parentElement!;
-    expect(cell).toHaveTextContent('—');
-    expect(cell).not.toHaveTextContent(/\+0\.00/);
+    // the "in build" plate badge is present, and the L column shows "—" (not a fabricated +0.00)
+    expect(within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false)).toBeInTheDocument();
+    const lCell = row.querySelector('.cmp-uma-num')!;
+    expect(lCell).toHaveTextContent('—');
+    expect(lCell).not.toHaveTextContent(/\+0\.00/);
   });
 
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {

@@ -33,8 +33,9 @@ const h = vi.hoisted(() => {
 
   // Default accel IDs: only A and B are accel, C is excluded
   const defaultAccelIds = new Set<string>(['accelA', 'accelB']);
-  // Effect values: A = 0.2, B = 0.35
-  const defaultEffectValues = new Map<string, number>([['accelA', 0.2], ['accelB', 0.35]]);
+  // Effect values are RAW engine modifiers (large); the table shows them ÷100 as integers.
+  // A = 2000 → "20", B = 3500 → "35".
+  const defaultEffectValues = new Map<string, number>([['accelA', 2000], ['accelB', 3500]]);
 
   const loadAccelSkillIds = vi.fn(async () => defaultAccelIds);
   const loadSkillEffectValues = vi.fn(async () => defaultEffectValues);
@@ -128,16 +129,16 @@ describe('AccelChartPanel', () => {
     expect(rowA.textContent).toContain('≤40% back');
     // Wit cell: no random condition → '✗'
     expect(rowA.textContent).toContain('✗');
-    // Effect value: 0.20
-    expect(rowA.textContent).toContain('0.20');
+    // Effect value: 2000 ÷ 100 = 20
+    expect(rowA.textContent).toContain('20');
 
     // Find the row for Accel B (conditions: all_corner_random==1 → wit check required)
     const rowB = rows.find((r) => r.textContent?.includes('Accel B'))!;
     expect(rowB).toBeDefined();
     // Wit cell: witCheckPassChance(1000) = round(max(100-9000/1000,20)) = round(max(91,20)) = 91
     expect(rowB.textContent).toContain('91%');
-    // Effect value: 0.35
-    expect(rowB.textContent).toContain('0.35');
+    // Effect value: 3500 ÷ 100 = 35
+    expect(rowB.textContent).toContain('35');
   });
 
   it('sort by effect value orders rows by magnitude', async () => {
@@ -161,7 +162,7 @@ describe('AccelChartPanel', () => {
     expect(inBuildBadges).toHaveLength(1);
     const row = inBuildBadges[0]!.closest('li')!;
     expect(within(row).getByText('Accel A')).toBeInTheDocument();
-    // The in-build chip appears alongside the stamped L
-    expect(inBuildBadges[0]!.parentElement).toHaveTextContent(/\+1\.23/);
+    // The chip lives in the skill plate now; the stamped L renders in the L column of the same row.
+    expect(row.querySelector('.cmp-uma-num')).toHaveTextContent(/\+1\.23/);
   });
 });
