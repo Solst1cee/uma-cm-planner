@@ -111,7 +111,7 @@ describe('PlanInventoryCard edit mode', () => {
     fireEvent.click(screen.getByRole('button', { name: /Edit inventory/i }));
     // delete an item → still in edit mode (delete buttons still present)
     fireEvent.click(screen.getAllByRole('button', { name: /^Delete plan$/i })[0]!);
-    expect(screen.getAllByRole('button', { name: /^Delete plan$/i }).length).toBeGreaterThanOrEqual(0);
+    expect(screen.getAllByRole('button', { name: /^Delete plan$/i }).length).toBeGreaterThan(0);
     // outside click → exit
     fireEvent.pointerDown(document.body);
     expect(screen.queryByRole('button', { name: /^Delete plan$/i })).toBeNull();
