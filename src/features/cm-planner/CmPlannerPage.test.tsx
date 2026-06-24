@@ -122,6 +122,14 @@ const h = vi.hoisted(() => {
     role: 'hybrid',
     strategy: 'late',
   };
+  const uma2Plan = {
+    ...plan,
+    id: 'p-uma2',
+    name: 'UMA2 Plan',
+    planNumber: 3,
+    // Different course from uma1 (CM16 / Leo Cup — courseId 10501)
+    cmRef: { kind: 'cm' as const, cmId: 'CM16' as const, cmNumber: 16, courseId: '10501', surface: 'turf' as const, distance: 2400 },
+  };
   const listPlans = vi.fn(async () => [plan, customPlan]);
   const savedPlans = [plan, customPlan];
   const selectPlan = vi.fn(async (_id: string) => undefined);
@@ -138,6 +146,10 @@ const h = vi.hoisted(() => {
     key === 'cmPlannerInventoryCollapsed' ? false : true,
   );
   const setSetting = vi.fn(async () => undefined);
+  // Mutable seeds: tests can set these before rendering to control the initial
+  // focused/uma2Plan state returned by useActivePlan.
+  let _focused: 'uma1' | 'uma2' = 'uma1';
+  let _uma2Plan: typeof plan | null = null;
   return {
     skillById,
     skills,
@@ -148,6 +160,7 @@ const h = vi.hoisted(() => {
     plan,
     customPlan,
     savedPlans,
+    uma2Plan,
     listPlans,
     selectPlan,
     deleteSavedPlan,
@@ -161,6 +174,11 @@ const h = vi.hoisted(() => {
     setUma2Plan,
     getSetting,
     setSetting,
+    // Seedable state for focused / uma2Plan in the useActivePlan mock.
+    get focused() { return _focused; },
+    set focused(v: 'uma1' | 'uma2') { _focused = v; },
+    get seededUma2Plan() { return _uma2Plan; },
+    set seededUma2Plan(v: typeof plan | null) { _uma2Plan = v; },
   };
 });
 
@@ -183,6 +201,15 @@ vi.mock('@/sim/courseCatalog', () => ({
       distance: 2200,
       distanceClass: 'medium',
       course: 2,
+      turn: 1,
+    },
+    {
+      courseId: '10501',
+      raceTrackId: 10005,
+      surface: 'turf',
+      distance: 2400,
+      distanceClass: 'long',
+      course: 1,
       turn: 1,
     },
   ],
@@ -209,6 +236,8 @@ vi.mock('@/features/data/gameData', () => ({
 }));
 // Stateful active-plan mock: selecting/setting a plan actually swaps the active
 // plan so the single-state page re-derives its race view from plan.cmRef.
+// `h.focused` and `h.seededUma2Plan` seed the initial state so tests can
+// exercise focus-switching and uma2 track-follow without a full re-render.
 vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/app/ActivePlanContext')>();
   const { useState, useCallback } = await import('react');
@@ -217,27 +246,31 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
     ...actual,
     useActivePlan: () => {
       const [plan, setPlanState] = useState<PlanShape>(h.plan);
-      const [focused, setFocused] = useState<'uma1' | 'uma2'>('uma1');
+      const [focused, setFocused] = useState<'uma1' | 'uma2'>(h.focused);
+      const [uma2Plan, setUma2PlanState] = useState<PlanShape | null>(h.seededUma2Plan);
       const setPlan = useCallback((next: PlanShape) => {
         h.setPlan(next);
         setPlanState(next);
       }, []);
       const setFocusedPlan = useCallback((next: PlanShape) => {
         h.setPlan(next);
-        setPlanState(next);
-      }, []);
+        // Route the write to the correct build.
+        if (focused === 'uma2') setUma2PlanState(next);
+        else setPlanState(next);
+      }, [focused]);
       const selectPlan = useCallback(async (id: string) => {
         await h.selectPlan(id);
         const found = h.savedPlans.find((p) => p.id === id);
         if (found) setPlanState(found as PlanShape);
       }, []);
+      const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
       return {
         plan,
         uma1Plan: plan,
-        uma2Plan: null,
+        uma2Plan,
         focused,
         setFocused,
-        focusedPlan: plan,
+        focusedPlan,
         setFocusedPlan,
         savedPlans: h.savedPlans,
         autoSave: false,
@@ -282,6 +315,9 @@ import { CmPlannerPage } from './CmPlannerPage';
 
 afterEach(cleanup);
 afterEach(() => {
+  // Reset seeded state so tests are isolated.
+  h.focused = 'uma1';
+  h.seededUma2Plan = null;
   h.listPlans.mockClear();
   h.selectPlan.mockClear();
   h.deleteSavedPlan.mockClear();
@@ -650,6 +686,44 @@ describe('CmPlannerPage', () => {
   it('renders the on-track compare control', async () => {
     render(<CmPlannerPage />);
     expect(await screen.findByLabelText(/compare against/i)).toBeTruthy();
+  });
+
+  it('track follows uma2 race when auto-apply ON and focused=uma2 with a non-null uma2Plan', async () => {
+    // Seed: uma2 has CM16 (Nakayama, firm) — different course/conditions from uma1's CM15 (Hanshin, good).
+    h.focused = 'uma2';
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    const cond = within(screen.getByLabelText('Race conditions'));
+    // auto-apply is ON by default (getSetting returns true); focused=uma2 with uma2Plan set
+    // → selection derives from uma2Plan.cmRef (CM16 → Nakayama, firm conditions).
+    expect(await cond.findByText('Nakayama')).toBeInTheDocument();
+    expect(cond.getByText('Firm')).toBeInTheDocument();
+  });
+
+  it('track stays on uma1 race when focused=uma2 but uma2Plan is null', async () => {
+    // Seed: focused=uma2 but seededUma2Plan stays null (blank slot guard).
+    h.focused = 'uma2';
+    h.seededUma2Plan = null;
+    render(<CmPlannerPage />);
+    const cond = within(screen.getByLabelText('Race conditions'));
+    // Guard: uma2 blank → never switch track → still shows uma1's CM15 (Hanshin, good).
+    expect(await cond.findByText('Hanshin')).toBeInTheDocument();
+    expect(cond.getByText('Good')).toBeInTheDocument();
+  });
+
+  it('track stays on uma1 race when auto-apply OFF even if focused=uma2 with a plan', async () => {
+    // auto-apply=OFF → track never follows focused build.
+    h.focused = 'uma2';
+    h.seededUma2Plan = h.uma2Plan;
+    // Override getSetting to return false for the auto-apply key.
+    h.getSetting.mockImplementation(async (key?: string) =>
+      key === 'cmPlannerInventoryAutoApplyTrack' ? false : key === 'cmPlannerInventoryCollapsed' ? false : true,
+    );
+    render(<CmPlannerPage />);
+    const cond = within(screen.getByLabelText('Race conditions'));
+    // Toggle OFF → selection always derives from uma1Plan.cmRef (Hanshin, good).
+    expect(await cond.findByText('Hanshin')).toBeInTheDocument();
+    expect(cond.getByText('Good')).toBeInTheDocument();
   });
 
   it('main page no longer renders the standalone race-sim rail', async () => {

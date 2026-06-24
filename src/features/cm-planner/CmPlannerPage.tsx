@@ -63,11 +63,23 @@ export function CmPlannerPage() {
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
-  // Single source of truth: the race view is DERIVED from plan.cmRef (no local
-  // selection state). Loading a plan re-derives the track automatically.
+  // Single source of truth: the race view is DERIVED from a cmRef (no local
+  // selection state). When auto-apply is ON and a non-null focusedPlan is
+  // available (guard: uma2-blank → always fall back to uma1), the track follows
+  // the focused build; otherwise it always follows uma1 (plan.cmRef).
+  const trackCmRef = useMemo(() => {
+    if (
+      autoApplyInventoryTrack === true &&
+      !(focused === 'uma2' && uma2Plan === null) &&
+      focusedPlan !== null
+    ) {
+      return focusedPlan.cmRef;
+    }
+    return plan?.cmRef ?? null;
+  }, [autoApplyInventoryTrack, focused, uma2Plan, focusedPlan, plan]);
   const selection: RaceSelection | null = useMemo(
-    () => (plan ? cmRefToSelection(plan.cmRef, courseCatalog, timeline ?? []) : null),
-    [plan, courseCatalog, timeline],
+    () => (trackCmRef ? cmRefToSelection(trackCmRef, courseCatalog, timeline ?? []) : null),
+    [trackCmRef, courseCatalog, timeline],
   );
 
   useEffect(() => {
@@ -126,10 +138,16 @@ export function CmPlannerPage() {
     return <p className="muted">Loading...</p>;
   }
 
-  // Editing the race writes back into plan.cmRef (the single source of truth);
-  // selection re-derives from it on the next render.
+  // Editing the race writes back into the focused build's cmRef (single source of
+  // truth). When uma2 is focused + non-null, edits apply to uma2Plan via
+  // setFocusedPlan; otherwise they go to uma1 (plan) via setPlan.
   const handleRaceChange = (next: RaceSelection) => {
-    setPlan({ ...plan, cmRef: selectionToCmRef(next, options) });
+    const updated = selectionToCmRef(next, options);
+    if (focused === 'uma2' && focusedPlan !== null) {
+      setFocusedPlan({ ...focusedPlan, cmRef: updated });
+    } else {
+      setPlan({ ...plan, cmRef: updated });
+    }
   };
 
   // The race title/name: CM plans show "CM<n>[ — Name]"; custom shows the course.
