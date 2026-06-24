@@ -69,6 +69,8 @@ export function runVacuumCompare(
     bStaminaSurvival: r.staminaStats.uma2.staminaSurvivalRate / 100,
     aFullSpurtRate: r.staminaStats.uma1.fullSpurtRate / 100,
     bFullSpurtRate: r.staminaStats.uma2.fullSpurtRate / 100,
+    aFinalHp: r.staminaStats.uma1.finalHp,
+    bFinalHp: r.staminaStats.uma2.finalHp,
   };
 }
 

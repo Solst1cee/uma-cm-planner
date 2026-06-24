@@ -141,6 +141,9 @@ export interface VacuumResult extends BashinStats {
   /** Fraction of runs where the runner achieved full-spurt (0–1). */
   aFullSpurtRate: number;
   bFullSpurtRate: number;
+  /** Per-sample finish HP for runner A and B (one entry per simulation run). */
+  aFinalHp: number[];
+  bFinalHp: number[];
 }
 
 export type SimResponse =

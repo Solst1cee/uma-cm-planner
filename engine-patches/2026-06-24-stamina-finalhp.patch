@@ -1,0 +1,55 @@
+diff --git a/src/modules/simulation/compare.types.ts b/src/modules/simulation/compare.types.ts
+index 95fdeef..c0f4f86 100644
+--- a/src/modules/simulation/compare.types.ts
++++ b/src/modules/simulation/compare.types.ts
+@@ -166,6 +166,7 @@ export interface StaminaStats {
+ export interface StaminaStatsUma1 {
+   staminaSurvivalRate: number;
+   fullSpurtRate: number;
++  finalHp: number[];
+ }
+ 
+ const defaultSimulationRun: SimulationRun = {
+diff --git a/src/modules/simulation/simulators/vacuum-compare.ts b/src/modules/simulation/simulators/vacuum-compare.ts
+index 48c473d..19e161e 100644
+--- a/src/modules/simulation/simulators/vacuum-compare.ts
++++ b/src/modules/simulation/simulators/vacuum-compare.ts
+@@ -123,6 +123,8 @@ export function runComparison(params: CompareParams): CompareResult {
+     uma2: { total: 0, hpDiedCount: 0, fullSpurtCount: 0 }
+   };
+ 
++  const finalHp = { uma1: [] as number[], uma2: [] as number[] };
++
+   const firstUmaCounters = {
+     uma1: { total: 0, firstPlaceCount: 0 },
+     uma2: { total: 0, firstPlaceCount: 0 }
+@@ -143,6 +145,9 @@ export function runComparison(params: CompareParams): CompareResult {
+       throw new Error('Missing collected runner data for compare simulation');
+     }
+ 
++    finalHp.uma1.push(roundA.hp[roundA.hp.length - 1] ?? 0);
++    finalHp.uma2.push(roundB.hp[roundB.hp.length - 1] ?? 0);
++
+     const data: SimulationRun = initializeSimulationRun({
+       time: [roundA.time, roundB.time],
+       position: [roundA.position, roundB.position],
+@@ -267,7 +272,8 @@ export function runComparison(params: CompareParams): CompareResult {
+       fullSpurtRate:
+         staminaCounters.uma1.total > 0
+           ? (staminaCounters.uma1.fullSpurtCount / staminaCounters.uma1.total) * 100
+-          : 0
++          : 0,
++      finalHp: finalHp.uma1
+     },
+     uma2: {
+       staminaSurvivalRate:
+@@ -279,7 +285,8 @@ export function runComparison(params: CompareParams): CompareResult {
+       fullSpurtRate:
+         staminaCounters.uma2.total > 0
+           ? (staminaCounters.uma2.fullSpurtCount / staminaCounters.uma2.total) * 100
+-          : 0
++          : 0,
++      finalHp: finalHp.uma2
+     }
+   };
+ 

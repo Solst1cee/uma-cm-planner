@@ -12,7 +12,7 @@ import type { CmPlan } from '@/core/types';
 import type { SimBuild, SimRaceParams, VacuumResult } from '@/sim';
 import type { VacuumOpts } from '@/sim/types';
 import { SimClient } from '@/sim/client';
-import { requiredStaminaForSpurt } from '@/core/staminaSpurt';
+import { requiredStaminaForSpurt, hpStats, histogram } from '@/core/staminaSpurt';
 import { buildInjectedDebuffs } from './staminaDebuffs';
 
 export interface StaminaSpurtDeps {
@@ -35,12 +35,60 @@ function realDeps(): StaminaSpurtDeps {
 
 const NSAMPLES = 60;
 const STA_RANGE = { lo: 100, hi: 1200 };
+const HIST_BINS = 14;
+const HIST_W = 280;
+const HIST_H = 60;
+
+/** SVG bar histogram of per-sample finish HP.
+ *  The lowest bin (zero or near-zero HP = ran out) is marked in error-red;
+ *  all other bins use the accent colour. Min/max/median stats printed below. */
+function FinalHpHistogram({ finalHp }: { finalHp: number[] }) {
+  const bins = histogram(finalHp, HIST_BINS);
+  const stats = hpStats(finalHp);
+  const maxCount = Math.max(...bins.map((b) => b.count), 1);
+  const barW = HIST_W / HIST_BINS;
+
+  return (
+    <figure className="cmp-stamina-hist">
+      <figcaption className="small" style={{ marginBottom: 4, fontWeight: 600 }}>
+        Finish HP distribution
+      </figcaption>
+      <svg
+        viewBox={`0 0 ${HIST_W} ${HIST_H}`}
+        role="img"
+        aria-label="Histogram of finish HP across simulation runs"
+        style={{ display: 'block', width: '100%', height: HIST_H, background: 'var(--bg-2,#eef3f9)' }}
+        preserveAspectRatio="none"
+      >
+        {bins.map((b, i) => {
+          const barH = (b.count / maxCount) * HIST_H;
+          const isRunOut = i === 0 && b.x0 === 0;
+          return (
+            <rect
+              key={i}
+              x={i * barW + 1}
+              y={HIST_H - barH}
+              width={Math.max(0, barW - 2)}
+              height={barH}
+              fill={isRunOut ? 'var(--error,#c2414b)' : 'var(--accent,#3478f6)'}
+              opacity={0.85}
+            />
+          );
+        })}
+      </svg>
+      <p className="muted small" style={{ margin: '3px 0 0' }}>
+        min {Math.round(stats.min)} · median {Math.round(stats.median)} · max {Math.round(stats.max)}
+      </p>
+    </figure>
+  );
+}
 
 interface StaminaSpurtResult {
   spurtRate: number;
   survival: number;
   needed: { sta: number; rate: number; reachable: boolean };
   baseNeeded: number; // no downhill, no debuffs — for the breakdown
+  finalHp: number[]; // per-sample finish HP for runner A
 }
 
 export function StaminaSpurtTab({
@@ -129,6 +177,7 @@ export function StaminaSpurtTab({
         survival: cur.aStaminaSurvival * 100,
         needed,
         baseNeeded: base.sta,
+        finalHp: cur.aFinalHp,
       });
       setStatus('done');
     } catch {
@@ -205,23 +254,28 @@ export function StaminaSpurtTab({
         estimate — the vacuum has no opponents.
       </p>
       {result && (
-        <dl className="cmp-stamina-details">
-          <dt>Spurt rate</dt>
-          <dd>{result.spurtRate.toFixed(0)}%</dd>
-          <dt>Stamina survival</dt>
-          <dd>{result.survival.toFixed(0)}%</dd>
-          <dt>Stamina needed for {threshold}%</dt>
-          <dd>
-            {result.needed.reachable
-              ? result.needed.sta
-              : `> ${STA_RANGE.hi} (unreachable)`}{' '}
-            {result.needed.reachable && `(spurt ${result.needed.rate.toFixed(0)}%)`}
-          </dd>
-          <dt>breakdown</dt>
-          <dd className="muted small">
-            base {result.baseNeeded} → with downhill/debuffs {result.needed.sta}
-          </dd>
-        </dl>
+        <>
+          <dl className="cmp-stamina-details">
+            <dt>Spurt rate</dt>
+            <dd>{result.spurtRate.toFixed(0)}%</dd>
+            <dt>Stamina survival</dt>
+            <dd>{result.survival.toFixed(0)}%</dd>
+            <dt>Stamina needed for {threshold}%</dt>
+            <dd>
+              {result.needed.reachable
+                ? result.needed.sta
+                : `> ${STA_RANGE.hi} (unreachable)`}{' '}
+              {result.needed.reachable && `(spurt ${result.needed.rate.toFixed(0)}%)`}
+            </dd>
+            <dt>breakdown</dt>
+            <dd className="muted small">
+              base {result.baseNeeded} → with downhill/debuffs {result.needed.sta}
+            </dd>
+          </dl>
+          {result.finalHp.length > 0 && (
+            <FinalHpHistogram finalHp={result.finalHp} />
+          )}
+        </>
       )}
     </div>
   );

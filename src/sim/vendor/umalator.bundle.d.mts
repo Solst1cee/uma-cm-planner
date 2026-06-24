@@ -103,7 +103,7 @@ export interface CompareResult {
   rushedStats: unknown;
   leadCompetitionStats: unknown;
   spurtInfo: null;
-  staminaStats: { uma1: { staminaSurvivalRate: number; fullSpurtRate: number }; uma2: { staminaSurvivalRate: number; fullSpurtRate: number } };
+  staminaStats: { uma1: { staminaSurvivalRate: number; fullSpurtRate: number; finalHp: number[] }; uma2: { staminaSurvivalRate: number; fullSpurtRate: number; finalHp: number[] } };
   firstUmaStats: { uma1: { firstPlaceRate: number }; uma2: { firstPlaceRate: number } };
 }
 

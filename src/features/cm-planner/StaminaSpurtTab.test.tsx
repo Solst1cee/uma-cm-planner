@@ -46,7 +46,7 @@ const plan = {
 // sta=700 → (700-400)/600 = 0.5 → 50% spurt rate
 // sta=970 → (970-400)/600 = 0.95 → 95% spurt rate (exact threshold)
 // ---------------------------------------------------------------------------
-function makeFakeResult(sta: number): VacuumResult {
+function makeFakeResult(sta: number, aFinalHp?: number[]): VacuumResult {
   const aFullSpurtRate = Math.min(1, Math.max(0, (sta - 400) / 600));
   return {
     mean: 0, median: 0, min: 0, max: 0, nsamples: 2, results: [],
@@ -55,6 +55,7 @@ function makeFakeResult(sta: number): VacuumResult {
     bStaminaSurvival: aFullSpurtRate,
     aFullSpurtRate,
     bFullSpurtRate: aFullSpurtRate,
+    aFinalHp: aFinalHp ?? [], bFinalHp: [],
   };
 }
 
@@ -196,5 +197,29 @@ describe('StaminaSpurtTab', () => {
     expect(screen.getByText(/set a speed stat/i)).toBeInTheDocument();
     // Run button should not be visible (guard kicks in)
     expect(screen.queryByRole('button', { name: /run/i })).not.toBeInTheDocument();
+  });
+
+  it('renders finish-HP histogram with bars after Run when aFinalHp is non-empty', async () => {
+    // Provide a fake vacuum that returns 30 HP samples spread across 0..800
+    const fakeHp = Array.from({ length: 30 }, (_, i) => i * 27); // 0..783
+    const deps: StaminaSpurtDeps = {
+      vacuum: (build) => Promise.resolve(makeFakeResult(build.stats.sta, fakeHp)),
+      nsamples: 2,
+    };
+    render(<StaminaSpurtTab plan={plan} deps={deps} />);
+    fireEvent.click(screen.getByRole('button', { name: /run/i }));
+
+    // Wait for the histogram section to appear
+    await waitFor(() => {
+      expect(screen.getByLabelText(/histogram of finish HP/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // The histogram SVG should contain rect bars
+    const svg = screen.getByLabelText(/histogram of finish HP/i);
+    const bars = svg.querySelectorAll('rect');
+    expect(bars.length).toBeGreaterThan(0);
+
+    // Stats line should be present
+    expect(screen.getByText(/min.*median.*max/i)).toBeInTheDocument();
   });
 });

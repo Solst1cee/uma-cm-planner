@@ -76,6 +76,14 @@ import { runVacuumCompare, runPlannerCompare } from './run';
 const buildB: SimBuild = { ...build, stats: { spd: 1100, sta: 850, pow: 950, gut: 520, wit: 880 } };
 
 describe('runVacuumCompare', () => {
+  it('returns a per-sample finish-HP array', () => {
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 1);
+    expect(r.aFinalHp).toHaveLength(30);
+    expect(r.bFinalHp).toHaveLength(30);
+    expect(r.aFinalHp.every((h) => typeof h === 'number')).toBe(true);
+    expect(r.bFinalHp.every((h) => typeof h === 'number')).toBe(true);
+  });
+
   it('returns bashin gap + first-place + stamina rates for A vs B', () => {
     const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 7);
     expect(r.nsamples).toBe(30);
