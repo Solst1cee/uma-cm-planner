@@ -151,13 +151,16 @@ export function CmPlannerPage() {
   };
 
   // The race title/name: CM plans show "CM<n>[ — Name]"; custom shows the course.
+  // titleCmRef follows the focused build (same as the track selection) so the card
+  // header stays consistent with what's drawn on the track.
   const cmRef = plan.cmRef;
-  const cmOption = cmRef.kind === 'cm' ? options.find((o) => o.cmNumber === cmRef.cmNumber) : undefined;
+  const titleCmRef = trackCmRef ?? plan.cmRef;
+  const cmOption = titleCmRef.kind === 'cm' ? options.find((o) => o.cmNumber === titleCmRef.cmNumber) : undefined;
   const trackTitle =
-    cmRef.kind === 'cm'
+    titleCmRef.kind === 'cm'
       ? cmOption
         ? `CM${cmOption.cmNumber} — ${cmOption.name}`
-        : `CM${cmRef.cmNumber}`
+        : `CM${titleCmRef.cmNumber}`
       : formatCourseLabel(selection);
   const raceNameLabel = cmRef.kind === 'cm' ? undefined : formatCourseLabel(selection);
   const planWithFallbackName = (next: CmPlan): CmPlan => {

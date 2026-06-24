@@ -731,4 +731,19 @@ describe('CmPlannerPage', () => {
     await screen.findByText(/Plan Inventory/i);
     expect(screen.queryByLabelText('Race simulation')).toBeNull();
   });
+
+  it('track card title follows uma2 race when focused=uma2 with a different CM', async () => {
+    // Seed: uma2 has CM16 (Leo Cup) — different from uma1's CM15 (Cancer Cup).
+    h.focused = 'uma2';
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    // Wait for the page to load (conditions readout appears once track is ready),
+    // then check the track card header directly — scoped so the CM dropdown option
+    // with matching text ("CM16 — Leo Cup") doesn't cause a false negative.
+    await waitFor(() =>
+      expect(document.querySelector('.cmp-track-head')?.textContent).toBe('CM16 — Leo Cup'),
+    );
+    // uma1's title must NOT appear in the track header.
+    expect(document.querySelector('.cmp-track-head')?.textContent).not.toBe('CM15 — Cancer Cup');
+  });
 });
