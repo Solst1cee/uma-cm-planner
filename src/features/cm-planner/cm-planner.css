@@ -2201,26 +2201,30 @@ main:has(.cmp-page) {
   gap: 0.75rem;
 }
 
+/* Controls share the results' right-aligned value column: label | input, max-width 24rem.
+   Each label is display:contents so its text + input become grid cells. */
 .cmp-stamina-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  max-width: 24rem;
+  font-size: 0.8rem;
 }
 
-.cmp-stamina-controls label.small {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--fg);
-  font-size: 0.8rem;
-  white-space: nowrap;
+.cmp-sr-ctl {
+  display: contents;
+}
+
+.cmp-sr-input {
+  justify-self: end;
 }
 
 /* Divider between the input controls and the result area. */
 .cmp-stamina-sep {
   border: none;
   border-top: 1px solid var(--border);
+  max-width: 24rem;
   width: 100%;
   margin: 0.2rem 0;
 }
@@ -2250,9 +2254,19 @@ main:has(.cmp-page) {
 .cmp-sr-label {
   color: var(--fg);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .cmp-sr-indent {
+  padding-left: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* Indented sub-line (e.g. remaining-HP min/median/max) under a result row. */
+.cmp-sr-subline {
+  grid-column: 1 / -1;
   padding-left: 0.9rem;
   color: var(--fg-muted);
 }
@@ -2341,6 +2355,3 @@ main:has(.cmp-page) {
   font-weight: 600;
 }
 
-.cmp-stamina-hist-stats {
-  margin: 3px 0 0;
-}

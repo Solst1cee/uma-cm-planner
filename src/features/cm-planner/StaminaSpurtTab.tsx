@@ -117,9 +117,6 @@ function FinalHpHistogram({ finalHp }: { finalHp: number[] }) {
           Finish HP
         </text>
       </svg>
-      <p className="muted small cmp-stamina-hist-stats">
-        min {Math.round(stats.min)} · median {Math.round(stats.median)} · max {Math.round(stats.max)}
-      </p>
     </figure>
   );
 }
@@ -297,42 +294,51 @@ export function StaminaSpurtTab({
       {open && (
         <div className="cmp-stamina-tab">
           <div className="cmp-stamina-controls">
-            <label className="small">
-              Target spurt&nbsp;
-              <input
-                type="number"
-                min={0}
-                max={100}
-                step={1}
-                value={threshold}
-                onChange={(e) => e.target.value !== '' && setThreshold(Number(e.target.value))}
-                aria-label="Target spurt rate (%)"
-              />
-              %
+            <label className="cmp-sr-ctl small">
+              <span className="cmp-sr-label">Target spurt (%)</span>
+              <span className="cmp-sr-input">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={threshold}
+                  onChange={(e) => e.target.value !== '' && setThreshold(Number(e.target.value))}
+                  aria-label="Target spurt rate (%)"
+                />
+              </span>
             </label>
-            <label className="small">
-              <GameIcon kind="skill" id={STAMINA_DEBUFF_ICON.white} size={18} alt="" className="cmp-debuff-icon" />
-              white debuffs{' '}
-              <input
-                type="number"
-                min={0}
-                step={1}
-                value={whiteDebuffs}
-                onChange={(e) => setWhiteDebuffs(Number(e.target.value) || 0)}
-                aria-label="Expected white stamina debuffs"
-              />
+            <label className="cmp-sr-ctl small">
+              <span className="cmp-sr-label">
+                <GameIcon kind="skill" id={STAMINA_DEBUFF_ICON.white} size={18} alt="" className="cmp-debuff-icon" />
+                white debuffs
+              </span>
+              <span className="cmp-sr-input">
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={whiteDebuffs}
+                  onChange={(e) => setWhiteDebuffs(Number(e.target.value) || 0)}
+                  aria-label="Expected white stamina debuffs"
+                />
+              </span>
             </label>
-            <label className="small">
-              <GameIcon kind="skill" id={STAMINA_DEBUFF_ICON.gold} size={18} alt="" className="cmp-debuff-icon" />
-              gold debuffs{' '}
-              <input
-                type="number"
-                min={0}
-                step={1}
-                value={goldDebuffs}
-                onChange={(e) => setGoldDebuffs(Number(e.target.value) || 0)}
-                aria-label="Expected gold stamina debuffs"
-              />
+            <label className="cmp-sr-ctl small">
+              <span className="cmp-sr-label">
+                <GameIcon kind="skill" id={STAMINA_DEBUFF_ICON.gold} size={18} alt="" className="cmp-debuff-icon" />
+                gold debuffs
+              </span>
+              <span className="cmp-sr-input">
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={goldDebuffs}
+                  onChange={(e) => setGoldDebuffs(Number(e.target.value) || 0)}
+                  aria-label="Expected gold stamina debuffs"
+                />
+              </span>
             </label>
           </div>
 
@@ -349,6 +355,7 @@ export function StaminaSpurtTab({
                   result.hasDebuffs && result.baseDb.reachable && result.baseNo.reachable
                     ? result.baseDb.sta - result.baseNo.sta
                     : 0;
+                const hp = result.finalHp.length > 0 ? hpStats(result.finalHp) : null;
                 return (
                   <div className="cmp-stamina-results">
                     <span className="cmp-sr-label">Spurt rate</span>
@@ -362,6 +369,13 @@ export function StaminaSpurtTab({
                     <span className="cmp-sr-label">Stamina needed for {result.threshold}% (Mean)</span>
                     <span className="cmp-sr-delta" />
                     <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+
+                    {hp && (
+                      <span className="cmp-sr-subline small">
+                        remaining HP — min {Math.round(hp.min)} · median {Math.round(hp.median)} · max{' '}
+                        {Math.round(hp.max)}
+                      </span>
+                    )}
 
                     <span className="cmp-sr-sub small">Breakdown</span>
 
