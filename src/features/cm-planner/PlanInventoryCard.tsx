@@ -125,6 +125,28 @@ const CloseIcon = () => <IconSvg><path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4
 const UploadIcon = () => <IconSvg><path d="M9 13h2V6.8l2.6 2.6L15 8l-5-5-5 5 1.4 1.4L9 6.8V13Z" /><path d="M3 12h2v3h10v-3h2v5H3v-5Z" /></IconSvg>;
 const DownloadIcon = () => <IconSvg><path d="M9 3h2v6.2l2.6-2.6L15 8l-5 5-5-5 1.4-1.4L9 9.2V3Z" /><path d="M3 12h2v3h10v-3h2v5H3v-5Z" /></IconSvg>;
 const TrashIcon = () => <IconSvg><path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" /><path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" /></IconSvg>;
+const BackpackIcon = () => (
+  <svg
+    className="cmp-backpack-ico"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.7}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9.5 6V5a2.5 2.5 0 0 1 5 0v1" />
+    <path d="M6.5 8.5C6.5 6.57 8.07 5 10 5h4c1.93 0 3.5 1.57 3.5 3.5V19a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V8.5Z" />
+    <path d="M6.5 14H5.5A1.5 1.5 0 0 0 4 15.5v1A1.5 1.5 0 0 0 5.5 18h1" />
+    <path d="M17.5 14h1A1.5 1.5 0 0 1 20 15.5v1A1.5 1.5 0 0 1 18.5 18h-1" />
+    <path d="M6.5 11h11" />
+    <path d="M10 9v2.5M14 9v2.5" />
+    <path d="M9 15h6v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 18z" />
+  </svg>
+);
+const EditIcon = () => <IconSvg><path d="M13.4 3.3 16.7 6.6 7.3 16H4v-3.3l9.4-9.4Z" /></IconSvg>;
 
 /** The "Confirm delete all items?" check/✕ pair — header (delete-all) and per group (delete-group). */
 function ConfirmDeleteToolbar({ confirmLabel, cancelLabel, onConfirm, onCancel }: {
@@ -148,23 +170,29 @@ export function PlanInventoryCard({
   autoApplyTrack,
   plans,
   collapsed,
+  focused = 'uma1',
+  uma1PlanId,
+  uma2PlanId,
   onAutoApplyTrackChange,
   onCollapsedChange,
   onDeletePlan,
   onDeleteAllPlans,
   onImportPlans,
-  onSelectPlan,
+  onLoadPlanIntoSlot,
 }: {
   activePlan: CmPlan;
   autoApplyTrack: boolean;
   plans: CmPlan[];
   collapsed?: boolean;
+  focused?: 'uma1' | 'uma2';
+  uma1PlanId?: string;
+  uma2PlanId?: string;
   onAutoApplyTrackChange: (enabled: boolean) => void;
   onCollapsedChange?: (v: boolean) => void;
   onDeletePlan: (id: string) => Promise<void>;
   onDeleteAllPlans: () => Promise<void>;
   onImportPlans: (plans: CmPlan[]) => Promise<number>;
-  onSelectPlan: (id: string) => Promise<void>;
+  onLoadPlanIntoSlot: (id: string, slot: 'uma1' | 'uma2') => void | Promise<void>;
 }) {
   const [courseById, setCourseById] = useState<Map<string, CourseCatalogEntry>>(new Map());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -178,6 +206,16 @@ export function PlanInventoryCard({
 
   useDismissOnOutside(toolbarRef, deleteAllConfirm, () => setDeleteAllConfirm(false));
   useDismissOnOutside(groupDeleteToolbarRef, deleteGroupConfirm !== null, () => setDeleteGroupConfirm(null));
+
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => {
+    if (!editMode) return;
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as HTMLElement).closest('[data-edit-stay]')) setEditMode(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [editMode]);
 
   // The course catalog is static — load it once for the group labels.
   useEffect(() => {
@@ -215,9 +253,9 @@ export function PlanInventoryCard({
     });
   };
 
-  const handleSelectPlan = async (id: string) => {
+  const handleLoadSlot = async (id: string, slot: 'uma1' | 'uma2') => {
     try {
-      await onSelectPlan(id);
+      await onLoadPlanIntoSlot(id, slot);
     } catch {
       setLoadState('error');
     }
@@ -278,8 +316,7 @@ export function PlanInventoryCard({
           aria-label="Expand inventory"
           onClick={() => onCollapsedChange?.(false)}
         >
-          <span className="cmp-sliver-glyph">▤</span>
-          <span className="cmp-sliver-count">{plans.length}</span>
+          <span className="cmp-sliver-glyph cmp-sliver-backpack"><BackpackIcon /></span>
         </button>
       </aside>
     );
@@ -352,6 +389,17 @@ export function PlanInventoryCard({
               }}
             />
           </div>
+          <button
+            type="button"
+            data-edit-stay
+            className={`cmp-inventory-icon-btn cmp-inventory-edit-btn ${editMode ? 'is-on' : ''}`.trim()}
+            aria-label="Edit inventory"
+            aria-pressed={editMode}
+            title="Edit"
+            onClick={() => setEditMode((v) => !v)}
+          >
+            <EditIcon />
+          </button>
           {onCollapsedChange && (
             <button
               type="button"
@@ -360,7 +408,7 @@ export function PlanInventoryCard({
               title="Collapse"
               onClick={() => onCollapsedChange(true)}
             >
-              <span className="cmp-sliver-glyph">▤</span>
+              <BackpackIcon />
             </button>
           )}
         </header>
@@ -397,8 +445,9 @@ export function PlanInventoryCard({
                   <div
                     ref={deleteGroupConfirm === group.key ? groupDeleteToolbarRef : undefined}
                     className="cmp-inventory-group-actions"
+                    data-edit-stay
                   >
-                    {deleteGroupConfirm === group.key ? (
+                    {editMode && (deleteGroupConfirm === group.key ? (
                       <ConfirmDeleteToolbar
                         confirmLabel={`Confirm delete all plans in ${group.label}`}
                         cancelLabel={`Cancel delete all plans in ${group.label}`}
@@ -432,7 +481,7 @@ export function PlanInventoryCard({
                           <span>Delete all</span>
                         </button>
                       </>
-                    )}
+                    ))}
                   </div>
                   <button
                     type="button"
@@ -449,12 +498,12 @@ export function PlanInventoryCard({
                     {group.plans.map((plan) => (
                       <article
                         key={plan.id}
-                        className={`cmp-inventory-row ${plan.id === activePlan.id ? 'is-active' : ''}`.trim()}
+                        className={`cmp-inventory-row ${plan.id === uma1PlanId ? 'is-uma1' : ''} ${plan.id === uma2PlanId ? 'is-uma2' : ''}`.trim()}
                       >
                         <button
                           type="button"
                           className="cmp-inventory-select"
-                          onClick={() => void handleSelectPlan(plan.id)}
+                          onClick={() => void handleLoadSlot(plan.id, focused)}
                         >
                           {plan.umaId ? (
                             <GameIcon kind="uma" id={plan.umaId} size={34} alt="" />
@@ -467,24 +516,50 @@ export function PlanInventoryCard({
                             <span>{aptitudeLine(plan)}</span>
                           </div>
                         </button>
-                        <button
-                          type="button"
-                          className="cmp-inventory-icon-btn"
-                          aria-label={`Download ${plan.name}`}
-                          title="Download plan JSON"
-                          onClick={() => downloadPlan(plan)}
-                        >
-                          <DownloadIcon />
-                        </button>
-                        <button
-                          type="button"
-                          className="cmp-inventory-icon-btn"
-                          aria-label="Delete plan"
-                          title="Delete plan"
-                          onClick={() => void handleDeletePlan(plan.id)}
-                        >
-                          <TrashIcon />
-                        </button>
+                        {!editMode && (
+                          <span className="cmp-slot-badges" aria-hidden={false}>
+                            <button
+                              type="button"
+                              className="cmp-slot-badge is-uma1"
+                              aria-label={`Load ${plan.name} as uma1`}
+                              title="Load as uma1"
+                              onClick={(e) => { e.stopPropagation(); void handleLoadSlot(plan.id, 'uma1'); }}
+                            >
+                              1
+                            </button>
+                            <button
+                              type="button"
+                              className="cmp-slot-badge is-uma2"
+                              aria-label={`Load ${plan.name} as uma2`}
+                              title="Load as uma2"
+                              onClick={(e) => { e.stopPropagation(); void handleLoadSlot(plan.id, 'uma2'); }}
+                            >
+                              2
+                            </button>
+                          </span>
+                        )}
+                        {editMode && (
+                          <span className="cmp-inventory-row-actions" data-edit-stay>
+                            <button
+                              type="button"
+                              className="cmp-inventory-icon-btn"
+                              aria-label={`Download ${plan.name}`}
+                              title="Download plan JSON"
+                              onClick={() => downloadPlan(plan)}
+                            >
+                              <DownloadIcon />
+                            </button>
+                            <button
+                              type="button"
+                              className="cmp-inventory-icon-btn"
+                              aria-label="Delete plan"
+                              title="Delete plan"
+                              onClick={() => void handleDeletePlan(plan.id)}
+                            >
+                              <TrashIcon />
+                            </button>
+                          </span>
+                        )}
                       </article>
                     ))}
                   </div>

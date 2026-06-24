@@ -221,12 +221,42 @@ describe('PlannerSidebar flip card', () => {
   it('duplicate uma1 -> uma2 calls handler from the empty uma2 face', () => {
     const onDup = vi.fn();
     render(<PlannerSidebar {...sidebarProps} focused="uma2" uma2Empty onDuplicateUma1ToUma2={onDup} onReplicateUma2ToUma1={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /duplicate uma1/i }));
+    fireEvent.click(screen.getByRole('button', { name: /⇋\s*Duplicate Uma 1/i }));
     expect(onDup).toHaveBeenCalled();
   });
 
   it('replicate uma2 -> uma1 is disabled when uma2 is empty', () => {
     render(<PlannerSidebar {...sidebarProps} focused="uma1" uma2Empty onReplicateUma2ToUma1={vi.fn()} onDuplicateUma1ToUma2={vi.fn()} />);
     expect(screen.getByRole('button', { name: /replicate uma2/i })).toBeDisabled();
+  });
+});
+
+describe('PlannerSidebar action row + mismatch', () => {
+  it('blank uma2 face uses the ⇋ Duplicate Uma 1 label', () => {
+    render(<PlannerSidebar {...sidebarProps} focused="uma2" uma2Empty onDuplicateUma1ToUma2={vi.fn()} onReplicateUma2ToUma1={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /⇋\s*Duplicate Uma 1/i })).toBeInTheDocument();
+  });
+
+  it('focused uma1: action row shows Replicate uma2 + enabled Save/Save as/New', () => {
+    render(<PlannerSidebar {...sidebarProps} focused="uma1" uma2Empty={false} onDuplicateUma1ToUma2={vi.fn()} onReplicateUma2ToUma1={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Replicate uma2/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save as' })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: /Replicate uma1/i })).toBeNull();
+  });
+
+  it('focused uma2: action row shows Replicate uma1 + enabled Save/Save as/New', () => {
+    render(<PlannerSidebar {...sidebarProps} focused="uma2" uma2Empty={false} onDuplicateUma1ToUma2={vi.fn()} onReplicateUma2ToUma1={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Replicate uma1/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save as' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'New' })).toBeEnabled();
+  });
+
+  it('renders the track-mismatch chip only when a label is provided', () => {
+    const { rerender } = render(<PlannerSidebar {...sidebarProps} focused="uma1" uma2Empty={false} />);
+    expect(screen.queryByText(/Different track/i)).toBeNull();
+    rerender(<PlannerSidebar {...sidebarProps} focused="uma1" uma2Empty={false} trackMismatchLabel="⚠ Different track from uma2" />);
+    expect(screen.getByText(/Different track from uma2/i)).toBeInTheDocument();
   });
 });

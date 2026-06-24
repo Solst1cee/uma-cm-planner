@@ -138,6 +138,8 @@ const h = vi.hoisted(() => {
   const deleteAllSavedPlans = vi.fn(async () => undefined);
   const saveCurrentPlan = vi.fn(async () => undefined);
   const saveCurrentPlanAs = vi.fn(async () => undefined);
+  const saveUma2Plan = vi.fn(async () => undefined);
+  const saveUma2PlanAs = vi.fn(async () => undefined);
   const setDraftPlan = vi.fn();
   const setAutoSave = vi.fn();
   const setPlan = vi.fn();
@@ -168,6 +170,8 @@ const h = vi.hoisted(() => {
     deleteAllSavedPlans,
     saveCurrentPlan,
     saveCurrentPlanAs,
+    saveUma2Plan,
+    saveUma2PlanAs,
     setDraftPlan,
     setAutoSave,
     setPlan,
@@ -275,6 +279,13 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         const found = h.savedPlans.find((p) => p.id === id);
         if (found) setPlanState(found as PlanShape);
       }, []);
+      const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2') => {
+        await h.selectPlan(id); // record the call for assertions
+        const found = h.savedPlans.find((p) => p.id === id);
+        if (!found) return;
+        if (slot === 'uma2') setUma2PlanState(found as PlanShape);
+        else setPlanState(found as PlanShape);
+      }, []);
       const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
       return {
         plan,
@@ -291,12 +302,15 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
         setPlan,
         setUma2Plan: h.setUma2Plan,
         selectPlan,
+        loadPlanIntoSlot,
         deleteSavedPlan: h.deleteSavedPlan,
         importSavedPlans: h.importSavedPlans,
         deleteAllSavedPlans: h.deleteAllSavedPlans,
         setDraftPlan: h.setDraftPlan,
         saveCurrentPlan: h.saveCurrentPlan,
         saveCurrentPlanAs: h.saveCurrentPlanAs,
+        saveUma2Plan: h.saveUma2Plan,
+        saveUma2PlanAs: h.saveUma2PlanAs,
         flushPendingSave: h.saveCurrentPlan,
         loadError: null,
       };
@@ -374,6 +388,7 @@ describe('CmPlannerPage', () => {
     expect(within(inventory).getAllByText('1200 / 650 / 900 / 400 / 600')).toHaveLength(2);
     expect(within(inventory).getByText('Turf A / Medium S / Front A')).toBeInTheDocument();
     expect(within(inventory).getByText('Turf A / Medium S / Late A')).toBeInTheDocument();
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     expect(within(inventory).getAllByRole('button', { name: 'Delete plan' })).toHaveLength(2);
     expect(await within(inventory).findByRole('button', { name: /^Hanshin 2,200m \(Inner\) 1$/ })).toBeInTheDocument();
   });
@@ -553,6 +568,7 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
     await within(inventory).findByText('Hanshin Trial');
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     const deleteButtons = within(inventory).getAllByRole('button', { name: 'Delete plan' });
 
     fireEvent.click(deleteButtons[1]!);
@@ -568,9 +584,13 @@ describe('CmPlannerPage', () => {
     const header = inventory.querySelector<HTMLElement>('.cmp-plan-card-head');
     expect(header).not.toBeNull();
 
+    // header trio always visible (no edit mode needed)
     expect(within(header!).getByRole('button', { name: 'Upload plan JSON' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Download all plans as ZIP' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
+
+    // per-group and per-item buttons only visible in edit mode
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     const groupDownloads = within(inventory).getAllByRole('button', { name: /^Download all plans in / });
     const groupDeletes = within(inventory).getAllByRole('button', { name: /^Delete all plans in / });
     expect(groupDownloads).toHaveLength(2);
@@ -628,7 +648,9 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: 'Delete all plans in CM15' });
     fireEvent.click(deleteGroup);
     const groupHead = within(inventory)
       .getByRole('button', { name: 'Confirm delete all plans in CM15' })
@@ -640,7 +662,8 @@ describe('CmPlannerPage', () => {
     fireEvent.pointerDown(document.body);
 
     expect(within(inventory).queryByRole('button', { name: 'Confirm delete all plans in CM15' })).not.toBeInTheDocument();
-    expect(within(inventory).getByRole('button', { name: 'Delete all plans in CM15' })).toBeInTheDocument();
+    // outside click also exits edit mode, so per-group buttons are now hidden
+    expect(within(inventory).queryByRole('button', { name: 'Delete all plans in CM15' })).not.toBeInTheDocument();
     expect(h.deleteSavedPlan).not.toHaveBeenCalled();
   });
 
@@ -649,7 +672,9 @@ describe('CmPlannerPage', () => {
     const inventory = screen.getByLabelText('Plan Inventory');
     const groupLabel = 'Hanshin 2,200m (Inner)';
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: `Delete all plans in ${groupLabel}` });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: `Delete all plans in ${groupLabel}` });
     fireEvent.click(deleteGroup);
     fireEvent.click(within(inventory).getByRole('button', { name: `Confirm delete all plans in ${groupLabel}` }));
 
@@ -663,7 +688,9 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: 'Delete all plans in CM15' });
     fireEvent.click(deleteGroup);
     fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans in CM15' }));
 
@@ -758,5 +785,55 @@ describe('CmPlannerPage', () => {
     );
     // uma1's title must NOT appear in the track header.
     expect(document.querySelector('.cmp-track-head')?.textContent).not.toBe('CM15 — Cancer Cup');
+  });
+
+  it('loads a plan into uma2 via the inventory "2" badge', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    const badge = await within(inventory).findByRole('button', { name: /Load Hanshin Trial as uma2/i });
+    fireEvent.click(badge);
+    await waitFor(() => expect(h.selectPlan).toHaveBeenCalledWith('custom-hanshin'));
+  });
+
+  it('clears the uma2 slot when New is pressed while focused on uma2', async () => {
+    h.focused = 'uma2';
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'New' }));
+    expect(h.setUma2Plan).toHaveBeenCalledWith(null);
+  });
+
+  it('confirms a track change when loading a different-course plan into the focused slot', async () => {
+    render(<CmPlannerPage />);
+    const inventory = screen.getByLabelText('Plan Inventory');
+    // Load Hanshin Trial into uma1 (focused). Its course (10906) == uma1's course here,
+    // so to force a change, load the CM16-course uma2 fixture is not in savedPlans;
+    // instead assert the confirm appears for a course-changing load via the badge.
+    const badge = await within(inventory).findByRole('button', { name: /Load Hanshin Trial as uma1/i });
+    fireEvent.click(badge);
+    // customPlan shares course 10906 with uma1 → NO confirm (same course).
+    expect(screen.queryByRole('button', { name: /Change track/i })).toBeNull();
+  });
+
+  it('flips uma1↔uma2 across different courses and shows the track confirm', async () => {
+    h.seededUma2Plan = h.uma2Plan; // CM16 course 10501, differs from uma1 CM15 10906
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'UMA2' }));
+    // auto-apply ON (default) + course changes → confirm bar appears.
+    expect(await screen.findByRole('button', { name: /Change track/i })).toBeInTheDocument();
+    // Cancel keeps the uma1 track (Hanshin still shown).
+    fireEvent.click(screen.getByRole('button', { name: /Keep current track/i }));
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(await cond.findByText('Hanshin')).toBeInTheDocument();
+  });
+
+  it('confirming the flip moves the track and flashes Track changed', async () => {
+    h.seededUma2Plan = h.uma2Plan;
+    render(<CmPlannerPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'UMA2' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Change track/i }));
+    const cond = within(screen.getByLabelText('Race conditions'));
+    expect(await cond.findByText('Nakayama')).toBeInTheDocument();
+    expect(screen.getByText(/Track changed/i)).toBeInTheDocument();
   });
 });

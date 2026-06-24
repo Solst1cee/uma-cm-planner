@@ -21,6 +21,7 @@ import {
   wishlistSkillRecord,
 } from '@/features/skill-planner/skillFamilies';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
+import { StatInput } from './StatInputField';
 import {
   loadUniqueSkillByUmaId,
   skillRecordToSummary,
@@ -143,6 +144,7 @@ export function PlannerSidebar({
   uma2Empty = false,
   onDuplicateUma1ToUma2,
   onReplicateUma2ToUma1,
+  trackMismatchLabel,
 }: {
   plan: CmPlan;
   autoSave: boolean;
@@ -159,6 +161,7 @@ export function PlannerSidebar({
   uma2Empty?: boolean;
   onDuplicateUma1ToUma2?: () => void;
   onReplicateUma2ToUma1?: () => void;
+  trackMismatchLabel?: string;
 }) {
   const { skillById, umas, umaById } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
@@ -391,13 +394,18 @@ export function PlannerSidebar({
             <p>No uma2 yet.</p>
             {onDuplicateUma1ToUma2 && (
               <button type="button" onClick={onDuplicateUma1ToUma2}>
-                ⤓ Duplicate uma1 →
+                ⇋ Duplicate Uma 1
               </button>
             )}
             <p className="muted small">Or load a plan from the inventory.</p>
           </div>
         ) : (
         <div className="cmp-plan-card-body">
+          {trackMismatchLabel && (
+            <div className="cmp-track-mismatch-row">
+              <span className="cmp-track-mismatch-chip">{trackMismatchLabel}</span>
+            </div>
+          )}
           <div className="cmp-name-row">
             <label className={`cmp-name-field ${autoGenerateName ? 'is-auto' : ''}`.trim()}>
               <span className="visually-hidden">Plan name</span>
@@ -435,24 +443,7 @@ export function PlannerSidebar({
               rows={1}
             />
           </label>
-          <div className="cmp-copy-row">
-            {focused === 'uma2' && onDuplicateUma1ToUma2 && (
-              <button type="button" className="cmp-copy-btn" onClick={onDuplicateUma1ToUma2}>
-                ⤓ Duplicate uma1 → uma2
-              </button>
-            )}
-            {focused === 'uma1' && onReplicateUma2ToUma1 && (
-              <button
-                type="button"
-                className="cmp-copy-btn"
-                disabled={uma2Empty}
-                onClick={onReplicateUma2ToUma1}
-              >
-                ⤓ Replicate uma2 → uma1
-              </button>
-            )}
-          </div>
-          <div className="cmp-save-row">
+<div className="cmp-save-row">
             <span
               className={`cmp-save-status ${isSaved ? 'is-saved' : 'is-unsaved'}`}
               aria-live="polite"
@@ -476,6 +467,16 @@ export function PlannerSidebar({
               />
             </label>
             <div className="cmp-action-seg">
+              {focused === 'uma1' && onReplicateUma2ToUma1 && (
+                <button type="button" disabled={uma2Empty} onClick={onReplicateUma2ToUma1}>
+                  Replicate uma2
+                </button>
+              )}
+              {focused === 'uma2' && onDuplicateUma1ToUma2 && (
+                <button type="button" onClick={onDuplicateUma1ToUma2}>
+                  Replicate uma1
+                </button>
+              )}
               <button type="button" onClick={() => void handleSave()}>
                 Save
               </button>
@@ -616,12 +617,10 @@ export function PlannerSidebar({
                     <span>{label}</span>
                   </span>
                   <span className="cmp-stat-value-row">
-                    <input
-                      type="number"
-                      min={0}
-                      aria-label={shortLabel}
+                    <StatInput
                       value={plan.statProfile.stats[key]}
-                      onChange={(e) => onChange(setStat(plan, key, Number(e.target.value)))}
+                      label={shortLabel}
+                      onValueChange={(n) => onChange(setStat(plan, key, n))}
                     />
                   </span>
                   <span className="cmp-stat-growth">{statGrowthLabel(currentUma?.statGrowth?.[key])}</span>
