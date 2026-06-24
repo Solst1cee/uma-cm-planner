@@ -224,7 +224,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
             {done >= total ? 'Done' : `${done}/${total} umas ran`}
           </span>
         )}
-        {isStale && status !== 'running' && <span className="cmp-stale small">Changed detected!, please re-run</span>}
+        {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 

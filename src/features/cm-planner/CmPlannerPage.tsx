@@ -309,6 +309,7 @@ export function CmPlannerPage() {
                 label: 'Unique',
                 node: (
                   <UmaChartPanel
+                    key={selection.courseId}
                     courseId={selection.courseId}
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
@@ -321,18 +322,19 @@ export function CmPlannerPage() {
               {
                 key: 'stamina',
                 label: 'Stamina',
-                node: <StaminaCheckerTab plan={focusedPlan ?? plan} />,
+                node: <StaminaCheckerTab key={selection.courseId} plan={focusedPlan ?? plan} />,
               },
               {
                 key: 'accel',
                 label: 'Accel',
-                node: <AccelCheckerTab plan={focusedPlan ?? plan} />,
+                node: <AccelCheckerTab key={selection.courseId} plan={focusedPlan ?? plan} />,
               },
               {
                 key: 'skills',
                 label: 'Skills',
                 node: (
                   <SkillChartPanel
+                    key={selection.courseId}
                     courseId={selection.courseId}
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}

@@ -219,7 +219,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
             {done >= total ? 'Done' : `${done}/${total} skills ran`}
           </span>
         )}
-        {isStale && status !== 'running' && <span className="cmp-stale small">Changed detected!, please re-run</span>}
+        {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
