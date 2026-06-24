@@ -1,10 +1,9 @@
 /** Shared state for the race-sim comparison: the overlay renders on the track (in the main
- *  column) while its controls live in the right sidebar — separate grid columns, so the state
- *  is lifted here and handed to both. uma1 = the active plan; uma2 = a chosen saved plan. */
+ *  column) while its controls live in the Mini-sim tab — separate grid columns, so the state
+ *  is lifted here and handed to both. uma1 = the active plan; uma2 = the uma2 plan slot. */
 import { useState } from 'react';
 import type { CmPlan } from '@/core/types';
 import { planToOverlayBuild } from '@/core/simBuild';
-import { resolveUma2, type Uma2Source } from './resolveUma2';
 import { useRaceCompare, type RaceCompareCtx, type RaceCompareState } from './useRaceCompare';
 
 export interface RaceCompareControllerDeps {
@@ -12,35 +11,31 @@ export interface RaceCompareControllerDeps {
 }
 
 export interface RaceCompareController {
-  uma2Id: string;
-  setUma2Id: (id: string) => void;
   showHp: boolean;
   setShowHp: (v: boolean) => void;
-  /** Saved plans eligible as uma2 (the active plan excluded). */
-  others: CmPlan[];
   state: RaceCompareState;
-  /** True once a uma2 is picked (a comparison is active). */
+  /** True once uma1 is present and uma2Plan is non-null (a comparison is active). */
   comparing: boolean;
+  /** True when uma2Plan is null (the slot is empty). */
+  uma2Empty: boolean;
 }
 
 export function useRaceCompareController(
-  plan: CmPlan | null,
-  savedPlans: CmPlan[],
+  uma1Plan: CmPlan | null,
+  uma2Plan: CmPlan | null,
   courseId: string,
   deps?: RaceCompareControllerDeps,
 ): RaceCompareController {
   const [showHp, setShowHp] = useState(true);
-  const [uma2Id, setUma2Id] = useState('');
 
-  // Called before the page's loading guards, so `plan` may be null on the first render.
-  const others = plan ? savedPlans.filter((p) => p.id !== plan.id) : [];
-  const source: Uma2Source | null = uma2Id ? { kind: 'savedPlan', planId: uma2Id } : null;
-  const uma2 = source && plan ? resolveUma2(source, plan, savedPlans) : null;
-  const ctx: RaceCompareCtx | undefined = uma2 && plan
-    ? { uma1: planToOverlayBuild(plan), uma2, race: { courseId } }
-    : undefined;
+  // Called before the page's loading guards, so `uma1Plan` may be null on the first render.
+  const uma2 = uma2Plan ? planToOverlayBuild(uma2Plan) : null;
+  const ctx: RaceCompareCtx | undefined =
+    uma1Plan && uma2
+      ? { uma1: planToOverlayBuild(uma1Plan), uma2, race: { courseId } }
+      : undefined;
   const useHook = deps?.useRaceCompare ?? useRaceCompare;
   const state = useHook(ctx, !!ctx);
 
-  return { uma2Id, setUma2Id, showHp, setShowHp, others, state, comparing: !!ctx };
+  return { showHp, setShowHp, state, comparing: !!ctx, uma2Empty: uma2Plan === null };
 }

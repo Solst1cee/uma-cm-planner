@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { BashinStats, SimBuild } from '@/sim';
@@ -128,6 +128,25 @@ describe('UmaChartPanel', () => {
     await userEvent.selectOptions(screen.getByLabelText('Rank by style'), 'front');
     expect(within(rankList()).getAllByRole('listitem')[0]).toHaveTextContent('Shooting Star');
     expect(h.skillDelta.mock.calls.length).toBe(callsAfterRun);
+  });
+
+  it('shows the stale prompt while a run is still in progress', async () => {
+    // a never-resolving skillDelta keeps status === 'running'
+    const pending = new Promise<BashinStats>(() => {});
+    const deps = {
+      skillDelta: () => pending,
+    };
+    const { rerender } = render(
+      <UmaChartPanel courseId="10101" plan={plan} onSelectRunner={() => {}} deps={deps} />,
+    );
+    // wait for Run to be enabled, then click
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: /^Run$/ }));
+    // wait for running state
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Stop ranking' })).toBeInTheDocument());
+    // mutate the sig mid-run by switching course
+    rerender(<UmaChartPanel courseId="10102" plan={plan} onSelectRunner={() => {}} deps={deps} />);
+    expect(await screen.findByText(/Changed detected/)).toBeInTheDocument();
   });
 
   it('keeps only one skill disclosure open at a time (accordion)', async () => {

@@ -111,6 +111,57 @@ export async function loadSkillTechnicalDetail(
   };
 }
 
+const ACCEL_EFFECT_TYPE = 31;
+
+let accelIdsPromise: Promise<Set<string>> | null = null;
+export async function loadAccelSkillIds(): Promise<Set<string>> {
+  if (accelIdsPromise === null) {
+    accelIdsPromise = loadSkillCollection().then((skills) => {
+      const set = new Set<string>();
+      for (const raw of Object.values(skills)) {
+        const hasAccel = (raw.alternatives ?? []).some((a) =>
+          (a.effects ?? []).some((e) => e.type === ACCEL_EFFECT_TYPE),
+        );
+        if (hasAccel) set.add(String(raw.id));
+      }
+      return set;
+    });
+  }
+  return accelIdsPromise;
+}
+
+/** Per accel skill id, the representative acceleration "effect" = the velocity (m/s) the skill
+ *  adds over its activation = acceleration × duration.
+ *
+ *  Engine units (verified against skills.json): a type-31 effect's `modifier` is acceleration in
+ *  1e-4 m/s² (e.g. 2000 → 0.2 m/s²); an alternative's `baseDuration` is in 1e-4 s (50000 → 5.0 s).
+ *  So effect = (modifier / 10000) × (baseDuration / 10000). We take the strongest such product
+ *  across the skill's alternatives. */
+let effectValuesPromise: Promise<Map<string, number>> | null = null;
+export async function loadSkillEffectValues(): Promise<Map<string, number>> {
+  if (effectValuesPromise === null) {
+    effectValuesPromise = loadSkillCollection().then((skills) => {
+      const map = new Map<string, number>();
+      for (const raw of Object.values(skills)) {
+        let best = 0;
+        for (const a of raw.alternatives ?? []) {
+          const durationS = (a.baseDuration ?? 0) / 10000;
+          for (const e of a.effects ?? []) {
+            if (e.type === ACCEL_EFFECT_TYPE) {
+              const accel = (e.modifier ?? e.value ?? 0) / 10000; // m/s²
+              const product = accel * durationS; // m/s gained over the effect
+              if (Math.abs(product) > Math.abs(best)) best = product;
+            }
+          }
+        }
+        if (best !== 0) map.set(String(raw.id), best);
+      }
+      return map;
+    });
+  }
+  return effectValuesPromise;
+}
+
 export async function loadUniqueSkillByUmaId(): Promise<Map<string, SkillSummary>> {
   if (uniqueByUmaPromise === null) {
     uniqueByUmaPromise = loadSkillCollection().then((skills) => {

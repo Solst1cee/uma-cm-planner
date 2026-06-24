@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import type { BashinStats, SimBuild } from '@/sim';
@@ -101,12 +101,11 @@ describe('SkillChartPanel', () => {
     await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
     // the targeted skill was NOT re-simmed
     expect(h.skillDelta.mock.calls.map((c) => c[2])).not.toContain(TARGET_ID);
-    // …but it is shown, badged "in build", with its stamped L
+    // …but it is shown, badged "in build" (in the skill plate), with its stamped L in the L column.
     const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
     const badge = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false);
     expect(badge).toBeInTheDocument();
-    // its stamped L renders alongside the "in build" badge in the L cell
-    expect(badge.parentElement).toHaveTextContent(/\+1\.23/);
+    expect(row.querySelector('.cmp-uma-num')).toHaveTextContent(/\+1\.23/);
   });
 
   it('renders "—" (not a fabricated +0.00) for an in-build row with no projected L yet', async () => {
@@ -118,9 +117,11 @@ describe('SkillChartPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await waitFor(() => expect(screen.getByLabelText('Acquirable skill ranking')).toBeInTheDocument());
     const row = within(screen.getByLabelText('Acquirable skill ranking')).getByText(TARGET_NAME).closest('li')!;
-    const cell = within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false).parentElement!;
-    expect(cell).toHaveTextContent('—');
-    expect(cell).not.toHaveTextContent(/\+0\.00/);
+    // the "in build" plate badge is present, and the L column shows "—" (not a fabricated +0.00)
+    expect(within(row).getByText((_t, el) => el?.classList.contains('cmp-inbuild') ?? false)).toBeInTheDocument();
+    const lCell = row.querySelector('.cmp-uma-num')!;
+    expect(lCell).toHaveTextContent('—');
+    expect(lCell).not.toHaveTextContent(/\+0\.00/);
   });
 
   it('collapses cosmetic tiers within a rarity, keeps white & gold as distinct rows, ranks by L', async () => {
@@ -202,12 +203,12 @@ describe('SkillChartPanel', () => {
     expect(h.skillDelta).not.toHaveBeenCalled();
   });
 
-  it('shows the plan caption before Run and keeps it after Run', async () => {
+  it('explains the chart via the help popup (not an inline caption)', async () => {
     render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
-    const caption = /rank acquirable skills by length on your current uma plan/i;
-    expect(screen.getByText(caption)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
-    await waitFor(() => expect(within(list()).getAllByRole('listitem')).toHaveLength(4));
+    const caption = /rank acquirable/i;
+    // No inline caption — the explanation is behind the "?" help button.
+    expect(screen.queryByText(caption)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /how the skill chart works/i }));
     expect(screen.getByText(caption)).toBeInTheDocument();
   });
 
@@ -283,22 +284,28 @@ describe('SkillChartPanel', () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
       aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+      aFullSpurtRate: 0, bFullSpurtRate: 0, aFinalHp: [], bFinalHp: [],
     }));
     render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     expect(await screen.findByText(/survives only 50% of runs/i)).toBeInTheDocument();
   });
 
-  it('hides the banner when the user lowers the threshold below the survival rate (no re-run)', async () => {
+  it('hides the banner when the shared threshold drops below the survival rate (no re-run)', async () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],
       aFirstPlaceRate: 0, bFirstPlaceRate: 0, aStaminaSurvival: 0.5, bStaminaSurvival: 0.5,
+      aFullSpurtRate: 0, bFullSpurtRate: 0, aFinalHp: [], bFinalHp: [],
     }));
-    render(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta, vacuum }} />);
+    const deps = { skillDelta: h.skillDelta, vacuum };
+    const { rerender } = render(
+      <SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} warnThresholdPct={95} deps={deps} />,
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await screen.findByText(/survives only 50% of runs/i);
     const calls = vacuum.mock.calls.length;
-    fireEvent.change(screen.getByLabelText('Stamina warning threshold (%)'), { target: { value: '40' } });
+    // The Stamina tab's target spurt drops to 40% → survival 50% is no longer "out".
+    rerender(<SkillChartPanel courseId="10906" plan={basePlan} onChange={vi.fn()} warnThresholdPct={40} deps={deps} />);
     expect(screen.queryByText(/survives only 50% of runs/i)).not.toBeInTheDocument();
     expect(vacuum.mock.calls.length).toBe(calls); // pure re-evaluate, no extra probe
   });

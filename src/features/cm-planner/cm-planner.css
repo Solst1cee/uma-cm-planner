@@ -1,3 +1,37 @@
+/* M4 redesign tokens — candidates for the shared design-system.css (roadmap Phase 1)
+   ─────────────────────────────────────────────────────────────────────────────
+   Uma accent colours (set as inline --uma-accent on .cmp-flip-card)
+     --cmp-uma1-accent   blue ring / active-tab fill for UMA1 focus
+     --cmp-uma2-accent   red ring / active-tab fill for UMA2 focus
+
+   Card / panel chrome
+     --cmp-card-radius   corner radius shared by all cmp-plan-card panels
+     --cmp-card-shadow   ambient drop-shadow shared by all cmp-plan-card panels
+     --cmp-head-min-h    minimum header bar height (matches Run-button height)
+
+   Tab strip
+     --cmp-tab-radius    border-radius of individual tab buttons
+     --cmp-tab-gap       gap between tab buttons in the strip
+
+   Inventory sliver
+     --cmp-sliver-width  collapsed-inventory column width
+     --cmp-sliver-radius border-radius of the sliver expand-button
+   ──────────────────────────────────────────────────────────────────────────── */
+:root {
+  --cmp-uma1-accent: #5aa0ff;
+  --cmp-uma2-accent: #e0564f;
+
+  --cmp-card-radius: 12px;
+  --cmp-card-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  --cmp-head-min-h: 2.6rem;
+
+  --cmp-tab-radius: 6px;
+  --cmp-tab-gap: 0.25rem;
+
+  --cmp-sliver-width: 3rem;
+  --cmp-sliver-radius: 12px;
+}
+
 /* M4 planner page — the §0 race-track diagram on top (large), the race-setup
    chooser below. (The old hand-rolled track styles were retired with Slice A;
    the vendored track styles live in features/planner/racetrack/.) */
@@ -383,13 +417,6 @@
   background: #f8fbff;
 }
 
-.cmp-inventory-row.is-active {
-  border-color: #87aef8;
-  background: #eef5ff;
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.9),
-    0 0 0 2px rgb(52 120 246 / 0.14);
-}
 
 .cmp-inventory-select {
   display: grid;
@@ -547,29 +574,90 @@
   margin-left: 0.25rem;
 }
 
+/* ---- Inventory sliver (collapsed mode) ---- */
+.cmp-plan-inventory.cmp-inventory-sliver {
+  width: var(--cmp-sliver-width);
+  min-width: var(--cmp-sliver-width);
+  /* Drop the expanded card's right gutter. NOTE the compound selector: the plain
+     `.cmp-plan-inventory { padding-right: 0.15rem }` rule lives LATER in the file at
+     equal specificity, so it would win and re-add the gutter — this bumps specificity
+     so the collapsed sliver↔sidebar gap equals the grid gap (= the sidebar↔main gap). */
+  padding-right: 0;
+}
+
+.cmp-sliver-btn {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-1);
+  box-shadow: var(--cmp-card-shadow);
+  padding: 0.25rem;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.cmp-sliver-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cmp-sliver-glyph {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.cmp-sliver-count {
+  display: inline-flex;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd9ea;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.cmp-sliver-backpack { width: 2.4rem; height: 2.4rem; }       /* 1.5x — big icon in the square sliver */
+.cmp-sliver-backpack svg { width: 100%; height: 100%; }
+/* Backpack is a stroke (outline) icon — override the fill-based icon-button / sliver svg rules. */
+.cmp-backpack-ico,
+.cmp-inventory-collapse-btn .cmp-backpack-ico,
+.cmp-sliver-backpack .cmp-backpack-ico { fill: none; stroke: currentColor; }
+.cmp-inventory-edit-btn.is-on { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.cmp-inventory-row-actions { display: inline-flex; gap: 0.2rem; }
+
+.cmp-inventory-collapse-btn {
+  flex: 0 0 auto;
+  margin-left: 0.2rem;
+}
+
 /* ---- Planner sidebar ---- */
 main:has(.cmp-page) {
-  /* widened so the main column (track + charts) grows on wide screens while the three
-     27.9rem rails keep their width; the track scales up with the main column. */
+  /* widened so the main column (track + charts) grows on wide screens while the two
+     ~26rem fixed rails (inventory + plan-sidebar) keep their width; the track
+     scales up with the main column. */
   max-width: 176rem;
 }
 
 .cmp-page {
   display: grid;
-  /* inventory · plan sidebar · main · race-sim sidebar (right) */
-  grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr) minmax(372px, 27.9rem);
+  /* inventory · plan sidebar · main */
+  grid-template-columns: minmax(360px, 26rem) minmax(360px, 26rem) minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 }
 
-/* Drop the right race-sim sidebar to full width under the main column when space is tight. */
-@media (max-width: 1500px) {
-  .cmp-page {
-    grid-template-columns: repeat(2, minmax(372px, 27.9rem)) minmax(0, 1fr);
-  }
-  .cmp-right {
-    grid-column: 1 / -1;
-  }
+.cmp-page[data-inv-collapsed='true'] {
+  grid-template-columns: var(--cmp-sliver-width) minmax(360px, 26rem) minmax(0, 1fr);
 }
 
 .cmp-main {
@@ -580,8 +668,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar,
-.cmp-plan-inventory,
-.cmp-right {
+.cmp-plan-inventory {
   position: sticky;
   top: 5.6rem;
   min-width: 0;
@@ -594,9 +681,9 @@ main:has(.cmp-page) {
 .cmp-plan-card {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--cmp-card-radius);
   background: var(--bg-1);
-  box-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  box-shadow: var(--cmp-card-shadow);
 }
 
 .cmp-sidebar .cmp-plan-card-head,
@@ -606,8 +693,7 @@ main:has(.cmp-page) {
 }
 
 .cmp-sidebar > .cmp-plan-card,
-.cmp-plan-inventory > .cmp-plan-card,
-.cmp-right > .cmp-plan-card {
+.cmp-plan-inventory > .cmp-plan-card {
   display: flex;
   max-height: inherit;
   min-height: 0;
@@ -617,7 +703,7 @@ main:has(.cmp-page) {
 .cmp-plan-card-head {
   display: flex;
   align-items: center;
-  min-height: 2.6rem; /* match the chart head's Run-button height so all card heads are equal */
+  min-height: var(--cmp-head-min-h); /* match the chart head's Run-button height so all card heads are equal */
   border-bottom: 1px solid var(--border);
   background: var(--bg-2);
   padding: 0.6rem 0.75rem;
@@ -746,8 +832,8 @@ main:has(.cmp-page) {
 
 .cmp-name-auto-toggle input:checked,
 .cmp-autosave-toggle input:checked {
-  border-color: var(--accent);
-  background: var(--accent);
+  border-color: var(--uma-accent, var(--accent));
+  background: var(--uma-accent, var(--accent));
 }
 
 .cmp-name-auto-toggle input:checked::after,
@@ -757,7 +843,7 @@ main:has(.cmp-page) {
 
 .cmp-name-auto-toggle input:focus-visible,
 .cmp-autosave-toggle input:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--uma-accent, var(--accent));
   outline-offset: 2px;
 }
 
@@ -1201,7 +1287,7 @@ main:has(.cmp-page) {
   background: transparent;
 }
 
-.cmp-stat-field input[type='number'] {
+.cmp-stat-field input {
   min-width: 0;
   width: 5.1ch;
   border: 0;
@@ -1983,3 +2069,457 @@ main:has(.cmp-page) {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Flip-card sidebar (UMA1 / UMA2 focus toggle) ---- */
+.cmp-flip-card {
+  /* Accent ring: inset 2px border using the --uma-accent CSS variable.
+     Falls back to transparent when no focus prop is set. */
+  box-shadow:
+    0 12px 28px rgb(36 54 78 / 0.08),
+    inset 0 0 0 2px var(--uma-accent, transparent);
+  transition: box-shadow 120ms ease;
+}
+
+.cmp-flip-head {
+  gap: 0;
+  padding: 0;
+  justify-content: stretch;
+}
+
+.cmp-flip-seg {
+  display: inline-flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border-radius: 11px 11px 0 0; /* match the card's top border-radius */
+}
+
+.cmp-flip-seg button {
+  flex: 1 1 auto;
+  min-height: 2.6rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-2);
+  padding: 0.4rem 0.75rem;
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.cmp-flip-seg button + button {
+  border-left: 1px solid var(--border);
+}
+
+.cmp-flip-seg button.on {
+  background: var(--uma-accent, var(--accent));
+  color: #fff;
+}
+
+.cmp-flip-seg button:not(.on):hover {
+  background: var(--bg-1);
+  color: var(--fg);
+}
+
+/* Empty-uma2 placeholder face */
+.cmp-uma2-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ---- Working tabs (Unique / Skills / future tabs) ---- */
+.cmp-tabstrip {
+  display: flex;
+  gap: var(--cmp-tab-gap);
+  border-bottom: 1px solid transparent;
+  padding: 0.4rem 0.5rem;
+}
+
+.cmp-tabstrip button {
+  flex: 1 1 0;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: var(--cmp-tab-radius);
+  background: transparent;
+  padding: 0.35rem 0.65rem;
+  color: var(--fg-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.cmp-tabstrip button:hover {
+  background: var(--bg-1);
+  color: var(--fg);
+}
+
+.cmp-tabstrip button.on {
+  background: var(--bg-2);
+  color: var(--fg);
+  font-weight: 700;
+  border-color: var(--border);
+}
+
+/* "Changed — re-run" marker on a tab whose chart is stale. */
+.cmp-tab-warn {
+  margin-left: 0.3rem;
+  color: #e8870c;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.cmp-tab-body {
+  /* The chart panels manage their own internal padding via cmp-plan-card-body */
+}
+
+/* ── Accel chart — grid with 3 extra columns (Effect, Position, Wit) ──────
+   Base grid (skill-chart.css):
+     skill (grows) | L | SP | L/100SP | target
+     minmax(0,1fr)   3.6r  3.2r  4.4r    2.6r
+   Accel override adds:
+     skill | L | SP | L/100SP | Effect | Position | Wit | target
+   ────────────────────────────────────────────────────────────── */
+.cmp-accel-chart .cmp-skill-thead,
+.cmp-accel-chart .cmp-skill-row {
+  grid-template-columns:
+    minmax(0, 1fr) /* skill name */
+    3.4rem         /* L */
+    3.4rem         /* SP */
+    4rem           /* L/100SP */
+    3.4rem         /* Effect */
+    8.5rem         /* Position (wide, centered) */
+    3.4rem         /* Wit */
+    2.4rem;        /* target button */
+}
+
+/* Position + Wit data cells: top-aligned with a first-line min-height that centres the content,
+   so they line up with the number columns whether the skill plate is collapsed OR expanded
+   (mirrors .cmp-uma-num — don't use align-self:center, which floats to the middle when expanded). */
+.cmp-accel-pos-cell,
+.cmp-accel-wit-cell {
+  align-self: start;
+  min-height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  color: var(--fg-muted);
+}
+
+/* ── Stamina Spurt Tab ─────────────────────────────────────────────────── */
+.cmp-stamina-tab {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Controls share the results' right-aligned value column: label | input, max-width 24rem.
+   Each label is display:contents so its text + input become grid cells. */
+.cmp-stamina-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  max-width: 24rem;
+  font-size: 0.8rem;
+}
+
+.cmp-sr-ctl {
+  display: contents;
+}
+
+.cmp-sr-input {
+  justify-self: end;
+}
+
+/* Divider between the input controls and the result area. */
+.cmp-stamina-sep {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 24rem;
+  width: 100%;
+  margin: 0.2rem 0;
+}
+
+.cmp-stamina-controls input[type='number'] {
+  width: 4.5rem;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--fg);
+}
+
+/* Results — one grid so every number aligns in the same column, same style + size.
+   Columns: label | value | delta. */
+.cmp-stamina-results {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.25rem 0.9rem;
+  align-items: baseline;
+  font-size: 0.82rem;
+  max-width: 24rem;
+  margin: 0;
+}
+
+.cmp-sr-label {
+  color: var(--fg);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cmp-sr-indent {
+  padding-left: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* Indented sub-line (e.g. remaining-HP min/median/max/mean) under a result row. */
+.cmp-sr-subline {
+  grid-column: 1 / -1;
+  padding-left: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* HP value coloured by sign: green = HP left, red = ran out. */
+.cmp-hp-pos {
+  color: #2e9657;
+  font-weight: 600;
+}
+
+.cmp-hp-neg {
+  color: var(--error, #c2414b);
+  font-weight: 600;
+}
+
+/* All result numbers: blue accent, same weight + size, right-aligned in their column. */
+.cmp-stamina-num {
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cmp-sr-delta {
+  font-size: 0.72rem;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-sr-save {
+  color: #2e9657;
+}
+
+.cmp-sr-cost {
+  color: var(--error, #c2414b);
+}
+
+.cmp-stamina-breakdown-title {
+  max-width: 24rem;
+  margin: 0.4rem 0 0.2rem;
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+
+/* The breakdown re-uses .cmp-stamina-results' aligned grid, plus a left rule + indent.
+   border-box keeps its value column right edge at 24rem so it lines up with the headline. */
+.cmp-stamina-breakdown-grid {
+  box-sizing: border-box;
+  border-left: 2px solid var(--border);
+  padding-left: 0.85rem;
+}
+
+.cmp-stamina-title {
+  font-weight: 700;
+}
+
+/* Debuff icons render as-is (square) — override the global .game-icon 5px radius. */
+.cmp-stamina-controls .cmp-debuff-icon {
+  flex: none;
+  border-radius: 0;
+}
+
+/* Finish-HP histogram — narrow + tall with labelled axes. */
+.cmp-stamina-hist {
+  margin: 0;
+  max-width: 250px;
+}
+
+.cmp-stamina-hist-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.cmp-stamina-hist-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--bg-2, #eef3f9);
+  border-radius: 4px;
+}
+
+.cmp-hist-bar {
+  fill: var(--accent, #3478f6);
+  opacity: 0.85;
+}
+
+.cmp-hist-bar--out {
+  fill: var(--error, #c2414b);
+}
+
+.cmp-hist-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.cmp-hist-tick {
+  fill: var(--fg-muted);
+  font-size: 8px;
+}
+
+.cmp-hist-axis-label {
+  fill: var(--fg-muted);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* uma2 (red) / uma1 (blue) accent on sidebar input surfaces, not just the card ring.
+   --uma-accent is set inline on .cmp-flip-card (blue uma1 / red uma2).
+   Stat fields are intentionally excluded — they keep their borderless large-font look. */
+.cmp-flip-card .cmp-name-field input,
+.cmp-flip-card .cmp-note-field textarea,
+.cmp-flip-card .field input,
+.cmp-flip-card .cmp-apt-card {
+  background: color-mix(in srgb, var(--uma-accent) 8%, var(--bg-1));
+}
+.cmp-flip-card .cmp-name-field input:focus-visible,
+.cmp-flip-card .cmp-note-field textarea:focus-visible,
+.cmp-flip-card .field input:focus-visible {
+  outline: 2px solid var(--uma-accent);
+  outline-offset: 1px;
+}
+/* aptitude / mood / strategy tiles (the visible face — the <select> itself is opacity:0) */
+.cmp-flip-card .cmp-apt-card:focus-within {
+  outline-color: var(--uma-accent);
+}
+.cmp-flip-card .cmp-apt-card.is-current {
+  border-color: var(--uma-accent);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.9),
+    0 0 0 2px color-mix(in srgb, var(--uma-accent) 20%, transparent);
+}
+/* role (Ace/Debuf/Hybrid) selected button */
+.cmp-flip-card .cmp-control-group button[aria-pressed='true'] {
+  background: var(--uma-accent);
+}
+/* accent-colored separator under the flip-card header (reads as the card body's top border) */
+.cmp-flip-card .cmp-flip-head {
+  border-bottom: 2px solid var(--uma-accent);
+}
+
+.cmp-track-mismatch-row {
+  margin-bottom: 0.4rem;
+}
+.cmp-track-mismatch-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e0954f;
+  background: color-mix(in srgb, #e0954f 14%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, #e0954f 40%, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+
+/* match .cmp-inventory-row-actions gap so the 1/2 badges sit exactly where the
+   edit-mode download/delete buttons appear */
+.cmp-slot-badges { display: inline-flex; align-items: center; gap: 0.2rem; opacity: 0; transition: opacity 0.12s; }
+.cmp-inventory-row:hover .cmp-slot-badges,
+.cmp-slot-badge:focus-visible { opacity: 1; }
+.cmp-slot-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  /* same box as .cmp-inventory-icon-btn (the delete button) so they align across edit mode */
+  width: 1.85rem; height: 1.85rem; border-radius: 7px;
+  font-size: 0.9rem; font-weight: 700; line-height: 1;
+  border: 1px solid transparent; background: transparent; cursor: pointer; padding: 0;
+}
+.cmp-slot-badge.is-uma1 { border-color: #5aa0ff; color: #5aa0ff; }
+.cmp-slot-badge.is-uma2 { border-color: #e0564f; color: #e0564f; }
+.cmp-slot-badge.is-uma1:hover { background: color-mix(in srgb, #5aa0ff 14%, transparent); }
+.cmp-slot-badge.is-uma2:hover { background: color-mix(in srgb, #e0564f 14%, transparent); }
+.cmp-inventory-row.is-uma1 {
+  background: color-mix(in srgb, #5aa0ff 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px #5aa0ff;
+}
+.cmp-inventory-row.is-uma2 {
+  background: color-mix(in srgb, #e0564f 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px #e0564f;
+}
+
+.cmp-track-changed {
+  margin-left: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #e0954f;
+  animation: cmp-track-changed-fade 3s forwards;
+}
+@keyframes cmp-track-changed-fade {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* Track-change confirm: a centered prompt over a greyed-out track. */
+.cmp-track-body { position: relative; }
+.cmp-track-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: rgb(22 32 47 / 0.5);
+  backdrop-filter: grayscale(0.7) blur(1.5px);
+  border-radius: inherit;
+}
+.cmp-track-confirm-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: 90%;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-1);
+  box-shadow: 0 10px 30px rgb(18 28 43 / 0.4);
+  text-align: center;
+}
+.cmp-track-confirm-q {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.cmp-track-confirm-actions { display: flex; gap: 0.6rem; }
+.cmp-track-confirm-actions button {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.42rem 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.cmp-track-confirm-ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.cmp-track-confirm-cancel { background: transparent; border: 1px solid var(--border); color: var(--fg-2); }

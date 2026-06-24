@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import {
   DEFAULT_STAMINA_WARN_THRESHOLD,
+  DEFAULT_STAMINA_SPURT_TARGET,
   clampThreshold,
   useStaminaWarnThreshold,
+  useStaminaSpurtTarget,
 } from './useStaminaWarnThreshold';
 
 const KEY = 'cmp.staminaWarnThreshold';
+const SPURT_KEY = 'cmp.staminaSpurtTarget';
 afterEach(() => localStorage.clear());
 
 describe('clampThreshold', () => {
@@ -44,5 +47,17 @@ describe('useStaminaWarnThreshold', () => {
   it('treats a blank stored value as default (not Number("")===0, which would disable the warning)', () => {
     localStorage.setItem(KEY, '   ');
     expect(renderHook(() => useStaminaWarnThreshold()).result.current[0]).toBe(0.95);
+  });
+});
+
+describe('useStaminaSpurtTarget', () => {
+  it('defaults to its own value and persists under a separate key', () => {
+    const { result } = renderHook(() => useStaminaSpurtTarget());
+    expect(result.current[0]).toBe(DEFAULT_STAMINA_SPURT_TARGET);
+    act(() => result.current[1](0.8));
+    expect(result.current[0]).toBe(0.8);
+    expect(localStorage.getItem(SPURT_KEY)).toBe('0.8');
+    // independent from the survival/warn key
+    expect(localStorage.getItem(KEY)).toBeNull();
   });
 });

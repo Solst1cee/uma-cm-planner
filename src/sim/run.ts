@@ -1,7 +1,7 @@
 import { runSkillComparison, skillsService, runComparison, runPlannerComparison } from '@/sim/vendor/umalator.bundle.mjs';
 import type { SimulationRun } from '@/sim/vendor/umalator.bundle.mjs';
 import { toRunnerState, toRaceDef, resolveCourse, bashinStatsFrom } from './adapter';
-import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, SkillTrace, SkillTraceRun, SkillFrame, SkillImpact, RaceCompare, RaceCompareRun, RaceActivation, GapPoint } from './types';
+import type { SimBuild, SimRaceParams, BashinStats, VacuumResult, VacuumOpts, SkillTrace, SkillTraceRun, SkillFrame, SkillImpact, RaceCompare, RaceCompareRun, RaceActivation, GapPoint } from './types';
 
 const EMPTY: BashinStats = { mean: 0, median: 0, min: 0, max: 0, nsamples: 0, results: [] };
 
@@ -33,9 +33,13 @@ export function evalSkillDelta(
   return bashinStatsFrom(result);
 }
 
-/** A-vs-B head-to-head (M1 inheritance compare, M2 vs-veteran). */
+/** A-vs-B head-to-head (M1 inheritance compare, M2 vs-veteran).
+ *  opts.downhill → allowDownhillUma1/2 in engine options (saves stamina on downhill sections).
+ *  opts.injectedDebuffs → top-level runComparison param (vacuum-compare reads it from params, not options).
+ *  opts.staminaDrainOverrides → inside engine options. */
 export function runVacuumCompare(
   a: SimBuild, b: SimBuild, race: SimRaceParams, nsamples: number, seed = 0,
+  opts?: VacuumOpts,
 ): VacuumResult {
   const r = runComparison({
     nsamples,
@@ -43,7 +47,16 @@ export function runVacuumCompare(
     racedef: toRaceDef(race),
     uma1: toRunnerState(simulatableBase(a)),
     uma2: toRunnerState(simulatableBase(b)),
-    options: { seed, ignoreStaminaConsumption: false },
+    options: {
+      seed,
+      ignoreStaminaConsumption: false,
+      allowDownhillUma1: opts?.downhill ?? false,
+      allowDownhillUma2: opts?.downhill ?? false,
+      ...(opts?.staminaDrainOverrides ? { staminaDrainOverrides: opts.staminaDrainOverrides } : {}),
+    },
+    // injectedDebuffs is a TOP-LEVEL runComparison param (vacuum-compare.ts destructures it from
+    // params directly, not from options) — spread only when provided.
+    ...(opts?.injectedDebuffs ? { injectedDebuffs: opts.injectedDebuffs } : {}),
   });
   return {
     mean: _mean(r.results), median: _median(r.results),
@@ -54,6 +67,10 @@ export function runVacuumCompare(
     bFirstPlaceRate: r.firstUmaStats.uma2.firstPlaceRate / 100,
     aStaminaSurvival: r.staminaStats.uma1.staminaSurvivalRate / 100,
     bStaminaSurvival: r.staminaStats.uma2.staminaSurvivalRate / 100,
+    aFullSpurtRate: r.staminaStats.uma1.fullSpurtRate / 100,
+    bFullSpurtRate: r.staminaStats.uma2.fullSpurtRate / 100,
+    aFinalHp: r.staminaStats.uma1.finalHp,
+    bFinalHp: r.staminaStats.uma2.finalHp,
   };
 }
 

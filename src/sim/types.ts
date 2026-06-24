@@ -114,11 +114,23 @@ export interface RaceCompare {
 /** Worker request/response unions. */
 export type SimRequest =
   | { id: number; kind: 'skillDelta'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
-  | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number }
+  | { id: number; kind: 'vacuum'; a: SimBuild; b: SimBuild; race: SimRaceParams; nsamples: number; seed?: number; opts?: VacuumOpts }
   | { id: number; kind: 'planner'; build: SimBuild; race: SimRaceParams; candidateSkills: string[]; nsamples: number; seed?: number }
   | { id: number; kind: 'skillTrace'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
   | { id: number; kind: 'skillImpact'; build: SimBuild; race: SimRaceParams; skillId: string; nsamples: number; seed?: number }
   | { id: number; kind: 'raceCompare'; uma1: SimBuild; uma2: SimBuild; race: SimRaceParams; nsamples: number; seed?: number };
+
+export interface VacuumOpts {
+  /** Apply downhill saving mode to both runners (allowDownhillUma1/2 in engine options). */
+  downhill?: boolean;
+  /** Inject debuffs at fixed positions for scenario modelling. Top-level runComparison param. */
+  injectedDebuffs?: {
+    uma1: Array<{ skillId: string; position: number }>;
+    uma2: Array<{ skillId: string; position: number }>;
+  };
+  /** Per-skill stamina drain multiplier overrides. */
+  staminaDrainOverrides?: Record<string, number>;
+}
 
 export interface VacuumResult extends BashinStats {
   /** Win-rate of A vs B and stamina survival, for the M2 compare panel. */
@@ -126,6 +138,12 @@ export interface VacuumResult extends BashinStats {
   bFirstPlaceRate: number;
   aStaminaSurvival: number;
   bStaminaSurvival: number;
+  /** Fraction of runs where the runner achieved full-spurt (0–1). */
+  aFullSpurtRate: number;
+  bFullSpurtRate: number;
+  /** Per-sample finish HP for runner A and B (one entry per simulation run). */
+  aFinalHp: number[];
+  bFinalHp: number[];
 }
 
 export type SimResponse =

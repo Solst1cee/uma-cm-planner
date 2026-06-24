@@ -76,6 +76,14 @@ import { runVacuumCompare, runPlannerCompare } from './run';
 const buildB: SimBuild = { ...build, stats: { spd: 1100, sta: 850, pow: 950, gut: 520, wit: 880 } };
 
 describe('runVacuumCompare', () => {
+  it('returns a per-sample finish-HP array', () => {
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 1);
+    expect(r.aFinalHp).toHaveLength(30);
+    expect(r.bFinalHp).toHaveLength(30);
+    expect(r.aFinalHp.every((h) => typeof h === 'number')).toBe(true);
+    expect(r.bFinalHp.every((h) => typeof h === 'number')).toBe(true);
+  });
+
   it('returns bashin gap + first-place + stamina rates for A vs B', () => {
     const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 7);
     expect(r.nsamples).toBe(30);
@@ -83,6 +91,40 @@ describe('runVacuumCompare', () => {
     expect(r.aFirstPlaceRate).toBeGreaterThanOrEqual(0);
     expect(r.aFirstPlaceRate).toBeLessThanOrEqual(1);
     expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
+  });
+
+  it('surfaces full-spurt rate in [0,1]', () => {
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 30, 1);
+    expect(r.aFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.aFullSpurtRate).toBeLessThanOrEqual(1);
+    expect(r.bFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.bFullSpurtRate).toBeLessThanOrEqual(1);
+  });
+
+  it('accepts downhill option and returns a valid stamina survival number', () => {
+    // 10811 = Hanshin 3200m (long course with downhill slopes); option must be accepted, no throw.
+    const r = runVacuumCompare(build, buildB, { courseId: '10811' }, 30, 7, { downhill: true });
+    expect(r.aStaminaSurvival).toBeGreaterThanOrEqual(0);
+    expect(r.aStaminaSurvival).toBeLessThanOrEqual(1);
+    expect(r.aFullSpurtRate).toBeGreaterThanOrEqual(0);
+    expect(r.aFullSpurtRate).toBeLessThanOrEqual(1);
+  });
+
+  it('accepts injected stamina debuffs (representative ids stay simulatable)', () => {
+    // The Stamina tab injects these representative debuff ids (white 201222 "Stamina Eater" /
+    // gold 201221 "Stamina Siphon"). They bypass simulatableBase (injectedDebuffs is a top-level
+    // runComparison param), so guard that they stay engine-simulatable across data refreshes:
+    // a wrong/unknown id would make the engine throw at runtime, only behind the tab's Run button.
+    const injectedDebuffs = {
+      uma1: [
+        { skillId: '201222', position: 400 }, // white: Stamina Eater
+        { skillId: '201221', position: 800 }, // gold: Stamina Siphon
+      ],
+      uma2: [],
+    };
+    const r = runVacuumCompare(build, buildB, { courseId: '10101' }, 20, 1, { injectedDebuffs });
+    expect(r.aFinalHp).toHaveLength(20);
+    expect(r.aFinalHp.every((h) => typeof h === 'number')).toBe(true);
   });
 });
 

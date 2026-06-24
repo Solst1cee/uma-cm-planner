@@ -11,6 +11,10 @@
 
 This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / UmaTools / TheCing-uma-tools. Conclusion: **fork nothing, keep our umalator engine + 4-module architecture, harvest hakuraku's inheritance math for M1 and mine UmaTools UX for fidelity.** See [hakuraku-m1-harvest.md](hakuraku-m1-harvest.md).
 
+**Update (2026-06-24) — M4 main-page redesign landed (merged to main).** A pre-roadmap restructure of `/` into a **3-column dual-build flip-card planner** with a tabbed working panel (Unique · Stamina · Accel · Skills · Mini-sim), engine-derived **stamina + accel checkers**, and a Mini-sim tab (retiring `RaceSimCard`). It **seeded the Phase-1 design tokens** (`:root --cmp-*` in `cm-planner.css`) and **built the two UX-harvest framings** the §Cross-cutting / Phase-2 notes called for (stamina viability + accel timing). Spec/plan: [design](superpowers/specs/2026-06-24-m4-main-page-redesign-design.md) · [plan](superpowers/plans/2026-06-24-m4-main-page-redesign.md). Phase 1 (the full shared `design-system.css`) and Phase 2 (M4 to full mockup fidelity) still stand on top of this.
+
+**Update (2026-06-25) — M4 inventory + sidebar UX refinements landed (merged to main).** A follow-on polish pass on the dual-build planner: per-row **uma1/uma2 slot-pick badges + collision auto-duplicate**, an inventory **edit-mode gate**, the outline **backpack icon** + square collapsed sliver, **uma2 Save/Save As/auto-save unified with uma1** (never writes `activePlanId`), a **centered track-change confirm dialog** (over a greyed-out track, names the slot), the `StatInput` field fix, and **full red `--uma-accent` theming** across the sidebar inputs/tiles/toggles. Still **pre-Phase-1 M4 hardening** — no shared design-system extraction yet (that's Phase 1). Spec/plan: [design](superpowers/specs/2026-06-24-m4-inventory-sidebar-refinements-design.md) · [plan](superpowers/plans/2026-06-24-m4-inventory-sidebar-refinements.md). **824 tests.**
+
 ---
 
 ## Sidelists (parallel, non-blocking)
@@ -20,6 +24,15 @@ Our pin is ~7 releases behind upstream `jalbarrang/umalator-global` (incl. the 2
 
 ### S2 — Public-release data swap *(only if/when sharing publicly)*
 Swap private-feed defaults → `ManualStatTargets` / curated JSON before any public deploy (per the scraping-exception posture). Parked until a public release is an actual goal.
+
+### S3 — M4 chart/UI polish + mechanics review + provenance *(surfaced 2026-06-25)*
+Small, non-blocking follow-ups from the inventory/sidebar refinements pass. Do opportunistically or fold into Phase 2 (M4 fidelity).
+- **Recompute wishlist `projectedL` on every chart run** — the accel/skill chart should refresh each wishlist skill's projected バ身 (L) per run so the sidebar totals stay current.
+- **Polish the per-tab hint ("?") buttons** — the help/explainer popups on the WorkingTabs (Stamina · Accel · Skills · Mini-sim, + the skill-detail "?" popup): clearer copy, consistent styling/placement/dismiss.
+- **Accel-tab / Position-column label readability** — replace the `≥`/`≤` notation with exact/range forms: exact `CM = 6 · LoH = 8`; ranges `CM 5–6 · LoH 6–8` (instead of `CM ≤6 · LoH ≤8` / `CM ≥5 · LoH ≥6`).
+- **Cap skill-plate max width in the charts** — the skill-name plate runs too long; set a sensible max-width / truncation.
+- **Verify stamina mechanics for rushed (かかり), position-struggle, and dueling** — how each state affects HP/stamina consumption (engine vs in-game); cross-check + record in [docs/mechanics-notes.md](mechanics-notes.md) §10.
+- **Add provenance/attribution per submodule for adopted tools** — per **P1 (REUSE FIRST)**: record source URL + retrieval date in code comments **and** [docs/provenance.md](provenance.md) wherever an algorithm/dataset/UX pattern was borrowed from a community tool.
 
 ---
 
@@ -117,6 +130,7 @@ Build the UI **and** land the **hakuraku harvest** (full detail in [hakuraku-m1-
 |---|---|---|
 | S1 Engine update | ⬜ not started | v0.14.2 → v0.18.0; see engine-update-todo.md |
 | S2 Public data swap | ⬜ parked | only when public release is a goal |
+| S3 M4 polish + mechanics | ⬜ not started | wishlist projectedL refresh, accel label/plate readability, per-tab hint-button polish, rushed/struggle/dueling stamina review, per-submodule provenance |
 | P1 Design system | ⬜ not started | the one-time re-skin foundation |
 | P2 M4 fidelity | ⬜ not started | flagship; proves the system |
 | P3 Data tasks | ⬜ not started | duration, innate, release dates |

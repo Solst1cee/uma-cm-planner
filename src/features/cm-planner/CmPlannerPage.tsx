@@ -2,22 +2,23 @@
  * Module 4 - Skill Acquisition Planner, engine-first rebuild. The root route
  * keeps the planner sidebar beside the umalator-derived track and race setup.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './cm-planner.css';
 import { makeDefaultPlan, useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
+import { copyPlanInto } from '@/core/cmPlanCopy';
 import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
 import { distanceClass } from '@/core/simBuild';
 import { cmRaceOptions } from '@/core/cmRace';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, CmRefV2 } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
 import { PlannerSidebar } from './PlannerSidebar';
 import { SkillChartPanel } from './SkillChartPanel';
 import { UmaChartPanel } from './UmaChartPanel';
 import { SelectedSkillProvider } from './useSelectedSkill';
 import { RaceTrackView } from '@/features/planner/racetrack/RaceTrackView';
-import { RaceSimCard } from './RaceSimCard';
+import { MiniSimTab } from './MiniSimTab';
 import { useRaceCompareController } from './useRaceCompareController';
 import { RaceSetup } from '@/features/planner/race-setup/RaceSetup';
 import {
@@ -26,39 +27,93 @@ import {
   type RaceSelection,
 } from '@/features/planner/race-setup/selection';
 import { cmRefForEntry, cmRefToSelection, selectionToCmRef } from '@/features/planner/race-setup/cmRefSelection';
+import { WorkingTabs, type TabKey } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
+import { StaminaSpurtTab } from './StaminaSpurtTab';
+import { AccelChartPanel } from './AccelChartPanel';
+import { useStaminaWarnThreshold, useStaminaSpurtTarget } from './useStaminaWarnThreshold';
+import { trackChangeNeedsConfirm, tracksDiffer } from './trackChange';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
+const INVENTORY_COLLAPSED_KEY = 'cmPlannerInventoryCollapsed';
 
 export function CmPlannerPage() {
   const { status, umaById, skillById, timeline, currentCm } = useGameData();
   const {
     plan,
+    uma2Plan,
+    focused,
+    setFocused,
+    focusedPlan,
+    setFocusedPlan,
     savedPlans,
     autoSave,
     isSaved,
     setAutoSave,
     setPlan,
-    selectPlan,
+    setUma2Plan,
+    loadPlanIntoSlot,
     deleteSavedPlan,
     importSavedPlans,
     deleteAllSavedPlans,
     setDraftPlan,
     saveCurrentPlan,
     saveCurrentPlanAs,
+    saveUma2Plan,
+    saveUma2PlanAs,
     loadError,
   } = useActivePlan();
   const [courseCatalog, setCourseCatalog] = useState<CourseCatalogEntry[]>([]);
   const [autoApplyInventoryTrack, setAutoApplyInventoryTrack] = useState<boolean | null>(null);
+  const autoApplyOn = autoApplyInventoryTrack ?? true;
+  const [invCollapsed, setInvCollapsed] = useState<boolean>(false);
   const [collapseSkillSignal, setCollapseSkillSignal] = useState(0);
+  // Per-tab "changed — re-run" flags, reported up by each chart so the tabstrip can mark them.
+  const [staleTabs, setStaleTabs] = useState<Partial<Record<TabKey, boolean>>>({});
+  const setTabStale = useCallback((key: TabKey, stale: boolean) => {
+    setStaleTabs((prev) => (prev[key] === stale ? prev : { ...prev, [key]: stale }));
+  }, []);
+  // Two persisted stamina targets (0–1; surfaced as % to the tabs). The Stamina tab owns both
+  // inputs; the SURVIVAL target also drives the Skill/Accel stamina-out warning (running out of
+  // HP is a survival failure, not a spurt-rate shortfall), while the full-spurt target only
+  // drives the full-spurt required-stamina readout.
+  const [survivalTarget01, setSurvivalTarget01] = useStaminaWarnThreshold();
+  const [spurtTarget01, setSpurtTarget01] = useStaminaSpurtTarget();
+  const survivalThresholdPct = Math.round(survivalTarget01 * 100);
+  const spurtThresholdPct = Math.round(spurtTarget01 * 100);
+  const [trackOverrideRef, setTrackOverrideRef] = useState<CmRefV2 | null>(null);
+  const [trackConfirmOpen, setTrackConfirmOpen] = useState(false);
+  const [trackChanged, setTrackChanged] = useState(false);
+  const trackChangedTimer = useRef<number | undefined>(undefined);
+  const flashTrackChanged = () => {
+    setTrackChanged(true);
+    window.clearTimeout(trackChangedTimer.current);
+    trackChangedTimer.current = window.setTimeout(() => setTrackChanged(false), 3000);
+  };
+  useEffect(() => () => window.clearTimeout(trackChangedTimer.current), []);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
-  // Single source of truth: the race view is DERIVED from plan.cmRef (no local
-  // selection state). Loading a plan re-derives the track automatically.
+  // Single source of truth: the race view is DERIVED from a cmRef (no local
+  // selection state). When auto-apply is ON and a non-null focusedPlan is
+  // available (guard: uma2-blank → always fall back to uma1), the track follows
+  // the focused build; otherwise it always follows uma1 (plan.cmRef).
+  // `trackOverrideRef` pins the displayed track during a pending confirm, masking
+  // the auto-follow until the user confirms or cancels.
+  const autoFollowRef = useMemo(() => {
+    if (
+      autoApplyOn &&
+      !(focused === 'uma2' && uma2Plan === null) &&
+      focusedPlan !== null
+    ) {
+      return focusedPlan.cmRef;
+    }
+    return plan?.cmRef ?? null;
+  }, [autoApplyOn, focused, uma2Plan, focusedPlan, plan]);
+  const trackCmRef = trackOverrideRef ?? autoFollowRef;
   const selection: RaceSelection | null = useMemo(
-    () => (plan ? cmRefToSelection(plan.cmRef, courseCatalog, timeline ?? []) : null),
-    [plan, courseCatalog, timeline],
+    () => (trackCmRef ? cmRefToSelection(trackCmRef, courseCatalog, timeline ?? []) : null),
+    [trackCmRef, courseCatalog, timeline],
   );
 
   useEffect(() => {
@@ -69,6 +124,20 @@ export function CmPlannerPage() {
       })
       .catch(() => {
         if (!cancelled) setAutoApplyInventoryTrack(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getSetting<boolean>(INVENTORY_COLLAPSED_KEY)
+      .then((saved) => {
+        if (!cancelled) setInvCollapsed(saved ?? false);
+      })
+      .catch(() => {
+        if (!cancelled) setInvCollapsed(false);
       });
     return () => {
       cancelled = true;
@@ -88,9 +157,9 @@ export function CmPlannerPage() {
     };
   }, []);
 
-  // Race-sim comparison state (overlay on the track ← controls in the right sidebar).
+  // Race-sim comparison state (overlay on the track ← controls in the Mini-sim tab).
   // Called before the loading guards, so it tolerates a null plan/selection.
-  const raceSim = useRaceCompareController(plan, savedPlans, selection?.courseId ?? '');
+  const raceSim = useRaceCompareController(plan, uma2Plan, selection?.courseId ?? '');
 
   if (loadError) {
     return (
@@ -103,22 +172,60 @@ export function CmPlannerPage() {
     return <p className="muted">Loading...</p>;
   }
 
-  // Editing the race writes back into plan.cmRef (the single source of truth);
-  // selection re-derives from it on the next render.
+  // Editing the race writes back into the focused build's cmRef (single source of
+  // truth). When uma2 is focused + non-null, edits apply to uma2Plan via
+  // setFocusedPlan; otherwise they go to uma1 (plan) via setPlan.
   const handleRaceChange = (next: RaceSelection) => {
-    setPlan({ ...plan, cmRef: selectionToCmRef(next, options) });
+    setTrackOverrideRef(null); // a manual race edit must show immediately, not stay masked
+    const updated = selectionToCmRef(next, options);
+    if (focused === 'uma2' && focusedPlan !== null) {
+      setFocusedPlan({ ...focusedPlan, cmRef: updated });
+    } else {
+      setPlan({ ...plan, cmRef: updated });
+    }
+  };
+
+  // Determines whether a flip or load should show the confirm bar or just apply.
+  // Uses `autoApplyOn` (null → true) so that a pending settings load defaults to auto-apply ON.
+  const applyTrackTransition = (nextFollowRef: CmRefV2 | null) => {
+    const prev = trackCmRef;
+    const autoApply = autoApplyOn;
+    if (
+      prev && nextFollowRef &&
+      trackChangeNeedsConfirm({
+        autoApply,
+        hadPriorTrack: true,
+        prevCourseId: prev.courseId,
+        nextCourseId: nextFollowRef.courseId,
+      })
+    ) {
+      setTrackOverrideRef(prev); // pin old so the track doesn't jump until confirmed
+      setTrackConfirmOpen(true);
+    } else {
+      // No confirm needed (same course, auto-apply off, or first track): resume
+      // auto-follow. A course change under auto-apply always takes the confirm
+      // branch above, so the only "Track changed!" flash fires from Confirm.
+      setTrackOverrideRef(null);
+    }
   };
 
   // The race title/name: CM plans show "CM<n>[ — Name]"; custom shows the course.
+  // titleCmRef follows the focused build (same as the track selection) so the card
+  // header stays consistent with what's drawn on the track.
   const cmRef = plan.cmRef;
-  const cmOption = cmRef.kind === 'cm' ? options.find((o) => o.cmNumber === cmRef.cmNumber) : undefined;
+  const titleCmRef = trackCmRef ?? plan.cmRef;
+  const cmOption = titleCmRef.kind === 'cm' ? options.find((o) => o.cmNumber === titleCmRef.cmNumber) : undefined;
   const trackTitle =
-    cmRef.kind === 'cm'
+    titleCmRef.kind === 'cm'
       ? cmOption
         ? `CM${cmOption.cmNumber} — ${cmOption.name}`
-        : `CM${cmRef.cmNumber}`
+        : `CM${titleCmRef.cmNumber}`
       : formatCourseLabel(selection);
   const raceNameLabel = cmRef.kind === 'cm' ? undefined : formatCourseLabel(selection);
+  const trackMismatchLabel =
+    uma2Plan && plan && tracksDiffer(plan.cmRef, uma2Plan.cmRef)
+      ? `⚠ Different track from uma${focused === 'uma1' ? '2' : '1'}`
+      : undefined;
   const planWithFallbackName = (next: CmPlan): CmPlan => {
     if (next.name.trim()) return next;
     const umaName = umaById?.get(next.umaId)?.nameEn;
@@ -161,13 +268,35 @@ export function CmPlannerPage() {
     };
   };
 
+  const onDuplicateUma1ToUma2 = () => {
+    // Confirm only when uma2 already holds a build (the blank-face duplicate has nothing to overwrite).
+    if (uma2Plan && !window.confirm('Overwrite uma2 with a copy of uma1?')) return;
+    const draft = copyPlanInto(plan);
+    draft.name = generatePlanName(draft, umaById?.get(draft.umaId)?.nameEn, raceNameLabel);
+    setUma2Plan(draft);
+    setFocused('uma2');
+  };
+
+  const onReplicateUma2ToUma1 = () => {
+    if (!uma2Plan) return;
+    if (!window.confirm("Overwrite uma1 with uma2's build?")) return;
+    const draft = copyPlanInto(uma2Plan, { keepName: false });
+    draft.name = generatePlanName(draft, umaById?.get(draft.umaId)?.nameEn, raceNameLabel);
+    setPlan({ ...draft, id: plan.id, planNumber: plan.planNumber });
+  };
+
   return (
     <SelectedSkillProvider>
-      <div className="cmp-page">
+      <div className="cmp-page" data-inv-collapsed={String(invCollapsed)}>
         <PlanInventoryCard
           activePlan={plan}
           autoApplyTrack={autoApplyInventoryTrack ?? true}
           plans={savedPlans}
+          collapsed={invCollapsed}
+          onCollapsedChange={(v) => {
+            setInvCollapsed(v);
+            void setSetting(INVENTORY_COLLAPSED_KEY, v);
+          }}
           onAutoApplyTrackChange={(enabled) => {
             setAutoApplyInventoryTrack(enabled);
             void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
@@ -175,33 +304,68 @@ export function CmPlannerPage() {
           onDeletePlan={deleteSavedPlan}
           onDeleteAllPlans={deleteAllSavedPlans}
           onImportPlans={importSavedPlans}
-          onSelectPlan={async (id) => {
-            // Auto-apply ON: load the plan as-is (its cmRef re-derives the track).
-            // OFF: load the build but keep the race you're currently viewing.
-            const currentCmRef = plan.cmRef;
-            const loadedPlan = savedPlans.find((savedPlan) => savedPlan.id === id);
-            await selectPlan(id);
+          focused={focused}
+          uma1PlanId={plan.id}
+          uma2PlanId={uma2Plan?.id}
+          onLoadPlanIntoSlot={async (id, slot) => {
+            const keepTrackRef = slot === 'uma1' && !autoApplyOn ? plan.cmRef : null;
+            await loadPlanIntoSlot(id, slot);
             setCollapseSkillSignal((signal) => signal + 1);
-            if (autoApplyInventoryTrack !== true && loadedPlan) {
-              setPlan({ ...loadedPlan, cmRef: currentCmRef });
+            // auto-apply OFF: keep the race you're viewing by overriding the loaded
+            // uma1 plan's cmRef (preserves the long-standing behavior).
+            if (keepTrackRef) {
+              const loaded = savedPlans.find((p) => p.id === id);
+              if (loaded) setPlan({ ...loaded, cmRef: keepTrackRef });
+            }
+            if (slot === focused) {
+              const loaded = savedPlans.find((p) => p.id === id);
+              if (loaded) applyTrackTransition(loaded.cmRef);
             }
           }}
         />
         <PlannerSidebar
-          plan={plan}
+          plan={focusedPlan ?? plan}
           autoSave={autoSave}
           isSaved={isSaved}
           onAutoSaveChange={setAutoSave}
-          onChange={setPlan}
-          onSave={(next) => saveCurrentPlan(planWithFallbackName(next))}
-          onSaveAs={(next) => saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)}
-          onNew={() => setDraftPlan(newDefaultPlan())}
+          onChange={setFocusedPlan}
+          // Save / Save As route to the focused slot. uma2's variants persist to
+          // inventory but never write activePlanId (it stays session-scratch).
+          onSave={(next) =>
+            focused === 'uma1'
+              ? saveCurrentPlan(planWithFallbackName(next))
+              : saveUma2Plan(planWithFallbackName(next))
+          }
+          onSaveAs={(next) =>
+            focused === 'uma1'
+              ? saveCurrentPlanAs(planWithFallbackName(next)).then(() => undefined)
+              : saveUma2PlanAs(planWithFallbackName(next)).then(() => undefined)
+          }
+          onNew={() => { if (focused === 'uma1') setDraftPlan(newDefaultPlan()); else setUma2Plan(null); }}
           raceNameLabel={raceNameLabel}
+          trackMismatchLabel={trackMismatchLabel}
           collapseSkillSignal={collapseSkillSignal}
+          focused={focused}
+          onFocusChange={(slot) => {
+            if (slot === focused) return;
+            setFocused(slot);
+            const nextFocused = slot === 'uma1' ? plan : uma2Plan;
+            applyTrackTransition(
+              autoApplyOn && !(slot === 'uma2' && uma2Plan === null) && nextFocused
+                ? nextFocused.cmRef
+                : null,
+            );
+          }}
+          uma2Empty={uma2Plan === null}
+          onDuplicateUma1ToUma2={onDuplicateUma1ToUma2}
+          onReplicateUma2ToUma1={onReplicateUma2ToUma1}
         />
         <div className="cmp-main">
           <section className="cmp-plan-card cmp-track-card">
-            <header className="cmp-plan-card-head cmp-track-head">{trackTitle}</header>
+            <header className="cmp-plan-card-head cmp-track-head">
+              <span>{trackTitle}</span>
+              {trackChanged && <span className="cmp-track-changed">Track changed!</span>}
+            </header>
             <div className="cmp-plan-card-body cmp-track-body">
               <RaceTrackView
                 courseId={selection.courseId}
@@ -210,6 +374,36 @@ export function CmPlannerPage() {
                 showHp={raceSim.showHp}
                 skillName={(id) => skillById?.get(id)?.nameEn ?? id}
               />
+              {trackConfirmOpen && (
+                <div
+                  className="cmp-track-confirm-overlay"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Confirm track change"
+                >
+                  <div className="cmp-track-confirm-box">
+                    <p className="cmp-track-confirm-q">
+                      Change track to Uma {focused === 'uma1' ? '1' : '2'}&apos;s race?
+                    </p>
+                    <div className="cmp-track-confirm-actions">
+                      <button
+                        type="button"
+                        className="cmp-track-confirm-cancel"
+                        onClick={() => setTrackConfirmOpen(false)}
+                      >
+                        Keep current track
+                      </button>
+                      <button
+                        type="button"
+                        className="cmp-track-confirm-ok"
+                        onClick={() => { setTrackOverrideRef(null); setTrackConfirmOpen(false); flashTrackChanged(); }}
+                      >
+                        Change track
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="cmp-conditions" aria-label="Race conditions">
                 {describeSelection(selection).map((chip) => (
                   <span key={chip} className="cmp-chip">
@@ -220,22 +414,82 @@ export function CmPlannerPage() {
             </div>
           </section>
           <RaceSetup options={options} selection={selection} onChange={handleRaceChange} />
-          <UmaChartPanel
-            courseId={selection.courseId}
-            plan={plan}
-            collapseSkillSignal={collapseSkillSignal}
-            onSelectRunner={(umaId, uniqueSkillId) => setPlan({ ...plan, umaId, uniqueSkillId })}
-          />
-          <SkillChartPanel
-            courseId={selection.courseId}
-            plan={plan}
-            collapseSkillSignal={collapseSkillSignal}
-            onChange={setPlan}
+          <WorkingTabs
+            initial="unique"
+            tabs={[
+              {
+                key: 'unique',
+                label: 'Unique',
+                stale: staleTabs.unique,
+                node: (
+                  <UmaChartPanel
+                    key={selection.courseId}
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('unique', s)}
+                    onSelectRunner={(umaId, uniqueSkillId) =>
+                      setFocusedPlan({ ...(focusedPlan ?? plan), umaId, uniqueSkillId })
+                    }
+                  />
+                ),
+              },
+              {
+                key: 'stamina',
+                label: 'Stamina',
+                stale: staleTabs.stamina,
+                node: (
+                  <StaminaSpurtTab
+                    key={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    spurtTarget={spurtThresholdPct}
+                    onSpurtTargetChange={(pct) => setSpurtTarget01(pct / 100)}
+                    survivalTarget={survivalThresholdPct}
+                    onSurvivalTargetChange={(pct) => setSurvivalTarget01(pct / 100)}
+                    onStaleChange={(s) => setTabStale('stamina', s)}
+                  />
+                ),
+              },
+              {
+                key: 'accel',
+                label: 'Accel',
+                stale: staleTabs.accel,
+                node: (
+                  <AccelChartPanel
+                    key={selection.courseId}
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('accel', s)}
+                    warnThresholdPct={survivalThresholdPct}
+                    onChange={setFocusedPlan}
+                  />
+                ),
+              },
+              {
+                key: 'skills',
+                label: 'Skills',
+                stale: staleTabs.skills,
+                node: (
+                  <SkillChartPanel
+                    key={selection.courseId}
+                    courseId={selection.courseId}
+                    plan={focusedPlan ?? plan}
+                    collapseSkillSignal={collapseSkillSignal}
+                    onStaleChange={(s) => setTabStale('skills', s)}
+                    warnThresholdPct={survivalThresholdPct}
+                    onChange={setFocusedPlan}
+                  />
+                ),
+              },
+              {
+                key: 'minisim',
+                label: 'Mini-sim',
+                node: <MiniSimTab ctl={raceSim} />,
+              },
+            ]}
           />
         </div>
-        <aside className="cmp-right" aria-label="Race simulation">
-          <RaceSimCard ctl={raceSim} />
-        </aside>
       </div>
     </SelectedSkillProvider>
   );

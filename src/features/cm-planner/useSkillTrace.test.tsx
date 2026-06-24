@@ -70,6 +70,21 @@ describe('useSkillTrace', () => {
     expect(skillImpact).toHaveBeenCalledTimes(1);
   });
 
+  it('busts cache when build.skills changes — different wishlist yields a new sim call', async () => {
+    const skillTrace = vi.fn(async () => trace);
+    const skillImpact = vi.fn(async () => impact);
+    const ctxA = { ...ctx, build: { ...ctx.build, skills: ['100'] } };
+    const ctxB = { ...ctx, build: { ...ctx.build, skills: ['100', '200'] } };
+    const { result, rerender } = renderHook(
+      ({ c }) => useSkillTrace('200332', c, true, { skillTrace, skillImpact }),
+      { initialProps: { c: ctxA } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    expect(skillTrace).toHaveBeenCalledTimes(1);
+    rerender({ c: ctxB });
+    await waitFor(() => expect(skillTrace.mock.calls.length).toBe(2));
+  });
+
   it('re-runs when a non-speed stat changes', async () => {
     const skillTrace = vi.fn(async () => trace);
     const skillImpact = vi.fn(async () => impact);

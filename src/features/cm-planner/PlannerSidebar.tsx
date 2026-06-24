@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   isCurrentAptitude,
   planToSimBuild,
@@ -21,6 +21,7 @@ import {
   wishlistSkillRecord,
 } from '@/features/skill-planner/skillFamilies';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
+import { StatInput } from './StatInputField';
 import {
   loadUniqueSkillByUmaId,
   skillRecordToSummary,
@@ -138,6 +139,12 @@ export function PlannerSidebar({
   onAutoSaveChange,
   raceNameLabel,
   collapseSkillSignal,
+  focused = 'uma1',
+  onFocusChange = () => undefined,
+  uma2Empty = false,
+  onDuplicateUma1ToUma2,
+  onReplicateUma2ToUma1,
+  trackMismatchLabel,
 }: {
   plan: CmPlan;
   autoSave: boolean;
@@ -149,6 +156,12 @@ export function PlannerSidebar({
   onAutoSaveChange: (enabled: boolean) => void;
   raceNameLabel?: string;
   collapseSkillSignal?: number;
+  focused?: 'uma1' | 'uma2';
+  onFocusChange?: (slot: 'uma1' | 'uma2') => void;
+  uma2Empty?: boolean;
+  onDuplicateUma1ToUma2?: () => void;
+  onReplicateUma2ToUma1?: () => void;
+  trackMismatchLabel?: string;
 }) {
   const { skillById, umas, umaById } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
@@ -348,13 +361,51 @@ export function PlannerSidebar({
     setUmaPickerOpen(false);
   };
 
+  const accentColor = focused === 'uma1' ? '#5aa0ff' : '#e0564f';
+
   return (
     <aside className="cmp-sidebar" aria-labelledby="cmp-plan-h">
-      <section className="cmp-plan-card">
-        <header className="cmp-plan-card-head" id="cmp-plan-h">
-          Current Uma Plan
+      <section
+        className="cmp-plan-card cmp-flip-card"
+        data-testid="cmp-flip-card"
+        data-uma={focused}
+        style={{ '--uma-accent': accentColor } as React.CSSProperties}
+      >
+        <header className="cmp-plan-card-head cmp-flip-head" id="cmp-plan-h">
+          <span className="cmp-flip-seg">
+            <button
+              type="button"
+              className={focused === 'uma1' ? 'on' : ''}
+              onClick={() => onFocusChange('uma1')}
+            >
+              UMA1
+            </button>
+            <button
+              type="button"
+              className={focused === 'uma2' ? 'on' : ''}
+              onClick={() => onFocusChange('uma2')}
+            >
+              UMA2
+            </button>
+          </span>
         </header>
+        {focused === 'uma2' && uma2Empty ? (
+          <div className="cmp-uma2-empty">
+            <p>No uma2 yet.</p>
+            {onDuplicateUma1ToUma2 && (
+              <button type="button" onClick={onDuplicateUma1ToUma2}>
+                ⇋ Duplicate Uma 1
+              </button>
+            )}
+            <p className="muted small">Or load a plan from the inventory.</p>
+          </div>
+        ) : (
         <div className="cmp-plan-card-body">
+          {trackMismatchLabel && (
+            <div className="cmp-track-mismatch-row">
+              <span className="cmp-track-mismatch-chip">{trackMismatchLabel}</span>
+            </div>
+          )}
           <div className="cmp-name-row">
             <label className={`cmp-name-field ${autoGenerateName ? 'is-auto' : ''}`.trim()}>
               <span className="visually-hidden">Plan name</span>
@@ -392,7 +443,7 @@ export function PlannerSidebar({
               rows={1}
             />
           </label>
-          <div className="cmp-save-row">
+<div className="cmp-save-row">
             <span
               className={`cmp-save-status ${isSaved ? 'is-saved' : 'is-unsaved'}`}
               aria-live="polite"
@@ -416,6 +467,16 @@ export function PlannerSidebar({
               />
             </label>
             <div className="cmp-action-seg">
+              {focused === 'uma1' && onReplicateUma2ToUma1 && (
+                <button type="button" disabled={uma2Empty} onClick={onReplicateUma2ToUma1}>
+                  Replicate uma2
+                </button>
+              )}
+              {focused === 'uma2' && onDuplicateUma1ToUma2 && (
+                <button type="button" onClick={onDuplicateUma1ToUma2}>
+                  Replicate uma1
+                </button>
+              )}
               <button type="button" onClick={() => void handleSave()}>
                 Save
               </button>
@@ -556,12 +617,10 @@ export function PlannerSidebar({
                     <span>{label}</span>
                   </span>
                   <span className="cmp-stat-value-row">
-                    <input
-                      type="number"
-                      min={0}
-                      aria-label={shortLabel}
+                    <StatInput
                       value={plan.statProfile.stats[key]}
-                      onChange={(e) => onChange(setStat(plan, key, Number(e.target.value)))}
+                      label={shortLabel}
+                      onValueChange={(n) => onChange(setStat(plan, key, n))}
                     />
                   </span>
                   <span className="cmp-stat-growth">{statGrowthLabel(currentUma?.statGrowth?.[key])}</span>
@@ -904,6 +963,7 @@ export function PlannerSidebar({
             />
           </section>
         </div>
+        )}
       </section>
     </aside>
   );

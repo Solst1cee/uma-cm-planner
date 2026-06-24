@@ -269,7 +269,7 @@ describe('ActivePlanProvider flushPendingSave', () => {
     expect(ctx.savedPlans.map((plan) => plan.id)).toEqual([active.id]);
   });
 
-  it('switches to another saved plan when deleting the active plan', async () => {
+  it('refreshes the inventory without swapping the loaded plan when deleting the active plan', async () => {
     await renderProvider();
     const activeId = ctx.plan!.id;
     const fallback = { ...ctx.plan!, id: 'fallback-plan', name: 'Fallback Plan' };
@@ -280,11 +280,14 @@ describe('ActivePlanProvider flushPendingSave', () => {
     });
 
     expect(deletePlan).toHaveBeenCalledWith(activeId);
-    expect(setSetting).toHaveBeenCalledWith('activePlanId', 'fallback-plan');
-    expect(ctx.plan?.id).toBe('fallback-plan');
+    // New contract: loaded plan is NOT swapped; activePlanId is NOT updated.
+    expect(setSetting).not.toHaveBeenCalledWith('activePlanId', expect.anything());
+    expect(ctx.plan?.id).toBe(activeId);
+    // Inventory is refreshed to the post-delete list.
+    expect(ctx.savedPlans.map((p) => p.id)).toEqual(['fallback-plan']);
   });
 
-  it('leaves the inventory empty when deleting the final saved plan', async () => {
+  it('refreshes the inventory to empty without swapping the loaded plan when deleting the final saved plan', async () => {
     await renderProvider();
     const activeId = ctx.plan!.id;
     vi.mocked(listPlans).mockResolvedValueOnce([]);
@@ -295,9 +298,9 @@ describe('ActivePlanProvider flushPendingSave', () => {
 
     expect(deletePlan).toHaveBeenCalledWith(activeId);
     expect(ctx.savedPlans).toEqual([]);
+    // New contract: the loaded plan id and name are unchanged (no swap, no new default).
     expect(savePlan).not.toHaveBeenCalled();
-    expect(ctx.plan?.id).not.toBe(activeId);
-    expect(ctx.plan?.name).toBe('CM15 / Kitasan Black / Ace / Front');
+    expect(ctx.plan?.id).toBe(activeId);
   });
 
   it('imports an id collision as a named copy instead of overwriting', async () => {

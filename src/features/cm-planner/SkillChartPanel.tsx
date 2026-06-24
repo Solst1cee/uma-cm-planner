@@ -8,7 +8,7 @@
  * total moves. Reuses GameIcon + SkillDetailDisclosure (effect-chips on expand).
  */
 import './skill-chart.css';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
@@ -26,10 +26,10 @@ import {
 } from '@/features/skill-planner/skillFamilies';
 import { useGameData } from '@/features/data/gameData';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
+import { HeaderHelp } from './HeaderHelp';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
 import { useStaminaProbe, type UseStaminaProbeDeps } from './useStaminaProbe';
-import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
 const FILTERS: ReadonlyArray<{ key: SkillFilter; label: string }> = [
@@ -76,11 +76,14 @@ const rawMetric = (v: RowView, m: SortMetric): number | null =>
   m === 'L' ? v.row.L : m === 'sp' ? v.sp : v.eff;
 const signed = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(2)}`;
 
-export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, deps }: {
+export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal, onStaleChange, warnThresholdPct = 95, deps }: {
   courseId: string;
   plan: CmPlan;
   onChange: (next: CmPlan) => void;
   collapseSkillSignal?: number;
+  onStaleChange?: (stale: boolean) => void;
+  /** Stamina-out warning fires when survival < this %. Shared with the Stamina tab's target spurt. */
+  warnThresholdPct?: number;
   deps?: SkillChartPanelDeps;
 }) {
   const { skills, skillById, sparkRates, timeline } = useGameData();
@@ -132,13 +135,19 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
 
-  const [warnThreshold, setWarnThreshold] = useStaminaWarnThreshold();
   const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
   const { survival, probe } = useStaminaProbe(build, race, probeDeps);
-  const staminaOut = survival != null && survival < warnThreshold;
+  const staminaOut = survival != null && survival < warnThresholdPct / 100;
 
   const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useSkillRank(build, race, ids, chartDeps);
+
+  // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
+  const onStaleRef = useRef(onStaleChange);
+  onStaleRef.current = onStaleChange;
+  useEffect(() => {
+    onStaleRef.current?.(isStale);
+  }, [isStale]);
 
   const targetSkill = (rep: SkillRecord, L: number | null) => {
     const wl = addOrReplaceWishlistSkill(plan.wishlist, rep.skillId, skillById);
@@ -179,7 +188,9 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       const eff = row.L != null && sp != null && sp > 0 ? (100 * row.L) / sp : null;
       return { row, skill, sp, eff, targeted: isTargeted(skill) };
     })
-    .filter((v): v is RowView => v !== null);
+    // A targeted skill is shown once — as its in-build row — so drop its ranked duplicate
+    // (the chart doesn't re-run on target, so the ranked row would otherwise linger).
+    .filter((v): v is RowView => v !== null && !v.targeted);
 
   const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
@@ -204,6 +215,18 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         }}
       >
         <span className="cmp-skill-chart-title">Skill chart</span>
+        <HeaderHelp label="How the skill chart works">
+          <p className="cmp-help-title">Skill chart</p>
+          <p>
+            Run to rank acquirable <b>white / gold / inherited</b> skills by the バ身 each adds to your
+            <b> current uma plan</b> (your stats + already-targeted wishlist). Editing the plan won&apos;t
+            update the chart until you <b>Re-run</b>.
+          </p>
+          <p>
+            <b>L</b> = horse-length gained · <b>SP</b> = full purchase cost (gold prices its white
+            prereq too) · <b>L/100SP</b> = efficiency. Add a skill with +.
+          </p>
+        </HeaderHelp>
         <button
           type="button"
           className="cmp-run-btn"
@@ -219,24 +242,21 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
             {done >= total ? 'Done' : `${done}/${total} skills ran`}
           </span>
         )}
-        {isStale && status !== 'running' && <span className="cmp-stale small">Changed detected!, please re-run</span>}
+        {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
 
-      {open && (
+      {open && (!hasSpeed || status !== 'idle') && (
         <div className="cmp-skill-body">
           {!hasSpeed ? (
             <p className="muted small">Enter your runner&apos;s stats (Speed is required) in the sidebar to rank skills.</p>
           ) : (
             <>
-              <p className="cmp-skill-caption muted small">
-                Run to rank acquirable skills by length on your current uma plan. Editing the plan won&apos;t
-                update the chart until you Re-run.
-              </p>
               {staminaOut && (
                 <p className="cmp-stamina-warn small" role="status">
-                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs (stamina-out).
-                  Recovery is inflated and speed skills undervalued — secure stamina/recovery, then Re-run.
+                  ⚠ Build survives only {Math.round((survival ?? 0) * 100)}% of runs — under your{' '}
+                  {warnThresholdPct}% survival target (stamina-out). Recovery is inflated and speed
+                  skills undervalued — secure stamina/recovery, then Re-run.
                 </p>
               )}
               {status !== 'idle' && (
@@ -266,16 +286,6 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
                     >
                       <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
-                    </label>
-                    <label className="cmp-stamina-thresh small" title="Warn when the build's stamina survival is below this percentage.">
-                      warn&nbsp;&lt;&nbsp;
-                      <input
-                        type="number" min={0} max={100} step={5}
-                        aria-label="Stamina warning threshold (%)"
-                        value={Math.round(warnThreshold * 100)}
-                        onChange={(e) => { const v = e.target.value; if (v !== '') setWarnThreshold(Number(v) / 100); }}
-                      />
-                      %
                     </label>
                   </div>
 
@@ -309,6 +319,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         showCost={false}
                         showSourcing
                         className="cmp-uma-plate"
+                        side={v.inBuild ? <span className="cmp-inbuild">in build</span> : undefined}
                         technicalHeaderSide={
                           v.row.L != null
                             ? v.inBuild
@@ -318,7 +329,6 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         }
                       />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
-                        {v.inBuild && <span className="cmp-inbuild">in build</span>}
                         {/* L == null = un-simmed (e.g. an in-build row added before any Run) → "—", NOT a fabricated +0.00 */}
                         {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                       </span>
