@@ -13,6 +13,8 @@ This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / Uma
 
 **Update (2026-06-24) — M4 main-page redesign landed (merged to main).** A pre-roadmap restructure of `/` into a **3-column dual-build flip-card planner** with a tabbed working panel (Unique · Stamina · Accel · Skills · Mini-sim), engine-derived **stamina + accel checkers**, and a Mini-sim tab (retiring `RaceSimCard`). It **seeded the Phase-1 design tokens** (`:root --cmp-*` in `cm-planner.css`) and **built the two UX-harvest framings** the §Cross-cutting / Phase-2 notes called for (stamina viability + accel timing). Spec/plan: [design](superpowers/specs/2026-06-24-m4-main-page-redesign-design.md) · [plan](superpowers/plans/2026-06-24-m4-main-page-redesign.md). Phase 1 (the full shared `design-system.css`) and Phase 2 (M4 to full mockup fidelity) still stand on top of this.
 
+**Update (2026-06-25) — M4 inventory + sidebar UX refinements landed (merged to main).** A follow-on polish pass on the dual-build planner: per-row **uma1/uma2 slot-pick badges + collision auto-duplicate**, an inventory **edit-mode gate**, the outline **backpack icon** + square collapsed sliver, **uma2 Save/Save As/auto-save unified with uma1** (never writes `activePlanId`), a **centered track-change confirm dialog** (over a greyed-out track, names the slot), the `StatInput` field fix, and **full red `--uma-accent` theming** across the sidebar inputs/tiles/toggles. Still **pre-Phase-1 M4 hardening** — no shared design-system extraction yet (that's Phase 1). Spec/plan: [design](superpowers/specs/2026-06-24-m4-inventory-sidebar-refinements-design.md) · [plan](superpowers/plans/2026-06-24-m4-inventory-sidebar-refinements.md). **824 tests.**
+
 ---
 
 ## Sidelists (parallel, non-blocking)
