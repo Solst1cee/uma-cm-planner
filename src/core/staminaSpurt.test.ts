@@ -21,22 +21,27 @@ describe('histogram', () => {
 });
 
 describe('requiredStaminaForSpurt', () => {
-  // monotonic stub: spurt rate rises 0..100 as sta rises; crosses 95 at sta=700
-  const rate = async (sta: number) => Math.max(0, Math.min(100, (sta - 300) / 5));
-  test('finds the smallest sta meeting the threshold', async () => {
-    const r = await requiredStaminaForSpurt(rate, 95, { lo: 300, hi: 1200 });
+  // monotonic stub: spurt rate rises 0..100 as sta rises; crosses 95 at sta=775.
+  // finalHp tracks the probed stamina so we can assert it's captured at the chosen sta.
+  const probe = async (sta: number) => ({
+    rate: Math.max(0, Math.min(100, (sta - 300) / 5)),
+    finalHp: [sta],
+  });
+  test('finds the smallest sta meeting the threshold and returns HP at that sta', async () => {
+    const r = await requiredStaminaForSpurt(probe, 95, { lo: 300, hi: 1200 });
     expect(r.reachable).toBe(true);
     expect(r.sta).toBeGreaterThanOrEqual(775); // 95 at (sta-300)/5 → sta=775
     expect(r.sta).toBeLessThanOrEqual(785);
     expect(r.rate).toBeGreaterThanOrEqual(95);
+    expect(r.finalHp).toEqual([r.sta]); // HP sampled AT the chosen stamina
   });
   test('unreachable when even hi falls short', async () => {
-    const r = await requiredStaminaForSpurt(async () => 50, 95, { lo: 300, hi: 1200 });
+    const r = await requiredStaminaForSpurt(async () => ({ rate: 50, finalHp: [] }), 95, { lo: 300, hi: 1200 });
     expect(r.reachable).toBe(false);
     expect(r.sta).toBe(1200);
   });
   test('already met at lo', async () => {
-    const r = await requiredStaminaForSpurt(async () => 99, 95, { lo: 300, hi: 1200 });
+    const r = await requiredStaminaForSpurt(async () => ({ rate: 99, finalHp: [] }), 95, { lo: 300, hi: 1200 });
     expect(r.reachable).toBe(true);
     expect(r.sta).toBe(300);
   });

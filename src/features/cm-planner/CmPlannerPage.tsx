@@ -31,7 +31,7 @@ import { WorkingTabs, type TabKey } from './WorkingTabs';
 import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
-import { useStaminaWarnThreshold } from './useStaminaWarnThreshold';
+import { useStaminaWarnThreshold, useStaminaSpurtTarget } from './useStaminaWarnThreshold';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
@@ -70,10 +70,14 @@ export function CmPlannerPage() {
   const setTabStale = useCallback((key: TabKey, stale: boolean) => {
     setStaleTabs((prev) => (prev[key] === stale ? prev : { ...prev, [key]: stale }));
   }, []);
-  // One shared spurt-rate threshold: the Stamina tab's "target spurt" also drives the Skill/Accel
-  // stamina-out warning (persisted 0–1; surfaced as a % to the tabs).
-  const [warnThreshold01, setWarnThreshold01] = useStaminaWarnThreshold();
-  const staminaThresholdPct = Math.round(warnThreshold01 * 100);
+  // Two persisted stamina targets (0–1; surfaced as % to the tabs). The Stamina tab owns both
+  // inputs; the SURVIVAL target also drives the Skill/Accel stamina-out warning (running out of
+  // HP is a survival failure, not a spurt-rate shortfall), while the full-spurt target only
+  // drives the full-spurt required-stamina readout.
+  const [survivalTarget01, setSurvivalTarget01] = useStaminaWarnThreshold();
+  const [spurtTarget01, setSpurtTarget01] = useStaminaSpurtTarget();
+  const survivalThresholdPct = Math.round(survivalTarget01 * 100);
+  const spurtThresholdPct = Math.round(spurtTarget01 * 100);
 
   const options = useMemo(() => cmRaceOptions(timeline ?? []), [timeline]);
   // Single source of truth: the race view is DERIVED from a cmRef (no local
@@ -339,8 +343,10 @@ export function CmPlannerPage() {
                   <StaminaSpurtTab
                     key={selection.courseId}
                     plan={focusedPlan ?? plan}
-                    threshold={staminaThresholdPct}
-                    onThresholdChange={(pct) => setWarnThreshold01(pct / 100)}
+                    spurtTarget={spurtThresholdPct}
+                    onSpurtTargetChange={(pct) => setSpurtTarget01(pct / 100)}
+                    survivalTarget={survivalThresholdPct}
+                    onSurvivalTargetChange={(pct) => setSurvivalTarget01(pct / 100)}
                     onStaleChange={(s) => setTabStale('stamina', s)}
                   />
                 ),
@@ -356,7 +362,7 @@ export function CmPlannerPage() {
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
                     onStaleChange={(s) => setTabStale('accel', s)}
-                    warnThresholdPct={staminaThresholdPct}
+                    warnThresholdPct={survivalThresholdPct}
                     onChange={setFocusedPlan}
                   />
                 ),
@@ -372,7 +378,7 @@ export function CmPlannerPage() {
                     plan={focusedPlan ?? plan}
                     collapseSkillSignal={collapseSkillSignal}
                     onStaleChange={(s) => setTabStale('skills', s)}
-                    warnThresholdPct={staminaThresholdPct}
+                    warnThresholdPct={survivalThresholdPct}
                     onChange={setFocusedPlan}
                   />
                 ),

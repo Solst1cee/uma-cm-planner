@@ -25,24 +25,33 @@ export function histogram(
   return out;
 }
 
-/** Binary-search the smallest integer stamina in [lo,hi] whose spurtRate >= threshold.
- *  Assumes spurtRate is (weakly) monotonic increasing in stamina. */
+/** One stamina probe: the rate (0–100) AND the per-sample finish HP at that stamina. */
+export interface SpurtSample {
+  rate: number;
+  finalHp: number[];
+}
+
+/** Binary-search the smallest integer stamina in [lo,hi] whose rate >= threshold.
+ *  Assumes rate is (weakly) monotonic increasing in stamina. Returns the finish-HP
+ *  distribution sampled AT the chosen stamina so callers can show the resulting buffer.
+ *  Works for either metric (full-spurt rate or stamina survival) — the probe decides. */
 export async function requiredStaminaForSpurt(
-  spurtRate: (sta: number) => Promise<number>,
+  probe: (sta: number) => Promise<SpurtSample>,
   threshold: number,
   range: { lo: number; hi: number },
-): Promise<{ sta: number; rate: number; reachable: boolean }> {
-  const loRate = await spurtRate(range.lo);
-  if (loRate >= threshold) return { sta: range.lo, rate: loRate, reachable: true };
-  const hiRate = await spurtRate(range.hi);
-  if (hiRate < threshold) return { sta: range.hi, rate: hiRate, reachable: false };
+): Promise<{ sta: number; rate: number; reachable: boolean; finalHp: number[] }> {
+  const lo0 = await probe(range.lo);
+  if (lo0.rate >= threshold) return { sta: range.lo, rate: lo0.rate, reachable: true, finalHp: lo0.finalHp };
+  const hi0 = await probe(range.hi);
+  if (hi0.rate < threshold) return { sta: range.hi, rate: hi0.rate, reachable: false, finalHp: hi0.finalHp };
 
-  let lo = range.lo, hi = range.hi, bestSta = range.hi, bestRate = hiRate;
+  let lo = range.lo, hi = range.hi;
+  let bestSta = range.hi, bestRate = hi0.rate, bestHp = hi0.finalHp;
   while (hi - lo > 1) {
     const mid = Math.floor((lo + hi) / 2);
-    const r = await spurtRate(mid);
-    if (r >= threshold) { bestSta = mid; bestRate = r; hi = mid; }
+    const s = await probe(mid);
+    if (s.rate >= threshold) { bestSta = mid; bestRate = s.rate; bestHp = s.finalHp; hi = mid; }
     else { lo = mid; }
   }
-  return { sta: bestSta, rate: bestRate, reachable: true };
+  return { sta: bestSta, rate: bestRate, reachable: true, finalHp: bestHp };
 }

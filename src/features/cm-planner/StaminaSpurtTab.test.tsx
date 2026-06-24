@@ -102,14 +102,14 @@ describe('StaminaSpurtTab', () => {
     render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Run' }));
     await waitFor(() => {
-      expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
+      expect(screen.getByText('Spurt rate')).toBeInTheDocument();
     }, { timeout: 5000 });
 
     // Fresh run — no stale prompt yet.
     expect(screen.queryByText(/Changed detected/i)).not.toBeInTheDocument();
 
-    // Editing the target threshold makes the displayed result stale.
-    fireEvent.change(screen.getByLabelText(/Target spurt rate/i), { target: { value: '90' } });
+    // Editing a target threshold makes the displayed result stale.
+    fireEvent.change(screen.getByLabelText(/full spurt rate/i), { target: { value: '90' } });
     expect(screen.getByText(/Changed detected/i)).toBeInTheDocument();
   });
 
@@ -117,23 +117,25 @@ describe('StaminaSpurtTab', () => {
     render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
 
     // Spurt rate should not be visible before Run
-    expect(screen.queryByText(/Spurt rate/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Spurt rate')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     // Wait for results to render
     await waitFor(() => {
-      expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
+      expect(screen.getByText('Spurt rate')).toBeInTheDocument();
     }, { timeout: 5000 });
 
     // sta=700 → spurtRate = (700-400)/600*100 ≈ 50%
     // Both "Spurt rate" and "Stamina survival" may show 50%; use getAllByText
     expect(screen.getAllByText(/50%/).length).toBeGreaterThanOrEqual(1);
 
-    // "Stamina needed" line should appear
-    expect(screen.getByText(/Stamina needed/i)).toBeInTheDocument();
+    // Two "Stamina needed" lines now appear (full spurt + survival).
+    expect(screen.getAllByText(/Stamina needed/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/Stamina needed for 95% full spurt rate/i)).toBeInTheDocument();
+    expect(screen.getByText(/Stamina needed for 95% stamina survival/i)).toBeInTheDocument();
 
-    // sta needed for 95% = 400 + 0.95*600 = 970 (appears in both dd and breakdown)
+    // sta needed for 95% = 400 + 0.95*600 = 970 (appears in headlines + breakdown)
     expect(screen.getAllByText(/970/).length).toBeGreaterThanOrEqual(1);
 
     // The breakdown lists base + the downhill-saving range; no debuff row when 0 debuffs.
@@ -145,29 +147,29 @@ describe('StaminaSpurtTab', () => {
     expect(screen.getByText('910–970')).toBeInTheDocument();
   });
 
-  it('threshold input changes the required-stamina target', async () => {
+  it('full-spurt target input changes the required-stamina target', async () => {
     render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
 
-    // Set threshold to 90%
-    const thresholdInput = screen.getByLabelText(/Target spurt rate/i);
+    // Set the full-spurt target to 90%
+    const thresholdInput = screen.getByLabelText(/full spurt rate/i);
     fireEvent.change(thresholdInput, { target: { value: '90' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
-    // Wait for results with 90% threshold header
+    // Wait for results with the 90% full-spurt header
     await waitFor(() => {
-      expect(screen.getByText(/Stamina needed for 90%/i)).toBeInTheDocument();
+      expect(screen.getByText(/Stamina needed for 90% full spurt rate/i)).toBeInTheDocument();
     }, { timeout: 5000 });
 
-    // sta needed for 90% = 400 + 0.9*600 = 940 (appears in both dd and breakdown)
+    // sta needed for 90% = 400 + 0.9*600 = 940 (appears in headline + breakdown)
     expect(screen.getAllByText(/940/).length).toBeGreaterThanOrEqual(1);
 
-    // Re-run at 50% threshold — sta needed = lo (since current sta=700 already gives 50%)
+    // Re-run at 50% target — sta needed = lo (since current sta=700 already gives 50%)
     fireEvent.change(thresholdInput, { target: { value: '50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Re-run' }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Stamina needed for 50%/i)).toBeInTheDocument();
+      expect(screen.getByText(/Stamina needed for 50% full spurt rate/i)).toBeInTheDocument();
     }, { timeout: 5000 });
 
     // sta=100 (lo bound) already gives 0% < 50%, sta=700 gives 50% >= 50%
@@ -182,7 +184,7 @@ describe('StaminaSpurtTab', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
+      expect(screen.getByText('Spurt rate')).toBeInTheDocument();
     }, { timeout: 5000 });
 
     // The current readout (first vacuum call) does NOT bank on downhill RNG — downhill
@@ -206,7 +208,7 @@ describe('StaminaSpurtTab', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Run' }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Spurt rate/i)).toBeInTheDocument();
+      expect(screen.getByText('Spurt rate')).toBeInTheDocument();
     }, { timeout: 5000 });
 
     // First call opts should have injectedDebuffs with 3 entries (2 white + 1 gold)
@@ -245,7 +247,7 @@ describe('StaminaSpurtTab', () => {
     const bars = svg.querySelectorAll('rect');
     expect(bars.length).toBeGreaterThan(0);
 
-    // Stats line should be present
-    expect(screen.getByText(/min.*median.*max/i)).toBeInTheDocument();
+    // Per-target finish-HP stats lines should be present (full spurt + survival).
+    expect(screen.getAllByText(/min.*median.*max/i).length).toBeGreaterThanOrEqual(1);
   });
 });

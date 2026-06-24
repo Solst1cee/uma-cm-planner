@@ -128,37 +128,49 @@ function FinalHpHistogram({ finalHp }: { finalHp: number[] }) {
 }
 
 interface StaminaSpurtResult {
-  threshold: number;
+  spurtTarget: number;
+  survivalTarget: number;
   spurtRate: number;
   survival: number;
-  baseNo: Required; // no downhill, no debuffs
-  downNo: Required; // downhill saving, no debuffs (low end of the downhill range)
-  baseDb: Required; // no downhill, WITH debuffs (the conservative requirement)
+  spurtReq: Required; // stamina to hit the full-spurt target (conservative: with debuffs, no downhill)
+  spurtHp: number[]; // finish HP sampled AT spurtReq.sta
+  survivalReq: Required; // stamina to hit the survival target (same conservative scenario)
+  survivalHp: number[]; // finish HP sampled AT survivalReq.sta
+  baseNo: Required; // full-spurt, no downhill, no debuffs (breakdown base)
+  downNo: Required; // full-spurt, downhill saving, no debuffs (low end of the downhill range)
   whiteDebuffs: number;
   goldDebuffs: number;
   hasDebuffs: boolean;
-  finalHp: number[];
+  finalHp: number[]; // current build (histogram)
 }
 
 export function StaminaSpurtTab({
   plan,
   deps,
   onStaleChange,
-  threshold: thresholdProp,
-  onThresholdChange,
+  spurtTarget: spurtTargetProp,
+  onSpurtTargetChange,
+  survivalTarget: survivalTargetProp,
+  onSurvivalTargetChange,
 }: {
   plan: CmPlan;
   deps?: StaminaSpurtDeps;
   onStaleChange?: (stale: boolean) => void;
-  /** Target spurt-rate % (0–100). Shared with the Skill/Accel stamina-out warning; falls back to
-   *  local state when rendered standalone (tests). */
-  threshold?: number;
-  onThresholdChange?: (pct: number) => void;
+  /** Target full-spurt-rate % (0–100). Drives the full-spurt required-stamina readout. */
+  spurtTarget?: number;
+  onSpurtTargetChange?: (pct: number) => void;
+  /** Target stamina-survival % (0–100). Drives the survival required-stamina readout AND the
+   *  Skill/Accel stamina-out warning. Both fall back to local state when standalone (tests). */
+  survivalTarget?: number;
+  onSurvivalTargetChange?: (pct: number) => void;
 }) {
   const [open, setOpen] = useState(true);
-  const [thresholdLocal, setThresholdLocal] = useState(95);
-  const threshold = thresholdProp ?? thresholdLocal;
-  const setThreshold = onThresholdChange ?? setThresholdLocal;
+  const [spurtLocal, setSpurtLocal] = useState(95);
+  const [survivalLocal, setSurvivalLocal] = useState(95);
+  const spurtTarget = spurtTargetProp ?? spurtLocal;
+  const setSpurtTarget = onSpurtTargetChange ?? setSpurtLocal;
+  const survivalTarget = survivalTargetProp ?? survivalLocal;
+  const setSurvivalTarget = onSurvivalTargetChange ?? setSurvivalLocal;
   const [whiteDebuffs, setWhiteDebuffs] = useState(0);
   const [goldDebuffs, setGoldDebuffs] = useState(0);
   const [status, setStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -202,11 +214,12 @@ export function StaminaSpurtTab({
         baseBuild.strategy,
         baseBuild.mood ?? null,
         race.courseId,
-        threshold,
+        spurtTarget,
+        survivalTarget,
         whiteDebuffs,
         goldDebuffs,
       ]),
-    [baseBuild, race.courseId, threshold, whiteDebuffs, goldDebuffs],
+    [baseBuild, race.courseId, spurtTarget, survivalTarget, whiteDebuffs, goldDebuffs],
   );
   const isStale = runSig !== null && sig !== runSig;
 
@@ -228,38 +241,52 @@ export function StaminaSpurtTab({
     }
     setStatus('running');
     const n = d.nsamples ?? NSAMPLES;
-    const th = threshold;
+    const spurtTh = spurtTarget;
+    const survivalTh = survivalTarget;
     const hasDebuffs = whiteDebuffs + goldDebuffs > 0;
     const debuffOpts: VacuumOpts = {
       injectedDebuffs: buildInjectedDebuffs(whiteDebuffs, goldDebuffs, distance),
     };
 
-    const withSta = (sta: number, o: VacuumOpts): Promise<number> => {
+    // A single stamina probe samples both the chosen metric's rate AND the finish-HP
+    // distribution at that stamina (so each target can show the buffer it leaves).
+    const probe = (metric: 'spurt' | 'survival', o: VacuumOpts) => (sta: number) => {
       const b: SimBuild = { ...baseBuild, stats: { ...baseBuild.stats, sta } };
-      return Promise.resolve(d.vacuum(b, b, race, n, 1, o)).then((r) => r.aFullSpurtRate * 100);
+      return Promise.resolve(d.vacuum(b, b, race, n, 1, o)).then((r) => ({
+        rate: (metric === 'spurt' ? r.aFullSpurtRate : r.aStaminaSurvival) * 100,
+        finalHp: r.aFinalHp,
+      }));
     };
-    const req = (o: VacuumOpts) => requiredStaminaForSpurt((sta) => withSta(sta, o), th, STA_RANGE);
+    const reqSpurt = (o: VacuumOpts) => requiredStaminaForSpurt(probe('spurt', o), spurtTh, STA_RANGE);
+    const reqSurvival = (o: VacuumOpts) =>
+      requiredStaminaForSpurt(probe('survival', o), survivalTh, STA_RANGE);
 
     try {
       // Current readout (spurt rate / survival / histogram): the build as-is WITH the
       // expected debuffs but WITHOUT downhill — the reliable floor (don't bank on downhill RNG).
       const cur = await Promise.resolve(d.vacuum(baseBuild, baseBuild, race, n, 1, debuffOpts));
 
-      // Required-stamina requirements. Downhill is a RANGE (downNo..baseNo): in-race downhill
+      // Full-spurt requirements. Downhill is a RANGE (downNo..baseNo): in-race downhill
       // mode is RNG-gated, so the saving lands somewhere between full-downhill and none.
-      const baseNo = await req({});
-      const downNo = await req({ downhill: true });
-      // The debuff cost only needs the conservative (no-downhill) requirement; skip when none.
-      const baseDb = hasDebuffs ? await req(debuffOpts) : baseNo;
+      const baseNo = await reqSpurt({});
+      const downNo = await reqSpurt({ downhill: true });
+      // The conservative full-spurt requirement = with expected debuffs (skip the sim when none).
+      const spurtReq = hasDebuffs ? await reqSpurt(debuffOpts) : baseNo;
+      // The survival requirement, same conservative scenario (with debuffs if any).
+      const survivalReq = await reqSurvival(hasDebuffs ? debuffOpts : {});
 
       if (token.current !== t) return;
       setResult({
-        threshold: th,
+        spurtTarget: spurtTh,
+        survivalTarget: survivalTh,
         spurtRate: cur.aFullSpurtRate * 100,
         survival: cur.aStaminaSurvival * 100,
+        spurtReq: { sta: spurtReq.sta, reachable: spurtReq.reachable },
+        spurtHp: spurtReq.finalHp,
+        survivalReq: { sta: survivalReq.sta, reachable: survivalReq.reachable },
+        survivalHp: survivalReq.finalHp,
         baseNo: { sta: baseNo.sta, reachable: baseNo.reachable },
         downNo: { sta: downNo.sta, reachable: downNo.reachable },
-        baseDb: { sta: baseDb.sta, reachable: baseDb.reachable },
         whiteDebuffs,
         goldDebuffs,
         hasDebuffs,
@@ -308,8 +335,10 @@ export function StaminaSpurtTab({
             <li><b>Spurt rate</b> — share of runs that sustain a full max-speed last spurt to the line.</li>
             <li><b>Stamina survival</b> — share of runs that finish without hitting 0 HP.</li>
             <li>
-              <b>Stamina needed for X% (Mean)</b> — the stamina stat to reach that spurt rate, found
-              by re-simulating across stamina values.
+              <b>Stamina needed for X% full spurt / Y% survival</b> — the stamina stat to reach each
+              target, found by re-simulating across stamina values. Full spurt is the stricter bar,
+              so it needs more stamina than survival. The indented <b>finish HP</b> is the HP buffer
+              you&apos;d run with at that stamina (survival sits near 0 — that&apos;s the margin).
             </li>
             <li>
               <b>Downhill saving</b> — downhill mode (in-race RNG) lowers HP use, so its benefit is a
@@ -342,16 +371,30 @@ export function StaminaSpurtTab({
         <div className="cmp-stamina-tab">
           <div className="cmp-stamina-controls">
             <label className="cmp-sr-ctl small">
-              <span className="cmp-sr-label">Target spurt (%)</span>
+              <span className="cmp-sr-label">Target full spurt (%)</span>
               <span className="cmp-sr-input">
                 <input
                   type="number"
                   min={0}
                   max={100}
                   step={1}
-                  value={threshold}
-                  onChange={(e) => e.target.value !== '' && setThreshold(Number(e.target.value))}
-                  aria-label="Target spurt rate (%)"
+                  value={spurtTarget}
+                  onChange={(e) => e.target.value !== '' && setSpurtTarget(Number(e.target.value))}
+                  aria-label="Target full spurt rate (%)"
+                />
+              </span>
+            </label>
+            <label className="cmp-sr-ctl small">
+              <span className="cmp-sr-label">Target survival (%)</span>
+              <span className="cmp-sr-input">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={survivalTarget}
+                  onChange={(e) => e.target.value !== '' && setSurvivalTarget(Number(e.target.value))}
+                  aria-label="Target stamina survival (%)"
                 />
               </span>
             </label>
@@ -398,10 +441,11 @@ export function StaminaSpurtTab({
                     ? result.baseNo.sta - result.downNo.sta
                     : 0;
                 const cost =
-                  result.hasDebuffs && result.baseDb.reachable && result.baseNo.reachable
-                    ? result.baseDb.sta - result.baseNo.sta
+                  result.hasDebuffs && result.spurtReq.reachable && result.baseNo.reachable
+                    ? result.spurtReq.sta - result.baseNo.sta
                     : 0;
-                const hp = result.finalHp.length > 0 ? hpStats(result.finalHp) : null;
+                const spurtHp = result.spurtHp.length > 0 ? hpStats(result.spurtHp) : null;
+                const survHp = result.survivalHp.length > 0 ? hpStats(result.survivalHp) : null;
                 return (
                   <>
                     <div className="cmp-stamina-results">
@@ -413,19 +457,32 @@ export function StaminaSpurtTab({
                       <span className="cmp-sr-delta" />
                       <span className="cmp-stamina-num">{result.survival.toFixed(0)}%</span>
 
-                      <span className="cmp-sr-label">Stamina needed for {result.threshold}% (Mean)</span>
+                      <span className="cmp-sr-label">
+                        Stamina needed for {result.spurtTarget}% full spurt rate
+                      </span>
                       <span className="cmp-sr-delta" />
-                      <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
-
-                      {hp && (
+                      <span className="cmp-stamina-num">{fmtRequired(result.spurtReq)}</span>
+                      {spurtHp && (
                         <span className="cmp-sr-subline small">
-                          remaining HP — min <HpNum n={hp.min} /> · median <HpNum n={hp.median} /> · max{' '}
-                          <HpNum n={hp.max} /> · mean <HpNum n={hp.mean} />
+                          finish HP — min <HpNum n={spurtHp.min} /> · median <HpNum n={spurtHp.median} /> ·
+                          mean <HpNum n={spurtHp.mean} /> · max <HpNum n={spurtHp.max} />
+                        </span>
+                      )}
+
+                      <span className="cmp-sr-label">
+                        Stamina needed for {result.survivalTarget}% stamina survival
+                      </span>
+                      <span className="cmp-sr-delta" />
+                      <span className="cmp-stamina-num">{fmtRequired(result.survivalReq)}</span>
+                      {survHp && (
+                        <span className="cmp-sr-subline small">
+                          finish HP — min <HpNum n={survHp.min} /> · median <HpNum n={survHp.median} /> ·
+                          mean <HpNum n={survHp.mean} /> · max <HpNum n={survHp.max} />
                         </span>
                       )}
                     </div>
 
-                    <p className="cmp-stamina-breakdown-title small">Breakdown</p>
+                    <p className="cmp-stamina-breakdown-title small">Breakdown (full spurt)</p>
                     <div className="cmp-stamina-results cmp-stamina-breakdown-grid">
                       <span className="cmp-sr-label">Base (no downhill)</span>
                       <span className="cmp-sr-delta" />
@@ -441,7 +498,7 @@ export function StaminaSpurtTab({
                             Debuffs ({result.whiteDebuffs}W / {result.goldDebuffs}G)
                           </span>
                           <span className="cmp-sr-delta cmp-sr-cost">{cost > 0 ? `+${cost}` : ''}</span>
-                          <span className="cmp-stamina-num">{fmtRequired(result.baseDb)}</span>
+                          <span className="cmp-stamina-num">{fmtRequired(result.spurtReq)}</span>
                         </>
                       )}
                     </div>
