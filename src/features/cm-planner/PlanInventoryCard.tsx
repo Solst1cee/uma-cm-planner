@@ -125,6 +125,12 @@ const CloseIcon = () => <IconSvg><path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4
 const UploadIcon = () => <IconSvg><path d="M9 13h2V6.8l2.6 2.6L15 8l-5-5-5 5 1.4 1.4L9 6.8V13Z" /><path d="M3 12h2v3h10v-3h2v5H3v-5Z" /></IconSvg>;
 const DownloadIcon = () => <IconSvg><path d="M9 3h2v6.2l2.6-2.6L15 8l-5 5-5-5 1.4-1.4L9 9.2V3Z" /><path d="M3 12h2v3h10v-3h2v5H3v-5Z" /></IconSvg>;
 const TrashIcon = () => <IconSvg><path d="M7 3h6l1 2h4v2H2V5h4l1-2Z" /><path d="M4 8h12l-.8 9H4.8L4 8Zm4 2v5h1.5v-5H8Zm3.5 0v5H13v-5h-1.5Z" /></IconSvg>;
+const BackpackIcon = () => (
+  <IconSvg>
+    <path d="M7 2.5a3 3 0 0 1 6 0V4h.2A2.8 2.8 0 0 1 16 6.8v8.7A1.5 1.5 0 0 1 14.5 17h-9A1.5 1.5 0 0 1 4 15.5V6.8A2.8 2.8 0 0 1 6.8 4H7V2.5Zm1.5 0V4h3V2.5a1.5 1.5 0 0 0-3 0ZM7 9.5v3h6v-3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1Z" />
+  </IconSvg>
+);
+const EditIcon = () => <IconSvg><path d="M13.4 3.3 16.7 6.6 7.3 16H4v-3.3l9.4-9.4Z" /></IconSvg>;
 
 /** The "Confirm delete all items?" check/✕ pair — header (delete-all) and per group (delete-group). */
 function ConfirmDeleteToolbar({ confirmLabel, cancelLabel, onConfirm, onCancel }: {
@@ -178,6 +184,16 @@ export function PlanInventoryCard({
 
   useDismissOnOutside(toolbarRef, deleteAllConfirm, () => setDeleteAllConfirm(false));
   useDismissOnOutside(groupDeleteToolbarRef, deleteGroupConfirm !== null, () => setDeleteGroupConfirm(null));
+
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => {
+    if (!editMode) return;
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as HTMLElement).closest('[data-edit-stay]')) setEditMode(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [editMode]);
 
   // The course catalog is static — load it once for the group labels.
   useEffect(() => {
@@ -278,8 +294,7 @@ export function PlanInventoryCard({
           aria-label="Expand inventory"
           onClick={() => onCollapsedChange?.(false)}
         >
-          <span className="cmp-sliver-glyph">▤</span>
-          <span className="cmp-sliver-count">{plans.length}</span>
+          <span className="cmp-sliver-glyph cmp-sliver-backpack"><BackpackIcon /></span>
         </button>
       </aside>
     );
@@ -289,7 +304,10 @@ export function PlanInventoryCard({
     <aside className="cmp-plan-inventory" aria-labelledby="cmp-inventory-h">
       <section className="cmp-plan-card">
         <header className="cmp-plan-card-head">
-          <span id="cmp-inventory-h">Plan Inventory</span>
+          <span id="cmp-inventory-h" className="cmp-inventory-title">
+            <span className="cmp-inventory-backpack"><BackpackIcon /></span>
+            Plan Inventory
+          </span>
           <div ref={toolbarRef} className="cmp-inventory-header-actions">
             {deleteAllConfirm ? (
               <ConfirmDeleteToolbar
@@ -352,6 +370,17 @@ export function PlanInventoryCard({
               }}
             />
           </div>
+          <button
+            type="button"
+            data-edit-stay
+            className={`cmp-inventory-icon-btn cmp-inventory-edit-btn ${editMode ? 'is-on' : ''}`.trim()}
+            aria-label="Edit inventory"
+            aria-pressed={editMode}
+            title="Edit"
+            onClick={() => setEditMode((v) => !v)}
+          >
+            <EditIcon />
+          </button>
           {onCollapsedChange && (
             <button
               type="button"
@@ -397,8 +426,9 @@ export function PlanInventoryCard({
                   <div
                     ref={deleteGroupConfirm === group.key ? groupDeleteToolbarRef : undefined}
                     className="cmp-inventory-group-actions"
+                    data-edit-stay
                   >
-                    {deleteGroupConfirm === group.key ? (
+                    {editMode && (deleteGroupConfirm === group.key ? (
                       <ConfirmDeleteToolbar
                         confirmLabel={`Confirm delete all plans in ${group.label}`}
                         cancelLabel={`Cancel delete all plans in ${group.label}`}
@@ -432,7 +462,7 @@ export function PlanInventoryCard({
                           <span>Delete all</span>
                         </button>
                       </>
-                    )}
+                    ))}
                   </div>
                   <button
                     type="button"
@@ -467,24 +497,28 @@ export function PlanInventoryCard({
                             <span>{aptitudeLine(plan)}</span>
                           </div>
                         </button>
-                        <button
-                          type="button"
-                          className="cmp-inventory-icon-btn"
-                          aria-label={`Download ${plan.name}`}
-                          title="Download plan JSON"
-                          onClick={() => downloadPlan(plan)}
-                        >
-                          <DownloadIcon />
-                        </button>
-                        <button
-                          type="button"
-                          className="cmp-inventory-icon-btn"
-                          aria-label="Delete plan"
-                          title="Delete plan"
-                          onClick={() => void handleDeletePlan(plan.id)}
-                        >
-                          <TrashIcon />
-                        </button>
+                        {editMode && (
+                          <span className="cmp-inventory-row-actions" data-edit-stay>
+                            <button
+                              type="button"
+                              className="cmp-inventory-icon-btn"
+                              aria-label={`Download ${plan.name}`}
+                              title="Download plan JSON"
+                              onClick={() => downloadPlan(plan)}
+                            >
+                              <DownloadIcon />
+                            </button>
+                            <button
+                              type="button"
+                              className="cmp-inventory-icon-btn"
+                              aria-label="Delete plan"
+                              title="Delete plan"
+                              onClick={() => void handleDeletePlan(plan.id)}
+                            >
+                              <TrashIcon />
+                            </button>
+                          </span>
+                        )}
                       </article>
                     ))}
                   </div>

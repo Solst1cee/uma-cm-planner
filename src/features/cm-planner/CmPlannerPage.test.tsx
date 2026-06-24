@@ -374,6 +374,7 @@ describe('CmPlannerPage', () => {
     expect(within(inventory).getAllByText('1200 / 650 / 900 / 400 / 600')).toHaveLength(2);
     expect(within(inventory).getByText('Turf A / Medium S / Front A')).toBeInTheDocument();
     expect(within(inventory).getByText('Turf A / Medium S / Late A')).toBeInTheDocument();
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     expect(within(inventory).getAllByRole('button', { name: 'Delete plan' })).toHaveLength(2);
     expect(await within(inventory).findByRole('button', { name: /^Hanshin 2,200m \(Inner\) 1$/ })).toBeInTheDocument();
   });
@@ -553,6 +554,7 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
     await within(inventory).findByText('Hanshin Trial');
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     const deleteButtons = within(inventory).getAllByRole('button', { name: 'Delete plan' });
 
     fireEvent.click(deleteButtons[1]!);
@@ -568,9 +570,13 @@ describe('CmPlannerPage', () => {
     const header = inventory.querySelector<HTMLElement>('.cmp-plan-card-head');
     expect(header).not.toBeNull();
 
+    // header trio always visible (no edit mode needed)
     expect(within(header!).getByRole('button', { name: 'Upload plan JSON' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Download all plans as ZIP' })).toBeInTheDocument();
     expect(within(header!).getByRole('button', { name: 'Delete all plans' })).toBeInTheDocument();
+
+    // per-group and per-item buttons only visible in edit mode
+    fireEvent.click(within(inventory).getByRole('button', { name: /Edit inventory/i }));
     const groupDownloads = within(inventory).getAllByRole('button', { name: /^Download all plans in / });
     const groupDeletes = within(inventory).getAllByRole('button', { name: /^Delete all plans in / });
     expect(groupDownloads).toHaveLength(2);
@@ -628,7 +634,9 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: 'Delete all plans in CM15' });
     fireEvent.click(deleteGroup);
     const groupHead = within(inventory)
       .getByRole('button', { name: 'Confirm delete all plans in CM15' })
@@ -640,7 +648,8 @@ describe('CmPlannerPage', () => {
     fireEvent.pointerDown(document.body);
 
     expect(within(inventory).queryByRole('button', { name: 'Confirm delete all plans in CM15' })).not.toBeInTheDocument();
-    expect(within(inventory).getByRole('button', { name: 'Delete all plans in CM15' })).toBeInTheDocument();
+    // outside click also exits edit mode, so per-group buttons are now hidden
+    expect(within(inventory).queryByRole('button', { name: 'Delete all plans in CM15' })).not.toBeInTheDocument();
     expect(h.deleteSavedPlan).not.toHaveBeenCalled();
   });
 
@@ -649,7 +658,9 @@ describe('CmPlannerPage', () => {
     const inventory = screen.getByLabelText('Plan Inventory');
     const groupLabel = 'Hanshin 2,200m (Inner)';
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: `Delete all plans in ${groupLabel}` });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: `Delete all plans in ${groupLabel}` });
     fireEvent.click(deleteGroup);
     fireEvent.click(within(inventory).getByRole('button', { name: `Confirm delete all plans in ${groupLabel}` }));
 
@@ -663,7 +674,9 @@ describe('CmPlannerPage', () => {
     render(<CmPlannerPage />);
     const inventory = screen.getByLabelText('Plan Inventory');
 
-    const deleteGroup = await within(inventory).findByRole('button', { name: 'Delete all plans in CM15' });
+    // enable edit mode so per-group buttons are visible
+    fireEvent.click(await within(inventory).findByRole('button', { name: /Edit inventory/i }));
+    const deleteGroup = within(inventory).getByRole('button', { name: 'Delete all plans in CM15' });
     fireEvent.click(deleteGroup);
     fireEvent.click(within(inventory).getByRole('button', { name: 'Confirm delete all plans in CM15' }));
 

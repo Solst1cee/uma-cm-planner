@@ -627,6 +627,14 @@
   font-weight: 800;
 }
 
+.cmp-inventory-title { display: inline-flex; align-items: center; gap: 0.4rem; }
+.cmp-inventory-backpack { display: inline-flex; width: 1.05rem; height: 1.05rem; }
+.cmp-inventory-backpack svg { width: 100%; height: 100%; fill: currentColor; }
+.cmp-sliver-backpack { width: 1.9rem; height: 1.9rem; }       /* 2× of the heading icon */
+.cmp-sliver-backpack svg { width: 100%; height: 100%; fill: currentColor; }
+.cmp-inventory-edit-btn.is-on { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.cmp-inventory-row-actions { display: inline-flex; gap: 0.2rem; }
+
 .cmp-inventory-collapse-btn {
   flex: 0 0 auto;
   margin-left: 0.2rem;
