@@ -11,6 +11,8 @@
 
 This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / UmaTools / TheCing-uma-tools. Conclusion: **fork nothing, keep our umalator engine + 4-module architecture, harvest hakuraku's inheritance math for M1 and mine UmaTools UX for fidelity.** See [hakuraku-m1-harvest.md](hakuraku-m1-harvest.md).
 
+**Update (2026-06-24) — M4 main-page redesign landed (merged to main).** A pre-roadmap restructure of `/` into a **3-column dual-build flip-card planner** with a tabbed working panel (Unique · Stamina · Accel · Skills · Mini-sim), engine-derived **stamina + accel checkers**, and a Mini-sim tab (retiring `RaceSimCard`). It **seeded the Phase-1 design tokens** (`:root --cmp-*` in `cm-planner.css`) and **built the two UX-harvest framings** the §Cross-cutting / Phase-2 notes called for (stamina viability + accel timing). Spec/plan: [design](superpowers/specs/2026-06-24-m4-main-page-redesign-design.md) · [plan](superpowers/plans/2026-06-24-m4-main-page-redesign.md). Phase 1 (the full shared `design-system.css`) and Phase 2 (M4 to full mockup fidelity) still stand on top of this.
+
 ---
 
 ## Sidelists (parallel, non-blocking)
