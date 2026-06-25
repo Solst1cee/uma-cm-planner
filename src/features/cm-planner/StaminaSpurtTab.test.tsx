@@ -113,6 +113,37 @@ describe('StaminaSpurtTab', () => {
     expect(screen.getByText(/Changed detected/i)).toBeInTheDocument();
   });
 
+  it('marks results stale and rebuilds when aptitude targets change', async () => {
+    const seenDistanceGrades: string[] = [];
+    const deps: StaminaSpurtDeps = {
+      vacuum: (build, _b, _race, _n, _seed, opts) => {
+        seenDistanceGrades.push(build.aptitudes.distance);
+        return Promise.resolve(makeFakeResult(build.stats.sta, opts));
+      },
+      nsamples: 2,
+    };
+    const { rerender } = render(<StaminaSpurtTab plan={plan} deps={deps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => {
+      expect(screen.getByText('Spurt rate')).toBeInTheDocument();
+    }, { timeout: 5000 });
+    expect(seenDistanceGrades).toContain('S');
+
+    const updatedPlan = {
+      ...plan,
+      sparkGoals: {
+        ...plan.sparkGoals,
+        pink: [{ aptKey: { kind: 'distance' as const, key: 'medium' as const }, target: 'B' as const }],
+      },
+    };
+    rerender(<StaminaSpurtTab plan={updatedPlan} deps={deps} />);
+
+    expect(screen.getByText(/Changed detected/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+    await waitFor(() => expect(seenDistanceGrades).toContain('B'), { timeout: 5000 });
+  });
+
   it('Run reports spurt rate and required stamina', async () => {
     render(<StaminaSpurtTab plan={plan} deps={makeDeps()} />);
 

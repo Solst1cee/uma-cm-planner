@@ -8,7 +8,7 @@ index 95fdeef..c0f4f86 100644
    fullSpurtRate: number;
 +  finalHp: number[];
  }
- 
+
  const defaultSimulationRun: SimulationRun = {
 diff --git a/src/modules/simulation/simulators/vacuum-compare.ts b/src/modules/simulation/simulators/vacuum-compare.ts
 index 48c473d..19e161e 100644
@@ -17,7 +17,7 @@ index 48c473d..19e161e 100644
 @@ -123,6 +123,8 @@ export function runComparison(params: CompareParams): CompareResult {
      uma2: { total: 0, hpDiedCount: 0, fullSpurtCount: 0 }
    };
- 
+
 +  const finalHp = { uma1: [] as number[], uma2: [] as number[] };
 +
    const firstUmaCounters = {
@@ -26,7 +26,7 @@ index 48c473d..19e161e 100644
 @@ -143,6 +145,9 @@ export function runComparison(params: CompareParams): CompareResult {
        throw new Error('Missing collected runner data for compare simulation');
      }
- 
+
 +    finalHp.uma1.push(roundA.hp[roundA.hp.length - 1] ?? 0);
 +    finalHp.uma2.push(roundB.hp[roundB.hp.length - 1] ?? 0);
 +
@@ -52,4 +52,3 @@ index 48c473d..19e161e 100644
 +      finalHp: finalHp.uma2
      }
    };
- 
