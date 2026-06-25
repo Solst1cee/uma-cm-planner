@@ -4,7 +4,8 @@
  *  plus an already-resolved racetrack name (resolution itself is async + lives
  *  in the page, so this stays pure + unit-testable). */
 import { distanceClass } from '@/core/simBuild';
-import type { CmPlan, Strategy } from '@/core/types';
+import type { CmPlan } from '@/core/types';
+import { STRATEGY_LABEL, cap } from './labels';
 
 export interface PlanContextView {
   /** "PLAN #N" badge text. */
@@ -16,9 +17,6 @@ export interface PlanContextView {
   /** Right-aligned chips: surface / distance / strategy. */
   chips: { surface: string; distance: string; strategy: string };
 }
-
-const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
-const cap = (v: string): string => v.charAt(0).toUpperCase() + v.slice(1);
 
 export function planContextView(plan: CmPlan, trackName: string | null): PlanContextView {
   const dist = plan.cmRef.distance;
