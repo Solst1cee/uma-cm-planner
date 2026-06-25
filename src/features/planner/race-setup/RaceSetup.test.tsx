@@ -60,7 +60,10 @@ describe('RaceSetup', () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     // wait until catalog resolves (Track enabled = catalog ready)
-    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
+    // Barrier: wait for the catalog re-resolve to settle (Track shows CM15's resolved
+    // value, not merely "enabled") — otherwise the [catalog] effect can fire AFTER a
+    // condition edit and clobber it back to the preset (CI-timing flake).
+    await waitFor(() => expect(screen.getByLabelText('Track')).toHaveValue('10009'));
     fireEvent.change(screen.getByLabelText('CM preset'), { target: { value: 'CM16' } });
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ courseId: '10501', presetCmId: 'CM16' }),
@@ -84,7 +87,10 @@ describe('RaceSetup', () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     // wait for catalog to be ready (Track enabled)
-    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
+    // Barrier: wait for the catalog re-resolve to settle (Track shows CM15's resolved
+    // value, not merely "enabled") — otherwise the [catalog] effect can fire AFTER a
+    // condition edit and clobber it back to the preset (CI-timing flake).
+    await waitFor(() => expect(screen.getByLabelText('Track')).toHaveValue('10009'));
     fireEvent.change(screen.getByLabelText('Weather'), { target: { value: 'rainy' } });
     const last = onChange.mock.lastCall![0];
     expect(last.weather).toBe('rainy');
@@ -96,7 +102,10 @@ describe('RaceSetup', () => {
     const onChange = vi.fn();
     render(<RaceSetup onChange={onChange} options={OPTIONS} deps={deps} />);
     // wait for catalog to be ready (Track enabled)
-    await waitFor(() => expect(screen.getByLabelText('Track')).not.toBeDisabled());
+    // Barrier: wait for the catalog re-resolve to settle (Track shows CM15's resolved
+    // value, not merely "enabled") — otherwise the [catalog] effect can fire AFTER a
+    // condition edit and clobber it back to the preset (CI-timing flake).
+    await waitFor(() => expect(screen.getByLabelText('Track')).toHaveValue('10009'));
     fireEvent.change(screen.getByLabelText('Track'), { target: { value: '10006' } }); // Tokyo
     const last = onChange.mock.lastCall![0];
     expect(last.racetrack).toBe('Tokyo');
