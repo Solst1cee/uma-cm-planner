@@ -1,0 +1,44 @@
+/* Design-system tokens — the single source of truth for colour/elevation.
+   Light is the default (no [data-theme] attribute ⇒ this block applies via :root).
+   Dark overrides only what differs; theme-invariant tokens live in the light block. */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg-0: #f5f7fb; --bg-1: #ffffff; --bg-2: #eef3f9; --bg-3: #e9eef5;
+  --fg: #172033; --fg-muted: #637083; --border: #d7dee8; --accent: #3478f6;
+  --error: #c2414b;
+  --warn: #b26a00; --warn-fg: #7a4f00; --warn-bg: #fde9c8; --warn-border: #e3b778;
+  --tier-chain: #22c55e; --tier-scenario: #14b8a6; --tier-date_event: #06b6d4;
+  --tier-hint_strong: #a3e635; --tier-hint_weak: #eab308; --tier-random: #f97316;
+  --tier-spark: #a78bfa; --tier-uncovered: #ef4444;
+  --live: #1f9d57; --dead: #9aa3b2; --gold: #a9791a; --violet: #7c5cff; --sp: #3b66b0;
+  --stat-speed: #2f7fe0; --stat-stamina: #d4453d; --stat-power: #d07b1e;
+  --stat-guts: #d24b7e; --stat-wit: #1ba588;
+  --ds-card-radius: 12px; --ds-card-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  --ef-spd-fg: #2f6fd0; --ef-spd-border: #bcd0ef; --ef-spd-bg: #eaf2fd;
+  --ef-acc-fg: #b9701a; --ef-acc-border: #e6cba0; --ef-acc-bg: #fbf1e2;
+  --ef-rec-fg: #138a72; --ef-rec-border: #a8dcd0; --ef-rec-bg: #e6f6f2;
+  --ef-heal-fg: #1f9d57; --ef-heal-border: #aadcbf; --ef-heal-bg: #e7f6ee;
+  --ef-dbf-fg: #c44d77; --ef-dbf-border: #eebfd0; --ef-dbf-bg: #fbeaf1;
+  --track-straight: #e6ebf3; --track-corner: #efe7f5;
+  --track-activation: rgb(124 92 255 / 0.16); --track-finish: var(--live);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-0: #0f1115; --bg-1: #171a21; --bg-2: #1d212a; --bg-3: #0c0e13;
+  --fg: #e6e8ec; --fg-muted: #8b929e; --border: #2a2f3a; --accent: #6aa3ff;
+  --error: #e06c75;
+  --warn: #e0a14f; --warn-fg: #f0c994; --warn-bg: #241c10; --warn-border: #5a4730;
+  --live: #57c98a; --dead: #545a66; --gold: #e6b85c; --violet: #b08bff; --sp: #9fb4d8;
+  --stat-speed: #5aa0ff; --stat-stamina: #e0564f; --stat-power: #e69a3c;
+  --stat-guts: #e35d8c; --stat-wit: #37c2a0;
+  --ds-card-shadow: 0 12px 28px rgb(0 0 0 / 0.45);
+  --ef-spd-fg: #5aa0ff; --ef-spd-border: #33455f; --ef-spd-bg: #15202f;
+  --ef-acc-fg: #e69a3c; --ef-acc-border: #5a4730; --ef-acc-bg: #241c10;
+  --ef-rec-fg: #37c2a0; --ef-rec-border: #2f5650; --ef-rec-bg: #0f231f;
+  --ef-heal-fg: #57c98a; --ef-heal-border: #2c5a40; --ef-heal-bg: #0f2318;
+  --ef-dbf-fg: #e35d8c; --ef-dbf-border: #5a3344; --ef-dbf-bg: #241018;
+  --track-straight: #1b2230; --track-corner: #33283f;
+  --track-activation: rgb(176 139 255 / 0.16);
+}

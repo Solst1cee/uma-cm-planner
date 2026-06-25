@@ -15,6 +15,8 @@ This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / Uma
 
 **Update (2026-06-25) — M4 inventory + sidebar UX refinements landed (merged to main).** A follow-on polish pass on the dual-build planner: per-row **uma1/uma2 slot-pick badges + collision auto-duplicate**, an inventory **edit-mode gate**, the outline **backpack icon** + square collapsed sliver, **uma2 Save/Save As/auto-save unified with uma1** (never writes `activePlanId`), a **centered track-change confirm dialog** (over a greyed-out track, names the slot), the `StatInput` field fix, and **full red `--uma-accent` theming** across the sidebar inputs/tiles/toggles. Still **pre-Phase-1 M4 hardening** — no shared design-system extraction yet (that's Phase 1). Spec/plan: [design](superpowers/specs/2026-06-24-m4-inventory-sidebar-refinements-design.md) · [plan](superpowers/plans/2026-06-24-m4-inventory-sidebar-refinements.md). **824 tests.**
 
+**Update (2026-06-25) — Phase 1 design-system foundation landed.** Themeable (light default + dark) semantic tokens in `src/styles/design-system/`, `ds-*` component classes, a `/styleguide` route, and a Light/Dark/System toggle in settings. Existing token names kept (271 usages untouched); M4 + app shell verified in both themes with no light regression. Spec [design](superpowers/specs/2026-06-25-design-system-foundation-design.md) · [plan](superpowers/plans/2026-06-25-design-system-foundation.md).
+
 ---
 
 ## Sidelists (parallel, non-blocking)
@@ -131,7 +133,7 @@ Build the UI **and** land the **hakuraku harvest** (full detail in [hakuraku-m1-
 | S1 Engine update | ⬜ not started | v0.14.2 → v0.18.0; see engine-update-todo.md |
 | S2 Public data swap | ⬜ parked | only when public release is a goal |
 | S3 M4 polish + mechanics | ⬜ not started | wishlist projectedL refresh, accel label/plate readability, per-tab hint-button polish, rushed/struggle/dueling stamina review, per-submodule provenance |
-| P1 Design system | ⬜ not started | the one-time re-skin foundation |
+| P1 Design system | ✅ done | tokens (light+dark) + ds-* components + /styleguide + Light/Dark/System settings toggle; M4 + shell verified both themes, zero light regression. Spec/plan 2026-06-25. |
 | P2 M4 fidelity | ⬜ not started | flagship; proves the system |
 | P3 Data tasks | ⬜ not started | duration, innate, release dates |
 | P4 M2/M3/M1 fidelity | ⬜ not started | M1 folds in hakuraku harvest |

@@ -11,6 +11,7 @@
 import { useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { exportBlob, importBlob } from '@/db';
+import { ThemeToggle } from '@/app/ThemeToggle';
 
 function message(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
@@ -70,6 +71,10 @@ export function SettingsMenu() {
     <details className="settings">
       <summary aria-label="Settings menu">⚙</summary>
       <div className="settings-body">
+        <label className="muted small" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          Theme
+          <ThemeToggle />
+        </label>
         <button type="button" onClick={() => void doExport()}>
           Export data (JSON)
         </button>
