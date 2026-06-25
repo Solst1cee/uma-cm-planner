@@ -1,4 +1,7 @@
-.styleguide { display: flex; flex-direction: column; gap: 1.5rem; }
+/* The wrapper carries data-theme for the LOCAL preview toggle, so it must set
+   its own color + background — otherwise its subtree inherits body's computed
+   (global-theme) text colour and dark components render dark-on-dark text. */
+.styleguide { display: flex; flex-direction: column; gap: 1.5rem; color: var(--fg); background: var(--bg-0); padding: 1rem; border-radius: 12px; }
 .styleguide-toolbar { display: flex; align-items: center; gap: 0.75rem; }
 .sg-section { display: flex; flex-direction: column; gap: 0.6rem; }
 .sg-section > h2 { font-size: 0.95rem; margin: 0; }
