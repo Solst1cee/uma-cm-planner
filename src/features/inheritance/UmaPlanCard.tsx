@@ -13,6 +13,7 @@ import type { AptChip } from './umaPlanApt';
 
 const BackpackIcon = () => (
   <svg
+    className="cmp-backpack-ico"
     viewBox="0 0 24 24"
     aria-hidden="true"
     focusable="false"
