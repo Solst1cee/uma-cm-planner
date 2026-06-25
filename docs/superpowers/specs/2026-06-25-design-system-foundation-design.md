@@ -48,7 +48,9 @@ The roadmap flagged two decisions as "resolve before building the tokens." Both 
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg-0: #0f1115; --bg-1: #171a21; --bg-2: #0c0e13; --bg-3: #1d212a;
+  /* bg-2 is the RAISED grey so the 271 existing --bg-2 usages read in dark with no
+     per-usage audit; the mockup's deep #0c0e13 is exposed as --bg-3 (see the plan). */
+  --bg-0: #0f1115; --bg-1: #171a21; --bg-2: #1d212a; --bg-3: #0c0e13;
   --fg: #e6e8ec; --fg-muted: #8b929e; --border: #2a2f3a; --accent: #6aa3ff;
   --error: #e06c75;
   --warn: #e0a14f; --warn-fg: #f0c994; --warn-bg: #241c10; --warn-border: #5a4730;
