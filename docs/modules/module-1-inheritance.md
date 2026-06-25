@@ -29,6 +29,18 @@ The 2.0 affinity model is **logic-complete**. It is **data-gated** on two follow
 
 Validated: `winBonus` synthetic fixtures, `spark.ts` de-approx, rental-tier thresholds. See [docs/mechanics-notes.md](../mechanics-notes.md) §3 for the locked affinity numbers; spec/plan: [2026-06-25 M1.0 spec](../superpowers/specs/) (dated 2026-06-25).
 
+## M1.5 "Your deck" card (2026-06-26)
+
+The center-column **"Your deck"** panel landed: a 6-slot support-card deck with
+drag-drop (HTML5 DnD `text/card-id`), per-slot limit-break diamond steppers,
+remove/clear, and named templates. State is a dedicated `DeckState` (NOT
+`CmPlan.lockedDeckSlots` — that is M4's suggester concept), **autosaved per active
+plan** to `localStorage` (`scb_deck:<planId>`), with templates in `scb_profiles`.
+Files: `deckOps.ts` (pure), `useDeckState.ts` (persistence), `YourDeckCard.tsx`
+(provider-free panel). The fill seam `addCardToDeck(cardId)` + the drop target are
+built and tested; the interactive drag *source* / "+ Add" button arrive with **M1.6**
+(support-card pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
