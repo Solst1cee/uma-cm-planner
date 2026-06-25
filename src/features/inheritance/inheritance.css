@@ -79,3 +79,98 @@
 .inh-uma-change { margin-left: auto; flex: none; }
 .inh-uma-apts { margin-top: 0; }
 .inh-uma-picker { margin-top: 0.2rem; }
+
+/* "Your deck" card (M1.5) */
+.inh-deck {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
+  box-shadow: 0 6px 18px rgb(36 54 78 / 0.08);
+}
+.inh-deck-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.inh-deck-title { margin: 0; font-size: 1rem; }
+.inh-deck-sub { color: var(--fg-muted); font-weight: 400; font-size: 0.8rem; }
+.inh-deck-tools { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
+.inh-deck-tplname { width: 8.5rem; padding: 0.25rem 0.45rem; font-size: 0.78rem; }
+.inh-deck-tplsel { width: auto; padding: 0.25rem 0.4rem; font-size: 0.78rem; }
+
+.inh-deck-slots {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+@media (max-width: 640px) {
+  .inh-deck-slots { grid-template-columns: repeat(3, 1fr); }
+}
+.inh-deck-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 86px;
+  padding: 0.45rem;
+  border: 1.5px dashed var(--border);
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+.inh-deck-slot.is-filled { background: var(--bg-1); }
+.inh-deck-slot.drag-over { border-color: var(--accent); background: #eef4ff; }
+.inh-deck-remove {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.3rem;
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+}
+.inh-deck-slot-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.inh-deck-type {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inh-deck-lb { display: flex; align-items: center; gap: 0.25rem; }
+.inh-deck-lb-label { color: var(--fg-muted); font-size: 0.6rem; font-weight: 800; }
+.inh-deck-lb-diamonds { display: inline-flex; gap: 3px; align-items: center; }
+.inh-deck-diamond {
+  width: 9px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: #d7dce4;
+}
+.inh-deck-diamond.is-on { background: linear-gradient(160deg, #ffe488, #e8a008); }
+.inh-deck-empty {
+  margin: auto;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.72rem;
+}
+.inh-deck-plus { display: block; font-size: 1rem; line-height: 1; }
