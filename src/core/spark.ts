@@ -126,7 +126,9 @@ export function sparkChance(args: {
     grandparentAffinity?: number;
     /** Resolve a contribution's computed per-member affinity (M1 affinity).
      *  When it returns a number, that score is used and the contribution is
-     *  NOT approximate; undefined ⇒ fall back to affinityHint/grandparentAffinity. */
+     *  NOT approximate; undefined ⇒ fall back to affinityHint/grandparentAffinity.
+     *  `gpIndex` is meaningful only when `grandparent` is true (it is -1 for the
+     *  parent-self call); branch on `grandparent`, do not index a gp array with it. */
     memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
     /** Resolve a skillId → rarity to gate white-spark pricing (finding 2). */
     skillRarity?: ReadonlyMap<string, SkillRarity> | ((skillId: string) => SkillRarity | undefined);

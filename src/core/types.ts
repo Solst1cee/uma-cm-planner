@@ -90,7 +90,7 @@ export interface LineageAffinity {
   /** Per-member scores that scale proc chance: chance = base × (1 + score/100). */
   memberScores: { parentA: number; parentB: number; gA1: number; gA2: number; gB1: number; gB2: number };
   tiers: { parentA: AffinityTier; parentB: AffinityTier; gA1: AffinityTier; gA2: AffinityTier; gB1: AffinityTier; gB2: AffinityTier };
-  /** Sum of member scores — the in-game "displayed" affinity (static; excludes shared-win bonuses). */
+  /** Sum of the 6 member scores — the in-game "displayed" affinity (includes shared-win bonuses when a winBonus is supplied). */
   displayTotal: number;
   /** True when shared-win bonuses were omitted (P3: render ≈ / note "+ shared-win bonuses in-game"). */
   staticOnly: boolean;
