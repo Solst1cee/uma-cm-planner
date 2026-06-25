@@ -13,12 +13,12 @@ const plan = (over: Partial<CmPlan> = {}): CmPlan =>
   }) as CmPlan;
 
 describe('umaPlanAptChips', () => {
-  it('always shows all three active aptitudes (distance/surface/strategy) with default grades', () => {
+  it('shows all three active aptitudes in surface/distance/strategy order with default grades', () => {
     // turf · 2200m (→ medium) · late, no stored pink goals →
-    // distance defaults S, surface + strategy default A.
+    // surface A, distance defaults S, strategy A.
     expect(umaPlanAptChips(plan())).toEqual([
-      { label: 'Medium', grade: 'S' },
       { label: 'Turf', grade: 'A' },
+      { label: 'Medium', grade: 'S' },
       { label: 'Late', grade: 'A' },
     ]);
   });
@@ -34,8 +34,8 @@ describe('umaPlanAptChips', () => {
       },
     });
     expect(umaPlanAptChips(p)).toEqual([
-      { label: 'Medium', grade: 'A' },
       { label: 'Turf', grade: 'S' },
+      { label: 'Medium', grade: 'A' },
       { label: 'Late', grade: 'A' },
     ]);
   });
@@ -46,8 +46,8 @@ describe('umaPlanAptChips', () => {
       strategy: 'front',
     });
     expect(umaPlanAptChips(p)).toEqual([
-      { label: 'Mile', grade: 'S' },
       { label: 'Dirt', grade: 'A' },
+      { label: 'Mile', grade: 'S' },
       { label: 'Front', grade: 'A' },
     ]);
   });

@@ -19,5 +19,5 @@ export function umaPlanAptChips(plan: CmPlan): AptChip[] {
     label: cap(key.key),
     grade: targetAptitude(plan, key) ?? 'A',
   });
-  return [chip(keys.distance), chip(keys.surface), chip(keys.strategy)];
+  return [chip(keys.surface), chip(keys.distance), chip(keys.strategy)];
 }
