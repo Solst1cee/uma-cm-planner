@@ -47,11 +47,9 @@ export function YourDeckCard({
   };
 
   return (
-    <div className="panel inh-deck">
-      <div className="inh-deck-head">
-        <h2 className="inh-deck-title">
-          Your deck <span className="inh-deck-sub">— 6 support slots</span>
-        </h2>
+    <div className="inh-deck">
+      <div className="inh-deck-head">Deck</div>
+      <div className="inh-deck-body">
         <div className="inh-deck-tools">
           <input
             type="text"
@@ -105,9 +103,8 @@ export function YourDeckCard({
             Clear
           </button>
         </div>
-      </div>
 
-      <div className="inh-deck-slots">
+        <div className="inh-deck-slots">
         {state.slots.map((cardId, i) => {
           const info = cardId ? resolveCard(cardId) ?? NEUTRAL : null;
           const dragging = dragIndex === i;
@@ -165,6 +162,7 @@ export function YourDeckCard({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

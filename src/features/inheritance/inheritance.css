@@ -80,23 +80,35 @@
 .inh-uma-apts { margin-top: 0; }
 .inh-uma-picker { margin-top: 0.2rem; }
 
-/* "Your deck" card (M1.5) */
+/* "Deck" card (M1.5) — CM-planner card grammar (card shell + gray head bar + padded body). */
 .inh-deck {
   position: sticky;
   top: 0.5rem;
   z-index: 5;
-  box-shadow: 0 6px 18px rgb(36 54 78 / 0.08);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-1);
+  box-shadow: var(--ds-card-shadow, 0 6px 18px rgb(36 54 78 / 0.08));
 }
 .inh-deck-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  min-height: 2.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.inh-deck-body { padding: 0.75rem; }
+.inh-deck-tools {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
   flex-wrap: wrap;
 }
-.inh-deck-title { margin: 0; font-size: 1rem; }
-.inh-deck-sub { color: var(--fg-muted); font-weight: 400; font-size: 0.8rem; }
-.inh-deck-tools { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
 .inh-deck-tplname { width: 8.5rem; padding: 0.25rem 0.45rem; font-size: 0.78rem; }
 .inh-deck-tplsel { width: auto; padding: 0.25rem 0.4rem; font-size: 0.78rem; }
 

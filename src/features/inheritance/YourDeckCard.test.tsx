@@ -29,7 +29,7 @@ function renderCard(over: Partial<ComponentProps<typeof YourDeckCard>> = {}) {
 describe('YourDeckCard', () => {
   it('renders the title and 6 empty slots', () => {
     renderCard();
-    expect(screen.getByText('Your deck')).toBeInTheDocument();
+    expect(screen.getByText('Deck')).toBeInTheDocument();
     // 6 empty slot numbers 1..6
     for (let n = 1; n <= 6; n++) expect(screen.getByText(String(n))).toBeInTheDocument();
   });
