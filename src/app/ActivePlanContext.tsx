@@ -54,7 +54,6 @@ export function makeDefaultPlan(cmRefOverride?: CmRefV2): CmPlan {
       blue: {},
     },
     wishlist: [],
-    lockedDeckSlots: [],
     parents: {},
     patch: { version: DATA_VERSION },
     server: 'global',
@@ -80,7 +79,6 @@ function isLegacyStarterPlan(plan: CmPlan): boolean {
     plan.sparkGoals.pink.length === 0 &&
     Object.keys(plan.sparkGoals.blue).length === 0 &&
     plan.wishlist.length === 0 &&
-    plan.lockedDeckSlots.length === 0 &&
     Object.keys(plan.parents).length === 0
   );
 }

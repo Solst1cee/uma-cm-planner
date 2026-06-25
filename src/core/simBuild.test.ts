@@ -18,7 +18,7 @@ function plan(over: Partial<CmPlan> = {}): CmPlan {
     cmRef: { kind: 'custom', courseId: '10906', surface: 'turf', distance: 2200, ground: 'good', weather: 'sunny', season: 'summer' },
     umaId: '100101', uniqueSkillId: '', role: 'ace', strategy: 'pace',
     statProfile: { stats: { spd: 1200, sta: 900, pow: 800, gut: 400, wit: 600 }, mood: 0 },
-    sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},
+    sparkGoals: { pink: [], blue: {} }, wishlist: [], parents: {},
     patch: { version: 't' }, server: 'global', dataVersion: 't', ...over,
   } as CmPlan;
 }

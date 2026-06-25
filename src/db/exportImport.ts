@@ -331,15 +331,6 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
     reqOneOf(ts, 'source', ['targeted'] as const, `${path}.wishlist[${i}]`);
   });
 
-  asArray(row['lockedDeckSlots'], `${path}.lockedDeckSlots`).forEach((s, i) => {
-    const slot = asRecord(s, `${path}.lockedDeckSlots[${i}]`);
-    const n = reqNumber(slot, 'slot', `${path}.lockedDeckSlots[${i}]`);
-    if (!Number.isInteger(n) || n < 0 || n > 5) {
-      fail(`${path}.lockedDeckSlots[${i}].slot`, 'an integer 0–5', n);
-    }
-    optString(slot, 'cardId', `${path}.lockedDeckSlots[${i}]`);
-  });
-
   const parents = asRecord(row['parents'], `${path}.parents`);
   optString(parents, 'a', `${path}.parents`);
   optString(parents, 'b', `${path}.parents`);

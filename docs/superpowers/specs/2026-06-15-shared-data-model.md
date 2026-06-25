@@ -65,6 +65,8 @@ type CmRef = { cmId: CmId; cmNumber: number; courseId: string };
 - **Patch** is its own field (M3 supplies the timeline, M4 stamps the active version), distinct from `dataVersion` (local dataset build) and `server`.
 - **`scenarioId`** stays (M4 scenario-skill filter, M2 build context need it); **SP budget** lives in M2's runtime input, not `CmPlan`.
 
+> **Update 2026-06-25 — removed.** `inheritanceStopgap` and the CmPlan deck-lock layer (the implemented `lockedDeckSlots` + the deferred `deck: OwnedCard[]`) — plus `src/core/deck.ts` (the greedy locked-slot suggester) — were **deleted**. M1's `parents` model fully replaces the inheritance stopgap, and M1's new Support Card Builder owns the deck/coverage matrix with its own data model (not the old suggester). `core/coverage.ts`/`sourcing.ts`/`contingency.ts` (the tier math, used by M2 + M1) are unaffected.
+
 ## 4. WishlistItem (M4 owns; M1 sets flags; nobody re-declares)
 ```ts
 interface WishlistItem {

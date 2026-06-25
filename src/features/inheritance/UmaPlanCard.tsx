@@ -65,16 +65,21 @@ export function UmaPlanCard({
       <section className="cmp-plan-card inh-uma-card">
         <header className="cmp-plan-card-head">
           <span>Uma plan</span>
-          <button
-            type="button"
-            className="cmp-inventory-icon-btn inh-uma-inv-btn"
-            aria-label="Choose plan from inventory"
-            aria-expanded={inventoryOpen}
-            title="Choose plan from inventory"
-            onClick={onToggleInventory}
-          >
-            <BackpackIcon />
-          </button>
+          {/* The popover anchors to this span so its top-right corner sits at the
+              icon's bottom border. */}
+          <span className="inh-uma-inv-anchor">
+            <button
+              type="button"
+              className="cmp-inventory-icon-btn inh-uma-inv-btn"
+              aria-label="Choose plan from inventory"
+              aria-expanded={inventoryOpen}
+              title="Choose plan from inventory"
+              onClick={onToggleInventory}
+            >
+              <BackpackIcon />
+            </button>
+            {inventoryOpen && <div className="inh-inventory-popover">{inventory}</div>}
+          </span>
         </header>
         <div className="cmp-plan-card-body inh-uma-body">
           <div className="inh-uma-main">
@@ -95,7 +100,6 @@ export function UmaPlanCard({
           )}
         </div>
       </section>
-      {inventoryOpen && <div className="inh-inventory-popover">{inventory}</div>}
     </div>
   );
 }

@@ -53,13 +53,18 @@
 .inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
 
 /* "Uma plan" card (M1.2) — uses the cmp-plan-card grammar (header + body).
-   The wrapper is the positioning + dismiss context for the popover (the card
-   itself has overflow:hidden, which would clip an absolute child). */
+   overflow:visible so the icon-anchored popover isn't clipped; re-round the
+   header top corners that the card's overflow:hidden normally provides. */
 .inh-uma-wrap { position: relative; }
-.inh-uma-card { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
-.inh-uma-card .cmp-plan-card-head { gap: 0.5rem; }
-/* Bigger inventory icon button in the header, right-aligned. */
-.inh-uma-inv-btn { margin-left: auto; width: 2.35rem; height: 2.35rem; }
+.inh-uma-card { overflow: visible; border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+.inh-uma-card .cmp-plan-card-head {
+  gap: 0.5rem;
+  border-top-left-radius: var(--cmp-card-radius);
+  border-top-right-radius: var(--cmp-card-radius);
+}
+/* Inventory-icon button (bigger) + its popover anchor, right-aligned in the head. */
+.inh-uma-inv-anchor { position: relative; margin-left: auto; display: inline-flex; }
+.inh-uma-inv-btn { width: 2.35rem; height: 2.35rem; }
 .inh-uma-inv-btn svg { width: 1.45rem; height: 1.45rem; }
 
 .inh-uma-body { display: flex; flex-direction: column; gap: 0.55rem; }
@@ -81,13 +86,14 @@
 }
 .inh-uma-apts { margin-top: 0; }
 
-/* Inventory popover (opens from the inventory icon, dismiss-on-outside). */
+/* Inventory popover: top-right corner at the icon's bottom border (anchored to
+   the icon button). Opens downward, right-aligned to the icon. */
 .inh-inventory-popover {
   position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 0;
+  top: calc(100% + 0.3rem);
   right: 0;
   z-index: 40;
+  width: min(380px, 86vw);
   max-height: 70vh;
   overflow: auto;
   padding: 0.5rem;
