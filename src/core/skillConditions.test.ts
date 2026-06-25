@@ -33,6 +33,10 @@ describe('requiresWitCheck', () => {
     expect(requiresWitCheck('phase_random==1&order_rate<=40')).toBe(true);
     expect(requiresWitCheck('straight_random==1')).toBe(true);
     expect(requiresWitCheck('corner_random==2')).toBe(true);
+    expect(requiresWitCheck('phase_laterhalf_random==1')).toBe(true);
+    expect(requiresWitCheck('down_slope_random==1')).toBe(true);
+    expect(requiresWitCheck('distance_type==1&distance_rate_after_random==50')).toBe(true);
+    expect(requiresWitCheck('is_finalcorner_random==1')).toBe(true);
   });
   test('deterministic conditions do not', () => {
     expect(requiresWitCheck('order_rate<=40&phase>=2')).toBe(false);

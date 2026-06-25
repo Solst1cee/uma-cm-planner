@@ -178,6 +178,7 @@ export function StaminaSpurtTab({
   const [runSig, setRunSig] = useState<string | null>(null);
   const token = useRef(0);
 
+  const aptitudeSig = JSON.stringify(plan.sparkGoals.pink);
   // Mirror StaminaCheckerTab's dep list so wishlist edits re-run cleanly.
   const baseBuild = useMemo(
     () => planToOverlayBuild(plan),
@@ -193,6 +194,7 @@ export function StaminaSpurtTab({
       plan.statProfile.stats.wit,
       plan.statProfile.mood,
       plan.uniqueSkillId,
+      aptitudeSig,
       JSON.stringify(plan.wishlist),
     ],
   );
@@ -212,6 +214,7 @@ export function StaminaSpurtTab({
         baseBuild.stats,
         [...baseBuild.skills].sort(),
         baseBuild.strategy,
+        baseBuild.aptitudes,
         baseBuild.mood ?? null,
         race.courseId,
         spurtTarget,

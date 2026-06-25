@@ -114,7 +114,7 @@ interface ActivePlanValue {
   selectPlan: (id: string) => Promise<void>;
   /** Load a saved plan into a specific slot. Duplicates the plan when it is already
    *  loaded in the opposite slot so the two slots never share an id. */
-  loadPlanIntoSlot: (id: string, slot: 'uma1' | 'uma2') => Promise<void>;
+  loadPlanIntoSlot: (id: string, slot: 'uma1' | 'uma2') => Promise<CmPlan>;
   /** Delete a saved plan and refresh the inventory. */
   deleteSavedPlan: (id: string) => Promise<void>;
   /** Add validated plan files without overwriting existing ids. */
@@ -462,7 +462,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     return next;
   }, [uma2Plan]);
 
-  const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2') => {
+  const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2'): Promise<CmPlan> => {
     const source = await getPlan(id);
     if (!source) throw new Error(`Saved plan ${id} could not be found`);
     const collides = shouldDuplicateForSlot(id, slot, planRef.current?.id, uma2Plan?.id);
@@ -470,17 +470,20 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     if (slot === 'uma2') {
       // Duplicate-on-collision is handled by copyPlanInto (fresh id). setUma2Plan
       // autonames + autosaves the scratch slot either way.
-      setUma2Plan(collides ? copyPlanInto(source) : source);
-      return;
+      const next = collides ? copyPlanInto(source) : source;
+      setUma2Plan(next);
+      return next;
     }
     // slot === 'uma1'
     if (collides) {
       // Fresh-id duplicate loaded as an unsaved draft (it is not yet in the saved set).
       const draft = copyPlanInto(source);
-      setDraftPlan({ ...draft, name: generatePlanName(draft, undefined) });
-      return;
+      const next = { ...draft, name: generatePlanName(draft, undefined) };
+      setDraftPlan(next);
+      return next;
     }
     await selectPlan(id);
+    return source;
   }, [selectPlan, setDraftPlan, setUma2Plan, uma2Plan]);
 
   const focusedPlan = focused === 'uma1' ? plan : uma2Plan;

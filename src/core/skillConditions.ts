@@ -3,7 +3,7 @@
  *  `@` = OR between alternatives. */
 
 /** Tokens that mark a wisdom-gated (random) activation — a "wit check". */
-const WIT_RANDOM = /(?:all_corner_random|corner_random|straight_random|phase_random|random_lot|is_lastspurt_random)/;
+const WIT_RANDOM = /(?:^|[&@])(?:[a-z_]*_random|random_lot)(?:==|<=|>=|<|>)/;
 
 export function requiresWitCheck(conditions: string): boolean {
   return WIT_RANDOM.test(conditions);

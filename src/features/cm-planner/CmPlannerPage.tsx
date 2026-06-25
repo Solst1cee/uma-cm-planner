@@ -309,17 +309,15 @@ export function CmPlannerPage() {
           uma2PlanId={uma2Plan?.id}
           onLoadPlanIntoSlot={async (id, slot) => {
             const keepTrackRef = slot === 'uma1' && !autoApplyOn ? plan.cmRef : null;
-            await loadPlanIntoSlot(id, slot);
+            const loaded = await loadPlanIntoSlot(id, slot);
             setCollapseSkillSignal((signal) => signal + 1);
             // auto-apply OFF: keep the race you're viewing by overriding the loaded
             // uma1 plan's cmRef (preserves the long-standing behavior).
             if (keepTrackRef) {
-              const loaded = savedPlans.find((p) => p.id === id);
-              if (loaded) setPlan({ ...loaded, cmRef: keepTrackRef });
+              setPlan({ ...loaded, cmRef: keepTrackRef });
             }
             if (slot === focused) {
-              const loaded = savedPlans.find((p) => p.id === id);
-              if (loaded) applyTrackTransition(loaded.cmRef);
+              applyTrackTransition(loaded.cmRef);
             }
           }}
         />

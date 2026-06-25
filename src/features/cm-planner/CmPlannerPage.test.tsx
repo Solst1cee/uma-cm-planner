@@ -282,10 +282,15 @@ vi.mock('@/app/ActivePlanContext', async (importOriginal) => {
       const loadPlanIntoSlot = useCallback(async (id: string, slot: 'uma1' | 'uma2') => {
         await h.selectPlan(id); // record the call for assertions
         const found = h.savedPlans.find((p) => p.id === id);
-        if (!found) return;
-        if (slot === 'uma2') setUma2PlanState(found as PlanShape);
-        else setPlanState(found as PlanShape);
-      }, []);
+        if (!found) throw new Error(`Saved plan ${id} could not be found`);
+        const otherSlotId = slot === 'uma1' ? uma2Plan?.id : plan.id;
+        const effective = found.id === otherSlotId
+          ? { ...found, id: `${found.id}-copy`, name: `${found.name} Copy` }
+          : found;
+        if (slot === 'uma2') setUma2PlanState(effective as PlanShape);
+        else setPlanState(effective as PlanShape);
+        return effective as PlanShape;
+      }, [plan.id, uma2Plan?.id]);
       const focusedPlan = focused === 'uma1' ? plan : uma2Plan;
       return {
         plan,
@@ -355,7 +360,10 @@ afterEach(() => {
   h.setAutoSave.mockClear();
   h.setPlan.mockClear();
   h.setUma2Plan.mockClear();
-  h.getSetting.mockClear();
+  h.getSetting.mockReset();
+  h.getSetting.mockImplementation(async (key?: string) =>
+    key === 'cmPlannerInventoryCollapsed' ? false : true,
+  );
   h.setSetting.mockClear();
 });
 
@@ -764,6 +772,25 @@ describe('CmPlannerPage', () => {
     // Toggle OFF → selection always derives from uma1Plan.cmRef (Hanshin, good).
     expect(await cond.findByText('Hanshin')).toBeInTheDocument();
     expect(cond.getByText('Good')).toBeInTheDocument();
+  });
+
+  it('auto-apply OFF preserves collision-duplicated uma1 ids when keeping the current track', async () => {
+    h.seededUma2Plan = h.customPlan as unknown as typeof h.plan;
+    h.getSetting.mockImplementation(async (key?: string) =>
+      key === 'cmPlannerInventoryAutoApplyTrack' ? false : key === 'cmPlannerInventoryCollapsed' ? false : true,
+    );
+    render(<CmPlannerPage />);
+
+    const inventory = screen.getByLabelText('Plan Inventory');
+    const badge = await within(inventory).findByRole('button', { name: /Load Hanshin Trial as uma1/i });
+    await userEvent.click(badge);
+
+    await waitFor(() =>
+      expect(h.setPlan).toHaveBeenCalledWith(expect.objectContaining({
+        id: 'custom-hanshin-copy',
+        cmRef: h.plan.cmRef,
+      })),
+    );
   });
 
   it('main page no longer renders the standalone race-sim rail', async () => {
