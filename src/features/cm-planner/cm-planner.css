@@ -22,7 +22,8 @@
   --cmp-uma2-accent: #e0564f;
 
   --cmp-card-radius: 12px;
-  --cmp-card-shadow: 0 12px 28px rgb(36 54 78 / 0.08);
+  /* share the themed design-system card shadow (light value is identical) */
+  --cmp-card-shadow: var(--ds-card-shadow);
   --cmp-head-min-h: 2.6rem;
 
   --cmp-tab-radius: 6px;
