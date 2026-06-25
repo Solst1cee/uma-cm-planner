@@ -57,7 +57,7 @@ One shared, themeable (light default + dark) token system + `ds-*` component cla
 
 **Build order — small phases, ONE card/panel each.** Per P6 (pure core before UI). Each phase gets its own spec → plan → subagent-driven build, design-system-skinned, and (where math is involved) **validated vs umamily.moe / Ice's sheet**:
 
-- ⬜ **M1.0 — Core math (foundation).** `src/core/sparkChance.ts` (hakuraku harvest: base-chance tables + `calculateSparkChance = min(100, base·(1 + individualAffinity/100))` + the proc-odds DP, single/full-run; validate vs the BourBon_Polaris dataset) · refine `src/core/affinity.ts` (exact race/win-bonus + same-chara grandparent guard; lock with the Seiun Sky / McQueen `54 + 18 = 72` fixture) · `detailFor(skillId) → {innate, parent[], gp[], chain[], random[]}` reconciled with existing `coverage.ts`/`deck.ts`. This is the reactive computation every card reads from — **replaces the handoff's placeholder `sparkChance()`/`cardStatVals()`.** *(Honors the M1 hakuraku-harvest detail in [hakuraku-m1-harvest.md](hakuraku-m1-harvest.md); may include M1 Plan 3 nested `Parent`/`ParentSparks` model migration.)*
+- 🟧 **M1.0 — Core math.** *Landed (logic) 2026-06-25:* `winBonus.ts` (2.0 G1-only +3), `lineageAffinity.ts` adapter, `spark.ts` per-member affinity resolver (de-approximates), `Parent.wonRaces`, rental target-tier helper. **Live pending** the UmaExtractor `wonRaces` import (follow-on) + the S1 base-relation refresh. Spec/plan 2026-06-25.
 - ⬜ **M1.1 — Route + workbench shell + Plan-context header.** Un-stub `/inheritance`; the 3-col grid (`minmax(290,320) 1fr minmax(290,320)`, collapses <1120px → 1col); the top plan-context bar (`PLAN #N`, name, "From CM Planner · {course}", surface/distance/strategy chips) reading the active `CmPlan`.
 - ⬜ **M1.2 — "Your uma plan" card.** Plan-uma display (portrait, name, pink-aptitude chips) + Change/swap via the bundled `SearchPicker`.
 - ⬜ **M1.3 — "Plan targets" card.** Blue sparks (stat, `−/N★/+` steppers, editable 0–9 + delete) · pink sparks (aptitude, display-only, from plan) · wishlist (skills + SP, gold-colored). Collapsible.
@@ -140,7 +140,7 @@ One shared, themeable (light default + dark) token system + `ds-*` component cla
 | S3 M4 polish + mechanics | ⬜ not started | projectedL refresh, accel label/plate readability, hint-button polish, rushed/struggle/dueling stamina review, provenance |
 | A1 inline effect-chips | ⬜ future | deferred from P2; opportunistic |
 | P1 Design system | ✅ done | PR #9 — tokens (light+dark) + ds-* + /styleguide + theme toggle; 862 tests, zero light regression |
-| **M1 Inheritance workbench** | **🟧 active** | **from the 2026-06-25 handoff; built card-by-card M1.0–M1.8 (see section). M1.0 = core math, next.** |
+| **M1 Inheritance workbench** | **🟧 active** | **from the 2026-06-25 handoff; built card-by-card M1.0–M1.8 (see section). M1.0 logic done; importer/data follow-on.** |
 | P2 M4 fidelity | ⏸ paused | resumes after M1; §3 sourcing dropped (→ M1), A1 → future, A2 (card migration) first when resumed |
 | P3 Data tasks | ⬜ not started | skill duration, innate skills, release dates |
 | P4 M2/M3 fidelity | ⬜ not started | M1 promoted out to its own track |
