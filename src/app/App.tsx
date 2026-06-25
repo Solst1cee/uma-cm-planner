@@ -10,6 +10,7 @@ import { CmPlannerPage } from '@/features/cm-planner/CmPlannerPage';
 import { ParentsPage } from '@/features/parents/ParentsPage';
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
 import { TimelinePage } from '@/features/meta-intel/TimelinePage';
+import { StyleguidePage } from '@/features/styleguide/StyleguidePage';
 
 // Module 1 (Inheritance) lands in a later phase; nav shows it as a disabled stub.
 const STUB_MODULES = ['Inheritance'] as const;
@@ -73,12 +74,14 @@ function Shell() {
           <Route path="/parents" element={<ParentsPage />} />
           <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
           <Route path="/meta-intel" element={<TimelinePage />} />
+          <Route path="/styleguide" element={<StyleguidePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <footer className="app-footer">
         Coverage tiers are reliability estimates from community-verified
-        mechanics — not guarantees. See docs/mechanics-notes.md.
+        mechanics — not guarantees. See docs/mechanics-notes.md. ·{' '}
+        <NavLink to="/styleguide" className="nav-item" style={{ padding: '0 0.4rem' }}>Styleguide</NavLink>
       </footer>
     </>
   );
