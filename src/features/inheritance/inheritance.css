@@ -1,0 +1,53 @@
+/* src/features/inheritance/inheritance.css
+   M1 Inheritance workbench shell (handoff README §"Workbench grid").
+   Own page class (NOT global .page — that becomes a 2-col grid at width). */
+.inh-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 0.85rem 0.9rem 4rem;
+}
+
+/* Plan-context header */
+.inh-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+}
+.inh-plan-badge {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  font-weight: 700;
+}
+.inh-context-name { font-size: 1.05rem; margin: 0; }
+.inh-context-source { color: var(--fg-muted); font-size: 0.82rem; }
+.inh-context-chips { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.inh-context-empty { color: var(--fg-muted); }
+
+/* 3-column workbench grid */
+.inh-grid {
+  display: grid;
+  grid-template-columns: minmax(290px, 320px) minmax(0, 1fr) minmax(290px, 320px);
+  gap: 0.8rem;
+  align-items: start;
+}
+.inh-col { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+@media (max-width: 1120px) {
+  .inh-grid { grid-template-columns: 1fr; }
+}
+
+/* Placeholder cards (replaced by M1.2–M1.8) */
+.inh-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 3.4rem;
+  border-style: dashed;
+  color: var(--fg-muted);
+}
+.inh-placeholder-title { font-weight: 600; }
+.inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
