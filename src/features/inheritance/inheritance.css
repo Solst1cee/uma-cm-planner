@@ -52,15 +52,17 @@
 .inh-placeholder-title { font-weight: 600; }
 .inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
 
-/* "Your uma plan" card (M1.2) */
-.inh-uma-card {
-  position: relative;
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-  background: color-mix(in srgb, var(--accent) 5%, var(--bg-1));
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+/* "Uma plan" card (M1.2) — uses the cmp-plan-card grammar (header + body).
+   The wrapper is the positioning + dismiss context for the popover (the card
+   itself has overflow:hidden, which would clip an absolute child). */
+.inh-uma-wrap { position: relative; }
+.inh-uma-card { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+.inh-uma-card .cmp-plan-card-head { gap: 0.5rem; }
+/* Bigger inventory icon button in the header, right-aligned. */
+.inh-uma-inv-btn { margin-left: auto; width: 2.35rem; height: 2.35rem; }
+.inh-uma-inv-btn svg { width: 1.45rem; height: 1.45rem; }
+
+.inh-uma-body { display: flex; flex-direction: column; gap: 0.55rem; }
 .inh-uma-main { display: flex; align-items: center; gap: 0.6rem; }
 .inh-uma-portrait { flex: none; display: inline-flex; }
 .inh-uma-meta { display: flex; flex-direction: column; min-width: 0; }
@@ -77,7 +79,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.inh-uma-inv-btn { margin-left: auto; flex: none; }
 .inh-uma-apts { margin-top: 0; }
 
 /* Inventory popover (opens from the inventory icon, dismiss-on-outside). */

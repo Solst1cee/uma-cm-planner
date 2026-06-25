@@ -21,8 +21,9 @@ const baseProps = {
 };
 
 describe('UmaPlanCard', () => {
-  it('renders portrait, name, epithet, and aptitude chips', () => {
+  it('renders the "Uma plan" header, portrait, name, epithet, and aptitude chips', () => {
     render(<UmaPlanCard {...baseProps} />);
+    expect(screen.getByText('Uma plan')).toBeInTheDocument();
     expect(screen.getByTestId('portrait')).toBeInTheDocument();
     expect(screen.getByText('Mejiro McQueen')).toBeInTheDocument();
     expect(screen.getByText('Patrician Maiden')).toBeInTheDocument();

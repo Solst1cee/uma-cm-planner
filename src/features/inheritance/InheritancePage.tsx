@@ -66,7 +66,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   }, [courseId]);
 
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
-  const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan, uma) : [];
+  const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
   const portrait = uma ? (
     <GameIcon kind="uma" id={uma.umaId} size={50} alt="" />
   ) : (

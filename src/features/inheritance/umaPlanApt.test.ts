@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CmPlan, UmaRecord } from '@/core/types';
+import type { CmPlan } from '@/core/types';
 import { umaPlanAptChips } from './umaPlanApt';
 
 const plan = (over: Partial<CmPlan> = {}): CmPlan =>
@@ -12,40 +12,36 @@ const plan = (over: Partial<CmPlan> = {}): CmPlan =>
     patch: { version: 'x' }, server: 'global', dataVersion: 'x', ...over,
   }) as CmPlan;
 
-const uma: UmaRecord = {
-  umaId: '106801', charaId: '1068', nameEn: 'Mejiro McQueen', epithet: 'Patrician Maiden',
-  baseAptitudes: {
-    surface: { turf: 'A', dirt: 'G' },
-    distance: { short: 'C', mile: 'B', medium: 'A', long: 'A' },
-    strategy: { front: 'C', pace: 'B', late: 'A', end: 'B' },
-  },
-  server: 'global', dataVersion: 'x',
-};
-
 describe('umaPlanAptChips', () => {
-  it('grades the plan-relevant surface/distance/strategy keys from the uma aptitudes', () => {
-    // turf · 2200m (→ medium) · late
-    expect(umaPlanAptChips(plan(), uma)).toEqual([
+  it('maps the plan pink spark goals to aptitude + target-grade chips', () => {
+    const p = plan({
+      sparkGoals: {
+        pink: [
+          { aptKey: { kind: 'surface', key: 'turf' }, target: 'A' },
+          { aptKey: { kind: 'distance', key: 'long' }, target: 'S' },
+          { aptKey: { kind: 'strategy', key: 'late' }, target: 'A' },
+        ],
+        blue: {},
+      },
+    });
+    expect(umaPlanAptChips(p)).toEqual([
       { label: 'Turf', grade: 'A' },
-      { label: 'Medium', grade: 'A' },
+      { label: 'Long', grade: 'S' },
       { label: 'Late', grade: 'A' },
     ]);
   });
 
-  it('reflects a different race + strategy (dirt · 1600 mile · front)', () => {
+  it('follows the selected plan (different goals → different chips)', () => {
     const p = plan({
-      cmRef: { kind: 'cm', cmId: 'CM16', cmNumber: 16, courseId: '10609', surface: 'dirt', distance: 1600 },
-      strategy: 'front',
+      sparkGoals: {
+        pink: [{ aptKey: { kind: 'distance', key: 'mile' }, target: 'B' }],
+        blue: {},
+      },
     });
-    expect(umaPlanAptChips(p, uma)).toEqual([
-      { label: 'Dirt', grade: 'G' },
-      { label: 'Mile', grade: 'B' },
-      { label: 'Front', grade: 'C' },
-    ]);
+    expect(umaPlanAptChips(p)).toEqual([{ label: 'Mile', grade: 'B' }]);
   });
 
-  it('returns [] when the uma is null or lacks base aptitudes', () => {
-    expect(umaPlanAptChips(plan(), null)).toEqual([]);
-    expect(umaPlanAptChips(plan(), { ...uma, baseAptitudes: undefined })).toEqual([]);
+  it('returns [] when the plan has no pink goals', () => {
+    expect(umaPlanAptChips(plan())).toEqual([]);
   });
 });

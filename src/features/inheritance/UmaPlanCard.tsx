@@ -54,37 +54,47 @@ export function UmaPlanCard({
   onToggleInventory,
   onCloseInventory,
 }: UmaPlanCardProps) {
+  // The dismiss ref wraps the card AND the popover so clicks inside either stay
+  // open; the popover is a sibling of the card (cmp-plan-card has overflow:hidden,
+  // which would otherwise clip an absolutely-positioned child).
   const rootRef = useRef<HTMLDivElement>(null);
   useDismissOnOutside(rootRef, inventoryOpen, onCloseInventory, { esc: true });
 
   return (
-    <div className="panel inh-uma-card" ref={rootRef}>
-      <div className="inh-uma-main">
-        <span className="inh-uma-portrait">{portrait}</span>
-        <div className="inh-uma-meta">
-          <span className="inh-uma-name">{name}</span>
-          {epithet && <span className="inh-uma-epithet">{epithet}</span>}
+    <div className="inh-uma-wrap" ref={rootRef}>
+      <section className="cmp-plan-card inh-uma-card">
+        <header className="cmp-plan-card-head">
+          <span>Uma plan</span>
+          <button
+            type="button"
+            className="cmp-inventory-icon-btn inh-uma-inv-btn"
+            aria-label="Choose plan from inventory"
+            aria-expanded={inventoryOpen}
+            title="Choose plan from inventory"
+            onClick={onToggleInventory}
+          >
+            <BackpackIcon />
+          </button>
+        </header>
+        <div className="cmp-plan-card-body inh-uma-body">
+          <div className="inh-uma-main">
+            <span className="inh-uma-portrait">{portrait}</span>
+            <div className="inh-uma-meta">
+              <span className="inh-uma-name">{name}</span>
+              {epithet && <span className="inh-uma-epithet">{epithet}</span>}
+            </div>
+          </div>
+          {aptChips.length > 0 && (
+            <div className="spark-chips inh-uma-apts">
+              {aptChips.map((c) => (
+                <span key={c.label} className="badge spark-pink">
+                  {c.label} {c.grade}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-        <button
-          type="button"
-          className="cmp-inventory-icon-btn inh-uma-inv-btn"
-          aria-label="Choose plan from inventory"
-          aria-expanded={inventoryOpen}
-          title="Choose plan from inventory"
-          onClick={onToggleInventory}
-        >
-          <BackpackIcon />
-        </button>
-      </div>
-      {aptChips.length > 0 && (
-        <div className="spark-chips inh-uma-apts">
-          {aptChips.map((c) => (
-            <span key={c.label} className="badge spark-pink">
-              {c.label} {c.grade}
-            </span>
-          ))}
-        </div>
-      )}
+      </section>
       {inventoryOpen && <div className="inh-inventory-popover">{inventory}</div>}
     </div>
   );
