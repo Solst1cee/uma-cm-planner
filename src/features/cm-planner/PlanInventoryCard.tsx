@@ -174,6 +174,7 @@ export function PlanInventoryCard({
   uma1PlanId,
   uma2PlanId,
   hideSlotBadges = false,
+  hideSettings = false,
   onAutoApplyTrackChange,
   onCollapsedChange,
   onDeletePlan,
@@ -190,6 +191,8 @@ export function PlanInventoryCard({
   uma2PlanId?: string;
   /** Hide the hover "1"/"2" slot-pick badges (single-build callers, e.g. M1). */
   hideSlotBadges?: boolean;
+  /** Hide the "Inventory settings" (apply-track) sub-card (single-build callers, e.g. M1). */
+  hideSettings?: boolean;
   onAutoApplyTrackChange: (enabled: boolean) => void;
   onCollapsedChange?: (v: boolean) => void;
   onDeletePlan: (id: string) => Promise<void>;
@@ -572,26 +575,28 @@ export function PlanInventoryCard({
           })}
         </div>
       </section>
-      <section className="cmp-plan-card cmp-inventory-settings-card" aria-labelledby="cmp-inventory-settings-h">
-        <header className="cmp-plan-card-head">
-          <span id="cmp-inventory-settings-h">Inventory settings</span>
-        </header>
-        <div className="cmp-plan-card-body">
-          <label className="cmp-inventory-setting-row">
-            <span>
-              <strong>Apply track setup</strong>
-              <small>Change the race setup when loading a saved Uma plan.</small>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              aria-label="Apply track setup when loading a plan"
-              checked={autoApplyTrack}
-              onChange={(event) => onAutoApplyTrackChange(event.target.checked)}
-            />
-          </label>
-        </div>
-      </section>
+      {!hideSettings && (
+        <section className="cmp-plan-card cmp-inventory-settings-card" aria-labelledby="cmp-inventory-settings-h">
+          <header className="cmp-plan-card-head">
+            <span id="cmp-inventory-settings-h">Inventory settings</span>
+          </header>
+          <div className="cmp-plan-card-body">
+            <label className="cmp-inventory-setting-row">
+              <span>
+                <strong>Apply track setup</strong>
+                <small>Change the race setup when loading a saved Uma plan.</small>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label="Apply track setup when loading a plan"
+                checked={autoApplyTrack}
+                onChange={(event) => onAutoApplyTrackChange(event.target.checked)}
+              />
+            </label>
+          </div>
+        </section>
+      )}
     </aside>
   );
 }

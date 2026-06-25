@@ -5,7 +5,6 @@
  *  (dismiss-on-outside); picking a row there switches the current plan. */
 import { useEffect, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
-import { getSetting, setSetting } from '@/db';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -15,10 +14,6 @@ import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import './inheritance.css';
-
-// Same Dexie setting as CmPlannerPage — the "apply track setup on load" preference
-// is global (both pages share the active-plan context).
-const AUTO_APPLY_INVENTORY_TRACK_KEY = 'cmPlannerInventoryAutoApplyTrack';
 
 interface Deps {
   loadCatalog?: () => Promise<CourseCatalogEntry[]>;
@@ -47,7 +42,6 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   } = useActivePlan();
   const { umaById } = useUmas();
   const [track, setTrack] = useState<string | null>(null);
-  const [autoApplyTrack, setAutoApplyTrack] = useState(true);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
 
@@ -71,21 +65,6 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
-  // Load the shared "apply track on load" preference once.
-  useEffect(() => {
-    let cancelled = false;
-    void getSetting<boolean>(AUTO_APPLY_INVENTORY_TRACK_KEY)
-      .then((saved) => {
-        if (!cancelled) setAutoApplyTrack(saved ?? true);
-      })
-      .catch(() => {
-        if (!cancelled) setAutoApplyTrack(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan, uma) : [];
   const portrait = uma ? (
@@ -97,16 +76,14 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const inventory = uma1Plan ? (
     <PlanInventoryCard
       activePlan={uma1Plan}
-      autoApplyTrack={autoApplyTrack}
+      autoApplyTrack
       plans={savedPlans}
       focused="uma1"
       uma1PlanId={uma1Plan.id}
       uma2PlanId={uma2Plan?.id}
       hideSlotBadges
-      onAutoApplyTrackChange={(enabled) => {
-        setAutoApplyTrack(enabled);
-        void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
-      }}
+      hideSettings
+      onAutoApplyTrackChange={() => {}}
       onDeletePlan={deleteSavedPlan}
       onDeleteAllPlans={deleteAllSavedPlans}
       onImportPlans={importSavedPlans}
