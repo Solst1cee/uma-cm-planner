@@ -4,14 +4,10 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
-// Stub ActivePlan so no Dexie is needed; the page only reads uma1Plan here.
+// Stub ActivePlan with a null plan → the inventory card is not rendered, so the
+// route smoke test needs no GameData provider. (Real @/db settings resolve fine.)
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({ uma1Plan: null, plan: null, setPlan: vi.fn() }),
-}));
-// Stub useUmas so the page needs no GameData provider in this route smoke test.
-vi.mock('@/features/parents/useUmas', () => ({
-  useUmas: () => ({ umas: [], umaById: new Map() }),
-  umaName: (_m: unknown, id: string) => `Uma ${id}`,
+  useActivePlan: () => ({ uma1Plan: null, plan: null }),
 }));
 
 import { InheritancePage } from '@/features/inheritance/InheritancePage';

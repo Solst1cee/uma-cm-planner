@@ -52,30 +52,9 @@
 .inh-placeholder-title { font-weight: 600; }
 .inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
 
-/* "Your uma plan" card (M1.2) */
-.inh-uma-card {
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-  background: color-mix(in srgb, var(--accent) 5%, var(--bg-1));
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Plan picker (M1.2): the shared PlanInventoryCard lives in the left column.
+   Override the M4 grid-column sizing so it fills this workbench column. */
+.inh-col-left .cmp-plan-inventory {
+  width: auto;
+  min-width: 0;
 }
-.inh-uma-main { display: flex; align-items: center; gap: 0.6rem; }
-.inh-uma-portrait { flex: none; display: inline-flex; }
-.inh-uma-meta { display: flex; flex-direction: column; min-width: 0; }
-.inh-uma-name {
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.inh-uma-epithet {
-  color: var(--fg-muted);
-  font-size: 0.78rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.inh-uma-change { margin-left: auto; flex: none; }
-.inh-uma-apts { margin-top: 0; }
-.inh-uma-picker { margin-top: 0.2rem; }
