@@ -61,6 +61,9 @@
   gap: 0.5rem;
   border-top-left-radius: var(--cmp-card-radius);
   border-top-right-radius: var(--cmp-card-radius);
+  /* Trim vertical padding so the 1.85rem icon button fits within the standard
+     --cmp-head-min-h (2.6rem) head height instead of inflating it. */
+  padding-block: 0.37rem;
 }
 /* Inventory-icon button + its popover anchor, right-aligned in the head. Same
    1.85rem size as the planner-page header icon buttons; outline (not filled) —
