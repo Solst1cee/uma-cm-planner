@@ -1,33 +1,5 @@
 /* Mobile-first (designed at 390px), light theme, no layout libs. */
 
-:root {
-  color-scheme: light;
-  --bg-0: #f5f7fb;
-  --bg-1: #ffffff;
-  --bg-2: #eef3f9;
-  --fg: #172033;
-  --fg-muted: #637083;
-  --border: #d7dee8;
-  --accent: #3478f6;
-  --error: #c2414b;
-  /* Warning (light theme) — shared by the M4 stamina-out banner + M2 fuzzy-match badge. */
-  --warn: #b26a00;
-  --warn-fg: #7a4f00;
-  --warn-bg: #fde9c8;
-  --warn-border: #e3b778;
-
-  /* Tier colors (spec: chain green, scenario teal, date_event cyan,
-     hint_strong lime, hint_weak yellow, random orange, uncovered red). */
-  --tier-chain: #22c55e;
-  --tier-scenario: #14b8a6;
-  --tier-date_event: #06b6d4;
-  --tier-hint_strong: #a3e635;
-  --tier-hint_weak: #eab308;
-  --tier-random: #f97316;
-  --tier-spark: #a78bfa;
-  --tier-uncovered: #ef4444;
-}
-
 * {
   box-sizing: border-box;
 }
