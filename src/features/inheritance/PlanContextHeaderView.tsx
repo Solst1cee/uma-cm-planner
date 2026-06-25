@@ -1,7 +1,7 @@
-// src/features/inheritance/PlanContextHeader.tsx
 /** M1 workbench plan-context header (handoff README §"Top: Plan context header").
  *  Presentational — derives its strings from planContextView so it stays testable
- *  without the ActivePlan context. */
+ *  without the ActivePlan context. File is `…View.tsx` (not `PlanContextHeader.tsx`)
+ *  to avoid the Windows case-FS clash with the `planContextHeader.ts` helper. */
 import type { CmPlan } from '@/core/types';
 import { planContextView } from './planContextHeader';
 
