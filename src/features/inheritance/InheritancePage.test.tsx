@@ -16,7 +16,11 @@ const plan: CmPlan = {
 
 // Stub the ActivePlan context so the page test needs no Dexie/gameData providers.
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({ uma1Plan: plan, plan }),
+  useActivePlan: () => ({ uma1Plan: plan, plan, setPlan: vi.fn() }),
+}));
+vi.mock('@/features/parents/useUmas', () => ({
+  useUmas: () => ({ umas: [], umaById: new Map() }),
+  umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
 
 import { InheritancePage } from './InheritancePage';
@@ -36,6 +40,9 @@ describe('InheritancePage', () => {
     expect(screen.getByRole('heading', { name: 'Cancer Cup — Late ace' })).toBeInTheDocument();
     // Three workbench columns render.
     expect(document.querySelectorAll('.inh-col').length).toBe(3);
+    // "Your uma plan" card is wired into the left column.
+    expect(screen.getByText('No uma selected')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     // Track name resolves from courseId 10906 → raceTrackId 10006 → "Tokyo".
     await waitFor(() =>
       expect(screen.getByText('From CM Planner · Tokyo Racecourse')).toBeInTheDocument(),

@@ -6,7 +6,12 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 // Stub ActivePlan so no Dexie is needed; the page only reads uma1Plan here.
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({ uma1Plan: null, plan: null }),
+  useActivePlan: () => ({ uma1Plan: null, plan: null, setPlan: vi.fn() }),
+}));
+// Stub useUmas so the page needs no GameData provider in this route smoke test.
+vi.mock('@/features/parents/useUmas', () => ({
+  useUmas: () => ({ umas: [], umaById: new Map() }),
+  umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
 
 import { InheritancePage } from '@/features/inheritance/InheritancePage';
