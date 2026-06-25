@@ -173,6 +173,7 @@ export function PlanInventoryCard({
   focused = 'uma1',
   uma1PlanId,
   uma2PlanId,
+  hideSlotBadges = false,
   onAutoApplyTrackChange,
   onCollapsedChange,
   onDeletePlan,
@@ -187,6 +188,8 @@ export function PlanInventoryCard({
   focused?: 'uma1' | 'uma2';
   uma1PlanId?: string;
   uma2PlanId?: string;
+  /** Hide the hover "1"/"2" slot-pick badges (single-build callers, e.g. M1). */
+  hideSlotBadges?: boolean;
   onAutoApplyTrackChange: (enabled: boolean) => void;
   onCollapsedChange?: (v: boolean) => void;
   onDeletePlan: (id: string) => Promise<void>;
@@ -516,7 +519,7 @@ export function PlanInventoryCard({
                             <span>{aptitudeLine(plan)}</span>
                           </div>
                         </button>
-                        {!editMode && (
+                        {!editMode && !hideSlotBadges && (
                           <span className="cmp-slot-badges" aria-hidden={false}>
                             <button
                               type="button"

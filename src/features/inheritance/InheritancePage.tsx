@@ -1,14 +1,19 @@
 /** M1 — Inheritance workbench (handoff: docs/modules/design_handoff_support_card_builder/).
  *  M1.1 lands the shell + plan-context header; the column panels are placeholders
- *  that later phases replace. M1.2 reuses the shared PlanInventoryCard as the plan
- *  picker (pick a saved plan; the active one glows like the inventory rows). */
+ *  that later phases replace. M1.2 is the "Your uma plan" card — it shows the active
+ *  plan's uma and an inventory-icon button that pops the shared PlanInventoryCard
+ *  (dismiss-on-outside); picking a row there switches the current plan. */
 import { useEffect, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { getSetting, setSetting } from '@/db';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
+import { GameIcon } from '@/features/data/GameIcon';
+import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { PlanContextHeader } from './PlanContextHeaderView';
+import { UmaPlanCard } from './UmaPlanCard';
+import { umaPlanAptChips } from './umaPlanApt';
 import './inheritance.css';
 
 // Same Dexie setting as CmPlannerPage — the "apply track setup on load" preference
@@ -40,8 +45,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     importSavedPlans,
     deleteAllSavedPlans,
   } = useActivePlan();
+  const { umaById } = useUmas();
   const [track, setTrack] = useState<string | null>(null);
   const [autoApplyTrack, setAutoApplyTrack] = useState(true);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
 
   const courseId = uma1Plan?.cmRef.courseId;
@@ -79,29 +86,52 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     };
   }, []);
 
+  const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
+  const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan, uma) : [];
+  const portrait = uma ? (
+    <GameIcon kind="uma" id={uma.umaId} size={50} alt="" />
+  ) : (
+    <span className="cmp-portrait-ph">uma</span>
+  );
+
+  const inventory = uma1Plan ? (
+    <PlanInventoryCard
+      activePlan={uma1Plan}
+      autoApplyTrack={autoApplyTrack}
+      plans={savedPlans}
+      focused="uma1"
+      uma1PlanId={uma1Plan.id}
+      uma2PlanId={uma2Plan?.id}
+      hideSlotBadges
+      onAutoApplyTrackChange={(enabled) => {
+        setAutoApplyTrack(enabled);
+        void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
+      }}
+      onDeletePlan={deleteSavedPlan}
+      onDeleteAllPlans={deleteAllSavedPlans}
+      onImportPlans={importSavedPlans}
+      onLoadPlanIntoSlot={async (id, slot) => {
+        await loadPlanIntoSlot(id, slot);
+        setInventoryOpen(false);
+      }}
+    />
+  ) : null;
+
   return (
     <div className="inh-page">
       <PlanContextHeader plan={uma1Plan} trackName={track} />
       <div className="inh-grid">
         <div className="inh-col inh-col-left">
           {uma1Plan && (
-            <PlanInventoryCard
-              activePlan={uma1Plan}
-              autoApplyTrack={autoApplyTrack}
-              plans={savedPlans}
-              focused="uma1"
-              uma1PlanId={uma1Plan.id}
-              uma2PlanId={uma2Plan?.id}
-              onAutoApplyTrackChange={(enabled) => {
-                setAutoApplyTrack(enabled);
-                void setSetting(AUTO_APPLY_INVENTORY_TRACK_KEY, enabled);
-              }}
-              onDeletePlan={deleteSavedPlan}
-              onDeleteAllPlans={deleteAllSavedPlans}
-              onImportPlans={importSavedPlans}
-              onLoadPlanIntoSlot={async (id, slot) => {
-                await loadPlanIntoSlot(id, slot);
-              }}
+            <UmaPlanCard
+              name={uma?.nameEn ?? 'No uma selected'}
+              epithet={uma?.epithet}
+              portrait={portrait}
+              aptChips={aptChips}
+              inventory={inventory}
+              inventoryOpen={inventoryOpen}
+              onToggleInventory={() => setInventoryOpen((o) => !o)}
+              onCloseInventory={() => setInventoryOpen(false)}
             />
           )}
           <Placeholder title="Plan targets" phase="M1.3" />

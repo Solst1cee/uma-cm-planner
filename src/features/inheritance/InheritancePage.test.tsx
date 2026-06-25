@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
@@ -13,7 +13,7 @@ const plan: CmPlan = {
   patch: { version: 'x' }, server: 'global', dataVersion: 'x',
 } as CmPlan;
 
-// Stub the ActivePlan context so the page test needs no Dexie/gameData providers.
+// Stub the ActivePlan context so the page test needs no Dexie provider.
 vi.mock('@/app/ActivePlanContext', () => ({
   useActivePlan: () => ({
     uma1Plan: plan,
@@ -26,8 +26,12 @@ vi.mock('@/app/ActivePlanContext', () => ({
     deleteAllSavedPlans: vi.fn(),
   }),
 }));
-// Stub the heavyweight inventory card (own courseCatalog import + GameIcon need
-// providers); the page test only verifies it's wired with the active plan.
+// Empty roster → the card resolves no uma (placeholder portrait, no GameIcon → no provider needed).
+vi.mock('@/features/parents/useUmas', () => ({
+  useUmas: () => ({ umas: [], umaById: new Map() }),
+  umaName: (_m: unknown, id: string) => `Uma ${id}`,
+}));
+// Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
   PlanInventoryCard: (props: { uma1PlanId?: string }) => (
     <div data-testid="plan-inventory" data-uma1={props.uma1PlanId} />
@@ -44,18 +48,23 @@ const CATALOG: CourseCatalogEntry[] = [
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
 describe('InheritancePage', () => {
-  it('renders the header, the 3-column shell, and the wired inventory picker', async () => {
+  it('renders the header, the 3-column shell, and the uma-plan card', async () => {
     render(<InheritancePage deps={deps} />);
-    // Header is present immediately (track suffix fills in after the catalog resolves).
     expect(screen.getByText('PLAN #1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Cancer Cup — Late ace' })).toBeInTheDocument();
-    // Three workbench columns render.
     expect(document.querySelectorAll('.inh-col').length).toBe(3);
-    // The shared inventory card is wired into the left column with the active plan.
-    expect(screen.getByTestId('plan-inventory')).toHaveAttribute('data-uma1', 'p1');
-    // Track name resolves from courseId 10906 → raceTrackId 10006 → "Tokyo".
+    // "Your uma plan" card is in the left column (empty roster → no uma resolved).
+    expect(screen.getByText('No uma selected')).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByText('From CM Planner · Tokyo Racecourse')).toBeInTheDocument(),
     );
+  });
+
+  it('pops the inventory card from the inventory icon, wired to the active plan', () => {
+    render(<InheritancePage deps={deps} />);
+    // Hidden until the inventory icon is clicked.
+    expect(screen.queryByTestId('plan-inventory')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Choose plan from inventory' }));
+    expect(screen.getByTestId('plan-inventory')).toHaveAttribute('data-uma1', 'p1');
   });
 });
