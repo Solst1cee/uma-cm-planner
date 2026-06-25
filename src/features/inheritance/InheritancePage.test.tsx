@@ -22,6 +22,9 @@ vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
+vi.mock('@/features/data/gameData', () => ({
+  useGameData: () => ({ cardById: new Map() }),
+}));
 
 import { InheritancePage } from './InheritancePage';
 
@@ -33,6 +36,12 @@ const CATALOG: CourseCatalogEntry[] = [
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
 describe('InheritancePage', () => {
+  it('renders the Your deck panel with 6 empty slots', () => {
+    render(<InheritancePage deps={deps} />);
+    expect(screen.getByText('Your deck')).toBeInTheDocument();
+    for (let n = 1; n <= 6; n++) expect(screen.getByText(String(n))).toBeInTheDocument();
+  });
+
   it('renders the plan-context header and the 3-column workbench shell', async () => {
     render(<InheritancePage deps={deps} />);
     // Header is present immediately (track suffix fills in after the catalog resolves).

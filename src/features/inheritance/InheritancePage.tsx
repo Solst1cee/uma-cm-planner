@@ -9,9 +9,13 @@ import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
 import { useUmas } from '@/features/parents/useUmas';
 import type { SearchItem } from '@/features/parents/SearchPicker';
+import { useGameData } from '@/features/data/gameData';
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
+import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
+import { useDeckState, useDeckTemplates } from './useDeckState';
+import { addCard, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
 
 interface Deps {
@@ -54,6 +58,19 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
+  const { cardById } = useGameData();
+  const [deck, setDeck] = useDeckState(uma1Plan?.id);
+  const { templates, save, remove, get } = useDeckTemplates();
+
+  const resolveCard = (cardId: string): DeckCardInfo | undefined => {
+    const card = cardById.get(cardId);
+    if (!card) return undefined;
+    return { typeLabel: TYPE_LABEL[card.type], typeColor: TYPE_COLORS[card.type], name: card.nameEn };
+  };
+  // The fill seam M1.6's "+ Add" button will call. Referenced now to keep it live.
+  const addCardToDeck = (cardId: string) => setDeck(addCard(deck, cardId));
+  void addCardToDeck;
+
   const { umas, umaById } = useUmas();
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan, uma) : [];
@@ -93,7 +110,18 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         </div>
         <div className="inh-col inh-col-center">
           <Placeholder title="Inheritance" phase="M1.4" />
-          <Placeholder title="Your deck" phase="M1.5" />
+          <YourDeckCard
+            state={deck}
+            onChange={setDeck}
+            resolveCard={resolveCard}
+            templates={templates}
+            onSaveTemplate={(name) => save(name, deck)}
+            onLoadTemplate={(name) => {
+              const t = get(name);
+              if (t) setDeck({ slots: t.slots.slice(), slotLb: t.slotLb.slice() });
+            }}
+            onDeleteTemplate={remove}
+          />
           <Placeholder title="Support cards" phase="M1.6" />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>
