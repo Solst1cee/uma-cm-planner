@@ -124,6 +124,12 @@ export function sparkChance(args: {
   rates: SparkRates;
   opts?: {
     grandparentAffinity?: number;
+    /** Resolve a contribution's computed per-member affinity (M1 affinity).
+     *  When it returns a number, that score is used and the contribution is
+     *  NOT approximate; undefined ⇒ fall back to affinityHint/grandparentAffinity.
+     *  `gpIndex` is meaningful only when `grandparent` is true (it is -1 for the
+     *  parent-self call); branch on `grandparent`, do not index a gp array with it. */
+    memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
     /** Resolve a skillId → rarity to gate white-spark pricing (finding 2). */
     skillRarity?: ReadonlyMap<string, SkillRarity> | ((skillId: string) => SkillRarity | undefined);
   };
@@ -163,37 +169,46 @@ export function sparkChance(args: {
     if (parent.greenSpark?.skillId === skillId) {
       matching.push({ family: 'green', stars: parent.greenSpark.stars });
     }
+    // Computed per-member affinity (M1) de-approximates; else the affinityHint fallback.
+    const computedParent = opts?.memberAffinity?.({ parentId: parent.id, grandparent: false, gpIndex: -1 });
+    const useAffinity = computedParent ?? parentAffinity;
+    const useApprox = computedParent !== undefined ? false : parentApprox;
     for (const spark of matching) {
-      const pEvent = perEventChance(baseProcPct(rates, spark.family, spark.stars), parentAffinity);
+      const pEvent = perEventChance(baseProcPct(rates, spark.family, spark.stars), useAffinity);
       contributions.push({
         parentId: parent.id,
         grandparent: false,
         stars: spark.stars,
-        affinityUsed: parentAffinity,
+        affinityUsed: useAffinity,
         pct: perCareerChance(pEvent, rates) * 100,
-        approximate: parentApprox,
+        approximate: useApprox,
       });
-      if (parentApprox) approximate = true;
+      if (useApprox) approximate = true;
     }
 
     // --- sparks held by this parent's grandparents (ParentRef) ------------
     // ParentRef carries whiteSparks only — green career math for grandparents
     // is unverified anyway (mechanics-notes §1 note, §10 item 3).
     const gpAffinity = opts?.grandparentAffinity ?? 0;
-    for (const gp of parent.grandparents ?? []) {
+    const gps = parent.grandparents ?? [];
+    for (let gpIndex = 0; gpIndex < gps.length; gpIndex++) {
+      const gp = gps[gpIndex];
+      const computedGp = opts?.memberAffinity?.({ parentId: parent.id, grandparent: true, gpIndex });
+      const gpUseAffinity = computedGp ?? gpAffinity;
+      const gpApprox = computedGp === undefined; // computed ⇒ exact; fallback floor ⇒ approximate
       for (const spark of gp?.whiteSparks ?? []) {
         if (spark.skillId !== skillId) continue;
         if (!isWhiteSparkTarget(spark.skillId)) continue;
-        const pEvent = perEventChance(baseProcPct(rates, 'whiteSkill', spark.stars), gpAffinity);
+        const pEvent = perEventChance(baseProcPct(rates, 'whiteSkill', spark.stars), gpUseAffinity);
         contributions.push({
           parentId: parent.id,
           grandparent: true,
           stars: spark.stars,
-          affinityUsed: gpAffinity,
+          affinityUsed: gpUseAffinity,
           pct: perCareerChance(pEvent, rates) * 100,
-          approximate: true,
+          approximate: gpApprox,
         });
-        approximate = true;
+        if (gpApprox) approximate = true;
       }
     }
   }
@@ -223,6 +238,7 @@ export function combinedSparkChance(args: {
   rates: SparkRates;
   opts?: {
     grandparentAffinity?: number;
+    memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
     skillRarity?: ReadonlyMap<string, SkillRarity> | ((skillId: string) => SkillRarity | undefined);
     /** Display precision in decimal places (default 1). */
     dp?: number;

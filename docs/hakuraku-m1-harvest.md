@@ -52,6 +52,8 @@ calculateAffinity(parent, targetChara):
 
 **Race bonus (Frida-verified):** for each `win_saddle_id` the parent has, `+1` per grandparent that shares it (`0/1/2` each). Special career-race variant IDs (e.g. McQueen's Takarazuka `147` vs normal `14`) **do not overlap** — confirmed client quirk, worth a code comment.
 
+> **⚠ SUPERSEDED by the 2.0-anniversary compatibility overhaul** (live JP/KR/TW; GLOBAL **2026-07-01 11:00 UTC**, retroactive). The `+1 per shared graded race + +1 per Triple Crown` rule above is **pre-2.0**. Post-patch: **only shared G1-grade races count, at +3 each; G2/G3 races + title bonuses give 0**; base relation points are boosted (a `master.mdb` data change). The `54 + 18 = 72` Seiun Sky/McQueen fixture below (Validation references) used the **old** race bonus → **needs a new post-patch fixture**. **M1's affinity phase implements the NEW model** (decision 2026-06-25). Canonical record: [docs/mechanics-notes.md §3](mechanics-notes.md). Capabilities 3 (spark-proc chance) + the base-chance table + the patent scaling formula are **unaffected**.
+
 - **Data deps:** `successionRelation`, `successionRelationMember`, `singleModeWinsSaddle` (race bonus only), `textData` cat 111 (names, display only).
 - **Portability: EASY** — pure integer set-arithmetic. **We already have this** (`aff2`/`aff3`/`buildAffinityIndex`); our `affinityTier` thresholds (`◎≥151, ○≥51, △`) match the display intent.
 - **Two refinements to harvest into ours:**

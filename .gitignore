@@ -29,3 +29,6 @@ eng.traineddata
 
 # Local Windows dev-server launcher (reads gitignored .env.local)
 dev.bat
+
+# Design-handoff preview vendor (1.1MB React; preview-only, not needed in repo)
+docs/modules/design_handoff_support_card_builder/_ds/**/react.js

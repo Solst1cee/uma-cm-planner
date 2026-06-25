@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.css">
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/styles.css">
+<script src="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/react.js"></script>
+<script src="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/react-dom.js"></script>
+<script src="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--bg-0); color: var(--fg); }
+  .scb-drop.drag-over { border-color: var(--accent) !important; background: #eef4ff !important; }
+  .scb-tile[draggable="true"] { cursor: grab; }
+  .scb-tile:active { cursor: grabbing; }
+  .scb-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scb-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  .scb-step { width: 1.5rem; height: 1.5rem; min-height: 0; padding: 0; border-radius: 6px; font-weight: 800; line-height: 1; flex: none; }
+  .scb-parents > div { min-width: 0; overflow: hidden; }
+  .scb-parents .spark-row { flex-wrap: wrap; }
+  .scb-grid[data-arr="stacked"] .scb-side,
+  .scb-grid[data-arr="stacked"] .scb-deck-sticky { position: static !important; max-height: none !important; }
+  @media (max-width: 1120px) {
+    .scb-grid { grid-template-columns: 1fr !important; }
+    .scb-side { position: static !important; max-height: none !important; }
+    .scb-deck-sticky { position: static !important; }
+  }
+  @media (max-width: 760px) {
+    .scb-parents { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 640px) {
+    .scb-card-grid { grid-template-columns: 1fr 1fr !important; }
+    .scb-slots { grid-template-columns: 1fr 1fr 1fr !important; }
+  }
+</style>
+</helmet>
+
+<main style="max-width:1560px;margin:0 auto;padding:0.85rem 0.9rem 4rem;display:flex;flex-direction:column;gap:0.8rem;">
+
+  <!-- PLAN CONTEXT HEADER -->
+  <header class="panel" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem 1.1rem;padding:0.7rem 0.85rem;">
+    <span class="badge" style="color:var(--accent);border-color:var(--accent);">PLAN #{{ plan.number }}</span>
+    <h1 style="font-size:1.05rem;">{{ plan.name }}</h1>
+    <span class="muted small">From CM Planner · {{ plan.course }}</span>
+    <div style="margin-left:auto;display:flex;gap:0.4rem;flex-wrap:wrap;">
+      <span class="chip-sm">{{ plan.surface }}</span>
+      <span class="chip-sm">{{ plan.distanceLabel }}</span>
+      <span class="chip-sm">{{ plan.strategy }}</span>
+    </div>
+  </header>
+
+  <!-- WORKBENCH -->
+  <div class="scb-grid" data-arr="{{ arrangement }}" style="display:grid;gap:0.8rem;align-items:start; grid-template-columns: {{ gridCols }};">
+
+    <!-- ============ LEFT SIDEBAR ============ -->
+    <section class="scb-side scb-scroll" style="display:flex;flex-direction:column;gap:0.8rem;position:sticky;top:0.5rem;max-height:calc(100vh - 1rem);overflow:auto;">
+
+      <!-- UMA PLAN -->
+      <div class="panel">
+        <h2 style="display:flex;align-items:center;gap:0.4rem;">Your uma plan</h2>
+        <div style="display:flex;gap:0.6rem;align-items:center;border:1px solid var(--accent);border-radius:10px;padding:0.55rem;background:#f4f8ff;">
+          <span class="cmp-portrait-ph" style="width:50px;height:50px;">{{ planUma.initials }}</span>
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ planUma.name }}</div>
+            <div class="muted small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ planUma.title }}</div>
+            <div class="spark-chips" style="margin-top:0.3rem;">
+              <sc-for list="{{ planUma.aptChips }}" as="a" hint-placeholder-count="3"><span class="badge spark-pink">{{ a.label }}</span></sc-for>
+            </div>
+          </div>
+          <button type="button" class="cmp-small-btn" onClick="{{ togglePlanSearch }}" style="flex:none;align-self:flex-start;">{{ planBtnLabel }}</button>
+        </div>
+        <sc-if value="{{ planSearchOpen }}">
+          <div style="margin-top:0.5rem;"><x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="Swap plan uma" placeholder="Search trained umas…" items="{{ trainedItems }}" on-pick="{{ onPickPlan }}" hint-size="100%,auto"></x-import></div>
+        </sc-if>
+      </div>
+
+      <!-- PLAN TARGETS (editable) -->
+      <div class="panel">
+        <button type="button" onClick="{{ togglePlanTargets }}" style="display:flex;align-items:center;gap:0.45rem;border:none;background:transparent;padding:0;cursor:pointer;width:100%;">
+          <span style="transition:transform .15s;transform: {{ planTargetsCaret }};color:var(--fg-muted);">▶</span>
+          <h2 style="margin:0;">Plan targets</h2>
+        </button>
+        <sc-if value="{{ planTargetsOpen }}">
+        <div style="margin-top:0.5rem;">
+        <div class="cmp-mini-label" style="margin-top:0;">Blue sparks <span class="muted small" style="text-transform:none;letter-spacing:0;">(stat)</span></div>
+        <ul class="spark-list">
+          <sc-for list="{{ blueGoalRows }}" as="g" hint-placeholder-count="2">
+            <li class="spark-row">
+              <span class="badge spark-blue" style="flex:1;min-width:0;border-color: {{ g.color }};color: {{ g.color }};">{{ g.label }}</span>
+              <button type="button" class="cmp-small-btn scb-step" onClick="{{ g.dec }}">−</button>
+              <span class="mono" style="width:2.6rem;text-align:center;">{{ g.starStr }}</span>
+              <button type="button" class="cmp-small-btn scb-step" onClick="{{ g.inc }}">+</button>
+              <button type="button" class="cmp-small-btn scb-step" onClick="{{ g.del }}" title="Remove" style="color:var(--error);">×</button>
+            </li>
+          </sc-for>
+        </ul>
+        <div class="cmp-mini-label">Pink sparks <span class="muted small" style="text-transform:none;letter-spacing:0;">(aptitude / style · from plan)</span></div>
+        <ul class="spark-list">
+          <sc-for list="{{ pinkGoalRows }}" as="g" hint-placeholder-count="2">
+            <li class="spark-row">
+              <span class="badge spark-pink" style="flex:1;min-width:0;">{{ g.key }}</span>
+              <span class="mono" style="width:2.6rem;text-align:center;">{{ g.starStr }}</span>
+            </li>
+          </sc-for>
+        </ul>
+        <div class="cmp-mini-label">Wishlist <span class="muted small" style="text-transform:none;letter-spacing:0;">({{ wishCount }} skills · {{ planSpTotal }} SP)</span></div>
+        <ul class="target-list">
+          <sc-for list="{{ wishlistDetail }}" as="w" hint-placeholder-count="8">
+            <li class="target-row" style="gap:0.45rem;">
+              <span class="target-name" style="font-weight:600;color: {{ w.nameColor }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ w.name }}</span>
+              <span class="muted small mono">{{ w.sp }}</span>
+            </li>
+          </sc-for>
+        </ul>
+        </div>
+        </sc-if>
+      </div>
+    </section>
+
+    <!-- ============ CENTER ============ -->
+    <section style="display:flex;flex-direction:column;gap:0.8rem;min-width:0;">
+
+      <!-- INHERITANCE (collapsible, above deck) -->
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+          <button type="button" onClick="{{ toggleInherit }}" style="display:flex;align-items:center;gap:0.45rem;border:none;background:transparent;padding:0;cursor:pointer;">
+            <span style="transition:transform .15s;transform: {{ inheritCaret }};color:var(--fg-muted);">▶</span>
+            <h2 style="margin:0;">Inheritance</h2>
+            <span class="muted small">parents 1 & 2</span>
+          </button>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="muted small">Updated {{ inheritUpdated }}</span>
+            <button type="button" class="cmp-small-btn" onClick="{{ uploadAll }}">Upload data</button>
+          </div>
+        </div>
+        <sc-if value="{{ inheritOpen }}">
+          <div class="scb-parents" style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.6rem;">
+            <!-- PARENT 1 -->
+            <div class="parent-form" style="margin:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem;margin-bottom:0.4rem;">
+                <span class="cmp-mini-label" style="margin:0;">Parent 1</span>
+                <div style="display:flex;gap:0.3rem;">
+                  <button type="button" class="cmp-small-btn" onClick="{{ p1.toggleCand }}">Find candidates</button>
+                  <button type="button" class="cmp-small-btn" onClick="{{ p1.toggleSearch }}">{{ p1.btnLabel }}</button>
+                  <button type="button" class="cmp-small-btn" onClick="{{ clearP1 }}" title="Clear parent 1" style="color:var(--error);font-weight:800;">✕</button>
+                </div>
+              </div>
+              <sc-if value="{{ p1.searchOpen }}"><div style="margin-bottom:0.45rem;"><x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="Pick parent 1" placeholder="Search trained umas…" items="{{ trainedItems }}" on-pick="{{ onPickP1 }}" hint-size="100%,auto"></x-import></div></sc-if>
+              <sc-if value="{{ p1.showCand }}">
+                <ul class="picker-results" style="margin-bottom:0.45rem;">
+                  <sc-for list="{{ p1.candidates }}" as="c" hint-placeholder-count="3"><li><button type="button" class="picker-row" onClick="{{ c.pick }}"><span class="cmp-portrait-ph" style="width:28px;height:28px;font-size:0.5rem;">{{ c.initials }}</span><span class="picker-name">{{ c.name }}</span><span class="badge" style="color:var(--accent);border-color:var(--accent);">match {{ c.score }}</span></button></li></sc-for>
+                </ul>
+              </sc-if>
+              <sc-if value="{{ p1.picked }}">
+                <div style="display:flex;align-items:center;gap:0.45rem;">
+                  <span class="cmp-portrait-ph" style="width:42px;height:42px;font-size:0.6rem;">{{ p1.initials }}</span>
+                  <div style="min-width:0;flex:1;">
+                    <div style="display:flex;align-items:center;gap:0.35rem;"><span class="badge {{ p1.rarityClass }}">{{ p1.rarity }}</span><strong style="font-size:0.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p1.name }}</strong></div>
+                    <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;">
+                      <span class="muted small">GP:</span>
+                      <sc-for list="{{ p1.gpChips }}" as="g" hint-placeholder-count="2"><span class="cmp-portrait-ph" title="{{ g.title }}" style="width:22px;height:22px;font-size:0.46rem;">{{ g.init }}</span></sc-for>
+                    </div>
+                  </div>
+                </div>
+                <div class="spark-chips" style="margin:0.4rem 0;">
+                  <sc-for list="{{ p1.pinkChips }}" as="c" hint-placeholder-count="2"><span class="badge spark-pink">{{ c.label }}</span></sc-for>
+                  <sc-for list="{{ p1.blueChips }}" as="c" hint-placeholder-count="2"><span class="badge spark-blue" style="border-color: {{ c.color }};color: {{ c.color }};">{{ c.label }}</span></sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.18rem;">
+                  <sc-for list="{{ p1.whiteSparks }}" as="w" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.76rem;">
+                      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ w.name }}</span>
+                      <sc-if value="{{ w.isGp }}"><span class="muted" style="font-size:0.58rem;font-weight:800;border:1px solid var(--border);border-radius:4px;padding:0 0.2rem;">GP</span></sc-if>
+                      <span style="color: {{ w.color }};font-weight:800;letter-spacing:0.05em;">{{ w.stars }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+
+              </sc-if>
+            </div>
+
+            <!-- PARENT 2 -->
+            <div class="parent-form" style="margin:0;">
+              <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;flex-wrap:wrap;">
+                <span class="cmp-mini-label" style="margin:0;">Parent 2</span>
+                <div class="cmp-control-group" style="margin:0;flex:none;"><button type="button" onClick="{{ p2owned }}" aria-pressed="{{ p2isOwned }}">Owned</button><button type="button" onClick="{{ p2rental }}" aria-pressed="{{ p2isRental }}">Rental</button></div>
+                <div style="display:flex;gap:0.3rem;align-items:center;margin-left:auto;">
+                  <sc-if value="{{ p2isOwned }}"><button type="button" class="cmp-small-btn" onClick="{{ p2.toggleCand }}">Find candidates</button></sc-if>
+                  <sc-if value="{{ p2isOwned }}"><button type="button" class="cmp-small-btn" onClick="{{ p2.toggleSearch }}">{{ p2.btnLabel }}</button></sc-if>
+                  <button type="button" class="cmp-small-btn" onClick="{{ clearP2 }}" title="Clear parent 2" style="color:var(--error);font-weight:800;">✕</button>
+                </div>
+              </div>
+              <sc-if value="{{ p2isRental }}">
+                <div style="border:1px dashed var(--border);border-radius:9px;padding:0.55rem;background:var(--bg-2);">
+                  <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;flex-wrap:wrap;">
+                    <span class="badge source-friend_rental">RENTAL</span>
+                    <span class="muted small">Build a dummy parent 2 — tune sparks to test coverage &amp; get a search link.</span>
+                  </div>
+                  <button type="button" class="cmp-small-btn" onClick="{{ loadHunt }}" style="font-weight:700;margin-bottom:0.45rem;">↻ Load from Target spark</button>
+                  <sc-if value="{{ huntLoaded }}">
+                    <ul class="spark-list">
+                      <sc-for list="{{ huntRows }}" as="h" hint-placeholder-count="3">
+                        <li class="spark-row">
+                          <span class="badge {{ h.cls }}" style="flex:1;min-width:0;border-color: {{ h.color }};color: {{ h.color }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ h.label }}</span>
+                          <button type="button" class="cmp-small-btn scb-step" onClick="{{ h.dec }}">−</button>
+                          <span class="mono" style="width:2.6rem;text-align:center;">{{ h.starStr }}</span>
+                          <button type="button" class="cmp-small-btn scb-step" onClick="{{ h.inc }}">+</button>
+                          <button type="button" class="cmp-small-btn scb-step" onClick="{{ h.del }}" title="Remove" style="color:var(--error);">×</button>
+                        </li>
+                      </sc-for>
+                    </ul>
+                    <div class="mono" style="display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0.4rem 0.5rem;border:1px solid var(--border);background:var(--bg-1);border-radius:8px;margin:0.5rem 0;">{{ shareLink }}</div>
+                    <div style="display:flex;gap:0.4rem;"><button type="button" class="cmp-small-btn" onClick="{{ copyLink }}" style="font-weight:700;">{{ copyLabel }}</button><a class="cmp-small-btn" href="{{ shareLink }}" target="_blank" rel="noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open ↗</a></div>
+                  </sc-if>
+                  <sc-if value="{{ huntEmpty }}"><p class="muted small" style="margin:0;">Click load to pull in your target spark, then tune each star.</p></sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ p2isOwned }}">
+
+                <sc-if value="{{ p2.searchOpen }}"><div style="margin-bottom:0.45rem;"><x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="Pick parent 2" placeholder="Search trained umas…" items="{{ trainedItems }}" on-pick="{{ onPickP2 }}" hint-size="100%,auto"></x-import></div></sc-if>
+                <sc-if value="{{ p2.showCand }}">
+                  <ul class="picker-results" style="margin-bottom:0.45rem;">
+                    <sc-for list="{{ p2.candidates }}" as="c" hint-placeholder-count="3"><li><button type="button" class="picker-row" onClick="{{ c.pick }}"><span class="cmp-portrait-ph" style="width:28px;height:28px;font-size:0.5rem;">{{ c.initials }}</span><span class="picker-name">{{ c.name }}</span><span class="badge" style="color:var(--accent);border-color:var(--accent);">match {{ c.score }}</span></button></li></sc-for>
+                  </ul>
+                </sc-if>
+                <sc-if value="{{ p2.picked }}">
+                  <div style="display:flex;align-items:center;gap:0.45rem;">
+                    <span class="cmp-portrait-ph" style="width:42px;height:42px;font-size:0.6rem;">{{ p2.initials }}</span>
+                    <div style="min-width:0;flex:1;">
+                      <div style="display:flex;align-items:center;gap:0.35rem;"><span class="badge {{ p2.rarityClass }}">{{ p2.rarity }}</span><strong style="font-size:0.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p2.name }}</strong></div>
+                      <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;">
+                        <span class="muted small">GP:</span>
+                        <sc-for list="{{ p2.gpChips }}" as="g" hint-placeholder-count="2"><span class="cmp-portrait-ph" title="{{ g.title }}" style="width:22px;height:22px;font-size:0.46rem;">{{ g.init }}</span></sc-for>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="spark-chips" style="margin:0.4rem 0;">
+                    <sc-for list="{{ p2.pinkChips }}" as="c" hint-placeholder-count="2"><span class="badge spark-pink">{{ c.label }}</span></sc-for>
+                    <sc-for list="{{ p2.blueChips }}" as="c" hint-placeholder-count="2"><span class="badge spark-blue" style="border-color: {{ c.color }};color: {{ c.color }};">{{ c.label }}</span></sc-for>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:0.18rem;">
+                    <sc-for list="{{ p2.whiteSparks }}" as="w" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.76rem;">
+                        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ w.name }}</span>
+                        <sc-if value="{{ w.isGp }}"><span class="muted" style="font-size:0.58rem;font-weight:800;border:1px solid var(--border);border-radius:4px;padding:0 0.2rem;">GP</span></sc-if>
+                        <span style="color: {{ w.color }};font-weight:800;letter-spacing:0.05em;">{{ w.stars }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+
+                </sc-if>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- DECK (sticky) -->
+      <div class="panel scb-deck-sticky" style="position:sticky;top:0.5rem;z-index:5;box-shadow:0 6px 18px rgb(36 54 78 / 0.08);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+          <h2 style="margin:0;">Your deck <span class="muted small" style="font-weight:400;">— 6 support slots</span></h2>
+          <div style="display:flex;gap:0.35rem;align-items:center;flex-wrap:wrap;">
+            <input type="text" value="{{ profileName }}" onChange="{{ onProfileName }}" placeholder="Template name" style="width:8.5rem;padding:0.25rem 0.45rem;font-size:0.78rem;" />
+            <button type="button" class="cmp-small-btn" onClick="{{ saveProfile }}">Save</button>
+            <select value="{{ selProfile }}" onChange="{{ onSelProfile }}" style="width:auto;padding:0.25rem 0.4rem;font-size:0.78rem;"><option value="">Load template…</option><sc-for list="{{ profileOptions }}" as="o" hint-placeholder-count="2"><option value="{{ o.name }}">{{ o.name }}</option></sc-for></select>
+            <button type="button" class="cmp-small-btn" onClick="{{ delProfile }}" disabled="{{ noSelProfile }}">Del</button>
+            <button type="button" class="cmp-small-btn" onClick="{{ clearDeck }}">Clear</button>
+          </div>
+        </div>
+        <div class="scb-slots" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;margin-top:0.55rem;">
+          <sc-for list="{{ slots }}" as="slot" hint-placeholder-count="6">
+            <div class="scb-drop {{ slot.dragClass }}" onDragOver="{{ slot.onOver }}" onDragLeave="{{ slot.onLeave }}" onDrop="{{ slot.onDrop }}" style="border:1.5px dashed {{ slot.border }};border-left:4px solid {{ slot.typeColor }};border-radius:10px;min-height:86px;padding:0.45rem;position:relative;display:flex;flex-direction:column;gap:0.25rem;background: {{ slot.bg }};">
+              <sc-if value="{{ slot.filled }}">
+                <button type="button" onClick="{{ slot.remove }}" aria-label="Remove" style="position:absolute;top:0.2rem;right:0.3rem;border:none;background:transparent;color:var(--fg-muted);cursor:pointer;font-size:0.95rem;line-height:1;padding:0;">×</button>
+                <div style="display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;width:100%;">
+                  <span style="width:2.4rem;height:2.4rem;border-radius:7px;background: {{ slot.typeColor }};color:#fff;font-size:0.78rem;font-weight:800;display:flex;align-items:center;justify-content:center;">{{ slot.typeLabel }}</span>
+                  <div style="display:flex;align-items:center;gap:0.25rem;">
+                  <span class="muted" style="font-size:0.6rem;font-weight:800;">LB</span>
+                  <span style="display:inline-flex;gap:3px;align-items:center;" title="Limit break level">
+                    <sc-for list="{{ slot.lbDiamonds }}" as="d" hint-placeholder-count="4"><button type="button" onClick="{{ d.click }}" title="Limit break {{ d.level }}" style="width:9px;height:14px;padding:0;border:0;background:transparent;cursor:pointer;line-height:0;"><span style="display:block;width:100%;height:100%;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background: {{ d.bg }};"></span></button></sc-for>
+                  </span>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ slot.empty }}">
+                <div style="margin:auto;text-align:center;color:var(--fg-muted);font-size:0.72rem;"><div style="font-size:1rem;line-height:1;">＋</div>{{ slot.no }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- BROWSE ZONE -->
+      <div class="panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" onClick="{{ toggleBrowse }}" style="display:flex;align-items:center;gap:0.45rem;border:none;background:transparent;padding:0;cursor:pointer;">
+            <span style="transition:transform .15s;transform: {{ browseCaret }};color:var(--fg-muted);">▶</span>
+            <h2 style="margin:0;">Support cards</h2>
+            <span class="muted small">{{ filterCount }} shown</span>
+          </button>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <div class="cmp-control-group" style="margin:0;"><button type="button" onClick="{{ viewGrid }}" aria-pressed="{{ isGrid }}">Icon</button><button type="button" onClick="{{ viewArt }}" aria-pressed="{{ isArt }}">Art</button><button type="button" onClick="{{ viewPlot }}" aria-pressed="{{ isPlot }}">Plot</button></div>
+            <sc-if value="{{ sortable }}"><div class="cmp-control-group" style="margin:0;"><button type="button" onClick="{{ sortMatches }}" aria-pressed="{{ sortIsMatches }}">Matches</button><button type="button" onClick="{{ sortEff }}" aria-pressed="{{ sortIsEff }}">Effect.</button></div></sc-if>
+          </div>
+        </div>
+        <sc-if value="{{ browseOpen }}">
+        <div>
+          <div style="display:flex;gap:0.35rem;margin:0.55rem 0 0.4rem;align-items:flex-start;">
+            <span class="muted small" style="flex:none;width:3.2rem;line-height:1.7;text-transform:uppercase;letter-spacing:0.03em;">Rarity</span>
+            <div style="flex:1;display:flex;flex-wrap:wrap;gap:0.35rem;"><sc-for list="{{ rarityChips }}" as="c" hint-placeholder-count="4"><button type="button" class="chip" onClick="{{ c.click }}" style="border:1px solid {{ c.border }};background: {{ c.bg }};color: {{ c.fg }};padding:0.2rem 0.7rem;cursor:pointer;font-weight:700;">{{ c.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;gap:0.35rem;margin-bottom:0.4rem;align-items:flex-start;">
+            <span class="muted small" style="flex:none;width:3.2rem;line-height:1.7;text-transform:uppercase;letter-spacing:0.03em;">Type</span>
+            <div style="flex:1;display:flex;flex-wrap:wrap;gap:0.35rem;"><sc-for list="{{ typeChips }}" as="c" hint-placeholder-count="6"><button type="button" class="chip" onClick="{{ c.click }}" style="border:1px solid {{ c.border }};background: {{ c.bg }};color: {{ c.fg }};padding:0.2rem 0.6rem;cursor:pointer;font-weight:700;">{{ c.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;gap:0.35rem;align-items:flex-start;">
+            <span class="muted small" style="flex:none;width:3.2rem;line-height:1.7;text-transform:uppercase;letter-spacing:0.03em;">Skill</span>
+            <div style="flex:1;display:flex;flex-wrap:wrap;gap:0.35rem;"><button type="button" class="chip" onClick="{{ clearSkill }}" style="border:1px solid {{ anySkill.border }};background: {{ anySkill.bg }};color: {{ anySkill.fg }};padding:0.2rem 0.6rem;cursor:pointer;font-weight:700;">Any</button><sc-for list="{{ skillChips }}" as="c" hint-placeholder-count="6"><button type="button" class="chip" onClick="{{ c.click }}" style="border:1px solid {{ c.border }};background: {{ c.bg }};color: {{ c.fg }};padding:0.2rem 0.6rem;cursor:pointer;font-weight:600;">{{ c.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;gap:0.35rem;align-items:flex-start;margin-top:0.4rem;border-top:1px solid var(--border);padding-top:0.45rem;">
+            <span class="muted small" style="flex:none;width:3.2rem;line-height:1.7;text-transform:uppercase;letter-spacing:0.03em;">Stats</span>
+            <div style="flex:1;display:flex;flex-wrap:wrap;gap:0.35rem;"><sc-for list="{{ statChips }}" as="c" hint-placeholder-count="7"><button type="button" class="chip" onClick="{{ c.click }}" style="border:1px solid {{ c.border }};background: {{ c.bg }};color: {{ c.fg }};padding:0.2rem 0.6rem;cursor:pointer;font-weight:600;">{{ c.label }}</button></sc-for></div>
+          </div>
+
+          <sc-if value="{{ isGrid }}">
+            <div class="scb-scroll" style="margin-top:0.7rem;max-height:680px;overflow-y:auto;padding-right:0.2rem;">
+              <div class="scb-card-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">
+                <sc-for list="{{ cards }}" as="card" hint-placeholder-count="9">
+                  <article class="scb-tile" draggable="true" onDragStart="{{ card.onDragStart }}" onDragEnd="{{ card.onDragEnd }}" style="border:1px solid var(--border);border-left:4px solid {{ card.typeColor }};border-radius:9px;background: {{ card.bg }};padding:0.5rem 0.55rem;display:flex;flex-direction:column;gap:0.35rem;min-width:0;opacity: {{ card.opacity }};">
+                    <div style="display:flex;align-items:center;gap:0.45rem;min-width:0;">
+                      <span style="position:relative;flex:none;width:2.7rem;height:2.7rem;border-radius:8px;background: {{ card.typeColor }};color:#fff;font-size:0.78rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);">{{ card.initials }}<span style="position:absolute;left:-2px;bottom:-2px;background:#fff;color: {{ card.typeColor }};border:1px solid {{ card.typeColor }};border-radius:5px;font-size:0.5rem;font-weight:800;padding:0 0.18rem;line-height:1.25;">{{ card.typeLabel }}</span></span>
+                      <span style="flex:1;min-width:0;display:flex;flex-direction:column;">
+                        <sc-if value="{{ card.title }}"><span class="muted small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.15;">[{{ card.title }}]</span></sc-if>
+                        <span style="font-weight:700;font-size:0.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ card.name }}</span>
+                      </span>
+                      <span class="badge {{ card.rarityClass }}">{{ card.rarity }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                      <span class="small mono" title="Effectiveness (preview)" style="color:var(--fg-muted);">E {{ card.eff }}</span>
+                      <span class="small" style="color: {{ card.matchColor }};font-weight:700;">{{ card.matchLabel }}</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.22rem;min-height:1.1rem;">
+                      <sc-for list="{{ card.hintChips }}" as="h" hint-placeholder-count="2"><span class="chip-sm" style="border-color: {{ h.border }};color: {{ h.fg }};background: {{ h.bg }};font-weight:600;">{{ h.name }}</span></sc-for>
+                    </div>
+                    <sc-if value="{{ card.hasStats }}">
+                      <div style="display:flex;flex-wrap:wrap;gap:0.15rem 0.5rem;font-size:0.62rem;border-top:1px solid var(--border);padding-top:0.3rem;">
+                        <sc-for list="{{ card.statRows }}" as="s" hint-placeholder-count="2"><span style="display:flex;gap:0.25rem;"><span class="muted">{{ s.label }}</span><span style="font-weight:700;">{{ s.value }}</span></span></sc-for>
+                      </div>
+                    </sc-if>
+                    <div style="display:flex;align-items:center;gap:0.4rem;margin-top:auto;">
+                      <span class="muted" style="font-size:0.62rem;font-weight:800;">LB</span>
+                      <span style="display:inline-flex;gap:3px;align-items:center;" title="Limit break level">
+                        <sc-for list="{{ card.lbDiamonds }}" as="d" hint-placeholder-count="4"><button type="button" onClick="{{ d.click }}" title="Limit break {{ d.level }}" style="width:10px;height:15px;padding:0;border:0;background:transparent;cursor:pointer;line-height:0;"><span style="display:block;width:100%;height:100%;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background: {{ d.bg }};"></span></button></sc-for>
+                      </span>
+                      <button type="button" class="cmp-small-btn" onClick="{{ card.add }}" disabled="{{ card.added }}" style="font-weight:700;margin-left:auto;">{{ card.addLabel }}</button>
+                    </div>
+                  </article>
+                </sc-for>
+              </div>
+              <sc-if value="{{ noCards }}"><p class="muted" style="text-align:center;padding:1.2rem 0;">No cards match these filters.</p></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isPlot }}">
+            <div style="margin-top:0.7rem;display:flex;gap:0.4rem;">
+              <div style="writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:0.7rem;font-weight:700;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.05em;">Effectiveness →</div>
+              <div style="flex:1;min-width:0;">
+                <div style="position:relative;height:300px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(0deg,#fbfdff,#f3f7fc);overflow:hidden;">
+                  <div style="position:absolute;left:8%;top:2%;bottom:8%;border-left:1.5px solid var(--fg-muted);opacity:0.55;"></div>
+                  <div style="position:absolute;left:8%;right:2%;bottom:8%;border-top:1.5px solid var(--fg-muted);opacity:0.55;"></div>
+                  <div style="position:absolute;left:8%;bottom:8%;width:7px;height:7px;border-radius:50%;background:var(--fg-muted);transform:translate(-50%,50%);opacity:0.7;"></div>
+                  <div style="position:absolute;left:calc(8% - 14px);bottom:calc(8% - 14px);font-size:0.55rem;color:var(--fg-muted);font-weight:800;">0</div>
+                  <div style="position:absolute;right:8px;top:6px;font-size:0.62rem;color:var(--tier-chain);font-weight:800;">★ best picks</div>
+                  <sc-for list="{{ plotCards }}" as="p" hint-placeholder-count="8"><button type="button" title="{{ p.title }}" onClick="{{ p.add }}" style="position:absolute;left: {{ p.left }};top: {{ p.top }};transform:translate(-50%,-50%);width:30px;height:30px;border-radius:7px;border:2px solid #fff;background: {{ p.typeColor }};color:#fff;font-size:0.6rem;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgb(0 0 0 / 0.2);display:flex;align-items:center;justify-content:center;opacity: {{ p.opacity }};">{{ p.initials }}</button></sc-for>
+                </div>
+                <div style="text-align:center;font-size:0.7rem;font-weight:700;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.25rem;">Wishlist matches →</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isArt }}">
+            <div class="scb-scroll scb-card-grid" style="margin-top:0.7rem;max-height:820px;overflow-y:auto;padding-right:0.2rem;display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;align-items:start;">
+              <sc-for list="{{ cards }}" as="card" hint-placeholder-count="6">
+                <article class="scb-tile" draggable="true" onDragStart="{{ card.onDragStart }}" onDragEnd="{{ card.onDragEnd }}" style="border:1px solid var(--border);border-left:4px solid {{ card.typeColor }};border-radius:10px;background: {{ card.bg }};padding:0.5rem;display:flex;gap:0.5rem;min-width:0;align-items:stretch;opacity: {{ card.opacity }};">
+                  <div style="flex:none;width:62px;align-self:stretch;min-height:128px;border-radius:8px;background: {{ card.typeColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);">{{ card.initials }}</div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.3rem;">
+                    <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+                      <span style="font-weight:800;font-size:0.95rem;">{{ card.name }}</span>
+                      <span class="badge {{ card.rarityClass }}">{{ card.rarity }}</span>
+                      <span class="chip-sm" style="border-color: {{ card.typeColor }};color: {{ card.typeColor }};font-weight:700;">{{ card.typeLabel }}</span>
+                    </div>
+                    <sc-if value="{{ card.title }}"><span class="muted small">[{{ card.title }}]</span></sc-if>
+                    <div style="display:flex;flex-direction:column;gap:0.12rem;">
+                      <span class="small" style="font-weight:700;color:var(--tier-chain);">Chain event</span>
+                      <div style="display:flex;flex-wrap:wrap;gap:0.2rem;"><sc-for list="{{ card.chainChips }}" as="h" hint-placeholder-count="2"><span class="chip-sm" style="border-color: {{ h.border }};color: {{ h.fg }};background: {{ h.bg }};font-weight:600;">{{ h.name }}</span></sc-for></div>
+                      <span class="small" style="font-weight:700;color:var(--tier-random);margin-top:0.12rem;">Random event</span>
+                      <div style="display:flex;flex-wrap:wrap;gap:0.2rem;"><sc-for list="{{ card.randomChips }}" as="h" hint-placeholder-count="1"><span class="chip-sm" style="border-color: {{ h.border }};color: {{ h.fg }};background: {{ h.bg }};font-weight:600;">{{ h.name }}</span></sc-for></div>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.15rem 0.6rem;font-size:0.66rem;border-top:1px solid var(--border);padding-top:0.3rem;">
+                      <sc-for list="{{ card.allStatRows }}" as="s" hint-placeholder-count="4"><span style="display:flex;gap:0.25rem;"><span class="muted">{{ s.label }}</span><span style="font-weight:700;">{{ s.value }}</span></span></sc-for>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.4rem;margin-top:auto;">
+                      <span class="muted" style="font-size:0.62rem;font-weight:800;">LB</span>
+                      <span style="display:inline-flex;gap:3px;align-items:center;" title="Limit break level">
+                        <sc-for list="{{ card.lbDiamonds }}" as="d" hint-placeholder-count="4"><button type="button" onClick="{{ d.click }}" title="Limit break {{ d.level }}" style="width:10px;height:15px;padding:0;border:0;background:transparent;cursor:pointer;line-height:0;"><span style="display:block;width:100%;height:100%;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background: {{ d.bg }};"></span></button></sc-for>
+                      </span>
+                      <button type="button" class="cmp-small-btn" onClick="{{ card.add }}" disabled="{{ card.added }}" style="font-weight:700;margin-left:auto;">{{ card.addLabel }}</button>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+              <sc-if value="{{ noCards }}"><p class="muted" style="text-align:center;padding:1.2rem 0;">No cards match these filters.</p></sc-if>
+            </div>
+          </sc-if>
+        </div>
+        </sc-if>
+      </div>
+
+      <!-- OBTAINABLE -->
+      <div class="panel">
+        <h2>Obtainable vs. wishlist</h2>
+        <div class="cmp-control-group" style="margin:0.4rem 0;"><button type="button" onClick="{{ viewMatrix }}" aria-pressed="{{ isMatrix }}">Matrix</button><button type="button" onClick="{{ viewBars }}" aria-pressed="{{ isBars }}">Coverage</button></div>
+
+        <sc-if value="{{ isMatrix }}">
+          <div class="matrix-wrap scb-scroll" style="margin-top:0.3rem;">
+            <table class="matrix">
+              <thead><tr>
+                <th class="skill-col">Wishlist skill</th>
+                <th style="text-align:center;">Innate</th>
+                <th style="text-align:center;border-left:2px solid var(--border);">Parent</th>
+                <th style="text-align:center;">G.parent</th>
+                <th style="text-align:center;border-left:2px solid var(--border);">Chain</th>
+                <th style="text-align:center;">Random</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ rows }}" as="row" hint-placeholder-count="8">
+                  <tr class="{{ row.rowClass }}">
+                    <th class="skill-col"><span class="skill-name" style="color: {{ row.nameColor }};">{{ row.name }}</span></th>
+                    <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+                      <td style="text-align:center;border-left: {{ cell.sep }};">
+                        <sc-if value="{{ cell.on }}">
+                          <span style="display:inline-flex;align-items:center;gap:2px;justify-content:center;">
+                            <sc-for list="{{ cell.chips }}" as="ch" hint-placeholder-count="1"><span style="display:inline-flex;align-items:center;gap:1px;"><span title="{{ ch.title }}" style="display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding: {{ ch.pad }};border-radius: {{ ch.radius }};font-size:0.56rem;font-weight:800;background: {{ ch.bg }};color: {{ ch.fg }};border:1px solid {{ ch.border }};">{{ ch.text }}</span><sc-if value="{{ ch.hasPct }}"><span style="font-size:0.52rem;font-weight:700;color:var(--fg-muted);">{{ ch.pct }}</span></sc-if></span></sc-for>
+                            <sc-if value="{{ cell.hasExtra }}"><span class="muted" style="font-size:0.56rem;font-weight:700;">{{ cell.extra }}</span></sc-if>
+                          </span>
+                        </sc-if>
+                        <sc-if value="{{ cell.off }}"><span style="color:var(--border);">·</span></sc-if>
+                      </td>
+                    </sc-for>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBars }}">
+          <div style="margin-top:0.6rem;display:flex;flex-direction:column;gap:0.5rem;">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:0.6rem;"><span class="small" style="width:5.5rem;flex:none;color: {{ b.labelColor }};font-weight:700;">{{ b.label }}</span><div style="flex:1;height:18px;border-radius:6px;background:var(--bg-2);border:1px solid var(--border);overflow:hidden;"><div style="height:100%;width: {{ b.pct }};background: {{ b.color }};"></div></div><span class="small mono" style="width:2.2rem;text-align:right;">{{ b.count }}</span></div></sc-for>
+          </div>
+        </sc-if>
+
+        <div style="margin-top:0.7rem;border-top:1px solid var(--border);padding-top:0.6rem;">
+          <div style="display:flex;align-items:center;gap:0.4rem;"><span class="cmp-mini-label" style="margin:0;color:var(--tier-spark);">Bonus — obtainable, not on wishlist</span><span class="muted small">from deck + inheritance</span></div>
+          <sc-if value="{{ hasBonus }}">
+            <ul class="target-list" style="margin-top:0.35rem;">
+              <sc-for list="{{ bonus }}" as="b" hint-placeholder-count="3"><li class="target-row" style="gap:0.45rem;"><span class="target-name" style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ b.name }}</span><span style="display:inline-flex;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end;"><sc-for list="{{ b.sources }}" as="s" hint-placeholder-count="1"><span style="display:inline-flex;align-items:center;gap:3px;"><span title="{{ s.title }}" style="display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:18px;padding: {{ s.pad }};border-radius: {{ s.radius }};font-size:0.56rem;font-weight:800;background: {{ s.bg }};color: {{ s.fg }};border:1px solid {{ s.border }};">{{ s.text }}</span><span style="font-size:0.6rem;font-weight:700;color: {{ s.mColor }};">{{ s.method }}</span></span></sc-for></span></li></sc-for>
+            </ul>
+          </sc-if>
+          <sc-if value="{{ noBonus }}"><p class="muted small" style="margin:0.35rem 0 0;">Add support cards or parents to see the extra (off-wishlist) skills they bring.</p></sc-if>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT SIDEBAR ============ -->
+    <aside class="scb-side scb-scroll" style="display:flex;flex-direction:column;gap:0.8rem;position:sticky;top:0.5rem;max-height:calc(100vh - 1rem);overflow:auto;">
+      <!-- TARGET SPARK -->
+      <div class="panel">
+        <h2>Target spark</h2>
+        <p class="muted small" style="margin:0 0 0.5rem;">Sparks to hunt for on a parent / rental to complete this plan.</p>
+        <div class="cmp-mini-label" style="margin-top:0;">Blue</div>
+        <div class="spark-chips"><sc-for list="{{ targetBlue }}" as="s" hint-placeholder-count="2"><span class="badge spark-blue" style="border-color: {{ s.color }};color: {{ s.color }};">{{ s.label }}</span></sc-for></div>
+        <div class="cmp-mini-label">Pink</div>
+        <div class="spark-chips"><sc-for list="{{ targetPink }}" as="s" hint-placeholder-count="2"><span class="badge spark-pink">{{ s.label }}</span></sc-for></div>
+        <div class="cmp-mini-label">White <span class="muted small" style="text-transform:none;letter-spacing:0;">(uncovered skills)</span></div>
+        <sc-if value="{{ hasWhite }}"><div class="spark-chips"><sc-for list="{{ targetWhite }}" as="s" hint-placeholder-count="2"><span class="badge spark-green">{{ s.name }}</span></sc-for></div></sc-if>
+        <sc-if value="{{ noWhite }}"><p class="small" style="color:var(--tier-chain);font-weight:700;margin:0.2rem 0 0;">✓ All wishlist skills obtainable from your setup.</p></sc-if>
+      </div>
+
+
+    </aside>
+  </div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1560,&quot;height&quot;:1000},&quot;arrangement&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;columns&quot;,&quot;stacked&quot;],&quot;default&quot;:&quot;columns&quot;,&quot;tsType&quot;:&quot;'columns' | 'stacked'&quot;},&quot;coverageView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;matrix&quot;,&quot;bars&quot;],&quot;default&quot;:&quot;matrix&quot;,&quot;tsType&quot;:&quot;'matrix' | 'bars'&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.TYPES = { spd: { label: 'SPD', color: '#3b82f6' }, sta: { label: 'STA', color: '#ef4444' }, pow: { label: 'POW', color: '#ec4899' }, gut: { label: 'GUT', color: '#f59e0b' }, wit: { label: 'WIT', color: '#10b981' } };
+    this.STAT = { spd: 'Speed', sta: 'Stamina', pow: 'Power', gut: 'Guts', wit: 'Wisdom' };
+    this.STAT_DEFS = [
+      { key: 'te', label: 'Training', suffix: '%' },
+      { key: 'fb', label: 'Friendship', suffix: '%' },
+      { key: 'mood', label: 'Mood', suffix: '%' },
+      { key: 'spec', label: 'Specialty', suffix: '' },
+      { key: 'rb', label: 'Race bonus', suffix: '%' },
+      { key: 'ifg', label: 'Init. gauge', suffix: '' },
+      { key: 'hint', label: 'Hint freq', suffix: '%' },
+    ];
+    this.SKILLS = {
+      curv: { name: 'Professor of Curvature', rarity: 'gold', sp: 160 },
+      corner: { name: 'Corner Adept ◎', rarity: 'white', sp: 110 },
+      swing: { name: 'Swinging Maestro', rarity: 'gold', sp: 170 },
+      straight: { name: 'Straightaway Adept ◎', rarity: 'white', sp: 100 },
+      push: { name: 'Final Push', rarity: 'gold', sp: 180 },
+      uptempo: { name: 'Up-Tempo', rarity: 'white', sp: 90 },
+      concen: { name: 'Concentration', rarity: 'white', sp: 90 },
+      prod: { name: 'Productive Lines', rarity: 'white', sp: 120 },
+      slick: { name: 'Slick Surge', rarity: 'gold', sp: 170 },
+      soft: { name: 'Soft Step', rarity: 'white', sp: 90 },
+      arc: { name: 'Arc Maestro', rarity: 'gold', sp: 160 },
+      stamkeep: { name: 'Stamina Keep', rarity: 'white', sp: 90 },
+    };
+    this.WISHLIST = [
+      { id: 'arc', priority: 1 }, { id: 'curv', priority: 1 }, { id: 'push', priority: 1 },
+      { id: 'swing', priority: 2 }, { id: 'corner', priority: 2 }, { id: 'slick', priority: 2 },
+      { id: 'concen', priority: 3 }, { id: 'soft', priority: 3 },
+    ];
+    // account trained umas (extractor data)
+    this.TRAINED = [
+      { id: 't1', name: 'Mejiro McQueen', title: 'Patrician Maiden', rarity: 'SSR', updated: '2026-06-24 15:08 UTC', innate: ['soft'], pink: [{ key: 'Long', star: 3 }], blue: [{ stat: 'sta', star: 6 }, { stat: 'pow', star: 3 }], white: [{ id: 'slick', star: 3, gp: false }, { id: 'concen', star: 2, gp: false }, { id: 'soft', star: 2, gp: true }, { id: 'prod', star: 1, gp: true }], gp: ['Mejiro Ryan', 'Air Groove'] },
+      { id: 't2', name: 'Kitasan Black', title: 'Sky-High Tycoon', rarity: 'SSR', updated: '2026-06-22 09:10 UTC', innate: ['arc'], pink: [{ key: 'Long', star: 3 }, { key: 'Turf', star: 2 }], blue: [{ stat: 'spd', star: 6 }, { stat: 'sta', star: 3 }], white: [{ id: 'curv', star: 3, gp: false }, { id: 'push', star: 2, gp: false }, { id: 'arc', star: 2, gp: true }, { id: 'uptempo', star: 1, gp: true }], gp: ['Satono Diamond', 'Vivlos'] },
+      { id: 't3', name: 'Symboli Rudolf', title: 'Echelon Emperor', rarity: 'SSR', updated: '2026-06-20 11:02 UTC', innate: ['curv'], pink: [{ key: 'Medium', star: 3 }, { key: 'Turf', star: 3 }], blue: [{ stat: 'pow', star: 6 }, { stat: 'gut', star: 3 }], white: [{ id: 'swing', star: 3, gp: false }, { id: 'prod', star: 2, gp: false }, { id: 'curv', star: 1, gp: true }, { id: 'corner', star: 2, gp: true }], gp: ['Tosen Jordan', 'Air Shakur'] },
+      { id: 't4', name: 'Gold Ship', title: 'Lordship of Chaos', rarity: 'SSR', updated: '2026-06-18 22:30 UTC', innate: ['stamkeep'], pink: [{ key: 'Long', star: 2 }, { key: 'Late', star: 3 }], blue: [{ stat: 'sta', star: 6 }, { stat: 'gut', star: 3 }], white: [{ id: 'slick', star: 3, gp: false }, { id: 'soft', star: 2, gp: false }, { id: 'stamkeep', star: 2, gp: true }, { id: 'swing', star: 1, gp: true }], gp: ['Mejiro McQueen', 'Dramatic'] },
+      { id: 't5', name: 'Vodka', title: 'Road to Tokyo', rarity: 'SSR', updated: '2026-06-15 14:00 UTC', innate: ['swing'], pink: [{ key: 'Medium', star: 3 }], blue: [{ stat: 'pow', star: 6 }, { stat: 'spd', star: 3 }], white: [{ id: 'curv', star: 2, gp: false }, { id: 'corner', star: 3, gp: false }, { id: 'swing', star: 1, gp: true }, { id: 'push', star: 2, gp: true }], gp: ['Admire Vega', 'Air Groove'] },
+      { id: 't6', name: 'Daiwa Scarlet', title: 'Scarlet Dash', rarity: 'SSR', updated: '2026-06-12 08:45 UTC', innate: ['push'], pink: [{ key: 'Medium', star: 2 }, { key: 'Front', star: 3 }], blue: [{ stat: 'spd', star: 6 }, { stat: 'gut', star: 3 }], white: [{ id: 'push', star: 3, gp: false }, { id: 'curv', star: 2, gp: false }, { id: 'uptempo', star: 2, gp: true }, { id: 'straight', star: 1, gp: true }], gp: ['Narita Brian', 'Biwa Hayahide'] },
+    ];
+    this.tById = {}; this.TRAINED.forEach(u => { this.tById[u.id] = u; });
+    // support cards: events carry chain/random type
+    this.CARDS = [
+      { id: 'c1', name: 'Kitasan Black', rarity: 'SSR', type: 'spd', eff: 92, events: [{ id: 'push', t: 'chain' }, { id: 'uptempo', t: 'chain' }, { id: 'straight', t: 'random' }] },
+      { id: 'c2', name: 'Super Creek', rarity: 'SSR', type: 'sta', eff: 88, events: [{ id: 'slick', t: 'chain' }, { id: 'stamkeep', t: 'random' }] },
+      { id: 'c3', name: 'Fine Motion', rarity: 'SSR', type: 'wit', eff: 85, events: [{ id: 'concen', t: 'chain' }, { id: 'prod', t: 'random' }] },
+      { id: 'c4', name: 'Vodka', rarity: 'SSR', type: 'pow', eff: 80, events: [{ id: 'curv', t: 'chain' }, { id: 'corner', t: 'random' }] },
+      { id: 'c5', name: 'Special Week', rarity: 'SSR', type: 'gut', eff: 78, events: [{ id: 'soft', t: 'chain' }, { id: 'push', t: 'random' }] },
+      { id: 'c6', name: 'Sweep Tosho', rarity: 'SR', type: 'spd', eff: 60, events: [{ id: 'straight', t: 'chain' }, { id: 'uptempo', t: 'random' }] },
+      { id: 'c7', name: 'Mejiro McQueen', rarity: 'SSR', type: 'sta', eff: 90, events: [{ id: 'slick', t: 'chain' }, { id: 'soft', t: 'random' }] },
+      { id: 'c8', name: 'Biwa Hayahide', rarity: 'SSR', type: 'wit', eff: 83, events: [{ id: 'swing', t: 'chain' }, { id: 'prod', t: 'random' }] },
+      { id: 'c9', name: 'El Condor Pasa', rarity: 'SR', type: 'pow', eff: 64, events: [{ id: 'curv', t: 'chain' }, { id: 'arc', t: 'random' }] },
+      { id: 'c10', name: 'King Halo', rarity: 'SR', type: 'wit', eff: 55, events: [{ id: 'concen', t: 'chain' }] },
+      { id: 'c11', name: 'Tazuna Hayakawa', rarity: 'SSR', type: 'wit', eff: 70, events: [{ id: 'arc', t: 'chain' }, { id: 'swing', t: 'random' }] },
+      { id: 'c12', name: 'Daiwa Scarlet', rarity: 'SSR', type: 'spd', eff: 86, events: [{ id: 'push', t: 'chain' }, { id: 'curv', t: 'random' }] },
+      { id: 'c13', name: 'Maruzensky', rarity: 'SR', type: 'spd', eff: 62, events: [{ id: 'uptempo', t: 'chain' }, { id: 'slick', t: 'random' }] },
+      { id: 'c14', name: 'Gold City', rarity: 'R', type: 'spd', eff: 38, events: [{ id: 'straight', t: 'chain' }] },
+      { id: 'c15', name: 'Haru Urara', rarity: 'R', type: 'gut', eff: 30, events: [{ id: 'soft', t: 'chain' }] },
+    ];
+    this.CARDS.forEach(c => { c.hints = c.events.map(e => e.id); });
+    this.cardById = {}; this.CARDS.forEach(c => { this.cardById[c.id] = c; });
+    this.CARD_TITLES = { c1: 'Sky-High Crescendo', c2: 'Moonlit Mender', c3: 'Calculated Grace', c4: 'Roaring Engine', c5: 'Hearty Appetite', c6: 'Sudden Spark', c7: 'Noble Stride', c8: 'Theory of Victory', c9: 'Masked Maverick', c10: 'Regal Bearing', c11: 'Trusted Guide', c12: 'Crimson Resolve', c13: 'Mach Override', c14: 'City Lights', c15: 'Never Give Up' };
+    this.PLAN = { number: 1, name: 'Cancer Cup — Late ace', course: 'Tokyo Racecourse', surface: 'Turf', distanceLabel: 'Long · 2400m', strategy: 'Late', aptTargets: [{ key: 'Long', rank: 'A' }, { key: 'Turf', rank: 'A' }, { key: 'Late', rank: 'A' }] };
+    this._drag = null;
+    this.state = {
+      planUmaId: 't1', slots: [null, null, null, null, null, null], slotLb: [4, 4, 4, 4, 4, 4],
+      p1: 't2', p2: 't3', p2mode: 'owned',
+      rarity: 'all', type: 'all', skill: null, view: null, dragIndex: -1, sort: 'matches', plot: false, cardView: 'grid', statsShown: ['te', 'fb'],
+      browseOpen: true, inheritOpen: true, planTargetsOpen: true, planSearchOpen: false, p1SearchOpen: false, p2SearchOpen: false,
+      candFor: null, cardLb: {}, lastUpload: {},
+      pinkGoals: [{ key: 'Long', star: 5 }, { key: 'Late', star: 3 }], blueGoals: [{ stat: 'sta', star: 6 }, { stat: 'pow', star: 3 }],
+      hunt: null, profiles: [], profileName: '', selProfile: '', copied: false, accountUpdated: '2026-06-24 15:08 UTC',
+    };
+  }
+
+  componentDidMount() {
+    try { const raw = localStorage.getItem('scb_profiles'); if (raw) this.setState({ profiles: JSON.parse(raw) }); } catch (e) {}
+  }
+
+  initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase(); }
+  cardInit(name) { const w = name.split(' '); return (w.length > 1 ? w[0][0] + w[1][0] : name.slice(0, 2)).toUpperCase(); }
+  rarityClass(r) { return r === 'SSR' ? 'rarity-SSR' : r === 'SR' ? 'rarity-SR' : ''; }
+  matchCount(card) { const ws = new Set(this.WISHLIST.map(w => w.id)); return card.hints.filter(h => ws.has(h)).length; }
+  cardStatVals(card, lb) { const e = card.eff; return { te: Math.min(15, Math.round(e * 0.10 + lb * 1.2)), fb: Math.min(40, Math.round(e * 0.22 + lb * 2.5)), mood: Math.min(30, Math.round(e * 0.14 + lb * 1.5)), spec: Math.min(100, Math.round(e * 0.45 + lb * 10)), rb: Math.min(10, Math.round(e * 0.04 + lb * 0.6)), ifg: Math.min(35, Math.round(e * 0.12 + lb * 2)), hint: Math.min(50, Math.round(e * 0.2 + lb * 3)) }; }
+  toggleStat(key) { const cur = this.state.statsShown; const statsShown = cur.includes(key) ? cur.filter(k => k !== key) : cur.concat([key]); this.setState({ statsShown }); }
+  sparkChance(star, isGp) { const base = { 1: 18, 2: 27, 3: 36 }[Math.min(star, 3)] || 0; return isGp ? Math.round(base * 0.55) : base; }
+  activeParents() {
+    const ps = [this.tById[this.state.p1]];
+    if (this.state.p2mode === 'owned') ps.push(this.tById[this.state.p2]);
+    else { const d = this.rentalDummy(); if (d) ps.push(d); }
+    return ps.filter(Boolean);
+  }
+  rentalDummy() {
+    const h = this.state.hunt; if (!h) return null;
+    const white = h.white.filter(w => w.id && w.star > 0).map(w => ({ id: w.id, star: w.star, gp: false }));
+    return { id: '__rental', name: 'Rental', white, pink: (h.pink || []).map(p => ({ key: p.key, star: p.star })), blue: (h.blue || []).map(b => ({ stat: b.stat, star: b.star })), gp: ['Rental', ''], innate: [] };
+  }
+
+  detailFor(skillId) {
+    const S = this.state;
+    const planU = this.tById[S.planUmaId];
+    const parents = this.activeParents();
+    const innate = !!(planU && planU.innate.includes(skillId));
+    const parent = []; const gp = [];
+    parents.forEach(u => {
+      const own = u.white.find(w => w.id === skillId && !w.gp); if (own) parent.push({ u, star: own.star });
+      const g = u.white.find(w => w.id === skillId && w.gp); if (g) gp.push({ u, star: g.star });
+    });
+    const chain = S.slots.filter(id => id && this.cardById[id].events.some(e => e.id === skillId && e.t === 'chain')).map(id => this.cardById[id]);
+    const random = S.slots.filter(id => id && this.cardById[id].events.some(e => e.id === skillId && e.t === 'random')).map(id => this.cardById[id]);
+    return { innate, parent, gp, chain, random };
+  }
+
+  parentView(slotKey, id, label) {
+    const u = this.tById[id];
+    if (!u) return { picked: false, label };
+    const T = this.TYPES, STAT = this.STAT;
+    const upd = this.state.lastUpload[id] || u.updated;
+    return {
+      picked: true, label, name: u.name, rarity: u.rarity, rarityClass: this.rarityClass(u.rarity), initials: this.initials(u.name), updated: upd,
+      gpChips: u.gp.map(n => ({ init: this.initials(n), title: n })),
+      pinkChips: u.pink.map(p => ({ label: p.key + ' ' + '★'.repeat(Math.min(p.star, 3)) })),
+      blueChips: u.blue.map(b => ({ label: T[b.stat].label + ' ' + '★'.repeat(Math.min(b.star, 3)), color: T[b.stat].color })),
+      whiteSparks: u.white.map(w => ({ name: this.SKILLS[w.id].name, stars: '★'.repeat(Math.min(w.star, 3)), color: w.gp ? '#9aa6b6' : '#eab308', isGp: w.gp })),
+      upload: () => this.uploadFor(id),
+    };
+  }
+  candidatesFor(slotKey) {
+    const S = this.state;
+    const score = (u) => {
+      let s = 0;
+      S.pinkGoals.forEach(g => { const m = u.pink.find(p => p.key === g.key); if (m) s += Math.min(m.star, g.star); });
+      S.blueGoals.forEach(g => { const m = u.blue.find(b => b.stat === g.stat); if (m) s += Math.min(m.star, g.star); });
+      return s;
+    };
+    return this.TRAINED.map(u => ({ id: u.id, name: u.name, initials: this.initials(u.name), score: score(u) }))
+      .sort((a, b) => b.score - a.score).slice(0, 5)
+      .map(c => ({ ...c, pick: () => this.pickCandidate(slotKey, c.id) }));
+  }
+  pickCandidate(slotKey, id) { if (slotKey === 'p1') this.setState({ p1: id, candFor: null }); else this.setState({ p2: id, candFor: null }); }
+  uploadFor(id) { const lastUpload = { ...this.state.lastUpload, [id]: 'just now' }; this.setState({ lastUpload }); }
+
+  renderVals() {
+    const T = this.TYPES, STAT = this.STAT, S = this.state;
+    const planU = this.tById[S.planUmaId];
+    const wishSet = new Set(this.WISHLIST.map(w => w.id));
+
+    const cardChip = (c) => ({ text: this.cardInit(c.name), title: c.name + ' (support)', bg: T[c.type].color, fg: '#fff', border: T[c.type].color, radius: '4px', pad: '0 3px' });
+    const umaChip = (u, label, pct) => ({ text: this.initials(u.name), title: u.name + ' (' + label + (pct != null ? ', ~' + pct + '% inherit' : '') + ')', bg: '#eef4ff', fg: 'var(--accent)', border: 'var(--accent)', radius: '999px', pad: '0 5px', pct: pct != null ? '~' + pct + '%' : '', hasPct: pct != null });
+    const gpChip = (u, pct) => ({ text: this.initials(u.gp[0]), title: u.name + ' grandparent' + (pct != null ? ' (~' + pct + '% inherit)' : ''), bg: 'var(--bg-2)', fg: 'var(--fg-muted)', border: 'var(--border)', radius: '999px', pad: '0 5px', pct: pct != null ? '~' + pct + '%' : '', hasPct: pct != null });
+    const innChip = () => ({ text: this.initials(planU.name), title: planU.name + ' innate', bg: 'var(--tier-spark)', fg: '#fff', border: 'var(--tier-spark)', radius: '999px', pad: '0 5px' });
+
+    // matrix rows: Innate | Parent | GP | Chain | Random
+    const rows = this.WISHLIST.map(w => {
+      const sk = this.SKILLS[w.id];
+      const d = this.detailFor(w.id);
+      const covered = d.innate || d.parent.length || d.gp.length || d.chain.length || d.random.length;
+      const cells = [
+        { key: 'innate', on: d.innate, chips: d.innate ? [innChip()] : [], sep: 'none' },
+        { key: 'parent', on: d.parent.length > 0, chips: d.parent.map(x => umaChip(x.u, 'parent', this.sparkChance(x.star, false))), sep: '2px solid var(--border)' },
+        { key: 'gp', on: d.gp.length > 0, chips: d.gp.map(x => gpChip(x.u, this.sparkChance(x.star, true))), sep: 'none' },
+        { key: 'chain', on: d.chain.length > 0, chips: d.chain.map(cardChip), sep: '2px solid var(--border)' },
+        { key: 'random', on: d.random.length > 0, chips: d.random.map(cardChip), sep: 'none' },
+      ].map(c => { const extra = c.chips.length > 2 ? '+' + (c.chips.length - 2) : ''; return { ...c, off: !c.on, chips: c.chips.slice(0, 2), hasExtra: !!extra, extra }; });
+      return { id: w.id, name: sk.name, nameColor: sk.rarity === 'gold' ? '#c27a00' : 'var(--fg)', cells, rowClass: covered ? '' : 'row-uncovered', covered: !!covered, _d: d };
+    });
+    const total = rows.length;
+    const uncovered = rows.filter(r => !r.covered);
+
+    const wishlistDetail = rows.map(r => ({ name: r.name, sp: this.SKILLS[r.id].sp + ' SP', nameColor: r.nameColor }));
+    const planSpTotal = this.WISHLIST.reduce((n, w) => n + this.SKILLS[w.id].sp, 0);
+
+    const srcDefs = [
+      { label: 'Innate', color: 'var(--tier-spark)', f: r => r._d.innate },
+      { label: 'Parent', color: '#3478f6', f: r => r._d.parent.length > 0 },
+      { label: 'G.parent', color: '#0ea5e9', f: r => r._d.gp.length > 0 },
+      { label: 'Chain', color: 'var(--tier-chain)', f: r => r._d.chain.length > 0 },
+      { label: 'Random', color: 'var(--tier-random)', f: r => r._d.random.length > 0 },
+    ];
+    const bars = srcDefs.map(d => { const n = rows.filter(d.f).length; return { label: d.label, count: n, pct: (total ? Math.round(n / total * 100) : 0) + '%', color: d.color, labelColor: 'var(--fg)' }; });
+    bars.push({ label: 'Uncovered', count: uncovered.length, pct: (total ? Math.round(uncovered.length / total * 100) : 0) + '%', color: 'var(--tier-uncovered)', labelColor: 'var(--tier-uncovered)' });
+
+    // bonus: obtainable (deck + inheritance) skills not in wishlist
+    const bonusMap = {};
+    const addBonus = (id, chip, method, mColor) => { if (wishSet.has(id)) return; if (!bonusMap[id]) bonusMap[id] = []; bonusMap[id].push({ ...chip, method, mColor }); };
+    S.slots.filter(Boolean).forEach(id => { const c = this.cardById[id]; c.events.forEach(e => addBonus(e.id, cardChip(c), e.t === 'chain' ? 'Chain' : 'Random', e.t === 'chain' ? 'var(--tier-chain)' : 'var(--tier-random)')); });
+    this.activeParents().forEach(u => u.white.forEach(w => addBonus(w.id, w.gp ? gpChip(u) : umaChip(u, 'parent'), w.gp ? 'G.parent' : 'Parent', w.gp ? '#0ea5e9' : '#3478f6')));
+    if (planU) planU.innate.forEach(id => addBonus(id, innChip(), 'Innate', 'var(--tier-spark)'));
+    const bonus = Object.keys(bonusMap).map(id => ({ name: this.SKILLS[id].name, sources: bonusMap[id].slice(0, 4) }));
+
+    // filters / cards
+    const chipStyle = (on, color) => on ? { bg: color || 'var(--accent)', fg: '#fff', border: color || 'var(--accent)' } : { bg: 'var(--bg-2)', fg: 'var(--fg-muted)', border: 'var(--border)' };
+    const rarityChips = ['all', 'SSR', 'SR', 'R'].map(r => ({ label: r === 'all' ? 'All' : r, ...chipStyle(S.rarity === r), click: () => this.setState({ rarity: r }) }));
+    const typeChips = ['all', 'spd', 'sta', 'pow', 'gut', 'wit'].map(t => ({ label: t === 'all' ? 'All' : T[t].label, ...chipStyle(S.type === t, t === 'all' ? null : T[t].color), click: () => this.setState({ type: t }) }));
+    const skillChips = this.WISHLIST.map(w => { const on = S.skill === w.id; return { label: this.SKILLS[w.id].name, ...chipStyle(on), click: () => this.setState({ skill: on ? null : w.id }) }; });
+    const statChips = this.STAT_DEFS.map(d => ({ label: d.label, ...chipStyle(S.statsShown.includes(d.key)), click: () => this.toggleStat(d.key) }));
+    const hintChip = (id) => { const inW = wishSet.has(id); return { name: this.SKILLS[id].name, border: inW ? 'var(--accent)' : 'var(--border)', fg: inW ? 'var(--accent)' : 'var(--fg-muted)', bg: inW ? '#eef4ff' : 'var(--bg-2)' }; };
+    const getCardLb = (id) => (S.cardLb[id] === undefined ? 4 : S.cardLb[id]);
+    let filtered = this.CARDS.filter(c => (S.rarity === 'all' || c.rarity === S.rarity) && (S.type === 'all' || c.type === S.type) && (!S.skill || c.hints.includes(S.skill)));
+    filtered = filtered.slice().sort((a, b) => S.sort === 'eff' ? b.eff - a.eff : (this.matchCount(b) - this.matchCount(a)) || (b.eff - a.eff));
+    const cards = filtered.map(c => {
+      const added = S.slots.includes(c.id); const m = this.matchCount(c);
+      const sv = this.cardStatVals(c, getCardLb(c.id));
+      return {
+        statRows: this.STAT_DEFS.filter(d => S.statsShown.includes(d.key)).map(d => ({ label: d.label, value: sv[d.key] + d.suffix })), hasStats: S.statsShown.length > 0,
+        allStatRows: this.STAT_DEFS.map(d => ({ label: d.label, value: sv[d.key] + d.suffix })),
+        chainChips: c.events.filter(e => e.t === 'chain').map(e => hintChip(e.id)), randomChips: c.events.filter(e => e.t === 'random').map(e => hintChip(e.id)),
+        id: c.id, name: c.name, title: this.CARD_TITLES[c.id] || '', rarity: c.rarity, rarityClass: this.rarityClass(c.rarity), eff: c.eff, lb: getCardLb(c.id),
+        typeLabel: T[c.type].label, typeColor: T[c.type].color, initials: this.cardInit(c.name),
+        bg: added ? 'var(--bg-2)' : 'var(--bg-1)', opacity: added ? 0.5 : 1, added, addLabel: added ? 'Added' : '+ Add',
+        hintChips: c.hints.map(hintChip), matchLabel: m ? m + ' wishlist' : 'no wishlist hit', matchColor: m ? 'var(--accent)' : 'var(--fg-muted)',
+        onDragStart: () => { this._drag = c.id; }, onDragEnd: () => { this._drag = null; if (S.dragIndex !== -1) this.setState({ dragIndex: -1 }); },
+        add: () => this.addCard(c.id), lbDec: () => this.setCardLb(c.id, -1), lbInc: () => this.setCardLb(c.id, 1),
+        lbDiamonds: [1, 2, 3, 4].map(L => ({ level: L, bg: getCardLb(c.id) >= L ? 'linear-gradient(160deg,#ffe488,#e8a008)' : '#d7dce4', click: () => this.toggleCardLb(c.id, L) })),
+      };
+    });
+    const maxMatch = Math.max(1, ...this.CARDS.map(c => this.matchCount(c)));
+    const plotCards = filtered.map(c => { const m = this.matchCount(c), added = S.slots.includes(c.id); return { initials: this.cardInit(c.name), typeColor: T[c.type].color, opacity: added ? 0.45 : 1, title: c.name + ' · E ' + c.eff + ' · ' + m + ' wishlist', left: (11 + (m / maxMatch) * 82) + '%', top: (4 + (1 - c.eff / 100) * 84) + '%', add: () => this.addCard(c.id) }; });
+
+    const slots = S.slots.map((id, i) => {
+      const c = id ? this.cardById[id] : null; const dragging = S.dragIndex === i;
+      return {
+        no: i + 1, filled: !!c, empty: !c, name: c ? c.name : '', typeLabel: c ? T[c.type].label : '', typeColor: c ? T[c.type].color : 'transparent', lb: S.slotLb[i],
+        border: dragging ? 'var(--accent)' : 'var(--border)', bg: dragging ? '#eef4ff' : (c ? 'var(--bg-1)' : 'var(--bg-2)'), dragClass: dragging ? 'drag-over' : '',
+        hintChips: c ? c.hints.map(hintChip) : [],
+        onOver: (e) => { e.preventDefault(); if (S.dragIndex !== i) this.setState({ dragIndex: i }); },
+        onLeave: () => { if (S.dragIndex === i) this.setState({ dragIndex: -1 }); },
+        onDrop: (e) => { e.preventDefault(); this.dropOn(i); }, remove: () => this.removeSlot(i),
+        lbDec: () => this.setSlotLb(i, -1), lbInc: () => this.setSlotLb(i, 1),
+        lbDiamonds: [1, 2, 3, 4].map(L => ({ level: L, bg: S.slotLb[i] >= L ? 'linear-gradient(160deg,#ffe488,#e8a008)' : '#d7dce4', click: () => this.toggleSlotLb(i, L) })),
+      };
+    });
+
+    const trainedItems = this.TRAINED.map(u => ({ id: u.id, name: u.name, sub: u.title, badge: u.rarity }));
+
+    // plan targets editable
+    const STARS = (n) => n + '★';
+    const pinkGoalRows = S.pinkGoals.map((g) => ({ key: g.key, starStr: STARS(g.star) }));
+    const blueGoalRows = S.blueGoals.map((g, i) => ({ label: STAT[g.stat], color: T[g.stat].color, starStr: STARS(g.star), inc: () => this.setGoal('blue', i, 1), dec: () => this.setGoal('blue', i, -1), del: () => this.delBlueGoal(i) }));
+
+    // target spark (right)
+    const targetPink = S.pinkGoals.filter(g => g.star > 0).map(g => ({ label: g.key + ' ' + g.star + '★' }));
+    const targetBlue = S.blueGoals.filter(g => g.star > 0).map(g => ({ label: STAT[g.stat] + ' ' + g.star + '★', color: T[g.stat].color }));
+    const targetWhite = uncovered.map(r => ({ name: r.name }));
+
+    // hunt working area
+    let huntRows = [], shareLink = 'https://umalink.app/find';
+    if (S.hunt) {
+      const parts = [];
+      huntRows = [
+        ...S.hunt.blue.map((g, i) => ({ cls: 'spark-blue', color: T[g.stat].color, label: STAT[g.stat], starStr: STARS(g.star), inc: () => this.setHunt('blue', i, 1), dec: () => this.setHunt('blue', i, -1), del: () => this.delHunt('blue', i) })),
+        ...S.hunt.pink.map((g, i) => ({ cls: 'spark-pink', color: 'var(--error)', label: g.key, starStr: STARS(g.star), inc: () => this.setHunt('pink', i, 1), dec: () => this.setHunt('pink', i, -1), del: () => this.delHunt('pink', i) })),
+        ...S.hunt.white.map((g, i) => ({ cls: 'spark-green', color: '#1f8a5b', label: g.name, starStr: STARS(g.star), inc: () => this.setHunt('white', i, 1), dec: () => this.setHunt('white', i, -1), del: () => this.delHunt('white', i) })),
+      ];
+      const pk = S.hunt.pink.filter(g => g.star > 0).map(g => g.key + '~' + g.star).join(',');
+      const bl = S.hunt.blue.filter(g => g.star > 0).map(g => g.stat + '~' + g.star).join(',');
+      const wh = S.hunt.white.filter(g => g.star > 0).map(g => g.name).join(',');
+      shareLink = 'https://umalink.app/find?uma=' + encodeURIComponent(planU.name) + (pk ? '&pink=' + encodeURIComponent(pk) : '') + (bl ? '&blue=' + encodeURIComponent(bl) : '') + (wh ? '&skills=' + encodeURIComponent(wh) : '');
+    }
+
+    return {
+      plan: this.PLAN, arrangement: this.props.arrangement || 'columns', gridCols: (this.props.arrangement === 'stacked') ? '1fr' : 'minmax(290px,320px) minmax(0,1fr) minmax(290px,320px)',
+      planUma: { name: planU.name, title: planU.title, initials: this.initials(planU.name), aptChips: this.PLAN.aptTargets.map(a => ({ label: a.key + ' ' + a.rank })) },
+      trainedItems, onPickPlan: (id) => this.setState({ planUmaId: id, planSearchOpen: false }),
+      planSearchOpen: S.planSearchOpen, planBtnLabel: S.planSearchOpen ? 'Close' : 'Change', togglePlanSearch: () => this.setState({ planSearchOpen: !S.planSearchOpen }),
+
+      pinkGoalRows, blueGoalRows, wishlistDetail, wishCount: this.WISHLIST.length, planSpTotal,
+      planTargetsOpen: S.planTargetsOpen, planTargetsCaret: S.planTargetsOpen ? 'rotate(90deg)' : 'rotate(0deg)', togglePlanTargets: () => this.setState({ planTargetsOpen: !S.planTargetsOpen }),
+      clearPlanTargets: () => this.setState({ pinkGoals: [], blueGoals: [] }),
+
+      // inheritance
+      inheritOpen: S.inheritOpen, inheritCaret: S.inheritOpen ? 'rotate(90deg)' : 'rotate(0deg)', toggleInherit: () => this.setState({ inheritOpen: !S.inheritOpen }),
+      inheritUpdated: S.accountUpdated, uploadAll: () => this.setState({ accountUpdated: 'just now (uploaded)' }),
+      p1: { ...this.parentView('p1', S.p1, 'Parent 1'), searchOpen: S.p1SearchOpen, btnLabel: S.p1SearchOpen ? 'Close' : 'Change', toggleSearch: () => this.setState({ p1SearchOpen: !S.p1SearchOpen, candFor: null }), toggleCand: () => this.setState({ candFor: S.candFor === 'p1' ? null : 'p1' }), showCand: S.candFor === 'p1', candidates: this.candidatesFor('p1') },
+      p2: { ...this.parentView('p2', S.p2, 'Parent 2'), searchOpen: S.p2SearchOpen, btnLabel: S.p2SearchOpen ? 'Close' : 'Change', toggleSearch: () => this.setState({ p2SearchOpen: !S.p2SearchOpen, candFor: null }), toggleCand: () => this.setState({ candFor: S.candFor === 'p2' ? null : 'p2' }), showCand: S.candFor === 'p2', candidates: this.candidatesFor('p2') },
+      onPickP1: (id) => this.setState({ p1: id, p1SearchOpen: false }), onPickP2: (id) => this.setState({ p2: id, p2SearchOpen: false }),
+      clearP1: () => this.setState({ p1: '', p1SearchOpen: false, candFor: null }), clearP2: () => this.setState({ p2: '', p2SearchOpen: false, candFor: null }),
+      p2isOwned: S.p2mode === 'owned', p2isRental: S.p2mode === 'rental', p2owned: () => this.setState({ p2mode: 'owned' }), p2rental: () => this.setState({ p2mode: 'rental' }),
+
+      // deck + profiles
+      slots, clearDeck: () => this.setState({ slots: [null, null, null, null, null, null], slotLb: [4, 4, 4, 4, 4, 4] }),
+      profileName: S.profileName, onProfileName: (e) => this.setState({ profileName: e.target.value }), saveProfile: () => this.saveProfile(),
+      profileOptions: S.profiles.map(p => ({ name: p.name })), selProfile: S.selProfile, noSelProfile: !S.selProfile,
+      onSelProfile: (e) => this.loadProfile(e.target.value), delProfile: () => this.delProfile(),
+
+      // browse
+      browseOpen: S.browseOpen, browseCaret: S.browseOpen ? 'rotate(90deg)' : 'rotate(0deg)', toggleBrowse: () => this.setState({ browseOpen: !S.browseOpen }),
+      isGrid: (S.cardView || 'grid') === 'grid', isPlot: (S.cardView || 'grid') === 'plot', isArt: (S.cardView || 'grid') === 'art', sortable: (S.cardView || 'grid') !== 'plot', viewGrid: () => this.setState({ cardView: 'grid' }), viewPlot: () => this.setState({ cardView: 'plot' }), viewArt: () => this.setState({ cardView: 'art' }),
+      sortIsMatches: S.sort === 'matches', sortIsEff: S.sort === 'eff', sortMatches: () => this.setState({ sort: 'matches' }), sortEff: () => this.setState({ sort: 'eff' }),
+      rarityChips, typeChips, skillChips, statChips, anySkill: chipStyle(!S.skill), clearSkill: () => this.setState({ skill: null }), filterCount: cards.length, cards, noCards: cards.length === 0, plotCards,
+
+      // obtainable
+      isMatrix: (S.view || this.props.coverageView || 'matrix') === 'matrix', isBars: (S.view || this.props.coverageView || 'matrix') === 'bars', viewMatrix: () => this.setState({ view: 'matrix' }), viewBars: () => this.setState({ view: 'bars' }),
+      rows, bars, bonus, hasBonus: bonus.length > 0, noBonus: bonus.length === 0,
+
+      // right
+      targetPink, targetBlue, targetWhite, hasWhite: targetWhite.length > 0, noWhite: targetWhite.length === 0,
+      loadHunt: () => this.loadHunt(), huntLoaded: !!S.hunt, huntEmpty: !S.hunt, huntRows, shareLink,
+      copyLabel: S.copied ? 'Copied ✓' : 'Copy link', copyLink: () => this.copyLink(shareLink),
+    };
+  }
+
+  addCard(id) { const slots = this.state.slots.slice(); if (slots.includes(id)) return; const i = slots.indexOf(null); if (i === -1) return; slots[i] = id; const slotLb = this.state.slotLb.slice(); slotLb[i] = (this.state.cardLb[id] === undefined ? 4 : this.state.cardLb[id]); this.setState({ slots, slotLb }); }
+  dropOn(i) { const id = this._drag; if (!id) { this.setState({ dragIndex: -1 }); return; } const slots = this.state.slots.slice(); const slotLb = this.state.slotLb.slice(); const e = slots.indexOf(id); if (e !== -1) slots[e] = null; slots[i] = id; slotLb[i] = (this.state.cardLb[id] === undefined ? 4 : this.state.cardLb[id]); this._drag = null; this.setState({ slots, slotLb, dragIndex: -1 }); }
+  removeSlot(i) { const slots = this.state.slots.slice(); slots[i] = null; this.setState({ slots }); }
+  setSlotLb(i, d) { const slotLb = this.state.slotLb.slice(); slotLb[i] = Math.max(0, Math.min(4, slotLb[i] + d)); this.setState({ slotLb }); }
+  toggleSlotLb(i, L) { const slotLb = this.state.slotLb.slice(); slotLb[i] = Math.max(0, Math.min(4, slotLb[i] === L ? L - 1 : L)); this.setState({ slotLb }); }
+  setCardLb(id, d) { const cardLb = { ...this.state.cardLb }; const cur = cardLb[id] === undefined ? 4 : cardLb[id]; cardLb[id] = Math.max(0, Math.min(4, cur + d)); this.setState({ cardLb }); }
+  toggleCardLb(id, L) { const cardLb = { ...this.state.cardLb }; const cur = cardLb[id] === undefined ? 4 : cardLb[id]; cardLb[id] = Math.max(0, Math.min(4, cur === L ? L - 1 : L)); this.setState({ cardLb }); }
+  delBlueGoal(i) { const blueGoals = this.state.blueGoals.slice(); blueGoals.splice(i, 1); this.setState({ blueGoals }); }
+  setGoal(group, i, d) { const key = group === 'pink' ? 'pinkGoals' : 'blueGoals'; const arr = this.state[key].map((g, j) => j === i ? { ...g, star: Math.max(0, Math.min(9, g.star + d)) } : g); this.setState({ [key]: arr }); }
+  setHunt(group, i, d) { const hunt = { pink: this.state.hunt.pink.slice(), blue: this.state.hunt.blue.slice(), white: this.state.hunt.white.slice() }; hunt[group] = hunt[group].map((g, j) => j === i ? { ...g, star: Math.max(0, Math.min(9, g.star + d)) } : g); this.setState({ hunt }); }
+  delHunt(group, i) { const hunt = { pink: this.state.hunt.pink.slice(), blue: this.state.hunt.blue.slice(), white: this.state.hunt.white.slice() }; hunt[group].splice(i, 1); this.setState({ hunt }); }
+  loadHunt() {
+    const S = this.state;
+    const wishSet = new Set(this.WISHLIST.map(w => w.id));
+    const uncovered = this.WISHLIST.filter(w => { const d = this.detailFor(w.id); return !(d.innate || d.parent.length || d.gp.length || d.chain.length || d.random.length); });
+    this.setState({ hunt: { pink: S.pinkGoals.map(g => ({ ...g })), blue: S.blueGoals.map(g => ({ ...g })), white: uncovered.map(w => ({ id: w.id, name: this.SKILLS[w.id].name, star: 1 })) } });
+  }
+  saveProfile() {
+    const name = (this.state.profileName || '').trim(); if (!name) return;
+    const profiles = this.state.profiles.filter(p => p.name !== name).concat([{ name, slots: this.state.slots.slice(), slotLb: this.state.slotLb.slice() }]);
+    this.persist(profiles); this.setState({ profiles, profileName: '', selProfile: name });
+  }
+  loadProfile(name) { this.setState({ selProfile: name }); if (!name) return; const p = this.state.profiles.find(x => x.name === name); if (p) this.setState({ slots: p.slots.slice(), slotLb: p.slotLb.slice() }); }
+  delProfile() { const name = this.state.selProfile; if (!name) return; const profiles = this.state.profiles.filter(p => p.name !== name); this.persist(profiles); this.setState({ profiles, selProfile: '' }); }
+  persist(profiles) { try { localStorage.setItem('scb_profiles', JSON.stringify(profiles)); } catch (e) {} }
+  copyLink(link) { try { navigator.clipboard.writeText(link); } catch (e) {} this.setState({ copied: true }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: false }), 1600); }
+}
+</script>
+</body>
+</html>

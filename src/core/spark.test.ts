@@ -320,6 +320,51 @@ describe('sparkChance — gold whiteSparks entry is skipped when rarity is known
   });
 });
 
+// --- memberAffinity resolver --------------------------------------------------
+
+function whiteParent(affinityHint: number | undefined): Parent {
+  return {
+    id: 'pX',
+    umaId: '2000',
+    blueSpark: { stat: 'spd', stars: 1 },
+    pinkSpark: { aptitude: 'turf', stars: 1 },
+    whiteSparks: [{ skillId: '200001', stars: 3 }],
+    affinityHint,
+    source: 'mine',
+  };
+}
+
+describe('sparkChance memberAffinity resolver', () => {
+  it('uses the resolver score and drops the approximate flag', () => {
+    const withResolver = sparkChance({
+      parents: [whiteParent(100)],
+      skillId: '200001',
+      rates,
+      opts: { memberAffinity: () => 30 },
+    });
+    const fallback = sparkChance({
+      parents: [whiteParent(100)],
+      skillId: '200001',
+      rates,
+    });
+    expect(withResolver.approximate).toBe(false);
+    expect(fallback.approximate).toBe(true);
+    // affinity 30 ≠ 100 ⇒ a strictly smaller per-event chance ⇒ smaller pct
+    expect(withResolver.pct).toBeLessThan(fallback.pct);
+  });
+
+  it('falls back to affinityHint when the resolver returns undefined', () => {
+    const res = sparkChance({
+      parents: [whiteParent(0)],
+      skillId: '200001',
+      rates,
+      opts: { memberAffinity: () => undefined },
+    });
+    expect(res.approximate).toBe(false); // affinityHint===0 is the honest floor (existing rule)
+    expect(res.contributions[0]!.affinityUsed).toBe(0);
+  });
+});
+
 // --- parentCoversSkill --------------------------------------------------------
 
 describe('parentCoversSkill', () => {

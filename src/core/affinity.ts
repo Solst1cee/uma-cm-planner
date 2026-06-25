@@ -96,3 +96,15 @@ export function computeLineageAffinity(idx: AffinityIndex, lin: Lineage): Lineag
     staticOnly: lin.winBonus === undefined,
   };
 }
+
+/** Affinity score a member must reach for a compatibility tier (matches
+ *  affinityTier: ○ ≥ 51, ◎ ≥ 151). Used for rental Parent-2 target mode. */
+export function tierThreshold(tier: '○' | '◎'): number {
+  return tier === '◎' ? 151 : 51;
+}
+
+/** Affinity a rental Parent 2 must still supply to reach `tier`, given the
+ *  computable part of the lineage's score. Never negative. */
+export function affinityNeededForTier(computablePart: number, tier: '○' | '◎'): number {
+  return Math.max(0, tierThreshold(tier) - computablePart);
+}

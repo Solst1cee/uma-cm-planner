@@ -1,0 +1,122 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/data/GameIcon/**",
+              "components/meta-intel/TimelineDetailPanel/**",
+              "components/meta-intel/TimelineEntryCard/**",
+              "components/parents/SearchPicker/**",
+              "components/skill-planner/PlanHeaderPanel/**",
+              "components/skill-planner/SkillPicker/**",
+              "components/sp-optimizer/BuildCards/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "BuildCards": {
+        "replaces": []
+      },
+      "GameIcon": {
+        "replaces": []
+      },
+      "PlanHeaderPanel": {
+        "replaces": []
+      },
+      "SearchPicker": {
+        "replaces": []
+      },
+      "SkillPicker": {
+        "replaces": []
+      },
+      "TimelineDetailPanel": {
+        "replaces": []
+      },
+      "TimelineEntryCard": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--accent",
+      "--bg-0",
+      "--bg-1",
+      "--bg-2",
+      "--border",
+      "--effect-bg",
+      "--effect-border",
+      "--effect-color",
+      "--error",
+      "--fg",
+      "--fg-muted",
+      "--skill-shadow",
+      "--skill-text",
+      "--tier-chain",
+      "--tier-date_event",
+      "--tier-hint_strong",
+      "--tier-hint_weak",
+      "--tier-random",
+      "--tier-scenario",
+      "--tier-spark",
+      "--tier-uncovered"
+    ],
+    "tokenKinds": {
+      "--bg-0": "color",
+      "--bg-1": "color",
+      "--bg-2": "color",
+      "--fg": "color",
+      "--fg-muted": "color",
+      "--border": "color",
+      "--accent": "color",
+      "--error": "color",
+      "--tier-chain": "color",
+      "--tier-scenario": "color",
+      "--tier-date_event": "color",
+      "--tier-hint_strong": "color",
+      "--tier-hint_weak": "color",
+      "--tier-random": "color",
+      "--tier-spark": "color",
+      "--tier-uncovered": "color",
+      "--skill-text": "font",
+      "--skill-shadow": "shadow",
+      "--effect-color": "color",
+      "--effect-border": "color",
+      "--effect-bg": "color"
+    },
+    "fontFamilies": []
+  }
+}

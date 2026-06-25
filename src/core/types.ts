@@ -90,7 +90,7 @@ export interface LineageAffinity {
   /** Per-member scores that scale proc chance: chance = base × (1 + score/100). */
   memberScores: { parentA: number; parentB: number; gA1: number; gA2: number; gB1: number; gB2: number };
   tiers: { parentA: AffinityTier; parentB: AffinityTier; gA1: AffinityTier; gA2: AffinityTier; gB1: AffinityTier; gB2: AffinityTier };
-  /** Sum of member scores — the in-game "displayed" affinity (static; excludes shared-win bonuses). */
+  /** Sum of the 6 member scores — the in-game "displayed" affinity (includes shared-win bonuses when a winBonus is supplied). */
   displayTotal: number;
   /** True when shared-win bonuses were omitted (P3: render ≈ / note "+ shared-win bonuses in-game"). */
   staticOnly: boolean;
@@ -321,6 +321,8 @@ export interface ParentRef {
   blueSpark?: { stat: Stat; stars: 1 | 2 | 3 };
   pinkSpark?: { aptitude: string; stars: 1 | 2 | 3 };
   whiteSparks?: Array<{ skillId: string; stars: 1 | 2 | 3 }>;
+  /** G1 race ids this grandparent won (UmaExtractor; powers the 2.0 win-bonus). */
+  wonRaces?: string[];
 }
 
 export interface Parent {
@@ -335,6 +337,8 @@ export interface Parent {
   grandparents?: [ParentRef?, ParentRef?];
   /** Manual v1; computed affinity lands with Module 1 (plan §14.4). */
   affinityHint?: number;
+  /** G1 race ids this parent won (UmaExtractor; powers the 2.0 win-bonus). */
+  wonRaces?: string[];
   notes?: string;
   source: 'mine' | 'friend_rental';
   importSource?: 'umaextractor' | 'manual';
