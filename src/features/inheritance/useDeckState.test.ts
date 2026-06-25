@@ -77,4 +77,15 @@ describe('useDeckTemplates', () => {
     const { result } = renderHook(() => useDeckTemplates());
     expect(result.current.templates).toEqual([]);
   });
+
+  it('two saves in one act both persist (no stale-closure overwrite)', () => {
+    const { result } = renderHook(() => useDeckTemplates());
+    act(() => {
+      result.current.save('alpha', addCard(emptyDeck(), 'c1'));
+      result.current.save('beta', addCard(emptyDeck(), 'c2'));
+    });
+    expect(result.current.templates).toHaveLength(2);
+    expect(result.current.get('alpha')!.slots[0]).toBe('c1');
+    expect(result.current.get('beta')!.slots[0]).toBe('c2');
+  });
 });

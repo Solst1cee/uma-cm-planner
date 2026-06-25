@@ -79,9 +79,19 @@ export function useDeckTemplates(): {
   get: (name: string) => DeckTemplate | undefined;
 } {
   const [templates, setTemplates] = useState<DeckTemplate[]>(() => readTemplates());
+  // Mirror of `templates` kept up-to-date synchronously so `save`/`remove` always
+  // read the latest array, even when called multiple times before a re-render.
+  const latestTemplates = useRef<DeckTemplate[]>(templates);
+  latestTemplates.current = templates;
 
   const persist = (next: DeckTemplate[]) => {
-    setTemplates(next);
+    // Update the ref immediately so back-to-back calls within the same event handler
+    // (before React re-renders) always read the freshest array, not a stale closure.
+    latestTemplates.current = next;
+    // Use functional-update form as an extra safety belt.
+    setTemplates(() => next);
+    // Write `next` outside the updater callback to avoid double-writes in StrictMode
+    // (React may invoke the updater twice; the localStorage write here runs only once).
     try {
       localStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
     } catch {
@@ -91,9 +101,9 @@ export function useDeckTemplates(): {
 
   const save = (name: string, state: DeckState) => {
     const entry: DeckTemplate = { name, slots: state.slots.slice(), slotLb: state.slotLb.slice() };
-    persist(templates.filter((t) => t.name !== name).concat(entry));
+    persist(latestTemplates.current.filter((t) => t.name !== name).concat(entry));
   };
-  const remove = (name: string) => persist(templates.filter((t) => t.name !== name));
+  const remove = (name: string) => persist(latestTemplates.current.filter((t) => t.name !== name));
   const get = (name: string) => templates.find((t) => t.name === name);
 
   return { templates, save, remove, get };
