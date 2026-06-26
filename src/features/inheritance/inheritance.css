@@ -666,3 +666,93 @@ main:has(.inh-page) {
   color: var(--fg-muted);
   font-size: 0.85rem;
 }
+
+/* Art view list */
+.inh-pool-art-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Art tile: horizontal card with a coloured icon column */
+.inh-pool-art-tile {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  cursor: grab;
+  overflow: hidden;
+}
+.inh-pool-art-tile:hover { background: var(--bg-1); }
+
+.inh-pool-art-icon {
+  flex: none;
+  width: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background set inline to the card's typeColor */
+}
+
+.inh-pool-art-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  min-width: 0;
+}
+
+.inh-pool-art-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* Event-skill chip rows (Chain / Random) */
+.inh-pool-art-skill-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.inh-pool-art-skill-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  min-width: 2.8rem;
+}
+
+.inh-pool-art-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.inh-pool-art-chip {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10rem;
+  color: #fff;
+}
+
+/* Chain = green (--tier-chain) */
+.inh-pool-art-chip--chain {
+  background: var(--tier-chain, #2d8f4e);
+}
+
+/* Random = orange (--tier-random) */
+.inh-pool-art-chip--random {
+  background: var(--tier-random, #c96a10);
+}

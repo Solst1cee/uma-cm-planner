@@ -25,6 +25,8 @@ export interface SupportCardPoolCardProps {
   deckCardIds: ReadonlySet<string>;
   onAdd: (cardId: string) => void;
   renderIcon: (item: PoolItem) => React.ReactNode;
+  /** Map a skill id to its display name. Defaults to the raw id. */
+  skillName?: (id: string) => string;
 }
 
 // ---------------------------------------------------------------------------
@@ -52,6 +54,7 @@ export function SupportCardPoolCard({
   deckCardIds,
   onAdd,
   renderIcon,
+  skillName = (id) => id,
 }: SupportCardPoolCardProps) {
   const [view, setView] = useState<'icon' | 'art' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
@@ -214,9 +217,24 @@ export function SupportCardPoolCard({
               />
             ))}
           </div>
+        ) : view === 'art' ? (
+          <div className="inh-pool-art-list">
+            {filtered.map((item) => (
+              <ArtTile
+                key={item.cardId}
+                item={item}
+                lb={cardLb[item.cardId] ?? 0}
+                onCardLb={onCardLb}
+                inDeck={deckCardIds.has(item.cardId)}
+                onAdd={onAdd}
+                renderIcon={renderIcon}
+                skillName={skillName}
+              />
+            ))}
+          </div>
         ) : (
           <div className="inh-pool-placeholder">
-            {view === 'art' ? 'Art view — coming soon' : 'Plot view — coming soon'}
+            Plot view — coming soon
           </div>
         )}
       </div>
@@ -314,6 +332,121 @@ function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTilePro
           Add
         </button>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Art tile (Art view)
+// ---------------------------------------------------------------------------
+
+interface ArtTileProps {
+  item: PoolItem;
+  lb: LimitBreak;
+  onCardLb: (cardId: string, lb: LimitBreak) => void;
+  inDeck: boolean;
+  onAdd: (cardId: string) => void;
+  renderIcon: (item: PoolItem) => React.ReactNode;
+  skillName: (id: string) => string;
+}
+
+function ArtTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon, skillName }: ArtTileProps) {
+  function handleDragStart(e: React.DragEvent) {
+    e.dataTransfer.setData('text/card-id', item.cardId);
+  }
+
+  return (
+    <div
+      className="inh-pool-art-tile"
+      draggable
+      onDragStart={handleDragStart}
+    >
+      {/* Art / icon column */}
+      <div className="inh-pool-art-icon" style={{ background: item.typeColor }}>
+        {renderIcon(item)}
+      </div>
+
+      {/* Content column */}
+      <div className="inh-pool-art-content">
+        {/* Name + rarity + type chip */}
+        <div className="inh-pool-art-header">
+          <span className="inh-pool-tile-name">{item.name}</span>
+          {item.charName !== item.name && (
+            <span className="inh-pool-tile-char">{item.charName}</span>
+          )}
+          <span
+            className="inh-pool-tile-rarity"
+            style={{ background: item.typeColor }}
+          >
+            {item.rarity}
+          </span>
+        </div>
+
+        {/* Chain event-skill chips (green) */}
+        {item.chain.length > 0 && (
+          <div className="inh-pool-art-skill-row">
+            <span className="inh-pool-art-skill-label">Chain</span>
+            <div className="inh-pool-art-chips">
+              {item.chain.map((id) => (
+                <span key={id} className="inh-pool-art-chip inh-pool-art-chip--chain">
+                  {skillName(id)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Random event-skill chips (orange) */}
+        {item.random.length > 0 && (
+          <div className="inh-pool-art-skill-row">
+            <span className="inh-pool-art-skill-label">Random</span>
+            <div className="inh-pool-art-chips">
+              {item.random.map((id) => (
+                <span key={id} className="inh-pool-art-chip inh-pool-art-chip--random">
+                  {skillName(id)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Score */}
+        <div className="inh-pool-tile-score">
+          <span>E {item.score !== null ? item.score : '—'}</span>
+          {item.matchCount > 0 && (
+            <span className="inh-pool-tile-match">{item.matchCount} wishlist</span>
+          )}
+        </div>
+
+        {/* LB diamonds */}
+        <div className="inh-deck-lb">
+          <span className="inh-deck-lb-label">LB</span>
+          <div className="inh-deck-lb-diamonds">
+            {([1, 2, 3, 4] as const).map((level) => (
+              <button
+                key={level}
+                type="button"
+                className={`inh-deck-diamond${lb >= level ? ' is-on' : ''}`}
+                aria-label={`LB ${level}`}
+                onClick={() => onCardLb(item.cardId, level as LimitBreak)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Add / Added */}
+        {inDeck ? (
+          <span className="inh-pool-tile-added">Added</span>
+        ) : (
+          <button
+            type="button"
+            className="inh-pool-tile-add"
+            onClick={() => onAdd(item.cardId)}
+          >
+            Add
+          </button>
+        )}
+      </div>
     </div>
   );
 }
