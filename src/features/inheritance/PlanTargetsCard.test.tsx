@@ -21,9 +21,9 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
   pinkTotal: 5,
   midRunRows: [],
   availableBlueStats: [{ stat: 'spd', label: 'Speed' }],
-  wishlist: [
-    { skillId: '100', name: 'Arc Maestro', sp: 160, gold: true },
-    { skillId: '200', name: 'Professor of Curvature', sp: 160, gold: false },
+  wishlistPlates: [
+    <span key="100">Arc Maestro</span>,
+    <span key="200">Professor of Curvature</span>,
   ],
   summary: { count: 2, totalSp: 320 },
   onSetBlueStars: () => {},

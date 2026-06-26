@@ -3,6 +3,7 @@
  *  pink aptitude sparks (required career-start stars, also an 18★ budget — derived,
  *  so it warns when a bad plan exceeds it), a mid-run pink readout, and the skill
  *  wishlist (name + SP). Presentational — data + mutations come in via props. */
+import type { ReactNode } from 'react';
 import type { Stat } from '@/core/types';
 import {
   BLUE_TOTAL_MAX,
@@ -10,7 +11,6 @@ import {
   type BlueSparkRow,
   type MidRunSparkRow,
   type PinkSparkRow,
-  type WishlistRow,
 } from './planTargets';
 
 export interface PlanTargetsCardProps {
@@ -24,7 +24,8 @@ export interface PlanTargetsCardProps {
   pinkTotal: number;
   midRunRows: MidRunSparkRow[];
   availableBlueStats: Array<{ stat: Stat; label: string }>;
-  wishlist: WishlistRow[];
+  /** Pre-rendered skill plates (built by the page so the card stays provider-free). */
+  wishlistPlates: ReactNode[];
   summary: { count: number; totalSp: number };
   onSetBlueStars: (stat: Stat, stars: number) => void;
   onDeleteBlue: (stat: Stat) => void;
@@ -41,7 +42,7 @@ export function PlanTargetsCard({
   pinkTotal,
   midRunRows,
   availableBlueStats,
-  wishlist,
+  wishlistPlates,
   summary,
   onSetBlueStars,
   onDeleteBlue,
@@ -154,19 +155,17 @@ export function PlanTargetsCard({
             </>
           )}
 
-          {/* Wishlist */}
+          {/* Wishlist — planner-style skill plates */}
           <div className="cmp-mini-label">
             Wishlist ({summary.count} skill{summary.count === 1 ? '' : 's'} · {summary.totalSp} SP)
           </div>
-          <ul className="target-list">
-            {wishlist.length === 0 && <li className="target-row muted small">No wishlist skills yet.</li>}
-            {wishlist.map((w) => (
-              <li className="target-row" key={w.skillId}>
-                <span className={`target-name ${w.gold ? 'inh-wl-gold' : ''}`.trim()}>{w.name}</span>
-                <span className="inh-wl-sp">{w.sp} SP</span>
-              </li>
-            ))}
-          </ul>
+          <div className="cmp-wishlist-list inh-wishlist">
+            {wishlistPlates.length === 0 ? (
+              <p className="muted small">No wishlist skills yet.</p>
+            ) : (
+              wishlistPlates
+            )}
+          </div>
         </div>
       )}
     </section>

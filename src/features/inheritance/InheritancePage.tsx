@@ -5,12 +5,16 @@
  *  (dismiss-on-outside); picking a row there switches the current plan. */
 import { useEffect, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
+import type { CmPlan } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
 import { useGameData } from '@/features/data/gameData';
 import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
+import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
+import { skillRecordToSummary } from '@/features/cm-planner/skillTechnicalDetails';
+import { wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
@@ -25,7 +29,6 @@ import {
   pinkSparkRows,
   pinkSparkTotal,
   setBlueStars,
-  wishlistRows,
   wishlistSummary,
 } from './planTargets';
 import './inheritance.css';
@@ -51,6 +54,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     uma2Plan,
     savedPlans,
     setPlan,
+    saveCurrentPlan,
     loadPlanIntoSlot,
     deleteSavedPlan,
     importSavedPlans,
@@ -90,6 +94,27 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   ) : (
     <span className="cmp-portrait-ph inh-uma-portrait-ph">uma</span>
   );
+
+  // M1 edits (e.g. blue sparks) persist to the plan's JSON immediately — auto-save,
+  // independent of the planner's auto-save toggle. setPlan keeps the UI instant.
+  const editPlan = (next: CmPlan) => {
+    setPlan(next);
+    void saveCurrentPlan(next);
+  };
+
+  // Wishlist as planner-style skill plates (no traceContext → no engine/Worker).
+  const wishlistPlates = uma1Plan
+    ? uma1Plan.wishlist.map((item) => {
+        const skill = wishlistSkillRecord(item.skillId, skillById);
+        return skill ? (
+          <SkillDetailDisclosure key={item.skillId} skill={skillRecordToSummary(skill)} showCost />
+        ) : (
+          <div key={item.skillId} className="cmp-wishlist-line muted small">
+            Skill {item.skillId}
+          </div>
+        );
+      })
+    : [];
 
   const inventory = uma1Plan ? (
     <PlanInventoryCard
@@ -142,11 +167,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
               pinkTotal={pinkSparkTotal(uma1Plan, uma)}
               midRunRows={midRunSparkRows(uma1Plan, uma)}
               availableBlueStats={availableBlueStats(uma1Plan)}
-              wishlist={wishlistRows(uma1Plan, skillById)}
+              wishlistPlates={wishlistPlates}
               summary={wishlistSummary(uma1Plan, skillById)}
-              onSetBlueStars={(stat, stars) => setPlan(setBlueStars(uma1Plan, stat, stars))}
-              onDeleteBlue={(stat) => setPlan(deleteBlueSpark(uma1Plan, stat))}
-              onAddBlue={(stat) => setPlan(addBlueSpark(uma1Plan, stat))}
+              onSetBlueStars={(stat, stars) => editPlan(setBlueStars(uma1Plan, stat, stars))}
+              onDeleteBlue={(stat) => editPlan(deleteBlueSpark(uma1Plan, stat))}
+              onAddBlue={(stat) => editPlan(addBlueSpark(uma1Plan, stat))}
             />
           )}
         </div>
