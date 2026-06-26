@@ -573,20 +573,23 @@ main:has(.inh-page) {
   outline: none;
 }
 
-/* Pool grid */
+/* Pool grid — dense small cells (collapsed = icon + LB only). An expanded
+   tile spans the full row so its detail has room. */
 .inh-pool-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
   gap: 0.5rem;
   max-height: 65vh;
   overflow-y: auto;
+  align-items: start;
 }
 
-/* Pool tile */
+/* Pool tile (accordion). Collapsed: a centered icon-toggle + LB stepper. */
 .inh-pool-tile {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 0.3rem;
   padding: 0.45rem;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -595,9 +598,37 @@ main:has(.inh-page) {
   position: relative;
 }
 .inh-pool-tile:hover { background: var(--bg-1); }
-.inh-pool-tile-icon { display: flex; justify-content: center; }
+.inh-pool-tile.is-expanded {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--bg-1);
+}
+/* The icon doubles as the expand toggle. */
+.inh-pool-tile-iconbtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  border-radius: 6px;
+}
+.inh-pool-tile-iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Detail block — hidden until the tile is expanded. */
+.inh-pool-tile-detail { display: none; }
+.inh-pool-tile.is-expanded .inh-pool-tile-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.inh-pool-tile-headline { display: flex; align-items: center; gap: 0.35rem; min-width: 0; }
 .inh-pool-tile-name {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -612,12 +643,12 @@ main:has(.inh-page) {
 }
 .inh-pool-tile-rarity {
   display: inline-block;
+  flex: none;
   font-size: 0.66rem;
   font-weight: 800;
   color: #fff;
   padding: 0.05rem 0.3rem;
   border-radius: 4px;
-  align-self: flex-start;
 }
 .inh-pool-tile-score {
   display: flex;
@@ -627,18 +658,23 @@ main:has(.inh-page) {
   color: var(--fg-muted);
 }
 .inh-pool-tile-match { color: var(--accent); font-weight: 600; }
-.inh-pool-tile-hints { display: flex; flex-wrap: wrap; gap: 0.2rem; }
-.inh-pool-hint-chip {
-  font-size: 0.6rem;
-  padding: 0.05rem 0.25rem;
+
+/* Skill chips — spark-style pills (no star); wishlist matches accented. */
+.inh-pool-skill-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.inh-pool-skill-chip {
   border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-1);
-  color: var(--fg-muted);
+  border-radius: 999px;
+  background: var(--bg-2);
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--fg);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 6rem;
+}
+.inh-pool-skill-chip.is-match {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-1));
+  color: var(--accent);
 }
 .inh-pool-tile-add {
   margin-top: auto;

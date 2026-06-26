@@ -43,4 +43,21 @@ describe('SupportCardPoolCard', () => {
     const names = screen.getAllByTestId('pool-card-name').map((e) => e.textContent);
     expect(names[0]).toBe('Beta');
   });
+  it('Icon view is an accordion: clicking an icon expands one tile at a time', () => {
+    render(<SupportCardPoolCard {...base} />);
+    const toggles = screen.getAllByRole('button', { name: /details$/i });
+    // Nothing expanded initially.
+    expect(toggles.every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
+    // Expand the first tile.
+    fireEvent.click(toggles[0]!);
+    expect(toggles[0]!.getAttribute('aria-expanded')).toBe('true');
+    expect(toggles[1]!.getAttribute('aria-expanded')).toBe('false');
+    // Expanding the second collapses the first (one at a time).
+    fireEvent.click(toggles[1]!);
+    expect(toggles[0]!.getAttribute('aria-expanded')).toBe('false');
+    expect(toggles[1]!.getAttribute('aria-expanded')).toBe('true');
+    // Clicking the open tile again collapses it.
+    fireEvent.click(toggles[1]!);
+    expect(toggles[1]!.getAttribute('aria-expanded')).toBe('false');
+  });
 });

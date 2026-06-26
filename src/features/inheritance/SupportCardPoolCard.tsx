@@ -59,6 +59,9 @@ export function SupportCardPoolCard({
   const [view, setView] = useState<'icon' | 'art' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
+  // Icon view is an accordion: at most one tile expanded at a time. Collapsed
+  // tiles show only the icon + LB stepper (keeps the dense grid uncluttered).
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const filtered = sortPool(filterPool(items, filters), sort);
 
@@ -216,6 +219,11 @@ export function SupportCardPoolCard({
                 inDeck={deckCardIds.has(item.cardId)}
                 onAdd={onAdd}
                 renderIcon={renderIcon}
+                skillName={skillName}
+                expanded={expandedCardId === item.cardId}
+                onToggle={() =>
+                  setExpandedCardId((cur) => (cur === item.cardId ? null : item.cardId))
+                }
               />
             ))}
           </div>
@@ -253,59 +261,49 @@ interface PoolTileProps {
   inDeck: boolean;
   onAdd: (cardId: string) => void;
   renderIcon: (item: PoolItem, size: number) => React.ReactNode;
+  skillName: (id: string) => string;
+  expanded: boolean;
+  onToggle: () => void;
 }
 
-function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTileProps) {
+function PoolTile({
+  item,
+  lb,
+  onCardLb,
+  inDeck,
+  onAdd,
+  renderIcon,
+  skillName,
+  expanded,
+  onToggle,
+}: PoolTileProps) {
   function handleDragStart(e: React.DragEvent) {
     e.dataTransfer.setData('text/card-id', item.cardId);
     e.dataTransfer.setData('text/card-lb', String(lb));
   }
+  const matched = new Set(item.matchedIds);
+  // All skills the card can provide (hints + chain/random events), de-duped.
+  const skills = [...new Set([...item.hint, ...item.chain, ...item.random])];
 
   return (
     <div
-      className="inh-pool-tile"
+      className={`inh-pool-tile${expanded ? ' is-expanded' : ''}`}
       draggable
       onDragStart={handleDragStart}
     >
-      {/* Icon */}
-      <div className="inh-pool-tile-icon">{renderIcon(item, 44)}</div>
-
-      {/* Name */}
-      <span className="inh-pool-tile-name" data-testid="pool-card-name">
-        {item.name}
-      </span>
-
-      {/* Char name — only shown when different from card name */}
-      {item.charName !== item.name && (
-        <span className="inh-pool-tile-char">{item.charName}</span>
-      )}
-
-      {/* Rarity + type badge */}
-      <span
-        className="inh-pool-tile-rarity"
-        style={{ background: item.typeColor }}
+      {/* Icon doubles as the expand toggle. Collapsed = just this + the LB
+          stepper; the detail block below is revealed on expand. */}
+      <button
+        type="button"
+        className="inh-pool-tile-iconbtn"
+        aria-expanded={expanded}
+        aria-label={`${item.name} details`}
+        onClick={onToggle}
       >
-        {item.rarity}
-      </span>
+        {renderIcon(item, 44)}
+      </button>
 
-      {/* Score + match count */}
-      <div className="inh-pool-tile-score">
-        <span>E {item.score !== null ? item.score : '—'}</span>
-        {item.matchCount > 0 && (
-          <span className="inh-pool-tile-match">{item.matchCount} wishlist</span>
-        )}
-      </div>
-
-      {/* Hint chips */}
-      {item.hint.length > 0 && (
-        <div className="inh-pool-tile-hints">
-          {item.hint.map((id) => (
-            <span key={id} className="inh-pool-hint-chip">{id}</span>
-          ))}
-        </div>
-      )}
-
-      {/* LB diamonds */}
+      {/* LB diamonds — always visible */}
       <div className="inh-deck-lb">
         <span className="inh-deck-lb-label">LB</span>
         <div className="inh-deck-lb-diamonds">
@@ -321,18 +319,48 @@ function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTilePro
         </div>
       </div>
 
-      {/* Add / Added */}
-      {inDeck ? (
-        <span className="inh-pool-tile-added">Added</span>
-      ) : (
-        <button
-          type="button"
-          className="inh-pool-tile-add"
-          onClick={() => onAdd(item.cardId)}
-        >
-          Add
-        </button>
-      )}
+      {/* Detail — revealed only when expanded (CSS-hidden when collapsed) */}
+      <div className="inh-pool-tile-detail">
+        <div className="inh-pool-tile-headline">
+          <span className="inh-pool-tile-rarity" style={{ background: item.typeColor }}>
+            {item.rarity}
+          </span>
+          <span className="inh-pool-tile-name" data-testid="pool-card-name">
+            {item.name}
+          </span>
+        </div>
+        {item.charName !== item.name && (
+          <span className="inh-pool-tile-char">{item.charName}</span>
+        )}
+
+        <div className="inh-pool-tile-score">
+          <span>E {item.score !== null ? item.score : '—'}</span>
+          {item.matchCount > 0 && (
+            <span className="inh-pool-tile-match">{item.matchCount} wishlist</span>
+          )}
+        </div>
+
+        {skills.length > 0 && (
+          <div className="inh-pool-skill-chips">
+            {skills.map((id) => (
+              <span
+                key={id}
+                className={`inh-pool-skill-chip${matched.has(id) ? ' is-match' : ''}`}
+              >
+                {skillName(id)}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {inDeck ? (
+          <span className="inh-pool-tile-added">Added</span>
+        ) : (
+          <button type="button" className="inh-pool-tile-add" onClick={() => onAdd(item.cardId)}>
+            Add
+          </button>
+        )}
+      </div>
     </div>
   );
 }
