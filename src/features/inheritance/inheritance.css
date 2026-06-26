@@ -120,27 +120,35 @@ main:has(.inh-page) {
 }
 .inh-deck-tools .cmp-small-btn { flex: none; }
 
-/* Template combobox: a name field that autosaves + a caret dropdown to load templates / "New". */
+/* Template combobox: a name field that autosaves, with the caret dropdown inset inside it. */
 .inh-deck-combo { position: relative; flex: 1 1 auto; min-width: 6rem; display: flex; }
 .inh-deck-tplname {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 0.25rem 0.45rem;
+  /* extra right padding leaves room for the inset caret button */
+  padding: 0.25rem 1.7rem 0.25rem 0.45rem;
   font-size: 0.78rem;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+.inh-deck-tplname:focus {
+  border-color: var(--accent);
+  background: var(--bg-1);
+  outline: none;
 }
 .inh-deck-combo-caret {
-  flex: none;
-  border: 1px solid var(--border);
-  border-left: 0;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  background: var(--bg-2);
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
   color: var(--fg-muted);
-  padding: 0 0.45rem;
+  padding: 0 0.3rem;
   cursor: pointer;
   font-size: 0.7rem;
+  line-height: 1;
 }
 .inh-deck-combo-menu {
   position: absolute;

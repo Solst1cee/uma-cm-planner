@@ -2,7 +2,7 @@
 /** M1 — Inheritance workbench (handoff: docs/modules/design_handoff_support_card_builder/).
  *  M1.1 lands the shell + plan-context header; the column panels are placeholders
  *  that later phases (M1.2–M1.8) replace. */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
@@ -15,7 +15,7 @@ import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
-import { addCard, TYPE_COLORS, TYPE_LABEL } from './deckOps';
+import { addCard, emptyDeck, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
 
 interface Deps {
@@ -88,9 +88,32 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     }
   };
   const handleDeleteTemplate = (name: string) => {
+    // Auto-load the next remaining template; if none left, go blank like Clear.
+    const idx = templates.findIndex((t) => t.name === name);
+    const remaining = templates.filter((t) => t.name !== name);
     remove(name);
-    setActiveName('');
+    const next = remaining[Math.min(idx, remaining.length - 1)];
+    if (next) {
+      handleSelectTemplate(next.name);
+    } else {
+      setDeck(emptyDeck());
+      setActiveName('');
+    }
   };
+
+  // Default-select the last-edited template once per plan (when none is active yet).
+  const defaultedPlan = useRef<string | undefined | null>(null);
+  useEffect(() => {
+    const planId = uma1Plan?.id;
+    if (defaultedPlan.current === planId) return;
+    defaultedPlan.current = planId;
+    if (!activeName && templates.length > 0) {
+      const last = templates[templates.length - 1];
+      if (last) handleSelectTemplate(last.name);
+    }
+    // Run once per plan; handleSelectTemplate/templates are intentionally not deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uma1Plan?.id]);
 
   const resolveCard = (cardId: string): DeckCardInfo | undefined => {
     const card = cardById.get(cardId);
