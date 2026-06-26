@@ -99,20 +99,22 @@ export function SupportCardPoolCard({
               </button>
             ))}
           </div>
-          {/* Sort toggle */}
-          <div className="inh-pool-toggle-group" role="group" aria-label="Sort">
-            {(['matches', 'effect'] as const).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={`inh-pool-toggle-btn${sort === s ? ' is-active' : ''}`}
-                onClick={() => setSort(s)}
-                aria-pressed={sort === s}
-              >
-                {s === 'matches' ? 'Matches' : 'Effect'}
-              </button>
-            ))}
-          </div>
+          {/* Sort toggle — hidden in Plot view */}
+          {view !== 'plot' && (
+            <div className="inh-pool-toggle-group" role="group" aria-label="Sort">
+              {(['matches', 'effect'] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`inh-pool-toggle-btn${sort === s ? ' is-active' : ''}`}
+                  onClick={() => setSort(s)}
+                  aria-pressed={sort === s}
+                >
+                  {s === 'matches' ? 'Matches' : 'Effect'}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -233,9 +235,7 @@ export function SupportCardPoolCard({
             ))}
           </div>
         ) : (
-          <div className="inh-pool-placeholder">
-            Plot view — coming soon
-          </div>
+          <PoolPlot items={filtered} onAdd={onAdd} />
         )}
       </div>
     </div>
@@ -447,6 +447,125 @@ function ArtTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon, skillName }: A
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Plot view (SVG scatter)
+// ---------------------------------------------------------------------------
+
+interface PoolPlotProps {
+  items: PoolItem[];
+  onAdd: (cardId: string) => void;
+}
+
+const PLOT_W = 480;
+const PLOT_H = 320;
+const PLOT_PAD = { top: 24, right: 80, bottom: 40, left: 48 };
+
+function PoolPlot({ items, onAdd }: PoolPlotProps) {
+  const scored = items.filter((it): it is PoolItem & { score: number } => it.score !== null);
+  const unscoredCount = items.length - scored.length;
+
+  // Compute axis ranges over scored items
+  const xValues = scored.map((it) => it.matchCount);
+  const yValues = scored.map((it) => it.score);
+  const xMin = xValues.length > 0 ? Math.min(...xValues) : 0;
+  const xMax = xValues.length > 0 ? Math.max(...xValues) : 1;
+  const yMin = yValues.length > 0 ? Math.min(...yValues) : 0;
+  const yMax = yValues.length > 0 ? Math.max(...yValues) : 1;
+
+  // Guard divide-by-zero when all x/y equal (single point or all equal)
+  const xRange = xMax === xMin ? 1 : xMax - xMin;
+  const yRange = yMax === yMin ? 1 : yMax - yMin;
+
+  const chartW = PLOT_W - PLOT_PAD.left - PLOT_PAD.right;
+  const chartH = PLOT_H - PLOT_PAD.top - PLOT_PAD.bottom;
+
+  function scaleX(v: number): number {
+    return PLOT_PAD.left + ((v - xMin) / xRange) * chartW;
+  }
+  function scaleY(v: number): number {
+    // Invert y so higher score = higher on chart
+    return PLOT_PAD.top + chartH - ((v - yMin) / yRange) * chartH;
+  }
+
+  return (
+    <div className="inh-pool-plot">
+      <svg
+        className="inh-pool-plot-svg"
+        viewBox={`0 0 ${PLOT_W} ${PLOT_H}`}
+        width={PLOT_W}
+        height={PLOT_H}
+        aria-label="Support card effectiveness scatter plot"
+      >
+        {/* Axis labels */}
+        <text
+          x={PLOT_PAD.left + chartW / 2}
+          y={PLOT_H - 6}
+          textAnchor="middle"
+          className="inh-plot-axis-label"
+        >
+          Wishlist matches →
+        </text>
+        <text
+          x={12}
+          y={PLOT_PAD.top + chartH / 2}
+          textAnchor="middle"
+          transform={`rotate(-90, 12, ${PLOT_PAD.top + chartH / 2})`}
+          className="inh-plot-axis-label"
+        >
+          Effectiveness →
+        </text>
+
+        {/* Top-right hint */}
+        <text
+          x={PLOT_W - PLOT_PAD.right + 4}
+          y={PLOT_PAD.top + 4}
+          className="inh-plot-hint-label"
+        >
+          ★ best picks
+        </text>
+
+        {/* Scored nodes */}
+        {scored.map((item) => {
+          const cx = scaleX(item.matchCount);
+          const cy = scaleY(item.score);
+          return (
+            <g
+              key={item.cardId}
+              role="button"
+              aria-label={`add ${item.name}`}
+              tabIndex={0}
+              onClick={() => onAdd(item.cardId)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onAdd(item.cardId);
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle
+                cx={cx}
+                cy={cy}
+                r={8}
+                fill={item.typeColor}
+                opacity={0.85}
+              />
+              <title>{item.name} — E {item.score}, {item.matchCount} wishlist</title>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Footnote for unscored cards */}
+      {unscoredCount > 0 && (
+        <p className="inh-plot-footnote">
+          {unscoredCount} cards have no score and are not shown.
+        </p>
+      )}
     </div>
   );
 }
