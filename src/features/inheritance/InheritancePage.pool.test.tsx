@@ -39,9 +39,12 @@ it('renders the real square card icon (GameIcon) for a manifest-present card', a
   expect(img).not.toBeNull();
   expect(img!.getAttribute('src')).toContain('data/icons/support/30028.webp');
   // A stat-type badge (kind="ui") is overlaid top-right; Kitasan is a speed card.
-  const typeBadge = container.querySelector('img.inh-pool-card-type') as HTMLImageElement | null;
+  const typeBadge = container.querySelector('img.inh-pool-card-type-img') as HTMLImageElement | null;
   expect(typeBadge).not.toBeNull();
   expect(typeBadge!.getAttribute('src')).toContain('data/icons/ui/stat-spd.webp');
+  // The badge body is filled with the card's in-game type color (set inline).
+  const badge = container.querySelector('.inh-pool-card-type') as HTMLElement | null;
+  expect(badge?.style.background).not.toBe('');
 });
 
 it('Add carries the tile LB into the deck slot — non-default LB 2 lands in deck', async () => {

@@ -257,13 +257,15 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
                 <span className="inh-pool-card-icon" style={{ width: size, height: size }}>
                   <GameIcon kind="card" id={it.cardId} size={size} alt="" className="inh-pool-card-img" />
                   {statUiId && (
-                    <GameIcon
-                      kind="ui"
-                      id={statUiId}
-                      size={Math.round(size * 0.44)}
-                      alt=""
-                      className="inh-pool-card-type"
-                    />
+                    <span className="inh-pool-card-type" style={{ background: it.typeColor }}>
+                      <GameIcon
+                        kind="ui"
+                        id={statUiId}
+                        size={Math.round(size * 0.4)}
+                        alt=""
+                        className="inh-pool-card-type-img"
+                      />
+                    </span>
                   )}
                 </span>
               );

@@ -749,10 +749,13 @@ main:has(.inh-page) {
   position: absolute;
   top: -3px;
   right: -3px;
+  display: inline-flex;
+  padding: 2px;
   border-radius: 50%;
-  background: var(--bg-1);
-  box-shadow: 0 0 0 1px var(--border);
+  /* body filled with the card's in-game type color (set inline); white ring for contrast */
+  box-shadow: 0 0 0 1.5px #fff;
 }
+.inh-pool-card-type-img { display: block; border-radius: 50%; }
 
 .inh-pool-art-content {
   flex: 1 1 auto;
