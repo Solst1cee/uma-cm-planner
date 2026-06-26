@@ -2,8 +2,9 @@
  *  M1.1 lands the shell + plan-context header; the column panels are placeholders
  *  that later phases replace. M1.2 is the "Your uma plan" card — it shows the active
  *  plan's uma and an inventory-icon button that pops the shared PlanInventoryCard
- *  (dismiss-on-outside); picking a row there switches the current plan. */
-import { useEffect, useState } from 'react';
+ *  (dismiss-on-outside); picking a row there switches the current plan. M1.5 adds the
+ *  "Deck" card (6-slot support deck + autosave templates) in the center column. */
+import { useEffect, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CmPlan } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
@@ -32,6 +33,9 @@ import {
   setBlueStars,
   wishlistSummary,
 } from './planTargets';
+import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
+import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
+import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
 
 interface Deps {
@@ -62,7 +66,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
-  const { skillById } = useGameData();
+  const { skillById, cardById } = useGameData();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
@@ -87,6 +91,94 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // loadCatalog is stable (module default or test-injected); key on the course only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
+
+  const [deck, setDeck] = useDeckState();
+  const { templates, save, remove, get } = useDeckTemplates();
+  const [activeName, setActiveName, activeNameStored] = useActiveTemplateName();
+
+  // Autosave: while a template is active, every deck edit live-updates that template.
+  useEffect(() => {
+    if (activeName) save(activeName, deck);
+    // `save` is recreated each render; key on the deck + active name only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deck, activeName]);
+
+  // Before switching away, never silently lose a non-empty unnamed ("New") deck —
+  // preserve it as an "Untitled" template (deduped) so the work survives.
+  const preserveScratch = () => {
+    if (activeName || isDeckEmpty(deck)) return;
+    const taken = new Set(templates.map((t) => t.name));
+    let n = 'Untitled';
+    for (let i = 2; taken.has(n); i++) n = `Untitled ${i}`;
+    save(n, deck);
+  };
+
+  const loadTemplate = (name: string) => {
+    const t = get(name);
+    if (t) setDeck({ slots: t.slots.slice(), slotLb: t.slotLb.slice() });
+    setActiveName(name);
+  };
+  const handleSelectTemplate = (name: string) => {
+    preserveScratch();
+    loadTemplate(name);
+  };
+  // "New": keep the current cards, blank the name (detach from any template).
+  const handleNewTemplate = () => setActiveName('');
+  // The combobox only sends a name that is non-empty, trimmed, and NOT an existing
+  // template (a collision is routed to onSelectTemplate instead) — so this only ever
+  // creates or renames to a fresh unique name, never overwriting another template.
+  const handleRename = (name: string) => {
+    if (name === activeName) return;
+    if (activeName) remove(activeName); // move the active template to the new name
+    save(name, deck);
+    setActiveName(name);
+  };
+  const handleDeleteTemplate = (name: string) => {
+    // Deleting a template that isn't the one being edited: just remove it, leave the deck alone.
+    if (name !== activeName) {
+      remove(name);
+      return;
+    }
+    // Deleting the active template: auto-load the next remaining one; if none left, go blank.
+    const idx = templates.findIndex((t) => t.name === name);
+    const remaining = templates.filter((t) => t.name !== name);
+    remove(name);
+    const next = remaining[Math.min(idx, remaining.length - 1)];
+    if (next) {
+      loadTemplate(next.name);
+    } else {
+      setDeck(emptyDeck());
+      setActiveName('');
+    }
+  };
+
+  // Once, on first load: pick the active template — the last-edited one, or, when
+  // the user has none yet, seed a "Default" template from the current deck. Respects
+  // any persisted choice (a name OR a deliberate "New" '') so it survives reloads.
+  const didDefault = useRef(false);
+  useEffect(() => {
+    if (didDefault.current) return;
+    didDefault.current = true;
+    if (activeNameStored) return;
+    if (templates.length > 0) {
+      const last = templates[templates.length - 1];
+      if (last) loadTemplate(last.name);
+    } else {
+      save('Default', deck); // first-time: always start the user with a Default template
+      setActiveName('Default');
+    }
+    // Run once on mount; the read values are intentionally not deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const resolveCard = (cardId: string): DeckCardInfo | undefined => {
+    const card = cardById.get(cardId);
+    if (!card) return undefined;
+    return { typeLabel: TYPE_LABEL[card.type], typeColor: TYPE_COLORS[card.type], name: card.nameEn };
+  };
+  // The fill seam M1.6's "+ Add" button will call. Referenced now to keep it live.
+  const addCardToDeck = (cardId: string) => setDeck(addCard(deck, cardId));
+  void addCardToDeck;
 
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
@@ -206,7 +298,17 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         </div>
         <div className="inh-col inh-col-center">
           <Placeholder title="Inheritance" phase="M1.4" />
-          <Placeholder title="Your deck" phase="M1.5" />
+          <YourDeckCard
+            state={deck}
+            onChange={setDeck}
+            resolveCard={resolveCard}
+            templates={templates}
+            activeName={activeName}
+            onRename={handleRename}
+            onSelectTemplate={handleSelectTemplate}
+            onNewTemplate={handleNewTemplate}
+            onDeleteTemplate={handleDeleteTemplate}
+          />
           <Placeholder title="Support cards" phase="M1.6" />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>

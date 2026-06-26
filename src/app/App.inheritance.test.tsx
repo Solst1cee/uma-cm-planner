@@ -14,8 +14,10 @@ vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
+// The page resolves wishlist skills (skillById) and the M1.5 Deck card art
+// (cardById) through useGameData; stub both so the route needs no GameData provider.
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skillById: new Map() }),
+  useGameData: () => ({ skillById: new Map(), cardById: new Map() }),
   BASE_URL: '',
 }));
 

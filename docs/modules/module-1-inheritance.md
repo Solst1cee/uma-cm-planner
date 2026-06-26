@@ -29,6 +29,31 @@ The 2.0 affinity model is **logic-complete**. It is **data-gated** on two follow
 
 Validated: `winBonus` synthetic fixtures, `spark.ts` de-approx, rental-tier thresholds. See [docs/mechanics-notes.md](../mechanics-notes.md) §3 for the locked affinity numbers; spec/plan: [2026-06-25 M1.0 spec](../superpowers/specs/) (dated 2026-06-25).
 
+## M1.5 "Your deck" card (2026-06-26)
+
+The center-column **"Deck"** panel landed: a 6-slot support-card deck with
+drag-drop (HTML5 DnD `text/card-id`), per-slot limit-break diamond steppers, and
+remove/clear. State is a dedicated `DeckState` (NOT `CmPlan.lockedDeckSlots` —
+that is M4's suggester concept). **All deck state is browser-local and
+plan-independent** (the deck workspace is not tied to the uma plan): working deck
+`scb_deck`, active template name `scb_deck_active`, templates `scb_profiles`.
+**Templates use an autosave combobox** (no Save/Load buttons): the name field
+names the active template and, via a caret dropdown, loads a saved template or
+starts **"New"** (keep cards, blank name); editing the deck **live-autosaves into
+the active template**. First load seeds a **"Default"** template (else selects the
+last-edited); **"New" survives reloads** (a stored `''` is distinguished from
+never-chosen via the hook's `stored` flag). Robustness rules: typing an *existing*
+template name **switches to it** (never overwrites); clearing the name field is a
+**no-op** (only the dropdown's New unnames); switching away from a non-empty
+unnamed deck **preserves it as `Untitled`**; **Del** loads the next remaining
+template (or blanks like Clear). Files: `deckOps.ts` (pure; incl. `isDeckEmpty`),
+`useDeckState.ts` (persistence — `useDeckState` / `useDeckTemplates` /
+`useActiveTemplateName`, all global), `YourDeckCard.tsx` (provider-free panel;
+CM-planner card-head grammar + `minmax(360px,26rem)` sidebars / 720px center). The
+fill seam `addCardToDeck(cardId)` + the drop target are built and tested; the
+interactive drag *source* / "+ Add" button arrive with **M1.6** (support-card
+pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
@@ -40,3 +65,6 @@ Validated: `winBonus` synthetic fixtures, `spark.ts` de-approx, rental-tier thre
 - `relation_point` values are **1/2/7** (not uniformly 2) — affinity sums the real per-type point.
 - `scripts/borrowed/relation*.json` are committed (deviation from the fetch-only borrowed pattern) because `spikes/` is gitignored/absent in worktrees.
 - The flat→nested `Parent` rewrite is M1 Plan 3's job (Plan 1 deliberately kept `Parent` flat).
+- **M1.5 deck state is browser-local, NOT per-plan** (and NOT `CmPlan.lockedDeckSlots`): `scb_deck` / `scb_deck_active` / `scb_profiles`. Don't re-introduce a `planId` to `useDeckState`/`useActiveTemplateName` — it caused cross-plan template divergence (the per-plan deck and the shared global template drift apart; fixed by going fully global).
+- **The global `input[type='text']` rule (`app.css`: `padding: 0.5rem`, `border: 1px solid var(--border)`) out-specifies a single-class selector** like `.inh-deck-tplname` (element+attribute `(0,1,1)` beats one class `(0,1,0)`). To restyle an input's padding/border in feature CSS, scope it (e.g. `.inh-deck-combo .inh-deck-tplname`) so it wins — otherwise your padding/transparent-border silently does nothing (this bit the M1.5 name field's height and a "transparent" border that never applied). `align-items: stretch` to "equalize" heights grows the *taller* sibling — match the box model instead.
+- Any new InheritancePage consumer of `useGameData()` must mock it in **both** `InheritancePage.test.tsx` and the route smoke test `src/app/App.inheritance.test.tsx` (the latter renders the real page with no `GameDataProvider`).
