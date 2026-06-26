@@ -74,8 +74,11 @@ nodes in), `inh-deck`/`cmp-plan-card` card grammar, browser-local persistence.
   - `scoreCards(weights, deck): Map<cardId, { score: number; lb: LimitBreak }>` — deck-context
     is the current 6 slots (marginal scoring, like euophrys).
   - `DEFAULT_WEIGHTS` — lifted from `getDefaultScenario('global')`.
-  - `ScoreWeights` type (5 stat weights + SP + energy, race counts G1/G2–3/OP, scenario bonus,
-    stat cap).
+  - `ScoreWeights` type — **the full set of knobs euophrys' own Weights panel exposes** (we mirror
+    their site 1:1): the 7 stat weights (speed/stamina/power/guts/wisdom/skill-points/energy),
+    race counts (G1, G2–3, OP), bond rate (bonds/day), scenario/spec bonus, the multiplier,
+    motivation, stat cap, minimum training score, and the per-stat uma bonuses. Same ranges/steps
+    as their `Weights.jsx`.
   - Spot-check tests against euophrys output (e.g. Kitasan Black SSR ranks at/near the top under
     default weights; a card absent from `gl.js` yields no entry).
 - **`cardMatches.ts`** (or fold into an existing M1 helper) — `matchCount(card, wishlistIds)` =
@@ -92,9 +95,11 @@ nodes in), `inh-deck`/`cmp-plan-card` card grammar, browser-local persistence.
 
 ### Components (provider-free)
 
-- **`ScoreWeightsPanel.tsx`** — collapsible "Scoring weights" control: the stat weights + SP +
-  energy sliders/inputs, race counts (G1 / G2–3 / OP), scenario bonus, stat cap, + "Reset to
-  defaults". Honest caption (training-power, URA, via euophrys; affects Effect only).
+- **`ScoreWeightsPanel.tsx`** — collapsible "Scoring weights" control mirroring euophrys' own
+  Weights panel 1:1: the 7 stat-weight inputs, race counts (G1 / G2–3 / OP), bond rate,
+  scenario/spec bonus, multiplier, motivation, stat cap, minimum training score, per-stat uma
+  bonuses — same ranges/steps as their site — plus "Reset to defaults". Honest caption
+  (training-power, URA, via euophrys; affects Effect only).
 - **`SupportCardPoolCard.tsx`** — the §5 panel (replaces the `M1.6` placeholder):
   - **Header:** caret + "Support cards" + "{n} shown"; right side = view toggle **Icon · Art ·
     Plot** + sort **Matches · Effect** (sort hidden in Plot).
@@ -174,8 +179,9 @@ input overrides). Card grammar matches `inh-deck`.
 - M1.7 "Obtainable vs. wishlist" coverage matrix (the Plot's matches axis previews part of it,
   but the full source-crossing matrix is M1.7).
 - Real card/uma **art** (placeholders only, per the handoff's Fidelity note).
-- Exposing the *full* euophrys scenario surface (summer overrides, uma-bonus per-stat, highlander
-  internals) — we expose the meaningful weights subset; the rest stays at euophrys defaults.
+- Scenario internals euophrys does **not** surface in its Weights panel (summer overrides,
+  highlander internals, etc.) stay at euophrys defaults — we mirror exactly the knobs their site
+  exposes, no more, no less.
 
 ## Non-goals / risks
 
