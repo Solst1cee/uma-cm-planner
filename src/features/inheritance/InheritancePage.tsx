@@ -61,7 +61,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const { cardById } = useGameData();
   const [deck, setDeck] = useDeckState(uma1Plan?.id);
   const { templates, save, remove, get } = useDeckTemplates();
-  const [activeName, setActiveName] = useActiveTemplateName(uma1Plan?.id);
+  const [activeName, setActiveName, activeNameStored] = useActiveTemplateName(uma1Plan?.id);
 
   // Autosave: while a template is active, every deck edit live-updates that template.
   useEffect(() => {
@@ -101,17 +101,24 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     }
   };
 
-  // Default-select the last-edited template once per plan (when none is active yet).
+  // Once per plan, pick the active template: the last-edited one, or — when the
+  // user has none yet — seed a "Default" template from the current deck.
   const defaultedPlan = useRef<string | undefined | null>(null);
   useEffect(() => {
     const planId = uma1Plan?.id;
     if (defaultedPlan.current === planId) return;
     defaultedPlan.current = planId;
-    if (!activeName && templates.length > 0) {
+    // Respect any persisted choice — a named template OR a deliberate "New" ('') — so
+    // "New" survives reloads. Only auto-default when nothing was ever stored for this plan.
+    if (activeNameStored) return;
+    if (templates.length > 0) {
       const last = templates[templates.length - 1];
       if (last) handleSelectTemplate(last.name);
+    } else {
+      save('Default', deck); // first-time: always start the user with a Default template
+      setActiveName('Default');
     }
-    // Run once per plan; handleSelectTemplate/templates are intentionally not deps.
+    // Run once per plan; the other values are intentionally not deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uma1Plan?.id]);
 

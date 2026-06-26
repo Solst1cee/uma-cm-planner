@@ -58,19 +58,27 @@ export function useDeckState(planId: string | undefined): [DeckState, (next: Dec
   return [state, set];
 }
 
-function readActiveName(planId: string): string {
+/** Raw read: null = the key was never written for this plan (no choice made yet),
+ *  '' = an explicit unnamed/"New" deck the user chose. The distinction lets the page
+ *  auto-default on a fresh plan but leave a deliberate "New" alone across reloads. */
+function readActiveRaw(planId: string): string | null {
   try {
-    return localStorage.getItem(activeKey(planId)) ?? '';
+    return localStorage.getItem(activeKey(planId));
   } catch {
-    return '';
+    return null;
   }
 }
 
 /** The active template name for a plan (the deck the editor is currently autosaving into).
- *  '' = an unnamed working deck. Loads on planId change, autosaves on set.
- *  planId undefined → in-memory only, no persistence. */
-export function useActiveTemplateName(planId: string | undefined): [string, (name: string) => void] {
-  const [name, setNameState] = useState<string>(() => (planId ? readActiveName(planId) : ''));
+ *  Returns `[name, set, stored]` where `stored` is true when a value (including '') has
+ *  been persisted for this plan — i.e. the user has made a choice. '' = an unnamed deck.
+ *  Loads on planId change, autosaves on set. planId undefined → in-memory only. */
+export function useActiveTemplateName(
+  planId: string | undefined,
+): [string, (name: string) => void, boolean] {
+  const initial = planId ? readActiveRaw(planId) : null;
+  const [name, setNameState] = useState<string>(initial ?? '');
+  const [stored, setStored] = useState<boolean>(initial !== null);
 
   const firstRun = useRef(true);
   useEffect(() => {
@@ -78,11 +86,14 @@ export function useActiveTemplateName(planId: string | undefined): [string, (nam
       firstRun.current = false;
       return;
     }
-    setNameState(planId ? readActiveName(planId) : '');
+    const raw = planId ? readActiveRaw(planId) : null;
+    setNameState(raw ?? '');
+    setStored(raw !== null);
   }, [planId]);
 
   const set = (next: string) => {
     setNameState(next);
+    setStored(true); // a choice (including '' for "New") is now persisted
     if (planId) {
       try {
         localStorage.setItem(activeKey(planId), next);
@@ -92,7 +103,7 @@ export function useActiveTemplateName(planId: string | undefined): [string, (nam
     }
   };
 
-  return [name, set];
+  return [name, set, stored];
 }
 
 function readTemplates(): DeckTemplate[] {

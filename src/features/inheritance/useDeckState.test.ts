@@ -126,4 +126,19 @@ describe('useActiveTemplateName', () => {
     expect(result.current[0]).toBe('aggro');
     expect(localStorage.length).toBe(0);
   });
+
+  it('reports stored=false until a value is set, then true', () => {
+    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    expect(result.current[2]).toBe(false);
+    act(() => result.current[1]('aggro'));
+    expect(result.current[2]).toBe(true);
+  });
+
+  it("treats an explicit '' (New) as stored — so it survives a reload", () => {
+    // Simulate a prior "New": the empty string was persisted.
+    localStorage.setItem('scb_deck_active:plan-1', '');
+    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    expect(result.current[0]).toBe('');
+    expect(result.current[2]).toBe(true); // distinguishable from never-chosen (null)
+  });
 });
