@@ -34,15 +34,17 @@ main:has(.inh-page) {
 .inh-context-chips { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .inh-context-empty { color: var(--fg-muted); }
 
-/* 3-column workbench grid */
+/* 3-column workbench grid: sidebars match the CM planner (minmax(360px, 26rem)),
+   fixed 720px center. ~1500px min for 3 columns → stack below that. */
 .inh-grid {
   display: grid;
-  grid-template-columns: minmax(290px, 320px) minmax(0, 1fr) minmax(290px, 320px);
+  grid-template-columns: minmax(360px, 26rem) 720px minmax(360px, 26rem);
   gap: 0.8rem;
   align-items: start;
+  justify-content: center;
 }
 .inh-col { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
-@media (max-width: 1120px) {
+@media (max-width: 1500px) {
   .inh-grid { grid-template-columns: 1fr; }
 }
 
