@@ -9,10 +9,14 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 vi.mock('@/app/ActivePlanContext', () => ({
   useActivePlan: () => ({ uma1Plan: null, plan: null }),
 }));
-// useUmas is called unconditionally by the page; stub it so it needs no provider.
+// useUmas + useGameData are called unconditionally by the page; stub both so it needs no provider.
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
+}));
+vi.mock('@/features/data/gameData', () => ({
+  useGameData: () => ({ skillById: new Map() }),
+  BASE_URL: '',
 }));
 
 import { InheritancePage } from '@/features/inheritance/InheritancePage';

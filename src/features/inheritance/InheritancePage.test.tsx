@@ -20,6 +20,7 @@ vi.mock('@/app/ActivePlanContext', () => ({
     plan,
     uma2Plan: null,
     savedPlans: [plan],
+    setPlan: vi.fn(),
     loadPlanIntoSlot: vi.fn(),
     deleteSavedPlan: vi.fn(),
     importSavedPlans: vi.fn(),
@@ -30,6 +31,11 @@ vi.mock('@/app/ActivePlanContext', () => ({
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
+}));
+// Plan-targets wishlist resolves skills via useGameData; stub it (empty map → no rows).
+vi.mock('@/features/data/gameData', () => ({
+  useGameData: () => ({ skillById: new Map() }),
+  BASE_URL: '',
 }));
 // Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
@@ -55,6 +61,8 @@ describe('InheritancePage', () => {
     expect(document.querySelectorAll('.inh-col').length).toBe(3);
     // "Your uma plan" card is in the left column (empty roster → no uma resolved).
     expect(screen.getByText('No uma selected')).toBeInTheDocument();
+    // "Plan targets" card is wired in below it.
+    expect(screen.getByText('Plan targets')).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByText('From CM Planner · Tokyo Racecourse')).toBeInTheDocument(),
     );

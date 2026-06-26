@@ -127,3 +127,65 @@
   width: auto;
   min-width: 0;
 }
+
+/* "Plan targets" card (M1.3) */
+.inh-targets-head {
+  width: 100%;
+  cursor: pointer;
+  background: var(--bg-2);
+  /* it's a <button> acting as the card head — strip native button chrome */
+  appearance: none;
+  text-align: left;
+  font: inherit;
+}
+.inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
+/* The spark badge fills the row; controls sit to its right. */
+.inh-target-spark {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-stepper { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
+.inh-step-btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  cursor: pointer;
+  line-height: 1;
+}
+.inh-step-btn:hover { border-color: var(--accent); color: var(--accent); }
+.inh-star-val {
+  min-width: 2.1rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.inh-target-del {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--error, #c2414b);
+  cursor: pointer;
+  line-height: 1;
+}
+.inh-target-del:hover { border-color: var(--error, #c2414b); }
+.inh-add-blue { margin: 0.1rem 0 0.5rem; width: 100%; }
+.inh-wl-gold { color: #c27a00; font-weight: 600; }
+.inh-wl-sp {
+  flex: none;
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}

@@ -8,11 +8,22 @@ import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
+import { useGameData } from '@/features/data/gameData';
 import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
+import { PlanTargetsCard } from './PlanTargetsCard';
 import { umaPlanAptChips } from './umaPlanApt';
+import {
+  addBlueSpark,
+  availableBlueStats,
+  blueSparkRows,
+  deleteBlueSpark,
+  setBlueStars,
+  wishlistRows,
+  wishlistSummary,
+} from './planTargets';
 import './inheritance.css';
 
 interface Deps {
@@ -35,14 +46,17 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     uma1Plan,
     uma2Plan,
     savedPlans,
+    setPlan,
     loadPlanIntoSlot,
     deleteSavedPlan,
     importSavedPlans,
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
+  const { skillById } = useGameData();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [targetsCollapsed, setTargetsCollapsed] = useState(false);
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
 
   const courseId = uma1Plan?.cmRef.courseId;
@@ -113,7 +127,20 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
               onCloseInventory={() => setInventoryOpen(false)}
             />
           )}
-          <Placeholder title="Plan targets" phase="M1.3" />
+          {uma1Plan && (
+            <PlanTargetsCard
+              collapsed={targetsCollapsed}
+              onToggleCollapsed={() => setTargetsCollapsed((c) => !c)}
+              blueRows={blueSparkRows(uma1Plan)}
+              pinkRows={umaPlanAptChips(uma1Plan)}
+              availableBlueStats={availableBlueStats(uma1Plan)}
+              wishlist={wishlistRows(uma1Plan, skillById)}
+              summary={wishlistSummary(uma1Plan, skillById)}
+              onSetBlueStars={(stat, stars) => setPlan(setBlueStars(uma1Plan, stat, stars))}
+              onDeleteBlue={(stat) => setPlan(deleteBlueSpark(uma1Plan, stat))}
+              onAddBlue={(stat) => setPlan(addBlueSpark(uma1Plan, stat))}
+            />
+          )}
         </div>
         <div className="inh-col inh-col-center">
           <Placeholder title="Inheritance" phase="M1.4" />
