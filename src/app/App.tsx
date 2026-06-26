@@ -7,13 +7,14 @@ import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
 import { CmPlannerPage } from '@/features/cm-planner/CmPlannerPage';
+import { InheritancePage } from '@/features/inheritance/InheritancePage';
 import { ParentsPage } from '@/features/parents/ParentsPage';
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
 import { TimelinePage } from '@/features/meta-intel/TimelinePage';
 import { StyleguidePage } from '@/features/styleguide/StyleguidePage';
 
-// Module 1 (Inheritance) lands in a later phase; nav shows it as a disabled stub.
-const STUB_MODULES = ['Inheritance'] as const;
+// Module stubs (nav shows them disabled). Inheritance un-stubbed in M1.1.
+const STUB_MODULES: readonly string[] = [];
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   isActive ? 'nav-item active' : 'nav-item';
@@ -56,6 +57,9 @@ function Shell() {
           <NavLink to="/parents" className={navItemClass}>
             Parents
           </NavLink>
+          <NavLink to="/inheritance" className={navItemClass}>
+            Inheritance
+          </NavLink>
           <NavLink to="/sp-optimizer" className={navItemClass}>SP Optimizer</NavLink>
           <NavLink to="/meta-intel" className={navItemClass}>
             Meta Intel
@@ -72,6 +76,7 @@ function Shell() {
         <Routes>
           <Route path="/" element={<CmPlannerPage />} />
           <Route path="/parents" element={<ParentsPage />} />
+          <Route path="/inheritance" element={<InheritancePage />} />
           <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
           <Route path="/meta-intel" element={<TimelinePage />} />
           <Route path="/styleguide" element={<StyleguidePage />} />
