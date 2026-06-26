@@ -203,7 +203,8 @@
 .inh-step-btn:disabled { opacity: 0.4; cursor: default; }
 .inh-target-del { border-color: transparent; background: transparent; color: var(--error, #c2414b); }
 .inh-target-del:hover { border-color: var(--error, #c2414b); }
-.inh-add-blue {
+.inh-add-blue,
+.inh-targets-body .picker input[type='search'] {
   margin: 0.1rem 0 0.5rem;
   width: 100%;
   padding: 0.2rem 0.4rem;
