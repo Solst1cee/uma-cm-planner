@@ -83,6 +83,11 @@ export function toggleSlotLb(s: DeckState, index: number, level: 1 | 2 | 3 | 4):
   return { slots: s.slots.slice(), slotLb };
 }
 
+/** True when no slot is filled (used to decide whether an unnamed deck is worth preserving). */
+export function isDeckEmpty(s: DeckState): boolean {
+  return s.slots.every((x) => x === null);
+}
+
 export function isValidDeckState(v: unknown): v is DeckState {
   if (typeof v !== 'object' || v === null) return false;
   const o = v as Record<string, unknown>;

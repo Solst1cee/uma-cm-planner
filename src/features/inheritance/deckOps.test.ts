@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DECK_SLOTS, DEFAULT_SLOT_LB, TYPE_COLORS, TYPE_LABEL,
-  emptyDeck, clearDeck, addCard, dropCard, removeSlot, toggleSlotLb, isValidDeckState,
+  emptyDeck, clearDeck, addCard, dropCard, removeSlot, toggleSlotLb, isValidDeckState, isDeckEmpty,
 } from './deckOps';
 
 describe('emptyDeck', () => {
@@ -119,6 +119,15 @@ describe('isValidDeckState', () => {
     expect(isValidDeckState(null)).toBe(false);
     expect(isValidDeckState('x')).toBe(false);
     expect(isValidDeckState({})).toBe(false);
+  });
+});
+
+describe('isDeckEmpty', () => {
+  it('is true for an empty deck', () => {
+    expect(isDeckEmpty(emptyDeck())).toBe(true);
+  });
+  it('is false once a card is added', () => {
+    expect(isDeckEmpty(addCard(emptyDeck(), 'c1'))).toBe(false);
   });
 });
 

@@ -56,7 +56,19 @@ export function YourDeckCard({
 
   const commitName = () => {
     const v = draftName.trim();
-    if (v !== activeName) onRename(v);
+    // No-op cases revert the field to the active name:
+    //  - unchanged (just whitespace normalisation)
+    //  - cleared to empty (clearing the field must NOT detach — use the "New" item for that)
+    if (v === activeName || v === '') {
+      setDraftName(activeName);
+      return;
+    }
+    // Typing an existing template's name switches to it rather than overwriting it.
+    if (templates.some((t) => t.name === v)) {
+      onSelectTemplate(v);
+      return;
+    }
+    onRename(v); // a fresh, unique name → create / rename
   };
   const onNameKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -92,6 +104,9 @@ export function YourDeckCard({
               className="inh-deck-combo-caret"
               aria-label="Templates"
               aria-expanded={menuOpen}
+              // preventDefault keeps the name input focused so a half-typed draft is not
+              // blur-committed as a stray template when the menu is toggled.
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => setMenuOpen((o) => !o)}
             >
               ▾
@@ -102,7 +117,9 @@ export function YourDeckCard({
                   <button
                     type="button"
                     className="inh-deck-combo-item inh-deck-combo-new"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
+                      setDraftName(activeName); // discard any half-typed draft
                       onNewTemplate();
                       setMenuOpen(false);
                     }}
@@ -115,6 +132,7 @@ export function YourDeckCard({
                     <button
                       type="button"
                       className={`inh-deck-combo-item${t.name === activeName ? ' is-active' : ''}`}
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         onSelectTemplate(t.name);
                         setMenuOpen(false);

@@ -8,43 +8,27 @@ beforeEach(() => localStorage.clear());
 
 describe('useDeckState', () => {
   it('starts empty when nothing is stored', () => {
-    const { result } = renderHook(() => useDeckState('plan-1'));
+    const { result } = renderHook(() => useDeckState());
     expect(result.current[0]).toEqual(emptyDeck());
   });
 
-  it('autosaves changes to scb_deck:<planId>', () => {
-    const { result } = renderHook(() => useDeckState('plan-1'));
+  it('autosaves changes to scb_deck', () => {
+    const { result } = renderHook(() => useDeckState());
     act(() => result.current[1](addCard(emptyDeck(), 'c1')));
     expect(result.current[0].slots[0]).toBe('c1');
-    expect(JSON.parse(localStorage.getItem('scb_deck:plan-1')!).slots[0]).toBe('c1');
+    expect(JSON.parse(localStorage.getItem('scb_deck')!).slots[0]).toBe('c1');
   });
 
   it('loads a stored deck on mount', () => {
-    localStorage.setItem('scb_deck:plan-1', JSON.stringify(addCard(emptyDeck(), 'c9')));
-    const { result } = renderHook(() => useDeckState('plan-1'));
+    localStorage.setItem('scb_deck', JSON.stringify(addCard(emptyDeck(), 'c9')));
+    const { result } = renderHook(() => useDeckState());
     expect(result.current[0].slots[0]).toBe('c9');
   });
 
   it('falls back to empty on a corrupt stored value', () => {
-    localStorage.setItem('scb_deck:plan-1', '{not json');
-    const { result } = renderHook(() => useDeckState('plan-1'));
+    localStorage.setItem('scb_deck', '{not json');
+    const { result } = renderHook(() => useDeckState());
     expect(result.current[0]).toEqual(emptyDeck());
-  });
-
-  it('swaps decks when planId changes', () => {
-    localStorage.setItem('scb_deck:plan-1', JSON.stringify(addCard(emptyDeck(), 'a')));
-    localStorage.setItem('scb_deck:plan-2', JSON.stringify(addCard(emptyDeck(), 'b')));
-    const { result, rerender } = renderHook(({ id }) => useDeckState(id), { initialProps: { id: 'plan-1' } });
-    expect(result.current[0].slots[0]).toBe('a');
-    rerender({ id: 'plan-2' });
-    expect(result.current[0].slots[0]).toBe('b');
-  });
-
-  it('does not write when planId is undefined', () => {
-    const { result } = renderHook(() => useDeckState(undefined));
-    act(() => result.current[1](addCard(emptyDeck(), 'c1')));
-    expect(result.current[0].slots[0]).toBe('c1');
-    expect(localStorage.length).toBe(0);
   });
 });
 
@@ -92,43 +76,25 @@ describe('useDeckTemplates', () => {
 
 describe('useActiveTemplateName', () => {
   it("starts '' when nothing is stored", () => {
-    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    const { result } = renderHook(() => useActiveTemplateName());
     expect(result.current[0]).toBe('');
   });
 
-  it('autosaves the name to scb_deck_active:<planId>', () => {
-    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+  it('autosaves the name to scb_deck_active', () => {
+    const { result } = renderHook(() => useActiveTemplateName());
     act(() => result.current[1]('aggro'));
     expect(result.current[0]).toBe('aggro');
-    expect(localStorage.getItem('scb_deck_active:plan-1')).toBe('aggro');
+    expect(localStorage.getItem('scb_deck_active')).toBe('aggro');
   });
 
   it('loads a stored name on mount', () => {
-    localStorage.setItem('scb_deck_active:plan-1', 'control');
-    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    localStorage.setItem('scb_deck_active', 'control');
+    const { result } = renderHook(() => useActiveTemplateName());
     expect(result.current[0]).toBe('control');
   });
 
-  it('swaps the name when planId changes', () => {
-    localStorage.setItem('scb_deck_active:plan-1', 'a');
-    localStorage.setItem('scb_deck_active:plan-2', 'b');
-    const { result, rerender } = renderHook(({ id }) => useActiveTemplateName(id), {
-      initialProps: { id: 'plan-1' },
-    });
-    expect(result.current[0]).toBe('a');
-    rerender({ id: 'plan-2' });
-    expect(result.current[0]).toBe('b');
-  });
-
-  it('does not write when planId is undefined', () => {
-    const { result } = renderHook(() => useActiveTemplateName(undefined));
-    act(() => result.current[1]('aggro'));
-    expect(result.current[0]).toBe('aggro');
-    expect(localStorage.length).toBe(0);
-  });
-
   it('reports stored=false until a value is set, then true', () => {
-    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    const { result } = renderHook(() => useActiveTemplateName());
     expect(result.current[2]).toBe(false);
     act(() => result.current[1]('aggro'));
     expect(result.current[2]).toBe(true);
@@ -136,8 +102,8 @@ describe('useActiveTemplateName', () => {
 
   it("treats an explicit '' (New) as stored — so it survives a reload", () => {
     // Simulate a prior "New": the empty string was persisted.
-    localStorage.setItem('scb_deck_active:plan-1', '');
-    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    localStorage.setItem('scb_deck_active', '');
+    const { result } = renderHook(() => useActiveTemplateName());
     expect(result.current[0]).toBe('');
     expect(result.current[2]).toBe(true); // distinguishable from never-chosen (null)
   });

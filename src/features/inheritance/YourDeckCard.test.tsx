@@ -73,12 +73,37 @@ describe('YourDeckCard', () => {
     expect(screen.getByPlaceholderText(/type to name/i)).toHaveValue('aggro');
   });
 
-  it('committing the name field (Enter) fires onRename with the trimmed value', () => {
+  it('committing a fresh unique name (Enter) fires onRename with the trimmed value', () => {
     const { onRename } = renderCard();
     const field = screen.getByPlaceholderText(/type to name/i);
     fireEvent.change(field, { target: { value: '  aggro  ' } });
     fireEvent.keyDown(field, { key: 'Enter' });
     expect(onRename).toHaveBeenCalledWith('aggro');
+  });
+
+  it('typing an existing template name switches to it instead of overwriting (no onRename)', () => {
+    const { onRename, onSelectTemplate } = renderCard({
+      activeName: 'control',
+      templates: [
+        { name: 'aggro', slots: emptyDeck().slots, slotLb: emptyDeck().slotLb },
+        { name: 'control', slots: emptyDeck().slots, slotLb: emptyDeck().slotLb },
+      ],
+    });
+    const field = screen.getByPlaceholderText(/type to name/i);
+    fireEvent.change(field, { target: { value: 'aggro' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onSelectTemplate).toHaveBeenCalledWith('aggro');
+    expect(onRename).not.toHaveBeenCalled();
+  });
+
+  it('clearing the name field is a no-op (reverts; does not detach)', () => {
+    const { onRename, onSelectTemplate } = renderCard({ activeName: 'aggro' });
+    const field = screen.getByPlaceholderText(/type to name/i);
+    fireEvent.change(field, { target: { value: '' } });
+    fireEvent.blur(field);
+    expect(onRename).not.toHaveBeenCalled();
+    expect(onSelectTemplate).not.toHaveBeenCalled();
+    expect(field).toHaveValue('aggro'); // reverted
   });
 
   it('opening the dropdown and picking a template fires onSelectTemplate', () => {

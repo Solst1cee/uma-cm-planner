@@ -15,7 +15,7 @@ import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
-import { addCard, emptyDeck, TYPE_COLORS, TYPE_LABEL } from './deckOps';
+import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
 
 interface Deps {
@@ -59,9 +59,9 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   }, [courseId]);
 
   const { cardById } = useGameData();
-  const [deck, setDeck] = useDeckState(uma1Plan?.id);
+  const [deck, setDeck] = useDeckState();
   const { templates, save, remove, get } = useDeckTemplates();
-  const [activeName, setActiveName, activeNameStored] = useActiveTemplateName(uma1Plan?.id);
+  const [activeName, setActiveName, activeNameStored] = useActiveTemplateName();
 
   // Autosave: while a template is active, every deck edit live-updates that template.
   useEffect(() => {
@@ -70,22 +70,35 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deck, activeName]);
 
-  const handleSelectTemplate = (name: string) => {
+  // Before switching away, never silently lose a non-empty unnamed ("New") deck —
+  // preserve it as an "Untitled" template (deduped) so the work survives.
+  const preserveScratch = () => {
+    if (activeName || isDeckEmpty(deck)) return;
+    const taken = new Set(templates.map((t) => t.name));
+    let n = 'Untitled';
+    for (let i = 2; taken.has(n); i++) n = `Untitled ${i}`;
+    save(n, deck);
+  };
+
+  const loadTemplate = (name: string) => {
     const t = get(name);
     if (t) setDeck({ slots: t.slots.slice(), slotLb: t.slotLb.slice() });
     setActiveName(name);
   };
+  const handleSelectTemplate = (name: string) => {
+    preserveScratch();
+    loadTemplate(name);
+  };
   // "New": keep the current cards, blank the name (detach from any template).
   const handleNewTemplate = () => setActiveName('');
+  // The combobox only sends a name that is non-empty, trimmed, and NOT an existing
+  // template (a collision is routed to onSelectTemplate instead) — so this only ever
+  // creates or renames to a fresh unique name, never overwriting another template.
   const handleRename = (name: string) => {
     if (name === activeName) return;
-    if (name) {
-      if (activeName) remove(activeName); // move the template to the new name
-      save(name, deck);
-      setActiveName(name);
-    } else {
-      setActiveName(''); // cleared the field → detach (the template keeps its old name)
-    }
+    if (activeName) remove(activeName); // move the active template to the new name
+    save(name, deck);
+    setActiveName(name);
   };
   const handleDeleteTemplate = (name: string) => {
     // Auto-load the next remaining template; if none left, go blank like Clear.
@@ -94,33 +107,31 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     remove(name);
     const next = remaining[Math.min(idx, remaining.length - 1)];
     if (next) {
-      handleSelectTemplate(next.name);
+      loadTemplate(next.name);
     } else {
       setDeck(emptyDeck());
       setActiveName('');
     }
   };
 
-  // Once per plan, pick the active template: the last-edited one, or — when the
-  // user has none yet — seed a "Default" template from the current deck.
-  const defaultedPlan = useRef<string | undefined | null>(null);
+  // Once, on first load: pick the active template — the last-edited one, or, when
+  // the user has none yet, seed a "Default" template from the current deck. Respects
+  // any persisted choice (a name OR a deliberate "New" '') so it survives reloads.
+  const didDefault = useRef(false);
   useEffect(() => {
-    const planId = uma1Plan?.id;
-    if (defaultedPlan.current === planId) return;
-    defaultedPlan.current = planId;
-    // Respect any persisted choice — a named template OR a deliberate "New" ('') — so
-    // "New" survives reloads. Only auto-default when nothing was ever stored for this plan.
+    if (didDefault.current) return;
+    didDefault.current = true;
     if (activeNameStored) return;
     if (templates.length > 0) {
       const last = templates[templates.length - 1];
-      if (last) handleSelectTemplate(last.name);
+      if (last) loadTemplate(last.name);
     } else {
       save('Default', deck); // first-time: always start the user with a Default template
       setActiveName('Default');
     }
-    // Run once per plan; the other values are intentionally not deps.
+    // Run once on mount; the read values are intentionally not deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uma1Plan?.id]);
+  }, []);
 
   const resolveCard = (cardId: string): DeckCardInfo | undefined => {
     const card = cardById.get(cardId);
