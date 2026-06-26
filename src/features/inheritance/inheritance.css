@@ -143,8 +143,9 @@
   color: inherit;
   text-align: left;
   font-family: inherit;
-  border-top-left-radius: var(--cmp-card-radius);
-  border-top-right-radius: var(--cmp-card-radius);
+  /* Square the button's own corners; the card's overflow:hidden rounds the top
+     (the global button reset's border-radius would otherwise round the bottom). */
+  border-radius: 0;
   padding-block: 0.37rem;
 }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
