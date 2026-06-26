@@ -131,7 +131,7 @@ main:has(.inh-page) {
      extra right padding leaves room for the inset caret button */
   padding: 0.25rem 1.7rem 0.25rem 0.45rem;
   font-size: 0.76rem;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-2);
   box-sizing: border-box;
