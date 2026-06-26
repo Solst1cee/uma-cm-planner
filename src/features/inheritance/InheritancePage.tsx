@@ -101,8 +101,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         <div className="inh-col inh-col-left">
           {uma1Plan && (
             <UmaPlanCard
+              planName={uma1Plan.name}
               name={uma?.nameEn ?? 'No uma selected'}
               epithet={uma?.epithet}
+              note={uma1Plan.notes}
               portrait={portrait}
               aptChips={aptChips}
               inventory={inventory}

@@ -80,11 +80,26 @@
 .inh-uma-portrait { flex: none; display: inline-flex; }
 .inh-uma-portrait-ph { width: 64px; height: 64px; }
 .inh-uma-meta { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
+.inh-uma-plan-name {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .inh-uma-name {
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.inh-uma-note {
+  margin: 0.35rem 0 0;
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .inh-uma-epithet {
   color: var(--fg-muted);

@@ -34,8 +34,12 @@ const BackpackIcon = () => (
 );
 
 export interface UmaPlanCardProps {
+  /** The active plan's name, shown above the uma name. */
+  planName: string;
   name: string;
   epithet?: string;
+  /** The active plan's note, shown below the aptitude chips. */
+  note?: string;
   portrait: ReactNode;
   aptChips: AptChip[];
   /** The wired PlanInventoryCard, rendered inside the popover when open. */
@@ -46,8 +50,10 @@ export interface UmaPlanCardProps {
 }
 
 export function UmaPlanCard({
+  planName,
   name,
   epithet,
+  note,
   portrait,
   aptChips,
   inventory,
@@ -86,6 +92,7 @@ export function UmaPlanCard({
           <div className="inh-uma-main">
             <span className="inh-uma-portrait">{portrait}</span>
             <div className="inh-uma-meta">
+              <span className="inh-uma-plan-name">{planName}</span>
               <span className="inh-uma-name">{name}</span>
               {epithet && <span className="inh-uma-epithet">{epithet}</span>}
               {aptChips.length > 0 && (
@@ -97,6 +104,7 @@ export function UmaPlanCard({
                   ))}
                 </div>
               )}
+              {note && <p className="inh-uma-note">{note}</p>}
             </div>
           </div>
         </div>
