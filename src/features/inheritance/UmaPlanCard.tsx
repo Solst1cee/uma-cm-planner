@@ -88,17 +88,17 @@ export function UmaPlanCard({
             <div className="inh-uma-meta">
               <span className="inh-uma-name">{name}</span>
               {epithet && <span className="inh-uma-epithet">{epithet}</span>}
+              {aptChips.length > 0 && (
+                <div className="spark-chips inh-uma-apts">
+                  {aptChips.map((c) => (
+                    <span key={c.label} className="badge spark-pink">
+                      {c.label} {c.grade}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          {aptChips.length > 0 && (
-            <div className="spark-chips inh-uma-apts">
-              {aptChips.map((c) => (
-                <span key={c.label} className="badge spark-pink">
-                  {c.label} {c.grade}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </section>
     </div>

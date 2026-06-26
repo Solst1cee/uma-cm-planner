@@ -73,9 +73,13 @@
 .inh-uma-inv-btn .cmp-backpack-ico { fill: none; stroke: currentColor; }
 
 .inh-uma-body { display: flex; flex-direction: column; gap: 0.55rem; }
-.inh-uma-main { display: flex; align-items: center; gap: 0.6rem; }
+/* Portrait left, name/epithet/chips stacked in the meta column (chips = 3rd row,
+   indented to align with the name). Top-aligned so the name sits beside the
+   portrait top. */
+.inh-uma-main { display: flex; align-items: flex-start; gap: 0.6rem; }
 .inh-uma-portrait { flex: none; display: inline-flex; }
-.inh-uma-meta { display: flex; flex-direction: column; min-width: 0; }
+.inh-uma-portrait-ph { width: 64px; height: 64px; }
+.inh-uma-meta { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
 .inh-uma-name {
   font-weight: 700;
   white-space: nowrap;
@@ -89,7 +93,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.inh-uma-apts { margin-top: 0; }
+.inh-uma-apts { margin-top: 0.3rem; }
 
 /* Inventory popover: just the inventory card itself, positioned so its top-right
    corner sits at the icon's bottom border (anchored to the icon button). No extra
