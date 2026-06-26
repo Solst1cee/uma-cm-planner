@@ -26,8 +26,8 @@ const STAT_WEIGHT_LABELS = [
 /** Labels for the 5 uma bonus inputs (spd/sta/pow/guts/wis). */
 const UMA_BONUS_LABELS = ['Speed', 'Stamina', 'Power', 'Guts', 'Wisdom'] as const;
 
-/** Races labels: G1 / G2-3 / OP / other. */
-const RACE_LABELS = ['G1', 'G2-3', 'OP', 'Other'] as const;
+/** Races labels: G1 / G2-3 / OP (3 editable slots; races[3] is fixed by scenario). */
+const RACE_LABELS = ['G1', 'G2-3', 'OP'] as const;
 
 export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
   const [currentState, setCurrentState] = useState<TypeKey>('speed');
@@ -59,7 +59,7 @@ export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
       {open && (
         <div className="inh-deck-body inh-weights-body">
           {/* Type tabs */}
-          <div className="inh-weights-tabs" role="tablist">
+          <div className="inh-weights-tabs" role="group" aria-label="Training type">
             {TYPE_TABS.map(({ key, label }) => (
               <button
                 key={key}
