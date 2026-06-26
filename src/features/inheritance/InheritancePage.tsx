@@ -10,7 +10,7 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { useUmas } from '@/features/parents/useUmas';
 import type { SearchItem } from '@/features/parents/SearchPicker';
 import { useGameData } from '@/features/data/gameData';
-import type { LimitBreak } from '@/core/types';
+import type { CardType, LimitBreak } from '@/core/types';
 import { cardRowsByKey, resolveDeckObjects, scoreCards } from '@/core/cardScore';
 import { buildPoolItem } from './poolModel';
 import { useScoreWeights } from './useScoreWeights';
@@ -23,6 +23,16 @@ import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
+
+/** Support-card training type → the bundled UI stat-icon id (kind="ui").
+ *  friend/group cards have no stat type, so they get no badge. */
+const STAT_UI_ID: Partial<Record<CardType, string>> = {
+  speed: 'stat-spd',
+  stamina: 'stat-sta',
+  power: 'stat-pow',
+  guts: 'stat-gut',
+  wit: 'stat-wit',
+};
 
 interface Deps {
   loadCatalog?: () => Promise<CourseCatalogEntry[]>;
@@ -241,9 +251,23 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
             deckCardIds={new Set(deck.slots.filter(Boolean) as string[])}
             onAdd={(id) => setDeck(addCard(deck, id, cardLb[id] ?? 4))}
-            renderIcon={(it, size) => (
-              <GameIcon kind="card" id={it.cardId} size={size} alt="" className="inh-pool-card-img" />
-            )}
+            renderIcon={(it, size) => {
+              const statUiId = STAT_UI_ID[it.type];
+              return (
+                <span className="inh-pool-card-icon" style={{ width: size, height: size }}>
+                  <GameIcon kind="card" id={it.cardId} size={size} alt="" className="inh-pool-card-img" />
+                  {statUiId && (
+                    <GameIcon
+                      kind="ui"
+                      id={statUiId}
+                      size={Math.round(size * 0.44)}
+                      alt=""
+                      className="inh-pool-card-type"
+                    />
+                  )}
+                </span>
+              );
+            }}
             skillName={(id) => skillById.get(id)?.nameEn ?? id}
           />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />

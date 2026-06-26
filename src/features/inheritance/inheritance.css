@@ -739,6 +739,20 @@ main:has(.inh-page) {
   border-radius: 6px;
   object-fit: contain;
 }
+/* Card icon + a stat-type badge overlaid top-right (in-game spd/sta/pow/gut/wit). */
+.inh-pool-card-icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+.inh-pool-card-type {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: 0 0 0 1px var(--border);
+}
 
 .inh-pool-art-content {
   flex: 1 1 auto;

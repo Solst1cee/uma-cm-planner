@@ -11,7 +11,14 @@ vi.mock('@/features/data/gameData', () => ({
     skillById: new Map(),
     cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [] }],
     // GameIcon resolves a card image only when the id is in the manifest.
-    iconManifest: { dataVersion: 'test', format: 'webp', skill: [], card: ['30028'], uma: [] },
+    iconManifest: {
+      dataVersion: 'test',
+      format: 'webp',
+      skill: [],
+      card: ['30028'],
+      uma: [],
+      ui: ['stat-spd', 'stat-sta', 'stat-pow', 'stat-gut', 'stat-wit'],
+    },
   }),
 }));
 import { InheritancePage } from './InheritancePage';
@@ -31,6 +38,10 @@ it('renders the real square card icon (GameIcon) for a manifest-present card', a
   const img = container.querySelector('img.inh-pool-card-img') as HTMLImageElement | null;
   expect(img).not.toBeNull();
   expect(img!.getAttribute('src')).toContain('data/icons/support/30028.webp');
+  // A stat-type badge (kind="ui") is overlaid top-right; Kitasan is a speed card.
+  const typeBadge = container.querySelector('img.inh-pool-card-type') as HTMLImageElement | null;
+  expect(typeBadge).not.toBeNull();
+  expect(typeBadge!.getAttribute('src')).toContain('data/icons/ui/stat-spd.webp');
 });
 
 it('Add carries the tile LB into the deck slot — non-default LB 2 lands in deck', async () => {
