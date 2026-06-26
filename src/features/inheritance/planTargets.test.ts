@@ -4,8 +4,11 @@ import {
   addBlueSpark,
   availableBlueStats,
   blueSparkRows,
+  blueTotal,
   deleteBlueSpark,
+  midRunSparkRows,
   pinkSparkRows,
+  pinkSparkTotal,
   setBlueStars,
   wishlistRows,
   wishlistSummary,
@@ -41,17 +44,25 @@ describe('blue spark goals', () => {
     expect(availableBlueStats(p).map((s) => s.stat)).toEqual(['spd', 'pow', 'gut', 'wit']);
   });
 
-  it('setBlueStars clamps to [0, 18]', () => {
-    expect(setBlueStars(plan(), 'sta', 20).sparkGoals.blue.sta).toBe(18);
+  it('setBlueStars clamps against the shared 18★ total budget (not per stat)', () => {
     expect(setBlueStars(plan(), 'sta', -3).sparkGoals.blue.sta).toBe(0);
-    expect(setBlueStars(plan(), 'sta', 12).sparkGoals.blue.sta).toBe(12);
+    // empty plan → a single stat can take the whole budget
+    expect(setBlueStars(plan(), 'sta', 25).sparkGoals.blue.sta).toBe(18);
+    // 10 already spent on guts → sta is capped at the remaining 8
+    const p = plan({ sparkGoals: { pink: [], blue: { gut: 10 } } });
+    expect(setBlueStars(p, 'sta', 12).sparkGoals.blue.sta).toBe(8);
   });
 
-  it('addBlueSpark adds at 1★ and is a no-op when the stat already has a goal', () => {
+  it('blueTotal sums all stat goals', () => {
+    expect(blueTotal(plan({ sparkGoals: { pink: [], blue: { sta: 6, pow: 3 } } }))).toBe(9);
+  });
+
+  it('addBlueSpark adds at 1★, no-ops when present, and no-ops when the budget is full', () => {
     const added = addBlueSpark(plan(), 'pow');
     expect(added.sparkGoals.blue.pow).toBe(1);
-    const again = addBlueSpark(added, 'pow', 5);
-    expect(again.sparkGoals.blue.pow).toBe(1);
+    expect(addBlueSpark(added, 'pow', 5).sparkGoals.blue.pow).toBe(1);
+    const full = plan({ sparkGoals: { pink: [], blue: { sta: 18 } } });
+    expect(addBlueSpark(full, 'pow').sparkGoals.blue.pow).toBeUndefined();
   });
 
   it('deleteBlueSpark removes the stat goal', () => {
@@ -84,6 +95,14 @@ describe('pinkSparkRows', () => {
 
   it('returns [] when no uma is resolved', () => {
     expect(pinkSparkRows(plan(), null)).toEqual([]);
+  });
+
+  it('pinkSparkTotal sums required stars', () => {
+    expect(pinkSparkTotal(plan(), uma)).toBe(5); // Medium 4 + Late Surger 1
+  });
+
+  it('midRunSparkRows lists aptitudes still needing in-run procs (e.g. Medium C → S)', () => {
+    expect(midRunSparkRows(plan(), uma)).toEqual([{ label: 'Medium', steps: 1 }]);
   });
 });
 

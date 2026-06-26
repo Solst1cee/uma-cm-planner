@@ -139,16 +139,30 @@
   font: inherit;
 }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* The spark chip fills the row; controls sit to its right. */
-.inh-target-spark {
-  flex: 1;
-  min-width: 0;
+/* Label row with a right-aligned spark budget readout. */
+.inh-targets-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.inh-budget { font-size: 0.7rem; font-weight: 700; color: var(--fg-muted); letter-spacing: 0; text-transform: none; }
+.inh-budget-over { color: var(--error, #c2414b); }
+
+/* Blue sparks: a 3-column grid so every chip is compact + equal to the widest one
+   (chip | stepper | delete), left-packed. */
+.inh-blue-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  justify-content: start;
+  align-items: center;
+  gap: 0.32rem 0.45rem;
+}
+.inh-blue-list > li { display: contents; }
+.inh-span-all { grid-column: 1 / -1; }
+/* Compact chip filling its (max-content) grid column → all equal to the longest. */
+.inh-spark-chip {
   text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* override the chip's wrap-nowrap default with ellipsis truncation */
-  padding: 0.22rem 0.6rem;
-  font-size: 0.74rem;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
 }
 /* Blue spark chip — in-game blue (the cmp-spark-chip base is pink). */
 .inh-blue-chip {
@@ -157,6 +171,12 @@
   color: #1f5bb5;
 }
 .inh-pink-chips { justify-content: flex-start; margin-bottom: 0.5rem; }
+.inh-warn {
+  margin: 0 0 0.5rem;
+  color: var(--error, #c2414b);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
 .inh-stepper { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
 .inh-step-btn {
   width: 1.5rem;

@@ -12,10 +12,13 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
     { stat: 'sta', label: 'Stamina', stars: 6 },
     { stat: 'pow', label: 'Power', stars: 3 },
   ],
+  blueTotal: 9,
   pinkRows: [
     { label: 'Medium', stars: 4 },
     { label: 'Late Surger', stars: 1 },
   ],
+  pinkTotal: 5,
+  midRunRows: [],
   availableBlueStats: [{ stat: 'spd', label: 'Speed' }],
   wishlist: [
     { skillId: '100', name: 'Arc Maestro', sp: 160, gold: true },
@@ -49,6 +52,18 @@ describe('PlanTargetsCard', () => {
     expect(onSetBlueStars).toHaveBeenCalledWith('pow', 2);
     fireEvent.click(screen.getByRole('button', { name: 'Remove Stamina' }));
     expect(onDeleteBlue).toHaveBeenCalledWith('sta');
+  });
+
+  it('warns when the pink budget is exceeded and shows the mid-run readout', () => {
+    render(
+      <PlanTargetsCard
+        {...baseProps({ pinkTotal: 22, midRunRows: [{ label: 'Medium', steps: 1 }] })}
+      />,
+    );
+    expect(screen.getByText('22/18★')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(/over the 18★/);
+    expect(screen.getByText('Mid-run spark (in-run procs)')).toBeInTheDocument();
+    expect(screen.getByText('Medium ×1')).toBeInTheDocument();
   });
 
   it('the add-stat select adds a blue spark', () => {

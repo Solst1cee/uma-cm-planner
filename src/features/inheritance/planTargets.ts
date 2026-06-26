@@ -10,7 +10,18 @@ import { wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 
 const STAT_ORDER: readonly Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
 export const BLUE_MIN = 0;
-export const BLUE_MAX = 18;
+/** Total blue-spark stars a lineage can supply across ALL stats (not per stat). */
+export const BLUE_TOTAL_MAX = 18;
+/** Same total budget for pink sparks; derived (a bad plan can exceed it → warn). */
+export const PINK_TOTAL_MAX = 18;
+
+/** Sum of all blue-spark star goals on the plan. */
+export function blueTotal(plan: CmPlan): number {
+  return (Object.values(plan.sparkGoals.blue) as Array<number | undefined>).reduce<number>(
+    (sum, v) => sum + (v ?? 0),
+    0,
+  );
+}
 
 export interface BlueSparkRow {
   stat: Stat;
@@ -40,15 +51,18 @@ function withBlue(plan: CmPlan, blue: Partial<Record<Stat, number>>): CmPlan {
   return { ...plan, sparkGoals: { ...plan.sparkGoals, blue } };
 }
 
-/** Set a blue goal's star count, clamped to [BLUE_MIN, BLUE_MAX]. */
+/** Set a blue goal's star count, clamped so the TOTAL across all stats ≤ BLUE_TOTAL_MAX. */
 export function setBlueStars(plan: CmPlan, stat: Stat, stars: number): CmPlan {
-  const clamped = Math.max(BLUE_MIN, Math.min(BLUE_MAX, Math.round(stars)));
+  const others = blueTotal(plan) - (plan.sparkGoals.blue[stat] ?? 0);
+  const max = Math.max(BLUE_MIN, BLUE_TOTAL_MAX - others);
+  const clamped = Math.max(BLUE_MIN, Math.min(max, Math.round(stars)));
   return withBlue(plan, { ...plan.sparkGoals.blue, [stat]: clamped });
 }
 
-/** Add a blue goal for a stat (default 1★); no-op if it already exists. */
+/** Add a blue goal for a stat (default 1★); no-op if it exists or the budget is full. */
 export function addBlueSpark(plan: CmPlan, stat: Stat, stars = 1): CmPlan {
   if (plan.sparkGoals.blue[stat] !== undefined) return plan;
+  if (blueTotal(plan) >= BLUE_TOTAL_MAX) return plan;
   return setBlueStars(plan, stat, stars);
 }
 
@@ -108,6 +122,32 @@ export function pinkSparkRows(plan: CmPlan, uma: UmaRecord | null): PinkSparkRow
       stars: pinkAptitudeRequirement(baseGradeFor(uma, key), targetAptitude(plan, key)).stars,
     }))
     .filter((row) => row.stars > 0);
+}
+
+/** Total required pink stars across the plan's aptitudes (vs PINK_TOTAL_MAX). */
+export function pinkSparkTotal(plan: CmPlan, uma: UmaRecord | null): number {
+  return pinkSparkRows(plan, uma).reduce((sum, row) => sum + row.stars, 0);
+}
+
+export interface MidRunSparkRow {
+  label: string;
+  steps: number;
+}
+
+/**
+ * Aptitudes that still need in-run pink procs after career-start inheritance
+ * (e.g. A→S, or any target beyond the career-start cap) — the "mid-run spark"
+ * readout the planner sidebar shows.
+ */
+export function midRunSparkRows(plan: CmPlan, uma: UmaRecord | null): MidRunSparkRow[] {
+  if (!uma?.baseAptitudes) return [];
+  const keys = currentAptitudeKeys(plan);
+  return [keys.surface, keys.distance, keys.strategy]
+    .map((key) => ({
+      label: aptFullLabel(key),
+      steps: pinkAptitudeRequirement(baseGradeFor(uma, key), targetAptitude(plan, key)).inRunStepsNeeded,
+    }))
+    .filter((row) => row.steps > 0);
 }
 
 export interface WishlistRow {

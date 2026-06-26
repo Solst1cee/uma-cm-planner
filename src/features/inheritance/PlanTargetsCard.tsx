@@ -1,16 +1,26 @@
 /** M1 "Plan targets" card (handoff README §"2. Plan targets panel"). Collapsible
- *  cmp-plan-card with three sections: blue stat sparks (editable star steppers +
- *  delete + add), pink aptitude sparks (display-only, from the plan), and the
- *  skill wishlist (name + SP, gold-tinted for gold-rarity skills). Presentational
- *  — all data + mutations come in via props. */
+ *  cmp-plan-card: blue stat sparks (editable, shared 18★ budget across all stats),
+ *  pink aptitude sparks (required career-start stars, also an 18★ budget — derived,
+ *  so it warns when a bad plan exceeds it), a mid-run pink readout, and the skill
+ *  wishlist (name + SP). Presentational — data + mutations come in via props. */
 import type { Stat } from '@/core/types';
-import type { BlueSparkRow, PinkSparkRow, WishlistRow } from './planTargets';
+import {
+  BLUE_TOTAL_MAX,
+  PINK_TOTAL_MAX,
+  type BlueSparkRow,
+  type MidRunSparkRow,
+  type PinkSparkRow,
+  type WishlistRow,
+} from './planTargets';
 
 export interface PlanTargetsCardProps {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   blueRows: BlueSparkRow[];
+  blueTotal: number;
   pinkRows: PinkSparkRow[];
+  pinkTotal: number;
+  midRunRows: MidRunSparkRow[];
   availableBlueStats: Array<{ stat: Stat; label: string }>;
   wishlist: WishlistRow[];
   summary: { count: number; totalSp: number };
@@ -23,7 +33,10 @@ export function PlanTargetsCard({
   collapsed,
   onToggleCollapsed,
   blueRows,
+  blueTotal,
   pinkRows,
+  pinkTotal,
+  midRunRows,
   availableBlueStats,
   wishlist,
   summary,
@@ -31,6 +44,7 @@ export function PlanTargetsCard({
   onDeleteBlue,
   onAddBlue,
 }: PlanTargetsCardProps) {
+  const pinkOver = pinkTotal > PINK_TOTAL_MAX;
   return (
     <section className="cmp-plan-card inh-targets-card">
       <button
@@ -44,13 +58,16 @@ export function PlanTargetsCard({
       </button>
       {!collapsed && (
         <div className="cmp-plan-card-body inh-targets-body">
-          {/* Blue sparks (stat) */}
-          <div className="cmp-mini-label">Blue sparks (stat)</div>
-          <ul className="spark-list">
-            {blueRows.length === 0 && <li className="muted small">No blue spark goals yet.</li>}
+          {/* Blue sparks (stat) — shared budget across all stats */}
+          <div className="cmp-mini-label inh-targets-label">
+            <span>Blue sparks (stat)</span>
+            <span className="inh-budget">{blueTotal}/{BLUE_TOTAL_MAX}★</span>
+          </div>
+          <ul className="inh-blue-list">
+            {blueRows.length === 0 && <li className="muted small inh-span-all">No blue spark goals yet.</li>}
             {blueRows.map((r) => (
-              <li className="spark-row" key={r.stat}>
-                <span className="cmp-spark-chip inh-blue-chip inh-target-spark">
+              <li key={r.stat}>
+                <span className="cmp-spark-chip inh-blue-chip inh-spark-chip">
                   {r.label} ★{r.stars}
                 </span>
                 <span className="inh-stepper">
@@ -82,7 +99,7 @@ export function PlanTargetsCard({
               </li>
             ))}
           </ul>
-          {availableBlueStats.length > 0 && (
+          {availableBlueStats.length > 0 && blueTotal < BLUE_TOTAL_MAX && (
             <select
               className="inh-add-blue"
               aria-label="Add blue spark"
@@ -100,8 +117,13 @@ export function PlanTargetsCard({
             </select>
           )}
 
-          {/* Pink sparks (aptitude / style · from plan), display-only required stars */}
-          <div className="cmp-mini-label">Pink sparks (aptitude / style · from plan)</div>
+          {/* Pink sparks (aptitude / style · from plan) — required career-start stars */}
+          <div className="cmp-mini-label inh-targets-label">
+            <span>Pink sparks (aptitude / style · from plan)</span>
+            <span className={`inh-budget ${pinkOver ? 'inh-budget-over' : ''}`.trim()}>
+              {pinkTotal}/{PINK_TOTAL_MAX}★
+            </span>
+          </div>
           <div className="cmp-spark-chip-list inh-pink-chips">
             {pinkRows.length === 0 ? (
               <span className="cmp-spark-empty">none required</span>
@@ -113,6 +135,26 @@ export function PlanTargetsCard({
               ))
             )}
           </div>
+          {pinkOver && (
+            <p className="inh-warn" role="alert">
+              ⚠ Needs {pinkTotal}★ of pink sparks — over the {PINK_TOTAL_MAX}★ a lineage can supply.
+              Lower a target aptitude or pick a uma with better base aptitudes.
+            </p>
+          )}
+
+          {/* Mid-run pink procs still needed after career-start inheritance */}
+          {midRunRows.length > 0 && (
+            <>
+              <div className="cmp-mini-label">Mid-run spark (in-run procs)</div>
+              <div className="cmp-spark-chip-list inh-pink-chips">
+                {midRunRows.map((r) => (
+                  <span className="cmp-spark-chip" key={r.label}>
+                    {r.label} ×{r.steps}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Wishlist */}
           <div className="cmp-mini-label">
