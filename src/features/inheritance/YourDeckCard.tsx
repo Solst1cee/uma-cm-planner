@@ -128,7 +128,7 @@ export function YourDeckCard({
                   </button>
                 </li>
                 {templates.map((t) => (
-                  <li key={t.name}>
+                  <li key={t.name} className="inh-deck-combo-row">
                     <button
                       type="button"
                       className={`inh-deck-combo-item${t.name === activeName ? ' is-active' : ''}`}
@@ -140,20 +140,22 @@ export function YourDeckCard({
                     >
                       {t.name}
                     </button>
+                    <button
+                      type="button"
+                      className="inh-deck-combo-del"
+                      aria-label={`Delete ${t.name}`}
+                      title={`Delete ${t.name}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => onDeleteTemplate(t.name)}
+                    >
+                      ×
+                    </button>
                   </li>
                 ))}
                 {templates.length === 0 && <li className="inh-deck-combo-empty">No saved templates</li>}
               </ul>
             )}
           </div>
-          <button
-            type="button"
-            className="cmp-small-btn"
-            disabled={!activeName}
-            onClick={() => activeName && onDeleteTemplate(activeName)}
-          >
-            Del
-          </button>
           <button type="button" className="cmp-small-btn" onClick={() => onChange(clearDeck())}>
             Clear
           </button>

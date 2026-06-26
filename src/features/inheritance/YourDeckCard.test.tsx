@@ -122,16 +122,17 @@ describe('YourDeckCard', () => {
     expect(onNewTemplate).toHaveBeenCalled();
   });
 
-  it('Del is disabled when there is no active template', () => {
-    renderCard({ activeName: '' });
-    expect(screen.getByText('Del')).toBeDisabled();
-  });
-
-  it('Del fires onDeleteTemplate with the active name', () => {
-    const { onDeleteTemplate } = renderCard({ activeName: 'aggro' });
-    const del = screen.getByText('Del');
-    expect(del).not.toBeDisabled();
-    fireEvent.click(del);
+  it('each template row in the dropdown has a delete × that fires onDeleteTemplate', () => {
+    const { onDeleteTemplate, onSelectTemplate } = renderCard({
+      activeName: 'control',
+      templates: [
+        { name: 'aggro', slots: emptyDeck().slots, slotLb: emptyDeck().slotLb },
+        { name: 'control', slots: emptyDeck().slots, slotLb: emptyDeck().slotLb },
+      ],
+    });
+    fireEvent.click(screen.getByLabelText('Templates')); // open dropdown
+    fireEvent.click(screen.getByLabelText('Delete aggro'));
     expect(onDeleteTemplate).toHaveBeenCalledWith('aggro');
+    expect(onSelectTemplate).not.toHaveBeenCalled(); // deleting a row must not also select it
   });
 });

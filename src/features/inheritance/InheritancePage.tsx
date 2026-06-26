@@ -101,7 +101,12 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     setActiveName(name);
   };
   const handleDeleteTemplate = (name: string) => {
-    // Auto-load the next remaining template; if none left, go blank like Clear.
+    // Deleting a template that isn't the one being edited: just remove it, leave the deck alone.
+    if (name !== activeName) {
+      remove(name);
+      return;
+    }
+    // Deleting the active template: auto-load the next remaining one; if none left, go blank.
     const idx = templates.findIndex((t) => t.name === name);
     const remaining = templates.filter((t) => t.name !== name);
     remove(name);

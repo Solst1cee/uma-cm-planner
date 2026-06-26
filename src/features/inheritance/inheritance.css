@@ -115,7 +115,8 @@ main:has(.inh-page) {
 .inh-deck-tools {
   display: flex;
   gap: 0.35rem;
-  align-items: center;
+  /* stretch so the name field matches the Clear button's height exactly */
+  align-items: stretch;
   flex-wrap: nowrap;
 }
 .inh-deck-tools .cmp-small-btn { flex: none; }
@@ -131,6 +132,7 @@ main:has(.inh-page) {
   border: 1px solid transparent;
   border-radius: 8px;
   background: var(--bg-2);
+  box-sizing: border-box;
 }
 .inh-deck-tplname:focus {
   border-color: var(--accent);
@@ -181,6 +183,21 @@ main:has(.inh-page) {
 .inh-deck-combo-item.is-active { font-weight: 700; color: var(--accent); }
 .inh-deck-combo-new { color: var(--accent); font-weight: 600; }
 .inh-deck-combo-empty { padding: 0.3rem 0.45rem; font-size: 0.74rem; color: var(--fg-muted); }
+/* template row = name (fills) + a red × delete on the right, transparent border */
+.inh-deck-combo-row { display: flex; align-items: center; gap: 0.15rem; }
+.inh-deck-combo-row .inh-deck-combo-item { flex: 1 1 auto; width: auto; }
+.inh-deck-combo-del {
+  flex: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--error);
+  cursor: pointer;
+  padding: 0 0.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.inh-deck-combo-del:hover { background: color-mix(in srgb, var(--error) 14%, transparent); }
 
 .inh-deck-slots {
   display: grid;
