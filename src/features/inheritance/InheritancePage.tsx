@@ -20,6 +20,7 @@ import {
   availableBlueStats,
   blueSparkRows,
   deleteBlueSpark,
+  pinkSparkRows,
   setBlueStars,
   wishlistRows,
   wishlistSummary,
@@ -132,7 +133,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
               collapsed={targetsCollapsed}
               onToggleCollapsed={() => setTargetsCollapsed((c) => !c)}
               blueRows={blueSparkRows(uma1Plan)}
-              pinkRows={umaPlanAptChips(uma1Plan)}
+              pinkRows={pinkSparkRows(uma1Plan, uma)}
               availableBlueStats={availableBlueStats(uma1Plan)}
               wishlist={wishlistRows(uma1Plan, skillById)}
               summary={wishlistSummary(uma1Plan, skillById)}

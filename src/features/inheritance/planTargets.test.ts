@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { CmPlan, SkillRecord } from '@/core/types';
+import type { CmPlan, SkillRecord, UmaRecord } from '@/core/types';
 import {
   addBlueSpark,
   availableBlueStats,
   blueSparkRows,
   deleteBlueSpark,
+  pinkSparkRows,
   setBlueStars,
   wishlistRows,
   wishlistSummary,
@@ -40,10 +41,10 @@ describe('blue spark goals', () => {
     expect(availableBlueStats(p).map((s) => s.stat)).toEqual(['spd', 'pow', 'gut', 'wit']);
   });
 
-  it('setBlueStars clamps to [0, 9]', () => {
-    expect(setBlueStars(plan(), 'sta', 12).sparkGoals.blue.sta).toBe(9);
+  it('setBlueStars clamps to [0, 18]', () => {
+    expect(setBlueStars(plan(), 'sta', 20).sparkGoals.blue.sta).toBe(18);
     expect(setBlueStars(plan(), 'sta', -3).sparkGoals.blue.sta).toBe(0);
-    expect(setBlueStars(plan(), 'sta', 4).sparkGoals.blue.sta).toBe(4);
+    expect(setBlueStars(plan(), 'sta', 12).sparkGoals.blue.sta).toBe(12);
   });
 
   it('addBlueSpark adds at 1★ and is a no-op when the stat already has a goal', () => {
@@ -56,6 +57,33 @@ describe('blue spark goals', () => {
   it('deleteBlueSpark removes the stat goal', () => {
     const p = plan({ sparkGoals: { pink: [], blue: { sta: 6, pow: 3 } } });
     expect(deleteBlueSpark(p, 'sta').sparkGoals.blue).toEqual({ pow: 3 });
+  });
+});
+
+describe('pinkSparkRows', () => {
+  const uma: UmaRecord = {
+    umaId: '106801', charaId: '1068', nameEn: 'Mejiro McQueen',
+    baseAptitudes: {
+      surface: { turf: 'A', dirt: 'G' },
+      distance: { short: 'C', mile: 'B', medium: 'C', long: 'A' },
+      strategy: { front: 'C', pace: 'B', late: 'B', end: 'B' },
+    },
+    server: 'global', dataVersion: 'x',
+  };
+
+  it('shows required career-start stars for the plan aptitudes, omitting already-met ones', () => {
+    // turf · 2200 (medium) · late, default targets surface A / distance S / strategy A:
+    //  - Turf: base A ≥ A → 0 stars (omitted)
+    //  - Medium: base C → S (cap A = +2 steps) → 4 stars
+    //  - Late Surger: base B → A (+1 step) → 1 star
+    expect(pinkSparkRows(plan(), uma)).toEqual([
+      { label: 'Medium', stars: 4 },
+      { label: 'Late Surger', stars: 1 },
+    ]);
+  });
+
+  it('returns [] when no uma is resolved', () => {
+    expect(pinkSparkRows(plan(), null)).toEqual([]);
   });
 });
 

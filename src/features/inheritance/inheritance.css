@@ -139,14 +139,24 @@
   font: inherit;
 }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* The spark badge fills the row; controls sit to its right. */
+/* The spark chip fills the row; controls sit to its right. */
 .inh-target-spark {
   flex: 1;
   min-width: 0;
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* override the chip's wrap-nowrap default with ellipsis truncation */
+  padding: 0.22rem 0.6rem;
+  font-size: 0.74rem;
 }
+/* Blue spark chip — in-game blue (the cmp-spark-chip base is pink). */
+.inh-blue-chip {
+  border-color: #9bc0ec;
+  background: #e6f0fb;
+  color: #1f5bb5;
+}
+.inh-pink-chips { justify-content: flex-start; margin-bottom: 0.5rem; }
 .inh-stepper { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
 .inh-step-btn {
   width: 1.5rem;
@@ -162,20 +172,13 @@
   line-height: 1;
 }
 .inh-step-btn:hover { border-color: var(--accent); color: var(--accent); }
-.inh-star-val {
-  min-width: 2.1rem;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
 .inh-target-del {
   flex: none;
   width: 1.5rem;
   height: 1.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 6px;
-  background: var(--bg-1);
+  background: transparent;
   color: var(--error, #c2414b);
   cursor: pointer;
   line-height: 1;

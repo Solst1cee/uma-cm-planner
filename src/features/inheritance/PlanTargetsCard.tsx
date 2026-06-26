@@ -4,14 +4,13 @@
  *  skill wishlist (name + SP, gold-tinted for gold-rarity skills). Presentational
  *  — all data + mutations come in via props. */
 import type { Stat } from '@/core/types';
-import type { AptChip } from './umaPlanApt';
-import type { BlueSparkRow, WishlistRow } from './planTargets';
+import type { BlueSparkRow, PinkSparkRow, WishlistRow } from './planTargets';
 
 export interface PlanTargetsCardProps {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   blueRows: BlueSparkRow[];
-  pinkRows: AptChip[];
+  pinkRows: PinkSparkRow[];
   availableBlueStats: Array<{ stat: Stat; label: string }>;
   wishlist: WishlistRow[];
   summary: { count: number; totalSp: number };
@@ -51,7 +50,9 @@ export function PlanTargetsCard({
             {blueRows.length === 0 && <li className="muted small">No blue spark goals yet.</li>}
             {blueRows.map((r) => (
               <li className="spark-row" key={r.stat}>
-                <span className="badge spark-blue inh-target-spark">{r.label}</span>
+                <span className="cmp-spark-chip inh-blue-chip inh-target-spark">
+                  {r.label} ★{r.stars}
+                </span>
                 <span className="inh-stepper">
                   <button
                     type="button"
@@ -61,7 +62,6 @@ export function PlanTargetsCard({
                   >
                     −
                   </button>
-                  <span className="inh-star-val">{r.stars}★</span>
                   <button
                     type="button"
                     className="inh-step-btn"
@@ -100,16 +100,19 @@ export function PlanTargetsCard({
             </select>
           )}
 
-          {/* Pink sparks (aptitude / style · from plan), display-only */}
+          {/* Pink sparks (aptitude / style · from plan), display-only required stars */}
           <div className="cmp-mini-label">Pink sparks (aptitude / style · from plan)</div>
-          <ul className="spark-list">
-            {pinkRows.map((c) => (
-              <li className="spark-row" key={c.label}>
-                <span className="badge spark-pink inh-target-spark">{c.label}</span>
-                <span className="inh-star-val">{c.grade}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="cmp-spark-chip-list inh-pink-chips">
+            {pinkRows.length === 0 ? (
+              <span className="cmp-spark-empty">none required</span>
+            ) : (
+              pinkRows.map((r) => (
+                <span className="cmp-spark-chip" key={r.label}>
+                  {r.label} ★{r.stars}
+                </span>
+              ))
+            )}
+          </div>
 
           {/* Wishlist */}
           <div className="cmp-mini-label">

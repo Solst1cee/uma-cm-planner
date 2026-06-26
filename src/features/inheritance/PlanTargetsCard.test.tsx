@@ -13,8 +13,8 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
     { stat: 'pow', label: 'Power', stars: 3 },
   ],
   pinkRows: [
-    { label: 'Turf', grade: 'A' },
-    { label: 'Long', grade: 'S' },
+    { label: 'Medium', stars: 4 },
+    { label: 'Late Surger', stars: 1 },
   ],
   availableBlueStats: [{ stat: 'spd', label: 'Speed' }],
   wishlist: [
@@ -29,12 +29,12 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
 });
 
 describe('PlanTargetsCard', () => {
-  it('renders blue/pink sparks, the wishlist headline, and rows', () => {
+  it('renders blue/pink spark chips, the wishlist headline, and rows', () => {
     render(<PlanTargetsCard {...baseProps()} />);
     expect(screen.getByText('Plan targets')).toBeInTheDocument();
-    expect(screen.getByText('Stamina')).toBeInTheDocument();
-    expect(screen.getByText('6★')).toBeInTheDocument();
-    expect(screen.getByText('Turf')).toBeInTheDocument();
+    expect(screen.getByText(/Stamina ★6/)).toBeInTheDocument();
+    expect(screen.getByText(/Medium ★4/)).toBeInTheDocument();
+    expect(screen.getByText(/Late Surger ★1/)).toBeInTheDocument();
     expect(screen.getByText(/Wishlist \(2 skills · 320 SP\)/)).toBeInTheDocument();
     expect(screen.getByText('Arc Maestro')).toBeInTheDocument();
   });
@@ -63,6 +63,6 @@ describe('PlanTargetsCard', () => {
   it('collapses the body when collapsed', () => {
     render(<PlanTargetsCard {...baseProps({ collapsed: true })} />);
     expect(screen.getByText('Plan targets')).toBeInTheDocument();
-    expect(screen.queryByText('Stamina')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Stamina ★/)).not.toBeInTheDocument();
   });
 });
