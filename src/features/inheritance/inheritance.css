@@ -115,26 +115,28 @@ main:has(.inh-page) {
 .inh-deck-tools {
   display: flex;
   gap: 0.35rem;
-  /* stretch so the name field matches the Clear button's height exactly */
-  align-items: stretch;
+  align-items: center;
   flex-wrap: nowrap;
 }
 .inh-deck-tools .cmp-small-btn { flex: none; }
 
-/* Template combobox: a name field that autosaves, with the caret dropdown inset inside it. */
+/* Template combobox: a name field that autosaves, with the caret dropdown inset inside it.
+   Selector is .inh-deck-combo-scoped so its padding beats the global `input[type=text]`
+   rule (app.css) and the field height matches .cmp-small-btn (Clear). */
 .inh-deck-combo { position: relative; flex: 1 1 auto; min-width: 6rem; display: flex; }
-.inh-deck-tplname {
+.inh-deck-combo .inh-deck-tplname {
   flex: 1 1 auto;
   min-width: 0;
-  /* extra right padding leaves room for the inset caret button */
+  /* match .cmp-small-btn's 0.25rem vertical padding + 0.76rem font so heights line up;
+     extra right padding leaves room for the inset caret button */
   padding: 0.25rem 1.7rem 0.25rem 0.45rem;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   border: 1px solid transparent;
   border-radius: 8px;
   background: var(--bg-2);
   box-sizing: border-box;
 }
-.inh-deck-tplname:focus {
+.inh-deck-combo .inh-deck-tplname:focus {
   border-color: var(--accent);
   background: var(--bg-1);
   outline: none;
