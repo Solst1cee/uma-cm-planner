@@ -64,9 +64,9 @@ export function PlanTargetsCard({
           {/* Blue sparks — shared budget across all stats */}
           <div className="cmp-mini-label">Blue sparks</div>
           <ul className="inh-blue-list">
-            {blueRows.length === 0 && <li className="muted small inh-span-all">No blue spark goals yet.</li>}
+            {blueRows.length === 0 && <li className="muted small">No blue spark goals yet.</li>}
             {blueRows.map((r) => (
-              <li key={r.stat}>
+              <li className="inh-blue-row" key={r.stat}>
                 <span className="cmp-spark-chip inh-blue-chip inh-spark-chip">
                   {r.label} ★{r.stars}
                 </span>
@@ -117,8 +117,15 @@ export function PlanTargetsCard({
             </select>
           )}
 
-          {/* Pink sparks — required career-start stars */}
-          <div className="cmp-mini-label">Pink sparks</div>
+          {/* Pink sparks — required career-start stars (over-budget warning sits on the right) */}
+          <div className="cmp-mini-label inh-pink-label">
+            <span>Pink sparks</span>
+            {pinkComputable && pinkOver && (
+              <span className="inh-warn-inline" role="alert">
+                ⚠ {pinkTotal}/{PINK_TOTAL_MAX}★ pink
+              </span>
+            )}
+          </div>
           <div className="cmp-spark-chip-list inh-pink-chips">
             {!pinkComputable ? (
               <span className="cmp-spark-empty">Select this plan's uma to compute pink requirements.</span>
@@ -132,12 +139,6 @@ export function PlanTargetsCard({
               ))
             )}
           </div>
-          {pinkComputable && pinkOver && (
-            <p className="inh-warn" role="alert">
-              ⚠ {pinkTotal}/{PINK_TOTAL_MAX}★ pink — over budget.
-            </p>
-          )}
-
           {/* Mid-run pink procs still needed after career-start inheritance */}
           {pinkComputable && midRunRows.length > 0 && (
             <>

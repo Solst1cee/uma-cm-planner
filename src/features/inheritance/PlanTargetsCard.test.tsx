@@ -61,7 +61,7 @@ describe('PlanTargetsCard', () => {
         {...baseProps({ pinkTotal: 22, midRunRows: [{ label: 'Medium', steps: 1 }] })}
       />,
     );
-    expect(screen.getByRole('alert')).toHaveTextContent(/22\/18★ pink — over budget/);
+    expect(screen.getByRole('alert')).toHaveTextContent(/22\/18★ pink/);
     expect(screen.getByText('Mid-run spark')).toBeInTheDocument();
     expect(screen.getByText('Medium ×1')).toBeInTheDocument();
   });

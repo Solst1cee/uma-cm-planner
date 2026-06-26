@@ -61,7 +61,7 @@ describe('Plan targets — off-race pink targets (matches the planner sidebar)',
     expect(screen.getByText('Medium ★1')).toBeInTheDocument();
     expect(screen.getByText('Late Surger ★1')).toBeInTheDocument();
     // 10+7+1+1 = 19 > 18 → over-budget warning.
-    expect(screen.getByRole('alert')).toHaveTextContent(/19\/18★ pink — over budget/);
+    expect(screen.getByRole('alert')).toHaveTextContent(/19\/18★ pink/);
     // Mid-run matches the planner filter: only Sprint (career-start maxed, still 3 short).
     expect(screen.getByText('Sprint ×3')).toBeInTheDocument();
     expect(screen.queryByText(/Medium ×/)).not.toBeInTheDocument();

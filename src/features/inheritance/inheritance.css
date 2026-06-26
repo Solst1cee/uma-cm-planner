@@ -142,39 +142,29 @@
   border-top-right-radius: var(--cmp-card-radius);
   padding-block: 0.37rem;
 }
-/* One shared chip width so blue + pink + mid-run chips are all equal size. */
-.inh-targets-body { --inh-chip-w: 8.6rem; }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* Blue sparks: chip | stepper | delete per row; chip takes the shared width. */
-.inh-blue-list {
-  list-style: none;
-  margin: 0 0 0.5rem;
-  padding: 0;
-  display: grid;
-  grid-template-columns: var(--inh-chip-w) max-content max-content;
-  justify-content: start;
-  align-items: center;
-  gap: 0.32rem 0.45rem;
+/* Pink label row: label left, over-budget warning right. */
+.inh-pink-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.inh-warn-inline {
+  color: var(--error, #c2414b);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
-.inh-blue-list > li { display: contents; }
-.inh-span-all { grid-column: 1 / -1; }
-/* Every spark chip: one fixed width (equal across sections), left-aligned. */
-.inh-spark-chip {
-  box-sizing: border-box;
-  width: var(--inh-chip-w);
-  text-align: left;
-  padding: 0.2rem 0.55rem;
-  font-size: 0.72rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* Blue sparks: one row per goal — chip on the left, controls pushed to the right. */
+.inh-blue-list { list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.32rem; }
+.inh-blue-row { display: flex; align-items: center; gap: 0.4rem; }
+.inh-blue-row .inh-stepper { margin-left: auto; } /* stepper + delete stick right */
+/* Spark chips shrink to their content (both colors). */
+.inh-spark-chip { text-align: left; padding: 0.2rem 0.55rem; font-size: 0.72rem; }
 /* Blue spark chip — in-game blue (the cmp-spark-chip base is pink). */
 .inh-blue-chip {
   border-color: #9bc0ec;
   background: #e6f0fb;
   color: #1f5bb5;
 }
-/* Pink + mid-run: one chip per row (vertical). */
+/* Pink + mid-run: one chip per row (vertical), content width. */
 .inh-pink-chips {
   display: flex;
   flex-direction: column;
@@ -182,16 +172,13 @@
   gap: 0.3rem;
   margin-bottom: 0.5rem;
 }
-.inh-warn {
-  margin: 0 0 0.5rem;
-  color: var(--error, #c2414b);
-  font-size: 0.74rem;
-  line-height: 1.3;
-}
 .inh-stepper { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
-.inh-step-btn {
+.inh-step-btn,
+.inh-target-del {
+  flex: none;
   width: 1.5rem;
   height: 1.5rem;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -200,20 +187,11 @@
   background: var(--bg-1);
   color: var(--fg);
   cursor: pointer;
+  font-size: 0.95rem;
   line-height: 1;
 }
 .inh-step-btn:hover { border-color: var(--accent); color: var(--accent); }
-.inh-target-del {
-  flex: none;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--error, #c2414b);
-  cursor: pointer;
-  line-height: 1;
-}
+.inh-target-del { border-color: transparent; background: transparent; color: var(--error, #c2414b); }
 .inh-target-del:hover { border-color: var(--error, #c2414b); }
 .inh-add-blue { margin: 0.1rem 0 0.5rem; width: 100%; }
 .inh-wl-gold { color: #c27a00; font-weight: 600; }
