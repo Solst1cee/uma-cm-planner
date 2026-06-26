@@ -205,7 +205,6 @@
 .inh-target-del:hover { border-color: var(--error, #c2414b); }
 .inh-add-blue,
 .inh-targets-body .picker input[type='search'] {
-  margin: 0.1rem 0 0.5rem;
   width: 100%;
   padding: 0.2rem 0.4rem;
   font-size: 0.78rem;
@@ -213,6 +212,9 @@
   min-height: 0;
   line-height: 1.2;
 }
+.inh-add-blue { margin: 0.1rem 0 0.5rem; }
+/* Space the search box one wishlist gap below the last skill plate. */
+.inh-targets-body .picker { margin-top: 0.35rem; }
 .inh-wl-gold { color: #c27a00; font-weight: 600; }
 .inh-wl-sp {
   flex: none;
