@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { DragEvent, KeyboardEvent } from 'react';
 import { useDismissOnOutside } from '@/features/cm-planner/useDismissOnOutside';
 import { clearDeck, dropCard, removeSlot, toggleSlotLb, type DeckState } from './deckOps';
+import type { LimitBreak } from '@/core/types';
 import type { DeckTemplate } from './useDeckState';
 
 export interface DeckCardInfo {
@@ -81,7 +82,11 @@ export function YourDeckCard({
     e.preventDefault();
     setDragIndex(-1);
     const cardId = e.dataTransfer.getData('text/card-id');
-    if (cardId) onChange(dropCard(state, i, cardId));
+    if (!cardId) return;
+    const rawLbStr = e.dataTransfer.getData('text/card-lb');
+    const rawLb = rawLbStr !== '' ? Number(rawLbStr) : NaN;
+    const lb = Number.isInteger(rawLb) && rawLb >= 0 && rawLb <= 4 ? (rawLb as LimitBreak) : undefined;
+    onChange(lb !== undefined ? dropCard(state, i, cardId, lb) : dropCard(state, i, cardId));
   };
 
   return (

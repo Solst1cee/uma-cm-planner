@@ -211,7 +211,7 @@ export function SupportCardPoolCard({
               <PoolTile
                 key={item.cardId}
                 item={item}
-                lb={cardLb[item.cardId] ?? 0}
+                lb={cardLb[item.cardId] ?? 4}
                 onCardLb={onCardLb}
                 inDeck={deckCardIds.has(item.cardId)}
                 onAdd={onAdd}
@@ -225,7 +225,7 @@ export function SupportCardPoolCard({
               <ArtTile
                 key={item.cardId}
                 item={item}
-                lb={cardLb[item.cardId] ?? 0}
+                lb={cardLb[item.cardId] ?? 4}
                 onCardLb={onCardLb}
                 inDeck={deckCardIds.has(item.cardId)}
                 onAdd={onAdd}
@@ -258,6 +258,7 @@ interface PoolTileProps {
 function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTileProps) {
   function handleDragStart(e: React.DragEvent) {
     e.dataTransfer.setData('text/card-id', item.cardId);
+    e.dataTransfer.setData('text/card-lb', String(lb));
   }
 
   return (
@@ -353,6 +354,7 @@ interface ArtTileProps {
 function ArtTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon, skillName }: ArtTileProps) {
   function handleDragStart(e: React.DragEvent) {
     e.dataTransfer.setData('text/card-id', item.cardId);
+    e.dataTransfer.setData('text/card-lb', String(lb));
   }
 
   return (

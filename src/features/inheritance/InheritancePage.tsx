@@ -151,7 +151,6 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     if (!card) return undefined;
     return { typeLabel: TYPE_LABEL[card.type], typeColor: TYPE_COLORS[card.type], name: card.nameEn };
   };
-  const addCardToDeck = (cardId: string) => setDeck(addCard(deck, cardId));
 
   // Pool scoring memos
   const wishlist = useMemo(
@@ -241,7 +240,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             cardLb={cardLb}
             onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
             deckCardIds={new Set(deck.slots.filter(Boolean) as string[])}
-            onAdd={addCardToDeck}
+            onAdd={(id) => setDeck(addCard(deck, id, cardLb[id] ?? 4))}
             renderIcon={(it) => <span className="cmp-portrait-ph">{it.typeLabel}</span>}
             skillName={(id) => skillById.get(id)?.nameEn ?? id}
           />
