@@ -10,6 +10,12 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { useUmas } from '@/features/parents/useUmas';
 import type { SearchItem } from '@/features/parents/SearchPicker';
 import { useGameData } from '@/features/data/gameData';
+import type { LimitBreak } from '@/core/types';
+import { cardRowsByKey, resolveDeckObjects, scoreCards } from '@/core/cardScore';
+import { buildPoolItem } from './poolModel';
+import { useScoreWeights } from './useScoreWeights';
+import { ScoreWeightsPanel } from './ScoreWeightsPanel';
+import { SupportCardPoolCard } from './SupportCardPoolCard';
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
@@ -58,8 +64,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
-  const { cardById } = useGameData();
+  const { cardById, cards, skillById } = useGameData();
+  const { scenario, setScenario, reset } = useScoreWeights();
   const [deck, setDeck] = useDeckState();
+  const [cardLb, setCardLb] = useState<Record<string, LimitBreak>>({});
   const { templates, save, remove, get } = useDeckTemplates();
   const [activeName, setActiveName, activeNameStored] = useActiveTemplateName();
 
@@ -143,9 +151,37 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     if (!card) return undefined;
     return { typeLabel: TYPE_LABEL[card.type], typeColor: TYPE_COLORS[card.type], name: card.nameEn };
   };
-  // The fill seam M1.6's "+ Add" button will call. Referenced now to keep it live.
   const addCardToDeck = (cardId: string) => setDeck(addCard(deck, cardId));
-  void addCardToDeck;
+
+  // Pool scoring memos
+  const wishlist = useMemo(
+    () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
+    [uma1Plan],
+  );
+  const byKey = useMemo(cardRowsByKey, []);
+  const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
+  const rows = useMemo(
+    () =>
+      cards
+        .map((c) => byKey.get(`${c.cardId}:${cardLb[c.cardId] ?? 4}`))
+        .filter(Boolean),
+    [cards, cardLb, byKey],
+  );
+  const scores = useMemo(
+    () => scoreCards(scenario, deckObjs, rows as never),
+    [scenario, deckObjs, rows],
+  );
+  const items = useMemo(
+    () =>
+      cards.map((c) =>
+        buildPoolItem(c, { score: scores.get(c.cardId)?.score, wishlist, lb: cardLb[c.cardId] ?? 4 }),
+      ),
+    [cards, scores, wishlist, cardLb],
+  );
+  const wishlistSkillNames = useMemo(
+    () => [...wishlist].map((id) => ({ id, name: skillById.get(id)?.nameEn ?? id })),
+    [wishlist, skillById],
+  );
 
   const { umas, umaById } = useUmas();
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
@@ -197,7 +233,18 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             onNewTemplate={handleNewTemplate}
             onDeleteTemplate={handleDeleteTemplate}
           />
-          <Placeholder title="Support cards" phase="M1.6" />
+          <ScoreWeightsPanel scenario={scenario} onChange={setScenario} onReset={reset} />
+          <SupportCardPoolCard
+            items={items}
+            wishlistSkillNames={wishlistSkillNames}
+            statsShown={[]}
+            cardLb={cardLb}
+            onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
+            deckCardIds={new Set(deck.slots.filter(Boolean) as string[])}
+            onAdd={addCardToDeck}
+            renderIcon={(it) => <span className="cmp-portrait-ph">{it.typeLabel}</span>}
+            skillName={(id) => skillById.get(id)?.nameEn ?? id}
+          />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>
         <div className="inh-col inh-col-right">

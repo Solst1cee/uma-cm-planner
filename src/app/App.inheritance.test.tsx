@@ -16,7 +16,7 @@ vi.mock('@/features/parents/useUmas', () => ({
 // Stub useGameData (the M1.5 Deck card resolves card art through it) so the route
 // smoke test needs no GameData provider.
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ cardById: new Map() }),
+  useGameData: () => ({ cardById: new Map(), cards: [], skillById: new Map() }),
 }));
 
 import { InheritancePage } from '@/features/inheritance/InheritancePage';

@@ -23,7 +23,7 @@ vi.mock('@/features/parents/useUmas', () => ({
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ cardById: new Map() }),
+  useGameData: () => ({ cardById: new Map(), cards: [], skillById: new Map() }),
 }));
 
 import { InheritancePage } from './InheritancePage';
