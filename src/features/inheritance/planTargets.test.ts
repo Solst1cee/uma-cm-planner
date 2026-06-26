@@ -101,8 +101,30 @@ describe('pinkSparkRows', () => {
     expect(pinkSparkTotal(plan(), uma)).toBe(5); // Medium 4 + Late Surger 1
   });
 
-  it('midRunSparkRows lists aptitudes still needing in-run procs (e.g. Medium C → S)', () => {
-    expect(midRunSparkRows(plan(), uma)).toEqual([{ label: 'Medium', steps: 1 }]);
+  it('includes off-race distances the plan targets (planner-page behavior)', () => {
+    // race is medium, but the plan also stores Sprint S + Mile S targets
+    const p = plan({
+      sparkGoals: {
+        pink: [
+          { aptKey: { kind: 'distance', key: 'short' }, target: 'S' },
+          { aptKey: { kind: 'distance', key: 'mile' }, target: 'S' },
+        ],
+        blue: {},
+      },
+    });
+    const labels = pinkSparkRows(p, uma).map((r) => r.label);
+    expect(labels).toEqual(expect.arrayContaining(['Sprint', 'Mile', 'Medium', 'Late Surger']));
+  });
+
+  it('midRunSparkRows = aptitudes needing in-run procs after career-start maxes (planner filter)', () => {
+    const lowMid: UmaRecord = {
+      ...uma,
+      baseAptitudes: { surface: { turf: 'A', dirt: 'G' }, distance: { short: 'C', mile: 'B', medium: 'G', long: 'A' }, strategy: { front: 'C', pace: 'B', late: 'B', end: 'B' } },
+    };
+    // medium G → S: career-start uses all 4 steps (G→C), still 3 short → Medium ×3
+    expect(midRunSparkRows(plan(), lowMid)).toEqual([{ label: 'Medium', steps: 3 }]);
+    // a C→S target only needs 2 career-start steps, so it is NOT flagged mid-run
+    expect(midRunSparkRows(plan(), uma)).toEqual([]);
   });
 });
 

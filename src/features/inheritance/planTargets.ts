@@ -4,7 +4,7 @@
  *  reuse `umaPlanAptChips` (aptitude + target grade). */
 import type { AptKey, CmPlan, Grade, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
-import { currentAptitudeKeys, targetAptitude } from '@/core/simBuild';
+import { targetAptitude } from '@/core/simBuild';
 import { STAT_LABEL } from '@/features/parents/sparkMeta';
 import { wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 
@@ -102,21 +102,43 @@ function baseGradeFor(uma: UmaRecord, key: AptKey): Grade | undefined {
   return apt.strategy[key.key];
 }
 
+const SURFACE_KEYS: AptKey[] = [
+  { kind: 'surface', key: 'turf' },
+  { kind: 'surface', key: 'dirt' },
+];
+const DISTANCE_KEYS: AptKey[] = [
+  { kind: 'distance', key: 'short' },
+  { kind: 'distance', key: 'mile' },
+  { kind: 'distance', key: 'medium' },
+  { kind: 'distance', key: 'long' },
+];
+
+/**
+ * Every aptitude a plan can carry a pink target on, in the planner sidebar's
+ * order: all surfaces, all distances, then the active strategy. `targetAptitude`
+ * yields a stored goal where set, the active-key default otherwise, and undefined
+ * for untargeted off-race aptitudes (→ 0 stars, dropped). This is why the card
+ * must scan ALL keys — the user can target distances the race isn't run at.
+ */
+function planAptKeys(plan: CmPlan): AptKey[] {
+  return [...SURFACE_KEYS, ...DISTANCE_KEYS, { kind: 'strategy', key: plan.strategy }];
+}
+
 export interface PinkSparkRow {
   label: string;
   stars: number;
 }
 
 /**
- * The plan's pink targets (surface · distance · strategy) as required-star chips,
- * mirroring the planner sidebar: required career-start pink stars to lift the
- * uma's base aptitude to the plan target. Only entries that actually need a spark
- * (stars > 0) are returned. Empty when no uma is resolved.
+ * The plan's pink targets as required-star chips, mirroring the planner sidebar:
+ * required career-start pink stars to lift the uma's base aptitude to each target,
+ * over EVERY targeted aptitude (not just the race's active surface/distance/style).
+ * Only entries that actually need a spark (stars > 0) are returned; empty when no
+ * uma is resolved.
  */
 export function pinkSparkRows(plan: CmPlan, uma: UmaRecord | null): PinkSparkRow[] {
   if (!uma?.baseAptitudes) return [];
-  const keys = currentAptitudeKeys(plan);
-  return [keys.surface, keys.distance, keys.strategy]
+  return planAptKeys(plan)
     .map((key) => ({
       label: aptFullLabel(key),
       stars: pinkAptitudeRequirement(baseGradeFor(uma, key), targetAptitude(plan, key)).stars,
@@ -135,19 +157,19 @@ export interface MidRunSparkRow {
 }
 
 /**
- * Aptitudes that still need in-run pink procs after career-start inheritance
- * (e.g. A→S, or any target beyond the career-start cap) — the "mid-run spark"
- * readout the planner sidebar shows.
+ * Aptitudes that still need in-run pink procs AFTER career-start inheritance is
+ * maxed out — the planner sidebar's "mid-run spark" readout. Matches the planner
+ * filter exactly: career-start used all 4 steps and the target is still short.
  */
 export function midRunSparkRows(plan: CmPlan, uma: UmaRecord | null): MidRunSparkRow[] {
   if (!uma?.baseAptitudes) return [];
-  const keys = currentAptitudeKeys(plan);
-  return [keys.surface, keys.distance, keys.strategy]
+  return planAptKeys(plan)
     .map((key) => ({
       label: aptFullLabel(key),
-      steps: pinkAptitudeRequirement(baseGradeFor(uma, key), targetAptitude(plan, key)).inRunStepsNeeded,
+      req: pinkAptitudeRequirement(baseGradeFor(uma, key), targetAptitude(plan, key)),
     }))
-    .filter((row) => row.steps > 0);
+    .filter((row) => row.req.steps === 4 && row.req.inRunStepsNeeded > 0)
+    .map((row) => ({ label: row.label, steps: row.req.inRunStepsNeeded }));
 }
 
 export interface WishlistRow {
