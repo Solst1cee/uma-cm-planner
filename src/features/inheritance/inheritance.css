@@ -142,26 +142,31 @@
   border-top-right-radius: var(--cmp-card-radius);
   padding-block: 0.37rem;
 }
+/* One shared chip width so blue + pink + mid-run chips are all equal size. */
+.inh-targets-body { --inh-chip-w: 8.6rem; }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* Blue sparks: a 3-column grid so every chip is compact + equal to the widest one
-   (chip | stepper | delete), left-packed. */
+/* Blue sparks: chip | stepper | delete per row; chip takes the shared width. */
 .inh-blue-list {
   list-style: none;
   margin: 0 0 0.5rem;
   padding: 0;
   display: grid;
-  grid-template-columns: max-content max-content max-content;
+  grid-template-columns: var(--inh-chip-w) max-content max-content;
   justify-content: start;
   align-items: center;
   gap: 0.32rem 0.45rem;
 }
 .inh-blue-list > li { display: contents; }
 .inh-span-all { grid-column: 1 / -1; }
-/* Compact chip filling its (max-content) grid column → all equal to the longest. */
+/* Every spark chip: one fixed width (equal across sections), left-aligned. */
 .inh-spark-chip {
+  box-sizing: border-box;
+  width: var(--inh-chip-w);
   text-align: left;
-  padding: 0.18rem 0.55rem;
+  padding: 0.2rem 0.55rem;
   font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* Blue spark chip — in-game blue (the cmp-spark-chip base is pink). */
 .inh-blue-chip {
@@ -169,7 +174,14 @@
   background: #e6f0fb;
   color: #1f5bb5;
 }
-.inh-pink-chips { justify-content: flex-start; margin-bottom: 0.5rem; }
+/* Pink + mid-run: one chip per row (vertical). */
+.inh-pink-chips {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
 .inh-warn {
   margin: 0 0 0.5rem;
   color: var(--error, #c2414b);

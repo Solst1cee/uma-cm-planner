@@ -126,7 +126,7 @@ export function PlanTargetsCard({
               <span className="cmp-spark-empty">none required</span>
             ) : (
               pinkRows.map((r) => (
-                <span className="cmp-spark-chip" key={r.label}>
+                <span className="cmp-spark-chip inh-spark-chip" key={r.label}>
                   {r.label} ★{r.stars}
                 </span>
               ))
@@ -134,8 +134,7 @@ export function PlanTargetsCard({
           </div>
           {pinkComputable && pinkOver && (
             <p className="inh-warn" role="alert">
-              ⚠ Needs {pinkTotal}★ of pink sparks — over the {PINK_TOTAL_MAX}★ a lineage can supply.
-              Lower a target aptitude or pick a uma with better base aptitudes.
+              ⚠ {pinkTotal}/{PINK_TOTAL_MAX}★ pink — over budget.
             </p>
           )}
 
@@ -145,7 +144,7 @@ export function PlanTargetsCard({
               <div className="cmp-mini-label">Mid-run spark</div>
               <div className="cmp-spark-chip-list inh-pink-chips">
                 {midRunRows.map((r) => (
-                  <span className="cmp-spark-chip" key={r.label}>
+                  <span className="cmp-spark-chip inh-spark-chip" key={r.label}>
                     {r.label} ×{r.steps}
                   </span>
                 ))}
