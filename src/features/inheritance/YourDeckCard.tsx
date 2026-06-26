@@ -3,8 +3,9 @@
  *  The page resolves cardId → DeckCardInfo and passes it in (this component never
  *  calls useGameData/GameIcon, per the M1 provider-free convention). Drag-drop uses
  *  standard HTML5 DnD ('text/card-id') so M1.6's card pool plugs in with no coupling. */
-import { useState } from 'react';
-import type { DragEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { DragEvent, KeyboardEvent } from 'react';
+import { useDismissOnOutside } from '@/features/cm-planner/useDismissOnOutside';
 import { clearDeck, dropCard, removeSlot, toggleSlotLb, type DeckState } from './deckOps';
 import type { DeckTemplate } from './useDeckState';
 
@@ -19,8 +20,15 @@ export interface YourDeckCardProps {
   onChange: (next: DeckState) => void;
   resolveCard: (cardId: string) => DeckCardInfo | undefined;
   templates: DeckTemplate[];
-  onSaveTemplate: (name: string) => void;
-  onLoadTemplate: (name: string) => void;
+  /** Name of the template the deck currently autosaves into ('' = unnamed working deck). */
+  activeName: string;
+  /** Commit the name field — create the active template under this name, rename it, or ('') detach. */
+  onRename: (name: string) => void;
+  /** Load an existing template by name and make it active. */
+  onSelectTemplate: (name: string) => void;
+  /** Start a "New" deck: keep the current cards, blank the name (detach from any template). */
+  onNewTemplate: () => void;
+  /** Delete the active template. */
   onDeleteTemplate: (name: string) => void;
 }
 
@@ -31,13 +39,31 @@ export function YourDeckCard({
   onChange,
   resolveCard,
   templates,
-  onSaveTemplate,
-  onLoadTemplate,
+  activeName,
+  onRename,
+  onSelectTemplate,
+  onNewTemplate,
   onDeleteTemplate,
 }: YourDeckCardProps) {
-  const [name, setName] = useState('');
-  const [selected, setSelected] = useState('');
+  const [draftName, setDraftName] = useState(activeName);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [dragIndex, setDragIndex] = useState(-1);
+  const comboRef = useRef<HTMLDivElement>(null);
+  useDismissOnOutside(comboRef, menuOpen, () => setMenuOpen(false), { esc: true });
+
+  // Keep the editable field in sync when the active template changes externally (load / New).
+  useEffect(() => setDraftName(activeName), [activeName]);
+
+  const commitName = () => {
+    const v = draftName.trim();
+    if (v !== activeName) onRename(v);
+  };
+  const onNameKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commitName();
+      e.currentTarget.blur();
+    }
+  };
 
   const handleDrop = (i: number) => (e: DragEvent) => {
     e.preventDefault();
@@ -51,51 +77,62 @@ export function YourDeckCard({
       <div className="inh-deck-head">Deck</div>
       <div className="inh-deck-body">
         <div className="inh-deck-tools">
-          <input
-            type="text"
-            className="inh-deck-tplname"
-            value={name}
-            placeholder="Template name"
-            onChange={(e) => setName(e.target.value)}
-          />
+          <div className="inh-deck-combo" ref={comboRef}>
+            <input
+              type="text"
+              className="inh-deck-tplname"
+              value={draftName}
+              placeholder="Unsaved deck — type to name"
+              onChange={(e) => setDraftName(e.target.value)}
+              onBlur={commitName}
+              onKeyDown={onNameKey}
+            />
+            <button
+              type="button"
+              className="inh-deck-combo-caret"
+              aria-label="Templates"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              ▾
+            </button>
+            {menuOpen && (
+              <ul className="inh-deck-combo-menu" role="listbox">
+                <li>
+                  <button
+                    type="button"
+                    className="inh-deck-combo-item inh-deck-combo-new"
+                    onClick={() => {
+                      onNewTemplate();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    ＋ New
+                  </button>
+                </li>
+                {templates.map((t) => (
+                  <li key={t.name}>
+                    <button
+                      type="button"
+                      className={`inh-deck-combo-item${t.name === activeName ? ' is-active' : ''}`}
+                      onClick={() => {
+                        onSelectTemplate(t.name);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      {t.name}
+                    </button>
+                  </li>
+                ))}
+                {templates.length === 0 && <li className="inh-deck-combo-empty">No saved templates</li>}
+              </ul>
+            )}
+          </div>
           <button
             type="button"
             className="cmp-small-btn"
-            disabled={!name.trim()}
-            onClick={() => {
-              onSaveTemplate(name.trim());
-              setName('');
-            }}
-          >
-            Save
-          </button>
-          <select
-            className="inh-deck-tplsel"
-            aria-label="Load template"
-            value={selected}
-            onChange={(e) => {
-              const v = e.target.value;
-              setSelected(v);
-              if (v) onLoadTemplate(v);
-            }}
-          >
-            <option value="">Load template…</option>
-            {templates.map((t) => (
-              <option key={t.name} value={t.name}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="cmp-small-btn"
-            disabled={!selected}
-            onClick={() => {
-              if (selected) {
-                onDeleteTemplate(selected);
-                setSelected('');
-              }
-            }}
+            disabled={!activeName}
+            onClick={() => activeName && onDeleteTemplate(activeName)}
           >
             Del
           </button>

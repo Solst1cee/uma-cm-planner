@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
-import { useDeckState, useDeckTemplates } from './useDeckState';
+import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, emptyDeck } from './deckOps';
 
 afterEach(cleanup);
@@ -87,5 +87,43 @@ describe('useDeckTemplates', () => {
     expect(result.current.templates).toHaveLength(2);
     expect(result.current.get('alpha')!.slots[0]).toBe('c1');
     expect(result.current.get('beta')!.slots[0]).toBe('c2');
+  });
+});
+
+describe('useActiveTemplateName', () => {
+  it("starts '' when nothing is stored", () => {
+    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    expect(result.current[0]).toBe('');
+  });
+
+  it('autosaves the name to scb_deck_active:<planId>', () => {
+    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    act(() => result.current[1]('aggro'));
+    expect(result.current[0]).toBe('aggro');
+    expect(localStorage.getItem('scb_deck_active:plan-1')).toBe('aggro');
+  });
+
+  it('loads a stored name on mount', () => {
+    localStorage.setItem('scb_deck_active:plan-1', 'control');
+    const { result } = renderHook(() => useActiveTemplateName('plan-1'));
+    expect(result.current[0]).toBe('control');
+  });
+
+  it('swaps the name when planId changes', () => {
+    localStorage.setItem('scb_deck_active:plan-1', 'a');
+    localStorage.setItem('scb_deck_active:plan-2', 'b');
+    const { result, rerender } = renderHook(({ id }) => useActiveTemplateName(id), {
+      initialProps: { id: 'plan-1' },
+    });
+    expect(result.current[0]).toBe('a');
+    rerender({ id: 'plan-2' });
+    expect(result.current[0]).toBe('b');
+  });
+
+  it('does not write when planId is undefined', () => {
+    const { result } = renderHook(() => useActiveTemplateName(undefined));
+    act(() => result.current[1]('aggro'));
+    expect(result.current[0]).toBe('aggro');
+    expect(localStorage.length).toBe(0);
   });
 });

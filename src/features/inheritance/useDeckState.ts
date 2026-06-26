@@ -2,12 +2,14 @@
 /** M1.5 deck persistence (local-first, P2). Guarded localStorage like
  *  useStaminaWarnThreshold — a corrupt/missing value can never break the panel.
  *   - working deck autosaves per active plan:  scb_deck:<planId>
+ *   - active template name per plan:           scb_deck_active:<planId>
  *   - named templates:                         scb_profiles  (JSON array) */
 import { useEffect, useRef, useState } from 'react';
 import type { LimitBreak } from '@/core/types';
 import { type DeckState, emptyDeck, isValidDeckState } from './deckOps';
 
 const deckKey = (planId: string) => `scb_deck:${planId}`;
+const activeKey = (planId: string) => `scb_deck_active:${planId}`;
 const TEMPLATES_KEY = 'scb_profiles';
 
 export interface DeckTemplate {
@@ -54,6 +56,43 @@ export function useDeckState(planId: string | undefined): [DeckState, (next: Dec
   };
 
   return [state, set];
+}
+
+function readActiveName(planId: string): string {
+  try {
+    return localStorage.getItem(activeKey(planId)) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** The active template name for a plan (the deck the editor is currently autosaving into).
+ *  '' = an unnamed working deck. Loads on planId change, autosaves on set.
+ *  planId undefined → in-memory only, no persistence. */
+export function useActiveTemplateName(planId: string | undefined): [string, (name: string) => void] {
+  const [name, setNameState] = useState<string>(() => (planId ? readActiveName(planId) : ''));
+
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+    setNameState(planId ? readActiveName(planId) : '');
+  }, [planId]);
+
+  const set = (next: string) => {
+    setNameState(next);
+    if (planId) {
+      try {
+        localStorage.setItem(activeKey(planId), next);
+      } catch {
+        /* storage unavailable */
+      }
+    }
+  };
+
+  return [name, set];
 }
 
 function readTemplates(): DeckTemplate[] {

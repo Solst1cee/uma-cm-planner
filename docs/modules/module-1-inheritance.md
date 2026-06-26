@@ -31,14 +31,20 @@ Validated: `winBonus` synthetic fixtures, `spark.ts` de-approx, rental-tier thre
 
 ## M1.5 "Your deck" card (2026-06-26)
 
-The center-column **"Your deck"** panel landed: a 6-slot support-card deck with
-drag-drop (HTML5 DnD `text/card-id`), per-slot limit-break diamond steppers,
-remove/clear, and named templates. State is a dedicated `DeckState` (NOT
-`CmPlan.lockedDeckSlots` — that is M4's suggester concept), **autosaved per active
-plan** to `localStorage` (`scb_deck:<planId>`), with templates in `scb_profiles`.
-Files: `deckOps.ts` (pure), `useDeckState.ts` (persistence), `YourDeckCard.tsx`
-(provider-free panel). The fill seam `addCardToDeck(cardId)` + the drop target are
-built and tested; the interactive drag *source* / "+ Add" button arrive with **M1.6**
+The center-column **"Deck"** panel landed: a 6-slot support-card deck with
+drag-drop (HTML5 DnD `text/card-id`), per-slot limit-break diamond steppers, and
+remove/clear. State is a dedicated `DeckState` (NOT `CmPlan.lockedDeckSlots` —
+that is M4's suggester concept), **autosaved per active plan** to `localStorage`
+(`scb_deck:<planId>`). **Templates use an autosave combobox** (no Save/Load
+buttons): the name field both names the active template and, via a caret
+dropdown, loads a saved template or starts **"New"** (keep cards, blank name);
+editing the deck **live-autosaves into the active template** (`scb_profiles`),
+with the active name persisted per plan (`scb_deck_active:<planId>`). Files:
+`deckOps.ts` (pure), `useDeckState.ts` (persistence — `useDeckState` /
+`useDeckTemplates` / `useActiveTemplateName`), `YourDeckCard.tsx` (provider-free
+panel; CM-planner card-head grammar + `minmax(360px,26rem)` sidebars / 720px
+center). The fill seam `addCardToDeck(cardId)` + the drop target are built and
+tested; the interactive drag *source* / "+ Add" button arrive with **M1.6**
 (support-card pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
 
 ## Next (Plans 3–5)

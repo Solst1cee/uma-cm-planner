@@ -17,8 +17,10 @@ function renderCard(over: Partial<ComponentProps<typeof YourDeckCard>> = {}) {
     onChange,
     resolveCard,
     templates: [],
-    onSaveTemplate: vi.fn(),
-    onLoadTemplate: vi.fn(),
+    activeName: '',
+    onRename: vi.fn(),
+    onSelectTemplate: vi.fn(),
+    onNewTemplate: vi.fn(),
     onDeleteTemplate: vi.fn(),
     ...over,
   };
@@ -66,20 +68,45 @@ describe('YourDeckCard', () => {
     expect(onChange).toHaveBeenCalledWith(dropCard(emptyDeck(), 0, 'c1'));
   });
 
-  it('Save fires onSaveTemplate with the typed name', () => {
-    const { onSaveTemplate } = renderCard();
-    fireEvent.change(screen.getByPlaceholderText('Template name'), { target: { value: 'aggro' } });
-    fireEvent.click(screen.getByText('Save'));
-    expect(onSaveTemplate).toHaveBeenCalledWith('aggro');
+  it('shows the active template name in the combobox field', () => {
+    renderCard({ activeName: 'aggro' });
+    expect(screen.getByPlaceholderText(/type to name/i)).toHaveValue('aggro');
   });
 
-  it('selecting a template fires onLoadTemplate; Del is disabled until selection', () => {
-    const { onLoadTemplate } = renderCard({
+  it('committing the name field (Enter) fires onRename with the trimmed value', () => {
+    const { onRename } = renderCard();
+    const field = screen.getByPlaceholderText(/type to name/i);
+    fireEvent.change(field, { target: { value: '  aggro  ' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onRename).toHaveBeenCalledWith('aggro');
+  });
+
+  it('opening the dropdown and picking a template fires onSelectTemplate', () => {
+    const { onSelectTemplate } = renderCard({
       templates: [{ name: 'aggro', slots: emptyDeck().slots, slotLb: emptyDeck().slotLb }],
     });
+    fireEvent.click(screen.getByLabelText('Templates')); // caret
+    fireEvent.click(screen.getByText('aggro'));
+    expect(onSelectTemplate).toHaveBeenCalledWith('aggro');
+  });
+
+  it('picking "New" fires onNewTemplate', () => {
+    const { onNewTemplate } = renderCard({ activeName: 'aggro' });
+    fireEvent.click(screen.getByLabelText('Templates'));
+    fireEvent.click(screen.getByText('＋ New'));
+    expect(onNewTemplate).toHaveBeenCalled();
+  });
+
+  it('Del is disabled when there is no active template', () => {
+    renderCard({ activeName: '' });
     expect(screen.getByText('Del')).toBeDisabled();
-    fireEvent.change(screen.getByLabelText('Load template'), { target: { value: 'aggro' } });
-    expect(onLoadTemplate).toHaveBeenCalledWith('aggro');
-    expect(screen.getByText('Del')).not.toBeDisabled();
+  });
+
+  it('Del fires onDeleteTemplate with the active name', () => {
+    const { onDeleteTemplate } = renderCard({ activeName: 'aggro' });
+    const del = screen.getByText('Del');
+    expect(del).not.toBeDisabled();
+    fireEvent.click(del);
+    expect(onDeleteTemplate).toHaveBeenCalledWith('aggro');
   });
 });

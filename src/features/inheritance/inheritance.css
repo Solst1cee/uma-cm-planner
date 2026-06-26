@@ -118,10 +118,61 @@ main:has(.inh-page) {
   align-items: center;
   flex-wrap: nowrap;
 }
-/* searchbar-style name field fills the row; the action controls stay on the same line beside it */
-.inh-deck-tplname { flex: 1 1 auto; min-width: 4rem; padding: 0.25rem 0.45rem; font-size: 0.78rem; }
-.inh-deck-tplsel { flex: none; width: auto; padding: 0.25rem 0.4rem; font-size: 0.78rem; }
 .inh-deck-tools .cmp-small-btn { flex: none; }
+
+/* Template combobox: a name field that autosaves + a caret dropdown to load templates / "New". */
+.inh-deck-combo { position: relative; flex: 1 1 auto; min-width: 6rem; display: flex; }
+.inh-deck-tplname {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.78rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.inh-deck-combo-caret {
+  flex: none;
+  border: 1px solid var(--border);
+  border-left: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  padding: 0 0.45rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+.inh-deck-combo-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.2rem;
+  list-style: none;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  box-shadow: var(--ds-card-shadow, 0 6px 18px rgb(36 54 78 / 0.12));
+}
+.inh-deck-combo-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--fg);
+}
+.inh-deck-combo-item:hover { background: var(--bg-2); }
+.inh-deck-combo-item.is-active { font-weight: 700; color: var(--accent); }
+.inh-deck-combo-new { color: var(--accent); font-weight: 600; }
+.inh-deck-combo-empty { padding: 0.3rem 0.45rem; font-size: 0.74rem; color: var(--fg-muted); }
 
 .inh-deck-slots {
   display: grid;

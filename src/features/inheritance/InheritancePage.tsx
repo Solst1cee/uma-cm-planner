@@ -14,7 +14,7 @@ import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
-import { useDeckState, useDeckTemplates } from './useDeckState';
+import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
 
@@ -61,6 +61,36 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const { cardById } = useGameData();
   const [deck, setDeck] = useDeckState(uma1Plan?.id);
   const { templates, save, remove, get } = useDeckTemplates();
+  const [activeName, setActiveName] = useActiveTemplateName(uma1Plan?.id);
+
+  // Autosave: while a template is active, every deck edit live-updates that template.
+  useEffect(() => {
+    if (activeName) save(activeName, deck);
+    // `save` is recreated each render; key on the deck + active name only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deck, activeName]);
+
+  const handleSelectTemplate = (name: string) => {
+    const t = get(name);
+    if (t) setDeck({ slots: t.slots.slice(), slotLb: t.slotLb.slice() });
+    setActiveName(name);
+  };
+  // "New": keep the current cards, blank the name (detach from any template).
+  const handleNewTemplate = () => setActiveName('');
+  const handleRename = (name: string) => {
+    if (name === activeName) return;
+    if (name) {
+      if (activeName) remove(activeName); // move the template to the new name
+      save(name, deck);
+      setActiveName(name);
+    } else {
+      setActiveName(''); // cleared the field → detach (the template keeps its old name)
+    }
+  };
+  const handleDeleteTemplate = (name: string) => {
+    remove(name);
+    setActiveName('');
+  };
 
   const resolveCard = (cardId: string): DeckCardInfo | undefined => {
     const card = cardById.get(cardId);
@@ -115,12 +145,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             onChange={setDeck}
             resolveCard={resolveCard}
             templates={templates}
-            onSaveTemplate={(name) => save(name, deck)}
-            onLoadTemplate={(name) => {
-              const t = get(name);
-              if (t) setDeck({ slots: t.slots.slice(), slotLb: t.slotLb.slice() });
-            }}
-            onDeleteTemplate={remove}
+            activeName={activeName}
+            onRename={handleRename}
+            onSelectTemplate={handleSelectTemplate}
+            onNewTemplate={handleNewTemplate}
+            onDeleteTemplate={handleDeleteTemplate}
           />
           <Placeholder title="Support cards" phase="M1.6" />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
