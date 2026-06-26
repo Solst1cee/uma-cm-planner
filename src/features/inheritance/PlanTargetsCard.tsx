@@ -18,6 +18,8 @@ export interface PlanTargetsCardProps {
   onToggleCollapsed: () => void;
   blueRows: BlueSparkRow[];
   blueTotal: number;
+  /** False when the plan's uma can't be resolved → pink/mid-run can't be computed. */
+  pinkComputable: boolean;
   pinkRows: PinkSparkRow[];
   pinkTotal: number;
   midRunRows: MidRunSparkRow[];
@@ -34,6 +36,7 @@ export function PlanTargetsCard({
   onToggleCollapsed,
   blueRows,
   blueTotal,
+  pinkComputable,
   pinkRows,
   pinkTotal,
   midRunRows,
@@ -117,7 +120,9 @@ export function PlanTargetsCard({
           {/* Pink sparks — required career-start stars */}
           <div className="cmp-mini-label">Pink sparks</div>
           <div className="cmp-spark-chip-list inh-pink-chips">
-            {pinkRows.length === 0 ? (
+            {!pinkComputable ? (
+              <span className="cmp-spark-empty">Select this plan's uma to compute pink requirements.</span>
+            ) : pinkRows.length === 0 ? (
               <span className="cmp-spark-empty">none required</span>
             ) : (
               pinkRows.map((r) => (
@@ -127,7 +132,7 @@ export function PlanTargetsCard({
               ))
             )}
           </div>
-          {pinkOver && (
+          {pinkComputable && pinkOver && (
             <p className="inh-warn" role="alert">
               ⚠ Needs {pinkTotal}★ of pink sparks — over the {PINK_TOTAL_MAX}★ a lineage can supply.
               Lower a target aptitude or pick a uma with better base aptitudes.
@@ -135,7 +140,7 @@ export function PlanTargetsCard({
           )}
 
           {/* Mid-run pink procs still needed after career-start inheritance */}
-          {midRunRows.length > 0 && (
+          {pinkComputable && midRunRows.length > 0 && (
             <>
               <div className="cmp-mini-label">Mid-run spark</div>
               <div className="cmp-spark-chip-list inh-pink-chips">

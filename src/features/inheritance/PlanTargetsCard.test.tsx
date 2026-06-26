@@ -13,6 +13,7 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
     { stat: 'pow', label: 'Power', stars: 3 },
   ],
   blueTotal: 9,
+  pinkComputable: true,
   pinkRows: [
     { label: 'Medium', stars: 4 },
     { label: 'Late Surger', stars: 1 },
@@ -63,6 +64,12 @@ describe('PlanTargetsCard', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/over the 18★/);
     expect(screen.getByText('Mid-run spark')).toBeInTheDocument();
     expect(screen.getByText('Medium ×1')).toBeInTheDocument();
+  });
+
+  it('explains, instead of "none required", when the uma is unresolved', () => {
+    render(<PlanTargetsCard {...baseProps({ pinkComputable: false, pinkRows: [], midRunRows: [] })} />);
+    expect(screen.getByText(/Select this plan's uma/)).toBeInTheDocument();
+    expect(screen.queryByText('none required')).not.toBeInTheDocument();
   });
 
   it('the add-stat select adds a blue spark', () => {
