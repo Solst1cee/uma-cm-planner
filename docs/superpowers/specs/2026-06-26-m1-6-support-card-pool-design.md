@@ -43,24 +43,41 @@ with M1.6 (support-card pool)."* This card delivers it.
 ## Vendoring (P1 reuse-first)
 
 Source: [`Euophrys/umamusume-tierlist`](https://github.com/Euophrys/umamusume-tierlist), **MIT**.
-Vendor verbatim under `src/vendor/uma-tiers/` (mirrors the vendored-racetrack pattern; scoped
-`@ts-nocheck` / thin `.d.ts` shims where the JS trips strict TS):
+Source branch is **`main`** (not `master`; raw `master` URLs 404). Vendor verbatim under
+`src/vendor/uma-tiers/` (mirrors the vendored-racetrack pattern; scoped `@ts-nocheck` / thin
+`.d.ts` shims where the JS trips strict TS):
 
 - `tierlist-calc.js` — the ~550-line `processCards(cards, weights, selectedCards)` scorer.
-- `cards/gl.js` — per-`(card, limit_break)` stat inputs (`tb`/`mb`/`fs_*`/`stat_bonus[6]`/
-  `specialty_rate`/`race_bonus`/`hint_rate`/…). 5 rows per card.
-- `card-events.js` — event-id → 8-stat-bonus arrays (euophrys-maintained, not us).
-- The `getDefaultScenario('global')` defaults (stat weights, race counts, bond rate, scenario
-  bonus, stat cap) — lifted verbatim as our `DEFAULT_WEIGHTS`.
+  Returns rows sorted desc by score: `{ id, lb, score, info, char_name }`.
+- `cards/gl.js` — **1130 rows = 226 card ids × 5 limit-breaks (0–4)**; 33 fields each
+  (`tb`/`mb`/`fs_*`/`stat_bonus[6]`/`specialty_rate`/`race_bonus`/`starting_stats[5]`/`sb`/…).
+- `card-events.js` — event-id → 8-stat-bonus arrays (euophrys-maintained, not us). **Required**:
+  `processCards` imports it; without it the event/bond branch silently degrades.
+- `scenarios.js` — the scenario defaults. **The Global default is the `MANT` scenario with a
+  `bondPerDay: 10` override** (`getDefaultScenario('gl')`), NOT the `GL`-keyed scenario. Lifted
+  verbatim as our `DEFAULT_WEIGHTS`.
+
+**Contract gotchas (from source):**
+- **`weights` is a FLAT object** = `{ ...activeStatTypeSubObject, ...general }` — `processCards`
+  reads `weights.type`, `weights.stats[7]`, `weights.cap`, `weights.minimum`, `weights.races[4]`,
+  `weights.bondPerDay`, `weights.umaBonus[6]`, `weights.multi`, `weights.motivation`,
+  `weights.*TrainingGain`, etc. Our wrapper reproduces the `{...stat, ...general}` merge.
+- **Scoring is per training type.** A card is scored under **its own type's** stat weights
+  (`type` 0–4 = spd/sta/pow/guts/wit, 6 = friend/group), as the marginal addition to the deck.
+- **`selectedCards` (deck context) are card OBJECTS**, not ids — resolved from our deck slots
+  (`cardId` + slot LB → the `gl.js` row at that `limit_break`), deep-cloned + mutated inside.
+- `hint_rate`/`fail_rate_down` exist on records but are **not** read by the scorer.
 
 **Join:** euophrys `id` ≡ our `SupportCardRecord.cardId` (both are master support-card ids,
-e.g. `10001`, `30028`). Clean `Map` lookup; no id remapping.
+e.g. `10001`, `30028`). Clean `Map` lookup; no id remapping. The displayed tile uses the
+`gl.js` row at the card's current pool-LB.
 
 **Provenance:** record the repo URL, the pinned commit, retrieval date, MIT license, and the
 "training-power, off-axis from inheritance" caveat in `docs/provenance.md`.
 
-**Maintenance:** re-pull the three vendored files on euophrys' update cadence (same as our
-umalator engine pin). We hand-maintain **no** card-stat or event data ourselves.
+**Maintenance:** re-pull the four vendored files (`tierlist-calc.js`, `cards/gl.js`,
+`card-events.js`, `scenarios.js`) on euophrys' update cadence (same as our umalator engine pin).
+We hand-maintain **no** card-stat or event data ourselves.
 
 ## Architecture
 
@@ -71,9 +88,15 @@ nodes in), `inh-deck`/`cmp-plan-card` card grammar, browser-local persistence.
 ### Core math (`src/core/`, pure + unit-tested)
 
 - **`cardScore.ts`** — wraps the vendored `processCards`:
-  - `scoreCards(weights, deck): Map<cardId, { score: number; lb: LimitBreak }>` — deck-context
-    is the current 6 slots (marginal scoring, like euophrys).
-  - `DEFAULT_WEIGHTS` — lifted from `getDefaultScenario('global')`.
+  - `scoreCards(scenario, deckObjs, rows): Map<cardId, { score: number; lb: LimitBreak }>` —
+    groups `rows` (the gl.js records to display, at each card's pool-LB) **by training type**,
+    and for each type calls `processCards(rowsOfType, mergeWeights(scenario, type), deckObjs)`
+    where `mergeWeights` = `{ ...scenario[typeKey], ...scenario.general }`. Deck-context
+    (`deckObjs`) = the current 6 slots resolved to gl.js objects at slot LB (marginal scoring,
+    like euophrys). Merges per-type results into one Map.
+  - `resolveDeckObjects(deck, byId): CardObj[]` — deck slots → gl.js rows at slot LB.
+  - `DEFAULT_WEIGHTS` (the full scenario object) — lifted verbatim from `getDefaultScenario('gl')`
+    (= MANT + `bondPerDay:10`).
   - `ScoreWeights` type — **the full set of knobs euophrys' own Weights panel exposes** (we mirror
     their site 1:1): the 7 stat weights (speed/stamina/power/guts/wisdom/skill-points/energy),
     race counts (G1, G2–3, OP), bond rate (bonds/day), scenario/spec bonus, the multiplier,
@@ -96,10 +119,20 @@ nodes in), `inh-deck`/`cmp-plan-card` card grammar, browser-local persistence.
 ### Components (provider-free)
 
 - **`ScoreWeightsPanel.tsx`** — collapsible "Scoring weights" control mirroring euophrys' own
-  Weights panel 1:1: the 7 stat-weight inputs, race counts (G1 / G2–3 / OP), bond rate,
-  scenario/spec bonus, multiplier, motivation, stat cap, minimum training score, per-stat uma
-  bonuses — same ranges/steps as their site — plus "Reset to defaults". Honest caption
-  (training-power, URA, via euophrys; affects Effect only).
+  Weights panel 1:1 (their `Weights.jsx`, in render order):
+  - **6 training-type tabs** (Speed/Stamina/Power/Guts/Wisdom/Friend) selecting the active
+    `currentState`; the stat-weight + cap + minimum + prioritize/onlySummer controls below edit
+    **that type's** sub-object.
+  - A **"Customize settings"** toggle gating: Bond Rate (`min1 max40 step0.5`), Optional Races
+    G1/G2-3/OP (`0–30 step1`), Multiplier (`1–2.2 step0.05`) + Spec Bonus (`-1–95 step5`),
+    7 Stat Weights spd/sta/pow/guts/wit/**SkillPts**/**Energy** (`0–3 step0.1`), Motivation
+    slider (`-0.2–0.2 step0.05`), Stat Cap slider (`300–1000 step20`), Min Train Score slider
+    (`0–50 step1`), and (non-friend types) Prioritize + Only-Summer checkboxes; plus scenario
+    preset buttons (GM/GL/MANT/Aoharu/URA).
+  - **Uma's Bonuses** — 5 inputs spd/sta/pow/guts/wis (`0.7–1.3 step0.01`), shown **outside** the
+    customize gate (matching their layout).
+  - Plus "Reset to defaults". Honest caption (training-power, URA scenario, via euophrys; affects
+    the Effect score only).
 - **`SupportCardPoolCard.tsx`** — the §5 panel (replaces the `M1.6` placeholder):
   - **Header:** caret + "Support cards" + "{n} shown"; right side = view toggle **Icon · Art ·
     Plot** + sort **Matches · Effect** (sort hidden in Plot).
