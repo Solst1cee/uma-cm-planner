@@ -241,7 +241,9 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
             deckCardIds={new Set(deck.slots.filter(Boolean) as string[])}
             onAdd={(id) => setDeck(addCard(deck, id, cardLb[id] ?? 4))}
-            renderIcon={(it) => <span className="cmp-portrait-ph">{it.typeLabel}</span>}
+            renderIcon={(it, size) => (
+              <GameIcon kind="card" id={it.cardId} size={size} alt="" className="inh-pool-card-img" />
+            )}
             skillName={(id) => skillById.get(id)?.nameEn ?? id}
           />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />

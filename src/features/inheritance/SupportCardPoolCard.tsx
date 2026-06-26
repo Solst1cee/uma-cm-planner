@@ -24,7 +24,7 @@ export interface SupportCardPoolCardProps {
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   deckCardIds: ReadonlySet<string>;
   onAdd: (cardId: string) => void;
-  renderIcon: (item: PoolItem) => React.ReactNode;
+  renderIcon: (item: PoolItem, size: number) => React.ReactNode;
   /** Map a skill id to its display name. Defaults to the raw id. */
   skillName?: (id: string) => string;
 }
@@ -252,7 +252,7 @@ interface PoolTileProps {
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   inDeck: boolean;
   onAdd: (cardId: string) => void;
-  renderIcon: (item: PoolItem) => React.ReactNode;
+  renderIcon: (item: PoolItem, size: number) => React.ReactNode;
 }
 
 function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTileProps) {
@@ -268,7 +268,7 @@ function PoolTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon }: PoolTilePro
       onDragStart={handleDragStart}
     >
       {/* Icon */}
-      <div className="inh-pool-tile-icon">{renderIcon(item)}</div>
+      <div className="inh-pool-tile-icon">{renderIcon(item, 44)}</div>
 
       {/* Name */}
       <span className="inh-pool-tile-name" data-testid="pool-card-name">
@@ -347,7 +347,7 @@ interface ArtTileProps {
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   inDeck: boolean;
   onAdd: (cardId: string) => void;
-  renderIcon: (item: PoolItem) => React.ReactNode;
+  renderIcon: (item: PoolItem, size: number) => React.ReactNode;
   skillName: (id: string) => string;
 }
 
@@ -365,7 +365,7 @@ function ArtTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon, skillName }: A
     >
       {/* Art / icon column */}
       <div className="inh-pool-art-icon" style={{ background: item.typeColor }}>
-        {renderIcon(item)}
+        {renderIcon(item, 56)}
       </div>
 
       {/* Content column */}

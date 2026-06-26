@@ -5,10 +5,13 @@ import '@testing-library/jest-dom/vitest';
 vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: { umaId: 'u1', name: 'Test plan', planNumber: 1, wishlist: [], sparkGoals: { blue: [], pink: [] }, cmRef: { kind: 'cm', cmId: 'CM1', cmNumber: 1, courseId: '10906', surface: 'turf', distance: 2400 } }, plan: null, setPlan: vi.fn() }) }));
 vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umas: [], umaById: new Map() }), umaName: (_: unknown, id: string) => id }));
 vi.mock('@/features/data/gameData', () => ({
+  BASE_URL: '/',
   useGameData: () => ({
     cardById: new Map(),
     skillById: new Map(),
     cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [] }],
+    // GameIcon resolves a card image only when the id is in the manifest.
+    iconManifest: { dataVersion: 'test', format: 'webp', skill: [], card: ['30028'], uma: [] },
   }),
 }));
 import { InheritancePage } from './InheritancePage';
@@ -18,6 +21,16 @@ it('renders the support-card pool with a card', async () => {
   render(<InheritancePage deps={{ loadCatalog: () => Promise.resolve([]) }} />);
   await waitFor(() => expect(screen.getByText('Support cards')).toBeInTheDocument());
   expect(screen.getByText('Kitasan')).toBeInTheDocument();
+});
+
+it('renders the real square card icon (GameIcon) for a manifest-present card', async () => {
+  const { container } = render(<InheritancePage deps={{ loadCatalog: () => Promise.resolve([]) }} />);
+  await waitFor(() => expect(screen.getByText('Kitasan')).toBeInTheDocument());
+  // The tile's icon slot is a GameIcon kind="card" → a real <img>, NOT the old
+  // type-letter placeholder. The src resolves to the bundled support webp.
+  const img = container.querySelector('img.inh-pool-card-img') as HTMLImageElement | null;
+  expect(img).not.toBeNull();
+  expect(img!.getAttribute('src')).toContain('data/icons/support/30028.webp');
 });
 
 it('Add carries the tile LB into the deck slot — non-default LB 2 lands in deck', async () => {

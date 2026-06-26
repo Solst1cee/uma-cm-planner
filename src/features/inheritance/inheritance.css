@@ -696,6 +696,13 @@ main:has(.inh-page) {
   justify-content: center;
   /* background set inline to the card's typeColor */
 }
+/* Real bundled support-card square icon (GameIcon kind="card"); the dump chip
+   carries its own rarity/type frame, so just round the corners. A card absent
+   from the manifest falls back to GameIcon's neutral placeholder box. */
+.inh-pool-card-img {
+  border-radius: 6px;
+  object-fit: contain;
+}
 
 .inh-pool-art-content {
   flex: 1 1 auto;
