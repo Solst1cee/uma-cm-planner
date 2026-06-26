@@ -213,8 +213,10 @@
   line-height: 1.2;
 }
 .inh-add-blue { margin: 0.1rem 0 0.5rem; }
-/* Space the search box one wishlist gap below the last skill plate. */
+/* Space the search box one wishlist gap below the last skill plate; drop the
+   .field's default bottom margin so there isn't excess space under the card. */
 .inh-targets-body .picker { margin-top: 0.35rem; }
+.inh-targets-body .picker .field { margin-bottom: 0; }
 .inh-wl-gold { color: #c27a00; font-weight: 600; }
 .inh-wl-sp {
   flex: none;
