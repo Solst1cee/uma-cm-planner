@@ -60,9 +60,8 @@ describe('PlanTargetsCard', () => {
         {...baseProps({ pinkTotal: 22, midRunRows: [{ label: 'Medium', steps: 1 }] })}
       />,
     );
-    expect(screen.getByText('22/18★')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent(/over the 18★/);
-    expect(screen.getByText('Mid-run spark (in-run procs)')).toBeInTheDocument();
+    expect(screen.getByText('Mid-run spark')).toBeInTheDocument();
     expect(screen.getByText('Medium ×1')).toBeInTheDocument();
   });
 

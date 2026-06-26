@@ -128,22 +128,21 @@
   min-width: 0;
 }
 
-/* "Plan targets" card (M1.3) */
+/* "Plan targets" card (M1.3) — head matches the Uma plan head (same height,
+   font, rounded top). It's a <button> for the collapse toggle; keep the
+   cmp-plan-card-head font-size/weight (only inherit the family). */
 .inh-targets-head {
   width: 100%;
   cursor: pointer;
   background: var(--bg-2);
-  /* it's a <button> acting as the card head — strip native button chrome */
   appearance: none;
   text-align: left;
-  font: inherit;
+  font-family: inherit;
+  border-top-left-radius: var(--cmp-card-radius);
+  border-top-right-radius: var(--cmp-card-radius);
+  padding-block: 0.37rem;
 }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* Label row with a right-aligned spark budget readout. */
-.inh-targets-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
-.inh-budget { font-size: 0.7rem; font-weight: 700; color: var(--fg-muted); letter-spacing: 0; text-transform: none; }
-.inh-budget-over { color: var(--error, #c2414b); }
-
 /* Blue sparks: a 3-column grid so every chip is compact + equal to the widest one
    (chip | stepper | delete), left-packed. */
 .inh-blue-list {

@@ -58,11 +58,8 @@ export function PlanTargetsCard({
       </button>
       {!collapsed && (
         <div className="cmp-plan-card-body inh-targets-body">
-          {/* Blue sparks (stat) — shared budget across all stats */}
-          <div className="cmp-mini-label inh-targets-label">
-            <span>Blue sparks (stat)</span>
-            <span className="inh-budget">{blueTotal}/{BLUE_TOTAL_MAX}★</span>
-          </div>
+          {/* Blue sparks — shared budget across all stats */}
+          <div className="cmp-mini-label">Blue sparks</div>
           <ul className="inh-blue-list">
             {blueRows.length === 0 && <li className="muted small inh-span-all">No blue spark goals yet.</li>}
             {blueRows.map((r) => (
@@ -117,13 +114,8 @@ export function PlanTargetsCard({
             </select>
           )}
 
-          {/* Pink sparks (aptitude / style · from plan) — required career-start stars */}
-          <div className="cmp-mini-label inh-targets-label">
-            <span>Pink sparks (aptitude / style · from plan)</span>
-            <span className={`inh-budget ${pinkOver ? 'inh-budget-over' : ''}`.trim()}>
-              {pinkTotal}/{PINK_TOTAL_MAX}★
-            </span>
-          </div>
+          {/* Pink sparks — required career-start stars */}
+          <div className="cmp-mini-label">Pink sparks</div>
           <div className="cmp-spark-chip-list inh-pink-chips">
             {pinkRows.length === 0 ? (
               <span className="cmp-spark-empty">none required</span>
@@ -145,7 +137,7 @@ export function PlanTargetsCard({
           {/* Mid-run pink procs still needed after career-start inheritance */}
           {midRunRows.length > 0 && (
             <>
-              <div className="cmp-mini-label">Mid-run spark (in-run procs)</div>
+              <div className="cmp-mini-label">Mid-run spark</div>
               <div className="cmp-spark-chip-list inh-pink-chips">
                 {midRunRows.map((r) => (
                   <span className="cmp-spark-chip" key={r.label}>
