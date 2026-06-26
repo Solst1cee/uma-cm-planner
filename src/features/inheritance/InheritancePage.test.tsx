@@ -32,9 +32,10 @@ vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
-// Plan-targets wishlist resolves skills via useGameData; stub it (empty map → no rows).
+// The page resolves wishlist skills (skillById) + the M1.5 Deck card art (cardById)
+// via useGameData; stub both (empty maps → no wishlist rows / placeholder deck art).
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skills: [], skillById: new Map() }),
+  useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map() }),
   BASE_URL: '',
 }));
 // Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).
@@ -54,7 +55,13 @@ const CATALOG: CourseCatalogEntry[] = [
 const deps = { loadCatalog: () => Promise.resolve(CATALOG) };
 
 describe('InheritancePage', () => {
-  it('renders the header, the 3-column shell, and the uma-plan card', async () => {
+  it('renders the Deck panel with 6 empty slots', () => {
+    render(<InheritancePage deps={deps} />);
+    expect(screen.getByText('Deck')).toBeInTheDocument();
+    for (let n = 1; n <= 6; n++) expect(screen.getByText(String(n))).toBeInTheDocument();
+  });
+
+  it('renders the header, the 3-column shell, and the uma-plan + plan-targets cards', async () => {
     render(<InheritancePage deps={deps} />);
     expect(screen.getByText('PLAN #1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Cancer Cup — Late ace' })).toBeInTheDocument();

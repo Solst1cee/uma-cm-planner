@@ -1,11 +1,18 @@
 /* src/features/inheritance/inheritance.css
    M1 Inheritance workbench shell (handoff README §"Workbench grid").
    Own page class (NOT global .page — that becomes a 2-col grid at width). */
+/* The global `main { max-width: 76rem }` (app.css) caps every route at ~1216px.
+   Lift that cap for the inheritance workbench (same escape hatch the CM planner
+   uses via `main:has(.cmp-page)`) so the page can use the full window width. */
+main:has(.inh-page) {
+  max-width: 176rem;
+}
 .inh-page {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  max-width: 1560px;
+  /* widened so the center (main) column gets ~2x its former width; sidebars stay ~320px */
+  max-width: 2440px;
   margin: 0 auto;
   padding: 0.85rem 0.9rem 4rem;
 }
@@ -27,15 +34,17 @@
 .inh-context-chips { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .inh-context-empty { color: var(--fg-muted); }
 
-/* 3-column workbench grid */
+/* 3-column workbench grid: sidebars match the CM planner (minmax(360px, 26rem)),
+   fixed 720px center. ~1500px min for 3 columns → stack below that. */
 .inh-grid {
   display: grid;
-  grid-template-columns: minmax(290px, 320px) minmax(0, 1fr) minmax(290px, 320px);
+  grid-template-columns: minmax(360px, 26rem) 720px minmax(360px, 26rem);
   gap: 0.8rem;
   align-items: start;
+  justify-content: center;
 }
 .inh-col { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
-@media (max-width: 1120px) {
+@media (max-width: 1500px) {
   .inh-grid { grid-template-columns: 1fr; }
 }
 
@@ -225,3 +234,190 @@
   font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* "Deck" card (M1.5) — CM-planner card grammar (card shell + gray head bar + padded body). */
+.inh-deck {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-1);
+  box-shadow: var(--ds-card-shadow, 0 6px 18px rgb(36 54 78 / 0.08));
+}
+.inh-deck-head {
+  display: flex;
+  align-items: center;
+  min-height: 2.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.inh-deck-body { padding: 0.75rem; }
+.inh-deck-tools {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.inh-deck-tools .cmp-small-btn { flex: none; }
+
+/* Template combobox: a name field that autosaves, with the caret dropdown inset inside it.
+   Selector is .inh-deck-combo-scoped so its padding beats the global `input[type=text]`
+   rule (app.css) and the field height matches .cmp-small-btn (Clear). */
+.inh-deck-combo { position: relative; flex: 1 1 auto; min-width: 6rem; display: flex; }
+.inh-deck-combo .inh-deck-tplname {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* match .cmp-small-btn's 0.25rem vertical padding + 0.76rem font so heights line up;
+     extra right padding leaves room for the inset caret button */
+  padding: 0.25rem 1.7rem 0.25rem 0.45rem;
+  font-size: 0.76rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  box-sizing: border-box;
+}
+.inh-deck-combo .inh-deck-tplname:focus {
+  border-color: var(--accent);
+  background: var(--bg-1);
+  outline: none;
+}
+.inh-deck-combo-caret {
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--fg-muted);
+  padding: 0 0.3rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.inh-deck-combo-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 0.2rem;
+  list-style: none;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-1);
+  box-shadow: var(--ds-card-shadow, 0 6px 18px rgb(36 54 78 / 0.12));
+}
+.inh-deck-combo-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--fg);
+}
+.inh-deck-combo-item:hover { background: var(--bg-2); }
+.inh-deck-combo-item.is-active { font-weight: 700; color: var(--accent); }
+.inh-deck-combo-new { color: var(--accent); font-weight: 600; }
+.inh-deck-combo-empty { padding: 0.3rem 0.45rem; font-size: 0.74rem; color: var(--fg-muted); }
+/* template row = name (fills) + a red × delete on the right, transparent border */
+.inh-deck-combo-row { display: flex; align-items: center; gap: 0.15rem; }
+.inh-deck-combo-row .inh-deck-combo-item { flex: 1 1 auto; width: auto; }
+.inh-deck-combo-del {
+  flex: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--error);
+  cursor: pointer;
+  padding: 0 0.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.inh-deck-combo-del:hover { background: color-mix(in srgb, var(--error) 14%, transparent); }
+
+.inh-deck-slots {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+@media (max-width: 640px) {
+  .inh-deck-slots { grid-template-columns: repeat(3, 1fr); }
+}
+.inh-deck-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 86px;
+  padding: 0.45rem;
+  border: 1.5px dashed var(--border);
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+.inh-deck-slot.is-filled { background: var(--bg-1); }
+.inh-deck-slot.drag-over { border-color: var(--accent); background: #eef4ff; }
+.inh-deck-remove {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.3rem;
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0;
+}
+.inh-deck-slot-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.inh-deck-type {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inh-deck-lb { display: flex; align-items: center; gap: 0.25rem; }
+.inh-deck-lb-label { color: var(--fg-muted); font-size: 0.6rem; font-weight: 800; }
+.inh-deck-lb-diamonds { display: inline-flex; gap: 3px; align-items: center; }
+.inh-deck-diamond {
+  width: 9px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: #d7dce4;
+}
+.inh-deck-diamond.is-on { background: linear-gradient(160deg, #ffe488, #e8a008); }
+.inh-deck-empty {
+  margin: auto;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.72rem;
+}
+.inh-deck-plus { display: block; font-size: 1rem; line-height: 1; }
