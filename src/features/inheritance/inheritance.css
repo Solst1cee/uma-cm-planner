@@ -107,10 +107,12 @@
   display: flex;
   gap: 0.35rem;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
-.inh-deck-tplname { width: 8.5rem; padding: 0.25rem 0.45rem; font-size: 0.78rem; }
-.inh-deck-tplsel { width: auto; padding: 0.25rem 0.4rem; font-size: 0.78rem; }
+/* searchbar-style name field fills the row; the action controls stay on the same line beside it */
+.inh-deck-tplname { flex: 1 1 auto; min-width: 4rem; padding: 0.25rem 0.45rem; font-size: 0.78rem; }
+.inh-deck-tplsel { flex: none; width: auto; padding: 0.25rem 0.4rem; font-size: 0.78rem; }
+.inh-deck-tools .cmp-small-btn { flex: none; }
 
 .inh-deck-slots {
   display: grid;
