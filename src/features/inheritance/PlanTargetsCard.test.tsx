@@ -72,6 +72,12 @@ describe('PlanTargetsCard', () => {
     expect(screen.queryByText('none required')).not.toBeInTheDocument();
   });
 
+  it('disables the + steppers when the blue budget (18★) is full', () => {
+    render(<PlanTargetsCard {...baseProps({ blueTotal: 18 })} />);
+    expect(screen.getByRole('button', { name: 'Increase Stamina' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Decrease Stamina' })).not.toBeDisabled();
+  });
+
   it('the add-stat select adds a blue spark', () => {
     const onAddBlue = vi.fn();
     render(<PlanTargetsCard {...baseProps({ onAddBlue })} />);

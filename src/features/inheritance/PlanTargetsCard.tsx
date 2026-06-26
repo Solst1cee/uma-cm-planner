@@ -83,6 +83,7 @@ export function PlanTargetsCard({
                     type="button"
                     className="inh-step-btn"
                     aria-label={`Increase ${r.label}`}
+                    disabled={blueTotal >= BLUE_TOTAL_MAX}
                     onClick={() => onSetBlueStars(r.stat, r.stars + 1)}
                   >
                     +
