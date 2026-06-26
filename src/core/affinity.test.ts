@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildAffinityIndex, aff2, aff3, affinityTier, charaIdOf, computeLineageAffinity } from './affinity';
+import { buildAffinityIndex, aff2, aff3, affinityTier, charaIdOf, computeLineageAffinity, tierThreshold, affinityNeededForTier } from './affinity';
 import type { AffinityGroup } from './types';
 import affinityData from '../../public/data/affinity.json';
 
@@ -94,5 +94,18 @@ describe('affinity on the shipped GLOBAL dataset', () => {
     expect(['△', '○', '◎']).toContain(r.tiers.parentB);
     expect(Number.isFinite(r.displayTotal)).toBe(true);
     expect(r.staticOnly).toBe(true);
+  });
+});
+
+describe('rental target-tier helper', () => {
+  it('thresholds match the tier breakpoints', () => {
+    expect(tierThreshold('○')).toBe(51);
+    expect(tierThreshold('◎')).toBe(151);
+  });
+  it('affinity needed = max(0, threshold − computable part)', () => {
+    expect(affinityNeededForTier(40, '○')).toBe(11);
+    expect(affinityNeededForTier(60, '○')).toBe(0);
+    expect(affinityNeededForTier(100, '◎')).toBe(51);
+    expect(affinityNeededForTier(151, '◎')).toBe(0);
   });
 });

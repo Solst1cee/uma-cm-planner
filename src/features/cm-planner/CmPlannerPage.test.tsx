@@ -99,7 +99,6 @@ const h = vi.hoisted(() => {
     statProfile: { stats: { spd: 1200, sta: 650, pow: 900, gut: 400, wit: 600 }, mood: 0 },
     sparkGoals: { pink: [], blue: {} },
     wishlist: [{ skillId: 'a', priority: 1, source: 'targeted' }],
-    lockedDeckSlots: [],
     parents: {},
     patch: { version: 't' },
     server: 'global',

@@ -90,7 +90,7 @@ export interface LineageAffinity {
   /** Per-member scores that scale proc chance: chance = base × (1 + score/100). */
   memberScores: { parentA: number; parentB: number; gA1: number; gA2: number; gB1: number; gB2: number };
   tiers: { parentA: AffinityTier; parentB: AffinityTier; gA1: AffinityTier; gA2: AffinityTier; gB1: AffinityTier; gB2: AffinityTier };
-  /** Sum of member scores — the in-game "displayed" affinity (static; excludes shared-win bonuses). */
+  /** Sum of the 6 member scores — the in-game "displayed" affinity (includes shared-win bonuses when a winBonus is supplied). */
   displayTotal: number;
   /** True when shared-win bonuses were omitted (P3: render ≈ / note "+ shared-win bonuses in-game"). */
   staticOnly: boolean;
@@ -321,6 +321,8 @@ export interface ParentRef {
   blueSpark?: { stat: Stat; stars: 1 | 2 | 3 };
   pinkSpark?: { aptitude: string; stars: 1 | 2 | 3 };
   whiteSparks?: Array<{ skillId: string; stars: 1 | 2 | 3 }>;
+  /** G1 race ids this grandparent won (UmaExtractor; powers the 2.0 win-bonus). */
+  wonRaces?: string[];
 }
 
 export interface Parent {
@@ -335,6 +337,8 @@ export interface Parent {
   grandparents?: [ParentRef?, ParentRef?];
   /** Manual v1; computed affinity lands with Module 1 (plan §14.4). */
   affinityHint?: number;
+  /** G1 race ids this parent won (UmaExtractor; powers the 2.0 win-bonus). */
+  wonRaces?: string[];
   notes?: string;
   source: 'mine' | 'friend_rental';
   importSource?: 'umaextractor' | 'manual';
@@ -363,9 +367,7 @@ export interface CmPlan {
     blue: Partial<Record<Stat, number>>;
   };
   wishlist: WishlistItem[];
-  lockedDeckSlots: Array<{ slot: 0 | 1 | 2 | 3 | 4 | 5; cardType?: CardType; cardId?: string }>;
   parents: { a?: string; b?: string };
-  inheritanceStopgap?: { inheritedSkills: string[]; sparks: ParentSparks };
   patch: { version: string; source?: string };
   server: Server;
   dataVersion: string;
@@ -421,24 +423,8 @@ export interface CoverageRow {
 }
 
 // ---------------------------------------------------------------------------
-// Deck suggester + contingency (Module 4 steps 4–5)
+// Contingency (Module 4 → M2 link)
 // ---------------------------------------------------------------------------
-
-export interface DeckSuggestion {
-  /** All 6 slots; locked slots echo their constraint, free slots get picks. */
-  deck: Array<{
-    slot: 0 | 1 | 2 | 3 | 4 | 5;
-    cardId?: string;
-    /** Why this slot is fixed, when it came from CmPlan.lockedDeckSlots. */
-    lockedBy?: 'cardId' | 'cardType';
-  }>;
-  /** Σ(priorityWeight × tierWeight) over target skills, for comparing decks. */
-  coverageScore: number;
-  /** Target skillIds with no source in the suggested deck (+ parents). */
-  uncovered: string[];
-  /** Human-readable: which target(s) each pick covers, and at what tier. */
-  rationale: string[];
-}
 
 /** Static contingency branch for a spark-covered target (plan §6, links M4→M2). */
 export interface SparkContingency {

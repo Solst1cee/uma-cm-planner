@@ -16,7 +16,6 @@ function namedPlan(id: string, name: string): CmPlan {
     statProfile: { stats: { spd: 1200, sta: 650, pow: 900, gut: 400, wit: 600 }, mood: 2 },
     sparkGoals: { pink: [], blue: {} },
     wishlist: [],
-    lockedDeckSlots: [],
     parents: {},
     patch: { version: 'test' },
     server: 'global',

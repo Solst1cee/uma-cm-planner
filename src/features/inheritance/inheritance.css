@@ -1,0 +1,227 @@
+/* src/features/inheritance/inheritance.css
+   M1 Inheritance workbench shell (handoff README §"Workbench grid").
+   Own page class (NOT global .page — that becomes a 2-col grid at width). */
+.inh-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 0.85rem 0.9rem 4rem;
+}
+
+/* Plan-context header */
+.inh-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+}
+.inh-plan-badge {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  font-weight: 700;
+}
+.inh-context-name { font-size: 1.05rem; margin: 0; }
+.inh-context-source { color: var(--fg-muted); font-size: 0.82rem; }
+.inh-context-chips { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.inh-context-empty { color: var(--fg-muted); }
+
+/* 3-column workbench grid */
+.inh-grid {
+  display: grid;
+  grid-template-columns: minmax(290px, 320px) minmax(0, 1fr) minmax(290px, 320px);
+  gap: 0.8rem;
+  align-items: start;
+}
+.inh-col { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+@media (max-width: 1120px) {
+  .inh-grid { grid-template-columns: 1fr; }
+}
+
+/* Placeholder cards (replaced by M1.2–M1.8) */
+.inh-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 3.4rem;
+  border-style: dashed;
+  color: var(--fg-muted);
+}
+.inh-placeholder-title { font-weight: 600; }
+.inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
+
+/* "Uma plan" card (M1.2) — uses the cmp-plan-card grammar (header + body).
+   overflow:visible so the icon-anchored popover isn't clipped; re-round the
+   header top corners that the card's overflow:hidden normally provides. */
+.inh-uma-wrap { position: relative; }
+.inh-uma-card { overflow: visible; border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+.inh-uma-card .cmp-plan-card-head {
+  gap: 0.5rem;
+  border-top-left-radius: var(--cmp-card-radius);
+  border-top-right-radius: var(--cmp-card-radius);
+  /* Trim vertical padding so the 1.85rem icon button fits within the standard
+     --cmp-head-min-h (2.6rem) head height instead of inflating it. */
+  padding-block: 0.37rem;
+}
+/* Inventory-icon button + its popover anchor, right-aligned in the head. Same
+   1.85rem size as the planner-page header icon buttons; outline (not filled) —
+   the cmp-backpack-ico rule loses to `.cmp-inventory-icon-btn svg` on a plain
+   icon button, so re-assert fill:none at higher specificity here. */
+.inh-uma-inv-anchor { position: relative; margin-left: auto; display: inline-flex; }
+.inh-uma-inv-btn .cmp-backpack-ico { fill: none; stroke: currentColor; }
+
+.inh-uma-body { display: flex; flex-direction: column; gap: 0.55rem; }
+/* Portrait left, name/epithet/chips stacked in the meta column (chips = 3rd row,
+   indented to align with the name). Top-aligned so the name sits beside the
+   portrait top. */
+.inh-uma-main { display: flex; align-items: flex-start; gap: 0.6rem; }
+.inh-uma-portrait { flex: none; display: inline-flex; }
+.inh-uma-portrait-ph { width: 64px; height: 64px; }
+.inh-uma-meta { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
+.inh-uma-plan-name {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-uma-name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-uma-note {
+  margin: 0.35rem 0 0;
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.inh-uma-epithet {
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-uma-apts { margin-top: 0.3rem; }
+
+/* Inventory popover: just the inventory card itself, positioned so its top-right
+   corner sits at the icon's bottom border (anchored to the icon button). No extra
+   wrapper box — the PlanInventoryCard brings its own card chrome. */
+.inh-inventory-popover {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  z-index: 40;
+  width: min(360px, 86vw);
+  max-height: 70vh;
+  overflow: auto;
+}
+/* The shared inventory card fills the popover width. */
+.inh-inventory-popover .cmp-plan-inventory {
+  width: auto;
+  min-width: 0;
+}
+
+/* "Plan targets" card (M1.3) — head matches the Uma plan head (same height,
+   font, rounded top). It's a <button> for the collapse toggle; keep the
+   cmp-plan-card-head font-size/weight (only inherit the family). */
+.inh-targets-head {
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  /* strip native <button> chrome so it matches the Uma plan <header> exactly */
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+  background: var(--bg-2);
+  color: inherit;
+  text-align: left;
+  font-family: inherit;
+  /* Square the button's own corners; the card's overflow:hidden rounds the top
+     (the global button reset's border-radius would otherwise round the bottom). */
+  border-radius: 0;
+  padding-block: 0.37rem;
+}
+.inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
+/* Section labels match the planner sidebar's <h3> headings (bold, not the
+   normal-weight cmp-mini-label) + a little breathing room. */
+.inh-targets-body .cmp-mini-label { margin-bottom: 0.45rem; font-weight: 700; }
+/* Pink label row: label left, over-budget warning right. */
+.inh-pink-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.inh-warn-inline {
+  color: var(--error, #c2414b);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+/* Blue sparks: one row per goal — chip on the left, controls pushed to the right. */
+.inh-blue-list { list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.32rem; }
+.inh-blue-row { display: flex; align-items: center; gap: 0.4rem; }
+.inh-blue-row .inh-stepper { margin-left: auto; } /* stepper + delete stick right */
+/* Spark chips shrink to their content (both colors). */
+.inh-spark-chip { text-align: left; padding: 0.2rem 0.55rem; font-size: 0.72rem; }
+/* Blue spark chip — in-game blue (the cmp-spark-chip base is pink). */
+.inh-blue-chip {
+  border-color: #9bc0ec;
+  background: #e6f0fb;
+  color: #1f5bb5;
+}
+/* Pink + mid-run: one chip per row (vertical), content width. */
+.inh-pink-chips {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.inh-stepper { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
+.inh-step-btn,
+.inh-target-del {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.inh-step-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.inh-step-btn:disabled { opacity: 0.4; cursor: default; }
+.inh-target-del { border-color: transparent; background: transparent; color: var(--error, #c2414b); }
+.inh-target-del:hover { border-color: var(--error, #c2414b); }
+.inh-add-blue,
+.inh-targets-body .picker input[type='search'] {
+  width: 100%;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.78rem;
+  height: auto;
+  min-height: 0;
+  line-height: 1.2;
+}
+/* Match the skill-search placeholder: muted "+ Add stat…" prompt text. */
+.inh-add-blue { margin: 0.1rem 0 0.5rem; color: var(--fg-muted); }
+/* Space the search box one wishlist gap below the last skill plate; drop the
+   .field's default bottom margin so there isn't excess space under the card. */
+.inh-targets-body .picker { margin-top: 0.35rem; }
+.inh-targets-body .picker .field { margin-bottom: 0; }
+.inh-wl-gold { color: #c27a00; font-weight: 600; }
+.inh-wl-sp {
+  flex: none;
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
