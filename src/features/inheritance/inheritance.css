@@ -1,6 +1,12 @@
 /* src/features/inheritance/inheritance.css
    M1 Inheritance workbench shell (handoff README §"Workbench grid").
    Own page class (NOT global .page — that becomes a 2-col grid at width). */
+/* The global `main { max-width: 76rem }` (app.css) caps every route at ~1216px.
+   Lift that cap for the inheritance workbench (same escape hatch the CM planner
+   uses via `main:has(.cmp-page)`) so the page can use the full window width. */
+main:has(.inh-page) {
+  max-width: 176rem;
+}
 .inh-page {
   display: flex;
   flex-direction: column;
