@@ -5,7 +5,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  max-width: 1560px;
+  /* widened so the center (main) column gets ~2x its former width; sidebars stay ~320px */
+  max-width: 2440px;
   margin: 0 auto;
   padding: 0.85rem 0.9rem 4rem;
 }
