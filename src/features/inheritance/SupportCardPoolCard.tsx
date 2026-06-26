@@ -300,7 +300,7 @@ function PoolTile({
         aria-label={`${item.name} details`}
         onClick={onToggle}
       >
-        {renderIcon(item, 44)}
+        {renderIcon(item, 60)}
       </button>
 
       {/* LB diamonds — always visible */}
