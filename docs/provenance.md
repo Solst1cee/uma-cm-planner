@@ -285,3 +285,13 @@ Full classified list in plan §3 ("Timeline / schedule / banner / patch sources"
 
 ### 8.5 Affinity — refinements (verified; `mechanics-notes.md` §3)
 +3 affinity per G1 won by **both** members of a compared pair (post-2nd-anniversary; G2/G3 now 0), `dataVersion`-gated. Grandparent weakness is **emergent** from a smaller per-member score (no flat ×0.5 — myth). Never feed the ◎/◯/△ rank or the displayed *sum* into the proc formula — use each member's individual score. Cross-ref uma-moe `affinity.py`.
+
+---
+
+## 9. uma-tiers support-card scorer (M1.6)
+
+### uma-tiers support-card scorer (M1.6)
+- Source: https://github.com/Euophrys/umamusume-tierlist (branch `main`), **MIT** (LICENSE vendored).
+- Pinned commit: `cb459aaad7d45c0ebc9eaaeca21a87c9a8905fb1`; retrieved 2026-06-26.
+- Vendored verbatim: `src/components/tierlist-calc.js`, `src/cards/gl.js`, `src/card-events.js`, `src/scenarios.js` → `src/vendor/uma-tiers/`.
+- Use: the M1.6 support-card pool's "Effect" score (URA-scenario training power). **Off-axis caveat:** scores career-training power, not inheritance/CM wishlist value — surfaced as an estimate alongside the primary "Matches" axis. Re-pull on euophrys' Global updates.
