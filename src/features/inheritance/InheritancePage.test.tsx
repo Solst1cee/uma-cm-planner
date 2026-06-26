@@ -34,7 +34,7 @@ vi.mock('@/features/parents/useUmas', () => ({
 }));
 // Plan-targets wishlist resolves skills via useGameData; stub it (empty map → no rows).
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skillById: new Map() }),
+  useGameData: () => ({ skills: [], skillById: new Map() }),
   BASE_URL: '',
 }));
 // Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).

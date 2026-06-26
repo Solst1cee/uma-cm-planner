@@ -28,7 +28,7 @@ const planA = mkPlan('A', 'end'); // Agnes end F → A = ★10 "End Closer"
 const planB = mkPlan('B', 'front'); // Agnes front E → A = ★10 "Front Runner"
 
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ status: 'ready', currentCm: null, skillById: new Map() }),
+  useGameData: () => ({ status: 'ready', currentCm: null, skills: [], skillById: new Map() }),
   BASE_URL: '',
 }));
 vi.mock('@/features/parents/useUmas', () => ({

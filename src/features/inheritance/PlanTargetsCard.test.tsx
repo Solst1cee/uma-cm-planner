@@ -25,6 +25,7 @@ const baseProps = (over: Partial<PlanTargetsCardProps> = {}): PlanTargetsCardPro
     <span key="100">Arc Maestro</span>,
     <span key="200">Professor of Curvature</span>,
   ],
+  wishlistPicker: <div data-testid="wishlist-picker" />,
   summary: { count: 2, totalSp: 320 },
   onSetBlueStars: () => {},
   onDeleteBlue: () => {},
@@ -39,8 +40,9 @@ describe('PlanTargetsCard', () => {
     expect(screen.getByText(/Stamina ★6/)).toBeInTheDocument();
     expect(screen.getByText(/Medium ★4/)).toBeInTheDocument();
     expect(screen.getByText(/Late Surger ★1/)).toBeInTheDocument();
-    expect(screen.getByText(/Wishlist \(2 skills · 320 SP\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Wishlist \(320 SP\)/)).toBeInTheDocument();
     expect(screen.getByText('Arc Maestro')).toBeInTheDocument();
+    expect(screen.getByTestId('wishlist-picker')).toBeInTheDocument();
   });
 
   it('steppers and delete emit the right blue mutations', () => {

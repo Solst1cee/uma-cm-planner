@@ -26,6 +26,8 @@ export interface PlanTargetsCardProps {
   availableBlueStats: Array<{ stat: Stat; label: string }>;
   /** Pre-rendered skill plates (built by the page so the card stays provider-free). */
   wishlistPlates: ReactNode[];
+  /** The skill-search picker to add wishlist skills (built by the page). */
+  wishlistPicker: ReactNode;
   summary: { count: number; totalSp: number };
   onSetBlueStars: (stat: Stat, stars: number) => void;
   onDeleteBlue: (stat: Stat) => void;
@@ -43,6 +45,7 @@ export function PlanTargetsCard({
   midRunRows,
   availableBlueStats,
   wishlistPlates,
+  wishlistPicker,
   summary,
   onSetBlueStars,
   onDeleteBlue,
@@ -155,10 +158,8 @@ export function PlanTargetsCard({
             </>
           )}
 
-          {/* Wishlist — planner-style skill plates */}
-          <div className="cmp-mini-label">
-            Wishlist ({summary.count} skill{summary.count === 1 ? '' : 's'} · {summary.totalSp} SP)
-          </div>
+          {/* Wishlist — planner-style skill plates, editable + addable */}
+          <div className="cmp-mini-label">Wishlist ({summary.totalSp} SP)</div>
           <div className="cmp-wishlist-list inh-wishlist">
             {wishlistPlates.length === 0 ? (
               <p className="muted small">No wishlist skills yet.</p>
@@ -166,6 +167,7 @@ export function PlanTargetsCard({
               wishlistPlates
             )}
           </div>
+          {wishlistPicker}
         </div>
       )}
     </section>

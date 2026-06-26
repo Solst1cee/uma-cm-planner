@@ -14,7 +14,8 @@ import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
 import { skillRecordToSummary } from '@/features/cm-planner/skillTechnicalDetails';
-import { wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
+import { SkillPicker } from '@/features/skill-planner/SkillPicker';
+import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
@@ -102,19 +103,46 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     void saveCurrentPlan(next);
   };
 
-  // Wishlist as planner-style skill plates (no traceContext → no engine/Worker).
+  // Wishlist as planner-style skill plates (no traceContext → no engine/Worker),
+  // each with a remove button — editable + addable like the planner wishlist.
   const wishlistPlates = uma1Plan
     ? uma1Plan.wishlist.map((item) => {
         const skill = wishlistSkillRecord(item.skillId, skillById);
-        return skill ? (
-          <SkillDetailDisclosure key={item.skillId} skill={skillRecordToSummary(skill)} showCost />
-        ) : (
-          <div key={item.skillId} className="cmp-wishlist-line muted small">
-            Skill {item.skillId}
+        return (
+          <div key={item.skillId} className="cmp-wishlist-line">
+            {skill ? (
+              <SkillDetailDisclosure skill={skillRecordToSummary(skill)} showCost />
+            ) : (
+              <span className="cmp-missing-skill">Skill {item.skillId}</span>
+            )}
+            <button
+              type="button"
+              className="cmp-small-btn cmp-remove-skill-btn"
+              aria-label={`Remove ${skill?.nameEn ?? item.skillId}`}
+              onClick={() =>
+                editPlan({
+                  ...uma1Plan,
+                  wishlist: uma1Plan.wishlist.filter((t) => t.skillId !== item.skillId),
+                })
+              }
+            >
+              ×
+            </button>
           </div>
         );
       })
     : [];
+  const wishlistPicker = uma1Plan ? (
+    <SkillPicker
+      addedSkillIds={new Set(uma1Plan.wishlist.map((i) => i.skillId))}
+      onPick={(skillId) =>
+        editPlan({
+          ...uma1Plan,
+          wishlist: addOrReplaceWishlistSkill(uma1Plan.wishlist, skillId, skillById),
+        })
+      }
+    />
+  ) : null;
 
   const inventory = uma1Plan ? (
     <PlanInventoryCard
@@ -168,6 +196,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
               midRunRows={midRunSparkRows(uma1Plan, uma)}
               availableBlueStats={availableBlueStats(uma1Plan)}
               wishlistPlates={wishlistPlates}
+              wishlistPicker={wishlistPicker}
               summary={wishlistSummary(uma1Plan, skillById)}
               onSetBlueStars={(stat, stars) => editPlan(setBlueStars(uma1Plan, stat, stars))}
               onDeleteBlue={(stat) => editPlan(deleteBlueSpark(uma1Plan, stat))}
