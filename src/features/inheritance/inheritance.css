@@ -463,3 +463,206 @@ main:has(.inh-page) {
 .inh-weights-caption a {
   color: var(--accent);
 }
+
+/* ── Support-card pool panel (M1.6) ─────────────────────────────────────── */
+.inh-pool {
+  /* inherits .inh-deck card shell */
+}
+.inh-pool-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.inh-pool-title { font-weight: 700; }
+.inh-pool-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+.inh-pool-head-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.inh-pool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Toggle groups (view / sort) */
+.inh-pool-toggle-group {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.inh-pool-toggle-btn {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.inh-pool-toggle-btn:last-child { border-right: 0; }
+.inh-pool-toggle-btn:hover { background: var(--bg-1); color: var(--fg); }
+.inh-pool-toggle-btn.is-active { background: var(--accent); color: #fff; }
+
+/* Filters */
+.inh-pool-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.inh-pool-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.inh-pool-filter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  min-width: 3.5rem;
+}
+.inh-pool-chip-group {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.inh-pool-chip {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+.inh-pool-chip:hover { background: var(--bg-1); color: var(--fg); }
+.inh-pool-chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+/* Scope search input under .inh-pool so specificity beats global input[type=text] */
+.inh-pool .inh-pool-search {
+  flex: 1 1 10rem;
+  max-width: 22rem;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-size: 0.8rem;
+}
+.inh-pool .inh-pool-search:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Pool grid */
+.inh-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Pool tile */
+.inh-pool-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  cursor: grab;
+  position: relative;
+}
+.inh-pool-tile:hover { background: var(--bg-1); }
+.inh-pool-tile-icon { display: flex; justify-content: center; }
+.inh-pool-tile-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-pool-tile-char {
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-pool-tile-rarity {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #fff;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+.inh-pool-tile-score {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+.inh-pool-tile-match { color: var(--accent); font-weight: 600; }
+.inh-pool-tile-hints { display: flex; flex-wrap: wrap; gap: 0.2rem; }
+.inh-pool-hint-chip {
+  font-size: 0.6rem;
+  padding: 0.05rem 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-1);
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 6rem;
+}
+.inh-pool-tile-add {
+  margin-top: auto;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.inh-pool-tile-add:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.inh-pool-tile-added {
+  margin-top: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg-muted);
+  text-align: center;
+}
+.inh-pool-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
