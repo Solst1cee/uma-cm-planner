@@ -149,8 +149,9 @@
   padding-block: 0.37rem;
 }
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
-/* A little breathing room under each section label. */
-.inh-targets-body .cmp-mini-label { margin-bottom: 0.45rem; }
+/* Section labels match the planner sidebar's <h3> headings (bold, not the
+   normal-weight cmp-mini-label) + a little breathing room. */
+.inh-targets-body .cmp-mini-label { margin-bottom: 0.45rem; font-weight: 700; }
 /* Pink label row: label left, over-budget warning right. */
 .inh-pink-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
 .inh-warn-inline {
