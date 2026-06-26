@@ -52,7 +52,7 @@ export function PlanTargetsCard({
     <section className="cmp-plan-card inh-targets-card">
       <button
         type="button"
-        className="cmp-plan-card-head cmp-collapse-head inh-targets-head"
+        className="cmp-plan-card-head cmp-collapse-head"
         aria-expanded={!collapsed}
         onClick={onToggleCollapsed}
       >

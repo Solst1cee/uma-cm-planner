@@ -128,25 +128,9 @@
   min-width: 0;
 }
 
-/* "Plan targets" card (M1.3) — head matches the Uma plan head (same height,
-   font, rounded top). It's a <button> for the collapse toggle; keep the
-   cmp-plan-card-head font-size/weight (only inherit the family). */
-.inh-targets-head {
-  width: 100%;
-  cursor: pointer;
-  appearance: none;
-  /* strip native <button> chrome so it matches the Uma plan <header> exactly */
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  box-shadow: none;
-  background: var(--bg-2);
-  color: inherit;
-  text-align: left;
-  font-family: inherit;
-  border-top-left-radius: var(--cmp-card-radius);
-  border-top-right-radius: var(--cmp-card-radius);
-  padding-block: 0.37rem;
-}
+/* "Plan targets" card (M1.3) — the head reuses M4's `cmp-plan-card-head
+   cmp-collapse-head` grammar directly (same as the chart panels), so no custom
+   head styling is needed. */
 .inh-targets-body .cmp-mini-label:first-child { margin-top: 0; }
 /* A little breathing room under each section label. */
 .inh-targets-body .cmp-mini-label { margin-bottom: 0.45rem; }
