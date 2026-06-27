@@ -8,6 +8,7 @@
  * later; never fabricate a G1 win).
  */
 import type { Parent, ParentRef, Stat } from '@/core/types';
+import { rankLabelFromScore, rankLabelsOrdered } from '@/core/rankScore';
 import { decodeFactor } from './factorDecode';
 
 export interface ParseDeps {
@@ -23,13 +24,12 @@ type Json = Record<string, unknown>;
 const isObj = (x: unknown): x is Json => typeof x === 'object' && x !== null;
 const num = (x: unknown): number | undefined => (typeof x === 'number' ? x : undefined);
 
-/** Best-effort single_mode_rank int → letter (display + tie-break only). */
-const RANK_LETTERS: Record<number, string> = {
-  1: 'G', 2: 'F', 3: 'F+', 4: 'E', 5: 'E+', 6: 'D', 7: 'D+', 8: 'C', 9: 'C+',
-  10: 'B', 11: 'B', 12: 'B+', 13: 'A', 14: 'A+', 15: 'S', 16: 'S+', 17: 'SS',
-};
+/** `single_mode_rank.id` (1-based) → rank label (`G`…`LS24`). The id indexes the
+ *  canonical ordered band list 1:1 (id 12 → `B+`). Fallback for dumps that omit
+ *  `rank_score`; prefer `rankLabelFromScore` when the score is present. */
+const ORDERED_RANK_LABELS = rankLabelsOrdered();
 export function ratingFromRank(rank: number): string {
-  return RANK_LETTERS[rank] ?? String(rank);
+  return ORDERED_RANK_LABELS[rank - 1] ?? String(rank);
 }
 
 function statsOf(v: Json): Record<Stat, number> | undefined {
@@ -108,10 +108,13 @@ function toParent(v: Json, deps: ParseDeps): Parent | undefined {
   };
   if (greenSpark) parent.greenSpark = greenSpark;
   if (g10 || g20) parent.grandparents = [g10, g20];
-  const rank = num(v.rank);
-  if (rank !== undefined) parent.rating = ratingFromRank(rank);
+  // Rank rating ← the numeric evaluation score (covers the full G…LS24 badge
+  // range); fall back to the single_mode_rank id when a dump omits the score.
   const rankScore = num(v.rank_score);
   if (rankScore !== undefined) parent.rankScore = rankScore;
+  const rank = num(v.rank);
+  if (rankScore !== undefined) parent.rating = rankLabelFromScore(rankScore);
+  else if (rank !== undefined) parent.rating = ratingFromRank(rank);
   const won = wonRacesOf(v);
   if (won) parent.wonRaces = won;
   return parent;

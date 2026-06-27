@@ -82,6 +82,21 @@ Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-
 **Deferred (M1.4b):** Parent-2 rental builder + search-link; green-spark 9xxxxx +
 saddle→G1 `wonRaces` reconciliation (M1.7).
 
+**Wishlist glow + evaluation-rank badges (2026-06-27, on PR #14 icon assets):**
+- A white/green spark whose skill is on the active plan's **wishlist** now gets the
+  planner's `.cmp-apt-card.is-current` **blue glow** (`.badge.is-wishlisted`), on both
+  the Parent cards and the picker tiles. An `isWishlisted` predicate threads
+  `InheritanceCard` → `ParentCardView`/`UmaPickerModal` → `LineageSparkChips`.
+- The veteran's **rank rating now shows the real in-game evaluation-rank badge**
+  (G…SS+, UG…US9, LG…LS24) instead of a `◆` glyph. New pure core
+  [`src/core/rankScore.ts`](../../src/core/rankScore.ts) `rankLabelFromScore(score)` —
+  the daftuyda/UmaTools `RATING_BADGE_MINIMA` thresholds (same source+version as the
+  PR #14 rank-badge atlas; first-91 bands cross-checked against master.mdb
+  `single_mode_rank`). The importer derives `Parent.rating` from `rank_score` (falls
+  back to the `rank` id via `ratingFromRank`). `GameIcon` gained a **`rank`** kind
+  (→ `rankIconPath`); a small wired `RankBadge` (art + label, P3) is built by the
+  container and passed as a node to the provider-free card/picker.
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).

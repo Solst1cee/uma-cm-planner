@@ -13,10 +13,10 @@
  * readers don't double-read the name.
  */
 import { useEffect, useState } from 'react';
-import { cardIconPath, skillIconPath, uiIconPath, umaIconPath } from '@/core/icons';
+import { cardIconPath, rankIconPath, skillIconPath, uiIconPath, umaIconPath } from '@/core/icons';
 import { BASE_URL, useGameData } from '@/features/data/gameData';
 
-export type GameIconKind = 'skill' | 'card' | 'uma' | 'ui';
+export type GameIconKind = 'skill' | 'card' | 'uma' | 'ui' | 'rank';
 
 function relativePathFor(
   kind: GameIconKind,
@@ -32,6 +32,8 @@ function relativePathFor(
       return umaIconPath(id, manifest);
     case 'ui':
       return uiIconPath(id, manifest);
+    case 'rank':
+      return rankIconPath(id, manifest);
   }
 }
 
@@ -45,7 +47,8 @@ export function GameIcon({
   className,
 }: {
   kind: GameIconKind;
-  /** SkillRecord.iconId for kind="skill"; cardId / umaId / UI id otherwise. */
+  /** SkillRecord.iconId for kind="skill"; cardId / umaId / UI id / rank label
+   *  (e.g. "SS+", "UG3") otherwise. */
   id: string;
   /** Rendered box edge in px (square). Defaults to 22 (matrix skill icon). */
   size?: number;

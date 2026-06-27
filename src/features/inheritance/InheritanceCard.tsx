@@ -8,6 +8,7 @@ import { useGameData } from '@/features/data/gameData';
 import { umaName, useUmas } from '@/features/parents/useUmas';
 import { topCandidates } from './candidateScore';
 import { ParentCardView } from './ParentCardView';
+import { RankBadge } from './RankBadge';
 import { UploadDataButton } from './UploadDataButton';
 import { useRoster } from './useRoster';
 import { UmaPickerModal, type UmaPickerItem } from './UmaPickerModal';
@@ -55,8 +56,8 @@ export function InheritanceCard() {
     return pool.map((p) => ({
       id: p.id,
       name: umaName(umaById, p.umaId),
-      rating: p.rating,
       rankScore: p.rankScore,
+      rankBadge: <RankBadge rating={p.rating} size={20} />,
       portrait: <GameIcon kind="uma" id={p.umaId} size={42} alt="" />,
       parent: p,
       agg: aggregate(p),
@@ -96,6 +97,7 @@ export function InheritanceCard() {
         name={parent ? umaName(umaById, parent.umaId) : undefined}
         skillName={skillName}
         isWishlisted={isWishlisted}
+        rankBadge={parent ? <RankBadge rating={parent.rating} /> : undefined}
         portrait={parent ? portrait(parent) : undefined}
         rentalToggle={rentalToggle}
         rentalStub={rentalStub}

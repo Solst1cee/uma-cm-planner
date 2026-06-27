@@ -511,13 +511,15 @@ main:has(.inh-page) {
 .inh-uma-tile-head { display: flex; align-items: center; gap: 0.5rem; }
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
 .inh-uma-tile-name { font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.inh-uma-rank {
-  flex: none; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 800;
-  padding: 0.05rem 0.5rem; border-radius: 999px;
-  color: #b07a00; background: color-mix(in srgb, #eab308 18%, var(--bg-1));
-  border: 1px solid color-mix(in srgb, #eab308 50%, var(--border));
+/* Evaluation-rank badge: the in-game rank art + its label (G … LS24). Shared by
+   the parent card and the picker tile (RankBadge). */
+.inh-rank-badge {
+  flex: none; display: inline-flex; align-items: center; gap: 0.25rem;
+  font-weight: 800; font-variant-numeric: tabular-nums;
 }
-.inh-uma-rank-icon { color: #eab308; }
+.inh-rank-badge .game-icon { flex: none; }
+.inh-rank-label { line-height: 1; }
+.inh-parent-id .inh-rank-badge { margin-left: auto; }
 .inh-uma-score { flex: none; font-variant-numeric: tabular-nums; }
 .inh-uma-jsonid { flex: none; }
 /* Affinity on its own row */

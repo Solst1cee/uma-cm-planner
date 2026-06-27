@@ -18,6 +18,7 @@ describe('parseUmaExtractor', () => {
     expect(p.pinkSpark).toEqual({ aptitude: 'pace', stars: 1 }); // factor 2201
     expect(p.stats).toEqual({ spd: 991, sta: 677, pow: 632, gut: 398, wit: 450 });
     expect(p.rankScore).toBe(9347); // raw rank_score kept for display
+    expect(p.rating).toBe('B+'); // rank label DERIVED from rank_score (9347 ∈ [8200,9999])
   });
 
   it('decodes white sparks via the injected resolver and skips race/scenario', () => {
@@ -59,8 +60,16 @@ describe('parseUmaExtractor', () => {
     expect(parseUmaExtractor([{ trained_chara_id: 1 }], deps).skipped).toBe(1); // no card_id
   });
 
-  it('ratingFromRank maps known ranks', () => {
-    expect(ratingFromRank(12)).toBe('B+');
+  it('ratingFromRank maps a single_mode_rank id (1-based) to its band label', () => {
+    expect(ratingFromRank(12)).toBe('B+'); // id 12 → 12th band
     expect(ratingFromRank(13)).toBe('A');
+    expect(ratingFromRank(1)).toBe('G');
+  });
+
+  it('prefers rank_score over the rank id when both are present', () => {
+    // rank id 1 would be "G", but a high score wins → SS.
+    const v = { trained_chara_id: 9, card_id: 101501, speed: 1, stamina: 1, power: 1, guts: 1, wiz: 1,
+      factor_id_array: [202, 2201], rank: 1, rank_score: 17800 };
+    expect(parseUmaExtractor([v], deps).parents[0]!.rating).toBe('SS'); // 17800 ∈ [17500,19199]
   });
 });
