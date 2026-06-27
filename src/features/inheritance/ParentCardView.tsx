@@ -11,6 +11,8 @@ export interface ParentCardViewProps {
   name?: string;
   /** Resolve a white-spark skillId → display name (falls back to the id). */
   skillName?: (id: string) => string;
+  /** True when a spark's skill id is on the plan's wishlist → blue glow. */
+  isWishlisted?: (skillId: string) => boolean;
   portrait?: ReactNode;
   gpPortraits?: [ReactNode, ReactNode];
   rentalToggle?: ReactNode;
@@ -22,7 +24,7 @@ export interface ParentCardViewProps {
 }
 
 export function ParentCardView({
-  label, parent, name, skillName, portrait, gpPortraits, rentalToggle, rentalStub,
+  label, parent, name, skillName, isWishlisted, portrait, gpPortraits, rentalToggle, rentalStub,
   onFindCandidates, onChange, onClear, children,
 }: ParentCardViewProps) {
   return (
@@ -54,7 +56,7 @@ export function ParentCardView({
               <span className="inh-gp">GP:{gpPortraits[0]}{gpPortraits[1]}</span>
             )}
           </div>
-          <LineageSparkChips parent={parent} skillName={skillName} />
+          <LineageSparkChips parent={parent} skillName={skillName} isWishlisted={isWishlisted} />
         </div>
       ) : (
         <p className="inh-parent-empty muted small">No parent selected.</p>

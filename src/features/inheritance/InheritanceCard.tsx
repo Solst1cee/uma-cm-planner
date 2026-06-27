@@ -34,8 +34,13 @@ export function InheritanceCard() {
     () => skills.filter((s) => s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
     [skills],
   );
+  const wishlistIds = useMemo(
+    () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
+    [uma1Plan?.wishlist],
+  );
   if (!uma1Plan) return null;
 
+  const isWishlisted = (skillId: string) => wishlistIds.has(skillId);
   const byId = new Map(pool.map((p) => [p.id, p]));
   const select = (slot: Slot, parentId: string | undefined) => {
     setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
@@ -90,6 +95,7 @@ export function InheritanceCard() {
         parent={parent}
         name={parent ? umaName(umaById, parent.umaId) : undefined}
         skillName={skillName}
+        isWishlisted={isWishlisted}
         portrait={parent ? portrait(parent) : undefined}
         rentalToggle={rentalToggle}
         rentalStub={rentalStub}
@@ -115,6 +121,7 @@ export function InheritanceCard() {
       open={mode[slot] === 'change'}
       items={mode[slot] === 'change' ? itemsFor(slot) : []}
       skillName={skillName}
+      isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}

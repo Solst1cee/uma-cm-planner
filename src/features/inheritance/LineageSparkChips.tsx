@@ -14,15 +14,19 @@ function star(n: 1 | 2 | 3, gp: boolean) {
 export function LineageSparkChips({
   parent,
   skillName,
+  isWishlisted,
 }: {
   parent: Parent;
   skillName?: (id: string) => string;
+  /** True when this skill id is on the plan's wishlist → blue "matches" glow. */
+  isWishlisted?: (skillId: string) => boolean;
 }) {
   const members: Array<{ src: Parent | ParentRef; gp: boolean }> = [
     { src: parent, gp: false },
     ...(parent.grandparents ?? []).filter((g): g is ParentRef => !!g).map((g) => ({ src: g, gp: true })),
   ];
   const name = (id: string) => (skillName ? skillName(id) : id);
+  const wished = (id: string) => (isWishlisted?.(id) ? ' is-wishlisted' : '');
   const blues = members.filter((m) => m.src.blueSpark);
   const pinks = members.filter((m) => m.src.pinkSpark);
   const greens = members.filter((m) => m.src.greenSpark);
@@ -54,7 +58,7 @@ export function LineageSparkChips({
       {greens.length > 0 && (
         <span className="spark-chips">
           {greens.map((m, i) => (
-            <span key={`g${i}`} className="badge spark-green inh-white-chip" title="Inherited unique spark">
+            <span key={`g${i}`} className={`badge spark-green inh-white-chip${wished(m.src.greenSpark!.skillId)}`} title="Inherited unique spark">
               <span className="inh-white-chip-name">{name(m.src.greenSpark!.skillId)}</span>
               {star(m.src.greenSpark!.stars, m.gp)}
             </span>
@@ -64,7 +68,7 @@ export function LineageSparkChips({
       {whites.length > 0 && (
         <span className="spark-chips inh-white-chips">
           {whites.map(({ w, gp }, i) => (
-            <span key={`w${i}`} className="badge spark-white inh-white-chip">
+            <span key={`w${i}`} className={`badge spark-white inh-white-chip${wished(w.skillId)}`}>
               <span className="inh-white-chip-name">{name(w.skillId)}</span>
               {star(w.stars, gp)}
             </span>

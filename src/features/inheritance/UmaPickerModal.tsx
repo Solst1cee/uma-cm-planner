@@ -26,6 +26,8 @@ export interface UmaPickerModalProps {
   open: boolean;
   items: UmaPickerItem[];
   skillName: (id: string) => string;
+  /** True when a spark's skill id is on the plan's wishlist → blue glow on the tile. */
+  isWishlisted?: (skillId: string) => boolean;
   whiteSkillOptions: Array<{ id: string; name: string }>;
   onPick: (id: string) => void;
   onClose: () => void;
@@ -34,7 +36,7 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, whiteSkillOptions, onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -166,7 +168,7 @@ export function UmaPickerModal({ open, items, skillName, whiteSkillOptions, onPi
                 <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>
               </span>
               <span className="inh-uma-tile-sparks">
-                <LineageSparkChips parent={it.parent} skillName={skillName} />
+                <LineageSparkChips parent={it.parent} skillName={skillName} isWishlisted={isWishlisted} />
               </span>
             </button>
           ))}

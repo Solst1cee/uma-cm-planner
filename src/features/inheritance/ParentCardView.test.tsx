@@ -77,6 +77,21 @@ describe('ParentCardView', () => {
     expect(chip.classList.contains('spark-green')).toBe(true);
   });
 
+  it('glows a white/green spark whose skill is on the wishlist (is-wishlisted)', () => {
+    const withGreen = { ...p, greenSpark: { skillId: '100151', stars: 2 } } as Parent;
+    render(
+      <ParentCardView
+        label="Parent 1"
+        parent={withGreen}
+        skillName={(id) => (id === '200361' ? 'Groundwork' : id === '100151' ? 'Triumphant Pulse' : id)}
+        isWishlisted={(id) => id === '200361'} // only the white spark is wishlisted
+        onClear={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Groundwork').closest('.badge')!.classList.contains('is-wishlisted')).toBe(true);
+    expect(screen.getByText('Triumphant Pulse').closest('.badge')!.classList.contains('is-wishlisted')).toBe(false);
+  });
+
   it('shows the rental stub when rentalStub is set', () => {
     render(<ParentCardView label="Parent 2" parent={null} rentalStub />);
     expect(screen.getByText(/coming in m1\.4b/i)).toBeInTheDocument();

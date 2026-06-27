@@ -322,6 +322,15 @@ button:disabled {
   border-color: color-mix(in srgb, #94a3b8 60%, var(--border));
   color: var(--fg);
 }
+/* A spark whose skill is on the plan's wishlist — blue glow, matching the
+   planner's `.cmp-apt-card.is-current` "selected" treatment. Same specificity
+   (0,2,0) as `.badge.spark-*`; placed after so its border-color wins. */
+.badge.is-wishlisted {
+  border-color: #87aef8;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.9),
+    0 0 0 2px rgb(52 120 246 / 0.22);
+}
 .rarity-gold {
   color: #fbbf24;
   border-color: #6b5618;
