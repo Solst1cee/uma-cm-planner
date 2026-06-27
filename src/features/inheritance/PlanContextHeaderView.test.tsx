@@ -12,7 +12,7 @@ const plan: CmPlan = {
   cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2200 },
   scenarioId: 4, umaId: '106801', uniqueSkillId: '', role: 'ace', strategy: 'late',
   statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
-  sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},
+  sparkGoals: { pink: [], blue: {} }, wishlist: [], parents: {},
   patch: { version: 'x' }, server: 'global', dataVersion: 'x',
 } as CmPlan;
 

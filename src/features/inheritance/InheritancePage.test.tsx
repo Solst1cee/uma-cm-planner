@@ -1,6 +1,5 @@
-// src/features/inheritance/InheritancePage.test.tsx
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
@@ -10,20 +9,40 @@ const plan: CmPlan = {
   cmRef: { kind: 'cm', cmId: 'CM15', cmNumber: 15, courseId: '10906', surface: 'turf', distance: 2400 },
   scenarioId: 4, umaId: '106801', uniqueSkillId: '', role: 'ace', strategy: 'late',
   statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
-  sparkGoals: { pink: [], blue: {} }, wishlist: [], lockedDeckSlots: [], parents: {},
+  sparkGoals: { pink: [], blue: {} }, wishlist: [], parents: {},
   patch: { version: 'x' }, server: 'global', dataVersion: 'x',
 } as CmPlan;
 
-// Stub the ActivePlan context so the page test needs no Dexie/gameData providers.
+// Stub the ActivePlan context so the page test needs no Dexie provider.
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({ uma1Plan: plan, plan, setPlan: vi.fn() }),
+  useActivePlan: () => ({
+    uma1Plan: plan,
+    plan,
+    uma2Plan: null,
+    savedPlans: [plan],
+    setPlan: vi.fn(),
+    loadPlanIntoSlot: vi.fn(),
+    deleteSavedPlan: vi.fn(),
+    importSavedPlans: vi.fn(),
+    deleteAllSavedPlans: vi.fn(),
+  }),
 }));
+// Empty roster → the card resolves no uma (placeholder portrait, no GameIcon → no provider needed).
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
+// The page resolves wishlist skills (skillById) + the M1.5 Deck card art (cardById)
+// via useGameData; stub both (empty maps → no wishlist rows / placeholder deck art).
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ cardById: new Map(), cards: [], skillById: new Map() }),
+  useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }),
+  BASE_URL: '',
+}));
+// Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).
+vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
+  PlanInventoryCard: (props: { uma1PlanId?: string }) => (
+    <div data-testid="plan-inventory" data-uma1={props.uma1PlanId} />
+  ),
 }));
 
 import { InheritancePage } from './InheritancePage';
@@ -42,19 +61,25 @@ describe('InheritancePage', () => {
     for (let n = 1; n <= 6; n++) expect(screen.getByText(String(n))).toBeInTheDocument();
   });
 
-  it('renders the plan-context header and the 3-column workbench shell', async () => {
+  it('renders the header, the 3-column shell, and the uma-plan + plan-targets cards', async () => {
     render(<InheritancePage deps={deps} />);
-    // Header is present immediately (track suffix fills in after the catalog resolves).
     expect(screen.getByText('PLAN #1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Cancer Cup — Late ace' })).toBeInTheDocument();
-    // Three workbench columns render.
     expect(document.querySelectorAll('.inh-col').length).toBe(3);
-    // "Your uma plan" card is wired into the left column.
+    // "Your uma plan" card is in the left column (empty roster → no uma resolved).
     expect(screen.getByText('No uma selected')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
-    // Track name resolves from courseId 10906 → raceTrackId 10006 → "Tokyo".
+    // "Plan targets" card is wired in below it.
+    expect(screen.getByText('Plan targets')).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByText('From CM Planner · Tokyo Racecourse')).toBeInTheDocument(),
     );
+  });
+
+  it('pops the inventory card from the inventory icon, wired to the active plan', () => {
+    render(<InheritancePage deps={deps} />);
+    // Hidden until the inventory icon is clicked.
+    expect(screen.queryByTestId('plan-inventory')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Choose plan from inventory' }));
+    expect(screen.getByTestId('plan-inventory')).toHaveAttribute('data-uma1', 'p1');
   });
 });

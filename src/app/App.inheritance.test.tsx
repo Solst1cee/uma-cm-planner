@@ -4,19 +4,21 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
-// Stub ActivePlan so no Dexie is needed; the page only reads uma1Plan here.
+// Stub ActivePlan with a null plan → the uma-plan card is not rendered, so the
+// route smoke test needs no GameData provider. (Real @/db settings resolve fine.)
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({ uma1Plan: null, plan: null, setPlan: vi.fn() }),
+  useActivePlan: () => ({ uma1Plan: null, plan: null }),
 }));
-// Stub useUmas so the page needs no GameData provider in this route smoke test.
+// useUmas + useGameData are called unconditionally by the page; stub both so it needs no provider.
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
-// Stub useGameData (the M1.5 Deck card resolves card art through it) so the route
-// smoke test needs no GameData provider.
+// The page resolves wishlist skills (skillById) and the M1.5 Deck card art
+// (cardById) through useGameData; stub both so the route needs no GameData provider.
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ cardById: new Map(), cards: [], skillById: new Map() }),
+  useGameData: () => ({ skillById: new Map(), cardById: new Map(), cards: [] }),
+  BASE_URL: '',
 }));
 
 import { InheritancePage } from '@/features/inheritance/InheritancePage';

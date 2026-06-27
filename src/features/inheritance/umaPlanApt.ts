@@ -1,28 +1,23 @@
-// src/features/inheritance/umaPlanApt.ts
-/** The three pink aptitude chips shown on the M1 "Your uma plan" card
- *  (handoff README §"1. Your uma plan panel"): the plan's current surface /
- *  distance / strategy keys, graded by the selected uma's base aptitudes. */
-import { currentAptitudeKeys } from '@/core/simBuild';
-import type { CmPlan, Grade, Strategy, UmaRecord } from '@/core/types';
-import { STRATEGY_LABEL, cap } from './labels';
+/** The pink aptitude chips on the M1 "Uma plan" card (handoff README
+ *  §"1. Your uma plan panel"): the plan's three active aptitudes —
+ *  distance · surface · strategy — each with its target grade (e.g. "Long A").
+ *  Uses the same source as the M4 sidebar (`targetAptitude`): the stored pink
+ *  goal if set, else the active default (distance S, surface/strategy A). So it
+ *  always shows all three and follows the selected plan's race + strategy. */
+import { currentAptitudeKeys, targetAptitude } from '@/core/simBuild';
+import type { AptKey, CmPlan, Grade } from '@/core/types';
+import { cap } from './labels';
 
 export interface AptChip {
   label: string;
   grade: Grade;
 }
 
-export function umaPlanAptChips(plan: CmPlan, uma: UmaRecord | null): AptChip[] {
-  const apt = uma?.baseAptitudes;
-  if (!apt) return [];
+export function umaPlanAptChips(plan: CmPlan): AptChip[] {
   const keys = currentAptitudeKeys(plan);
-  // currentAptitudeKeys guarantees each AptKey's discriminant, so the narrowing
-  // casts below are safe (surface→turf/dirt, distance→short/…/long, strategy→Strategy).
-  const surface = keys.surface.key as 'turf' | 'dirt';
-  const distance = keys.distance.key as 'short' | 'mile' | 'medium' | 'long';
-  const strategy = keys.strategy.key as Strategy;
-  return [
-    { label: cap(surface), grade: apt.surface[surface] },
-    { label: cap(distance), grade: apt.distance[distance] },
-    { label: STRATEGY_LABEL[strategy], grade: apt.strategy[strategy] },
-  ];
+  const chip = (key: AptKey): AptChip => ({
+    label: cap(key.key),
+    grade: targetAptitude(plan, key) ?? 'A',
+  });
+  return [chip(keys.surface), chip(keys.distance), chip(keys.strategy)];
 }

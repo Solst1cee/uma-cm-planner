@@ -2,13 +2,36 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: { umaId: 'u1', name: 'Test plan', planNumber: 1, wishlist: [], sparkGoals: { blue: [], pink: [] }, cmRef: { kind: 'cm', cmId: 'CM1', cmNumber: 1, courseId: '10906', surface: 'turf', distance: 2400 } }, plan: null, setPlan: vi.fn() }) }));
+import type { CmPlan } from '@/core/types';
+
+// A complete-enough plan so the merged page's M1.3 (uma-plan/plan-targets) AND
+// M1.6 (pool) code paths both render. `umaId` resolves to no uma (placeholder).
+const plan: CmPlan = {
+  id: 'p1', name: 'Test plan', planNumber: 1,
+  cmRef: { kind: 'cm', cmId: 'CM1', cmNumber: 1, courseId: '10906', surface: 'turf', distance: 2400 },
+  scenarioId: 4, umaId: 'u1', uniqueSkillId: '', role: 'ace', strategy: 'late',
+  statProfile: { stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 }, mood: 2 },
+  sparkGoals: { pink: [], blue: {} }, wishlist: [], parents: {},
+  patch: { version: 'x' }, server: 'global', dataVersion: 'x',
+} as CmPlan;
+
+vi.mock('@/app/ActivePlanContext', () => ({
+  useActivePlan: () => ({
+    uma1Plan: plan, plan, uma2Plan: null, savedPlans: [plan],
+    setPlan: vi.fn(), saveCurrentPlan: vi.fn(), loadPlanIntoSlot: vi.fn(),
+    deleteSavedPlan: vi.fn(), importSavedPlans: vi.fn(), deleteAllSavedPlans: vi.fn(),
+  }),
+}));
 vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umas: [], umaById: new Map() }), umaName: (_: unknown, id: string) => id }));
+// Heavy M1.3 components need providers — stub them; this test exercises the center-column pool.
+vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({ PlanInventoryCard: () => <div data-testid="inventory" /> }));
+vi.mock('@/features/skill-planner/SkillPicker', () => ({ SkillPicker: () => <div data-testid="skill-picker" /> }));
 vi.mock('@/features/data/gameData', () => ({
   BASE_URL: '/',
   useGameData: () => ({
     cardById: new Map(),
     skillById: new Map(),
+    skills: [],
     cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [] }],
     // GameIcon resolves a card image only when the id is in the manifest.
     iconManifest: {

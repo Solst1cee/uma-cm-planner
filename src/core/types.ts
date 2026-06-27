@@ -367,9 +367,7 @@ export interface CmPlan {
     blue: Partial<Record<Stat, number>>;
   };
   wishlist: WishlistItem[];
-  lockedDeckSlots: Array<{ slot: 0 | 1 | 2 | 3 | 4 | 5; cardType?: CardType; cardId?: string }>;
   parents: { a?: string; b?: string };
-  inheritanceStopgap?: { inheritedSkills: string[]; sparks: ParentSparks };
   patch: { version: string; source?: string };
   server: Server;
   dataVersion: string;
@@ -425,24 +423,8 @@ export interface CoverageRow {
 }
 
 // ---------------------------------------------------------------------------
-// Deck suggester + contingency (Module 4 steps 4–5)
+// Contingency (Module 4 → M2 link)
 // ---------------------------------------------------------------------------
-
-export interface DeckSuggestion {
-  /** All 6 slots; locked slots echo their constraint, free slots get picks. */
-  deck: Array<{
-    slot: 0 | 1 | 2 | 3 | 4 | 5;
-    cardId?: string;
-    /** Why this slot is fixed, when it came from CmPlan.lockedDeckSlots. */
-    lockedBy?: 'cardId' | 'cardType';
-  }>;
-  /** Σ(priorityWeight × tierWeight) over target skills, for comparing decks. */
-  coverageScore: number;
-  /** Target skillIds with no source in the suggested deck (+ parents). */
-  uncovered: string[];
-  /** Human-readable: which target(s) each pick covers, and at what tier. */
-  rationale: string[];
-}
 
 /** Static contingency branch for a spark-covered target (plan §6, links M4→M2). */
 export interface SparkContingency {

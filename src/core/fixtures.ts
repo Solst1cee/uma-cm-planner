@@ -206,6 +206,6 @@ export const FIXTURE_PLAN: CmPlan = {
     { skillId: '200014', priority: 2, source: 'targeted' },
     { skillId: '210061', priority: 3, source: 'targeted' },
   ],
-  lockedDeckSlots: [], parents: {},
+  parents: {},
   patch: { version: 'test' }, server: 'global', dataVersion: 'test',
 };

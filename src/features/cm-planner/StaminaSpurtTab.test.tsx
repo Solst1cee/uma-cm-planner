@@ -37,7 +37,6 @@ const plan = {
   },
   sparkGoals: { pink: [], blue: {} },
   wishlist: [],
-  lockedDeckSlots: [],
   parents: {},
   patch: { version: 't' },
   server: 'global' as const,
