@@ -54,6 +54,34 @@ fill seam `addCardToDeck(cardId)` + the drop target are built and tested; the
 interactive drag *source* / "+ Add" button arrive with **M1.6** (support-card
 pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
 
+## M1.4 "Inheritance" card + UmaExtractor importer + spark-filter picker (2026-06-27)
+
+The center-column **"Inheritance"** card: owned **Parent 1 & 2** slots
+(`InheritanceCard`/`ParentCardView`), each showing the full lineage's sparks as
+colour-coded chips — blue (stat) · pink (aptitude) · **green (inherited-unique)** ·
+white (skill) — with **gold legacy / dark grandparent** stars. Selection persists to
+`CmPlan.parents.{a,b}`. Parent 2 has an Owned/Rental toggle (Rental → M1.4b stub);
+`Find candidates` is a heuristic pre-rank (`candidateScore`).
+
+**UmaExtractor importer** (`UploadDataButton`/`useRoster`/`umaExtractor`/`factorDecode`):
+"Upload data" parses a UmaExtractor `data.json` → `Parent[]` (factor decode → blue/
+pink/green/white sparks, grandparents from succession positions 10/20, `wonRaces`,
+`rankScore`), `bulkUpsertParents` into the Dexie `parents` store. `useRoster` is a
+shared store (`useSyncExternalStore`) so an import refreshes everywhere live. Green
+sparks store the decoded base/alt unique id (100xxx/110xxx) for name display; the
+9xxxxx reconciliation for coverage math is M1.7. Privacy: the parser drops every
+`*viewer_id`.
+
+**Picker modal** (`UmaPickerModal`): the **Pick/Change** button opens a full-screen
+modal — a **spark-filter search-builder** (`sparkAggregate`/`sparkFilter`: add-a-row
+blue/pink/white legacy+total `≥` clauses + any-blue) over the roster, a name search,
+and one-veteran-per-row tiles (portrait · name · rank badge · rank score · roster id ·
+**affinity** via `candidateAffinity` = lineage affinity + G1 win bonus, `useAffinityIndex`
+loads `affinity.json`). Shared `LineageSparkChips` drives the card + tile chips.
+Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-filter.
+**Deferred (M1.4b):** Parent-2 rental builder + search-link; green-spark 9xxxxx +
+saddle→G1 `wonRaces` reconciliation (M1.7).
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
