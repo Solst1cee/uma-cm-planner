@@ -299,6 +299,29 @@ button:disabled {
   border: 1px solid var(--border);
   color: var(--fg-muted);
 }
+/* Spark/factor chips — match the in-game factor colours: blue stat · pink
+   aptitude · green unique · white/grey skill. Theme-adaptive via color-mix.
+   `.badge.spark-*` (specificity 0,2,0) overrides the plain `.badge` greys. */
+.badge.spark-blue {
+  background: color-mix(in srgb, #3b82f6 16%, var(--bg-1));
+  border-color: color-mix(in srgb, #3b82f6 55%, var(--border));
+  color: color-mix(in srgb, #3b82f6 72%, var(--fg));
+}
+.badge.spark-pink {
+  background: color-mix(in srgb, #ec4899 16%, var(--bg-1));
+  border-color: color-mix(in srgb, #ec4899 55%, var(--border));
+  color: color-mix(in srgb, #ec4899 74%, var(--fg));
+}
+.badge.spark-green {
+  background: color-mix(in srgb, #22c55e 16%, var(--bg-1));
+  border-color: color-mix(in srgb, #22c55e 55%, var(--border));
+  color: color-mix(in srgb, #22c55e 64%, var(--fg));
+}
+.badge.spark-white {
+  background: color-mix(in srgb, #94a3b8 16%, var(--bg-1));
+  border-color: color-mix(in srgb, #94a3b8 60%, var(--border));
+  color: var(--fg);
+}
 .rarity-gold {
   color: #fbbf24;
   border-color: #6b5618;

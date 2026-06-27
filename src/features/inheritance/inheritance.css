@@ -421,3 +421,112 @@ main:has(.inh-page) {
   font-size: 0.72rem;
 }
 .inh-deck-plus { display: block; font-size: 1rem; line-height: 1; }
+
+/* Inheritance card (M1.4) */
+.inh-inheritance-card .cmp-plan-card-head { gap: 0.5rem; }
+/* The tools group owns the auto-margin (right-aligns Updated + Upload); the caret
+   then sits flush to its right as the last item, so the bar stays one tidy row. */
+.inh-inherit-tools { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
+.inh-inheritance-card .cmp-collapse-caret { margin-left: 0; }
+.inh-inherit-sub,
+.inh-updated { white-space: nowrap; }
+.inh-updated { font-variant-numeric: tabular-nums; }
+.inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+@media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
+.inh-parent { border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1); padding: 0.5rem 0.55rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.inh-parent-head { display: flex; align-items: center; gap: 0.4rem; }
+.inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
+.inh-clear { color: var(--error); }
+.inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }
+.inh-parent-id { display: flex; align-items: center; gap: 0.45rem; }
+.inh-parent-name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.inh-gp { margin-left: auto; display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.7rem; color: var(--fg-muted); }
+/* `.spark-chips` lives in parents.css (not loaded on this route) — define the
+   flex row here for the inheritance card + the portalled picker modal. */
+.inh-parent .spark-chips,
+.inh-uma-modal .spark-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+.inh-white-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.inh-white-chip { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; background: var(--bg-2); }
+.inh-white-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inh-star-own { color: #eab308; }
+/* Grandparent stars: dark, almost-black (theme-adaptive via --fg). */
+.inh-star-gp { color: var(--fg); }
+.inh-rental-stub { padding: 0.3rem 0; }
+.inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
+.inh-p2-mode { margin-left: 0.2rem; }
+.inh-uma-picker { margin-top: 0.2rem; }
+
+
+/* Uma picker modal (M1.4) */
+.inh-uma-modal-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.inh-uma-modal {
+  width: min(1200px, 96vw); height: min(900px, 92vh); max-height: 92vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.inh-uma-modal-head { gap: 0.5rem; }
+.inh-uma-modal-head .muted { margin-left: auto; }
+.inh-uma-modal-x { margin-left: 0.4rem; }
+.inh-uma-searchbar {
+  padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-1);
+}
+.inh-uma-search { width: 100%; box-sizing: border-box; font-weight: 400; }
+.inh-uma-filterbar {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
+  padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-2);
+}
+.inh-uma-add { position: relative; }
+.inh-uma-add-menu {
+  position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 2;
+  display: flex; flex-direction: column; min-width: 9rem;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1);
+  box-shadow: 0 8px 24px rgb(20 30 50 / 0.18); overflow: hidden;
+}
+.inh-uma-add-menu button { text-align: left; padding: 0.4rem 0.6rem; background: none; border: none; cursor: pointer; }
+.inh-uma-add-menu button:hover { background: var(--bg-2); }
+.inh-uma-filter-row {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.4rem; background: var(--bg-1);
+}
+.inh-uma-min { display: inline-flex; align-items: center; gap: 0.2rem; }
+.inh-uma-min input { width: 2.8rem; }
+.inh-uma-filter-x { color: var(--error); }
+.inh-uma-grid {
+  /* one veteran per row */
+  display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;
+  flex: 1 1 auto; min-height: 0;
+}
+.inh-uma-tile {
+  display: flex; flex-direction: column; gap: 0.4rem; text-align: left;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
+  padding: 0.55rem 0.65rem; cursor: pointer;
+}
+.inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
+/* Header zone: portrait · name · rank badge · rank score · roster id */
+.inh-uma-tile-head { display: flex; align-items: center; gap: 0.5rem; }
+.inh-uma-tile-portrait { flex: none; display: inline-flex; }
+.inh-uma-tile-name { font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inh-uma-rank {
+  flex: none; display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 800;
+  padding: 0.05rem 0.5rem; border-radius: 999px;
+  color: #b07a00; background: color-mix(in srgb, #eab308 18%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, #eab308 50%, var(--border));
+}
+.inh-uma-rank-icon { color: #eab308; }
+.inh-uma-score { flex: none; font-variant-numeric: tabular-nums; }
+.inh-uma-jsonid { flex: none; }
+/* Affinity on its own row */
+.inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
+.inh-uma-aff {
+  flex: none; font-weight: 800; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px; padding: 0.05rem 0.5rem;
+}
+/* Tile sparks: stack the lineage chip rows (blue/pink/green, then white). */
+.inh-uma-tile-sparks { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
+.inh-uma-tile-sparks .spark-chips { flex-wrap: wrap; }

@@ -20,6 +20,7 @@ import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
+import { InheritanceCard } from './InheritanceCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import {
   addBlueSpark,
@@ -297,7 +298,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           )}
         </div>
         <div className="inh-col inh-col-center">
-          <Placeholder title="Inheritance" phase="M1.4" />
+          <InheritanceCard />
           <YourDeckCard
             state={deck}
             onChange={setDeck}
