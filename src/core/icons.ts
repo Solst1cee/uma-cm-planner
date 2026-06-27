@@ -30,6 +30,8 @@ export interface IconManifest {
   ui?: string[];
   /** Available rank-rating badge labels (G … LS24). */
   rank?: string[];
+  /** Available support-card full-art ids (web-sized WebP under data/card-art/). */
+  cardArt?: string[];
   /**
    * umaIds whose portrait fell back to the base character icon. Informational;
    * these still appear in `uma`.
@@ -77,4 +79,14 @@ export function uiIconPath(id: string, m: IconManifest): string | undefined {
 export function rankIconPath(label: string, m: IconManifest): string | undefined {
   if (!has(m.rank, label)) return undefined;
   return `data/icons/rank/${label.replace('+', '-plus')}.${m.format}`;
+}
+
+/**
+ * App-base-relative path to a support-card full-art image, e.g.
+ * `data/card-art/30028.webp` (web-sized 512px; lives under data/card-art/, NOT
+ * data/icons/). `cardId` is SupportCardRecord.cardId.
+ */
+export function cardArtPath(cardId: string, m: IconManifest): string | undefined {
+  if (!has(m.cardArt, cardId)) return undefined;
+  return `data/card-art/${cardId}.${m.format}`;
 }

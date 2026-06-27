@@ -60,6 +60,14 @@ export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umat
  */
 export const COLOR_STAT_ICON_DIR = join(REPO_ROOT, 'spikes', 'assets', 'stat-icons-colored');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
+/**
+ * Support-card full art, web-sized (512px WebP), committed at
+ * `public/data/card-art/<cardId>.webp`. NOT produced by this dump pipeline —
+ * extracted + resized from the Global client by the asset-extraction tool
+ * (provenance §2.1 / asset-acquisition memory). `buildIcons` only INDEXES the
+ * committed files into the manifest's `cardArt` array.
+ */
+const CARD_ART_DIR = join(PUBLIC_DATA_DIR, 'card-art');
 // Build into a sibling staging dir and swap on success, so a partial/corrupt
 // dump that throws mid-build can never destroy the committed icons.
 const ICONS_STAGING_DIR = join(PUBLIC_DATA_DIR, 'icons.staging');
@@ -105,6 +113,8 @@ export interface IconManifest {
   ui: string[];
   /** Available rank-rating badge labels (G … LS24, ascending order). */
   rank: string[];
+  /** Available support-card full-art ids (public/data/card-art/<id>.webp). */
+  cardArt: string[];
   /** umaIds that fell back to the base chr_icon (no outfit-specific trained icon). */
   _fallbackUmas: string[];
 }
@@ -287,6 +297,14 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   // --- rank-rating badges (sliced from the single Rank_tex.png atlas) -------
   const rankLabels = await sliceRankIcons(join(ICONS_STAGING_DIR, 'rank'));
 
+  // --- card art (committed externally; just index it into the manifest) -----
+  const cardArtIds = existsSync(CARD_ART_DIR)
+    ? readdirSync(CARD_ART_DIR)
+        .filter((f) => f.endsWith('.webp'))
+        .map((f) => f.slice(0, -'.webp'.length))
+        .sort((a, b) => Number(a) - Number(b))
+    : [];
+
   const manifest: IconManifest = {
     dataVersion: opts.dataVersion,
     format: 'webp',
@@ -295,6 +313,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     uma: umaIds,
     ui: uiIconIds,
     rank: rankLabels,
+    cardArt: cardArtIds,
     _fallbackUmas: fallbackUmas,
   };
   writeJsonDeterministic(join(ICONS_STAGING_DIR, 'icon-manifest.json'), manifest);
@@ -307,6 +326,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   console.log(
     `public/data/icons written: ${skillIconIds.length} skill, ${cardIds.length} support, ` +
       `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ${rankLabels.length} rank, ` +
+      `${cardArtIds.length} card-art, ` +
       `${(onDiskBytes / 1024 / 1024).toFixed(2)} MB total.`,
   );
   if (fallbackUmas.length > 0) {
