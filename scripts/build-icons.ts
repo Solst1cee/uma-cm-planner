@@ -37,10 +37,37 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import sharp from 'sharp';
 import type { SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
 import { PUBLIC_DATA_DIR, readJson, REPO_ROOT, writeJsonDeterministic } from './lib/io';
+import { computeRankSpriteMap, rankIconFilename, rankLabelsOrdered } from './lib/rank-sprites';
 
 /** Source PNG dump (gitignored). See docs/provenance.md §2 + §7. */
 export const ICON_DUMP_DIR = join(REPO_ROOT, 'spikes', 'repos', 'uma-tools', 'icons');
+
+/**
+ * Rank-rating badge atlas (gitignored vendored input). Single sprite sheet
+ * `Rank_tex.png` from daftuyda/UmaTools (provenance §2.1); the per-badge rects
+ * live in `scripts/lib/rank-sprites.ts`. Refresh: download
+ * https://raw.githubusercontent.com/daftuyda/UmaTools/main/assets/Rank_tex.png
+ * to this path, then `pnpm data:build` (or `tsx scripts/build-icons.ts`).
+ */
+export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umatools', 'Rank_tex.png');
+
+/**
+ * Coloured stat-tile sources (gitignored vendored input): `stat-{spd,sta,pow,
+ * gut,wit}.png`, the in-game `utx_ico_obtain_00..04` sprites (glyph on a colour
+ * tile) extracted from the Global client (provenance §2.1). When present, these
+ * OVERRIDE the white-glyph `status_0n.png` for the `stat-*` UI icons; absent →
+ * fall back to the white dump source (CI keeps the committed coloured webps).
+ */
+export const COLOR_STAT_ICON_DIR = join(REPO_ROOT, 'spikes', 'assets', 'stat-icons-colored');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
+/**
+ * Support-card full art, web-sized (512px WebP), committed at
+ * `public/data/card-art/<cardId>.webp`. NOT produced by this dump pipeline —
+ * extracted + resized from the Global client by the asset-extraction tool
+ * (provenance §2.1 / asset-acquisition memory). `buildIcons` only INDEXES the
+ * committed files into the manifest's `cardArt` array.
+ */
+const CARD_ART_DIR = join(PUBLIC_DATA_DIR, 'card-art');
 // Build into a sibling staging dir and swap on success, so a partial/corrupt
 // dump that throws mid-build can never destroy the committed icons.
 const ICONS_STAGING_DIR = join(PUBLIC_DATA_DIR, 'icons.staging');
@@ -84,6 +111,10 @@ export interface IconManifest {
   uma: string[];
   /** Available small UI icon ids. */
   ui: string[];
+  /** Available rank-rating badge labels (G … LS24, ascending order). */
+  rank: string[];
+  /** Available support-card full-art ids (public/data/card-art/<id>.webp). */
+  cardArt: string[];
   /** umaIds that fell back to the base chr_icon (no outfit-specific trained icon). */
   _fallbackUmas: string[];
 }
@@ -155,6 +186,30 @@ export function umaSourceFile(
 /** Convert one source PNG → WebP at the given output path (deterministic given same input). */
 async function convertToWebp(sourceAbs: string, outAbs: string): Promise<void> {
   await sharp(sourceAbs).webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
+}
+
+/**
+ * Slice the Rank_tex.png atlas into one WebP per rank badge (G … LS24) under
+ * `outDir`. Returns the ordered label list for the manifest. Throws if the
+ * gitignored atlas is absent (consistent with the other source-missing guards;
+ * the whole build already self-skips when the icon dump is absent in CI).
+ */
+async function sliceRankIcons(outDir: string): Promise<string[]> {
+  if (!existsSync(RANK_ATLAS_FILE)) {
+    throw new Error(
+      `build-icons: missing rank atlas ${RANK_ATLAS_FILE}. Download Rank_tex.png from ` +
+        'daftuyda/UmaTools (provenance §2.1) to that path, then rebuild.',
+    );
+  }
+  mkdirSync(outDir, { recursive: true });
+  const rects = computeRankSpriteMap();
+  for (const [label, r] of Object.entries(rects)) {
+    await sharp(RANK_ATLAS_FILE)
+      .extract({ left: r.x, top: r.y, width: r.w, height: r.h })
+      .webp({ quality: WEBP_QUALITY, effort: 4 })
+      .toFile(join(outDir, `${rankIconFilename(label)}.webp`));
+  }
+  return rankLabelsOrdered();
 }
 
 /** Remove + recreate an output kind dir so a rebuild can't leave stale icons behind. */
@@ -229,12 +284,26 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const uiIconIds = uiIconEntries.map(([id]) => id);
   mkdirSync(join(ICONS_STAGING_DIR, 'ui'), { recursive: true });
   for (const [id, relPath] of uiIconEntries) {
-    const src = srcAbs(relPath);
+    // Prefer the coloured stat tile (utx_ico_obtain_*) when the vendored source
+    // is present; otherwise fall back to the white-glyph dump source.
+    const coloredStat = join(COLOR_STAT_ICON_DIR, `${id}.png`);
+    const src = id.startsWith('stat-') && existsSync(coloredStat) ? coloredStat : srcAbs(relPath);
     if (!existsSync(src)) {
       throw new Error(`build-icons: missing UI icon source ${src} (id ${id}).`);
     }
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'ui', `${id}.webp`));
   }
+
+  // --- rank-rating badges (sliced from the single Rank_tex.png atlas) -------
+  const rankLabels = await sliceRankIcons(join(ICONS_STAGING_DIR, 'rank'));
+
+  // --- card art (committed externally; just index it into the manifest) -----
+  const cardArtIds = existsSync(CARD_ART_DIR)
+    ? readdirSync(CARD_ART_DIR)
+        .filter((f) => f.endsWith('.webp'))
+        .map((f) => f.slice(0, -'.webp'.length))
+        .sort((a, b) => Number(a) - Number(b))
+    : [];
 
   const manifest: IconManifest = {
     dataVersion: opts.dataVersion,
@@ -243,6 +312,8 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     card: cardIds,
     uma: umaIds,
     ui: uiIconIds,
+    rank: rankLabels,
+    cardArt: cardArtIds,
     _fallbackUmas: fallbackUmas,
   };
   writeJsonDeterministic(join(ICONS_STAGING_DIR, 'icon-manifest.json'), manifest);
@@ -254,7 +325,8 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const onDiskBytes = dirBytes(ICONS_OUT_DIR);
   console.log(
     `public/data/icons written: ${skillIconIds.length} skill, ${cardIds.length} support, ` +
-      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ` +
+      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ${rankLabels.length} rank, ` +
+      `${cardArtIds.length} card-art, ` +
       `${(onDiskBytes / 1024 / 1024).toFixed(2)} MB total.`,
   );
   if (fallbackUmas.length > 0) {
