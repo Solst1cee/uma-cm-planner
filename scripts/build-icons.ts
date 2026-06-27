@@ -37,9 +37,19 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import sharp from 'sharp';
 import type { SkillRecord, SupportCardRecord, UmaRecord } from '@/core/types';
 import { PUBLIC_DATA_DIR, readJson, REPO_ROOT, writeJsonDeterministic } from './lib/io';
+import { computeRankSpriteMap, rankIconFilename, rankLabelsOrdered } from './lib/rank-sprites';
 
 /** Source PNG dump (gitignored). See docs/provenance.md §2 + §7. */
 export const ICON_DUMP_DIR = join(REPO_ROOT, 'spikes', 'repos', 'uma-tools', 'icons');
+
+/**
+ * Rank-rating badge atlas (gitignored vendored input). Single sprite sheet
+ * `Rank_tex.png` from daftuyda/UmaTools (provenance §2.1); the per-badge rects
+ * live in `scripts/lib/rank-sprites.ts`. Refresh: download
+ * https://raw.githubusercontent.com/daftuyda/UmaTools/main/assets/Rank_tex.png
+ * to this path, then `pnpm data:build` (or `tsx scripts/build-icons.ts`).
+ */
+export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umatools', 'Rank_tex.png');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
 // Build into a sibling staging dir and swap on success, so a partial/corrupt
 // dump that throws mid-build can never destroy the committed icons.
@@ -84,6 +94,8 @@ export interface IconManifest {
   uma: string[];
   /** Available small UI icon ids. */
   ui: string[];
+  /** Available rank-rating badge labels (G … LS24, ascending order). */
+  rank: string[];
   /** umaIds that fell back to the base chr_icon (no outfit-specific trained icon). */
   _fallbackUmas: string[];
 }
@@ -155,6 +167,30 @@ export function umaSourceFile(
 /** Convert one source PNG → WebP at the given output path (deterministic given same input). */
 async function convertToWebp(sourceAbs: string, outAbs: string): Promise<void> {
   await sharp(sourceAbs).webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
+}
+
+/**
+ * Slice the Rank_tex.png atlas into one WebP per rank badge (G … LS24) under
+ * `outDir`. Returns the ordered label list for the manifest. Throws if the
+ * gitignored atlas is absent (consistent with the other source-missing guards;
+ * the whole build already self-skips when the icon dump is absent in CI).
+ */
+async function sliceRankIcons(outDir: string): Promise<string[]> {
+  if (!existsSync(RANK_ATLAS_FILE)) {
+    throw new Error(
+      `build-icons: missing rank atlas ${RANK_ATLAS_FILE}. Download Rank_tex.png from ` +
+        'daftuyda/UmaTools (provenance §2.1) to that path, then rebuild.',
+    );
+  }
+  mkdirSync(outDir, { recursive: true });
+  const rects = computeRankSpriteMap();
+  for (const [label, r] of Object.entries(rects)) {
+    await sharp(RANK_ATLAS_FILE)
+      .extract({ left: r.x, top: r.y, width: r.w, height: r.h })
+      .webp({ quality: WEBP_QUALITY, effort: 4 })
+      .toFile(join(outDir, `${rankIconFilename(label)}.webp`));
+  }
+  return rankLabelsOrdered();
 }
 
 /** Remove + recreate an output kind dir so a rebuild can't leave stale icons behind. */
@@ -236,6 +272,9 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'ui', `${id}.webp`));
   }
 
+  // --- rank-rating badges (sliced from the single Rank_tex.png atlas) -------
+  const rankLabels = await sliceRankIcons(join(ICONS_STAGING_DIR, 'rank'));
+
   const manifest: IconManifest = {
     dataVersion: opts.dataVersion,
     format: 'webp',
@@ -243,6 +282,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     card: cardIds,
     uma: umaIds,
     ui: uiIconIds,
+    rank: rankLabels,
     _fallbackUmas: fallbackUmas,
   };
   writeJsonDeterministic(join(ICONS_STAGING_DIR, 'icon-manifest.json'), manifest);
@@ -254,7 +294,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const onDiskBytes = dirBytes(ICONS_OUT_DIR);
   console.log(
     `public/data/icons written: ${skillIconIds.length} skill, ${cardIds.length} support, ` +
-      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ` +
+      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ${rankLabels.length} rank, ` +
       `${(onDiskBytes / 1024 / 1024).toFixed(2)} MB total.`,
   );
   if (fallbackUmas.length > 0) {
