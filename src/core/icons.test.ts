@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { IconManifest } from '@/core/icons';
-import { cardIconPath, skillIconPath, umaIconPath } from '@/core/icons';
+import { cardArtPath, cardIconPath, rankIconPath, skillIconPath, umaIconPath } from '@/core/icons';
 
 const MANIFEST: IconManifest = {
   dataVersion: 'test',
@@ -13,6 +13,8 @@ const MANIFEST: IconManifest = {
   skill: ['10011', '20012'],
   card: ['30028', '10001'],
   uma: ['100201', '100101'],
+  rank: ['G', 'SS+', 'LS24'],
+  cardArt: ['10001', '30028'],
 };
 
 describe('skillIconPath', () => {
@@ -39,6 +41,28 @@ describe('umaIconPath', () => {
   });
   it('returns undefined for an absent umaId', () => {
     expect(umaIconPath('109901', MANIFEST)).toBeUndefined();
+  });
+});
+
+describe('rankIconPath', () => {
+  it('resolves a present rank label to data/icons/rank/<label>.webp', () => {
+    expect(rankIconPath('G', MANIFEST)).toBe('data/icons/rank/G.webp');
+    expect(rankIconPath('LS24', MANIFEST)).toBe('data/icons/rank/LS24.webp');
+  });
+  it('escapes the + suffix to -plus', () => {
+    expect(rankIconPath('SS+', MANIFEST)).toBe('data/icons/rank/SS-plus.webp');
+  });
+  it('returns undefined for an absent rank label', () => {
+    expect(rankIconPath('UA7', MANIFEST)).toBeUndefined();
+  });
+});
+
+describe('cardArtPath', () => {
+  it('resolves a present cardId to data/card-art/<cardId>.webp', () => {
+    expect(cardArtPath('30028', MANIFEST)).toBe('data/card-art/30028.webp');
+  });
+  it('returns undefined for a cardId without extracted art', () => {
+    expect(cardArtPath('99999', MANIFEST)).toBeUndefined();
   });
 });
 
