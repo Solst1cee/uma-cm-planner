@@ -50,6 +50,15 @@ export const ICON_DUMP_DIR = join(REPO_ROOT, 'spikes', 'repos', 'uma-tools', 'ic
  * to this path, then `pnpm data:build` (or `tsx scripts/build-icons.ts`).
  */
 export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umatools', 'Rank_tex.png');
+
+/**
+ * Coloured stat-tile sources (gitignored vendored input): `stat-{spd,sta,pow,
+ * gut,wit}.png`, the in-game `utx_ico_obtain_00..04` sprites (glyph on a colour
+ * tile) extracted from the Global client (provenance §2.1). When present, these
+ * OVERRIDE the white-glyph `status_0n.png` for the `stat-*` UI icons; absent →
+ * fall back to the white dump source (CI keeps the committed coloured webps).
+ */
+export const COLOR_STAT_ICON_DIR = join(REPO_ROOT, 'spikes', 'assets', 'stat-icons-colored');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
 // Build into a sibling staging dir and swap on success, so a partial/corrupt
 // dump that throws mid-build can never destroy the committed icons.
@@ -265,7 +274,10 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const uiIconIds = uiIconEntries.map(([id]) => id);
   mkdirSync(join(ICONS_STAGING_DIR, 'ui'), { recursive: true });
   for (const [id, relPath] of uiIconEntries) {
-    const src = srcAbs(relPath);
+    // Prefer the coloured stat tile (utx_ico_obtain_*) when the vendored source
+    // is present; otherwise fall back to the white-glyph dump source.
+    const coloredStat = join(COLOR_STAT_ICON_DIR, `${id}.png`);
+    const src = id.startsWith('stat-') && existsSync(coloredStat) ? coloredStat : srcAbs(relPath);
     if (!existsSync(src)) {
       throw new Error(`build-icons: missing UI icon source ${src} (id ${id}).`);
     }
