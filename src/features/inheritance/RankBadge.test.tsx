@@ -16,11 +16,12 @@ import { RankBadge } from './RankBadge';
 afterEach(() => { cleanup(); iconProps.length = 0; });
 
 describe('RankBadge', () => {
-  it('renders the rank art (kind="rank") + the text label', () => {
+  it('renders the rank art only (kind="rank"), no visible text label', () => {
     render(<RankBadge rating="SS+" />);
     expect(screen.getByTestId('game-icon')).toHaveAttribute('data-kind', 'rank');
     expect(screen.getByTestId('game-icon')).toHaveAttribute('data-id', 'SS+');
-    expect(screen.getByText('SS+')).toBeInTheDocument(); // label augments the art (P3)
+    // Icon only — the badge art spells the rank; no separate text label.
+    expect(screen.queryByText('SS+')).not.toBeInTheDocument();
   });
 
   it('renders nothing without a rating', () => {

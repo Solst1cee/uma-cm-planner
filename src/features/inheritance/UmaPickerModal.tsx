@@ -14,8 +14,7 @@ export interface UmaPickerItem {
   /** Roster id (trained_chara_id from the json file). */
   id: string;
   name: string;
-  rankScore?: number;
-  /** Pre-built evaluation-rank badge node (image + label) — container-wired. */
+  /** Pre-built evaluation-rank badge node (icon) — container-wired. */
   rankBadge?: ReactNode;
   portrait: ReactNode;
   /** The veteran — drives the full-lineage spark chips on the tile. */
@@ -154,9 +153,6 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
                 <span className="inh-uma-tile-portrait">{it.portrait}</span>
                 <span className="inh-uma-tile-name">{it.name}</span>
                 {it.rankBadge}
-                {it.rankScore !== undefined && (
-                  <span className="inh-uma-score muted small" title="Rank score">{it.rankScore}</span>
-                )}
                 <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{it.id}</span>
               </span>
               <span className="inh-uma-aff-row">

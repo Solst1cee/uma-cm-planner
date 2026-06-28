@@ -451,6 +451,11 @@ main:has(.inh-page) {
 .inh-star-own { color: #eab308; }
 /* Grandparent stars: dark, almost-black (theme-adaptive via --fg). */
 .inh-star-gp { color: var(--fg); }
+/* Grey (white-spark) chips read lighter than the coloured chips — softer text
+   and softer stars, so the common white sparks recede behind blue/pink/green. */
+.badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
+.badge.spark-white .inh-star-own { color: color-mix(in srgb, #eab308 60%, var(--bg-1)); }
+.badge.spark-white .inh-star-gp { color: var(--fg-muted); }
 .inh-rental-stub { padding: 0.3rem 0; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -507,20 +512,15 @@ main:has(.inh-page) {
   padding: 0.55rem 0.65rem; cursor: pointer;
 }
 .inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
-/* Header zone: portrait · name · rank badge · rank score · roster id */
+/* Header zone: portrait · name · rank badge · roster id */
 .inh-uma-tile-head { display: flex; align-items: center; gap: 0.5rem; }
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
 .inh-uma-tile-name { font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Evaluation-rank badge: the in-game rank art + its label (G … LS24). Shared by
-   the parent card and the picker tile (RankBadge). */
-.inh-rank-badge {
-  flex: none; display: inline-flex; align-items: center; gap: 0.25rem;
-  font-weight: 800; font-variant-numeric: tabular-nums;
-}
+/* Evaluation-rank badge: the in-game rank art (G … LS24), icon only — the badge
+   art already spells the rank. Shared by the parent card + picker tile. */
+.inh-rank-badge { flex: none; display: inline-flex; align-items: center; }
 .inh-rank-badge .game-icon { flex: none; }
-.inh-rank-label { line-height: 1; }
 .inh-parent-id .inh-rank-badge { margin-left: auto; }
-.inh-uma-score { flex: none; font-variant-numeric: tabular-nums; }
 .inh-uma-jsonid { flex: none; }
 /* Affinity on its own row */
 .inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }

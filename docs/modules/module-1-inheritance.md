@@ -75,7 +75,7 @@ sparks store the decoded base/alt unique id (100xxx/110xxx) for name display; th
 **Picker modal** (`UmaPickerModal`): the **Pick/Change** button opens a full-screen
 modal — a **spark-filter search-builder** (`sparkAggregate`/`sparkFilter`: add-a-row
 blue/pink/white legacy+total `≥` clauses + any-blue) over the roster, a name search,
-and one-veteran-per-row tiles (portrait · name · rank badge · rank score · roster id ·
+and one-veteran-per-row tiles (portrait · name · rank badge · roster id ·
 **affinity** via `candidateAffinity` = lineage affinity + G1 win bonus, `useAffinityIndex`
 loads `affinity.json`). Shared `LineageSparkChips` drives the card + tile chips.
 Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-filter.
@@ -94,8 +94,10 @@ saddle→G1 `wonRaces` reconciliation (M1.7).
   PR #14 rank-badge atlas; first-91 bands cross-checked against master.mdb
   `single_mode_rank`). The importer derives `Parent.rating` from `rank_score` (falls
   back to the `rank` id via `ratingFromRank`). `GameIcon` gained a **`rank`** kind
-  (→ `rankIconPath`); a small wired `RankBadge` (art + label, P3) is built by the
-  container and passed as a node to the provider-free card/picker.
+  (→ `rankIconPath`); a small wired `RankBadge` (**icon only** — the badge art
+  already spells the rank; label rides along as `alt`/`title`) is built by the
+  container and passed as a node to the provider-free card/picker. The picker
+  tile shows the badge but **not** the numeric rank score (icon-only by request).
 
 ## Next (Plans 3–5)
 

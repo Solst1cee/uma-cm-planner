@@ -56,7 +56,6 @@ export function InheritanceCard() {
     return pool.map((p) => ({
       id: p.id,
       name: umaName(umaById, p.umaId),
-      rankScore: p.rankScore,
       rankBadge: <RankBadge rating={p.rating} size={20} />,
       portrait: <GameIcon kind="uma" id={p.umaId} size={42} alt="" />,
       parent: p,
