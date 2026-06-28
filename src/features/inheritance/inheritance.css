@@ -433,8 +433,14 @@ main:has(.inh-page) {
 .inh-updated { font-variant-numeric: tabular-nums; }
 .inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 @media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
-.inh-parent { border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1); padding: 0.5rem 0.55rem; display: flex; flex-direction: column; gap: 0.45rem; }
-.inh-parent-head { display: flex; align-items: center; gap: 0.4rem; }
+/* Card chrome (border / radius / bg / shadow / overflow-clip for the head
+   corners) comes from .cmp-plan-card; .inh-parent just stacks head + content. */
+.inh-parent { display: flex; flex-direction: column; }
+/* Grey head bar (bg-2 + bottom border) from .cmp-plan-card-head; tighten the
+   padding for these sub-cards and keep the actions inline on the bar. */
+.inh-parent-head.cmp-plan-card-head { gap: 0.4rem; padding: 0.35rem 0.5rem; min-height: 0; font-size: 0.9rem; }
+.inh-parent-title { font-weight: 700; }
+.inh-parent-content { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
 .inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
 .inh-clear { color: var(--error); }
 .inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }

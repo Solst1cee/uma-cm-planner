@@ -30,9 +30,9 @@ export function ParentCardView({
   onFindCandidates, onChange, onClear, children,
 }: ParentCardViewProps) {
   return (
-    <div className="inh-parent">
-      <div className="inh-parent-head">
-        <span className="cmp-mini-label">{label}</span>
+    <div className="inh-parent cmp-plan-card">
+      <div className="inh-parent-head cmp-plan-card-head">
+        <span className="inh-parent-title">{label}</span>
         {rentalToggle}
         <span className="inh-parent-actions">
           {!rentalStub && onFindCandidates && (
@@ -47,24 +47,26 @@ export function ParentCardView({
         </span>
       </div>
 
-      {rentalStub ? (
-        <p className="inh-rental-stub muted small">Rental mode coming in M1.4b.</p>
-      ) : parent ? (
-        <div className="inh-parent-body">
-          <div className="inh-parent-id">
-            <span className="inh-parent-portrait">{portrait}</span>
-            <span className="inh-parent-name">{name ?? parent.umaId}</span>
-            {rankBadge}
-            {gpPortraits && (
-              <span className="inh-gp">GP:{gpPortraits[0]}{gpPortraits[1]}</span>
-            )}
+      <div className="inh-parent-content">
+        {rentalStub ? (
+          <p className="inh-rental-stub muted small">Rental mode coming in M1.4b.</p>
+        ) : parent ? (
+          <div className="inh-parent-body">
+            <div className="inh-parent-id">
+              <span className="inh-parent-portrait">{portrait}</span>
+              <span className="inh-parent-name">{name ?? parent.umaId}</span>
+              {rankBadge}
+              {gpPortraits && (
+                <span className="inh-gp">GP:{gpPortraits[0]}{gpPortraits[1]}</span>
+              )}
+            </div>
+            <LineageSparkChips parent={parent} skillName={skillName} isWishlisted={isWishlisted} />
           </div>
-          <LineageSparkChips parent={parent} skillName={skillName} isWishlisted={isWishlisted} />
-        </div>
-      ) : (
-        <p className="inh-parent-empty muted small">No parent selected.</p>
-      )}
-      {children}
+        ) : (
+          <p className="inh-parent-empty muted small">No parent selected.</p>
+        )}
+        {children}
+      </div>
     </div>
   );
 }
