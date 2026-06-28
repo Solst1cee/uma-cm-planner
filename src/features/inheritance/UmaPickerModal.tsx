@@ -17,6 +17,8 @@ export interface UmaPickerItem {
   /** Pre-built evaluation-rank badge node (icon) — container-wired. */
   rankBadge?: ReactNode;
   portrait: ReactNode;
+  /** Pre-built grandparent portrait nodes (the veteran's two GPs) — container-wired. */
+  gpPortraits?: ReactNode;
   /** The veteran — drives the full-lineage spark chips on the tile. */
   parent: Parent;
   agg: SparkAgg;
@@ -149,17 +151,23 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
           {shown.length === 0 && <p className="muted small">No veterans match.</p>}
           {shown.map((it) => (
             <button key={it.id} type="button" className="inh-uma-tile" onClick={() => onPick(it.id)}>
-              <span className="inh-uma-tile-head">
+              <span className="inh-uma-tile-left">
                 <span className="inh-uma-tile-portrait">{it.portrait}</span>
                 <span className="inh-uma-tile-name">{it.name}</span>
+                <span className="inh-uma-aff-row">
+                  <span className="muted small">Affinity</span>
+                  <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>
+                </span>
                 {it.rankBadge}
+                {it.gpPortraits && (
+                  <span className="inh-uma-gp" title="Grandparents">
+                    <span className="muted small">GP</span>
+                    {it.gpPortraits}
+                  </span>
+                )}
                 <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{it.id}</span>
               </span>
-              <span className="inh-uma-aff-row">
-                <span className="muted small">Affinity</span>
-                <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>
-              </span>
-              <span className="inh-uma-tile-sparks">
+              <span className="inh-uma-tile-right">
                 <LineageSparkChips parent={it.parent} skillName={skillName} isWishlisted={isWishlisted} />
               </span>
             </button>

@@ -50,6 +50,11 @@ export function InheritanceCard() {
   const portrait = (p: Parent) => <GameIcon kind="uma" id={p.umaId} size={42} alt="" />;
 
   const skillName = (id: string) => skillById.get(id)?.nameEn ?? id;
+  const gpPortraitsFor = (p: Parent) => {
+    const gps = (p.grandparents ?? []).filter((g): g is NonNullable<typeof g> => !!g);
+    if (gps.length === 0) return undefined;
+    return gps.map((gp, i) => <GameIcon key={i} kind="uma" id={gp.umaId} size={26} alt="" />);
+  };
   const itemsFor = (slot: Slot): UmaPickerItem[] => {
     const otherId = uma1Plan.parents[slot === 'a' ? 'b' : 'a'];
     const other = otherId ? byId.get(otherId) : undefined;
@@ -58,6 +63,7 @@ export function InheritanceCard() {
       name: umaName(umaById, p.umaId),
       rankBadge: <RankBadge rating={p.rating} size={42} />,
       portrait: <GameIcon kind="uma" id={p.umaId} size={42} alt="" />,
+      gpPortraits: gpPortraitsFor(p),
       parent: p,
       agg: aggregate(p),
       affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,

@@ -512,29 +512,33 @@ main:has(.inh-page) {
   display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;
   flex: 1 1 auto; min-height: 0;
 }
+/* Two columns: a narrow left rail (uma identity) + a wide right area (sparks). */
 .inh-uma-tile {
-  display: flex; flex-direction: column; gap: 0.4rem; text-align: left;
+  display: grid; grid-template-columns: minmax(8.5rem, 9.5rem) 1fr; gap: 0.7rem;
+  align-items: start; text-align: left;
   border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
   padding: 0.55rem 0.65rem; cursor: pointer;
 }
 .inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
-/* Header zone: portrait · name · rank badge · roster id */
-.inh-uma-tile-head { display: flex; align-items: center; gap: 0.5rem; }
+/* Left rail: portrait · name · affinity · rank badge · grandparents · roster id */
+.inh-uma-tile-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; }
+.inh-uma-tile-left > * { max-width: 100%; }
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
-.inh-uma-tile-name { font-weight: 700; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inh-uma-tile-name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
 /* Evaluation-rank badge: the in-game rank art (G … LS24), icon only — the badge
    art already spells the rank. Shared by the parent card + picker tile. */
 .inh-rank-badge { flex: none; display: inline-flex; align-items: center; }
 .inh-rank-badge .game-icon { flex: none; }
 .inh-parent-id .inh-rank-badge { margin-left: auto; }
+.inh-uma-gp { display: inline-flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
 .inh-uma-jsonid { flex: none; }
-/* Affinity on its own row */
+/* Affinity row */
 .inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
 .inh-uma-aff {
   flex: none; font-weight: 800; color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border-radius: 999px; padding: 0.05rem 0.5rem;
 }
-/* Tile sparks: stack the lineage chip rows (blue/pink/green, then white). */
-.inh-uma-tile-sparks { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
-.inh-uma-tile-sparks .spark-chips { flex-wrap: wrap; }
+/* Right area: stack the lineage chip rows (blue/pink/green, then white). */
+.inh-uma-tile-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
+.inh-uma-tile-right .spark-chips { flex-wrap: wrap; }
