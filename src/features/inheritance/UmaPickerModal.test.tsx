@@ -53,6 +53,21 @@ describe('UmaPickerModal', () => {
     expect(screen.getByText(/1 match/)).toBeInTheDocument();
   });
 
+  it('renders the rank score under the badge, the stat row, and stacked GP nodes', () => {
+    const rich: UmaPickerItem[] = [{
+      ...items[0]!,
+      rankScore: 9347,
+      rankBadge: <span>rk</span>,
+      gpPortraits: [<span key="g1">gp1</span>, <span key="g2">gp2</span>],
+      statRow: <span>spd 991</span>,
+    }];
+    render(<UmaPickerModal {...base} items={rich} open />);
+    expect(screen.getByTitle('Rank score')).toHaveTextContent('9347');
+    expect(screen.getByText('spd 991')).toBeInTheDocument();
+    const gpWrap = screen.getByTitle('Grandparents');
+    expect(gpWrap.querySelectorAll('.inh-uma-gp-item')).toHaveLength(2);
+  });
+
   it('clicking a tile calls onPick', () => {
     const onPick = vi.fn();
     render(<UmaPickerModal {...base} open onPick={onPick} />);

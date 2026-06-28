@@ -514,7 +514,7 @@ main:has(.inh-page) {
 }
 /* Two columns: a narrow left rail (uma identity) + a wide right area (sparks). */
 .inh-uma-tile {
-  display: grid; grid-template-columns: minmax(11rem, 12.5rem) 1fr; gap: 0.7rem;
+  display: grid; grid-template-columns: minmax(13rem, 15rem) 1fr; gap: 0.7rem;
   align-items: start; text-align: left;
   border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
   padding: 0.55rem 0.65rem; cursor: pointer;
@@ -538,7 +538,9 @@ main:has(.inh-page) {
  * The connector is drawn with CSS borders: a stem from the uma, a vertical spine,
  * and a branch tick to each GP. `--inh-ped` is the line colour. */
 .inh-uma-ped { display: flex; align-items: center; --inh-ped: var(--fg-muted); }
-.inh-uma-ped .inh-rank-badge { margin-left: 0.5rem; }
+/* Rank badge + its numeric score, stacked under the icon, on the pedigree line. */
+.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.05rem; margin-left: 0.5rem; }
+.inh-uma-rank-score { font-variant-numeric: tabular-nums; line-height: 1; }
 .inh-uma-gp-stack {
   position: relative; flex: none;
   display: flex; flex-direction: column; gap: 0.3rem;
@@ -561,13 +563,13 @@ main:has(.inh-page) {
   border-top: 2px solid var(--inh-ped);
 }
 .inh-uma-jsonid { flex: none; }
-/* Affinity row */
+/* Stat row: colour-coded stat tile + value ×5 (wraps if the rail is tight). */
+.inh-uma-stats { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; align-items: center; }
+.inh-uma-stat { display: inline-flex; align-items: center; gap: 0.15rem; font-size: 0.74rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.inh-uma-stat .game-icon { flex: none; }
+/* Affinity row — plain text (no pill). */
 .inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
-.inh-uma-aff {
-  flex: none; font-weight: 800; color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  border-radius: 999px; padding: 0.05rem 0.5rem;
-}
+.inh-uma-aff { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
 /* Right area: stack the lineage chip rows (blue/pink/green, then white). */
 .inh-uma-tile-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
 .inh-uma-tile-right .spark-chips { flex-wrap: wrap; }

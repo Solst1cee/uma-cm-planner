@@ -75,11 +75,12 @@ sparks store the decoded base/alt unique id (100xxx/110xxx) for name display; th
 **Picker modal** (`UmaPickerModal`): the **Pick/Change** button opens a full-screen
 modal — a **spark-filter search-builder** (`sparkAggregate`/`sparkFilter`: add-a-row
 blue/pink/white legacy+total `≥` clauses + any-blue) over the roster, a name search,
-and one-veteran-per-row **2-column tiles**: a narrow left rail (portrait · name ·
-**affinity** · rank badge · both grandparent portraits · roster id) + a wide right
-area holding all the lineage spark chips. Affinity via `candidateAffinity` = lineage
-affinity + G1 win bonus (`useAffinityIndex` loads `affinity.json`). Shared
-`LineageSparkChips` drives the card + tile chips.
+and one-veteran-per-row **2-column tiles**: a left rail (a **pedigree row** — uma
+icon ─┤ the two grandparents stacked, rank badge + numeric score alongside — then
+name · colour-coded **stat row** · **affinity**) + a wide right area holding all the
+lineage spark chips. Affinity via `candidateAffinity` = lineage affinity + G1 win
+bonus (`useAffinityIndex` loads `affinity.json`). Shared `LineageSparkChips` drives
+the card + tile chips.
 Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-filter.
 **Deferred (M1.4b):** Parent-2 rental builder + search-link; green-spark 9xxxxx +
 saddle→G1 `wonRaces` reconciliation (M1.7).

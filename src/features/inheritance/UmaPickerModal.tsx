@@ -16,9 +16,13 @@ export interface UmaPickerItem {
   name: string;
   /** Pre-built evaluation-rank badge node (icon) — container-wired. */
   rankBadge?: ReactNode;
+  /** Numeric evaluation score, shown under the rank badge. */
+  rankScore?: number;
   portrait: ReactNode;
   /** Pre-built grandparent portrait nodes (the veteran's 1–2 GPs) — container-wired. */
   gpPortraits?: ReactNode[];
+  /** Pre-built stat row (colour-coded stat icon + value ×5) — container-wired. */
+  statRow?: ReactNode;
   /** The veteran — drives the full-lineage spark chips on the tile. */
   parent: Parent;
   agg: SparkAgg;
@@ -162,9 +166,15 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
                       ))}
                     </span>
                   )}
-                  {it.rankBadge}
+                  <span className="inh-uma-rank-cell">
+                    {it.rankBadge}
+                    {it.rankScore !== undefined && (
+                      <span className="inh-uma-rank-score muted small" title="Rank score">{it.rankScore}</span>
+                    )}
+                  </span>
                 </span>
                 <span className="inh-uma-tile-name">{it.name}</span>
+                {it.statRow && <span className="inh-uma-stats">{it.statRow}</span>}
                 <span className="inh-uma-aff-row">
                   <span className="muted small">Affinity</span>
                   <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>

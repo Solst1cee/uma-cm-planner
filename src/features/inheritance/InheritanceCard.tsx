@@ -19,6 +19,9 @@ import { useAffinityIndex } from './useAffinityIndex';
 type Slot = 'a' | 'b';
 type Mode = null | 'find' | 'change';
 
+/** Stat order for the picker tile's stat row (matches the in-game tile order). */
+const STAT_KEYS = ['spd', 'sta', 'pow', 'gut', 'wit'] as const;
+
 export function InheritanceCard() {
   const { uma1Plan, setPlan } = useActivePlan();
   const { roster, importedAt } = useRoster();
@@ -53,8 +56,19 @@ export function InheritanceCard() {
   const gpPortraitsFor = (p: Parent) => {
     const gps = (p.grandparents ?? []).filter((g): g is NonNullable<typeof g> => !!g);
     if (gps.length === 0) return undefined;
-    return gps.map((gp, i) => <GameIcon key={i} kind="uma" id={gp.umaId} size={26} alt="" />);
+    return gps.map((gp, i) => <GameIcon key={i} kind="uma" id={gp.umaId} size={36} alt="" />);
   };
+  const statRowFor = (p: Parent) =>
+    p.stats ? (
+      <>
+        {STAT_KEYS.map((k) => (
+          <span key={k} className="inh-uma-stat">
+            <GameIcon kind="ui" id={`stat-${k}`} size={15} alt={k} />
+            <span>{p.stats![k]}</span>
+          </span>
+        ))}
+      </>
+    ) : undefined;
   const itemsFor = (slot: Slot): UmaPickerItem[] => {
     const otherId = uma1Plan.parents[slot === 'a' ? 'b' : 'a'];
     const other = otherId ? byId.get(otherId) : undefined;
@@ -62,8 +76,10 @@ export function InheritanceCard() {
       id: p.id,
       name: umaName(umaById, p.umaId),
       rankBadge: <RankBadge rating={p.rating} size={42} />,
-      portrait: <GameIcon kind="uma" id={p.umaId} size={42} alt="" />,
+      rankScore: p.rankScore,
+      portrait: <GameIcon kind="uma" id={p.umaId} size={56} alt="" />,
       gpPortraits: gpPortraitsFor(p),
+      statRow: statRowFor(p),
       parent: p,
       agg: aggregate(p),
       affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,
