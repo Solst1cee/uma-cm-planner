@@ -541,10 +541,11 @@ main:has(.inh-page) {
  *             └─ [GP2]
  * The connector is drawn with CSS borders: a stem from the uma, a vertical spine,
  * and a branch tick to each GP. `--inh-ped` is the line colour. */
-.inh-uma-ped { display: flex; align-items: center; --inh-ped: var(--fg-muted); }
-/* Rank badge + its numeric score, stacked under the icon. `margin: 0 auto`
-   centers it in the free space between the grandparents and the right column. */
-.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; margin: 0 auto; }
+/* Full rail width so the rank cell's auto margin has space to push into. */
+.inh-uma-ped { display: flex; align-items: center; width: 100%; --inh-ped: var(--fg-muted); }
+/* Rank badge + its numeric score, stacked under the icon. `margin-left: auto`
+   pushes it to the right edge of the rail, away from the grandparents. */
+.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; margin-left: auto; }
 .inh-uma-rank-score { font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
 .inh-uma-gp-stack {
   position: relative; flex: none;
