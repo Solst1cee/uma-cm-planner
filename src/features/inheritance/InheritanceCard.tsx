@@ -119,6 +119,8 @@ export function InheritanceCard() {
         skillName={skillName}
         isWishlisted={isWishlisted}
         rankBadge={parent ? <RankBadge rating={parent.rating} size={42} /> : undefined}
+        rankScore={parent?.rankScore}
+        gpPortraits={parent ? gpPortraitsFor(parent) : undefined}
         portrait={parent ? portrait(parent) : undefined}
         rentalToggle={rentalToggle}
         rentalStub={rentalStub}

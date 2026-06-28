@@ -444,9 +444,7 @@ main:has(.inh-page) {
 .inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
 .inh-clear { color: var(--error); }
 .inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }
-.inh-parent-id { display: flex; align-items: center; gap: 0.45rem; }
 .inh-parent-name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.inh-gp { margin-left: auto; display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.7rem; color: var(--fg-muted); }
 /* `.spark-chips` lives in parents.css (not loaded on this route) — define the
    flex row here for the inheritance card + the portalled picker modal. */
 .inh-parent .spark-chips,
@@ -516,7 +514,7 @@ main:has(.inh-page) {
 }
 /* Two columns: a narrow left rail (uma identity) + a wide right area (sparks). */
 .inh-uma-tile {
-  display: grid; grid-template-columns: minmax(13rem, 15rem) 1fr; gap: 0.7rem;
+  display: grid; grid-template-columns: minmax(14.5rem, 16.5rem) 1fr; gap: 0.7rem;
   align-items: start; text-align: left;
   border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
   padding: 0.55rem 0.65rem; cursor: pointer;
@@ -533,7 +531,6 @@ main:has(.inh-page) {
    art already spells the rank. Shared by the parent card + picker tile. */
 .inh-rank-badge { flex: none; display: inline-flex; align-items: center; }
 .inh-rank-badge .game-icon { flex: none; }
-.inh-parent-id .inh-rank-badge { margin-left: auto; }
 
 /* Pedigree row — uma icon ──┤ stacked grandparents, with the rank badge alongside:
  *     [uma] ──┐

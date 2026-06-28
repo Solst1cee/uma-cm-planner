@@ -13,10 +13,13 @@ export interface ParentCardViewProps {
   skillName?: (id: string) => string;
   /** True when a spark's skill id is on the plan's wishlist → blue glow. */
   isWishlisted?: (skillId: string) => boolean;
-  /** Pre-built evaluation-rank badge (image + label) — container-wired. */
+  /** Pre-built evaluation-rank badge (icon) — container-wired. */
   rankBadge?: ReactNode;
+  /** Numeric evaluation score, shown under the rank badge. */
+  rankScore?: number;
   portrait?: ReactNode;
-  gpPortraits?: [ReactNode, ReactNode];
+  /** Pre-built grandparent portrait nodes (the veteran's 1–2 GPs) — container-wired. */
+  gpPortraits?: ReactNode[];
   rentalToggle?: ReactNode;
   rentalStub?: boolean;
   onFindCandidates?: () => void;
@@ -26,7 +29,7 @@ export interface ParentCardViewProps {
 }
 
 export function ParentCardView({
-  label, parent, name, skillName, isWishlisted, rankBadge, portrait, gpPortraits, rentalToggle, rentalStub,
+  label, parent, name, skillName, isWishlisted, rankBadge, rankScore, portrait, gpPortraits, rentalToggle, rentalStub,
   onFindCandidates, onChange, onClear, children,
 }: ParentCardViewProps) {
   return (
@@ -52,14 +55,24 @@ export function ParentCardView({
           <p className="inh-rental-stub muted small">Rental mode coming in M1.4b.</p>
         ) : parent ? (
           <div className="inh-parent-body">
-            <div className="inh-parent-id">
-              <span className="inh-parent-portrait">{portrait}</span>
-              <span className="inh-parent-name">{name ?? parent.umaId}</span>
-              {rankBadge}
-              {gpPortraits && (
-                <span className="inh-gp">GP:{gpPortraits[0]}{gpPortraits[1]}</span>
+            {/* Pedigree row: uma icon ──┤ stacked grandparents, rank badge + score alongside. */}
+            <div className="inh-uma-ped inh-parent-ped">
+              <span className="inh-uma-tile-portrait">{portrait}</span>
+              {gpPortraits && gpPortraits.length > 0 && (
+                <span className="inh-uma-gp-stack" title="Grandparents">
+                  {gpPortraits.map((node, i) => (
+                    <span key={i} className="inh-uma-gp-item">{node}</span>
+                  ))}
+                </span>
               )}
+              <span className="inh-uma-rank-cell">
+                {rankBadge}
+                {rankScore !== undefined && (
+                  <span className="inh-uma-rank-score" title="Rank score">{rankScore}</span>
+                )}
+              </span>
             </div>
+            <span className="inh-parent-name">{name ?? parent.umaId}</span>
             <LineageSparkChips parent={parent} skillName={skillName} isWishlisted={isWishlisted} />
           </div>
         ) : (
