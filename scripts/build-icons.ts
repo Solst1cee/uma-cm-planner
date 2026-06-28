@@ -192,10 +192,26 @@ export function umaSourceFile(
 // Build (impure: reads the dump, converts via sharp, writes WebP + manifest)
 // ---------------------------------------------------------------------------
 
-/** Convert one source PNG → WebP at the given output path (deterministic given same input). */
-async function convertToWebp(sourceAbs: string, outAbs: string): Promise<void> {
-  await sharp(sourceAbs).webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
+/**
+ * Convert one source PNG → WebP at the given output path (deterministic given
+ * same input). Optional `resize` forces a fixed output size (fit:'fill') — used
+ * to re-aspect the square uma portraits (provenance §2.1).
+ */
+async function convertToWebp(
+  sourceAbs: string,
+  outAbs: string,
+  resize?: { width: number; height: number },
+): Promise<void> {
+  let img = sharp(sourceAbs);
+  if (resize) img = img.resize(resize.width, resize.height, { fit: 'fill' });
+  await img.webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
 }
+
+/**
+ * Uma portrait output size — the source icons are square 256², but they read as
+ * slightly stretched-wide, so the committed webp is re-aspected to 0.9 (230×256).
+ */
+const UMA_ICON_OUTPUT = { width: 230, height: 256 } as const;
 
 /**
  * Slice the Rank_tex.png atlas into one WebP per rank badge (G … LS24) under
@@ -294,7 +310,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
       }
       if (fallback) fallbackUmas.push(umaId);
     }
-    await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`));
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`), UMA_ICON_OUTPUT);
   }
 
   const uiIconEntries = Object.entries(UI_ICON_SOURCES).sort(([a], [b]) => a.localeCompare(b));
