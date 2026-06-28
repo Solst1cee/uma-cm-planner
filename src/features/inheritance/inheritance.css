@@ -449,13 +449,13 @@ main:has(.inh-page) {
 .inh-white-chip { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; background: var(--bg-2); }
 .inh-white-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inh-star-own { color: #eab308; }
-/* Grandparent stars: dark, almost-black (theme-adaptive via --fg). */
-.inh-star-gp { color: var(--fg); }
+/* Grandparent stars: a muted grey (lighter than the legacy gold), uniformly
+   across every chip type — blue / pink / green / white. */
+.inh-star-gp { color: var(--fg-muted); }
 /* Grey (white-spark) chips read lighter than the coloured chips — softer text
-   and softer stars, so the common white sparks recede behind blue/pink/green. */
+   and softer legacy stars, so the common white sparks recede behind blue/pink/green. */
 .badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
 .badge.spark-white .inh-star-own { color: color-mix(in srgb, #eab308 60%, var(--bg-1)); }
-.badge.spark-white .inh-star-gp { color: var(--fg-muted); }
 .inh-rental-stub { padding: 0.3rem 0; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
