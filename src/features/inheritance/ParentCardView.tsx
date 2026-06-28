@@ -4,6 +4,17 @@ import type { ReactNode } from 'react';
 import type { Parent } from '@/core/types';
 import { LineageSparkChips } from './LineageSparkChips';
 
+// Inline glyphs (planner-inventory icon style: 20×20, currentColor fill).
+const IconSvg = ({ children }: { children: ReactNode }) => (
+  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">{children}</svg>
+);
+const SearchIcon = () => (
+  <IconSvg><path d="M8.5 2a6.5 6.5 0 0 1 5.05 10.6l4 4-1.4 1.4-4-4A6.5 6.5 0 1 1 8.5 2Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" /></IconSvg>
+);
+const FolderOpenIcon = () => (
+  <IconSvg><path d="M2 4h5l2 2h7v2H2V4Z" /><path d="M2 9h16l-2.2 7H4.2L2 9Z" /></IconSvg>
+);
+
 export interface ParentCardViewProps {
   label: string;
   parent: Parent | null;
@@ -39,10 +50,18 @@ export function ParentCardView({
         {rentalToggle}
         <span className="inh-parent-actions">
           {!rentalStub && onFindCandidates && (
-            <button type="button" className="cmp-small-btn" onClick={onFindCandidates}>Find candidates</button>
+            <button type="button" className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+              aria-label="Find candidates" title="Find candidates" onClick={onFindCandidates}>
+              <SearchIcon />
+              <span>Find</span>
+            </button>
           )}
           {!rentalStub && onChange && (
-            <button type="button" className="cmp-small-btn" onClick={onChange}>{parent ? 'Change' : 'Pick'}</button>
+            <button type="button" className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+              aria-label={parent ? 'Change' : 'Pick'} title={parent ? 'Change' : 'Pick'} onClick={onChange}>
+              <FolderOpenIcon />
+              <span>{parent ? 'Change' : 'Pick'}</span>
+            </button>
           )}
           {parent && onClear && (
             <button type="button" className="cmp-small-btn inh-clear" aria-label="Clear" onClick={onClear}>✕</button>

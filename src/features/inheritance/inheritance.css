@@ -429,8 +429,13 @@ main:has(.inh-page) {
 .inh-inherit-tools { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
 .inh-inheritance-card .cmp-collapse-caret { margin-left: 0; }
 .inh-inherit-sub,
-.inh-updated { white-space: nowrap; }
-.inh-updated { font-variant-numeric: tabular-nums; }
+.inh-updated {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;            /* not bold (the card head is 700) */
+  font-size: 0.64rem;          /* smaller */
+  color: var(--fg-muted);      /* lighter */
+}
 .inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 @media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
 /* Card chrome (border / radius / bg / shadow / overflow-clip for the head

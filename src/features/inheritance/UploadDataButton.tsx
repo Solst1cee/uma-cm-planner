@@ -1,10 +1,19 @@
-import { useId, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRoster } from './useRoster';
 
-/** "Upload data" — reads a UmaExtractor data.json into the local roster. */
+/** Upload glyph — same artwork as the planner inventory's Upload button
+ *  (`PlanInventoryCard` `UploadIcon`) so the two read identically. */
+const UploadIcon = () => (
+  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+    <path d="M9 13h2V6.8l2.6 2.6L15 8l-5-5-5 5 1.4 1.4L9 6.8V13Z" />
+    <path d="M3 12h2v3h10v-3h2v5H3v-5Z" />
+  </svg>
+);
+
+/** "Upload data" — reads a UmaExtractor data.json into the local roster. Uses the
+ *  planner inventory's hover-expand icon button (`cmp-inventory-action-btn`). */
 export function UploadDataButton({ onImported }: { onImported?: () => void }) {
   const { importFromFile } = useRoster();
-  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -24,9 +33,16 @@ export function UploadDataButton({ onImported }: { onImported?: () => void }) {
 
   return (
     <span className="inh-upload">
-      <label htmlFor={inputId} className="cmp-small-btn">Upload data</label>
+      <button
+        type="button"
+        className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+        title="Upload data"
+        onClick={() => inputRef.current?.click()}
+      >
+        <UploadIcon />
+        <span>Upload</span>
+      </button>
       <input
-        id={inputId}
         ref={inputRef}
         type="file"
         accept="application/json,.json"
