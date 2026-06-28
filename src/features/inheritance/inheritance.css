@@ -514,13 +514,13 @@ main:has(.inh-page) {
 }
 /* Two columns: a narrow left rail (uma identity) + a wide right area (sparks). */
 .inh-uma-tile {
-  display: grid; grid-template-columns: minmax(8.5rem, 9.5rem) 1fr; gap: 0.7rem;
+  display: grid; grid-template-columns: minmax(11rem, 12.5rem) 1fr; gap: 0.7rem;
   align-items: start; text-align: left;
   border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
   padding: 0.55rem 0.65rem; cursor: pointer;
 }
 .inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
-/* Left rail: portrait · name · affinity · rank badge · grandparents · roster id */
+/* Left rail: pedigree row (uma + GPs + rank) · name · affinity · roster id */
 .inh-uma-tile-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; }
 .inh-uma-tile-left > * { max-width: 100%; }
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
@@ -530,7 +530,36 @@ main:has(.inh-page) {
 .inh-rank-badge { flex: none; display: inline-flex; align-items: center; }
 .inh-rank-badge .game-icon { flex: none; }
 .inh-parent-id .inh-rank-badge { margin-left: auto; }
-.inh-uma-gp { display: inline-flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
+
+/* Pedigree row — uma icon ──┤ stacked grandparents, with the rank badge alongside:
+ *     [uma] ──┐
+ *             ├─ [GP1]      [rank]
+ *             └─ [GP2]
+ * The connector is drawn with CSS borders: a stem from the uma, a vertical spine,
+ * and a branch tick to each GP. `--inh-ped` is the line colour. */
+.inh-uma-ped { display: flex; align-items: center; --inh-ped: var(--fg-muted); }
+.inh-uma-ped .inh-rank-badge { margin-left: 0.5rem; }
+.inh-uma-gp-stack {
+  position: relative; flex: none;
+  display: flex; flex-direction: column; gap: 0.3rem;
+  margin-left: 1.1rem;   /* stem length (uma → spine) */
+  padding-left: 0.5rem;  /* branch-tick length (spine → GP) */
+}
+.inh-uma-gp-stack::before {            /* vertical spine */
+  content: ""; position: absolute; left: 0; top: 23%; bottom: 23%;
+  border-left: 2px solid var(--inh-ped);
+}
+.inh-uma-gp-stack::after {             /* horizontal stem from the uma icon */
+  content: ""; position: absolute; left: -1.1rem; width: 1.1rem; top: 50%;
+  border-top: 2px solid var(--inh-ped);
+}
+/* single GP → no fork: drop the spine so the stem+tick read as one straight line */
+.inh-uma-gp-stack:has(> .inh-uma-gp-item:only-child)::before { content: none; }
+.inh-uma-gp-item { position: relative; display: inline-flex; flex: none; }
+.inh-uma-gp-item::before {             /* branch tick from the spine to this GP */
+  content: ""; position: absolute; left: -0.5rem; width: 0.5rem; top: 50%;
+  border-top: 2px solid var(--inh-ped);
+}
 .inh-uma-jsonid { flex: none; }
 /* Affinity row */
 .inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
