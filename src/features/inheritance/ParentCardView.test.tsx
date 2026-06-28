@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { Parent } from '@/core/types';
 import { ParentCardView } from './ParentCardView';
@@ -90,6 +90,30 @@ describe('ParentCardView', () => {
     );
     expect(screen.getByText('Groundwork').closest('.badge')!.classList.contains('is-wishlisted')).toBe(true);
     expect(screen.getByText('Triumphant Pulse').closest('.badge')!.classList.contains('is-wishlisted')).toBe(false);
+  });
+
+  it('shows the Find-candidates list in an anchored popover and dismisses on outside click', () => {
+    const onCloseFind = vi.fn();
+    render(
+      <ParentCardView label="Parent 1" parent={null} onFindCandidates={vi.fn()} onChange={vi.fn()}
+        findOpen onCloseFind={onCloseFind}>
+        <ul className="picker-results"><li>candidate row</li></ul>
+      </ParentCardView>,
+    );
+    // The list renders inside the popover, not loose in the card body.
+    expect(screen.getByText('candidate row').closest('.inh-find-popover')).toBeTruthy();
+    // Click outside → onCloseFind.
+    fireEvent.pointerDown(document.body);
+    expect(onCloseFind).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render the Find popover when findOpen is false', () => {
+    render(
+      <ParentCardView label="Parent 1" parent={null} onFindCandidates={vi.fn()} onChange={vi.fn()}>
+        <ul className="picker-results"><li>candidate row</li></ul>
+      </ParentCardView>,
+    );
+    expect(screen.queryByText('candidate row')).not.toBeInTheDocument();
   });
 
   it('shows the rental stub when rentalStub is set', () => {

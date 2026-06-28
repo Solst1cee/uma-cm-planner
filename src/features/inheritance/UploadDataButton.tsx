@@ -35,12 +35,11 @@ export function UploadDataButton({ onImported }: { onImported?: () => void }) {
     <span className="inh-upload">
       <button
         type="button"
-        className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+        className="cmp-inventory-icon-btn"
         title="Upload data"
         onClick={() => inputRef.current?.click()}
       >
         <UploadIcon />
-        <span>Upload</span>
       </button>
       <input
         ref={inputRef}

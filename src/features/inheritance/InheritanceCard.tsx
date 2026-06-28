@@ -125,6 +125,8 @@ export function InheritanceCard() {
         rentalToggle={rentalToggle}
         rentalStub={rentalStub}
         onFindCandidates={() => setMode((m) => ({ ...m, [slot]: m[slot] === 'find' ? null : 'find' }))}
+        findOpen={mode[slot] === 'find'}
+        onCloseFind={() => setMode((m) => ({ ...m, [slot]: null }))}
         onChange={() => setMode((m) => ({ ...m, [slot]: m[slot] === 'change' ? null : 'change' }))}
         onClear={() => select(slot, undefined)}
       >

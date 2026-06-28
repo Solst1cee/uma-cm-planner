@@ -1,7 +1,8 @@
 /** Presentational single-parent card (M1.4). Provider-free: portraits + picker
  *  arrive as props/children. The container (InheritanceCard) wires data. */
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import type { Parent } from '@/core/types';
+import { useDismissOnOutside } from '@/features/cm-planner/useDismissOnOutside';
 import { LineageSparkChips } from './LineageSparkChips';
 
 // Inline glyphs (planner-inventory icon style: 20×20, currentColor fill).
@@ -34,15 +35,22 @@ export interface ParentCardViewProps {
   rentalToggle?: ReactNode;
   rentalStub?: boolean;
   onFindCandidates?: () => void;
+  /** Whether the Find-candidates popover is open (anchored to the Find button). */
+  findOpen?: boolean;
+  /** Close the Find popover (outside-click / Esc). */
+  onCloseFind?: () => void;
   onChange?: () => void;
   onClear?: () => void;
+  /** Find-candidates list — rendered inside the anchored popover when `findOpen`. */
   children?: ReactNode;
 }
 
 export function ParentCardView({
   label, parent, name, skillName, isWishlisted, rankBadge, rankScore, portrait, gpPortraits, rentalToggle, rentalStub,
-  onFindCandidates, onChange, onClear, children,
+  onFindCandidates, findOpen, onCloseFind, onChange, onClear, children,
 }: ParentCardViewProps) {
+  const findRef = useRef<HTMLSpanElement>(null);
+  useDismissOnOutside(findRef, !!findOpen, onCloseFind ?? (() => {}), { esc: true });
   return (
     <div className="inh-parent cmp-plan-card">
       <div className="inh-parent-head cmp-plan-card-head">
@@ -50,17 +58,18 @@ export function ParentCardView({
         {rentalToggle}
         <span className="inh-parent-actions">
           {!rentalStub && onFindCandidates && (
-            <button type="button" className="cmp-inventory-icon-btn cmp-inventory-action-btn"
-              aria-label="Find candidates" title="Find candidates" onClick={onFindCandidates}>
-              <SearchIcon />
-              <span>Find</span>
-            </button>
+            <span className="inh-find-anchor" ref={findRef}>
+              <button type="button" className="cmp-inventory-icon-btn"
+                aria-label="Find candidates" aria-expanded={!!findOpen} title="Find candidates" onClick={onFindCandidates}>
+                <SearchIcon />
+              </button>
+              {findOpen && <div className="inh-find-popover">{children}</div>}
+            </span>
           )}
           {!rentalStub && onChange && (
-            <button type="button" className="cmp-inventory-icon-btn cmp-inventory-action-btn"
+            <button type="button" className="cmp-inventory-icon-btn"
               aria-label={parent ? 'Change' : 'Pick'} title={parent ? 'Change' : 'Pick'} onClick={onChange}>
               <FolderOpenIcon />
-              <span>{parent ? 'Change' : 'Pick'}</span>
             </button>
           )}
           {parent && onClear && (
@@ -97,7 +106,6 @@ export function ParentCardView({
         ) : (
           <p className="inh-parent-empty muted small">No parent selected.</p>
         )}
-        {children}
       </div>
     </div>
   );

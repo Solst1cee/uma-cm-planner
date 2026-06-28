@@ -438,13 +438,28 @@ main:has(.inh-page) {
 }
 .inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
 @media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
-/* Card chrome (border / radius / bg / shadow / overflow-clip for the head
-   corners) comes from .cmp-plan-card; .inh-parent just stacks head + content. */
-.inh-parent { display: flex; flex-direction: column; }
+/* Card chrome (border / radius / bg / shadow) comes from .cmp-plan-card;
+   .inh-parent just stacks head + content. overflow:visible lets the Find
+   popover escape — the head's top corners are re-rounded by hand since we lose
+   the card's overflow-clip. */
+.inh-parent.cmp-plan-card { overflow: visible; display: flex; flex-direction: column; }
+.inh-parent > .inh-parent-head {
+  border-top-left-radius: var(--cmp-card-radius);
+  border-top-right-radius: var(--cmp-card-radius);
+}
 /* Grey head bar (bg-2 + bottom border) from .cmp-plan-card-head; tighten the
    padding for these sub-cards and keep the actions inline on the bar. */
 .inh-parent-head.cmp-plan-card-head { gap: 0.4rem; padding: 0.35rem 0.5rem; min-height: 0; font-size: 0.9rem; }
 .inh-parent-title { font-weight: 700; }
+/* Find-candidates popover: anchored under the magnifier button, escapes the
+   card (overflow:visible above), dismiss-on-outside via useDismissOnOutside. */
+.inh-find-anchor { position: relative; display: inline-flex; }
+.inh-find-popover {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+  min-width: 15rem; max-width: 22rem; max-height: 60vh; overflow: auto;
+  background: var(--bg-1); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 12px 30px rgb(20 30 50 / 0.24); padding: 0.4rem; text-align: left;
+}
 .inh-parent-content { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
 .inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
 .inh-clear { color: var(--error); }
