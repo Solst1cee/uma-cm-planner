@@ -169,17 +169,19 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
                   <span className="inh-uma-rank-cell">
                     {it.rankBadge}
                     {it.rankScore !== undefined && (
-                      <span className="inh-uma-rank-score muted small" title="Rank score">{it.rankScore}</span>
+                      <span className="inh-uma-rank-score" title="Rank score">{it.rankScore}</span>
                     )}
                   </span>
                 </span>
-                <span className="inh-uma-tile-name">{it.name}</span>
+                <span className="inh-uma-name-row">
+                  <span className="inh-uma-tile-name">{it.name}</span>
+                  <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{it.id}</span>
+                </span>
                 {it.statRow && <span className="inh-uma-stats">{it.statRow}</span>}
                 <span className="inh-uma-aff-row">
                   <span className="muted small">Affinity</span>
                   <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>
                 </span>
-                <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{it.id}</span>
               </span>
               <span className="inh-uma-tile-right">
                 <LineageSparkChips parent={it.parent} skillName={skillName} isWishlisted={isWishlisted} />

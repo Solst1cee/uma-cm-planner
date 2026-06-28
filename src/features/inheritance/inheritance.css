@@ -455,13 +455,15 @@ main:has(.inh-page) {
 .inh-white-chip { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; background: var(--bg-2); }
 .inh-white-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inh-star-own { color: #eab308; }
-/* Grandparent stars: a muted grey (lighter than the legacy gold), uniformly
-   across every chip type — blue / pink / green / white. */
-.inh-star-gp { color: var(--fg-muted); }
-/* Grey (white-spark) chips read lighter than the coloured chips — softer text
-   and softer legacy stars, so the common white sparks recede behind blue/pink/green. */
+/* Non-legacy (grandparent) stars take the chip's own text colour — blue on a
+   blue chip, pink on pink, green on green (inherited from the .badge.spark-*
+   `color`). Legacy stars stay gold. */
+.inh-star-gp { color: inherit; }
+/* Grey (white-spark) chips read lighter than the coloured chips — softer text,
+   softer legacy stars, and a muted (not full-contrast) GP star to match. */
 .badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
 .badge.spark-white .inh-star-own { color: color-mix(in srgb, #eab308 60%, var(--bg-1)); }
+.badge.spark-white .inh-star-gp { color: var(--fg-muted); }
 .inh-rental-stub { padding: 0.3rem 0; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -524,6 +526,8 @@ main:has(.inh-page) {
 .inh-uma-tile-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; }
 .inh-uma-tile-left > * { max-width: 100%; }
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
+/* Name + roster id share a row. */
+.inh-uma-name-row { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; min-width: 0; }
 .inh-uma-tile-name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
 /* Evaluation-rank badge: the in-game rank art (G … LS24), icon only — the badge
    art already spells the rank. Shared by the parent card + picker tile. */
@@ -538,9 +542,10 @@ main:has(.inh-page) {
  * The connector is drawn with CSS borders: a stem from the uma, a vertical spine,
  * and a branch tick to each GP. `--inh-ped` is the line colour. */
 .inh-uma-ped { display: flex; align-items: center; --inh-ped: var(--fg-muted); }
-/* Rank badge + its numeric score, stacked under the icon, on the pedigree line. */
-.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.05rem; margin-left: 0.5rem; }
-.inh-uma-rank-score { font-variant-numeric: tabular-nums; line-height: 1; }
+/* Rank badge + its numeric score, stacked under the icon. `margin: 0 auto`
+   centers it in the free space between the grandparents and the right column. */
+.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; margin: 0 auto; }
+.inh-uma-rank-score { font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
 .inh-uma-gp-stack {
   position: relative; flex: none;
   display: flex; flex-direction: column; gap: 0.3rem;
