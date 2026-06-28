@@ -59,6 +59,15 @@ export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umat
  * fall back to the white dump source (CI keeps the committed coloured webps).
  */
 export const COLOR_STAT_ICON_DIR = join(REPO_ROOT, 'spikes', 'assets', 'stat-icons-colored');
+
+/**
+ * Uma portrait sources extracted from the Global client (gitignored vendored
+ * input): `<umaId>.png`, the game-native `trained_chr_icon_<charaId>_<assetId>_02`
+ * textures. The uma-tools dump horizontally STRETCHED these (wide gold frame);
+ * the game natives are correctly proportioned, so when present they OVERRIDE the
+ * dump source per umaId. Absent → fall back to the dump (CI keeps committed webps).
+ */
+export const UMA_ICON_GAME_DIR = join(REPO_ROOT, 'spikes', 'assets', 'uma-icons-game');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
 /**
  * Support-card full art, web-sized (512px WebP), committed at
@@ -271,12 +280,20 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     if (charaId === undefined) {
       throw new Error(`build-icons: uma ${umaId} has no charaId in umas.json.`);
     }
-    const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
-    const src = srcAbs(source);
-    if (!existsSync(src)) {
-      throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+    // Prefer the correctly-proportioned game-native portrait when vendored;
+    // otherwise use the uma-tools dump (which stretches the icon — provenance §2.1).
+    const gameIcon = join(UMA_ICON_GAME_DIR, `${umaId}.png`);
+    let src: string;
+    if (existsSync(gameIcon)) {
+      src = gameIcon;
+    } else {
+      const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
+      src = srcAbs(source);
+      if (!existsSync(src)) {
+        throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+      }
+      if (fallback) fallbackUmas.push(umaId);
     }
-    if (fallback) fallbackUmas.push(umaId);
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`));
   }
 
