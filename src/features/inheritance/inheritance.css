@@ -459,10 +459,10 @@ main:has(.inh-page) {
    blue chip, pink on pink, green on green (inherited from the .badge.spark-*
    `color`). Legacy stars stay gold. */
 .inh-star-gp { color: inherit; }
-/* Grey (white-spark) chips read lighter than the coloured chips — softer text,
-   softer legacy stars, and a muted (not full-contrast) GP star to match. */
+/* Grey (white-spark) chips read lighter than the coloured chips — softer text
+   and a muted GP star. The legacy star stays the SAME gold as every other chip
+   (uniform gold across blue/pink/green/white). */
 .badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
-.badge.spark-white .inh-star-own { color: color-mix(in srgb, #eab308 60%, var(--bg-1)); }
 .badge.spark-white .inh-star-gp { color: var(--fg-muted); }
 .inh-rental-stub { padding: 0.3rem 0; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
