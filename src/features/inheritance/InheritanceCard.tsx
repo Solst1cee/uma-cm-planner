@@ -56,7 +56,7 @@ export function InheritanceCard() {
     return pool.map((p) => ({
       id: p.id,
       name: umaName(umaById, p.umaId),
-      rankBadge: <RankBadge rating={p.rating} size={20} />,
+      rankBadge: <RankBadge rating={p.rating} size={42} />,
       portrait: <GameIcon kind="uma" id={p.umaId} size={42} alt="" />,
       parent: p,
       agg: aggregate(p),
@@ -96,7 +96,7 @@ export function InheritanceCard() {
         name={parent ? umaName(umaById, parent.umaId) : undefined}
         skillName={skillName}
         isWishlisted={isWishlisted}
-        rankBadge={parent ? <RankBadge rating={parent.rating} /> : undefined}
+        rankBadge={parent ? <RankBadge rating={parent.rating} size={42} /> : undefined}
         portrait={parent ? portrait(parent) : undefined}
         rentalToggle={rentalToggle}
         rentalStub={rentalStub}
