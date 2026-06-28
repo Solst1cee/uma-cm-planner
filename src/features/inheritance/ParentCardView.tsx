@@ -65,6 +65,7 @@ export function ParentCardView({
                   ))}
                 </span>
               )}
+              <span className="inh-parent-name">{name ?? parent.umaId}</span>
               <span className="inh-uma-rank-cell">
                 {rankBadge}
                 {rankScore !== undefined && (
@@ -72,7 +73,6 @@ export function ParentCardView({
                 )}
               </span>
             </div>
-            <span className="inh-parent-name">{name ?? parent.umaId}</span>
             <LineageSparkChips parent={parent} skillName={skillName} isWishlisted={isWishlisted} />
           </div>
         ) : (
