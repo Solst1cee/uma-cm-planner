@@ -140,6 +140,14 @@ const UI_ICON_SOURCES: Record<string, string> = {
   'mood-2': 'global/utx_ico_motivation_m_04.png',
 };
 
+/**
+ * Support-card TYPE tiles that exist ONLY as the coloured in-game sprite (no
+ * white-glyph equivalent in the uma-tools dump): the Friend ("Pal") and Group
+ * types — `utx_ico_obtain_05/06` from `atlas/common/common`, alongside the 5
+ * coloured stat tiles. Sourced from `COLOR_STAT_ICON_DIR/<id>.png` only.
+ */
+const COLOR_ONLY_STAT_IDS = ['stat-friend', 'stat-group'] as const;
+
 // ---------------------------------------------------------------------------
 // Pure source-filename resolvers (unit-tested in build-icons.test.ts)
 // ---------------------------------------------------------------------------
@@ -281,7 +289,9 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   }
 
   const uiIconEntries = Object.entries(UI_ICON_SOURCES).sort(([a], [b]) => a.localeCompare(b));
-  const uiIconIds = uiIconEntries.map(([id]) => id);
+  const uiIconIds = [...uiIconEntries.map(([id]) => id), ...COLOR_ONLY_STAT_IDS].sort((a, b) =>
+    a.localeCompare(b),
+  );
   mkdirSync(join(ICONS_STAGING_DIR, 'ui'), { recursive: true });
   for (const [id, relPath] of uiIconEntries) {
     // Prefer the coloured stat tile (utx_ico_obtain_*) when the vendored source
@@ -290,6 +300,17 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     const src = id.startsWith('stat-') && existsSync(coloredStat) ? coloredStat : srcAbs(relPath);
     if (!existsSync(src)) {
       throw new Error(`build-icons: missing UI icon source ${src} (id ${id}).`);
+    }
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'ui', `${id}.webp`));
+  }
+  // Coloured-only type tiles (Friend/Pal + Group) — no white dump fallback.
+  for (const id of COLOR_ONLY_STAT_IDS) {
+    const src = join(COLOR_STAT_ICON_DIR, `${id}.png`);
+    if (!existsSync(src)) {
+      throw new Error(
+        `build-icons: missing coloured type-tile source ${src} (id ${id}). ` +
+          'Extract it from the Global client (provenance §2.1).',
+      );
     }
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'ui', `${id}.webp`));
   }
