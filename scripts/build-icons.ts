@@ -59,6 +59,15 @@ export const RANK_ATLAS_FILE = join(REPO_ROOT, 'spikes', 'repos', 'daftuyda-umat
  * fall back to the white dump source (CI keeps the committed coloured webps).
  */
 export const COLOR_STAT_ICON_DIR = join(REPO_ROOT, 'spikes', 'assets', 'stat-icons-colored');
+
+/**
+ * Uma portrait sources extracted from the Global client (gitignored vendored
+ * input): `<umaId>.png`, the game-native `trained_chr_icon_<charaId>_<assetId>_02`
+ * textures. The uma-tools dump horizontally STRETCHED these (wide gold frame);
+ * the game natives are correctly proportioned, so when present they OVERRIDE the
+ * dump source per umaId. Absent → fall back to the dump (CI keeps committed webps).
+ */
+export const UMA_ICON_GAME_DIR = join(REPO_ROOT, 'spikes', 'assets', 'uma-icons-game');
 const ICONS_OUT_DIR = join(PUBLIC_DATA_DIR, 'icons');
 /**
  * Support-card full art, web-sized (512px WebP), committed at
@@ -191,10 +200,26 @@ export function umaSourceFile(
 // Build (impure: reads the dump, converts via sharp, writes WebP + manifest)
 // ---------------------------------------------------------------------------
 
-/** Convert one source PNG → WebP at the given output path (deterministic given same input). */
-async function convertToWebp(sourceAbs: string, outAbs: string): Promise<void> {
-  await sharp(sourceAbs).webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
+/**
+ * Convert one source PNG → WebP at the given output path (deterministic given
+ * same input). Optional `resize` forces a fixed output size (fit:'fill') — used
+ * to re-aspect the square uma portraits (provenance §2.1).
+ */
+async function convertToWebp(
+  sourceAbs: string,
+  outAbs: string,
+  resize?: { width: number; height: number },
+): Promise<void> {
+  let img = sharp(sourceAbs);
+  if (resize) img = img.resize(resize.width, resize.height, { fit: 'fill' });
+  await img.webp({ quality: WEBP_QUALITY, effort: 4 }).toFile(outAbs);
 }
+
+/**
+ * Uma portrait output size — the source icons are square 256², but they read as
+ * slightly stretched-wide, so the committed webp is re-aspected to 0.9 (230×256).
+ */
+const UMA_ICON_OUTPUT = { width: 230, height: 256 } as const;
 
 /**
  * Slice the Rank_tex.png atlas into one WebP per rank badge (G … LS24) under
@@ -279,13 +304,21 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     if (charaId === undefined) {
       throw new Error(`build-icons: uma ${umaId} has no charaId in umas.json.`);
     }
-    const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
-    const src = srcAbs(source);
-    if (!existsSync(src)) {
-      throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+    // Prefer the correctly-proportioned game-native portrait when vendored;
+    // otherwise use the uma-tools dump (which stretches the icon — provenance §2.1).
+    const gameIcon = join(UMA_ICON_GAME_DIR, `${umaId}.png`);
+    let src: string;
+    if (existsSync(gameIcon)) {
+      src = gameIcon;
+    } else {
+      const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
+      src = srcAbs(source);
+      if (!existsSync(src)) {
+        throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+      }
+      if (fallback) fallbackUmas.push(umaId);
     }
-    if (fallback) fallbackUmas.push(umaId);
-    await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`));
+    await convertToWebp(src, join(ICONS_STAGING_DIR, 'uma', `${umaId}.webp`), UMA_ICON_OUTPUT);
   }
 
   const uiIconEntries = Object.entries(UI_ICON_SOURCES).sort(([a], [b]) => a.localeCompare(b));
