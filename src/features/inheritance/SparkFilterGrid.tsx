@@ -7,6 +7,7 @@
  *
  *  Pure/presentational — no GameDataProvider needed. */
 import { STAT_OPTIONS } from '@/features/parents/sparkMeta';
+import { SparkStepper } from './SparkStepper';
 
 export type TileKind = 'blue' | 'pink';
 export interface TileValue {
@@ -39,26 +40,6 @@ function tileLabel(kind: TileKind, key: string): string {
   return SHORT_LABEL[key] ?? key;
 }
 
-function Stepper({
-  name, kindLabel, value, starClass, dec, inc, decDisabled, incDisabled,
-}: {
-  name: string; kindLabel: string; value: number; starClass: string;
-  dec: () => void; inc: () => void; decDisabled: boolean; incDisabled: boolean;
-}) {
-  return (
-    <span className="inh-fg-step" role="group" aria-label={`${name} ${kindLabel}`}>
-      <span className="inh-fg-step-label muted small">{kindLabel}</span>
-      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} minus`}
-        disabled={decDisabled} onClick={dec}>−</button>
-      <span className={`inh-fg-step-val ${starClass}`}>
-        <span className="inh-fg-star" aria-hidden>★</span>{value}
-      </span>
-      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} plus`}
-        disabled={incDisabled} onClick={inc}>+</button>
-    </span>
-  );
-}
-
 export function SparkFilterGrid({
   value,
   onTile,
@@ -88,14 +69,14 @@ export function SparkFilterGrid({
     return (
       <div key={key} className={`inh-fg-line spark-${kind}${active ? ' is-active' : ''}`}>
         <span className="inh-fg-line-name">{name}</span>
-        <Stepper
+        <SparkStepper
           name={name} kindLabel="legacy" value={v.legacyMin} starClass="is-gold"
           dec={() => setLegacy(Math.max(0, v.legacyMin - 1))}
           inc={() => setLegacy(Math.min(legacyMax, v.legacyMin + 1))}
           decDisabled={v.legacyMin <= 0}
           incDisabled={locked || v.legacyMin >= legacyMax}
         />
-        <Stepper
+        <SparkStepper
           name={name} kindLabel="total" value={v.totalMin} starClass="is-silver"
           dec={() => setTotal(Math.max(v.legacyMin, v.totalMin - 1))}
           inc={() => setTotal(Math.min(cap, TOTAL_CAP, v.totalMin + 1))}

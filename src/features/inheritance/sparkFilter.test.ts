@@ -8,6 +8,7 @@ const agg: SparkAgg = {
   blueTotals: { pow: 8, spd: 2 }, blueLegacy: { stat: 'pow', stars: 3 }, maxBlueTotal: 8,
   pinkTotals: { medium: 6 }, pinkLegacy: { aptitude: 'medium', stars: 3 },
   whites: new Map([['groundwork', { total: 3, legacy: 2 }], ['corner', { total: 1, legacy: 0 }]]),
+  greens: new Map([['100151', { total: 4, legacy: 2 }]]),
 };
 const f = (x: Partial<SparkFilter> & Pick<SparkFilter, 'kind'>): SparkFilter => ({ id: 'x', legacyMin: 0, totalMin: 0, ...(x as object) } as SparkFilter);
 
@@ -26,6 +27,12 @@ describe('clauseMatches', () => {
     expect(clauseMatches(agg, f({ kind: 'white', skillId: 'corner', legacyMin: 0, totalMin: 1 } as SparkFilter))).toBe(true);
     expect(clauseMatches(agg, f({ kind: 'white', skillId: 'corner', legacyMin: 1, totalMin: 1 } as SparkFilter))).toBe(false); // legacy 0
     expect(clauseMatches(agg, f({ kind: 'white', skillId: 'absent', legacyMin: 0, totalMin: 1 } as SparkFilter))).toBe(false);
+  });
+  it('green: legacy + total (unique skill id)', () => {
+    // greens has 100151 → total 4, legacy 2.
+    expect(clauseMatches(agg, f({ kind: 'green', skillId: '100151', legacyMin: 2, totalMin: 4 } as SparkFilter))).toBe(true);
+    expect(clauseMatches(agg, f({ kind: 'green', skillId: '100151', legacyMin: 3, totalMin: 4 } as SparkFilter))).toBe(false); // legacy only 2
+    expect(clauseMatches(agg, f({ kind: 'green', skillId: '999999', legacyMin: 0, totalMin: 1 } as SparkFilter))).toBe(false); // absent
   });
   it('anyBlue: max stat total >=', () => {
     expect(clauseMatches(agg, { id: 'x', kind: 'anyBlue', totalMin: 8 })).toBe(true);

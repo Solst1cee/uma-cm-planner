@@ -13,6 +13,8 @@ export interface SparkAgg {
   pinkTotals: Record<string, number>;
   pinkLegacy: { aptitude: string; stars: number };
   whites: Map<string, { total: number; legacy: number }>;
+  /** Green (inherited-unique) sparks, keyed by the decoded unique skill id. */
+  greens: Map<string, { total: number; legacy: number }>;
 }
 
 export function aggregate(veteran: Parent): SparkAgg {
@@ -21,6 +23,7 @@ export function aggregate(veteran: Parent): SparkAgg {
   const blueTotals: Partial<Record<Stat, number>> = {};
   const pinkTotals: Record<string, number> = {};
   const whites = new Map<string, { total: number; legacy: number }>();
+  const greens = new Map<string, { total: number; legacy: number }>();
 
   for (const m of members) {
     if (m.blueSpark) blueTotals[m.blueSpark.stat] = (blueTotals[m.blueSpark.stat] ?? 0) + m.blueSpark.stars;
@@ -29,11 +32,19 @@ export function aggregate(veteran: Parent): SparkAgg {
       const prev = whites.get(w.skillId) ?? { total: 0, legacy: 0 };
       whites.set(w.skillId, { total: prev.total + w.stars, legacy: prev.legacy });
     }
+    if (m.greenSpark) {
+      const prev = greens.get(m.greenSpark.skillId) ?? { total: 0, legacy: 0 };
+      greens.set(m.greenSpark.skillId, { total: prev.total + m.greenSpark.stars, legacy: prev.legacy });
+    }
   }
   // legacy = the veteran's own sparks only
   for (const w of veteran.whiteSparks ?? []) {
     const prev = whites.get(w.skillId) ?? { total: 0, legacy: 0 };
     whites.set(w.skillId, { total: prev.total, legacy: prev.legacy + w.stars });
+  }
+  if (veteran.greenSpark) {
+    const prev = greens.get(veteran.greenSpark.skillId) ?? { total: 0, legacy: 0 };
+    greens.set(veteran.greenSpark.skillId, { total: prev.total, legacy: prev.legacy + veteran.greenSpark.stars });
   }
 
   const maxBlueTotal = Math.max(0, ...Object.values(blueTotals));
@@ -44,5 +55,6 @@ export function aggregate(veteran: Parent): SparkAgg {
     pinkTotals,
     pinkLegacy: { aptitude: veteran.pinkSpark.aptitude, stars: veteran.pinkSpark.stars },
     whites,
+    greens,
   };
 }

@@ -9,6 +9,7 @@ import type { SparkAgg } from './sparkAggregate';
 import { matchesFilters, type SparkFilter } from './sparkFilter';
 import { LineageSparkChips } from './LineageSparkChips';
 import { SparkFilterGrid, type TileKind, type TileValue } from './SparkFilterGrid';
+import { GreenSparkFilter, type GreenClause } from './GreenSparkFilter';
 import { maxTotalForKey } from './sparkBudget';
 
 export interface UmaPickerItem {
@@ -38,6 +39,8 @@ export interface UmaPickerModalProps {
   /** True when a spark's skill id is on the plan's wishlist → blue glow on the tile. */
   isWishlisted?: (skillId: string) => boolean;
   whiteSkillOptions: Array<{ id: string; name: string }>;
+  /** Selectable unique skills for the green-spark search. */
+  uniqueSkillOptions?: Array<{ id: string; name: string }>;
   onPick: (id: string) => void;
   onClose: () => void;
 }
@@ -45,7 +48,7 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, uniqueSkillOptions = [], onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -84,6 +87,26 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
         ? { id: newId(), kind: 'blue', stat: key as Stat, legacyMin, totalMin }
         : { id: newId(), kind: 'pink', aptitude: key, legacyMin, totalMin };
       return [...others, clause];
+    });
+  };
+
+  // --- green-spark search state (same budget + single-legacy rules, keyed by skillId) ---
+  const greenClauses: GreenClause[] = filters
+    .filter((f) => f.kind === 'green')
+    .map((f) => ({ id: f.id, skillId: (f as Extract<SparkFilter, { kind: 'green' }>).skillId, legacyMin: f.legacyMin, totalMin: f.totalMin }));
+  const greenMaxTotal = (skillId: string): number => {
+    const totals: Record<string, number> = {};
+    for (const c of greenClauses) totals[c.skillId] = c.totalMin;
+    return maxTotalForKey(totals, skillId);
+  };
+  const greenLegacyLocked = (skillId: string): boolean =>
+    greenClauses.some((c) => c.legacyMin > 0 && c.skillId !== skillId);
+  const setGreen = (skillId: string, legacyMin: number, totalMin: number) => {
+    setFilters((xs) => {
+      let others = xs.filter((f) => !(f.kind === 'green' && f.skillId === skillId));
+      if (legacyMin > 0) others = others.map((f) => (f.kind === 'green' ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
+      if (legacyMin === 0 && totalMin === 0) return others;
+      return [...others, { id: newId(), kind: 'green', skillId, legacyMin, totalMin }];
     });
   };
 
@@ -168,6 +191,14 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
             onTile={setTile}
             maxTotal={maxTotalFor}
             legacyLocked={legacyLockedFor}
+          />
+          <GreenSparkFilter
+            options={uniqueSkillOptions}
+            clauses={greenClauses}
+            skillName={skillName}
+            maxTotal={greenMaxTotal}
+            legacyLocked={greenLegacyLocked}
+            onSet={setGreen}
           />
           <div className="inh-uma-extra-filters">
             <div className="inh-uma-add">

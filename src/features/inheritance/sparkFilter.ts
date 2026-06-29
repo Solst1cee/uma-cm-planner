@@ -11,6 +11,7 @@ export type SparkFilter =
   | { id: string; kind: 'blue'; stat: Stat; legacyMin: number; totalMin: number }
   | { id: string; kind: 'pink'; aptitude: string; legacyMin: number; totalMin: number }
   | { id: string; kind: 'white'; skillId: string; legacyMin: number; totalMin: number }
+  | { id: string; kind: 'green'; skillId: string; legacyMin: number; totalMin: number }
   | { id: string; kind: 'anyBlue'; totalMin: number };
 
 export function clauseMatches(agg: SparkAgg, f: SparkFilter): boolean {
@@ -28,6 +29,10 @@ export function clauseMatches(agg: SparkAgg, f: SparkFilter): boolean {
     case 'white': {
       const w = agg.whites.get(f.skillId);
       return (w?.total ?? 0) >= f.totalMin && (w?.legacy ?? 0) >= f.legacyMin;
+    }
+    case 'green': {
+      const g = agg.greens.get(f.skillId);
+      return (g?.total ?? 0) >= f.totalMin && (g?.legacy ?? 0) >= f.legacyMin;
     }
     case 'anyBlue':
       return agg.maxBlueTotal >= f.totalMin;

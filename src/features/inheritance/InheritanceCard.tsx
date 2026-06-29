@@ -45,6 +45,14 @@ export function InheritanceCard() {
     () => skills.filter((s) => s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
     [skills],
   );
+  // Green sparks decode to the 6-digit 100xxx/110xxx unique ids; only those can
+  // appear as inherited-unique sparks, so offer just them as green-search options.
+  const uniqueSkillOptions = useMemo(
+    () => skills
+      .filter((s) => s.rarity === 'unique' && s.skillId.length === 6 && (s.skillId.startsWith('100') || s.skillId.startsWith('110')))
+      .map((s) => ({ id: s.skillId, name: s.nameEn })),
+    [skills],
+  );
   const wishlistIds = useMemo(
     () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
     [uma1Plan?.wishlist],
@@ -162,6 +170,7 @@ export function InheritanceCard() {
       skillName={skillName}
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
+      uniqueSkillOptions={uniqueSkillOptions}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />

@@ -8,7 +8,7 @@ import { UmaPickerModal, type UmaPickerItem } from './UmaPickerModal';
 
 const agg = (over: Partial<SparkAgg>): SparkAgg => ({
   blueTotals: {}, blueLegacy: { stat: 'spd', stars: 0 }, maxBlueTotal: 0,
-  pinkTotals: {}, pinkLegacy: { aptitude: 'turf', stars: 0 }, whites: new Map(), ...over,
+  pinkTotals: {}, pinkLegacy: { aptitude: 'turf', stars: 0 }, whites: new Map(), greens: new Map(), ...over,
 });
 const mkParent = (id: string, stat: Stat): Parent => ({
   id, umaId: id, blueSpark: { stat, stars: 3 }, pinkSpark: { aptitude: 'long', stars: 1 }, whiteSparks: [], source: 'mine',
@@ -70,6 +70,16 @@ describe('UmaPickerModal', () => {
     render(<UmaPickerModal {...base} open />);
     clickN('Power legacy plus', 3); // Power legacy 3 (the veteran's one blue own-spark)
     expect(screen.getByRole('button', { name: 'Stamina legacy plus' })).toBeDisabled();
+  });
+
+  it('green search adds a unique-skill clause with legacy/total steppers', () => {
+    const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Other Unique' }];
+    render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100151' ? 'Vittoria' : id)} />);
+    fireEvent.change(screen.getByRole('searchbox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
+    // The green clause line shows with its steppers; default total ★1.
+    expect(screen.getByRole('button', { name: 'Vittoria total plus' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria legacy plus' })).toBeInTheDocument();
   });
 
   it('filters tiles by the name search', () => {
