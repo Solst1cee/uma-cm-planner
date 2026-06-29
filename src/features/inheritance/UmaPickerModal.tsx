@@ -5,10 +5,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { Parent, Stat } from '@/core/types';
-import { APTITUDE_OPTIONS, STAT_OPTIONS } from '@/features/parents/sparkMeta';
 import type { SparkAgg } from './sparkAggregate';
 import { matchesFilters, type SparkFilter } from './sparkFilter';
 import { LineageSparkChips } from './LineageSparkChips';
+import { SparkFilterGrid, type TileKind, type TileValue } from './SparkFilterGrid';
+import { maxTotalForKey } from './sparkBudget';
 
 export interface UmaPickerItem {
   /** Roster id (trained_chara_id from the json file). */
@@ -37,6 +38,8 @@ export interface UmaPickerModalProps {
   /** True when a spark's skill id is on the plan's wishlist → blue glow on the tile. */
   isWishlisted?: (skillId: string) => boolean;
   whiteSkillOptions: Array<{ id: string; name: string }>;
+  /** Optional coloured blue-stat icon for the filter grid (container-wired). */
+  statIcon?: (stat: Stat) => ReactNode;
   onPick: (id: string) => void;
   onClose: () => void;
 }
@@ -44,10 +47,47 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, statIcon, onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
+
+  // --- spark-grid (blue/pink) tile state, derived from / written to `filters` ---
+  const sameTile = (f: SparkFilter, kind: TileKind, key: string) =>
+    (kind === 'blue' && f.kind === 'blue' && f.stat === key) ||
+    (kind === 'pink' && f.kind === 'pink' && f.aptitude === key);
+  const inCategory = (f: SparkFilter, kind: TileKind) =>
+    (kind === 'blue' && f.kind === 'blue') || (kind === 'pink' && f.kind === 'pink');
+
+  const tileValue = (kind: TileKind, key: string): TileValue => {
+    const f = filters.find((x) => sameTile(x, kind, key));
+    return f && 'legacyMin' in f ? { legacyMin: f.legacyMin, totalMin: f.totalMin } : { legacyMin: 0, totalMin: 0 };
+  };
+  const maxTotalFor = (kind: TileKind, key: string): number => {
+    const totals: Record<string, number> = {};
+    for (const f of filters) {
+      if (f.kind === 'blue' && kind === 'blue') totals[f.stat] = f.totalMin;
+      else if (f.kind === 'pink' && kind === 'pink') totals[f.aptitude] = f.totalMin;
+    }
+    return maxTotalForKey(totals, key);
+  };
+  const legacyLockedFor = (kind: TileKind, key: string): boolean =>
+    filters.some((f) => inCategory(f, kind) && 'legacyMin' in f && f.legacyMin > 0 && !sameTile(f, kind, key));
+
+  const setTile = (kind: TileKind, key: string, legacyMin: number, totalMin: number) => {
+    setFilters((xs) => {
+      let others = xs.filter((f) => !sameTile(f, kind, key));
+      // Single legacy per category: setting a legacy clears it on the other types.
+      if (legacyMin > 0) {
+        others = others.map((f) => (inCategory(f, kind) && 'legacyMin' in f ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
+      }
+      if (legacyMin === 0 && totalMin === 0) return others; // cleared
+      const clause: SparkFilter = kind === 'blue'
+        ? { id: newId(), kind: 'blue', stat: key as Stat, legacyMin, totalMin }
+        : { id: newId(), kind: 'pink', aptitude: key, legacyMin, totalMin };
+      return [...others, clause];
+    });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -82,28 +122,9 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
     </label>
   );
 
+  // Blue/pink filters live in the spark grid; only white + any-blue use a row.
   const filterRow = (f: SparkFilter) => (
     <div key={f.id} className="inh-uma-filter-row">
-      {f.kind === 'blue' && (
-        <>
-          <span className="badge spark-blue">Blue</span>
-          <select aria-label="stat" value={f.stat} onChange={(e) => update(f.id, { stat: e.target.value as Stat })}>
-            {STAT_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
-          </select>
-          {numIn(f.legacyMin, (n) => update(f.id, { legacyMin: n }), 'legacy ≥', 3)}
-          {numIn(f.totalMin, (n) => update(f.id, { totalMin: n }), 'total ≥', 9)}
-        </>
-      )}
-      {f.kind === 'pink' && (
-        <>
-          <span className="badge spark-pink">Pink</span>
-          <select aria-label="aptitude" value={f.aptitude} onChange={(e) => update(f.id, { aptitude: e.target.value })}>
-            {APTITUDE_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
-          </select>
-          {numIn(f.legacyMin, (n) => update(f.id, { legacyMin: n }), 'legacy ≥', 3)}
-          {numIn(f.totalMin, (n) => update(f.id, { totalMin: n }), 'total ≥', 9)}
-        </>
-      )}
       {f.kind === 'white' && (
         <>
           <span className="badge spark-white">White</span>
@@ -144,18 +165,25 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
           />
         </div>
         <div className="inh-uma-filterbar">
-          <div className="inh-uma-add">
-            <button type="button" className="cmp-small-btn" aria-haspopup="menu" onClick={() => setMenuOpen((o) => !o)}>+ Add filter</button>
-            {menuOpen && (
-              <div className="inh-uma-add-menu" role="menu">
-                <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'blue', stat: 'spd', legacyMin: 0, totalMin: 0 })}>Blue (stat)</button>
-                <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'pink', aptitude: 'turf', legacyMin: 0, totalMin: 0 })}>Pink (aptitude)</button>
-                <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'white', skillId: whiteSkillOptions[0]?.id ?? '', legacyMin: 0, totalMin: 1 })}>White skill</button>
-                <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'anyBlue', totalMin: 0 })}>Any blue</button>
-              </div>
-            )}
+          <SparkFilterGrid
+            value={tileValue}
+            onTile={setTile}
+            maxTotal={maxTotalFor}
+            legacyLocked={legacyLockedFor}
+            statIcon={statIcon}
+          />
+          <div className="inh-uma-extra-filters">
+            <div className="inh-uma-add">
+              <button type="button" className="cmp-small-btn" aria-haspopup="menu" onClick={() => setMenuOpen((o) => !o)}>+ Skill / any-blue</button>
+              {menuOpen && (
+                <div className="inh-uma-add-menu" role="menu">
+                  <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'white', skillId: whiteSkillOptions[0]?.id ?? '', legacyMin: 0, totalMin: 1 })}>White skill</button>
+                  <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'anyBlue', totalMin: 0 })}>Any blue</button>
+                </div>
+              )}
+            </div>
+            {filters.filter((f) => f.kind === 'white' || f.kind === 'anyBlue').map(filterRow)}
           </div>
-          {filters.map(filterRow)}
         </div>
         <div className="cmp-plan-card-body inh-uma-grid">
           {shown.length === 0 && <p className="muted small">No veterans match.</p>}

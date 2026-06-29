@@ -510,9 +510,37 @@ main:has(.inh-page) {
 }
 .inh-uma-search { width: 100%; box-sizing: border-box; font-weight: 400; }
 .inh-uma-filterbar {
-  display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
+  display: flex; flex-direction: column; gap: 0.5rem;
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-2);
 }
+/* Spark filter grid: in-game-style factor tiles with two-tier star strips. */
+.inh-fg { display: flex; flex-direction: column; gap: 0.3rem; }
+.inh-fg-row { display: flex; align-items: flex-start; gap: 0.5rem; }
+.inh-fg-row-label {
+  flex: none; width: 3.6rem; padding-top: 0.35rem;
+  text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700;
+}
+.inh-fg-tiles { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.inh-fg-tile {
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1);
+  padding: 0.25rem 0.4rem; min-width: 6.6rem;
+}
+.inh-fg-tile.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-1)); }
+.inh-fg-tile-head { display: flex; align-items: center; gap: 0.25rem; font-size: 0.78rem; font-weight: 600; }
+.inh-fg-icon { display: inline-flex; flex: none; }
+.inh-fg-tile-name { white-space: nowrap; }
+.inh-fg-readout { margin-left: auto; font-variant-numeric: tabular-nums; }
+.inh-fg-stars { display: inline-flex; align-items: center; margin-top: 0.15rem; }
+.inh-fg-star {
+  border: 0; background: none; padding: 0 0.5px; margin: 0; cursor: pointer;
+  line-height: 1; font-size: 0.85rem; color: var(--border); /* off = faint */
+}
+.inh-fg-star.is-gold.is-on { color: #eab308; }
+.inh-fg-star.is-silver.is-on { color: #94a3b8; }
+.inh-fg-star.inh-fg-sep { margin-left: 0.3rem; }
+.inh-fg-star:disabled { cursor: default; opacity: 0.25; }
+/* white / any-blue extras live below the grid */
+.inh-uma-extra-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .inh-uma-add { position: relative; }
 .inh-uma-add-menu {
   position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 2;

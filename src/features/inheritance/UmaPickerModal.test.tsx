@@ -36,13 +36,37 @@ describe('UmaPickerModal', () => {
 
   it('adding an any-blue >=8 filter narrows to matching tiles', () => {
     render(<UmaPickerModal {...base} open />);
-    fireEvent.click(screen.getByRole('button', { name: /add filter/i }));
+    fireEvent.click(screen.getByRole('button', { name: /skill \/ any-blue/i }));
     fireEvent.click(screen.getByRole('menuitem', { name: /any blue/i }));
     const input = screen.getByLabelText(/any-blue total/i);
     fireEvent.change(input, { target: { value: '8' } });
     expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
     expect(screen.getByText(/1 match/)).toBeInTheDocument();
+  });
+
+  it('the spark grid filters by a blue total (click Power silver★4 → total ≥4)', () => {
+    render(<UmaPickerModal {...base} open />);
+    // Alpha has Power total 8; Beta has none → require Power ≥4.
+    fireEvent.click(screen.getByRole('button', { name: 'Power silver 4' }));
+    expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/1 match/)).toBeInTheDocument();
+  });
+
+  it('enforces the 3-member budget — Power total 6 disables Stamina beyond 3★', () => {
+    render(<UmaPickerModal {...base} open />);
+    fireEvent.click(screen.getByRole('button', { name: 'Power silver 6' })); // Power total 6 (2 members)
+    // Stamina now has 1 member left → max 3 total; silver★4 (=total 4) is disabled.
+    expect(screen.getByRole('button', { name: 'Stamina silver 4' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Stamina silver 3' })).not.toBeDisabled();
+  });
+
+  it('single legacy per category — gold on a second blue stat is locked', () => {
+    render(<UmaPickerModal {...base} open />);
+    fireEvent.click(screen.getByRole('button', { name: 'Power gold 3' })); // Power legacy 3
+    // Stamina's gold stars are now disabled (the veteran has only one blue legacy spark).
+    expect(screen.getByRole('button', { name: 'Stamina gold 1' })).toBeDisabled();
   });
 
   it('filters tiles by the name search', () => {

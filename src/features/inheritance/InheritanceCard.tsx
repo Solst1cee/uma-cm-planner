@@ -162,6 +162,7 @@ export function InheritanceCard() {
       skillName={skillName}
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
+      statIcon={(s) => <GameIcon kind="ui" id={`stat-${s}`} size={16} alt="" />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />
