@@ -161,6 +161,7 @@ describe('planToOverlayBuild', () => {
       wishlist: [{ skillId: 'S1', priority: 1, source: 'targeted' }],
     });
     expect(planToOverlayBuild(p).skills).toEqual(['S1']);
+    expect(planToOverlayBuild(p).skillLevels).toBeUndefined();
   });
 
   it('maps the unique skill to its level (default 5)', () => {
