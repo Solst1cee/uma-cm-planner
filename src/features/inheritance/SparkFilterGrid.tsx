@@ -1,27 +1,25 @@
-/** In-game-style spark filter grid (M1.4). Four labelled rows of factor tiles —
- *  blue stats, surface, distance, style — mirroring the in-game aptitude layout.
- *  Each tile carries a two-tier star strip: 3 GOLD stars = the veteran's own
- *  (legacy) requirement, then up to 6 SILVER stars = additional lineage total
- *  (gold + silver ≤ 9). A tile with all stars empty imposes no filter.
+/** In-game-style spark filter (M1.4). Factor sparks grouped as the in-game
+ *  layout — blue stats, surface, distance, style — one line per spark. Each line
+ *  carries two `− ★N +` steppers: GOLD = the veteran's own (legacy) requirement
+ *  (≤3), and the lineage TOTAL (≤9). The lineage budget (3 members × 3★) and the
+ *  single-legacy-per-category rule are enforced by the parent via `maxTotal` /
+ *  `legacyLocked`, which disable the steppers that would break them.
  *
- *  Provider-free: the (optional) coloured blue-stat icon arrives as a render
- *  prop, so this stays testable without a GameDataProvider. */
-import type { ReactNode } from 'react';
-import type { Stat } from '@/core/types';
+ *  Pure/presentational — no GameDataProvider needed. */
 import { STAT_OPTIONS } from '@/features/parents/sparkMeta';
 
 export type TileKind = 'blue' | 'pink';
 export interface TileValue {
   /** Required own/legacy stars (gold), 0–3. */
   legacyMin: number;
-  /** Required lineage total stars (gold + silver), 0–9; always ≥ legacyMin. */
+  /** Required lineage total stars, 0–9; always ≥ legacyMin. */
   totalMin: number;
 }
 
-const GOLD = 3;
-const SILVER = 6;
+const LEGACY_CAP = 3;
+const TOTAL_CAP = 9;
 
-/** Short labels so the style/distance tiles stay compact in the grid. */
+/** Short labels so the style/distance lines stay compact. */
 const SHORT_LABEL: Record<string, string> = {
   turf: 'Turf', dirt: 'Dirt',
   sprint: 'Sprint', mile: 'Mile', medium: 'Medium', long: 'Long',
@@ -41,103 +39,79 @@ function tileLabel(kind: TileKind, key: string): string {
   return SHORT_LABEL[key] ?? key;
 }
 
+function Stepper({
+  name, kindLabel, value, starClass, dec, inc, decDisabled, incDisabled,
+}: {
+  name: string; kindLabel: string; value: number; starClass: string;
+  dec: () => void; inc: () => void; decDisabled: boolean; incDisabled: boolean;
+}) {
+  return (
+    <span className="inh-fg-step" role="group" aria-label={`${name} ${kindLabel}`}>
+      <span className="inh-fg-step-label muted small">{kindLabel}</span>
+      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} minus`}
+        disabled={decDisabled} onClick={dec}>−</button>
+      <span className={`inh-fg-step-val ${starClass}`}>
+        <span className="inh-fg-star" aria-hidden>★</span>{value}
+      </span>
+      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} plus`}
+        disabled={incDisabled} onClick={inc}>+</button>
+    </span>
+  );
+}
+
 export function SparkFilterGrid({
   value,
   onTile,
   maxTotal,
   legacyLocked,
-  statIcon,
 }: {
-  /** Current requirement for a tile (0/0 if unset). */
+  /** Current requirement for a spark (0/0 if unset). */
   value: (kind: TileKind, key: string) => TileValue;
-  /** Set a tile's requirement; (0,0) clears it. */
+  /** Set a spark's requirement; (0,0) clears it. */
   onTile: (kind: TileKind, key: string, legacyMin: number, totalMin: number) => void;
-  /** Largest total still reachable for a tile given the 3-member budget (0–9). */
+  /** Largest total still reachable given the 3-member budget (0–9). */
   maxTotal: (kind: TileKind, key: string) => number;
-  /** Another tile in this category already holds the single legacy spark. */
+  /** Another spark in this category already holds the single legacy spark. */
   legacyLocked: (kind: TileKind, key: string) => boolean;
-  /** Optional coloured blue-stat icon (container-wired; omitted in tests). */
-  statIcon?: (stat: Stat) => ReactNode;
 }) {
-  const renderStrip = (kind: TileKind, key: string, v: TileValue) => {
-    const extra = v.totalMin - v.legacyMin; // silver filled
-    const name = tileLabel(kind, key);
+  const line = (kind: TileKind, key: string) => {
+    const v = value(kind, key);
     const cap = maxTotal(kind, key);
-    const goldLocked = legacyLocked(kind, key); // another type owns this category's legacy
-    // Click the i-th gold (legacy) star: toggle legacy to i (or i-1 if already i),
-    // keeping the silver "extra" so the total moves with it.
-    const setGold = (i: number) => {
-      const legacy = v.legacyMin === i ? i - 1 : i;
-      onTile(kind, key, legacy, legacy + extra);
-    };
-    // Click the j-th silver star: set the extra to j (or j-1 if already j).
-    const setSilver = (j: number) => {
-      const ex = extra === j ? j - 1 : j;
-      onTile(kind, key, v.legacyMin, v.legacyMin + ex);
-    };
+    const locked = legacyLocked(kind, key);
+    const name = tileLabel(kind, key);
+    const legacyMax = Math.min(LEGACY_CAP, cap);
+    const active = v.legacyMin > 0 || v.totalMin > 0;
+
+    const setLegacy = (l: number) => onTile(kind, key, l, Math.max(v.totalMin, l));
+    const setTotal = (t: number) => onTile(kind, key, Math.min(v.legacyMin, t), t);
+
     return (
-      <span className="inh-fg-stars" role="group" aria-label={`${name} stars`}>
-        {Array.from({ length: GOLD }, (_, idx) => idx + 1).map((i) => {
-          const on = i <= v.legacyMin;
-          // Disabled when the legacy belongs to another type, or raising legacy to i
-          // would push the total past the member budget.
-          const disabled = (goldLocked && !on) || (!on && i + extra > cap);
-          return (
-            <button
-              key={`g${i}`}
-              type="button"
-              className={`inh-fg-star is-gold${on ? ' is-on' : ''}`}
-              aria-label={`${name} gold ${i}`}
-              aria-pressed={on}
-              disabled={disabled}
-              onClick={() => setGold(i)}
-            >★</button>
-          );
-        })}
-        {Array.from({ length: SILVER }, (_, idx) => idx + 1).map((j) => {
-          const on = j <= extra;
-          const disabled = !on && v.legacyMin + j > cap; // would exceed the budget
-          return (
-            <button
-              key={`s${j}`}
-              type="button"
-              className={`inh-fg-star is-silver${j === 1 ? ' inh-fg-sep' : ''}${on ? ' is-on' : ''}`}
-              aria-label={`${name} silver ${j}`}
-              aria-pressed={on}
-              disabled={disabled}
-              onClick={() => setSilver(j)}
-            >★</button>
-          );
-        })}
-      </span>
+      <div key={key} className={`inh-fg-line spark-${kind}${active ? ' is-active' : ''}`}>
+        <span className="inh-fg-line-name">{name}</span>
+        <Stepper
+          name={name} kindLabel="legacy" value={v.legacyMin} starClass="is-gold"
+          dec={() => setLegacy(Math.max(0, v.legacyMin - 1))}
+          inc={() => setLegacy(Math.min(legacyMax, v.legacyMin + 1))}
+          decDisabled={v.legacyMin <= 0}
+          incDisabled={locked || v.legacyMin >= legacyMax}
+        />
+        <Stepper
+          name={name} kindLabel="total" value={v.totalMin} starClass="is-silver"
+          dec={() => setTotal(Math.max(v.legacyMin, v.totalMin - 1))}
+          inc={() => setTotal(Math.min(cap, TOTAL_CAP, v.totalMin + 1))}
+          decDisabled={v.totalMin <= v.legacyMin}
+          incDisabled={v.totalMin >= Math.min(cap, TOTAL_CAP)}
+        />
+      </div>
     );
   };
 
   return (
     <div className="inh-fg" role="group" aria-label="Spark filters">
       {ROWS.map((row) => (
-        <div key={row.label} className="inh-fg-row">
-          <span className="inh-fg-row-label muted small">{row.label}</span>
-          <div className="inh-fg-tiles">
-            {row.keys.map((key) => {
-              const v = value(row.kind, key);
-              const active = v.legacyMin > 0 || v.totalMin > 0;
-              return (
-                <div key={key} className={`inh-fg-tile spark-${row.kind}${active ? ' is-active' : ''}`}>
-                  <span className="inh-fg-tile-head">
-                    {row.kind === 'blue' && statIcon && <span className="inh-fg-icon">{statIcon(key as Stat)}</span>}
-                    <span className="inh-fg-tile-name">{tileLabel(row.kind, key)}</span>
-                    {active && (
-                      <span className="inh-fg-readout muted small" title={`legacy ≥${v.legacyMin}, total ≥${v.totalMin}`}>
-                        {v.legacyMin}/{v.totalMin}
-                      </span>
-                    )}
-                  </span>
-                  {renderStrip(row.kind, key, v)}
-                </div>
-              );
-            })}
-          </div>
+        <div key={row.label} className="inh-fg-group">
+          <div className="inh-fg-group-label muted small">{row.label}</div>
+          <div className="inh-fg-lines">{row.keys.map((key) => line(row.kind, key))}</div>
         </div>
       ))}
     </div>

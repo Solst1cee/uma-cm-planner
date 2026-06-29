@@ -513,32 +513,31 @@ main:has(.inh-page) {
   display: flex; flex-direction: column; gap: 0.5rem;
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-2);
 }
-/* Spark filter grid: in-game-style factor tiles with two-tier star strips. */
-.inh-fg { display: flex; flex-direction: column; gap: 0.3rem; }
-.inh-fg-row { display: flex; align-items: flex-start; gap: 0.5rem; }
-.inh-fg-row-label {
-  flex: none; width: 3.6rem; padding-top: 0.35rem;
-  text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700;
+/* Spark filter: in-game-style groups (blue / surface / distance / style), one
+   line per spark with a legacy + total `− ★N +` stepper. */
+.inh-fg { display: flex; flex-direction: column; gap: 0.45rem; }
+.inh-fg-group { display: flex; flex-direction: column; gap: 0.15rem; }
+.inh-fg-group-label { text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700; }
+.inh-fg-lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.2rem 0.6rem; }
+.inh-fg-line {
+  display: flex; align-items: center; gap: 0.4rem;
+  border: 1px solid transparent; border-radius: 7px; padding: 0.1rem 0.35rem;
 }
-.inh-fg-tiles { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-.inh-fg-tile {
-  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1);
-  padding: 0.25rem 0.4rem; min-width: 6.6rem;
+.inh-fg-line.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-1)); }
+.inh-fg-line-name { flex: 1 1 auto; min-width: 4rem; font-size: 0.8rem; font-weight: 600; }
+.inh-fg-step { display: inline-flex; align-items: center; gap: 0.2rem; flex: none; }
+.inh-fg-step-label { width: 2.7rem; text-align: right; }
+.inh-fg-step-btn {
+  width: 1.25rem; height: 1.25rem; min-height: 0; padding: 0; line-height: 1;
+  border: 1px solid var(--border); border-radius: 5px; background: var(--bg-1);
+  cursor: pointer; font-weight: 700;
 }
-.inh-fg-tile.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-1)); }
-.inh-fg-tile-head { display: flex; align-items: center; gap: 0.25rem; font-size: 0.78rem; font-weight: 600; }
-.inh-fg-icon { display: inline-flex; flex: none; }
-.inh-fg-tile-name { white-space: nowrap; }
-.inh-fg-readout { margin-left: auto; font-variant-numeric: tabular-nums; }
-.inh-fg-stars { display: inline-flex; align-items: center; margin-top: 0.15rem; }
-.inh-fg-star {
-  border: 0; background: none; padding: 0 0.5px; margin: 0; cursor: pointer;
-  line-height: 1; font-size: 0.85rem; color: var(--border); /* off = faint */
-}
-.inh-fg-star.is-gold.is-on { color: #eab308; }
-.inh-fg-star.is-silver.is-on { color: #94a3b8; }
-.inh-fg-star.inh-fg-sep { margin-left: 0.3rem; }
-.inh-fg-star:disabled { cursor: default; opacity: 0.25; }
+.inh-fg-step-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.inh-fg-step-btn:disabled { opacity: 0.4; cursor: default; }
+.inh-fg-step-val { min-width: 1.6rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.inh-fg-star { font-size: 0.85rem; margin-right: 1px; }
+.inh-fg-step-val.is-gold .inh-fg-star { color: #eab308; }
+.inh-fg-step-val.is-silver .inh-fg-star { color: #94a3b8; }
 /* white / any-blue extras live below the grid */
 .inh-uma-extra-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .inh-uma-add { position: relative; }

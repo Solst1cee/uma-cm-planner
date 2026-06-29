@@ -38,8 +38,6 @@ export interface UmaPickerModalProps {
   /** True when a spark's skill id is on the plan's wishlist → blue glow on the tile. */
   isWishlisted?: (skillId: string) => boolean;
   whiteSkillOptions: Array<{ id: string; name: string }>;
-  /** Optional coloured blue-stat icon for the filter grid (container-wired). */
-  statIcon?: (stat: Stat) => ReactNode;
   onPick: (id: string) => void;
   onClose: () => void;
 }
@@ -47,7 +45,7 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, statIcon, onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -170,7 +168,6 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
             onTile={setTile}
             maxTotal={maxTotalFor}
             legacyLocked={legacyLockedFor}
-            statIcon={statIcon}
           />
           <div className="inh-uma-extra-filters">
             <div className="inh-uma-add">
