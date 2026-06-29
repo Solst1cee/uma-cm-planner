@@ -75,6 +75,22 @@ describe('UmaPickerModal', () => {
     expect(onPick).toHaveBeenCalledWith('a');
   });
 
+  it('greys a disabled (other-parent) tile, sorts it last, and blocks its click', () => {
+    const onPick = vi.fn();
+    // Alpha (aff 50) would normally sort first; mark it disabled → it sinks below Beta.
+    const withDisabled = items.map((it) => (it.id === 'a' ? { ...it, disabled: true } : it));
+    render(<UmaPickerModal {...base} items={withDisabled} open onPick={onPick} />);
+    const tiles = screen.getAllByRole('button', { name: /Alpha|Beta/ });
+    expect(tiles[0]).toHaveTextContent('Beta'); // disabled Alpha no longer first
+    const alpha = screen.getByRole('button', { name: /Alpha/ });
+    expect(alpha).toHaveClass('is-disabled');
+    expect(alpha).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(alpha);
+    expect(onPick).not.toHaveBeenCalled(); // click blocked
+    fireEvent.click(screen.getByRole('button', { name: /Beta/ }));
+    expect(onPick).toHaveBeenCalledWith('b'); // enabled tile still works
+  });
+
   it('Escape and backdrop click call onClose; window click does not', () => {
     const onClose = vi.fn();
     render(<UmaPickerModal {...base} open onClose={onClose} />);

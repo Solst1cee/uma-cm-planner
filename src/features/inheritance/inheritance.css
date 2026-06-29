@@ -540,6 +540,9 @@ main:has(.inh-page) {
   padding: 0.55rem 0.65rem; cursor: pointer;
 }
 .inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
+/* Already chosen in the other parent slot — greyed + not selectable (sorted last). */
+.inh-uma-tile.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.inh-uma-tile.is-disabled:hover { border-color: var(--border); background: var(--bg-1); }
 /* Left rail: pedigree row (uma + GPs + rank) · name · affinity · roster id */
 .inh-uma-tile-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; }
 .inh-uma-tile-left > * { max-width: 100%; }

@@ -27,6 +27,8 @@ export interface UmaPickerItem {
   parent: Parent;
   agg: SparkAgg;
   affinity: number | null;
+  /** Already chosen in the other parent slot — greyed, not selectable, sorted last. */
+  disabled?: boolean;
 }
 export interface UmaPickerModalProps {
   open: boolean;
@@ -58,7 +60,11 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
     const q = query.trim().toLowerCase();
     return items
       .filter((it) => matchesFilters(it.agg, filters) && (q === '' || it.name.toLowerCase().includes(q)))
-      .sort((a, b) => (b.affinity ?? -1) - (a.affinity ?? -1) || a.name.localeCompare(b.name));
+      // Disabled (already-the-other-parent) tiles sink to the bottom; then affinity desc, then name.
+      .sort((a, b) =>
+        Number(!!a.disabled) - Number(!!b.disabled) ||
+        (b.affinity ?? -1) - (a.affinity ?? -1) ||
+        a.name.localeCompare(b.name));
   }, [items, filters, query]);
 
   if (!open) return null;
@@ -154,7 +160,11 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
         <div className="cmp-plan-card-body inh-uma-grid">
           {shown.length === 0 && <p className="muted small">No veterans match.</p>}
           {shown.map((it) => (
-            <button key={it.id} type="button" className="inh-uma-tile" onClick={() => onPick(it.id)}>
+            <button key={it.id} type="button"
+              className={`inh-uma-tile${it.disabled ? ' is-disabled' : ''}`}
+              aria-disabled={it.disabled || undefined}
+              title={it.disabled ? 'Already selected as the other parent' : undefined}
+              onClick={() => { if (!it.disabled) onPick(it.id); }}>
               <span className="inh-uma-tile-left">
                 {/* Pedigree row: uma icon ──┤ stacked grandparents, rank badge alongside. */}
                 <span className="inh-uma-ped">

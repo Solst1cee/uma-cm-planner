@@ -90,13 +90,18 @@ export function InheritanceCard() {
       parent: p,
       agg: aggregate(p),
       affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,
+      // The same veteran can't fill both slots — grey out + sink the one already
+      // chosen in the other slot (still visible, just not selectable).
+      disabled: p.id === otherId,
     }));
   };
 
   const slotPicker = (slot: Slot) => {
     const m = mode[slot];
     if (m === 'find') {
-      const top = topCandidates(pool, uma1Plan.sparkGoals);
+      // Exclude the veteran already chosen in the other slot — can't reuse it.
+      const otherId = uma1Plan.parents[slot === 'a' ? 'b' : 'a'];
+      const top = topCandidates(pool.filter((p) => p.id !== otherId), uma1Plan.sparkGoals);
       return (
         <ul className="picker-results" aria-label="candidates">
           {top.length === 0 && <li className="muted">No roster veterans — Upload data.</li>}
