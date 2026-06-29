@@ -10,8 +10,8 @@ const UploadIcon = () => (
   </svg>
 );
 
-/** "Upload data" — reads a UmaExtractor data.json into the local roster. Uses the
- *  planner inventory's hover-expand icon button (`cmp-inventory-action-btn`). */
+/** "Upload data" — reads a UmaExtractor data.json into the local roster. Icon-only
+ *  button (`cmp-inventory-icon-btn`, no hover-expand label — kept intentionally). */
 export function UploadDataButton({ onImported }: { onImported?: () => void }) {
   const { importFromFile } = useRoster();
   const inputRef = useRef<HTMLInputElement>(null);
