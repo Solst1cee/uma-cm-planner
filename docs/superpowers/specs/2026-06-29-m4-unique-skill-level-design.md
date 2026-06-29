@@ -11,8 +11,8 @@ Today the engine simulates **every** skill at its base (Lv1) value and has no le
 ## 2. Decisions (locked in brainstorming)
 
 - **Accuracy:** real datamined values (not an approximation). Numbers must be honest (P3).
-- **Range:** Lv1–6 (in-game cap). **Default 6** for user plans (typical CM build); legacy plans without the field are treated as Lv6 in the app.
-- **Plate layout:** stepper first, then `+L` → `⟨ − Lv6 + ⟩ +3.95`. Transparent container + 1px border.
+- **Range:** Lv1–6 (in-game cap). **Default 5** for user plans; legacy plans without the field are treated as Lv5 in the app.
+- **Plate layout:** stepper first, then `+L` → `⟨ − Lv5 + ⟩ +3.95`. Transparent container + 1px border.
 - **`+L` recompute triggers:** **strategy change, level change, course change** only — *not* on the plan's stat / mood / wishlist edits. Rationale: the `+L` must **match the unique-skill chart**, which uses a fixed reference build; tying it to the plan's live stats would diverge from the chart.
 - **Reuse verdict:** author the scaling ourselves. No community tool (uma-skill-tools, kachi-uma-tools, umalator-global, TheCing, …) applies level→modifier scaling at sim time; `skill_level` in the share format is always discarded. Patching our vendored engine is acceptable and is the established pattern (cf. `engine-patches/2026-06-22-multifire.patch`).
 
@@ -63,13 +63,13 @@ CmPlan.uniqueSkillLevel (1–6)
 
 ### 4.3 App types & plumbing
 
-- `CmPlan.uniqueSkillLevel?: 1|2|3|4|5|6` in `src/core/types.ts`. **No Dexie bump** — non-indexed optional field (Dexie versions only index changes). `makeDefaultPlan` seeds `6`. Reads use `plan.uniqueSkillLevel ?? 6` (legacy plans → Lv6).
+- `CmPlan.uniqueSkillLevel?: 1|2|3|4|5|6` in `src/core/types.ts`. **No Dexie bump** — non-indexed optional field (Dexie versions only index changes). `makeDefaultPlan` seeds `5`. Reads use `plan.uniqueSkillLevel ?? 5` (legacy plans → Lv5).
 - `SimBuild.skillLevels?: Record<string, number>` (`src/sim/types.ts`); `toRunnerState` maps it into the runner state (`src/sim/adapter.ts`).
-- `planToOverlayBuild` (`src/core/simBuild.ts`) sets `skillLevels: { [plan.uniqueSkillId]: plan.uniqueSkillLevel ?? 6 }`. All engine entrypoints that build runners (`evalSkillDelta`, `runVacuumCompare`, `runRaceCompare`, `runSkillTrace`, `skillImpact`) thread `skillLevels` through unchanged. `simulatableBase` preserves it (dropping unknown ids as today).
+- `planToOverlayBuild` (`src/core/simBuild.ts`) sets `skillLevels: { [plan.uniqueSkillId]: plan.uniqueSkillLevel ?? 5 }`. All engine entrypoints that build runners (`evalSkillDelta`, `runVacuumCompare`, `runRaceCompare`, `runSkillTrace`, `skillImpact`) thread `skillLevels` through unchanged. `simulatableBase` preserves it (dropping unknown ids as today).
 
 ### 4.4 Unique-skill chart parity
 
-- `rankUmaChart` / `useUmaChart` become **level-aware**: the `skillDelta(referenceBuild, …, uniqueSkillId)` call passes `skillLevels: { [uniqueSkillId]: level }` where `level = plan.uniqueSkillLevel ?? 6`, applied to **all rows** (one level governs the whole chart). The `referenceBuild` reference stats/mood/aptitudes are otherwise unchanged. LRU sig gains `level`.
+- `rankUmaChart` / `useUmaChart` become **level-aware**: the `skillDelta(referenceBuild, …, uniqueSkillId)` call passes `skillLevels: { [uniqueSkillId]: level }` where `level = plan.uniqueSkillLevel ?? 5`, applied to **all rows** (one level governs the whole chart). The `referenceBuild` reference stats/mood/aptitudes are otherwise unchanged. LRU sig gains `level`.
 - Result: the current uma's chart row equals the plate's `+L` by construction.
 
 ### 4.5 Plate `+L` value + recompute
@@ -101,7 +101,7 @@ CmPlan.uniqueSkillLevel (1–6)
 - **Core/coef:** `coef(27,1)=10000`, `coef(27,6)=11300`; `effective_modifier` for Shooting Star: Lv1 speed=3500/accel=1000, Lv6 speed=3955/accel=1100 (cited fixtures).
 - **Engine:** a Lv6 unique yields strictly larger バ身 than Lv1 on a course where it fires; **absent-level path is byte-identical** to pre-patch (fidelity). `fidelity.test.ts` pins Lv1 (no `skillLevels`) and keeps meanBashin 0.2202 on the `cooldownReactivation:false` path.
 - **Double-scaling guard:** assert embedded base modifier == Lv1 value for a sampled unique.
-- **Plumbing:** `planToOverlayBuild` emits `skillLevels` with `?? 6`; `simulatableBase` preserves levels and still drops unknown ids.
+- **Plumbing:** `planToOverlayBuild` emits `skillLevels` with `?? 5`; `simulatableBase` preserves levels and still drops unknown ids.
 - **Chart parity:** chart row L for the current uma == `useUniqueSkillL` output for same (uma, strategy, level, course).
 - **UI:** stepper clamps 1–6, writes `plan.uniqueSkillLevel`, `stopPropagation` (disclosure stays toggled as-is), `+L` recompute fires on strategy/level/course and NOT on stat/wishlist edits.
 
