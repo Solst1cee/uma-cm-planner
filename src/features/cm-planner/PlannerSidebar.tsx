@@ -27,7 +27,7 @@ import {
   skillRecordToSummary,
   type SkillSummary,
 } from './skillTechnicalDetails';
-import { useUniqueSkillL } from './useUniqueSkillL';
+import { useUniqueSkillL, type UniqueSkillLDeps } from './useUniqueSkillL';
 import { sharedSkillDelta } from './useStreamingRank';
 
 const STATS: Array<{ key: Stat; label: string; shortLabel: string; iconId: string }> = [
@@ -308,16 +308,17 @@ export function PlannerSidebar({
     [plan],
   );
   const uniqueLevel = plan.uniqueSkillLevel ?? 5;
-  const _sharedDelta = sharedSkillDelta();
+  const uniqueSkillDeps = useMemo<UniqueSkillLDeps>(
+    () => ({ skillDelta: (...args) => Promise.resolve(sharedSkillDelta()(...args)) }),
+    [],
+  );
   const { L: uniqueL } = useUniqueSkillL({
     outfitId: plan.umaId,
     uniqueSkillId: uniqueSkill?.skillId ?? '',
     strategy: plan.strategy,
     level: uniqueLevel,
     race: { courseId: plan.cmRef.courseId },
-    deps: {
-      skillDelta: (...args) => Promise.resolve(_sharedDelta(...args)),
-    },
+    deps: uniqueSkillDeps,
   });
 
   useEffect(() => {
