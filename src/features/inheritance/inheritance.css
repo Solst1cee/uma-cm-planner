@@ -519,15 +519,25 @@ main:has(.inh-page) {
 .inh-fg-group { display: flex; flex-direction: column; gap: 0.15rem; }
 .inh-fg-group-label { text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700; }
 .inh-fg-lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.2rem 0.6rem; }
-/* Each spark is a chip: pill shape, faint fill, transparent border (shows on
-   hover); the legacy/total steppers (the − + controls) live inside it. */
+/* Each spark is a coloured chip like `.badge.spark-*` (blue / pink / green) — the
+   legacy/total − + controls live inside it. `--sc` = the spark colour; the chip
+   is faint when unset and full badge colour when a requirement is set. */
 .inh-fg-line {
+  --sc: var(--border);
   display: flex; align-items: center; gap: 0.4rem;
-  border: 1px solid transparent; border-radius: 999px; padding: 0.1rem 0.65rem;
-  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sc) 28%, var(--border));
+  border-radius: 999px; padding: 0.1rem 0.65rem;
+  background: color-mix(in srgb, var(--sc) 7%, var(--bg-1));
+  color: color-mix(in srgb, var(--sc) 58%, var(--fg));
 }
-.inh-fg-line:hover { border-color: var(--border); }
-.inh-fg-line.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-1)); }
+.inh-fg-line.spark-blue { --sc: #3b82f6; }
+.inh-fg-line.spark-pink { --sc: #ec4899; }
+.inh-fg-line.spark-green { --sc: #22c55e; }
+.inh-fg-line.is-active {
+  border-color: color-mix(in srgb, var(--sc) 55%, var(--border));
+  background: color-mix(in srgb, var(--sc) 16%, var(--bg-1));
+  color: color-mix(in srgb, var(--sc) 80%, var(--fg));
+}
 .inh-fg-line-name { flex: 1 1 auto; min-width: 4rem; font-size: 0.8rem; font-weight: 600; }
 .inh-fg-step { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
 .inh-fg-step-label { width: 2.7rem; text-align: right; }
