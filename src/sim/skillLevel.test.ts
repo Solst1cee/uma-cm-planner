@@ -20,5 +20,10 @@ describe('unique-skill level scaling', () => {
     const lv6 = evalSkillDelta({ ...base, skillLevels: { [SKILL]: 6 } }, race, SKILL, 200, 1);
     expect(lv1.nsamples).toBe(200);
     expect(lv6.mean).toBeGreaterThan(lv1.mean);
+    // Bounded magnitude: Lv6/Lv1 ratio reflects the coef scaling (~+13% for type-27 at Lv6).
+    // Seed 1 makes this deterministic; a wide band protects against minor engine changes.
+    const ratio = lv6.mean / lv1.mean;
+    expect(ratio).toBeGreaterThan(1.02);
+    expect(ratio).toBeLessThan(1.25);
   });
 });

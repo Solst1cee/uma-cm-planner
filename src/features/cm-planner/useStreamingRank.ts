@@ -45,7 +45,7 @@ export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {
   compare: (a: Row, b: Row) => number;
   /** Runs the rank, streaming each row via onRow until shouldContinue() goes false. */
   rank: (deps: StreamingRankDeps, onRow: (row: Row) => void, shouldContinue: () => boolean) => Promise<Row[]>;
-  deps?: StreamingRankDeps;
+  deps?: Partial<StreamingRankDeps>;
 }): StreamingRankState<Row> {
   const [rows, setRows] = useState<Row[]>([]);
   const [status, setStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -61,7 +61,10 @@ export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {
 
   const run = () => {
     const token = (runToken.current += 1);
-    const merged = depsRef.current ?? sharedDeps();
+    const provided = depsRef.current;
+    const merged: StreamingRankDeps = provided?.skillDelta
+      ? (provided as StreamingRankDeps)
+      : { ...sharedDeps(), ...provided };
     setStatus('running');
     setRows([]);
     setDone(0);

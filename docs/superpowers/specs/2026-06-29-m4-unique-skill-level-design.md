@@ -70,7 +70,7 @@ CmPlan.uniqueSkillLevel (1–6)
 ### 4.4 Unique-skill chart parity
 
 - `rankUmaChart` / `useUmaChart` become **level-aware**: the `skillDelta(referenceBuild, …, uniqueSkillId)` call passes `skillLevels: { [uniqueSkillId]: level }` where `level = plan.uniqueSkillLevel ?? 5`, applied to **all rows** (one level governs the whole chart). The `referenceBuild` reference stats/mood/aptitudes are otherwise unchanged. LRU sig gains `level`.
-- Result: the current uma's chart row equals the plate's `+L` by construction.
+- Result: the current uma's chart row approximately matches the plate's `+L` (same reference-build methodology + level; small Monte-Carlo differences from different sample counts — the plate uses NS=200, the chart uses DISCOVERY_NSAMPLES=30).
 
 ### 4.5 Plate `+L` value + recompute
 
@@ -102,7 +102,7 @@ CmPlan.uniqueSkillLevel (1–6)
 - **Engine:** a Lv6 unique yields strictly larger バ身 than Lv1 on a course where it fires; **absent-level path is byte-identical** to pre-patch (fidelity). `fidelity.test.ts` pins Lv1 (no `skillLevels`) and keeps meanBashin 0.2202 on the `cooldownReactivation:false` path.
 - **Double-scaling guard:** assert embedded base modifier == Lv1 value for a sampled unique.
 - **Plumbing:** `planToOverlayBuild` emits `skillLevels` with `?? 5`; `simulatableBase` preserves levels and still drops unknown ids.
-- **Chart parity:** chart row L for the current uma == `useUniqueSkillL` output for same (uma, strategy, level, course).
+- **Chart parity:** chart row L for the current uma approximately matches `useUniqueSkillL` output for same (uma, strategy, level, course) — same reference-build methodology + level; small Monte-Carlo differences from different sample counts.
 - **UI:** stepper clamps 1–6, writes `plan.uniqueSkillLevel`, `stopPropagation` (disclosure stays toggled as-is), `+L` recompute fires on strategy/level/course and NOT on stat/wishlist edits.
 
 ## 7. Out of scope

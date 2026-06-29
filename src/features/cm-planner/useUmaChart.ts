@@ -4,7 +4,7 @@ import type { SimRaceParams } from '@/sim';
 import { rankUmaChart, compareUmaChartRows, type UmaChartCandidate, type UmaChartRow } from '@/core/rankUmaChart';
 import { useStreamingRank, type StreamingRankDeps, type StreamingRankState } from './useStreamingRank';
 
-export type UseUmaChartDeps = StreamingRankDeps & { uniqueLevel?: number };
+export type UseUmaChartDeps = Partial<StreamingRankDeps> & { uniqueLevel?: number; };
 export type UmaChartState = StreamingRankState<UmaChartRow>;
 
 function sigOf(courseId: string, candidates: UmaChartCandidate[], nsamples: number | undefined, uniqueLevel: number | undefined): string {
