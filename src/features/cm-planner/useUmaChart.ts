@@ -21,7 +21,7 @@ export function useUmaChart(
     sig: sigOf(race.courseId, candidates, deps?.nsamples, deps?.uniqueLevel),
     compare: compareUmaChartRows,
     rank: (merged, onRow, shouldContinue) =>
-      rankUmaChart(candidates, race, { skillDelta: merged.skillDelta, nsamples: merged.nsamples, uniqueLevel: deps?.uniqueLevel }, onRow, shouldContinue),
+      rankUmaChart(candidates, race, { skillDelta: merged.skillDelta, nsamples: merged.nsamples, uniqueLevel: merged.uniqueLevel }, onRow, shouldContinue),
     deps,
   });
 }

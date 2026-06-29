@@ -11,6 +11,7 @@ import { SimClient } from '@/sim/client';
 export interface StreamingRankDeps {
   skillDelta: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => BashinStats | Promise<BashinStats>;
   nsamples?: number;
+  uniqueLevel?: number;
 }
 
 export interface StreamingRankState<Row> {
