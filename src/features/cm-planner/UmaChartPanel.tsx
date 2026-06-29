@@ -163,7 +163,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     [globalUmas, uniqueByUmaId],
   );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
-  const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : undefined;
+  const chartDeps = deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples, uniqueLevel: plan.uniqueSkillLevel ?? 5 } : undefined;
   const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
 
   // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
