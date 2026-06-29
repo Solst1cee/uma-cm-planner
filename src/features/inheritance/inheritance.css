@@ -519,21 +519,19 @@ main:has(.inh-page) {
 .inh-fg-group { display: flex; flex-direction: column; gap: 0.15rem; }
 .inh-fg-group-label { text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700; }
 .inh-fg-lines { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.2rem 0.6rem; }
+/* Each spark is a chip: pill shape, faint fill, transparent border (shows on
+   hover); the legacy/total steppers (the − + controls) live inside it. */
 .inh-fg-line {
   display: flex; align-items: center; gap: 0.4rem;
-  border: 1px solid transparent; border-radius: 7px; padding: 0.1rem 0.35rem;
+  border: 1px solid transparent; border-radius: 999px; padding: 0.1rem 0.65rem;
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
 }
-.inh-fg-line.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-1)); }
+.inh-fg-line:hover { border-color: var(--border); }
+.inh-fg-line.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-1)); }
 .inh-fg-line-name { flex: 1 1 auto; min-width: 4rem; font-size: 0.8rem; font-weight: 600; }
-.inh-fg-step { display: inline-flex; align-items: center; gap: 0.3rem; flex: none; }
+.inh-fg-step { display: inline-flex; align-items: center; gap: 0.25rem; flex: none; }
 .inh-fg-step-label { width: 2.7rem; text-align: right; }
-/* Chip container holding − ★N + ; transparent border by default, shows on hover. */
-.inh-fg-step-box {
-  display: inline-flex; align-items: center;
-  border: 1px solid transparent; border-radius: 999px;
-  background: color-mix(in srgb, var(--fg) 6%, transparent);
-}
-.inh-fg-step-box:hover { border-color: var(--border); }
+.inh-fg-step-box { display: inline-flex; align-items: center; }
 .inh-fg-step-btn {
   width: 1.3rem; height: 1.3rem; min-height: 0; padding: 0; line-height: 1;
   border: 0; background: none; border-radius: 999px;
