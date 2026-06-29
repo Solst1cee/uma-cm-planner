@@ -2524,3 +2524,37 @@ main:has(.cmp-page) {
 }
 .cmp-track-confirm-ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
 .cmp-track-confirm-cancel { background: transparent; border: 1px solid var(--border); color: var(--fg-2); }
+
+/* ── Unique-skill level stepper ─────────────────────────────────────────── */
+.cmp-unique-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.cmp-skill-level-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.05rem 0.3rem;
+  background: transparent;
+  border: 1px solid var(--skill-text);
+  border-radius: 6px;
+}
+.cmp-skill-level-stepper button {
+  background: transparent;
+  border: 0;
+  padding: 0 0.2rem;
+  line-height: 1;
+  font-size: 0.95rem;
+  color: var(--skill-text);
+  cursor: pointer;
+}
+.cmp-skill-level-stepper button:hover { filter: brightness(1.1); }
+.cmp-skill-level-value {
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--skill-text);
+  text-shadow: var(--skill-shadow);
+  min-width: 2.4rem;
+  text-align: center;
+}

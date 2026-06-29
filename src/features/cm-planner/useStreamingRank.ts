@@ -26,9 +26,14 @@ export interface StreamingRankState<Row> {
 }
 
 let sharedClient: SimClient | null = null;
-function sharedDeps(): StreamingRankDeps {
+/** Returns the module-shared skillDelta bound to the lazy SimClient. Callers that need a skillDelta
+ *  dep (e.g. useUniqueSkillL) can use this to reuse the single worker rather than spawning another. */
+export function sharedSkillDelta(): StreamingRankDeps['skillDelta'] {
   sharedClient ??= new SimClient();
-  return { skillDelta: sharedClient.skillDelta.bind(sharedClient) };
+  return sharedClient.skillDelta.bind(sharedClient);
+}
+function sharedDeps(): StreamingRankDeps {
+  return { skillDelta: sharedSkillDelta() };
 }
 
 export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {

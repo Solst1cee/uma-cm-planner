@@ -27,6 +27,8 @@ import {
   skillRecordToSummary,
   type SkillSummary,
 } from './skillTechnicalDetails';
+import { useUniqueSkillL } from './useUniqueSkillL';
+import { sharedSkillDelta } from './useStreamingRank';
 
 const STATS: Array<{ key: Stat; label: string; shortLabel: string; iconId: string }> = [
   { key: 'spd', label: 'Speed', shortLabel: 'SPD', iconId: 'stat-spd' },
@@ -305,6 +307,18 @@ export function PlannerSidebar({
     () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId }, buildLabel: 'your build' }),
     [plan],
   );
+  const uniqueLevel = plan.uniqueSkillLevel ?? 5;
+  const _sharedDelta = sharedSkillDelta();
+  const { L: uniqueL } = useUniqueSkillL({
+    outfitId: plan.umaId,
+    uniqueSkillId: uniqueSkill?.skillId ?? '',
+    strategy: plan.strategy,
+    level: uniqueLevel,
+    race: { courseId: plan.cmRef.courseId },
+    deps: {
+      skillDelta: (...args) => Promise.resolve(_sharedDelta(...args)),
+    },
+  });
 
   useEffect(() => {
     if (!umaPickerOpen) setUmaQuery(currentUmaName ?? '');
@@ -600,6 +614,32 @@ export function PlannerSidebar({
                   showCost={false}
                   traceContext={traceCtx}
                   collapseSignal={collapseSkillSignal}
+                  side={
+                    <span className="cmp-unique-side">
+                      <span className="cmp-skill-level-stepper" data-edit-stay>
+                        <button
+                          type="button"
+                          aria-label="Decrease unique skill level"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            onChange({ ...plan, uniqueSkillLevel: Math.max(1, uniqueLevel - 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+                          }}
+                        >−</button>
+                        <span className="cmp-skill-level-value">Lv {uniqueLevel}</span>
+                        <button
+                          type="button"
+                          aria-label="Increase unique skill level"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            onChange({ ...plan, uniqueSkillLevel: Math.min(6, uniqueLevel + 1) as 1 | 2 | 3 | 4 | 5 | 6 });
+                          }}
+                        >+</button>
+                      </span>
+                      {uniqueL != null ? <span className="L">+{uniqueL.toFixed(2)}</span> : null}
+                    </span>
+                  }
                 />
               ) : (
                 <p className="muted small">Unique skill pending source data.</p>

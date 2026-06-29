@@ -179,6 +179,13 @@ vi.mock('./useSkillTrace', () => ({
     meanL: null, impact: null, impactStatus: 'idle',
   }),
 }));
+vi.mock('./useUniqueSkillL', () => ({
+  useUniqueSkillL: () => ({ L: 3.95, loading: false }),
+}));
+vi.mock('./useStreamingRank', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('./useStreamingRank')>();
+  return { ...mod, sharedSkillDelta: () => vi.fn() };
+});
 
 import { PlannerSidebar } from './PlannerSidebar';
 
@@ -266,6 +273,32 @@ describe('PlannerSidebar', () => {
     expect(screen.queryByText('SP 0')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Add Victory Cheer! to wishlist/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Priority/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the unique level stepper and +L, and increments level on click', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    renderSidebar({ ...(h.plan as CmPlan), uniqueSkillLevel: 5 }, undefined, true, false);
+    // override onChange so we can track calls — re-render with our own onChange
+    cleanup();
+    render(
+      <PlannerSidebar
+        plan={{ ...(h.plan as CmPlan), uniqueSkillLevel: 5 }}
+        autoSave={false}
+        isSaved={true}
+        onChange={onChange}
+        onSave={h.save}
+        onSaveAs={h.saveAs}
+        onNew={h.newPlan}
+        onAutoSaveChange={h.setAutoSave}
+      />,
+    );
+
+    expect(await screen.findByText('Lv 5')).toBeInTheDocument();
+    expect(screen.getByText('+3.95')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /increase unique skill level/i }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ uniqueSkillLevel: 6 }));
   });
 
   it('auto-generates the plan name from current planner fields', async () => {
