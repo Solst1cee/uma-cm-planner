@@ -184,7 +184,8 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
   const portrait = uma ? (
-    <GameIcon kind="uma" id={uma.umaId} size={64} alt="" />
+    // 0.9-aspect box (uma icons are 230×256) so the portrait isn't letterboxed.
+    <GameIcon kind="uma" id={uma.umaId} height={64} width={Math.round(64 * 230 / 256)} alt="" />
   ) : (
     <span className="cmp-portrait-ph inh-uma-portrait-ph">uma</span>
   );

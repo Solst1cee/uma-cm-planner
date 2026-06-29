@@ -22,6 +22,13 @@ type Mode = null | 'find' | 'change';
 /** Stat order for the picker tile's stat row (matches the in-game tile order). */
 const STAT_KEYS = ['spd', 'sta', 'pow', 'gut', 'wit'] as const;
 
+/** Uma portrait aspect — the icons are 230×256 (game-native ratio, ~0.9). Render
+ *  the box at that ratio (not square) so the portrait isn't letterboxed. */
+const UMA_ASPECT = 230 / 256;
+const umaPortrait = (umaId: string, height: number, key?: number) => (
+  <GameIcon key={key} kind="uma" id={umaId} height={height} width={Math.round(height * UMA_ASPECT)} alt="" />
+);
+
 export function InheritanceCard() {
   const { uma1Plan, setPlan } = useActivePlan();
   const { roster, importedAt } = useRoster();
@@ -50,13 +57,13 @@ export function InheritanceCard() {
     setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
     setMode((m) => ({ ...m, [slot]: null }));
   };
-  const portrait = (p: Parent) => <GameIcon kind="uma" id={p.umaId} size={42} alt="" />;
+  const portrait = (p: Parent) => umaPortrait(p.umaId, 42);
 
   const skillName = (id: string) => skillById.get(id)?.nameEn ?? id;
   const gpPortraitsFor = (p: Parent) => {
     const gps = (p.grandparents ?? []).filter((g): g is NonNullable<typeof g> => !!g);
     if (gps.length === 0) return undefined;
-    return gps.map((gp, i) => <GameIcon key={i} kind="uma" id={gp.umaId} size={36} alt="" />);
+    return gps.map((gp, i) => umaPortrait(gp.umaId, 36, i));
   };
   const statRowFor = (p: Parent) =>
     p.stats ? (
@@ -77,7 +84,7 @@ export function InheritanceCard() {
       name: umaName(umaById, p.umaId),
       rankBadge: <RankBadge rating={p.rating} size={42} />,
       rankScore: p.rankScore,
-      portrait: <GameIcon kind="uma" id={p.umaId} size={56} alt="" />,
+      portrait: umaPortrait(p.umaId, 56),
       gpPortraits: gpPortraitsFor(p),
       statRow: statRowFor(p),
       parent: p,
