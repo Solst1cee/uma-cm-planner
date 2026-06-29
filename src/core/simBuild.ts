@@ -109,7 +109,10 @@ export function planToSimBuild(plan: CmPlan): SimBuild {
  *  preserves order: unique first, then wishlist. Engine layer filters to simulatable. */
 export function planToOverlayBuild(plan: CmPlan): SimBuild {
   const ids = [plan.uniqueSkillId, ...plan.wishlist.map((w) => w.skillId)].filter(Boolean);
-  return { ...planToSimBuild(plan), skills: [...new Set(ids)] };
+  const skillLevels = plan.uniqueSkillId
+    ? { [plan.uniqueSkillId]: plan.uniqueSkillLevel ?? 5 }
+    : undefined;
+  return { ...planToSimBuild(plan), skills: [...new Set(ids)], skillLevels };
 }
 
 /**

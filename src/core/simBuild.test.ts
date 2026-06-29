@@ -162,4 +162,14 @@ describe('planToOverlayBuild', () => {
     });
     expect(planToOverlayBuild(p).skills).toEqual(['S1']);
   });
+
+  it('maps the unique skill to its level (default 5)', () => {
+    const p = plan({ uniqueSkillId: '100011', uniqueSkillLevel: undefined });
+    expect(planToOverlayBuild(p).skillLevels).toEqual({ '100011': 5 });
+  });
+
+  it('uses the explicit level when set', () => {
+    const p = plan({ uniqueSkillId: '100011', uniqueSkillLevel: 3 as const });
+    expect(planToOverlayBuild(p).skillLevels).toEqual({ '100011': 3 });
+  });
 });
