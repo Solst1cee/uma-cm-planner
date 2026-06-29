@@ -15,6 +15,9 @@ const SearchIcon = () => (
 const FolderOpenIcon = () => (
   <IconSvg><path d="M2 4h5l2 2h7v2H2V4Z" /><path d="M2 9h16l-2.2 7H4.2L2 9Z" /></IconSvg>
 );
+const CloseIcon = () => (
+  <IconSvg><path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4.7 4.7 4.7-1.4 1.4-4.7-4.7-4.7 4.7-1.4-1.4L8.6 10 3.9 5.3l1.4-1.4Z" /></IconSvg>
+);
 
 export interface ParentCardViewProps {
   label: string;
@@ -73,7 +76,9 @@ export function ParentCardView({
             </button>
           )}
           {parent && onClear && (
-            <button type="button" className="cmp-small-btn inh-clear" aria-label="Clear" onClick={onClear}>✕</button>
+            <button type="button" className="cmp-inventory-icon-btn inh-clear" aria-label="Clear" title="Clear" onClick={onClear}>
+              <CloseIcon />
+            </button>
           )}
         </span>
       </div>

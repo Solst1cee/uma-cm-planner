@@ -462,7 +462,9 @@ main:has(.inh-page) {
 }
 .inh-parent-content { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
 .inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
+/* Clear button: red glyph; hover highlights red (overrides the icon-btn accent hover). */
 .inh-clear { color: var(--error); }
+.cmp-inventory-icon-btn.inh-clear:not(:disabled):hover { border-color: var(--error); color: var(--error); }
 .inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }
 .inh-parent-name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 /* `.spark-chips` lives in parents.css (not loaded on this route) — define the
