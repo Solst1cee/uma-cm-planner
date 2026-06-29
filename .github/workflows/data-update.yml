@@ -1,0 +1,126 @@
+name: Data update check
+
+# Weekly currency check for the baked game data.
+#
+# WHAT IT DOES — automates "Path A: upstream pin bump" from
+# docs/data-refresh-runbook.md §1: it asks whether the upstream data source
+# (jalbarrang/umalator-global) has advanced, regenerates public/data at the
+# latest upstream commit, and — only if our baked output actually changes —
+# opens/updates a PR with the pin bump + regenerated data for review. GitHub
+# notifies you natively when the PR opens (and emails you if a run fails).
+#
+# WHY A PR, NOT AUTO-MERGE — a pin bump still needs human-gated steps the
+# runbook lists (update the record-count assertions + global-<first8> literal in
+# scripts/outputs.test.ts, re-baseline src/sim/fidelity.test.ts). The PR is that
+# review gate; the checklist is pre-filled in the PR body.
+#
+# NOT AUTOMATED HERE — the "live Global mdb beats upstream" path (a card
+# released on Global *before* upstream ingests it, e.g. a brand-new banner). That
+# needs bun + the live Cygames CDN mdb + the local db/extract/hint-effects.json
+# artifact, none of which belong in scheduled CI. Run it locally — see the
+# runbook's "live-mdb" section. Once upstream ingests the card (usually within
+# days), this workflow picks it up automatically.
+#
+# CI ON THE PR — PRs opened by GITHUB_TOKEN do not themselves trigger other
+# workflows, so ci.yml will not auto-run on the data-update PR. Push an empty
+# commit to kick it, or set a repo secret PAT and pass `token: ${{ secrets.PAT }}`
+# to the create-pull-request step below to get checks automatically.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch: {} # manual "Run workflow" button
+
+permissions:
+  contents: write # push the automated/data-update branch
+  pull-requests: write # open/update the PR
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  upstream-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Resolve latest upstream commit
+        id: upstream
+        run: |
+          latest=$(git ls-remote https://github.com/jalbarrang/umalator-global.git HEAD | cut -f1)
+          current=$(grep -oP "UPSTREAM_COMMIT = '\K[0-9a-f]{40}" scripts/fetch-borrowed.ts)
+          echo "latest=$latest"   >> "$GITHUB_OUTPUT"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          if [ -z "$latest" ]; then
+            echo "::error::could not resolve upstream HEAD"; exit 1
+          fi
+          if [ "$latest" = "$current" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Pin already at the latest upstream commit ($current) — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Upstream advanced: $current -> $latest"
+          fi
+
+      - name: Bump pin + regenerate data
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          sed -i "s/UPSTREAM_COMMIT = '[0-9a-f]\{40\}'/UPSTREAM_COMMIT = '${{ steps.upstream.outputs.latest }}'/" scripts/fetch-borrowed.ts
+          pnpm data:fetch
+          pnpm data:build
+
+      - name: Detect whether the baked data actually changed
+        if: steps.upstream.outputs.changed == 'true'
+        id: diff
+        run: |
+          if git diff --quiet -- public/data; then
+            echo "data_changed=false" >> "$GITHUB_OUTPUT"
+            echo "New upstream commit, but public/data is byte-identical — no PR."
+            git checkout -- scripts/fetch-borrowed.ts # drop the no-op pin bump
+          else
+            echo "data_changed=true" >> "$GITHUB_OUTPUT"
+            echo "public/data changed — opening a PR."
+          fi
+
+      - name: Open / update the data-update PR
+        if: steps.diff.outputs.data_changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          # Keep the PR commit surgical — only the pin bump + regenerated data.
+          # (pnpm data:fetch writes into scripts/borrowed/, which is gitignored, so
+          # those downloads can't leak in; pinning paths also guards future artifacts.)
+          add-paths: |
+            scripts/fetch-borrowed.ts
+            public/data
+          branch: automated/data-update
+          base: main
+          delete-branch: false
+          commit-message: 'data: upstream pin bump ${{ steps.upstream.outputs.current }} -> ${{ steps.upstream.outputs.latest }} (automated)'
+          title: 'data: upstream pin bump (automated) — review before merge'
+          labels: |
+            data
+            automated
+          body: |
+            Automated weekly data-currency check (`.github/workflows/data-update.yml`).
+
+            **Upstream `jalbarrang/umalator-global` shipped data that changes our baked `public/data`.**
+
+            - pin: `${{ steps.upstream.outputs.current }}` → `${{ steps.upstream.outputs.latest }}`
+            - This branch contains the bump in `scripts/fetch-borrowed.ts` + the regenerated `public/data/`.
+
+            ### Before merging — human-gated steps (docs/data-refresh-runbook.md §1)
+            - [ ] Update the record-count assertions + `global-<first8>` literal in `scripts/outputs.test.ts`.
+            - [ ] Re-baseline `src/sim/fidelity.test.ts` if engine data changed (meanBashin).
+            - [ ] Reconcile `data-overrides/card_additions.json` if `pnpm data:build` threw a duplicate-id error (the pin caught up to a hand-added card — delete it).
+            - [ ] `pnpm typecheck && pnpm test && pnpm build` all green locally.
+
+            > Heads-up: CI does not run automatically on PRs opened by `GITHUB_TOKEN`. Push an empty commit to trigger checks, or wire a PAT (see the workflow header comment).

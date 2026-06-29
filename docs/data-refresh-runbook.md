@@ -279,6 +279,74 @@ data pipeline + predicate are built and ready; only that toggle UI remains.
 
 ---
 
+## 4. Automated upstream-drift check (CI)
+
+`.github/workflows/data-update.yml` runs **§1 (pin bump)** automatically every
+**Monday 06:00 UTC** (plus a manual *Run workflow* button). It:
+
+1. Resolves the latest `jalbarrang/umalator-global` HEAD and compares it to the
+   pinned `UPSTREAM_COMMIT`.
+2. If upstream advanced, bumps the pin, runs `pnpm data:fetch && pnpm data:build`,
+   and checks whether `public/data` actually changed.
+3. **Only if the baked data changed**, opens/updates a PR on branch
+   `automated/data-update` with the pin bump + regenerated data and a pre-filled
+   checklist of the human-gated steps below.
+
+GitHub notifies you natively (email + mobile) when the PR opens, and emails you
+if a run fails. **The PR is the review gate — it is never auto-merged.** Finish
+the same human steps §1 lists (update `scripts/outputs.test.ts` counts, re-baseline
+`src/sim/fidelity.test.ts`, reconcile `card_additions.json`), confirm
+`pnpm typecheck && pnpm test && pnpm build` are green, then merge.
+
+> CI does not auto-run on a PR opened by `GITHUB_TOKEN`. Push an empty commit to
+> trigger checks, or wire a repo-secret PAT into the create-pull-request step
+> (see the workflow header). The workflow only bumps `UPSTREAM_COMMIT`, not
+> `TACHYONS_COMMIT` — bump Tachyons by hand per §1 when its data moves.
+
+---
+
+## 5. live-mdb: get a Global card before upstream ingests it
+
+**Trigger:** a card released on Global that neither the pinned upstream nor the
+automated §4 check has yet (e.g. a brand-new banner you want the *day* it drops).
+This is the path the CI workflow deliberately does **not** automate — it needs a
+fresh, decrypted Global `master.mdb`, which comes from the live Cygames CDN.
+
+**Step 1 — refresh the local Global `master.mdb`** (CDN download, needs `bun`):
+
+```sh
+cd spikes/repos/umalator-global
+bun install          # first time only
+bun run db:fetch     # downloads the current Global master.mdb from the official CDN
+```
+
+The mdb lands at `spikes/repos/umalator-global/db/master.mdb`. (This is a CDN
+pull, not the Steam-client asset decrypt — that's only for art/icons.)
+
+> ⚠️ The extractor also reads `db/extract/hint-effects.json` (passive matrices).
+> Upstream removed `db/extract/` at v0.16.0, so `bun run db:fetch` does **not**
+> regenerate it — keep your existing local copy. Without it the passive-matrix
+> step fails.
+
+**Step 2 — generate the addition(s) + rebuild:**
+
+```sh
+pnpm exec tsx scripts/extract-card-additions.ts   # → data-overrides/card_additions.json
+pnpm data:build
+```
+
+The extractor emits a full `SupportCardRecord` for every card the live mdb has
+that the pinned upstream lacks (entries carry `dataVersion: global-mdb-<resource_version>`).
+
+**Step 3 — update `scripts/outputs.test.ts`** support-card count, then
+`pnpm typecheck && pnpm test`.
+
+**Step 4 — retire it later.** When the §4 pin bump catches up to the card,
+`pnpm data:build` throws a duplicate-id error — delete that record from
+`card_additions.json` (the override's whole purpose was to bridge the gap).
+
+---
+
 ## Quick reference
 
 | Task | File(s) to edit | Command |
@@ -289,3 +357,5 @@ data pipeline + predicate are built and ready; only that toggle UI remains.
 | Add upcoming skill | `data-overrides/skill_additions.json` | `pnpm data:build` |
 | Add upcoming card | `data-overrides/upcoming_cards.json` | `pnpm data:build` |
 | Full rebuild from local mdb | — | `pnpm data:build -- --from-spikes` |
+| Get a just-released Global card (live mdb) | `data-overrides/card_additions.json` (generated) | §5 |
+| Automated weekly upstream check | `.github/workflows/data-update.yml` | runs in CI |
