@@ -60,6 +60,17 @@ describe('simulatableBase', () => {
   });
 });
 
+describe('simulatableBase preserves skillLevels', () => {
+  it('keeps the skillLevels map after filtering skills', () => {
+    const b: SimBuild = {
+      umaId: '106801', stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 },
+      strategy: 'front', aptitudes: { distance: 'A', surface: 'A', strategy: 'A' },
+      skills: ['100011'], skillLevels: { '100011': 5 },
+    };
+    expect(simulatableBase(b).skillLevels).toEqual({ '100011': 5 });
+  });
+});
+
 describe('evalSkillDelta with a non-simulatable baseline skill', () => {
   it('does not throw — a bogus baseline id is filtered out before the sim runs', () => {
     const buildWithBogus = {

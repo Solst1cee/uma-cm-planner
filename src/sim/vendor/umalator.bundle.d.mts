@@ -15,6 +15,8 @@ export interface IRunnerState {
   strategyAptitude: string;
   mood: -2 | -1 | 0 | 1 | 2;
   skills: string[];
+  /** Per-skill level (1–6) scaling the effect modifier; absent ⇒ Lv1. */
+  skillLevels?: Record<string, number>;
   randomMobId?: number;
   linkedRunnerId?: string;
 }

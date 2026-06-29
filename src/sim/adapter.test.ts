@@ -70,3 +70,22 @@ describe('bashinStatsFrom', () => {
     expect(stats.activated).toBe(true);
   });
 });
+
+const buildWithLevels: SimBuild = {
+  umaId: '106801',
+  stats: { spd: 1200, sta: 900, pow: 1000, gut: 600, wit: 1100 },
+  strategy: 'front',
+  aptitudes: { distance: 'A', surface: 'A', strategy: 'A' },
+  skills: ['100011'],
+  skillLevels: { '100011': 6 },
+};
+
+describe('toRunnerState skillLevels', () => {
+  it('maps skillLevels onto the runner state', () => {
+    expect(toRunnerState(buildWithLevels).skillLevels).toEqual({ '100011': 6 });
+  });
+  it('omits skillLevels when not provided', () => {
+    const { skillLevels, ...rest } = buildWithLevels;
+    expect(toRunnerState(rest).skillLevels).toBeUndefined();
+  });
+});
