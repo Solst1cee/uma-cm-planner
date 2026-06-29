@@ -195,6 +195,10 @@ vi.mock('./useSkillTrace', () => ({
     impact: null, impactStatus: 'idle',
   }),
 }));
+// CRITICAL: mock useUniqueSkillL — it constructs a SimClient (Worker) on mount.
+vi.mock('./useUniqueSkillL', () => ({
+  useUniqueSkillL: () => ({ L: null, loading: false }),
+}));
 // useRaceCompare would construct a real SimClient/Worker when uma2Plan is non-null.
 // Stub it to an idle state (the page test only checks race-derived track/conditions,
 // not the sim output). See the jsdom Worker gotcha in the module-4 doc.
