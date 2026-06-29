@@ -12,6 +12,10 @@ vi.mock('./useSkillTrace', () => ({
     meanL: null, impact: null, impactStatus: 'idle',
   }),
 }));
+// CRITICAL: mock useUniqueSkillL — it constructs a SimClient (Worker) on mount.
+vi.mock('./useUniqueSkillL', () => ({
+  useUniqueSkillL: () => ({ L: null, loading: false }),
+}));
 
 const h = vi.hoisted(() => {
   const skill = (
