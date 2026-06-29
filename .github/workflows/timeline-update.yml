@@ -1,0 +1,101 @@
+name: Timeline update check
+
+# Weekly currency check for the CM timeline SSOT — public/data/cm_tracks.json and
+# the derived public/data/timeline.json, which M3, the M4 race chooser, and
+# currentCm all read. Re-imports the uma.guide CM schedule and, only if the parsed
+# tracks change, opens/updates a PR for review. Sibling to data-update.yml (which
+# bumps the game-data pin and does NOT refresh the timeline feed — see runbook §4).
+#
+# SCOPE — only the uma.guide → cm_tracks.json → timeline.json path. The other half
+# of `pnpm timeline:import` (import-official-news.ts → official_news.json) shells
+# out to headless Chrome and feeds no build/app input, so it's intentionally left
+# out here.
+#
+# ⚠️ SCRAPING POLICY (docs/provenance.md; shared-data-model §8): uma.guide is a
+# permissive feed OK for the maintainer's PRIVATE use only. The public build is
+# meant to swap it for curated JSON — do NOT treat this output as redistributable.
+# GameTora / ChronoGenesis stay off-limits. Keep this repo/workflow private.
+#
+# ⚠️ BRITTLE: it parses live SSR HTML. The job FAILS (and notifies) instead of
+# opening a destructive PR if the parse yields fewer CMs than the committed file.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Mondays 07:00 UTC (offset from data-update's 06:00)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # push the automated/timeline-update branch
+  pull-requests: write # open/update the PR
+
+concurrency:
+  group: timeline-update
+  cancel-in-progress: false
+
+jobs:
+  timeline-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Re-import the uma.guide CM schedule (guarded)
+        run: |
+          before=$(node -e "console.log(require('./public/data/cm_tracks.json').tracks.length)")
+          pnpm exec tsx scripts/import-uma-guide.ts
+          after=$(node -e "console.log(require('./public/data/cm_tracks.json').tracks.length)")
+          echo "cm_tracks CMs: $before -> $after"
+          if [ "$after" -lt "$before" ]; then
+            echo "::error::uma.guide parse regressed ($before -> $after CMs) — refusing to open a destructive PR. The page layout likely changed; fix scripts/parse-uma-guide.ts."
+            exit 1
+          fi
+
+      - name: Rebuild the derived timeline
+        run: pnpm timeline:rebuild
+
+      - name: Detect drift
+        id: diff
+        run: |
+          if git diff --quiet -- public/data/cm_tracks.json public/data/timeline.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No timeline drift — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Timeline feed drifted — opening a PR."
+          fi
+
+      - name: Open / update the timeline-update PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: |
+            public/data/cm_tracks.json
+            public/data/timeline.json
+          branch: automated/timeline-update
+          base: main
+          delete-branch: false
+          commit-message: 'data: refresh CM timeline from uma.guide (automated)'
+          title: 'data: CM timeline drift (automated) — review before merge'
+          labels: |
+            data
+            timeline
+            automated
+          body: |
+            Automated weekly timeline-currency check (`.github/workflows/timeline-update.yml`).
+
+            **The uma.guide CM schedule changed** → `public/data/cm_tracks.json` (and the derived `public/data/timeline.json`) drifted. M3, the M4 race chooser, and `currentCm` read these.
+
+            ### ⚠️ Before merging
+            - [ ] **Scraping policy:** uma.guide is private-use-only — confirm the changed rows are right, and that nothing here should instead be curated JSON for the public build.
+            - [ ] Eyeball the diff — a parse regression can mangle row *contents* even when the CM count holds.
+            - [ ] A confirmed CM with a real date belongs in `data-overrides/timeline_overrides.json` (runbook §2), which wins over the scraped prediction — prefer that over merging a predicted row.
+            - [ ] `pnpm typecheck && pnpm test && pnpm build` green.
+
+            > CI doesn't auto-run on PRs opened by `GITHUB_TOKEN` — push an empty commit or wire a PAT (see the workflow header).

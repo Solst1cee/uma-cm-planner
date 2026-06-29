@@ -303,6 +303,29 @@ the same human steps §1 lists (update `scripts/outputs.test.ts` counts, re-base
 > (see the workflow header). The workflow only bumps `UPSTREAM_COMMIT`, not
 > `TACHYONS_COMMIT` — bump Tachyons by hand per §1 when its data moves.
 
+### 4b — Timeline drift check
+
+`.github/workflows/timeline-update.yml` is a **sibling** workflow (Mondays 07:00
+UTC + manual button) for the **CM timeline SSOT** — `public/data/cm_tracks.json`
+and the derived `public/data/timeline.json` that M3, the M4 race chooser, and
+`currentCm` read. The §4 data-pin workflow does **not** refresh these (it only
+re-stamps `timeline.json`'s `dataVersion`); this one does. It:
+
+1. Re-imports the uma.guide CM schedule (`scripts/import-uma-guide.ts` →
+   `cm_tracks.json`) — a plain `fetch`, no headless Chrome.
+2. **Guard:** if the parse yields *fewer* CMs than the committed file, it FAILS
+   (and notifies) instead of opening a destructive PR — a layout change that
+   broke `scripts/parse-uma-guide.ts` must not silently wipe the timeline.
+3. Rebuilds `timeline.json` (`pnpm timeline:rebuild`) and, **only on real drift**,
+   opens/updates a PR on branch `automated/timeline-update`.
+
+> ⚠️ **Scraping policy** — uma.guide is OK for the maintainer's *private* use only;
+> the public build is meant to swap it for curated JSON (provenance / shared-data
+> §8). Review every such PR with that in mind, and prefer recording a confirmed CM
+> in `timeline_overrides.json` (§2, which wins over the scraped prediction) over
+> merging a predicted row. The `official_news.json` half of `pnpm timeline:import`
+> is intentionally **not** automated (it needs headless Chrome and feeds no build).
+
 ---
 
 ## 5. live-mdb: get a Global card before upstream ingests it
@@ -359,3 +382,4 @@ that the pinned upstream lacks (entries carry `dataVersion: global-mdb-<resource
 | Full rebuild from local mdb | — | `pnpm data:build -- --from-spikes` |
 | Get a just-released Global card (live mdb) | `data-overrides/card_additions.json` (generated) | §5 |
 | Automated weekly upstream check | `.github/workflows/data-update.yml` | runs in CI |
+| Automated weekly timeline check | `.github/workflows/timeline-update.yml` | runs in CI |
