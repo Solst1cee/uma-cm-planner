@@ -18,13 +18,15 @@ export function SparkStepper({
   return (
     <span className="inh-fg-step" role="group" aria-label={`${name} ${kindLabel}`}>
       <span className="inh-fg-step-label muted small">{kindLabel}</span>
-      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} minus`}
-        disabled={decDisabled} onClick={dec}>−</button>
-      <span className={`inh-fg-step-val ${starClass}`}>
-        <span className="inh-fg-star" aria-hidden>★</span>{value}
+      <span className="inh-fg-step-box">
+        <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} minus`}
+          disabled={decDisabled} onClick={dec}>−</button>
+        <span className={`inh-fg-step-val ${starClass}`}>
+          <span className="inh-fg-star" aria-hidden>★</span>{value}
+        </span>
+        <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} plus`}
+          disabled={incDisabled} onClick={inc}>+</button>
       </span>
-      <button type="button" className="inh-fg-step-btn" aria-label={`${name} ${kindLabel} plus`}
-        disabled={incDisabled} onClick={inc}>+</button>
     </span>
   );
 }

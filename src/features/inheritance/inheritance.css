@@ -525,16 +525,23 @@ main:has(.inh-page) {
 }
 .inh-fg-line.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-1)); }
 .inh-fg-line-name { flex: 1 1 auto; min-width: 4rem; font-size: 0.8rem; font-weight: 600; }
-.inh-fg-step { display: inline-flex; align-items: center; gap: 0.2rem; flex: none; }
+.inh-fg-step { display: inline-flex; align-items: center; gap: 0.3rem; flex: none; }
 .inh-fg-step-label { width: 2.7rem; text-align: right; }
-.inh-fg-step-btn {
-  width: 1.25rem; height: 1.25rem; min-height: 0; padding: 0; line-height: 1;
-  border: 1px solid var(--border); border-radius: 5px; background: var(--bg-1);
-  cursor: pointer; font-weight: 700;
+/* Chip container holding − ★N + ; transparent border by default, shows on hover. */
+.inh-fg-step-box {
+  display: inline-flex; align-items: center;
+  border: 1px solid transparent; border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
 }
-.inh-fg-step-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
-.inh-fg-step-btn:disabled { opacity: 0.4; cursor: default; }
-.inh-fg-step-val { min-width: 1.6rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.inh-fg-step-box:hover { border-color: var(--border); }
+.inh-fg-step-btn {
+  width: 1.3rem; height: 1.3rem; min-height: 0; padding: 0; line-height: 1;
+  border: 0; background: none; border-radius: 999px;
+  cursor: pointer; font-weight: 700; color: inherit;
+}
+.inh-fg-step-btn:not(:disabled):hover { color: var(--accent); }
+.inh-fg-step-btn:disabled { opacity: 0.35; cursor: default; }
+.inh-fg-step-val { min-width: 1.5rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
 .inh-fg-star { font-size: 0.85rem; margin-right: 1px; }
 .inh-fg-step-val.is-gold .inh-fg-star { color: #eab308; }
 .inh-fg-step-val.is-silver .inh-fg-star { color: #94a3b8; }
