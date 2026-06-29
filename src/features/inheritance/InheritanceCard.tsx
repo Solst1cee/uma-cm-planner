@@ -57,7 +57,7 @@ export function InheritanceCard() {
     setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
     setMode((m) => ({ ...m, [slot]: null }));
   };
-  const portrait = (p: Parent) => umaPortrait(p.umaId, 42);
+  const portrait = (p: Parent) => umaPortrait(p.umaId, 60);
 
   const skillName = (id: string) => skillById.get(id)?.nameEn ?? id;
   const gpPortraitsFor = (p: Parent) => {
