@@ -842,3 +842,18 @@ git commit -m "docs(m4): record unique-skill level scaling provenance + module n
 **Type consistency:** `skillLevels: Record<string, number>` consistent across SimBuild / IRunnerState / adapter / planToOverlayBuild / rankUmaChart / useUniqueSkillL. `uniqueSkillLevel?: 1|2|3|4|5|6` consistent (CmPlan + the `as 1|2|3|4|5|6` casts in Task 7). `skillLevelCoef(abilityType, level)` name consistent within Task 4. Default `?? 5` consistent across Tasks 1/3/5/7.
 
 **Known indirection:** Task 4 operates in the gitignored engine clone; steps mirror the multifire precedent and give exact queries/anchors but the implementer must locate the precise effect-build branches in `runner.utils.ts`. Task 7's `skillDelta`/`race` wiring reuses the sidebar's existing worker dep. Both are inherent to the codebase, not plan gaps.
+
+---
+
+## Session wrap-up / follow-ups (2026-06-29)
+
+**Status:** all 8 tasks + final whole-branch review (opus) complete; full suite **974 pass**, build green. Shipped via PR (branch `worktree-feat+sidebar-unique-skill-plate`).
+
+**Known gaps / follow-ups (none blocking, surfaced for the next session):**
+- **Badge-focus-switch lacks a dedicated test.** The new behavior (clicking an inventory 1/2 slot badge flips the sidebar to that uma + applies its track) is exercised only indirectly — the 37 `CmPlannerPage.test.tsx` tests pass but none assert `setFocused(slot)` fires on `onLoadPlanIntoSlot`. Add one.
+- **Local `main` carries a stray commit `7cc3f4b`** ("add CmPlan.uniqueSkillLevel") on the stale `e188937` base — a Task-1 mishap where an implementer committed to the main checkout instead of the worktree. Content is identical to `7183217` on this branch; the sandbox denied `git reset --hard`. When reconciling local `main` with `origin/main` (it's also 8 behind from the icon work), drop/ignore `7cc3f4b`.
+- **Chart↔plate `+L` is approximate, not identical** — plate `useUniqueSkillL` uses NS=200 (no fixed seed); chart uses DISCOVERY_NSAMPLES=30. Same reference-build + level, small Monte-Carlo delta. Documented in the spec/module-4 doc; align nsamples/seed if exact parity is wanted later.
+- **Engine scales by coef-table presence, not the `ability_value_level_usage` flag** — benign today (all unique effect rows have flag=1); honor the flag if a future non-level-scaled effect type enters the table.
+- **`velocityWindow`/`peakImpactPosition` still use the first activation only** (pre-existing multi-fire UI limitation, unchanged by this work).
+
+**Engine reproduce:** the level scaling lives in the gitignored vendored clone; re-apply `engine-patches/2026-06-29-skill-level-scaling.patch` then `pnpm sim:build`. A worktree needs a `spikes` junction → the parent checkout's `spikes/` for `sim:build` to resolve the engine source.
