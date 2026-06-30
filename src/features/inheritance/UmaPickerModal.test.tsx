@@ -45,41 +45,36 @@ describe('UmaPickerModal', () => {
     expect(screen.getByText(/1 match/)).toBeInTheDocument();
   });
 
-  const clickN = (name: RegExp | string, n: number) => {
-    for (let i = 0; i < n; i++) fireEvent.click(screen.getByRole('button', { name }));
-  };
-
-  it('the spark grid filters by a blue total (Power total +4 → total ≥4)', () => {
+  it('the spark grid filters by a blue total (Power silver★4 → total ≥4)', () => {
     render(<UmaPickerModal {...base} open />);
-    // Alpha has Power total 8; Beta has none → require Power ≥4.
-    clickN('Power total plus', 4);
+    // Alpha has Power total 8; Beta has none → require Power ≥4 (0 gold + 4 silver).
+    fireEvent.click(screen.getByRole('button', { name: 'Power silver 4' }));
     expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
     expect(screen.getByText(/1 match/)).toBeInTheDocument();
   });
 
-  it('enforces the 3-member budget — Power total 6 caps Stamina at 3★', () => {
+  it('enforces the 3-member budget — Power total 6 disables Stamina beyond 3★', () => {
     render(<UmaPickerModal {...base} open />);
-    clickN('Power total plus', 6); // Power total 6 → 2 members used
-    clickN('Stamina total plus', 3); // Stamina up to its 3★ cap (1 member left)
-    // Can't push Stamina past 3 — the budget is spent.
-    expect(screen.getByRole('button', { name: 'Stamina total plus' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Power silver 6' })); // Power total 6 → 2 members
+    // Stamina has 1 member left → max 3★; silver★4 (total 4) is disabled, silver★3 is not.
+    expect(screen.getByRole('button', { name: 'Stamina silver 4' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Stamina silver 3' })).not.toBeDisabled();
   });
 
-  it('single legacy per category — legacy on a second blue stat is locked', () => {
+  it('single legacy per category — gold on a second blue stat is locked', () => {
     render(<UmaPickerModal {...base} open />);
-    clickN('Power legacy plus', 3); // Power legacy 3 (the veteran's one blue own-spark)
-    expect(screen.getByRole('button', { name: 'Stamina legacy plus' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Power gold 3' })); // Power legacy 3
+    expect(screen.getByRole('button', { name: 'Stamina gold 1' })).toBeDisabled();
   });
 
-  it('green search adds a unique-skill clause with legacy/total steppers', () => {
+  it('green search adds a unique-skill clause with a star strip', () => {
     const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Other Unique' }];
     render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100151' ? 'Vittoria' : id)} />);
     fireEvent.change(screen.getByRole('searchbox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
     fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
-    // The green clause line shows with its steppers; default total ★1.
-    expect(screen.getByRole('button', { name: 'Vittoria total plus' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Vittoria legacy plus' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria gold 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria silver 1' })).toBeInTheDocument();
   });
 
   it('filters tiles by the name search', () => {

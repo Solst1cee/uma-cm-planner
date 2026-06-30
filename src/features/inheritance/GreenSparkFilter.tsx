@@ -4,10 +4,7 @@
  *  budget / single-legacy rules (enforced by the parent via maxTotal / legacyLocked).
  *  Provider-free: the unique-skill options + name resolver arrive as props. */
 import { useState } from 'react';
-import { SparkStepper } from './SparkStepper';
-
-const LEGACY_CAP = 3;
-const TOTAL_CAP = 9;
+import { SparkStars } from './SparkStars';
 
 export interface GreenClause { id: string; skillId: string; legacyMin: number; totalMin: number }
 
@@ -55,35 +52,30 @@ export function GreenSparkFilter({
           </div>
         )}
       </div>
-      {clauses.map((c) => {
-        const name = skillName(c.skillId);
-        const cap = maxTotal(c.skillId);
-        const locked = legacyLocked(c.skillId);
-        const legacyMax = Math.min(LEGACY_CAP, cap);
-        const setLegacy = (l: number) => onSet(c.skillId, l, Math.max(c.totalMin, l));
-        const setTotal = (t: number) => onSet(c.skillId, Math.min(c.legacyMin, t), t);
-        return (
-          <div key={c.id} className="inh-fg-line spark-green is-active">
-            <span className="inh-fg-line-name">{name}</span>
-            <SparkStepper
-              name={name} kindLabel="legacy" value={c.legacyMin} starClass="is-gold"
-              dec={() => setLegacy(Math.max(0, c.legacyMin - 1))}
-              inc={() => setLegacy(Math.min(legacyMax, c.legacyMin + 1))}
-              decDisabled={c.legacyMin <= 0}
-              incDisabled={locked || c.legacyMin >= legacyMax}
-            />
-            <SparkStepper
-              name={name} kindLabel="total" value={c.totalMin} starClass="is-silver"
-              dec={() => setTotal(Math.max(c.legacyMin, c.totalMin - 1))}
-              inc={() => setTotal(Math.min(cap, TOTAL_CAP, c.totalMin + 1))}
-              decDisabled={c.totalMin <= c.legacyMin}
-              incDisabled={c.totalMin >= Math.min(cap, TOTAL_CAP)}
-            />
-            <button type="button" className="cmp-small-btn inh-uma-filter-x"
-              aria-label={`Remove ${name}`} onClick={() => onSet(c.skillId, 0, 0)}>✕</button>
-          </div>
-        );
-      })}
+      {clauses.length > 0 && (
+        <div className="inh-fg-tiles inh-green-tiles">
+          {clauses.map((c) => {
+            const name = skillName(c.skillId);
+            return (
+              <div key={c.id} className="inh-fg-tile spark-green is-active">
+                <span className="inh-fg-tile-name">
+                  {name}
+                  <button type="button" className="inh-green-x" aria-label={`Remove ${name}`}
+                    onClick={() => onSet(c.skillId, 0, 0)}>✕</button>
+                </span>
+                <SparkStars
+                  name={name}
+                  legacyMin={c.legacyMin}
+                  totalMin={c.totalMin}
+                  maxTotal={maxTotal(c.skillId)}
+                  legacyLocked={legacyLocked(c.skillId)}
+                  onSet={(l, t) => onSet(c.skillId, l, t)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
