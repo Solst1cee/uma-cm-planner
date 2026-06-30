@@ -359,6 +359,8 @@ export interface CmPlan {
   umaId: string;
   uniqueSkillId: string;
   uniqueIsInherited?: boolean;
+  /** Unique-skill level 1–6 (in-game cap). Absent ⇒ treat as 5. Scales the unique effect's modifier. */
+  uniqueSkillLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   role: Role;
   strategy: Strategy;
   statProfile: { stats: Record<Stat, number>; mood: Mood };

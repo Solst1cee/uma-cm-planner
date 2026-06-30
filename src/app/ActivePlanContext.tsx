@@ -39,6 +39,7 @@ export function makeDefaultPlan(cmRefOverride?: CmRefV2): CmPlan {
     scenarioId: 4,
     umaId: '106801',
     uniqueSkillId: '',
+    uniqueSkillLevel: 5,
     role: 'ace',
     strategy: 'front',
     // §5.2 auto-seed (cm_stat_targets) is deferred; start from a plausible

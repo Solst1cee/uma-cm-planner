@@ -16,6 +16,8 @@ export interface SimBuild {
   aptitudes: { distance: Grade; surface: Grade; strategy: Grade };
   /** Owned/learned skill ids (master.mdb string ids — same as the engine's). */
   skills: string[];
+  /** Per-skill level (1–6). Skills absent here use Lv1 (engine default). Keyed by master.mdb skill id. */
+  skillLevels?: Record<string, number>;
   /** -2..2; defaults to 2 (Great) at the adapter. */
   mood?: -2 | -1 | 0 | 1 | 2;
 }

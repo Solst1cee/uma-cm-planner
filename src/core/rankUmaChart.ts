@@ -58,6 +58,7 @@ export interface RankUmaChartDeps {
     => BashinStats | Promise<BashinStats>;
   nsamples?: number;
   seed?: number;
+  uniqueLevel?: number;
 }
 
 export function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
@@ -86,10 +87,15 @@ async function rowFor(
   }
   const perStyle: UmaStyleL[] = [];
   let anyActivated = false;
+  const level = deps.uniqueLevel ?? 5;
   for (const strategy of UMA_CHART_STRATEGIES) {
     let s: BashinStats;
     try {
-      s = await deps.skillDelta(referenceBuild(c.outfitId, strategy), race, c.uniqueSkillId, n, deps.seed);
+      const build = {
+        ...referenceBuild(c.outfitId, strategy),
+        skillLevels: { [c.uniqueSkillId]: level },
+      };
+      s = await deps.skillDelta(build, race, c.uniqueSkillId, n, deps.seed);
     } catch {
       continue; // this style can't be evaluated — faithful: just drop it
     }

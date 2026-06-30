@@ -316,9 +316,10 @@ export function CmPlannerPage() {
             if (keepTrackRef) {
               setPlan({ ...loaded, cmRef: keepTrackRef });
             }
-            if (slot === focused) {
-              applyTrackTransition(loaded.cmRef);
-            }
+            // Switch the working view to the slot we just loaded into (flip the
+            // sidebar to that uma's page), mirroring onFocusChange's track logic.
+            setFocused(slot);
+            applyTrackTransition(autoApplyOn ? loaded.cmRef : null);
           }}
         />
         <PlannerSidebar

@@ -11,6 +11,7 @@ import { SimClient } from '@/sim/client';
 export interface StreamingRankDeps {
   skillDelta: (b: SimBuild, r: SimRaceParams, id: string, n: number, seed?: number) => BashinStats | Promise<BashinStats>;
   nsamples?: number;
+  uniqueLevel?: number;
 }
 
 export interface StreamingRankState<Row> {
@@ -25,9 +26,14 @@ export interface StreamingRankState<Row> {
 }
 
 let sharedClient: SimClient | null = null;
-function sharedDeps(): StreamingRankDeps {
+/** Returns the module-shared skillDelta bound to the lazy SimClient. Callers that need a skillDelta
+ *  dep (e.g. useUniqueSkillL) can use this to reuse the single worker rather than spawning another. */
+export function sharedSkillDelta(): StreamingRankDeps['skillDelta'] {
   sharedClient ??= new SimClient();
-  return { skillDelta: sharedClient.skillDelta.bind(sharedClient) };
+  return sharedClient.skillDelta.bind(sharedClient);
+}
+function sharedDeps(): StreamingRankDeps {
+  return { skillDelta: sharedSkillDelta() };
 }
 
 export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {
@@ -39,7 +45,7 @@ export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {
   compare: (a: Row, b: Row) => number;
   /** Runs the rank, streaming each row via onRow until shouldContinue() goes false. */
   rank: (deps: StreamingRankDeps, onRow: (row: Row) => void, shouldContinue: () => boolean) => Promise<Row[]>;
-  deps?: StreamingRankDeps;
+  deps?: Partial<StreamingRankDeps>;
 }): StreamingRankState<Row> {
   const [rows, setRows] = useState<Row[]>([]);
   const [status, setStatus] = useState<'idle' | 'running' | 'done'>('idle');
@@ -55,7 +61,10 @@ export function useStreamingRank<Row>({ total, sig, compare, rank, deps }: {
 
   const run = () => {
     const token = (runToken.current += 1);
-    const merged = depsRef.current ?? sharedDeps();
+    const provided = depsRef.current;
+    const merged: StreamingRankDeps = provided?.skillDelta
+      ? (provided as StreamingRankDeps)
+      : { ...sharedDeps(), ...provided };
     setStatus('running');
     setRows([]);
     setDone(0);
