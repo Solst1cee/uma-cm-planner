@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spark Filter — design handoff</title>
+<!--
+  ════════════════════════════════════════════════════════════════════════════
+  SPARK FILTER — DESIGN HANDOFF (Umamusume CM planner · M1 Inheritance picker)
+  ════════════════════════════════════════════════════════════════════════════
+
+  WHAT THIS IS
+  A filter for finding an inheritance "parent" (a trained veteran) by its
+  SPARKS (inherited factors). You narrow a roster of veterans down to the ones
+  whose lineage meets spark thresholds you set here.
+
+  A veteran's lineage = the veteran + its 2 grandparents = 3 MEMBERS. Each member
+  contributes one BLUE spark (a stat) and one PINK spark (an aptitude), plus
+  optional WHITE (skill) and GREEN (inherited-unique) sparks, each 1–3★.
+
+  TWO NUMBERS PER SPARK
+    • LEGACY (gold) = the veteran's OWN spark only        (0–3★)
+    • TOTAL  (silver) = summed across all 3 members        (0–9★)
+  A filter clause is "stat X: legacy ≥ A and total ≥ B". 0 = no constraint.
+
+  THE HARD RULES (must hold — they're real game constraints)
+    1. Per category (blue / pink / green): 3 members → max 9★ total, max 3 types.
+    2. A type needing total T costs ceil(T/3) members (4★ = 3+1 → 2 members).
+       So the sum of ceil(total/3) across a category's types must be ≤ 3.
+       ⇒ "Power total 4 AND Stamina total 4" is IMPOSSIBLE (2+2 = 4 > 3).
+    3. LEGACY is the veteran's own spark → at most ONE type per category may
+       have legacy > 0 (one blue own-spark, one pink own-spark), ≤ 3★.
+    4. total ≥ legacy always. Raising legacy auto-raises total to match.
+
+  LAYOUT (mirrors the in-game aptitude screen)
+    BLUE     Speed · Stamina · Power · Guts · Wit
+    SURFACE  Turf · Dirt
+    DISTANCE Sprint · Mile · Medium · Long
+    STYLE    Front · Pace · Late · End
+    GREEN    a SEARCH box (uniques are many) → adds chips like the rest
+
+  CURRENT UI (what's implemented; redesign freely)
+    Each spark = a coloured one-line "chip" (blue/pink/green), faint when unset,
+    full colour when set. On the chip: name + a gold legacy `− ★N +` stepper +
+    a silver total `− ★N +` stepper. Steppers disable the ± that would break a
+    rule (e.g. Power at 6 caps Stamina's total at 3). The ± buttons are
+    transparent (bg + border).
+
+  GOAL FOR YOU (the designer)
+    Keep the 4 rules + the two numbers (legacy/total) per spark. Everything
+    visual — chips vs tiles vs sliders vs stars, density, grouping, the green
+    search — is open. The interactive logic below is wired so you can feel the
+    constraints while you redesign.
+  ════════════════════════════════════════════════════════════════════════════
+-->
+<style>
+  :root {
+    --bg-0:#f6f7f9; --bg-1:#ffffff; --bg-2:#eef1f5; --fg:#1c2330; --fg-muted:#6b7686;
+    --border:#d4d9e0; --accent:#3478f6; --error:#d83d54;
+    --blue:#3b82f6; --pink:#ec4899; --green:#22c55e;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg-0); padding:1.5rem; }
+  h1 { font-size:1.1rem; margin:0 0 0.25rem; }
+  .sub { color:var(--fg-muted); margin:0 0 1.25rem; max-width:48rem; }
+  .panel { max-width:52rem; background:var(--bg-2); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; }
+
+  .group { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:0.6rem; }
+  .group-label { text-transform:uppercase; letter-spacing:0.04em; font-weight:700; font-size:0.72rem; color:var(--fg-muted); }
+  .chips { display:flex; flex-wrap:wrap; gap:0.3rem; }
+
+  /* One-line coloured chip per spark. --sc = the spark colour. */
+  .chip {
+    --sc:var(--border);
+    display:flex; align-items:center; gap:0.5rem;
+    border:1px solid color-mix(in srgb, var(--sc) 28%, var(--border));
+    border-radius:999px; padding:0.1rem 0.55rem;
+    background:color-mix(in srgb, var(--sc) 7%, var(--bg-1));
+    color:color-mix(in srgb, var(--sc) 58%, var(--fg));
+  }
+  .chip.blue  { --sc:var(--blue); }
+  .chip.pink  { --sc:var(--pink); }
+  .chip.green { --sc:var(--green); }
+  .chip.on {
+    border-color:color-mix(in srgb, var(--sc) 55%, var(--border));
+    background:color-mix(in srgb, var(--sc) 16%, var(--bg-1));
+    color:color-mix(in srgb, var(--sc) 82%, var(--fg));
+  }
+  .chip-name { font-size:0.78rem; font-weight:600; white-space:nowrap; min-width:3.4rem; display:inline-flex; align-items:center; gap:0.3rem; }
+  .controls { display:inline-flex; align-items:center; gap:0.35rem; margin-left:auto; }
+
+  .step { display:inline-flex; align-items:center; }
+  .step-btn {
+    width:1.2rem; height:1.2rem; padding:0; line-height:1;
+    border:1px solid transparent; background:transparent; border-radius:999px;
+    cursor:pointer; font-weight:700; color:inherit;
+  }
+  .step-btn:not(:disabled):hover { color:var(--accent); }
+  .step-btn:disabled { opacity:0.3; cursor:default; }
+  .step-val { min-width:1.4rem; text-align:center; font-variant-numeric:tabular-nums; font-weight:700; }
+  .star { margin-right:1px; font-size:0.85rem; }
+  .step-val.gold .star   { color:#eab308; }
+  .step-val.silver .star { color:#9aa7b8; }
+  .x { border:0; background:none; cursor:pointer; color:var(--error); font-size:0.85rem; line-height:1; padding:0; }
+
+  /* Green search */
+  .green-search { position:relative; display:flex; align-items:center; gap:0.4rem; }
+  .badge { font-size:0.7rem; font-weight:700; border-radius:999px; padding:0.05rem 0.45rem; border:1px solid color-mix(in srgb, var(--green) 55%, var(--border)); background:color-mix(in srgb, var(--green) 16%, var(--bg-1)); color:color-mix(in srgb, var(--green) 64%, var(--fg)); }
+  .green-input { flex:1 1 auto; max-width:18rem; padding:0.35rem 0.5rem; border:1px solid var(--border); border-radius:8px; background:var(--bg-1); color:inherit; }
+  .green-results { position:absolute; top:calc(100% + 0.2rem); left:0; z-index:5; min-width:14rem; max-height:14rem; overflow:auto; display:flex; flex-direction:column; border:1px solid var(--border); border-radius:8px; background:var(--bg-1); box-shadow:0 8px 24px rgb(20 30 50 / .18); }
+  .green-results button { text-align:left; padding:0.35rem 0.6rem; background:none; border:0; cursor:pointer; }
+  .green-results button:hover { background:var(--bg-2); }
+
+  .out { margin-top:1rem; max-width:52rem; }
+  .out pre { background:#0f1422; color:#cfe0ff; padding:0.75rem 1rem; border-radius:10px; overflow:auto; font-size:12px; }
+  .legend { color:var(--fg-muted); font-size:0.78rem; margin:0.5rem 0 1rem; }
+  .legend b.g { color:#caa106; } .legend b.s { color:#7c8aa0; }
+</style>
+</head>
+<body>
+  <h1>Spark filter</h1>
+  <p class="sub">Find an inheritance parent by its sparks. Two thresholds per spark —
+    <b style="color:#caa106">gold = legacy</b> (the veteran's own, ≤3★) and
+    <b style="color:#7c8aa0">silver = total</b> (across its 3-member lineage, ≤9★).
+    The lineage budget (3 members) caps what's reachable; the ± disable when a rule would break.</p>
+
+  <div class="panel" id="panel"></div>
+
+  <p class="legend">Try it: push <b class="g">Power total</b> to 6 → <b class="s">Stamina total</b> stops at 3 (budget).
+    Set <b class="g">Power legacy</b> → other blue legacies lock (one own-spark). Raising legacy bumps total.</p>
+
+  <div class="out">
+    <div style="font-weight:700; margin-bottom:0.35rem;">Active filter (the data this UI produces)</div>
+    <pre id="out"></pre>
+  </div>
+
+<script>
+// ── Model ───────────────────────────────────────────────────────────────────
+const GROUPS = [
+  { label:'Blue',     kind:'blue', items:[['spd','Speed'],['sta','Stamina'],['pow','Power'],['gut','Guts'],['wit','Wit']] },
+  { label:'Surface',  kind:'pink', items:[['turf','Turf'],['dirt','Dirt']] },
+  { label:'Distance', kind:'pink', items:[['sprint','Sprint'],['mile','Mile'],['medium','Medium'],['long','Long']] },
+  { label:'Style',    kind:'pink', items:[['front','Front'],['pace','Pace'],['late','Late'],['end','End']] },
+];
+const UNIQUES = [ // green-search options (id → name)
+  ['100151','This Dance Is for Vittoria!'], ['100201','Shadow Break'], ['100271','Beyond the Horizon'],
+  ['100341','Unrestrained'], ['100411','El Número 1'], ['100481','Blaze of Glory'],
+];
+
+const MEMBERS = 3, LEGACY_CAP = 3, TOTAL_CAP = 9;
+const membersForTotal = t => Math.ceil(Math.max(0, t) / LEGACY_CAP);
+function maxTotalForKey(totalsByKey, key) {
+  let used = 0;
+  for (const k in totalsByKey) if (k !== key) used += membersForTotal(totalsByKey[k]);
+  return Math.min(TOTAL_CAP, Math.max(0, MEMBERS - used) * LEGACY_CAP);
+}
+
+// state: { 'blue:pow': {legacy, total}, 'pink:long': {...}, 'green:100151': {...} }
+const state = {};
+const keyOf = (kind, k) => kind + ':' + k;
+const val = (kind, k) => state[keyOf(kind, k)] || { legacy:0, total:0 };
+
+function categoryTotals(kind) { // {key: total} for a category, for the budget math
+  const out = {};
+  for (const id in state) { const [c, k] = id.split(':'); if (c === kind) out[k] = state[id].total; }
+  return out;
+}
+const maxTotal     = (kind, k) => maxTotalForKey(categoryTotals(kind), k);
+const legacyLocked = (kind, k) => Object.keys(state).some(id => {
+  const [c, kk] = id.split(':'); return c === kind && kk !== k && state[id].legacy > 0;
+});
+
+function set(kind, k, legacy, total) {
+  const id = keyOf(kind, k);
+  // single legacy per category: setting one clears the others
+  if (legacy > 0) for (const oid in state) { const [c] = oid.split(':'); if (c === kind && oid !== id) state[oid].legacy = 0; }
+  if (legacy === 0 && total === 0) delete state[id]; else state[id] = { legacy, total };
+  render();
+}
+
+// ── View ────────────────────────────────────────────────────────────────────
+function stepper(name, kind_, value, starClass, dec, inc, decDis, incDis) {
+  const s = document.createElement('span'); s.className = 'step'; s.setAttribute('aria-label', name + ' ' + kind_);
+  const mk = (txt, dis, fn, lbl) => { const b = document.createElement('button'); b.className='step-btn'; b.textContent=txt; b.disabled=dis; b.setAttribute('aria-label', name+' '+kind_+' '+lbl); b.onclick=fn; return b; };
+  const v = document.createElement('span'); v.className = 'step-val ' + starClass; v.innerHTML = '<span class="star">★</span>' + value;
+  s.append(mk('−', decDis, dec, 'minus'), v, mk('+', incDis, inc, 'plus'));
+  return s;
+}
+function chip(kind, k, name, onRemove) {
+  const v = val(kind, k);
+  const cap = maxTotal(kind, k), locked = legacyLocked(kind, k);
+  const legacyMax = Math.min(LEGACY_CAP, cap), active = v.legacy > 0 || v.total > 0;
+  const el = document.createElement('div'); el.className = 'chip ' + kind + (active ? ' on' : '');
+  const nm = document.createElement('span'); nm.className = 'chip-name'; nm.textContent = name;
+  if (onRemove) { const x = document.createElement('button'); x.className='x'; x.textContent='✕'; x.setAttribute('aria-label','Remove '+name); x.onclick=onRemove; nm.appendChild(x); }
+  const ctl = document.createElement('span'); ctl.className = 'controls';
+  ctl.append(
+    stepper(name, 'legacy', v.legacy, 'gold',
+      () => set(kind, k, Math.max(0, v.legacy - 1), v.total),
+      () => { const l = Math.min(legacyMax, v.legacy + 1); set(kind, k, l, Math.max(v.total, l)); },
+      v.legacy <= 0, locked || v.legacy >= legacyMax),
+    stepper(name, 'total', v.total, 'silver',
+      () => set(kind, k, v.legacy, Math.max(v.legacy, v.total - 1)),
+      () => set(kind, k, v.legacy, Math.min(cap, v.total + 1)),
+      v.total <= v.legacy, v.total >= cap),
+  );
+  el.append(nm, ctl);
+  return el;
+}
+
+let query = '';
+function render() {
+  const root = document.getElementById('panel'); root.innerHTML = '';
+  for (const g of GROUPS) {
+    const grp = document.createElement('div'); grp.className = 'group';
+    const lab = document.createElement('div'); lab.className = 'group-label'; lab.textContent = g.label;
+    const chips = document.createElement('div'); chips.className = 'chips';
+    g.items.forEach(([k, name]) => chips.appendChild(chip(g.kind, k, name)));
+    grp.append(lab, chips); root.appendChild(grp);
+  }
+  // green
+  const grp = document.createElement('div'); grp.className = 'group';
+  const lab = document.createElement('div'); lab.className = 'group-label'; lab.textContent = 'Green (inherited-unique)';
+  const search = document.createElement('div'); search.className = 'green-search';
+  const badge = document.createElement('span'); badge.className = 'badge'; badge.textContent = 'Green';
+  const input = document.createElement('input'); input.className = 'green-input'; input.type = 'search';
+  input.placeholder = 'Search unique skill…'; input.value = query;
+  input.setAttribute('aria-label','Search unique skill');
+  input.oninput = e => { query = e.target.value; render(); setTimeout(() => { const i = document.querySelector('.green-input'); i && i.focus(); }); };
+  search.append(badge, input);
+  const added = new Set(Object.keys(state).filter(id => id.startsWith('green:')).map(id => id.split(':')[1]));
+  const q = query.trim().toLowerCase();
+  const matches = q ? UNIQUES.filter(([id, n]) => !added.has(id) && n.toLowerCase().includes(q)).slice(0, 8) : [];
+  if (matches.length) {
+    const res = document.createElement('div'); res.className = 'green-results';
+    matches.forEach(([id, n]) => { const b = document.createElement('button'); b.type='button'; b.setAttribute('role','option'); b.textContent = n; b.onclick = () => { query=''; set('green', id, 0, 1); }; res.appendChild(b); });
+    search.appendChild(res);
+  }
+  const chips = document.createElement('div'); chips.className = 'chips'; chips.style.marginTop = '0.3rem';
+  UNIQUES.filter(([id]) => added.has(id)).forEach(([id, n]) => chips.appendChild(chip('green', id, n, () => set('green', id, 0, 0))));
+  grp.append(lab, search, chips); root.appendChild(grp);
+
+  // output: the filter clauses this UI produces
+  const clauses = Object.entries(state).map(([id, v]) => { const [kind, k] = id.split(':'); return { kind, key:k, legacyMin:v.legacy, totalMin:v.total }; });
+  document.getElementById('out').textContent = JSON.stringify(clauses, null, 2);
+}
+render();
+</script>
+</body>
+</html>
