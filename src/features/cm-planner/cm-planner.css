@@ -2456,10 +2456,10 @@ main:has(.cmp-page) {
   font-size: 0.9rem; font-weight: 700; line-height: 1;
   border: 1px solid transparent; background: transparent; cursor: pointer; padding: 0;
 }
-.cmp-slot-badge.is-uma1 { border-color: #5aa0ff; color: #5aa0ff; }
-.cmp-slot-badge.is-uma2 { border-color: #e0564f; color: #e0564f; }
-.cmp-slot-badge.is-uma1:hover { background: color-mix(in srgb, #5aa0ff 14%, transparent); }
-.cmp-slot-badge.is-uma2:hover { background: color-mix(in srgb, #e0564f 14%, transparent); }
+.cmp-slot-badge.is-uma1 { background: #5aa0ff; border-color: #5aa0ff; color: #fff; }
+.cmp-slot-badge.is-uma2 { background: #e0564f; border-color: #e0564f; color: #fff; }
+.cmp-slot-badge.is-uma1:hover,
+.cmp-slot-badge.is-uma2:hover { filter: brightness(1.08); }
 .cmp-inventory-row.is-uma1 {
   background: color-mix(in srgb, #5aa0ff 10%, transparent);
   box-shadow: inset 0 0 0 1.5px #5aa0ff;
@@ -2537,7 +2537,7 @@ main:has(.cmp-page) {
   gap: 0.25rem;
   padding: 0.05rem 0.3rem;
   background: transparent;
-  border: 1px solid var(--skill-text);
+  border: 1px solid transparent;
   border-radius: 6px;
 }
 .cmp-skill-level-stepper button {
