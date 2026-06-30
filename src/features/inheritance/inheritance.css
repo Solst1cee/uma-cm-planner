@@ -538,6 +538,8 @@ main:has(.inh-page) {
   color: color-mix(in srgb, var(--sc) 82%, var(--fg));
 }
 .inh-fg-tile-name { font-size: 0.78rem; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.3rem; }
+/* Control row: gold legacy stars + a total − ★N + stepper. */
+.inh-fg-control { display: inline-flex; align-items: center; gap: 0.45rem; }
 .inh-fg-stars { display: inline-flex; align-items: center; }
 .inh-fg-star {
   border: 0; background: none; padding: 0 0.5px; margin: 0; cursor: pointer;
@@ -545,8 +547,18 @@ main:has(.inh-page) {
 }
 .inh-fg-star.is-gold.is-on { color: #eab308; }
 .inh-fg-star.is-silver.is-on { color: #9aa7b8; }
-.inh-fg-star.inh-fg-sep { margin-left: 0.3rem; }
 .inh-fg-star:disabled { cursor: default; opacity: 0.3; }
+/* Total stepper */
+.inh-fg-total { display: inline-flex; align-items: center; gap: 0.1rem; }
+.inh-fg-step-btn {
+  width: 1.2rem; height: 1.2rem; min-height: 0; padding: 0; line-height: 1;
+  border: 1px solid color-mix(in srgb, var(--sc, var(--border)) 35%, var(--border));
+  border-radius: 5px; background: var(--bg-1); color: inherit; cursor: pointer; font-weight: 700;
+}
+.inh-fg-step-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.inh-fg-step-btn:disabled { opacity: 0.35; cursor: default; }
+.inh-fg-total-val { min-width: 1.5rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.inh-fg-total-val .inh-fg-star { margin-right: 1px; }
 .inh-green-x { border: 0; background: none; cursor: pointer; color: var(--error); padding: 0; line-height: 1; font-size: 0.85rem; }
 /* Green (inherited-unique) spark search */
 .inh-green { display: flex; flex-direction: column; gap: 0.2rem; }
