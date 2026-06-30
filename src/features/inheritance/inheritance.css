@@ -514,18 +514,19 @@ main:has(.inh-page) {
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-2);
 }
 /* Spark filter: in-game-style groups (blue / surface / distance / style) of
-   coloured tiles, each with a two-tier (gold legacy + silver total) star strip. */
+   coloured chips, each ONE line: name + a gold legacy and a silver total
+   − ★N + stepper. */
 .inh-fg { display: flex; flex-direction: column; gap: 0.45rem; }
 .inh-fg-group { display: flex; flex-direction: column; gap: 0.2rem; }
 .inh-fg-group-label { text-transform: uppercase; letter-spacing: 0.03em; font-weight: 700; }
 .inh-fg-tiles { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-/* Each spark is a coloured chip-tile (blue/pink/green via --sc): faint when
+/* Each spark is a coloured one-line chip (blue/pink/green via --sc): faint when
    unset, full badge colour when a requirement is set. */
 .inh-fg-tile {
   --sc: var(--border);
-  display: flex; flex-direction: column; gap: 0.1rem; align-items: flex-start;
+  display: flex; align-items: center; gap: 0.5rem;
   border: 1px solid color-mix(in srgb, var(--sc) 28%, var(--border));
-  border-radius: 9px; padding: 0.25rem 0.45rem; min-width: 6.4rem;
+  border-radius: 999px; padding: 0.1rem 0.55rem;
   background: color-mix(in srgb, var(--sc) 7%, var(--bg-1));
   color: color-mix(in srgb, var(--sc) 58%, var(--fg));
 }
@@ -537,28 +538,21 @@ main:has(.inh-page) {
   background: color-mix(in srgb, var(--sc) 16%, var(--bg-1));
   color: color-mix(in srgb, var(--sc) 82%, var(--fg));
 }
-.inh-fg-tile-name { font-size: 0.78rem; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.3rem; }
-/* Control row: gold legacy stars + a total − ★N + stepper. */
-.inh-fg-control { display: inline-flex; align-items: center; gap: 0.45rem; }
-.inh-fg-stars { display: inline-flex; align-items: center; }
-.inh-fg-star {
-  border: 0; background: none; padding: 0 0.5px; margin: 0; cursor: pointer;
-  line-height: 1; font-size: 0.92rem; color: color-mix(in srgb, var(--fg) 22%, transparent); /* off = faint */
-}
-.inh-fg-star.is-gold.is-on { color: #eab308; }
-.inh-fg-star.is-silver.is-on { color: #9aa7b8; }
-.inh-fg-star:disabled { cursor: default; opacity: 0.3; }
-/* Total stepper */
-.inh-fg-total { display: inline-flex; align-items: center; gap: 0.1rem; }
+.inh-fg-tile-name { font-size: 0.78rem; font-weight: 600; white-space: nowrap; min-width: 3.4rem; display: inline-flex; align-items: center; gap: 0.3rem; }
+.inh-fg-control { display: inline-flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+.inh-fg-step { display: inline-flex; align-items: center; }
+/* +/− buttons: transparent background AND border. */
 .inh-fg-step-btn {
   width: 1.2rem; height: 1.2rem; min-height: 0; padding: 0; line-height: 1;
-  border: 1px solid color-mix(in srgb, var(--sc, var(--border)) 35%, var(--border));
-  border-radius: 5px; background: var(--bg-1); color: inherit; cursor: pointer; font-weight: 700;
+  border: 1px solid transparent; background: transparent; border-radius: 999px;
+  cursor: pointer; font-weight: 700; color: inherit;
 }
-.inh-fg-step-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
-.inh-fg-step-btn:disabled { opacity: 0.35; cursor: default; }
-.inh-fg-total-val { min-width: 1.5rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
-.inh-fg-total-val .inh-fg-star { margin-right: 1px; }
+.inh-fg-step-btn:not(:disabled):hover { color: var(--accent); }
+.inh-fg-step-btn:disabled { opacity: 0.3; cursor: default; }
+.inh-fg-step-val { min-width: 1.4rem; text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.inh-fg-star { margin-right: 1px; font-size: 0.85rem; }
+.inh-fg-step-val.is-gold .inh-fg-star { color: #eab308; }
+.inh-fg-step-val.is-silver .inh-fg-star { color: #9aa7b8; }
 .inh-green-x { border: 0; background: none; cursor: pointer; color: var(--error); padding: 0; line-height: 1; font-size: 0.85rem; }
 /* Green (inherited-unique) spark search */
 .inh-green { display: flex; flex-direction: column; gap: 0.2rem; }

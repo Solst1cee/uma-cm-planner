@@ -64,9 +64,9 @@ describe('UmaPickerModal', () => {
     expect(screen.getByRole('button', { name: 'Power total plus' })).toBeDisabled(); // hit 9
   });
 
-  it('a legacy star auto-raises the total to match', () => {
+  it('a legacy bump auto-raises the total to match', () => {
     render(<UmaPickerModal {...base} open />);
-    fireEvent.click(screen.getByRole('button', { name: 'Power gold 3' })); // legacy 3 → total bumps to ≥3
+    clickN('Power legacy plus', 3); // legacy 3 → total bumps to ≥3
     expect(screen.getByRole('button', { name: 'Power total minus' })).toBeDisabled(); // total == legacy 3, can't go lower
   });
 
@@ -77,18 +77,18 @@ describe('UmaPickerModal', () => {
     expect(screen.getByRole('button', { name: 'Stamina total plus' })).toBeDisabled();
   });
 
-  it('single legacy per category — gold on a second blue stat is locked', () => {
+  it('single legacy per category — legacy + on a second blue stat is locked', () => {
     render(<UmaPickerModal {...base} open />);
-    fireEvent.click(screen.getByRole('button', { name: 'Power gold 3' })); // Power legacy 3
-    expect(screen.getByRole('button', { name: 'Stamina gold 1' })).toBeDisabled();
+    clickN('Power legacy plus', 3); // Power legacy 3
+    expect(screen.getByRole('button', { name: 'Stamina legacy plus' })).toBeDisabled();
   });
 
-  it('green search adds a unique-skill clause with stars + total stepper', () => {
+  it('green search adds a unique-skill clause with legacy + total steppers', () => {
     const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Other Unique' }];
     render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100151' ? 'Vittoria' : id)} />);
     fireEvent.change(screen.getByRole('searchbox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
     fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
-    expect(screen.getByRole('button', { name: 'Vittoria gold 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria legacy plus' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Vittoria total plus' })).toBeInTheDocument();
   });
 
