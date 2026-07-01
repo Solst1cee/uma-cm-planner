@@ -175,30 +175,32 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
           <span>Pick a parent</span>
           <button type="button" className="cmp-small-btn inh-uma-modal-x" aria-label="Close" onClick={onClose}>✕</button>
         </header>
-        <div className="inh-uma-searchbar">
-          <input
-            type="search"
-            className="inh-uma-search"
-            placeholder="Search by name…"
-            aria-label="Search by name"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        <div className="inh-uma-filterbar">
-          <SparkSummary matchCount={sparkMatchCount} total={items.length} chips={summaryChips} onReset={() => setFilters([])} />
-          <SparkFilterCards
-            value={sparkValue}
-            onSet={setSpark}
-            maxTotal={sparkMaxTotal}
-            legacyLocked={sparkLegacyLocked}
-            membersUsed={membersUsed}
-            activeGreen={activeGreen}
-            greenOptions={greenOptions}
-            greenIcon={greenIcon}
-          />
-        </div>
-        <div className="cmp-plan-card-body inh-uma-grid">
+        <div className="inh-uma-split">
+          <div className="inh-uma-filter-col">
+            <SparkSummary matchCount={sparkMatchCount} total={items.length} chips={summaryChips} onReset={() => setFilters([])} />
+            <SparkFilterCards
+              value={sparkValue}
+              onSet={setSpark}
+              maxTotal={sparkMaxTotal}
+              legacyLocked={sparkLegacyLocked}
+              membersUsed={membersUsed}
+              activeGreen={activeGreen}
+              greenOptions={greenOptions}
+              greenIcon={greenIcon}
+            />
+          </div>
+          <div className="inh-uma-results-col">
+            <div className="inh-uma-searchbar">
+              <input
+                type="search"
+                className="inh-uma-search"
+                placeholder="Search by name…"
+                aria-label="Search by name"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div className="cmp-plan-card-body inh-uma-grid">
           {shown.length === 0 && <p className="muted small">No veterans match.</p>}
           {shown.map((it) => (
             <button key={it.id} type="button"
@@ -239,6 +241,8 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
               </span>
             </button>
           ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
