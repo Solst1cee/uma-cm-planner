@@ -53,6 +53,7 @@ const DEFAULT_FILTERS: PoolFilters = {
   type: 'all',
   skill: null,
   search: '',
+  showUpcoming: false,
 };
 
 // ---------------------------------------------------------------------------
