@@ -279,6 +279,10 @@ export interface UmaRecord {
     distance: { short: Grade; mile: Grade; medium: Grade; long: Grade };
     strategy: Record<Strategy, Grade>;
   };
+  /** ISO Global release date; absent = released/unknown. Set on upcoming (server:'jp') records. */
+  releaseDate?: string;
+  /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
+  releaseDatePredicted?: boolean;
   server: Server;
   dataVersion: string;
 }

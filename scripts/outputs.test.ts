@@ -235,12 +235,14 @@ describe('public/data/spark_rates.json', () => {
 });
 
 describe('public/data/umas.json', () => {
-  it('contains the 87 Global-released outfits (60 characters), all server=global on the pinned dataVersion', () => {
-    expect(umas.length).toBeGreaterThan(0);
-    expect(umas).toHaveLength(87); // umalator umas.json @ 76214c82 (v0.16.1)
-    expect(new Set(umas.map((u) => u.charaId)).size).toBe(60);
-    expect(umas.every((u) => u.server === 'global')).toBe(true);
-    expect(umas.every((u) => u.dataVersion === 'global-76214c82')).toBe(true);
+  it('contains 87 Global outfits + JP-ahead umas (total 257); Global all server=global on the pinned dataVersion', () => {
+    const globalUmas = umas.filter((u) => u.server === 'global');
+    const jpUmas = umas.filter((u) => u.server === 'jp');
+    expect(globalUmas).toHaveLength(87); // umalator umas.json @ 76214c82 (v0.16.1)
+    expect(jpUmas.length).toBeGreaterThan(0);
+    expect(umas).toHaveLength(257);
+    expect(new Set(globalUmas.map((u) => u.charaId)).size).toBe(60);
+    expect(globalUmas.every((u) => u.dataVersion === 'global-76214c82')).toBe(true);
   });
 
   it('Special Week 100101 carries the official EN name + epithet', () => {
@@ -266,9 +268,11 @@ describe('public/data/umas.json', () => {
       expect(u.umaId, `umaId ${u.umaId}`).toMatch(/^\d{6}$/);
       expect(u.charaId, `umaId ${u.umaId}`).toBe(String(Math.floor(Number(u.umaId) / 100)));
       expect(u.nameEn.length, `umaId ${u.umaId}`).toBeGreaterThan(0);
-      // Epithets are picker display strings: bracket-free, trimmed.
-      expect(u.epithet, `umaId ${u.umaId}`).toMatch(/^\S(.*\S)?$/);
-      expect(u.epithet, `umaId ${u.umaId}`).not.toMatch(/[[\]]/);
+      // Epithets are picker display strings: bracket-free, trimmed (when present).
+      if (u.epithet !== undefined) {
+        expect(u.epithet, `umaId ${u.umaId}`).toMatch(/^\S(.*\S)?$/);
+        expect(u.epithet, `umaId ${u.umaId}`).not.toMatch(/[[\]]/);
+      }
     }
   });
 
@@ -276,6 +280,17 @@ describe('public/data/umas.json', () => {
     const ids = umas.map((u) => Number(u.umaId));
     expect(ids).toEqual([...ids].sort((a, b) => a - b));
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('gates JP-ahead umas: server-tagged, dated, predicted', () => {
+    const jpUmas = umas.filter((u) => u.server === 'jp');
+    expect(jpUmas.every((u) => u.server === 'jp')).toBe(true);
+    expect(jpUmas.every((u) => typeof u.releaseDate === 'string')).toBe(true);
+    expect(jpUmas.every((u) => u.releaseDatePredicted === true)).toBe(true);
+    // spot-check a known JP-only outfit (Special Week's third outfit, not in the Global master set)
+    const sample = umas.find((u) => u.umaId === '100103');
+    expect(sample?.server).toBe('jp');
+    expect(sample?.releaseDatePredicted).toBe(true);
   });
 });
 

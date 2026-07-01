@@ -1194,6 +1194,13 @@ main:has(.cmp-page) {
   font-size: 0.7rem;
 }
 
+.cmp-runner-picker .cmp-upcoming-badge {
+  font-size: 0.6rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .cmp-mini-label {
   margin: 0.4rem 0 0.25rem;
   color: var(--fg-muted);

@@ -9,11 +9,13 @@ const h = vi.hoisted(() => {
   const umas = [
     { umaId: '100101', charaId: '1001', nameEn: 'Special Week', epithet: 'Special Dreamer', server: 'global', dataVersion: 't' },
     { umaId: '100201', charaId: '1002', nameEn: 'Silence Suzuka', epithet: 'Innocent Silence', server: 'global', dataVersion: 't' },
+    { umaId: '109901', charaId: '1099', nameEn: 'JP Preview Uma', epithet: 'Preview', server: 'jp', dataVersion: 't', releaseDate: '2026-01-01', releaseDatePredicted: true },
   ];
   const umaById = new Map(umas.map((u) => [u.umaId, u]));
   const uniqueByUmaId = new Map<string, { skillId: string; nameEn: string; iconId: string; rarity: string; baseSpCost: number; conditions: string }>([
     ['100101', { skillId: 'u1', nameEn: 'Shooting Star', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=2' }],
     ['100201', { skillId: 'u2', nameEn: 'Silent Speedline', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'corner!=0' }],
+    ['109901', { skillId: 'u3', nameEn: 'JP Preview Beam', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=2' }],
   ]);
   const bs = (mean: number): BashinStats => ({ mean, median: mean, min: mean, max: mean, nsamples: 30, results: [] });
   // Per-style L: u2 is best as an End Closer (2.0); u1 is best as a Front Runner (1.0).
@@ -21,13 +23,15 @@ const h = vi.hoisted(() => {
   const styleL: Record<string, Record<string, number>> = {
     u1: { front: 1.0, pace: 0.2, late: 0.2, end: 0.3 },
     u2: { front: 0.3, pace: 0.2, late: 0.2, end: 2.0 },
+    u3: { front: 0.5, pace: 0.5, late: 0.5, end: 0.5 },
   };
   const skillDelta = vi.fn(async (b: SimBuild, _r: unknown, id: string) => bs(styleL[id]?.[b.strategy] ?? 0.1));
-  return { umas, umaById, uniqueByUmaId, skillDelta };
+  const timeline = [{ type: 'cm', dates: { start: '2026-06-01' }, cm: { cmNumber: 1 } }];
+  return { umas, umaById, uniqueByUmaId, skillDelta, timeline };
 });
 
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ status: 'ready', umas: h.umas, umaById: h.umaById, skillById: new Map(), iconManifest: null }),
+  useGameData: () => ({ status: 'ready', umas: h.umas, umaById: h.umaById, skillById: new Map(), iconManifest: null, timeline: h.timeline }),
 }));
 vi.mock('./skillTechnicalDetails', () => ({
   loadUniqueSkillByUmaId: vi.fn(async () => h.uniqueByUmaId),
@@ -159,5 +163,23 @@ describe('UmaChartPanel', () => {
     await userEvent.click(summaries[0]!);
     await userEvent.click(summaries[1]!);
     expect(document.querySelectorAll('details.cmp-uma-plate[open]').length).toBe(1);
+  });
+
+  it('gates JP umas behind show-upcoming + the CM date', async () => {
+    const planWithCmRef = { umaId: '', server: 'global', cmRef: { kind: 'cm', cmNumber: 1 } } as unknown as CmPlan;
+    render(<UmaChartPanel courseId="10906" plan={planWithCmRef} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    // wait for Run to be enabled, then click
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
+    // JP uma's unique skill is hidden by default
+    expect(screen.queryByText('JP Preview Beam')).not.toBeInTheDocument();
+    // toggle show upcoming — chart goes stale
+    await userEvent.click(screen.getByLabelText(/show upcoming/i));
+    // re-run to include JP uma
+    await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+    await waitFor(() => expect(screen.getByText('JP Preview Beam')).toBeInTheDocument());
+    // the predicted date badge should also render
+    expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
   });
 });

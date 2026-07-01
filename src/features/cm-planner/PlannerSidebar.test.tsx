@@ -27,6 +27,7 @@ const h = vi.hoisted(() => {
     server: 'global',
     dataVersion: 't',
   });
+  const timeline = [{ type: 'cm', dates: { start: '2026-06-01' }, cm: { cmNumber: 15 } }];
   const skills = [
     skill('u', 'Victory Cheer!', 'unique', '20013', 'phase>=2&order>=1'),
     skill('v', 'Silent Speedline', 'unique', '20013', 'corner!=0'),
@@ -71,12 +72,23 @@ const h = vi.hoisted(() => {
       server: 'global',
       dataVersion: 't',
     },
+    {
+      umaId: '109901',
+      charaId: '1099',
+      nameEn: 'JP Preview Uma',
+      epithet: 'Preview',
+      server: 'jp',
+      releaseDate: '2026-01-01',
+      releaseDatePredicted: true,
+      dataVersion: 't',
+    },
   ];
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
   const umaById = new Map(umas.map((u) => [u.umaId, u]));
   const uniqueByUmaId = new Map([
     ['100101', { skillId: 'u', nameEn: 'Victory Cheer!', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=2&order>=1' }],
     ['100201', { skillId: 'v', nameEn: 'Silent Speedline', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'corner!=0' }],
+    ['109901', { skillId: 'jp1', nameEn: 'JP Preview Skill ☆', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=1' }],
   ]);
   const plan = {
     id: 'p',
@@ -101,6 +113,7 @@ const h = vi.hoisted(() => {
     umas,
     umaById,
     uniqueByUmaId,
+    timeline,
     plan,
     setPlan: vi.fn(),
     save: vi.fn(async () => undefined),
@@ -150,6 +163,7 @@ vi.mock('@/features/data/gameData', () => ({
     skillById: h.skillById,
     umas: h.umas,
     umaById: h.umaById,
+    timeline: h.timeline,
     iconManifest: null,
   }),
 }));
@@ -723,5 +737,36 @@ describe('PlannerSidebar', () => {
 
     expect(await screen.findByText('No runtime technical detail was found for this skill.')).toBeInTheDocument();
     expect(screen.queryByText('Loading technical detail...')).not.toBeInTheDocument();
+  });
+
+  it('hides JP umas by default and shows them with the "show upcoming" toggle', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+    await waitForUniqueMap();
+
+    const searchInput = screen.getByLabelText('Search uma or unique skill');
+
+    // 1. Toggle "show upcoming" FIRST (while picker is closed, checkbox is always rendered)
+    const checkbox = screen.getByLabelText('show upcoming');
+    expect(checkbox).not.toBeChecked();
+    await user.click(checkbox);
+    await waitFor(() => expect(checkbox).toBeChecked());
+
+    // 2. Open the picker with an empty query
+    await user.click(searchInput);
+    await user.clear(searchInput);
+    await waitFor(() => expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument());
+
+    // 3. JP uma should now be visible
+    expect(screen.getByText('JP Preview Uma')).toBeInTheDocument();
+
+    // Badge for predicted release date is rendered
+    expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
+
+    // 4. Verify default behavior: close picker, toggle off, re-open — JP uma gone again
+    await user.click(checkbox);
+    await waitFor(() => expect(checkbox).not.toBeChecked());
+    await user.click(searchInput);
+    await waitFor(() => expect(screen.queryByText('JP Preview Uma')).not.toBeInTheDocument());
   });
 });

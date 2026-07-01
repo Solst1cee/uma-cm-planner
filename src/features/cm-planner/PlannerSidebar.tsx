@@ -9,7 +9,8 @@ import {
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
 import type { TraceContext } from './useSkillTrace';
-import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
+import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, TimelineEntry, UmaRecord } from '@/core/types';
+import { isReleasedBy } from '@/core/availability';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
@@ -165,11 +166,12 @@ export function PlannerSidebar({
   onReplicateUma2ToUma1?: () => void;
   trackMismatchLabel?: string;
 }) {
-  const { skillById, umas, umaById } = useGameData();
+  const { skillById, umas, umaById, timeline } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [umaQuery, setUmaQuery] = useState('');
   const [umaPickerOpen, setUmaPickerOpen] = useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   const [activeUmaIndex, setActiveUmaIndex] = useState(0);
   const [wishlistDeleteConfirm, setWishlistDeleteConfirm] = useState(false);
   const initialUmaName = umaById?.get(plan.umaId)?.nameEn ?? (plan.umaId ? `Uma ${plan.umaId}` : undefined);
@@ -219,9 +221,14 @@ export function PlannerSidebar({
     if (plan.wishlist.length === 0) setWishlistDeleteConfirm(false);
   }, [plan.wishlist.length]);
 
+  const cmNumber = plan.cmRef.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
+  const cmEntry = (timeline as TimelineEntry[] | undefined)
+    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
+  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
+
   const globalUmas = useMemo(
-    () => (umas ?? []).filter((u) => u.server === plan.server),
-    [plan.server, umas],
+    () => (umas ?? []).filter((u) => u.server === plan.server || (showUpcoming && isReleasedBy(u, asOfISO))),
+    [umas, plan.server, showUpcoming, asOfISO],
   );
   const currentUma = (umaById ?? new Map()).get(plan.umaId);
   const currentUmaName = currentUma?.nameEn ?? (plan.umaId ? `Uma ${plan.umaId}` : undefined);
@@ -578,6 +585,15 @@ export function PlannerSidebar({
                     </span>
                   )}
                 </label>
+                <label className="cmp-showall small">
+                  <input
+                    type="checkbox"
+                    checked={showUpcoming}
+                    onChange={(e) => setShowUpcoming(e.target.checked)}
+                    aria-label="show upcoming"
+                  />
+                  {' '}show upcoming
+                </label>
                 {umaPickerOpen && (
                   <ul className="cmp-uma-results" aria-label="Uma search results">
                     {umaResults.length === 0 && <li className="muted small">No matching umas.</li>}
@@ -597,6 +613,9 @@ export function PlannerSidebar({
                             <span>
                               <strong>{uma.nameEn}</strong>
                               {unique && <small>{unique.nameEn}</small>}
+                              {uma.releaseDatePredicted && (
+                                <span className="cmp-upcoming-badge">~{uma.releaseDate}</span>
+                              )}
                             </span>
                           </button>
                         </li>
