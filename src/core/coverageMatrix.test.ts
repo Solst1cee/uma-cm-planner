@@ -56,9 +56,9 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.innate.length).toBe(0);
   });
 
-  describe('innate variant-family coverage (○ / ◎ / gold tiers)', () => {
-    // Right-Handed family: ○ and ◎ are the same white skill (tier 1); the Demon
-    // gold is tier 2. Ids 5000xx to stay clear of the base fixtures.
+  describe('variant-family coverage (○ ≡ ◎, gold separate)', () => {
+    // Right-Handed family: ○ and ◎ are the same white skill (interchangeable);
+    // the Demon gold is a SEPARATE skill. Ids 5000xx to avoid the base fixtures.
     const RH: [string, string, SkillRecord['rarity'], string[]][] = [
       ['500011', 'Right-Handed ◎', 'white', ['500012', '500014']],
       ['500012', 'Right-Handed ○', 'white', ['500011', '500014']],
@@ -67,21 +67,46 @@ describe('buildCoverageMatrix', () => {
     const famById = new Map(
       RH.map(([id, name, rarity, variants]) => [id, { ...skill(id, name, rarity), variantSkillIds: variants }]),
     );
-    const famInput = (wishId: string, innate: string[]) =>
+    const famInput = (wishId: string, over: Partial<CoverageInput>) =>
       baseInput({ wishlistSkillIds: [wishId], skillById: famById, greenMap: new Map(),
-        planUma: { umaId: '100301', nameEn: 'Trainee', innateSkills: innate } });
+        planUma: { umaId: '100301', nameEn: 'Trainee', innateSkills: [] }, ...over });
 
-    it('innate ○ covers a wishlisted ◎ (same white skill, higher grade)', () => {
-      const res = buildCoverageMatrix(famInput('500011', ['500012']));
+    // Innate
+    it('innate ○ covers a wishlisted ◎ (same white skill)', () => {
+      const res = buildCoverageMatrix(famInput('500011', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500012'] } }));
+      expect(res.rows[0]!.cells.innate.length).toBe(1);
+    });
+    it('innate ◎ covers a wishlisted ○ (symmetry)', () => {
+      const res = buildCoverageMatrix(famInput('500012', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500011'] } }));
       expect(res.rows[0]!.cells.innate.length).toBe(1);
     });
     it('innate ○ does NOT cover the wishlisted gold Demon', () => {
-      const res = buildCoverageMatrix(famInput('500014', ['500012']));
+      const res = buildCoverageMatrix(famInput('500014', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500012'] } }));
       expect(res.rows[0]!.cells.innate.length).toBe(0);
     });
-    it('innate gold Demon covers a wishlisted white ◎ (higher tier covers lower)', () => {
-      const res = buildCoverageMatrix(famInput('500011', ['500014']));
-      expect(res.rows[0]!.cells.innate.length).toBe(1);
+    it('innate gold Demon does NOT cover a wishlisted white ◎ (gold is separate)', () => {
+      const res = buildCoverageMatrix(famInput('500011', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500014'] } }));
+      expect(res.rows[0]!.cells.innate.length).toBe(0);
+    });
+
+    // Parent spark — priced off the held ○, not the wishlisted ◎
+    it('a parent ○ white spark covers a wishlisted ◎ with a real inherit %', () => {
+      const p = parent('pa', '100101', { whiteSparks: [{ skillId: '500012', stars: 3 }] });
+      const res = buildCoverageMatrix(famInput('500011', { activeParents: [{ parent: p, isA: true }] }));
+      expect(res.rows[0]!.cells.parent.length).toBe(1);
+      expect(res.rows[0]!.cells.parent[0]!.pct).toBeGreaterThan(0);
+    });
+    it('a parent ○ white spark does NOT cover a wishlisted gold Demon', () => {
+      const p = parent('pa', '100101', { whiteSparks: [{ skillId: '500012', stars: 3 }] });
+      const res = buildCoverageMatrix(famInput('500014', { activeParents: [{ parent: p, isA: true }] }));
+      expect(res.rows[0]!.cells.parent.length).toBe(0);
+    });
+
+    // Deck card
+    it('a deck card that grants ○ covers a wishlisted ◎', () => {
+      const c = card('30001', 'Speedy', [{ skillId: '500012', sourceType: 'hint_pool' }]);
+      const res = buildCoverageMatrix(famInput('500011', { deckCards: [c], deckLbByCardId: new Map([['30001', 4]]) }));
+      expect(res.rows[0]!.cells.hint.length).toBe(1);
     });
   });
 

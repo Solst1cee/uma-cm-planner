@@ -55,56 +55,30 @@ function initials(name: string): string {
 
 const CROSS = '×'; // "×" negative-variant glyph (e.g. "Right-Handed ×")
 
-/**
- * Coverage tier within a variant family. ○ and ◎ are the same white skill at
- * different grades (○ upgrades to ◎), so both are tier 1; the gold version is a
- * strictly-higher tier 2; the "×" negative variant is tier 0. A source at tier T
- * covers a wishlist skill at tier ≤ T (so innate/spark "Right-Handed ○" covers
- * a wishlisted "Right-Handed ◎", but not the gold "Right-Handed Demon").
- */
-function coverageTier(s: SkillRecord): number {
-  if (s.rarity === 'gold') return 2;
-  if (s.nameEn.includes(CROSS)) return 0;
-  return 1;
+/** A white "positive-circle" variant (○ or ◎) — not the "×" and not the gold. */
+function isWhiteCircle(s: SkillRecord): boolean {
+  return s.rarity === 'white' && !s.nameEn.includes(CROSS);
 }
 
-/** Two skill ids belong to the same variant family (or are identical). */
-function sameFamily(aId: string, bId: string, skillById: Map<string, SkillRecord>): boolean {
+/**
+ * Are two skills interchangeable for coverage? ○ and ◎ are the same white skill
+ * at different grades, so they cover each other. The gold version (e.g.
+ * "Right-Handed Demon") and the "×" negative variant are SEPARATE — they match
+ * only their exact id. Identical ids always match.
+ */
+function coverageEquivalent(aId: string, bId: string, skillById: Map<string, SkillRecord>): boolean {
   if (aId === bId) return true;
   const a = skillById.get(aId);
   const b = skillById.get(bId);
   if (!a || !b) return false;
+  if (!isWhiteCircle(a) || !isWhiteCircle(b)) return false; // only ○/◎ collapse
   return (a.variantSkillIds ?? []).includes(bId) || (b.variantSkillIds ?? []).includes(aId);
 }
 
-/**
- * Does any `have` skill cover the `want` wishlist skill? True when a held skill
- * is in the same family AND at an equal-or-higher coverage tier. Falls back to
- * exact-id match for skills with no variant family.
- */
-function familyTierCovers(want: string, have: Iterable<string>, skillById: Map<string, SkillRecord>): boolean {
-  const wantRec = skillById.get(want);
-  const wantTier = wantRec ? coverageTier(wantRec) : 1;
-  for (const h of have) {
-    if (h === want) return true;
-    if (!sameFamily(h, want, skillById)) continue;
-    const hRec = skillById.get(h);
-    if (hRec && coverageTier(hRec) >= wantTier) return true;
-  }
-  return false;
-}
-
-/** A parent's own spark that grants `skillId` (white match, or green reconciled). */
-function parentGrantsSkill(p: Parent, skillId: string, greenMap: Map<string, string>): boolean {
-  if (p.whiteSparks.some((w) => w.skillId === skillId)) return true;
-  if (p.greenSpark && reconcileGreenSkillId(p.greenSpark.skillId, greenMap) === skillId) return true;
-  return false;
-}
-function refGrantsSkill(ref: NonNullable<Parent['grandparents']>[number], skillId: string, greenMap: Map<string, string>): boolean {
-  if (!ref) return false;
-  if (ref.whiteSparks?.some((w) => w.skillId === skillId)) return true;
-  if (ref.greenSpark && reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) === skillId) return true;
-  return false;
+/** The first `have` id that covers `want` (○/◎ family or exact), else null. */
+function coveringId(want: string, have: Iterable<string>, skillById: Map<string, SkillRecord>): string | null {
+  for (const h of have) if (coverageEquivalent(h, want, skillById)) return h;
+  return null;
 }
 
 export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
@@ -131,16 +105,19 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       innate: [], parent: [], gp: [], hint: [], chain: [], random: [],
     };
 
-    // Innate
-    if (familyTierCovers(skillId, innateSkills, skillById)) {
+    // Innate (○/◎ family-aware, gold separate)
+    if (coveringId(skillId, innateSkills, skillById)) {
       cells.innate.push({ kind: 'innate', label: initials(planUma?.nameEn ?? '?'), title: planUma?.nameEn ?? 'Innate' });
     }
 
-    // Parent + grandparent (FIX 1: isolated per-member pct)
+    // Parent + grandparent (isolated per-member pct, priced off the held spark)
     for (const { parent } of activeParents) {
-      if (parentGrantsSkill(parent, skillId, greenMap)) {
+      // The parent's own white spark that covers this wishlist skill (○/◎), if any.
+      const pWhiteCover = coveringId(skillId, parent.whiteSparks.map((w) => w.skillId), skillById);
+      const pGreenCovers = !!(parent.greenSpark && reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) === skillId);
+      if (pWhiteCover || pGreenCovers) {
         // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
-        // FIX A: reconcile greenSpark.skillId so sparkChance's green path (native→9xxxxx) can match.
+        // Reconcile greenSpark.skillId so sparkChance's green path (native→9xxxxx) can match.
         const parentSelf: Parent = {
           ...parent,
           greenSpark: parent.greenSpark
@@ -148,8 +125,10 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
             : undefined,
           grandparents: undefined,
         };
+        // Price the spark the parent actually holds (its ○), not the wishlisted ◎.
+        const priceSkillId = pWhiteCover ?? skillId;
         const parentPct = sparkChance({
-          parents: [parentSelf], skillId, rates: sparkRates,
+          parents: [parentSelf], skillId: priceSkillId, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct;
         cells.parent.push({
@@ -160,42 +139,42 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
         });
       }
       (parent.grandparents ?? []).forEach((ref, gpIndex) => {
-        if (refGrantsSkill(ref, skillId, greenMap)) {
-          // FIX B: sparkChance only prices gp WHITE sparks (green gp math deferred, mechanics-notes §10).
-          // Only attach pct when the gp match is via a white spark; green-only match → pct undefined
-          // (omitting it is honest — "unpriced" not "~0%").
-          const gpWhiteMatch = ref!.whiteSparks?.some((w) => w.skillId === skillId) ?? false;
-          let gpPct: number | undefined;
-          if (gpWhiteMatch) {
-            // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
-            const gpOnly: Parent = {
-              ...parent,
-              whiteSparks: [],
-              greenSpark: undefined,
-              grandparents: (gpIndex === 0
-                ? [ref, undefined]
-                : [undefined, ref]) as [ParentRef?, ParentRef?],
-            };
-            gpPct = Math.round(sparkChance({
-              parents: [gpOnly], skillId, rates: sparkRates,
-              opts: { memberAffinity, skillRarity: rarityLookup },
-            }).pct);
-          }
-          cells.gp.push({
-            kind: 'gp',
-            label: umaLabel(String(ref!.umaId), String(ref!.umaId)),
-            title: umaTitle(String(ref!.umaId), 'Grandparent'),
-            ...(gpPct !== undefined ? { pct: gpPct } : {}),
-          });
+        if (!ref) return;
+        const gpWhiteCover = coveringId(skillId, ref.whiteSparks?.map((w) => w.skillId) ?? [], skillById);
+        const gpGreenCovers = !!(ref.greenSpark && reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) === skillId);
+        if (!gpWhiteCover && !gpGreenCovers) return;
+        // sparkChance only prices gp WHITE sparks (green gp math deferred, mechanics-notes §10).
+        // Attach pct only for a white cover; green-only match → pct undefined (honest "unpriced").
+        let gpPct: number | undefined;
+        if (gpWhiteCover) {
+          // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
+          const gpOnly: Parent = {
+            ...parent,
+            whiteSparks: [],
+            greenSpark: undefined,
+            grandparents: (gpIndex === 0
+              ? [ref, undefined]
+              : [undefined, ref]) as [ParentRef?, ParentRef?],
+          };
+          gpPct = Math.round(sparkChance({
+            parents: [gpOnly], skillId: gpWhiteCover, rates: sparkRates,
+            opts: { memberAffinity, skillRarity: rarityLookup },
+          }).pct);
         }
+        cells.gp.push({
+          kind: 'gp',
+          label: umaLabel(String(ref.umaId), String(ref.umaId)),
+          title: umaTitle(String(ref.umaId), 'Grandparent'),
+          ...(gpPct !== undefined ? { pct: gpPct } : {}),
+        });
       });
     }
 
-    // Deck: hint / chain / random
+    // Deck: hint / chain / random (○/◎ family-aware, gold separate)
     for (const c of deckCards) {
       const lb = deckLbByCardId.get(c.cardId) ?? 4;
       for (const cs of c.skills) {
-        if (cs.skillId !== skillId) continue;
+        if (!coverageEquivalent(cs.skillId, skillId, skillById)) continue;
         if (cs.sourceType === 'hint_pool') {
           cells.hint.push({ kind: 'hint', label: initials(c.nameEn), title: c.nameEn, tier: tierForCardSkill(c, lb, 'hint_pool'), cardType: c.type, cardId: c.cardId });
         } else if (cs.sourceType === 'chain') {
@@ -222,10 +201,13 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   // Bonus: deck + inheritance skills not on the wishlist
   // FIX 2: no .slice(0, 4) — return ALL chips; capping is a UI concern.
   // FIX 3: include grandparent sparks in addition to parent sparks.
-  const wishSet = new Set(wishlistSkillIds);
+  // A source skill is a "bonus" only if it doesn't cover ANY wishlist skill
+  // (○/◎ family-aware — a parent's ○ that fulfils a wishlisted ◎ isn't a bonus).
+  const coversAnyWishlist = (id: string) =>
+    wishlistSkillIds.some((w) => coverageEquivalent(id, w, skillById));
   const bonusMap = new Map<string, CoverageChip[]>();
   const addBonus = (id: string, chip: CoverageChip) => {
-    if (wishSet.has(id)) return;
+    if (coversAnyWishlist(id)) return;
     const arr = bonusMap.get(id) ?? [];
     arr.push(chip);
     bonusMap.set(id, arr);
