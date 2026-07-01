@@ -67,6 +67,11 @@ describe('public/data/skills.json', () => {
     // internal id 3 does not exist; GT# numbering must never leak through
     expect(skills.every((s) => s.scenarioId !== 3)).toBe(true);
   });
+
+  it('has no duplicate skill ids', () => {
+    const ids = skills.map((s) => s.skillId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
 });
 
 describe('public/data/support_cards.json', () => {

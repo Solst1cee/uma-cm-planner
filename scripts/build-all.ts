@@ -140,7 +140,9 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   }
   const jpSkills = buildJpSkills({
     gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
-    masterSkillIds: releasedSkillIds,
+    // Dedup JP skills against every id already present (master + skill_additions),
+    // not just master, so a hand-added upcoming skill can't be emitted twice.
+    masterSkillIds: new Set(skills.map((s) => s.skillId)),
     cardDates,
     umaDates,
     dataVersion: DATA_VERSION,
