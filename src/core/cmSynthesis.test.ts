@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CmTrack, TimelineEntry } from '@/core/types';
+import type { CmTrack, JpCmDate, TimelineEntry } from '@/core/types';
 import { synthesizeUpcomingCms } from './cmSynthesis';
 
 const TRACKS: CmTrack[] = [
@@ -87,5 +87,39 @@ describe('synthesizeUpcomingCms', () => {
       source: { kind: 'manual', url: '' }, server: 'global', dataVersion: 'test',
     }];
     expect(synthesizeUpcomingCms(noAnchor, TRACKS, { dataVersion: 'test' })).toEqual([]);
+  });
+});
+
+describe('synthesizeUpcomingCms — foresight pace projection', () => {
+  const merged: TimelineEntry[] = [
+    { id: 'cm15', type: 'cm', title: 'Cancer Cup', dates: { finals: '2026-06-24' },
+      cm: { cmNumber: 15 }, tier: 'official', status: 'confirmed',
+      source: { kind: 'official_news', url: '' }, server: 'global', dataVersion: 'x' },
+    // a prior confirmed CM so there are >= 2 shared CMs to calibrate
+    { id: 'cm14', type: 'cm', title: 'Gemini Cup', dates: { finals: '2026-06-04' },
+      cm: { cmNumber: 14 }, tier: 'official', status: 'confirmed',
+      source: { kind: 'official_news', url: '' }, server: 'global', dataVersion: 'x' },
+  ];
+  const tracks: CmTrack[] = [
+    { index: 16, cupName: 'Leo Cup', racetrack: 'Hanshin', distance: 2200, distanceClass: 'medium', surface: 'turf' },
+  ];
+  const jpCms: JpCmDate[] = [
+    { cmNumber: 14, cupName: 'Gemini Cup', jpDate: '2022-06-14' },
+    { cmNumber: 15, cupName: 'Cancer Cup', jpDate: '2022-07-14' },
+    { cmNumber: 16, cupName: 'Leo Cup', jpDate: '2022-08-13' },
+  ];
+
+  it('dates a predicted CM by pace projection when jpCms is supplied', () => {
+    const out = synthesizeUpcomingCms(merged, tracks, { dataVersion: 'x', horizon: 1, jpCms });
+    expect(out).toHaveLength(1);
+    expect(out[0]!.cm?.cmNumber).toBe(16);
+    // CM14->15 pace = 30d/20d = 1.5; CM16 JP +30d / 1.5 = 20d after 2026-06-24 = 2026-07-14
+    expect(out[0]!.dates.finals).toBe('2026-07-14');
+    expect(out[0]!.tier).toBe('prediction');
+  });
+
+  it('falls back to +1-month cadence when jpCms is absent (no regression)', () => {
+    const out = synthesizeUpcomingCms(merged, tracks, { dataVersion: 'x', horizon: 1 });
+    expect(out[0]!.dates.finals).toBe('2026-07-24'); // addMonths(2026-06-24, 1)
   });
 });

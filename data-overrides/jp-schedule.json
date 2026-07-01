@@ -1,0 +1,16 @@
+{
+  "_comment": "Hand-curated JP schedule (public-fact dates). Global CM N mirrors JP CM N. jpDate = JP start date. Seeded from Moomoolator jp-champions-meetings.json (cross-check GameTora). Add rows when JP announces new CMs. banners/scenarios: schema ready, seeded when consumed (foresight slice #2/#3).",
+  "cms": [
+    { "cmNumber": 10, "cupName": "Aquarius Cup", "jpDate": "2022-02-18" },
+    { "cmNumber": 11, "cupName": "Pisces Cup", "jpDate": "2022-03-22" },
+    { "cmNumber": 12, "cupName": "Aries Cup", "jpDate": "2022-04-22" },
+    { "cmNumber": 13, "cupName": "Taurus Cup", "jpDate": "2022-05-24" },
+    { "cmNumber": 14, "cupName": "Gemini Cup", "jpDate": "2022-06-14" },
+    { "cmNumber": 15, "cupName": "Cancer Cup", "jpDate": "2022-07-14" },
+    { "cmNumber": 16, "cupName": "Leo Cup", "jpDate": "2022-08-13" },
+    { "cmNumber": 17, "cupName": "Virgo Cup", "jpDate": "2022-09-15" },
+    { "cmNumber": 18, "cupName": "Libra Cup", "jpDate": "2022-10-14" }
+  ],
+  "banners": [],
+  "scenarios": []
+}
