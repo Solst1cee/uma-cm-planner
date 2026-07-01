@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.css">
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/styles.css">
+<script>
+/* Load the DS bundle only once the runtime's React is on window, so the bundle's
+   jsx shim never reads an undefined window.React (avoids a transient load-race error).
+   Single React instance — we do NOT load our own copy. */
+(function(){
+  var SRC="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.js";
+  function inject(){ var s=document.createElement("script"); s.src=SRC; document.head.appendChild(s); }
+  (function wait(){ if(window.React&&window.ReactDOM){ inject(); } else { setTimeout(wait,25); } })();
+})();
+</script>
+</helmet>
+
+<div style="max-width:560px;margin:0 auto;padding:16px 16px 56px;display:flex;flex-direction:column;gap:12px;">
+
+  <!-- header -->
+  <div style="display:flex;flex-direction:column;gap:3px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:8px;height:20px;border-radius:3px;background:var(--tier-spark,#e0a94a);flex:none;"></span>
+      <h1 style="font-size:19px;font-weight:800;margin:0;">Filter by spark</h1>
+    </div>
+    <p class="muted small" style="margin:0 0 0 16px;">Match a parent by the sparks across its 3-member lineage.</p>
+  </div>
+
+  <!-- summary bar -->
+  <div class="panel" style="position:sticky;top:8px;z-index:5;display:flex;flex-direction:column;gap:9px;padding:12px 13px;box-shadow:0 4px 14px -8px rgba(20,25,40,.28);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1;">{{ matchCount }}</span>
+      <div style="display:flex;flex-direction:column;line-height:1.15;">
+        <span style="font-weight:700;font-size:13px;">parents match</span>
+        <span class="muted small">of {{ total }} in your box</span>
+      </div>
+      <sc-if value="{{ hasAny }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ resetAll }}" style="margin-left:auto;cursor:pointer;font-size:12px;font-weight:700;color:var(--fg-muted);background:var(--bg-2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;">Reset all</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ hasAny }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <sc-for list="{{ chips }}" as="ch" hint-placeholder-count="2">
+          <span style="{{ ch.style }}">
+            <span style="{{ ch.nameStyle }}">{{ ch.name }}</span>
+            {{ ch.reqEl }}
+            <button onClick="{{ ch.remove }}" aria-label="remove" style="all:unset;cursor:pointer;opacity:.6;font-size:12px;line-height:1;">✕</button>
+          </span>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- category cards -->
+  <sc-for list="{{ cats }}" as="cat" hint-placeholder-count="3">
+    <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg-1,#fff);">
+      <div style="{{ cat.headStyle }}">
+        <div style="display:flex;flex-direction:column;line-height:1.1;">
+          <span style="font-size:13px;font-weight:800;letter-spacing:.04em;">{{ cat.title }}</span>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;gap:4px;">
+            <sc-for list="{{ cat.pips }}" as="p" hint-placeholder-count="3"><span style="{{ p.style }}"></span></sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:11px 13px;display:flex;flex-direction:column;gap:11px;">
+        <!-- active factors -->
+        <sc-if value="{{ cat.hasActive }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:11px;">
+            <sc-for list="{{ cat.activeItems }}" as="it" hint-placeholder-count="1">
+              <div style="{{ it.rowStyle }}">
+                <sc-if value="{{ it.notGreen }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <span style="{{ it.nameStyle }}">{{ it.name }}</span>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                      <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="width:44px;font-size:9px;font-weight:800;letter-spacing:.05em;color:#b8860b;">Parent</span>
+                        {{ it.legacyMeter }}
+                      </div>
+                      <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="width:44px;font-size:9px;font-weight:800;letter-spacing:.05em;color:#7c8aa0;">Total</span>
+                        {{ it.totalMeter }}
+                      </div>
+                    </div>
+                    <button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:14px;line-height:1;margin-left:auto;">✕</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.isGreen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:11px;">
+                    <span style="width:38px;height:38px;border-radius:50%;flex:none;background:var(--bg-2);border:1px solid var(--border);display:inline-flex;align-items:flex-end;justify-content:center;overflow:hidden;"><span style="width:18px;height:18px;border-radius:50% 50% 45% 45%;background:color-mix(in srgb,#16a34a 40%,var(--fg-muted));margin-bottom:-2px;"></span></span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="{{ it.nameStyleFull }}">{{ it.name }}</span>
+                        <button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:14px;line-height:1;margin-left:auto;">✕</button>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:7px;">
+                          <span style="font-size:9px;font-weight:800;letter-spacing:.05em;color:#b8860b;">Parent</span>
+                          {{ it.legacyMeter }}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:7px;">
+                          <span style="font-size:9px;font-weight:800;letter-spacing:.05em;color:#7c8aa0;">Total</span>
+                          {{ it.totalMeter }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- add -->
+        <sc-if value="{{ cat.showGreenPicker }}" hint-placeholder-val="{{ false }}">
+          <x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="" placeholder="Search unique skill…" items="{{ cat.greenItems }}" on-pick="{{ cat.onPickGreen }}" hint-size="100%,auto"></x-import>
+        </sc-if>
+        <sc-if value="{{ cat.showChips }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ cat.chipItems }}" as="it" hint-placeholder-count="5">
+              <button onClick="{{ it.activate }}" style="{{ it.chipStyle }}">+ {{ it.name }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.MEMBERS=3; this.LCAP=3; this.TCAP=9;
+    this.NAMES={spd:'Speed',sta:'Stamina',pow:'Power',gut:'Guts',wit:'Wit',turf:'Turf',dirt:'Dirt',sprint:'Sprint',mile:'Mile',medium:'Medium',long:'Long',front:'Front',pace:'Pace',late:'Late',end:'End'};
+    this.UNIQUES=[['100151','This Dance Is for Vittoria!'],['100201','Shadow Break'],['100271','Beyond the Horizon'],['100341','Unrestrained'],['100411','El Número 1'],['100481','Blaze of Glory'],['100531','Crimson Dash'],['100557','Twin Turbo'],['100603','Sapphire Light'],['100641','Final Straight Fervor']];
+    this.UNAME={}; this.UNIQUES.forEach(u=>this.UNAME[u[0]]=u[1]);
+    this.CATS={
+      blue:{title:'STAT',sub:'core training stats',keys:['spd','sta','pow','gut','wit']},
+      pink:{title:'APTITUDE',sub:'surface · distance · style',keys:['turf','dirt','sprint','mile','medium','long','front','pace','late','end']},
+      green:{title:'UNIQUE',sub:'signature skill sparks',keys:[]}
+    };
+    this.TONE={blue:'#2563eb',pink:'#db2777',green:'#16a34a'};
+    this.roster=this.buildRoster();
+    this.state={ sparks:{} };
+  }
+
+  rng(seed){ return ()=>{ seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  buildRoster(){
+    const r=this.rng(98765), blue=this.CATS.blue.keys, pink=this.CATS.pink.keys, greens=this.UNIQUES.map(u=>u[0]);
+    const addCat=(cat,pool,legacy,total)=>{
+      const n=[0,1,1,2,2,3][Math.floor(r()*6)]; const pc=pool.slice(), chosen=[];
+      for(let j=0;j<n&&pc.length;j++) chosen.push(pc.splice(Math.floor(r()*pc.length),1)[0]);
+      let budget=9;
+      chosen.forEach((k,idx)=>{ const maxv=Math.max(1,Math.min(6,budget-(chosen.length-1-idx))); const t=1+Math.floor(r()*maxv); total[cat+':'+k]=t; budget-=t; });
+      if(chosen.length){ const lk=chosen[Math.floor(r()*chosen.length)]; legacy[cat+':'+lk]=1+Math.floor(r()*Math.min(3,total[cat+':'+lk])); }
+    };
+    const vets=[];
+    for(let i=0;i<60;i++){ const legacy={},total={}; addCat('blue',blue,legacy,total); addCat('pink',pink,legacy,total);
+      if(r()<0.4){ const g=greens[Math.floor(r()*greens.length)]; total['green:'+g]=1+Math.floor(r()*3); if(r()<0.5) legacy['green:'+g]=1; }
+      vets.push({legacy,total}); }
+    return vets;
+  }
+
+  cur(cat,key){ return this.state.sparks[cat+':'+key]||{legacy:0,total:0}; }
+  // Rule: at most 3 sparks per colour (one per lineage member). Each spark's own/lineage thresholds are independent.
+  // Green (unique) sparks cap the lineage total at 3.
+  maxTotal(cat,key){ return cat==='green'?this.LCAP:this.TCAP; }
+  legacyLocked(cat,key){ return false; }
+  membersUsed(cat){ const sp=this.state.sparks; let n=0; for(const id in sp){ if(id.split(':')[0]===cat) n++; } return n; }
+  atSparkCap(cat,key){ return this.membersUsed(cat)>=this.MEMBERS && !(cat+':'+key in this.state.sparks); }
+
+  set(cat,key,legacy,total){
+    this.setState(s=>{ const sp={...s.sparks}, id=cat+':'+key;
+      if(legacy>0){ for(const oid in sp){ const [c]=oid.split(':'); if(c===cat&&oid!==id) sp[oid]={...sp[oid],legacy:0}; } }
+      if(legacy<=0&&total<=0) delete sp[id]; else sp[id]={legacy,total};
+      return {sparks:sp}; });
+  }
+  applyLegacy(cat,key,target){ const v=this.cur(cat,key); const cap=this.maxTotal(cat,key); const lm=this.legacyLocked(cat,key)?0:Math.min(this.LCAP,cap); const nl=Math.max(0,Math.min(lm,target)); this.set(cat,key,nl,Math.max(v.total,nl)); }
+  clickLegacy(cat,key,n){ const v=this.cur(cat,key); this.applyLegacy(cat,key, n===v.legacy?n-1:n); }
+  applyTotal(cat,key,target){ const v=this.cur(cat,key); const cap=this.maxTotal(cat,key); const nt=Math.max(v.legacy,Math.min(cap,target)); this.set(cat,key,v.legacy,nt); }
+  clickTotal(cat,key,n){ const v=this.cur(cat,key); this.applyTotal(cat,key, n===v.total?n-1:n); }
+  resetAll(){ this.setState({sparks:{}}); }
+
+  matchCount(){ const cl=Object.entries(this.state.sparks); return this.roster.filter(v=>cl.every(([id,val])=>(v.legacy[id]||0)>=val.legacy&&(v.total[id]||0)>=val.total)).length; }
+
+  // legacy: 3 gold stars in a row
+  legacyMeter(cat,key,size){
+    size=size||20;
+    const v=this.cur(cat,key), cap=this.maxTotal(cat,key), locked=this.legacyLocked(cat,key), lim=locked?0:Math.min(this.LCAP,cap);
+    const cells=[];
+    for(let n=1;n<=this.LCAP;n++){ const filled=n<=v.legacy, dead=n>lim&&!filled;
+      cells.push(React.createElement('button',{key:n,onClick:dead?undefined:()=>this.clickLegacy(cat,key,n),disabled:dead,'aria-label':'own '+n,
+        style:{all:'unset',cursor:dead?'default':'pointer',fontSize:size+'px',lineHeight:1,color:filled?'#eab308':(dead?'#e6e9ef':'#c9d1dd'),marginRight:'2px',transition:'color .12s'}},filled?'★':'☆'));
+    }
+    return React.createElement('div',{style:{display:'inline-flex',alignItems:'center'}},cells);
+  }
+
+  // total: 3 member-slot boxes, each 3 stars; legacy portion gold
+  totalMeter(cat,key){
+    const v=this.cur(cat,key), cap=this.maxTotal(cat,key);
+    const fillC='color-mix(in srgb,'+this.TONE[cat]+' 60%,var(--fg))';
+    const boxes=[];
+    for(let m=0;m<this.MEMBERS;m++){
+      const stars=[]; const boxActive=v.total>m*this.LCAP; const boxAvail=cap>m*this.LCAP;
+      for(let s=1;s<=this.LCAP;s++){ const n=m*this.LCAP+s; const filled=n<=v.total, fromLeg=n<=v.legacy, dead=n>cap&&!filled;
+        stars.push(React.createElement('button',{key:n,onClick:dead?undefined:()=>this.clickTotal(cat,key,n),disabled:dead,'aria-label':'lineage '+n,
+          style:{all:'unset',cursor:dead?'default':'pointer',fontSize:'17px',lineHeight:1,color:fromLeg?'#eab308':(filled?fillC:(dead?'#eceef2':'#c9d1dd')),transition:'color .12s'}},filled?'★':'☆'));
+      }
+      boxes.push(React.createElement('div',{key:m,style:{display:'inline-flex',gap:'1px',padding:'3px 5px',borderRadius:'7px',
+        border:'1px '+(m===0?'dashed':'solid')+' '+(boxActive?'color-mix(in srgb,#8595ab 55%,var(--border))':'var(--border)'),
+        background:'transparent',
+        opacity:boxAvail?1:0.45,transition:'all .12s'}},stars));
+    }
+    return React.createElement('div',{style:{display:'inline-flex',gap:'5px',alignItems:'center'}},boxes);
+  }
+
+  // green total: a single row of up to 3 stars (cap 3)
+  totalMeterGreen(cat,key,size){
+    size=size||20;
+    const v=this.cur(cat,key), cap=Math.min(this.LCAP,this.maxTotal(cat,key));
+    const fillC='color-mix(in srgb,'+this.TONE[cat]+' 60%,var(--fg))';
+    const cells=[];
+    for(let n=1;n<=this.LCAP;n++){ const filled=n<=v.total, fromLeg=n<=v.legacy, dead=n>cap&&!filled;
+      cells.push(React.createElement('button',{key:n,onClick:dead?undefined:()=>this.clickTotal(cat,key,n),disabled:dead,'aria-label':'lineage '+n,
+        style:{all:'unset',cursor:dead?'default':'pointer',fontSize:size+'px',lineHeight:1,color:fromLeg?'#eab308':(filled?fillC:(dead?'#eceef2':'#c9d1dd')),marginRight:'2px',transition:'color .12s'}},filled?'★':'☆'));
+    }
+    return React.createElement('div',{style:{display:'inline-flex',alignItems:'center'}},cells);
+  }
+
+  buildItem(cat,key,green){
+    const v=this.cur(cat,key), active=v.legacy>0||v.total>0, tone=this.TONE[cat];
+    const canAdd=active||!this.atSparkCap(cat,key);
+    const nameC='color-mix(in srgb,'+tone+' 60%,var(--fg))';
+    return { id:cat+':'+key,key,cat,name:green?this.UNAME[key]:this.NAMES[key],active,canAdd,isGreen:!!green,notGreen:!green,
+      dotStyle:{width:'9px',height:'9px',borderRadius:'50%',background:tone,flex:'none'},
+      nameStyle:{fontSize:'15px',fontWeight:700,flex:'none',width:'70px',marginTop:'2px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',color:nameC},
+      nameStyleFull:{fontSize:'14px',fontWeight:700,flex:1,minWidth:0,lineHeight:1.2,color:nameC},
+      rowStyle:{display:'flex',flexDirection:'column',gap:'8px',padding:'10px 11px',borderRadius:'11px',border:'1px solid color-mix(in srgb,'+tone+' 30%,var(--border))',background:'color-mix(in srgb,'+tone+' 5%,#fff)'},
+      chipStyle: canAdd
+        ? {cursor:'pointer',fontSize:'12.5px',fontWeight:700,padding:'6px 11px',borderRadius:'999px',border:'1px dashed color-mix(in srgb,'+tone+' 45%,var(--border))',color:'color-mix(in srgb,'+tone+' 60%,var(--fg))',background:'#fff'}
+        : {cursor:'not-allowed',fontSize:'12.5px',fontWeight:700,padding:'6px 11px',borderRadius:'999px',border:'1px dashed var(--border)',color:'var(--fg-muted)',background:'var(--bg-2)',opacity:.5},
+      remove:()=>this.set(cat,key,0,0),
+      activate:()=>{ if(!active&&canAdd) this.set(cat,key,0,1); },
+      legacyMeter:green?this.legacyMeter(cat,key,15):this.legacyMeter(cat,key), totalMeter:green?this.totalMeterGreen(cat,key,15):this.totalMeter(cat,key) };
+  }
+
+  renderVals(){
+    const sp=this.state.sparks;
+    const cats=Object.keys(this.CATS).map(cat=>{
+      const meta=this.CATS[cat], tone=this.TONE[cat], isGreen=cat==='green';
+      let items;
+      if(isGreen){ const ids=Object.keys(sp).filter(id=>id.startsWith('green:')).map(id=>id.split(':')[1]); items=ids.map(k=>this.buildItem(cat,k,true)); }
+      else items=meta.keys.map(k=>this.buildItem(cat,k,false));
+      const activeItems=items.filter(i=>i.active), used=this.membersUsed(cat), full=used>=this.MEMBERS;
+      const pips=[0,1,2].map(i=>({style:{width:'16px',height:'8px',borderRadius:'3px',background:i<used?'#fff':'rgba(255,255,255,.32)',border:'1px solid rgba(255,255,255,.5)'}}));
+      return { cat, isGreen, title:meta.title, sub:meta.sub,
+        headStyle:{display:'flex',alignItems:'center',gap:'10px',padding:'9px 13px',color:'#fff',background:cat==='blue'?'linear-gradient(90deg,#3b82f6,#2563eb)':cat==='pink'?'linear-gradient(90deg,#ec4899,#db2777)':'linear-gradient(90deg,#22c55e,#16a34a)'},
+        pips, activeItems, hasActive:activeItems.length>0, full,
+        chipItems:items.filter(i=>!i.active), showChips: !isGreen, showGreenPicker: isGreen&&!full, showFullNote: full,
+        greenItems:this.UNIQUES.filter(u=>!Object.keys(sp).includes('green:'+u[0])).map(u=>({id:u[0],name:u[1]})),
+        onPickGreen:(gid)=>this.set('green',gid,0,1) };
+    });
+    const catOrder={blue:0,pink:1,green:2};
+    const rank=(id)=>{ const [c,k]=id.split(':'); const ki=c==='green'?this.UNIQUES.findIndex(u=>u[0]===k):this.CATS[c].keys.indexOf(k); return catOrder[c]*100+(ki<0?99:ki); };
+    const chips=Object.entries(sp).sort((a,b)=>rank(a[0])-rank(b[0])).map(([id,val])=>{ const [cat,key]=id.split(':'); const tone=this.TONE[cat];
+      const nm=cat==='green'?this.UNAME[key]:this.NAMES[key];
+      const gold='#eab308', silver='color-mix(in srgb,'+tone+' 60%,var(--fg))', parts=[];
+      if(val.legacy>0){ parts.push(React.createElement('span',{key:'l',style:{color:gold,fontWeight:800}},val.legacy+'★')); if(val.total>val.legacy) parts.push(React.createElement('span',{key:'t',style:{color:silver,fontWeight:800}},val.total+'★')); }
+      else parts.push(React.createElement('span',{key:'t',style:{color:silver,fontWeight:800}},val.total+'★'));
+      const reqEl=React.createElement('span',{style:{display:'inline-flex',gap:'5px',fontVariantNumeric:'tabular-nums'}},parts);
+      return { id, name:nm, reqEl, nameStyle:{fontWeight:700,color:'color-mix(in srgb,'+tone+' 60%,var(--fg))'}, remove:()=>this.set(cat,key,0,0),
+        dotStyle:{width:'8px',height:'8px',borderRadius:'50%',background:tone,flex:'none'},
+        style:{display:'inline-flex',alignItems:'center',gap:'6px',padding:'4px 9px',borderRadius:'999px',fontSize:'12px',border:'1px solid color-mix(in srgb,'+tone+' 35%,var(--border))',background:'color-mix(in srgb,'+tone+' 8%,#fff)'} };
+    });
+    const n=Object.keys(sp).length;
+    return { cats, chips, matchCount:this.matchCount(), total:this.roster.length, hasAny:n>0, empty:n===0, resetAll:()=>this.resetAll() };
+  }
+}
+</script>
+</body>
+</html>

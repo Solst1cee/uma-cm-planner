@@ -105,4 +105,33 @@ describe('rankUmaChart', () => {
     );
     expect(seen).toEqual(['A', 'B']);
   });
+
+  it('passes the unique level onto the reference build skillLevels', async () => {
+    const seen: SimBuild[] = [];
+    const deps = {
+      nsamples: 1,
+      uniqueLevel: 4,
+      skillDelta: async (build: SimBuild) => {
+        seen.push(build);
+        return { mean: 1, median: 1, min: 1, max: 1, nsamples: 1, results: [1], activated: true };
+      },
+    };
+    const race = { courseId: '10906', ground: 1, weather: 1, season: 1, time: 2, grade: 100 };
+    await rankUmaChart([{ outfitId: '100101', uniqueSkillId: '100011' }], race, deps);
+    expect(seen.every((b) => b.skillLevels?.['100011'] === 4)).toBe(true);
+  });
+
+  it('defaults unique level to 5 when uniqueLevel is not provided', async () => {
+    const seen: SimBuild[] = [];
+    const deps = {
+      nsamples: 1,
+      skillDelta: async (build: SimBuild) => {
+        seen.push(build);
+        return { mean: 1, median: 1, min: 1, max: 1, nsamples: 1, results: [1], activated: true };
+      },
+    };
+    const race = { courseId: '10906' };
+    await rankUmaChart([{ outfitId: '100101', uniqueSkillId: '100011' }], race, deps);
+    expect(seen.every((b) => b.skillLevels?.['100011'] === 5)).toBe(true);
+  });
 });

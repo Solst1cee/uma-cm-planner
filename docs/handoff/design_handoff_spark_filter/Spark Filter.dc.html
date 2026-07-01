@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.css">
+<link rel="stylesheet" href="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/styles.css">
+<script>
+(function(){
+  var SRC="_ds/uma-cm-planner-ui-96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f/_ds_bundle.js";
+  function inject(){ var s=document.createElement("script"); s.src=SRC; document.head.appendChild(s); }
+  (function wait(){ if(window.React&&window.ReactDOM){ inject(); } else { setTimeout(wait,25); } })();
+})();
+</script>
+<style>
+  body { overflow-x: hidden; }
+  .so input[type=range]{ height: 16px; }
+</style>
+</helmet>
+
+<header style="max-width:1520px;margin:0 auto;padding:18px 18px 2px;">
+  <h1 style="font-size:20px;margin:0 0 3px;">Spark filter — three directions</h1>
+  <p class="muted" style="margin:0 0 10px;max-width:60rem;font-size:13px;">Find an inheritance parent by the sparks in its 3-member lineage. Each direction explores a different control, layout, and way of showing the lineage-budget rules. All three enforce the same constraints and update a live match count — try setting a filter in each.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:12px;" class="muted">
+    <span style="display:inline-flex;align-items:center;gap:5px;"><span style="color:#eab308;font-size:15px;">★</span><b style="color:var(--fg);">Legacy</b> — the veteran's own spark (≤3★)</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;"><span style="color:#94a3b8;font-size:15px;">★</span><b style="color:var(--fg);">Total</b> — summed across the 3-member lineage (≤9★)</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;">Every <b style="color:var(--fg);">3 total stars</b> = 1 of 3 lineage members spent</span>
+  </div>
+</header>
+
+<section style="max-width:1520px;margin:0 auto;padding:12px 18px 64px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;">
+
+  <!-- ───────────────────────── 1A · Aptitude board ───────────────────────── -->
+  <div id="1a" class="so" style="flex:1 1 420px;min-width:320px;max-width:500px;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--fg);padding:3px 8px;border-radius:6px;">1A</span>
+      <span style="font-weight:800;font-size:15px;">Aptitude board</span>
+    </div>
+    <p class="small muted" style="margin:0;">Dense, game-style grid — every factor visible, tap stars inline.</p>
+    <div class="panel" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--border);padding-bottom:9px;">
+        <span style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1;">{{ a.matchCount }}</span>
+        <span class="muted small">of {{ a.total }} parents match</span>
+      </div>
+
+      <!-- BLUE -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:8px;background:linear-gradient(90deg,#3b82f6,#2563eb);color:#fff;">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.05em;">BLUE · STAT</span>
+        <span style="font-size:11px;font-weight:700;opacity:.92;">{{ a.blue.budget.text }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:7px;">
+        <sc-for list="{{ a.blue.flat }}" as="it" hint-placeholder-count="5">
+          <div style="{{ it.cardStyle }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+              <span style="font-size:13px;font-weight:700;">{{ it.name }}</span>
+              <sc-if value="{{ it.active }}" hint-placeholder-val="{{ false }}"><button onClick="{{ it.remove }}" aria-label="clear" style="all:unset;cursor:pointer;color:var(--error);font-size:12px;line-height:1;">✕</button></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;letter-spacing:.03em;color:#a9842a;width:28px;">OWN</span>{{ it.legacyMeter }}</div>
+            <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;letter-spacing:.03em;color:#7c8aa0;width:28px;">LINE</span>{{ it.totalMeter }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- PINK -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:8px;background:linear-gradient(90deg,#ec4899,#db2777);color:#fff;">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.05em;">PINK · APTITUDE</span>
+        <span style="font-size:11px;font-weight:700;opacity:.92;">{{ a.pink.budget.text }}</span>
+      </div>
+      <sc-for list="{{ a.pink.subs }}" as="sub" hint-placeholder-count="3">
+        <div>
+          <div class="small muted" style="font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin:0 0 4px;">{{ sub.label }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:7px;">
+            <sc-for list="{{ sub.items }}" as="it" hint-placeholder-count="4">
+              <div style="{{ it.cardStyle }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                  <span style="font-size:13px;font-weight:700;">{{ it.name }}</span>
+                  <sc-if value="{{ it.active }}" hint-placeholder-val="{{ false }}"><button onClick="{{ it.remove }}" aria-label="clear" style="all:unset;cursor:pointer;color:var(--error);font-size:12px;line-height:1;">✕</button></sc-if>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;letter-spacing:.03em;color:#a9842a;width:28px;">OWN</span>{{ it.legacyMeter }}</div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;letter-spacing:.03em;color:#7c8aa0;width:28px;">LINE</span>{{ it.totalMeter }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+
+      <!-- GREEN -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:8px;background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff;">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.05em;">GREEN · UNIQUE</span>
+        <span style="font-size:11px;font-weight:700;opacity:.92;">{{ a.green.budget.text }}</span>
+      </div>
+      <x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="Search unique factor" placeholder="Search unique skill…" items="{{ a.green.greenItems }}" on-pick="{{ a.green.onPickGreen }}" hint-size="100%,auto"></x-import>
+      <sc-if value="{{ a.green.hasActive }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;">
+          <sc-for list="{{ a.green.activeItems }}" as="it" hint-placeholder-count="1">
+            <div style="{{ it.cardStyle }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                <span style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ it.name }}</span>
+                <button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:12px;line-height:1;">✕</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;color:#a9842a;width:28px;">OWN</span>{{ it.legacyMeter }}</div>
+              <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;font-weight:800;color:#7c8aa0;width:28px;">LINE</span>{{ it.totalMeter }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── 1B · Sliders ───────────────────────── -->
+  <div id="1b" class="so" style="flex:1 1 420px;min-width:320px;max-width:500px;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--fg);padding:3px 8px;border-radius:6px;">1B</span>
+      <span style="font-weight:800;font-size:15px;">Threshold sliders</span>
+    </div>
+    <p class="small muted" style="margin:0;">Add only what you need — drag two sliders, watch the member budget fill.</p>
+    <div class="panel" style="display:flex;flex-direction:column;gap:11px;">
+      <div style="display:flex;align-items:baseline;gap:8px;">
+        <span style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1;">{{ b.matchCount }}</span>
+        <span class="muted small">of {{ b.total }} parents match</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:9px 0;">
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:46px;font-size:10px;font-weight:800;color:#2563eb;">BLUE</span><div style="flex:1;height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden;"><div style="{{ b.blue.budget.barStyle }}"></div></div><span class="small muted" style="width:78px;text-align:right;">{{ b.blue.budget.text }}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:46px;font-size:10px;font-weight:800;color:#db2777;">PINK</span><div style="flex:1;height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden;"><div style="{{ b.pink.budget.barStyle }}"></div></div><span class="small muted" style="width:78px;text-align:right;">{{ b.pink.budget.text }}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="width:46px;font-size:10px;font-weight:800;color:#16a34a;">GREEN</span><div style="flex:1;height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden;"><div style="{{ b.green.budget.barStyle }}"></div></div><span class="small muted" style="width:78px;text-align:right;">{{ b.green.budget.text }}</span></div>
+      </div>
+
+      <sc-if value="{{ b.empty }}" hint-placeholder-val="{{ false }}">
+        <p class="muted small" style="margin:2px 0;text-align:center;padding:8px;border:1px dashed var(--border);border-radius:8px;">No filters yet — add a factor below.</p>
+      </sc-if>
+      <sc-if value="{{ b.hasActive }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <sc-for list="{{ b.active }}" as="it" hint-placeholder-count="2">
+            <div style="{{ it.rowStyle }}">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <span style="{{ it.dotStyle }}"></span>
+                <span style="font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ it.name }}</span>
+                <button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:13px;">✕</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;">
+                <span style="width:38px;font-size:10px;font-weight:800;color:#a9842a;">OWN</span>
+                <input type="range" min="0" max="{{ it.legacySliderMax }}" step="1" value="{{ it.legacy }}" onChange="{{ it.onLegacyInput }}" style="flex:1;accent-color:#eab308;min-width:0;">
+                <span style="width:34px;text-align:right;font-weight:800;color:#a9842a;font-variant-numeric:tabular-nums;">★{{ it.legacy }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;">
+                <span style="width:38px;font-size:10px;font-weight:800;color:#7c8aa0;">LINE</span>
+                <input type="range" min="0" max="{{ it.cap }}" step="1" value="{{ it.total }}" onChange="{{ it.onTotalInput }}" style="flex:1;accent-color:#94a3b8;min-width:0;">
+                <span style="width:34px;text-align:right;font-weight:800;color:#7c8aa0;font-variant-numeric:tabular-nums;">★{{ it.total }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div class="small muted" style="font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">Add a factor</div>
+      <sc-for list="{{ b.addGroups }}" as="grp" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <span class="small muted">{{ grp.label }}</span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ grp.chipItems }}" as="it" hint-placeholder-count="5">
+              <button onClick="{{ it.activate }}" style="{{ it.chipStyle }}">+ {{ it.name }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <span class="small muted">Green · unique</span>
+        <x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="" placeholder="Search unique skill…" items="{{ b.green.greenItems }}" on-pick="{{ b.green.onPickGreen }}" hint-size="100%,auto"></x-import>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── 1C · Stars ───────────────────────── -->
+  <div id="1c" class="so" style="flex:1 1 420px;min-width:320px;max-width:500px;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--fg);padding:3px 8px;border-radius:6px;">1C</span>
+      <span style="font-weight:800;font-size:15px;">Star tracks</span>
+    </div>
+    <p class="small muted" style="margin:0;">Big, glanceable stars grouped by category — gold legacy over a 3×3 lineage track.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="panel" style="display:flex;align-items:baseline;gap:8px;padding:11px 13px;">
+        <span style="font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1;">{{ c.matchCount }}</span>
+        <span class="muted small">of {{ c.total }} parents match</span>
+      </div>
+
+      <!-- BLUE card -->
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#3b82f6,#2563eb);color:#fff;"><span style="font-size:12px;font-weight:800;letter-spacing:.05em;">BLUE · STAT</span><span style="font-size:11px;font-weight:700;opacity:.92;">{{ c.blue.budget.text }}</span></div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:9px;">
+          <sc-if value="{{ c.blue.hasActive }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ c.blue.activeItems }}" as="it" hint-placeholder-count="1">
+              <div style="{{ it.rowStyle }}">
+                <div style="display:flex;align-items:center;gap:7px;"><span style="{{ it.dotStyle }}"></span><span style="font-size:14px;font-weight:700;flex:1;">{{ it.name }}</span><button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:13px;">✕</button></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#a9842a;">LEGACY</span>{{ it.legacyMeter }}</div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#7c8aa0;">TOTAL</span>{{ it.totalMeter }}</div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ c.blue.chipItems }}" as="it" hint-placeholder-count="5"><button onClick="{{ it.activate }}" style="{{ it.chipStyle }}">+ {{ it.name }}</button></sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- PINK card -->
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#ec4899,#db2777);color:#fff;"><span style="font-size:12px;font-weight:800;letter-spacing:.05em;">PINK · APTITUDE</span><span style="font-size:11px;font-weight:700;opacity:.92;">{{ c.pink.budget.text }}</span></div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:9px;">
+          <sc-if value="{{ c.pink.hasActive }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ c.pink.activeItems }}" as="it" hint-placeholder-count="1">
+              <div style="{{ it.rowStyle }}">
+                <div style="display:flex;align-items:center;gap:7px;"><span style="{{ it.dotStyle }}"></span><span style="font-size:14px;font-weight:700;flex:1;">{{ it.name }}</span><button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:13px;">✕</button></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#a9842a;">LEGACY</span>{{ it.legacyMeter }}</div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#7c8aa0;">TOTAL</span>{{ it.totalMeter }}</div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ c.pink.chipItems }}" as="it" hint-placeholder-count="10"><button onClick="{{ it.activate }}" style="{{ it.chipStyle }}">+ {{ it.name }}</button></sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- GREEN card -->
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff;"><span style="font-size:12px;font-weight:800;letter-spacing:.05em;">GREEN · UNIQUE</span><span style="font-size:11px;font-weight:700;opacity:.92;">{{ c.green.budget.text }}</span></div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:9px;">
+          <sc-if value="{{ c.green.hasActive }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ c.green.activeItems }}" as="it" hint-placeholder-count="1">
+              <div style="{{ it.rowStyle }}">
+                <div style="display:flex;align-items:center;gap:7px;"><span style="{{ it.dotStyle }}"></span><span style="font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ it.name }}</span><button onClick="{{ it.remove }}" aria-label="remove" style="all:unset;cursor:pointer;color:var(--error);font-size:13px;">✕</button></div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#a9842a;">LEGACY</span>{{ it.legacyMeter }}</div>
+                <div style="display:flex;align-items:center;gap:8px;"><span style="width:42px;font-size:10px;font-weight:800;color:#7c8aa0;">TOTAL</span>{{ it.totalMeter }}</div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <x-import component-from-global-scope="UmaCmPlanner.SearchPicker" label="" placeholder="Search unique skill…" items="{{ c.green.greenItems }}" on-pick="{{ c.green.onPickGreen }}" hint-size="100%,auto"></x-import>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.MEMBERS=3; this.LCAP=3; this.TCAP=9;
+    this.NAMES={spd:'Speed',sta:'Stamina',pow:'Power',gut:'Guts',wit:'Wit',turf:'Turf',dirt:'Dirt',sprint:'Sprint',mile:'Mile',medium:'Medium',long:'Long',front:'Front',pace:'Pace',late:'Late',end:'End'};
+    this.UNIQUES=[['100151','This Dance Is for Vittoria!'],['100201','Shadow Break'],['100271','Beyond the Horizon'],['100341','Unrestrained'],['100411','El Número 1'],['100481','Blaze of Glory'],['100531','Crimson Dash'],['100557','Twin Turbo'],['100603','Sapphire Light'],['100641','Final Straight Fervor']];
+    this.UNAME={}; this.UNIQUES.forEach(u=>this.UNAME[u[0]]=u[1]);
+    this.SUBS={
+      blue:[{label:'Stat',keys:['spd','sta','pow','gut','wit']}],
+      pink:[{label:'Surface',keys:['turf','dirt']},{label:'Distance',keys:['sprint','mile','medium','long']},{label:'Style',keys:['front','pace','late','end']}]
+    };
+    this.roster=this.buildRoster();
+    this.state={ a:{sparks:{}}, b:{sparks:{}}, c:{sparks:{}} };
+  }
+
+  rng(seed){ return ()=>{ seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+  buildRoster(){
+    const r=this.rng(98765);
+    const blue=['spd','sta','pow','gut','wit'];
+    const pink=['turf','dirt','sprint','mile','medium','long','front','pace','late','end'];
+    const greens=this.UNIQUES.map(u=>u[0]);
+    const addCat=(cat,pool,legacy,total)=>{
+      const n=[0,1,1,2,2,3][Math.floor(r()*6)];
+      const pc=pool.slice(); const chosen=[];
+      for(let j=0;j<n&&pc.length;j++) chosen.push(pc.splice(Math.floor(r()*pc.length),1)[0]);
+      let budget=9;
+      chosen.forEach((k,idx)=>{ const maxv=Math.max(1,Math.min(6,budget-(chosen.length-1-idx))); const t=1+Math.floor(r()*maxv); total[cat+':'+k]=t; budget-=t; });
+      if(chosen.length){ const lk=chosen[Math.floor(r()*chosen.length)]; legacy[cat+':'+lk]=1+Math.floor(r()*Math.min(3,total[cat+':'+lk])); }
+    };
+    const vets=[];
+    for(let i=0;i<60;i++){
+      const legacy={}, total={};
+      addCat('blue',blue,legacy,total);
+      addCat('pink',pink,legacy,total);
+      if(r()<0.4){ const g=greens[Math.floor(r()*greens.length)]; total['green:'+g]=1+Math.floor(r()*3); if(r()<0.5) legacy['green:'+g]=1; }
+      vets.push({legacy,total});
+    }
+    return vets;
+  }
+
+  cur(slice,cat,key){ return this.state[slice].sparks[cat+':'+key]||{legacy:0,total:0}; }
+  membersFor(t){ return Math.ceil(Math.max(0,t)/this.LCAP); }
+  maxTotal(sparks,cat,key){ let used=0; for(const id in sparks){ const [c,k]=id.split(':'); if(c===cat&&k!==key) used+=this.membersFor(sparks[id].total); } return Math.min(this.TCAP,Math.max(0,this.MEMBERS-used)*this.LCAP); }
+  legacyLocked(sparks,cat,key){ return Object.keys(sparks).some(id=>{ const [c,k]=id.split(':'); return c===cat&&k!==key&&sparks[id].legacy>0; }); }
+  membersUsed(sparks,cat){ let u=0; for(const id in sparks){ const [c]=id.split(':'); if(c===cat) u+=this.membersFor(sparks[id].total);} return u; }
+
+  set(slice,cat,key,legacy,total){
+    this.setState(s=>{
+      const sp={...s[slice].sparks}; const id=cat+':'+key;
+      if(legacy>0){ for(const oid in sp){ const [c]=oid.split(':'); if(c===cat&&oid!==id) sp[oid]={...sp[oid],legacy:0}; } }
+      if(legacy<=0&&total<=0) delete sp[id]; else sp[id]={legacy,total};
+      return {[slice]:{...s[slice],sparks:sp}};
+    });
+  }
+  applyLegacy(slice,cat,key,target){ const sp=this.state[slice].sparks; const v=this.cur(slice,cat,key); const cap=this.maxTotal(sp,cat,key); const lm=this.legacyLocked(sp,cat,key)?0:Math.min(this.LCAP,cap); const nl=Math.max(0,Math.min(lm,target)); this.set(slice,cat,key,nl,Math.max(v.total,nl)); }
+  clickLegacy(slice,cat,key,n){ const v=this.cur(slice,cat,key); this.applyLegacy(slice,cat,key, n===v.legacy?n-1:n); }
+  applyTotal(slice,cat,key,target){ const sp=this.state[slice].sparks; const v=this.cur(slice,cat,key); const cap=this.maxTotal(sp,cat,key); const nt=Math.max(v.legacy,Math.min(cap,target)); this.set(slice,cat,key,v.legacy,nt); }
+  clickTotal(slice,cat,key,n){ const v=this.cur(slice,cat,key); this.applyTotal(slice,cat,key, n===v.total?n-1:n); }
+
+  matchCount(sparks){ const cl=Object.entries(sparks); return this.roster.filter(v=>cl.every(([id,val])=>(v.legacy[id]||0)>=val.legacy&&(v.total[id]||0)>=val.total)).length; }
+
+  starMeter(slice,cat,key,role,opts){
+    const sp=this.state[slice].sparks;
+    const v=this.cur(slice,cat,key);
+    const cap=this.maxTotal(sp,cat,key);
+    const locked=this.legacyLocked(sp,cat,key);
+    const size=opts.size, gap=opts.gap||2;
+    const count= role==='legacy'? this.LCAP : this.TCAP;
+    const cells=[];
+    for(let n=1;n<=count;n++){
+      let filled,color,disabled=false,fromLeg=false;
+      if(role==='legacy'){
+        filled=n<=v.legacy;
+        disabled=locked||n>Math.min(this.LCAP,cap);
+        color=filled?'#eab308':(disabled?'#e7eaef':'#cfd6e0');
+      } else {
+        filled=n<=v.total; fromLeg=n<=v.legacy;
+        disabled=n>cap;
+        color=fromLeg?'#eab308':(filled?'#94a3b8':(disabled?'#edeff3':'#cfd6e0'));
+      }
+      const sep=(role!=='legacy'&&(n===3||n===6))?gap+7:gap;
+      const onClick=role==='legacy'?(()=>this.clickLegacy(slice,cat,key,n)):(()=>this.clickTotal(slice,cat,key,n));
+      const dead=disabled&&!filled;
+      cells.push(React.createElement('button',{ key:n, onClick:dead?undefined:onClick, disabled:dead, 'aria-label':role+' at least '+n,
+        style:{ all:'unset', cursor:dead?'default':'pointer', fontSize:size+'px', lineHeight:1, color, marginRight:sep+'px', padding:'2px 0', opacity:dead?0.6:1, transition:'color .12s' } }, filled?'★':'☆'));
+    }
+    return React.createElement('div',{style:{display:'inline-flex',alignItems:'center',flexWrap:'nowrap'}},cells);
+  }
+
+  buildItem(slice,mode,cat,key,name,green){
+    const sp=this.state[slice].sparks;
+    const v=this.cur(slice,cat,key);
+    const cap=this.maxTotal(sp,cat,key);
+    const locked=this.legacyLocked(sp,cat,key);
+    const legacyMax=locked?0:Math.min(this.LCAP,cap);
+    const active=v.legacy>0||v.total>0;
+    const tone=cat==='blue'?'#3b82f6':cat==='pink'?'#ec4899':'#22c55e';
+    const it={ id:cat+':'+key,key,cat,name,green:!!green,active,locked,legacy:v.legacy,total:v.total,cap,legacyMax,legacySliderMax:legacyMax,tone,
+      dotStyle:{width:'9px',height:'9px',borderRadius:'50%',background:tone,flex:'none'},
+      remove:()=>this.set(slice,cat,key,0,0),
+      activate:()=>{ if(!active) this.set(slice,cat,key,0,1); },
+      onLegacyInput:(e)=>this.applyLegacy(slice,cat,key,parseInt(e.target.value,10)||0),
+      onTotalInput:(e)=>this.applyTotal(slice,cat,key,parseInt(e.target.value,10)||0) };
+    if(mode==='tiles'){
+      it.cardStyle={display:'flex',flexDirection:'column',gap:'5px',padding:'7px 9px',borderRadius:'9px',border:'1px solid '+(active?'color-mix(in srgb,'+tone+' 50%, var(--border))':'var(--border)'),background:active?'color-mix(in srgb,'+tone+' 9%, #fff)':'var(--bg-2)',opacity:active?1:0.66,transition:'all .12s'};
+      it.legacyMeter=this.starMeter(slice,cat,key,'legacy',{size:13,gap:1});
+      it.totalMeter=this.starMeter(slice,cat,key,'total',{size:13,gap:1});
+    } else {
+      it.rowStyle={display:'flex',flexDirection:'column',gap:'7px',padding:'9px 11px',borderRadius:'10px',border:'1px solid color-mix(in srgb,'+tone+' 32%, var(--border))',background:'color-mix(in srgb,'+tone+' 6%, #fff)'};
+      it.chipStyle={cursor:'pointer',fontSize:'12px',fontWeight:700,padding:'5px 10px',borderRadius:'999px',border:'1px dashed color-mix(in srgb,'+tone+' 45%, var(--border))',color:'color-mix(in srgb,'+tone+' 62%, var(--fg))',background:'#fff'};
+      if(mode==='stars'){ it.legacyMeter=this.starMeter(slice,cat,key,'legacy',{size:21,gap:2}); it.totalMeter=this.starMeter(slice,cat,key,'total',{size:19,gap:2}); }
+    }
+    return it;
+  }
+
+  buildSlice(slice,mode){
+    const sparks=this.state[slice].sparks;
+    const tone={blue:'#3b82f6',pink:'#ec4899',green:'#22c55e'};
+    const mkItems=(cat,keys,green)=>keys.map(k=>this.buildItem(slice,mode,cat,k,green?this.UNAME[k]:this.NAMES[k],green));
+    const budget=(cat)=>{ const u=this.membersUsed(sparks,cat); const pct=Math.min(100,Math.round(u/this.MEMBERS*100)); return {used:u,total:this.MEMBERS,free:Math.max(0,this.MEMBERS-u),pct,text:u+' / '+this.MEMBERS+' members',barStyle:{height:'100%',width:pct+'%',background:tone[cat],borderRadius:'999px',transition:'width .15s'}}; };
+    const mkCat=(cat)=>{ const flat=mkItems(cat,this.SUBS[cat].flatMap(s=>s.keys)); const byKey={}; flat.forEach(i=>byKey[i.key]=i); const subs=this.SUBS[cat].map(s=>({label:s.label,items:s.keys.map(k=>byKey[k])})); const activeItems=flat.filter(i=>i.active); return {cat,tone:tone[cat],flat,subs,activeItems,chipItems:flat.filter(i=>!i.active),hasActive:activeItems.length>0,budget:budget(cat)}; };
+    const blue=mkCat('blue'), pink=mkCat('pink');
+    const greenIds=Object.keys(sparks).filter(id=>id.startsWith('green:')).map(id=>id.split(':')[1]);
+    const greenActive=mkItems('green',greenIds,true);
+    const green={cat:'green',tone:tone.green,activeItems:greenActive,hasActive:greenActive.length>0,budget:budget('green'),greenItems:this.UNIQUES.filter(u=>!greenIds.includes(u[0])).map(u=>({id:u[0],name:u[1]})),onPickGreen:(gid)=>this.set(slice,'green',gid,0,1)};
+    const active=blue.activeItems.concat(pink.activeItems,greenActive);
+    const addGroups=[{cat:'blue',tone:tone.blue,label:'Blue · stats',chipItems:blue.chipItems},{cat:'pink',tone:tone.pink,label:'Pink · aptitude',chipItems:pink.chipItems}];
+    return {blue,pink,green,active,addGroups,hasActive:active.length>0,empty:active.length===0,matchCount:this.matchCount(sparks),total:this.roster.length};
+  }
+
+  renderVals(){
+    return { a:this.buildSlice('a','tiles'), b:this.buildSlice('b','sliders'), c:this.buildSlice('c','stars') };
+  }
+}
+</script>
+</body>
+</html>

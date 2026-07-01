@@ -1,0 +1,205 @@
+diff --git a/src/lib/sunday-tools/common/runner.ts b/src/lib/sunday-tools/common/runner.ts
+index f13df4b..c534464 100644
+--- a/src/lib/sunday-tools/common/runner.ts
++++ b/src/lib/sunday-tools/common/runner.ts
+@@ -71,6 +71,8 @@ export type CreateRunner = {
+   aptitudes: RunnerAptitudes;
+   stats: StatLine;
+   skills: Array<string>;
++  /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
++  skillLevels?: Record<string, number>;
+   forcedPositions?: Record<string, number>;
+   injectedDebuffs?: Array<{ skillId: string; position: number }>;
+   forcedRushedRegions?: Array<{ start: number; end: number }>;
+@@ -104,6 +106,8 @@ export type RunnerProps = {
+   aptitudes: RunnerAptitudes;
+   stats: StatLine;
+   skillIds: Array<string>;
++  /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
++  skillLevels?: Record<string, number>;
+   forcedPositions?: Record<string, number>;
+   injectedDebuffs?: Array<{ skillId: string; position: number }>;
+   forcedRushedRegions?: Array<{ start: number; end: number }>;
+@@ -131,6 +135,8 @@ export class Runner {
+   public readonly _baseStats: Readonly<StatLine>;
+ 
+   public readonly skillIds: ReadonlyArray<string>;
++  /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
++  public readonly skillLevels?: Readonly<Record<string, number>>;
+   public readonly forcedPositions: Readonly<Record<string, number>>;
+   public readonly injectedDebuffs: ReadonlyArray<{ skillId: string; position: number }>;
+   public readonly forcedRushedRegions: ReadonlyArray<{ start: number; end: number }>;
+@@ -341,6 +347,7 @@ export class Runner {
+       props.aptitudes.strategy
+     );
+     this.skillIds = props.skillIds;
++    this.skillLevels = props.skillLevels;
+     this.forcedPositions = props.forcedPositions ?? {};
+     this.injectedDebuffs = props.injectedDebuffs ?? [];
+     this.forcedRushedRegions = props.forcedRushedRegions ?? [];
+@@ -1499,6 +1506,7 @@ export class Runner {
+       aptitudes: props.aptitudes,
+       stats: props.stats,
+       skillIds: props.skills,
++      skillLevels: props.skillLevels,
+       forcedPositions: props.forcedPositions,
+       injectedDebuffs: props.injectedDebuffs,
+       forcedRushedRegions: props.forcedRushedRegions,
+diff --git a/src/lib/sunday-tools/runner/runner.utils.ts b/src/lib/sunday-tools/runner/runner.utils.ts
+index 98eaf02..1c3ae36 100644
+--- a/src/lib/sunday-tools/runner/runner.utils.ts
++++ b/src/lib/sunday-tools/runner/runner.utils.ts
+@@ -6,6 +6,7 @@ import type { CourseData } from '../course/definitions';
+ import type { DefaultParser, SkillEvalRunner } from '../skills/parser/definitions';
+ import type { SkillAlternative, SkillEffect, SkillTrigger } from '../skills/skill.types';
+ import { skillsService } from '@/modules/data/services/SkillService';
++import { skillLevelCoef } from '../skills/skill-level-coef';
+ 
+ export type BuildSkillDataParams = {
+   runner: SkillEvalRunner;
+@@ -22,14 +23,18 @@ export type BuildSkillDataParams = {
+  *
+  * Note: we removed isTarget call as skill targeting will be direct inside of the RaceSimulator and Runner entities.
+  */
+-export function buildSkillEffects(skill: SkillAlternative) {
++export function buildSkillEffects(skill: SkillAlternative, level?: number) {
+   const effects: Array<SkillEffect> = [];
+ 
+   for (const effect of skill.effects) {
++    // Scale the value modifier by the per-skill level coefficient (Lv1/undefined => 1.0).
++    // The base modifier in the skill data is the Lv1 value, so this is a pure up-scale.
++    // Duration (baseDuration) is NOT scaled.
++    const coef = skillLevelCoef(effect.type, level);
+     effects.push({
+       type: effect.type as ISkillType,
+       baseDuration: skill.baseDuration / 10000,
+-      modifier: effect.modifier / 10000,
++      modifier: (effect.modifier * coef) / 10000,
+       target: effect.target,
+       valueUsage: effect.valueUsage,
+       valueLevelUsage: effect.valueLevelUsage
+@@ -76,6 +81,9 @@ export function buildSkillData(params: BuildSkillDataParams): Array<SkillTrigger
+ 
+   const extra = Object.assign({ skillId }, raceParams);
+ 
++  // Per-skill level (1–6) for effect-value scaling; absent => Lv1 (coef 1.0).
++  const level = runner.skillLevels?.[baseSkillId];
++
+   const alternatives = skill.alternatives;
+   const triggers: Array<SkillTrigger> = [];
+ 
+@@ -136,7 +144,7 @@ export function buildSkillData(params: BuildSkillDataParams): Array<SkillTrigger
+       continue;
+     }
+ 
+-    const effects = buildSkillEffects(skillAlternative);
++    const effects = buildSkillEffects(skillAlternative, level);
+ 
+     if (effects.length > 0 || ignoreNullEffects) {
+       const rarity = skill.rarity;
+@@ -162,7 +170,7 @@ export function buildSkillData(params: BuildSkillDataParams): Array<SkillTrigger
+   // however, for purposes of summer goldship unique (Adventure of 564), we still have to add something, since
+   // that could still cause them to activate. so just add the first alternative at a location after the course
+   // is over with a constantly false dynamic condition so that it never activates normally.
+-  const effects = buildSkillEffects(alternatives[0]);
++  const effects = buildSkillEffects(alternatives[0], level);
+ 
+   if (effects.length == 0 && !ignoreNullEffects) {
+     return [];
+diff --git a/src/lib/sunday-tools/skills/parser/definitions.ts b/src/lib/sunday-tools/skills/parser/definitions.ts
+index 74bba5f..75ab7af 100644
+--- a/src/lib/sunday-tools/skills/parser/definitions.ts
++++ b/src/lib/sunday-tools/skills/parser/definitions.ts
+@@ -15,6 +15,8 @@ export interface SkillEvalRunner {
+   baseStats: StatLine;
+   strategy: IStrategy;
+   mood: IMood;
++  /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
++  skillLevels?: Record<string, number>;
+ }
+ 
+ export type ApplyParams = {
+diff --git a/src/lib/sunday-tools/skills/skill-level-coef.ts b/src/lib/sunday-tools/skills/skill-level-coef.ts
+new file mode 100644
+index 0000000..984b6ff
+--- /dev/null
++++ b/src/lib/sunday-tools/skills/skill-level-coef.ts
+@@ -0,0 +1,53 @@
++// Generated from master.mdb `skill_level_value` (ability_type, level -> float_ability_value_coef).
++// Source query:
++//   SELECT ability_type, level, float_ability_value_coef
++//   FROM skill_level_value WHERE level<=6 ORDER BY ability_type, level;
++// Dumped 2026-06-29 against spikes/repos/umalator-global/db/master.mdb (Global master.mdb).
++// Coef is a per-mille-x10000 multiplier: the base modifier in skills.json is the Lv1 value
++// (verified: skill 100011 speed effect = type 27, modifier 3500 = type-27 Lv1), so the
++// effective modifier at level L is base * coef(type, L) / 10000.
++//
++// NOTE on types 501/502/503: their coef rows do NOT start at 10000 at Lv1 (they ramp up to
++// 10000 at the top level). They belong to a small set of non-character/scenario skills
++// (ids 1000011/1000012) that are out of scope for the unique-skill (Lv1-6) feature. The
++// skillLevelCoef() helper early-returns 1.0 for level<=1/undefined, so the no-level path is
++// always identical regardless of these rows; they are transcribed only for provenance.
++export const SKILL_LEVEL_COEF: Readonly<Record<number, Readonly<Record<number, number>>>> = {
++  1: { 1: 10000, 2: 10100, 3: 10200, 4: 10300, 5: 10400, 6: 10500 },
++  2: { 1: 10000, 2: 10100, 3: 10200, 4: 10300, 5: 10400, 6: 10500 },
++  3: { 1: 10000, 2: 10100, 3: 10200, 4: 10300, 5: 10400, 6: 10500 },
++  4: { 1: 10000, 2: 10100, 3: 10200, 4: 10300, 5: 10400, 6: 10500 },
++  5: { 1: 10000, 2: 10100, 3: 10200, 4: 10300, 5: 10400, 6: 10500 },
++  6: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  7: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  8: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  9: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  10: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  13: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  14: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  15: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  16: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  19: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  21: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  22: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  27: { 1: 10000, 2: 10100, 3: 10400, 4: 10700, 5: 11000, 6: 11300 },
++  28: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  29: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  30: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  31: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  35: { 1: 10000, 2: 10200, 3: 10400, 4: 10600, 5: 10800, 6: 11000 },
++  // Non-standard scaling (out-of-scope scenario skills) — see header note.
++  501: { 1: 1000, 2: 3000, 3: 5000, 4: 7000, 5: 10000 },
++  502: { 1: 1000, 2: 2000, 3: 3000 },
++  503: { 1: 5000, 2: 7500, 3: 10000 },
++};
++
++/** Multiplier for a given ability_type + level. Falls back to 1.0 (x10000) when unknown or Lv1. */
++export function skillLevelCoef(abilityType: number, level: number | undefined): number {
++  if (level === undefined || level <= 1) return 1;
++  const row = SKILL_LEVEL_COEF[abilityType];
++  if (!row) return 1;
++  const coef = row[level];
++  if (coef === undefined) return 1;
++  return coef / 10000;
++}
+diff --git a/src/modules/runners/components/runner-card/types.ts b/src/modules/runners/components/runner-card/types.ts
+index 9dee04b..34a98e6 100644
+--- a/src/modules/runners/components/runner-card/types.ts
++++ b/src/modules/runners/components/runner-card/types.ts
+@@ -36,6 +36,8 @@ export type IRunnerState = {
+   strategyAptitude: string;
+   mood: IMood;
+   skills: Array<string>;
++  /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
++  skillLevels?: Record<string, number>;
+   randomMobId?: number; // For placeholder image when no uma selected
+   linkedRunnerId?: string; // Link to saved runner in library
+ };
+diff --git a/src/modules/simulation/simulators/shared.ts b/src/modules/simulation/simulators/shared.ts
+index 36d73bf..4598bde 100644
+--- a/src/modules/simulation/simulators/shared.ts
++++ b/src/modules/simulation/simulators/shared.ts
+@@ -115,6 +115,7 @@ export function toCreateRunner(
+       wit: runner.wisdom
+     },
+     skills: sortedSkills,
++    skillLevels: runner.skillLevels,
+     forcedPositions,
+     injectedDebuffs: injectedDebuffs?.map(({ skillId, position }) => ({ skillId, position })),
+     forcedRushedRegions: scenarioOverrides?.forcedRushed ? [scenarioOverrides.forcedRushed] : undefined,

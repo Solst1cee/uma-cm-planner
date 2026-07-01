@@ -44,6 +44,15 @@ vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
     <div data-testid="plan-inventory" data-uma1={props.uma1PlanId} />
   ),
 }));
+// InheritanceCard (M1.4) deps: useRoster (Dexie), useAffinityIndex (fetch), GameIcon, UploadDataButton.
+vi.mock('./useRoster', () => ({
+  useRoster: () => ({ roster: [], importedAt: null, importFromFile: vi.fn() }),
+  ROSTER_IMPORTED_AT_KEY: 'umaExtractorImportedAt',
+  makeWhiteResolver: () => () => undefined,
+}));
+vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
+vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
+vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 
 import { InheritancePage } from './InheritancePage';
 
@@ -81,5 +90,12 @@ describe('InheritancePage', () => {
     expect(screen.queryByTestId('plan-inventory')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Choose plan from inventory' }));
     expect(screen.getByTestId('plan-inventory')).toHaveAttribute('data-uma1', 'p1');
+  });
+
+  it('renders the Inheritance card (M1.4) in the center column', async () => {
+    render(<InheritancePage deps={deps} />);
+    // After render, the M1.4 placeholder is gone and the card header shows.
+    expect(await screen.findByText('Inheritance')).toBeInTheDocument();
+    expect(screen.queryByText('M1.4')).not.toBeInTheDocument();
   });
 });

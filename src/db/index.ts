@@ -15,7 +15,7 @@ export {
 } from './api';
 export { exportBlob, importBlob, parseExportBlobV1, parsePlanFile } from './exportImport';
 export type { ExportBlobV1, ImportMode, ImportResult } from './exportImport';
-export { listParents, getParent, saveParent, deleteParent } from './parentsApi';
+export { listParents, getParent, saveParent, deleteParent, bulkUpsertParents } from './parentsApi';
 export type { ParentDraft } from './parentsApi';
 export { listCaptures, getCapture, saveCapture, deleteCapture } from './capturesApi';
 export type { CaptureDraft } from './capturesApi';

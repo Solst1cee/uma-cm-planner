@@ -364,4 +364,8 @@ describe('makeDefaultPlan', () => {
     });
     expect(plan.wishlist).toEqual([]);
   });
+
+  it('defaults uniqueSkillLevel to 5', () => {
+    expect(makeDefaultPlan().uniqueSkillLevel).toBe(5);
+  });
 });

@@ -25,6 +25,7 @@ import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
+import { InheritanceCard } from './InheritanceCard';
 import { umaPlanAptChips } from './umaPlanApt';
 import {
   addBlueSpark,
@@ -349,7 +350,8 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
 
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
   const portrait = uma ? (
-    <GameIcon kind="uma" id={uma.umaId} size={64} alt="" />
+    // 0.9-aspect box (uma icons are 230×256) so the portrait isn't letterboxed.
+    <GameIcon kind="uma" id={uma.umaId} height={64} width={Math.round(64 * 230 / 256)} alt="" />
   ) : (
     <span className="cmp-portrait-ph inh-uma-portrait-ph">uma</span>
   );
@@ -463,7 +465,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           )}
         </div>
         <div className="inh-col inh-col-center">
-          <Placeholder title="Inheritance" phase="M1.4" />
+          <InheritanceCard />
           <YourDeckCard
             state={deck}
             onChange={setDeck}

@@ -30,3 +30,10 @@ export async function saveParent(parent: ParentDraft): Promise<Parent> {
 export function deleteParent(id: string): Promise<void> {
   return db.parents.delete(id);
 }
+
+/** Upsert many parents by id in one transaction (UmaExtractor import). Returns the count written. */
+export async function bulkUpsertParents(parents: Parent[]): Promise<number> {
+  if (parents.length === 0) return 0;
+  await db.parents.bulkPut(parents);
+  return parents.length;
+}

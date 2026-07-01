@@ -1371,3 +1371,341 @@ main:has(.inh-page) {
 .inh-pool-art-chip--random {
   background: var(--tier-random, #c96a10);
 }
+
+/* Inheritance card (M1.4) */
+.inh-inheritance-card .cmp-plan-card-head { gap: 0.5rem; }
+/* The tools group owns the auto-margin (right-aligns Updated + Upload); the caret
+   then sits flush to its right as the last item, so the bar stays one tidy row. */
+.inh-inherit-tools { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
+.inh-help-steps { margin: 0.4rem 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.inh-help-steps code { padding: 0.05rem 0.25rem; border-radius: 4px; background: var(--bg-2); font-size: 0.85em; }
+.inh-inheritance-card .cmp-collapse-caret { margin-left: 0; }
+.inh-inherit-sub,
+.inh-updated {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;            /* not bold (the card head is 700) */
+  font-size: 0.64rem;          /* smaller */
+  color: var(--fg-muted);      /* lighter */
+}
+.inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+@media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
+/* Card chrome (border / radius / bg / shadow) comes from .cmp-plan-card;
+   .inh-parent just stacks head + content. overflow:visible lets the Find
+   popover escape — the head's top corners are re-rounded by hand since we lose
+   the card's overflow-clip. */
+.inh-parent.cmp-plan-card { overflow: visible; display: flex; flex-direction: column; }
+.inh-parent > .inh-parent-head {
+  border-top-left-radius: var(--cmp-card-radius);
+  border-top-right-radius: var(--cmp-card-radius);
+}
+/* Grey head bar (bg-2 + bottom border) from .cmp-plan-card-head; tighten the
+   padding for these sub-cards and keep the actions inline on the bar. */
+.inh-parent-head.cmp-plan-card-head { gap: 0.4rem; padding: 0.35rem 0.5rem; min-height: 0; font-size: 0.9rem; }
+.inh-parent-title { font-weight: 700; }
+/* Find-candidates popover: anchored under the magnifier button, escapes the
+   card (overflow:visible above), dismiss-on-outside via useDismissOnOutside. */
+.inh-find-anchor { position: relative; display: inline-flex; }
+.inh-find-popover {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+  min-width: 15rem; max-width: 22rem; max-height: 60vh; overflow: auto;
+  background: var(--bg-1); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 12px 30px rgb(20 30 50 / 0.24); padding: 0.4rem; text-align: left;
+}
+.inh-parent-content { flex: 1; display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
+/* Empty state fills the (grid-stretched) card and centers both ways. */
+.inh-parent-empty { margin: auto; text-align: center; }
+.inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
+/* Clear button: red glyph; hover highlights red (overrides the icon-btn accent hover). */
+.inh-clear { color: var(--error); }
+.cmp-inventory-icon-btn.inh-clear:not(:disabled):hover { border-color: var(--error); color: var(--error); }
+.inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }
+.inh-parent-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.inh-parent-name-text { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* `.spark-chips` lives in parents.css (not loaded on this route) — define the
+   flex row here for the inheritance card + the portalled picker modal. */
+.inh-parent .spark-chips,
+.inh-uma-modal .spark-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+.inh-white-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.inh-white-chip { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; background: var(--bg-2); }
+.inh-white-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inh-star-own { color: #eab308; }
+/* Non-legacy (grandparent) stars take the chip's own text colour — blue on a
+   blue chip, pink on pink, green on green (inherited from the .badge.spark-*
+   `color`). Legacy stars stay gold. */
+.inh-star-gp { color: inherit; }
+/* Grey (white-spark) chips read lighter than the coloured chips — softer text
+   and a muted GP star. The legacy star stays the SAME gold as every other chip
+   (uniform gold across blue/pink/green/white). */
+.badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
+.badge.spark-white .inh-star-gp { color: var(--fg-muted); }
+.inh-rental-stub { padding: 0.3rem 0; }
+.inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
+.inh-p2-mode { margin-left: 0.2rem; }
+/* Parent 2 "Rental" on/off toggle switch. */
+.inh-rental-toggle {
+  display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+  border: 0; background: none; padding: 0; margin-left: 0.2rem;
+  font-size: 0.72rem; font-weight: 700; color: var(--fg-muted);
+}
+.inh-rental-toggle.is-on { color: var(--accent); }
+.inh-rental-switch {
+  width: 1.6rem; height: 0.9rem; border-radius: 999px; flex: none;
+  background: var(--bg-2); border: 1px solid var(--border); position: relative; transition: background .12s, border-color .12s;
+}
+.inh-rental-toggle.is-on .inh-rental-switch { background: color-mix(in srgb, var(--accent) 30%, var(--bg-1)); border-color: var(--accent); }
+.inh-rental-knob {
+  position: absolute; top: 1px; left: 1px; width: 0.7rem; height: 0.7rem; border-radius: 50%;
+  background: var(--fg-muted); transition: transform .12s, background .12s;
+}
+.inh-rental-toggle.is-on .inh-rental-knob { transform: translateX(0.7rem); background: var(--accent); }
+.inh-uma-picker { margin-top: 0.2rem; }
+
+
+/* Uma picker modal (M1.4) */
+.inh-uma-modal-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.inh-uma-modal {
+  width: min(1200px, 96vw); height: min(900px, 92vh); max-height: 92vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.inh-uma-modal-head { gap: 0.5rem; }
+.inh-uma-modal-head .muted { margin-left: auto; }
+/* Close: far right; styled like the Parent 1/2 clear button (.inh-clear icon box). */
+.inh-uma-modal-x { margin-left: auto; }
+.inh-uma-searchbar {
+  padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-1);
+}
+.inh-uma-search { width: 100%; box-sizing: border-box; font-weight: 400; }
+/* Two-column body: the spark filter gets its own full-height column on the left,
+   the veteran results scroll on the right. */
+.inh-uma-split { flex: 1; min-height: 0; display: flex; align-items: stretch; }
+.inh-uma-filter-col {
+  /* Shrink to the widest card content (the STAT add-chip row) — no dead space. */
+  flex: 0 0 auto; width: fit-content; min-width: 22rem; max-width: 34rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+  padding: 0.7rem 0.75rem; overflow-y: auto;
+  background: var(--bg-0);
+  border-right: 1px solid var(--border); /* separator between the filter + results columns */
+}
+.inh-uma-results-col { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+/* Percentage-width children shouldn't force the fit-content column wider;
+ * width:100% lets them fill the column so the box matches the container. */
+.inh-uma-filter-col .spc-green-input,
+.inh-uma-filter-col .spc-green-results { width: 100%; }
+/* Compact green search box height (beats the global input[type='search'] rule). */
+.inh-uma-filter-col .spc-green-input { padding: 0.3rem 0.5rem; font-size: 0.82rem; }
+.inh-uma-filter-col .spc-green-results button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 860px) {
+  .inh-uma-split { flex-direction: column; }
+  .inh-uma-filter-col {
+    flex: 0 0 auto; width: auto; max-width: none; max-height: 45vh;
+    /* Stacked: separator runs along the bottom, not the right. */
+    border-right: 0; border-bottom: 1px solid var(--border);
+  }
+}
+
+/* ── "Star Tracks" spark filter (design_handoff_spark_filter) ─────────────── */
+/* per-category tone + header gradient (shared by cards + summary chips). */
+/* `--chip`/`--chip-ink` mirror the `.badge.spark-*` scheme (app.css): base hue +
+ * text ~70% toward --fg. Used for row/add-chip borders + factor-name text. */
+.spc-card.spark-blue,  .spc-sum-chip.spark-blue  { --tone: #2563eb; --chip: #3b82f6; --chip-ink: color-mix(in srgb, #3b82f6 72%, var(--fg)); --grad: linear-gradient(90deg, #3b82f6, #2563eb); }
+.spc-card.spark-pink,  .spc-sum-chip.spark-pink  { --tone: #db2777; --chip: #ec4899; --chip-ink: color-mix(in srgb, #ec4899 74%, var(--fg)); --grad: linear-gradient(90deg, #ec4899, #db2777); }
+.spc-card.spark-green, .spc-sum-chip.spark-green { --tone: #16a34a; --chip: #22c55e; --chip-ink: color-mix(in srgb, #22c55e 64%, var(--fg)); --grad: linear-gradient(90deg, #22c55e, #16a34a); }
+.spc-card, .spc-sum-chip { --tone-ink: color-mix(in srgb, var(--tone) 60%, var(--fg)); }
+
+/* Summary bar */
+.spc-summary {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-direction: column; gap: 0.55rem; padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--bg-1);
+  box-shadow: 0 4px 14px -8px rgba(20, 25, 40, .28);
+}
+.spc-summary-top { display: flex; align-items: center; gap: 0.6rem; }
+.spc-count { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--accent); line-height: 1; }
+.spc-count-lbl { display: flex; flex-direction: column; line-height: 1.15; }
+.spc-count-lbl b { font-weight: 700; font-size: 0.82rem; }
+.spc-summary-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
+.spc-reset { cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--fg-muted); background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.75rem; }
+.spc-summary-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.spc-sum-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.75rem; border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--border)); background: color-mix(in srgb, var(--tone) 8%, var(--bg-1)); }
+.spc-sum-name { font-weight: 700; color: var(--tone-ink); }
+.spc-sum-req { display: inline-flex; gap: 0.3rem; font-variant-numeric: tabular-nums; }
+.spc-sum-gold { color: #eab308; font-weight: 800; }
+.spc-sum-tone { color: var(--tone-ink); font-weight: 800; }
+.spc-sum-x { border: 0; background: none; cursor: pointer; opacity: .6; font-size: 0.75rem; line-height: 1; padding: 0; color: inherit; }
+/* Summary chips + rows + add-chips all match their `.badge.spark-*` counterparts. */
+.spc-sum-chip { border-color: color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border)); }
+.spc-sum-chip .spc-sum-name,
+.spc-sum-chip .spc-sum-tone { color: var(--chip-ink, var(--tone-ink)); }
+
+/* Category cards */
+.spc { display: flex; flex-direction: column; gap: 0.7rem; }
+.spc-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg-1); }
+/* Neutralize the dark spark-* border bleeding in from the global `.spark-{blue,
+ * pink,green}` chip rules in parents.css (class-name collision, equal specificity
+ * → later-loaded wins). Scope back to the theme border. */
+.spc-card.spark-blue, .spc-card.spark-pink, .spc-card.spark-green { border-color: var(--border); }
+.spc-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; color: #fff; background: var(--grad); }
+.spc-title { font-size: 0.82rem; font-weight: 800; letter-spacing: .04em; }
+.spc-pips { margin-left: auto; display: inline-flex; gap: 0.25rem; }
+.spc-pip { width: 16px; height: 8px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .32); }
+.spc-pip.is-on { background: #fff; }
+.spc-body { padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.spc-rows { display: flex; flex-direction: column; gap: 0.7rem; }
+
+/* Active factor row (blue/pink) */
+.spc-row {
+  display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.7rem; border-radius: 11px;
+  border: 1px solid color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border));
+  background: color-mix(in srgb, var(--tone) 5%, var(--bg-1));
+}
+.spc-name { flex: none; align-self: center; width: 3.7rem; font-size: 0.92rem; font-weight: 700; color: var(--chip-ink, var(--tone-ink)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spc-meters { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding-left: 0.5rem; }
+/* Thin divider between the factor name and its Parent/Total meters — sits in the
+ * row gap and stops short of the meters' top/bottom. */
+.spc-meters::before {
+  content: ''; position: absolute; left: -0.4rem; top: 0.2rem; bottom: 0.2rem;
+  width: 1px; background: var(--border);
+}
+.spc-meter { display: inline-flex; align-items: center; gap: 0.6rem; }
+.spc-lbl { width: 2.75rem; font-size: 0.56rem; font-weight: 800; letter-spacing: .05em; }
+.spc-lbl-parent { color: #b8860b; }
+.spc-lbl-total { color: #7c8aa0; }
+.spc-x { border: 0; background: none; cursor: pointer; color: var(--error); font-size: 0.9rem; line-height: 1; margin-left: auto; padding: 0; }
+
+/* Green row */
+.spc-row-green { align-items: center; }
+/* Just the uma portrait — no framing circle. */
+.spc-green-icon { flex: none; display: inline-flex; }
+.spc-green-ph { width: 34px; height: 38px; border-radius: 6px; background: color-mix(in srgb, #16a34a 22%, var(--bg-2)); }
+.spc-green-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.spc-green-head { display: flex; align-items: center; gap: 0.5rem; }
+.spc-name-full { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--chip-ink, var(--tone-ink)); }
+.spc-green-meters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.spc-green-meters .spc-meter { gap: 0.4rem; }
+.spc-green-meters .spc-lbl { width: auto; }
+
+/* Add chips (blue/pink) */
+.spc-add-groups { display: flex; flex-direction: column; gap: 0.5rem; }
+.spc-add { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.spc-add-chip {
+  cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.6rem; border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border)); color: var(--chip-ink, var(--tone-ink)); background: var(--bg-1);
+}
+.spc-add-chip:disabled { cursor: not-allowed; border-color: var(--border); color: var(--fg-muted); background: var(--bg-2); opacity: .5; }
+
+/* Green search */
+.spc-green-search { display: flex; flex-direction: column; gap: 0.35rem; }
+.spc-green-input { width: 100%; box-sizing: border-box; }
+/* In-flow (not absolute) so the scrollable filter column can't clip / bury it. */
+.spc-green-results {
+  display: flex; flex-direction: column; max-height: 14rem; overflow: auto;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1);
+}
+.spc-green-results button { text-align: left; padding: 0.3rem 0.55rem; font-size: 0.8rem; background: none; border: 0; cursor: pointer; }
+.spc-green-results button:hover,
+.spc-green-results button.is-active { background: var(--bg-2); }
+.spc-green-results button.is-active { color: var(--tone-ink); }
+
+/* Star meters (SparkMeter) */
+.spm-row { display: inline-flex; align-items: center; }
+.spm-boxes { display: inline-flex; gap: 0.3rem; align-items: center; }
+.spm-box { display: inline-flex; gap: 1px; padding: 3px 5px; border-radius: 7px; border: 1px solid var(--border); background: transparent; transition: opacity .12s, border-color .12s; }
+.spm-box.is-first { border-style: dashed; }
+.spm-box.is-active { border-color: color-mix(in srgb, #8595ab 55%, var(--border)); }
+.spm-box.is-unavail { opacity: .45; }
+.spm-star { all: unset; cursor: pointer; font-size: 17px; line-height: 1; color: #c9d1dd; transition: color .12s; }
+.spm-row .spm-star { font-size: 20px; margin-right: 2px; }
+.spc-row-green .spm-star { font-size: 15px; }
+.spm-star.is-on.is-gold { color: #eab308; }
+.spm-star.is-on.is-tone { color: var(--tone-ink); }
+.spm-star.is-dead { cursor: default; color: #eceef2; }
+.inh-uma-grid {
+  /* one veteran per row */
+  display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;
+  flex: 1 1 auto; min-height: 0;
+}
+/* Two columns: a narrow left rail (uma identity) + a wide right area (sparks). */
+.inh-uma-tile {
+  display: grid; grid-template-columns: minmax(14.5rem, 16.5rem) 1fr; gap: 0.7rem;
+  align-items: start; text-align: left;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--bg-1);
+  padding: 0.55rem 0.65rem; cursor: pointer;
+}
+.inh-uma-tile:hover { border-color: var(--accent); background: var(--bg-2); }
+/* Already chosen in the other parent slot — greyed + not selectable (sorted last). */
+.inh-uma-tile.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.inh-uma-tile.is-disabled:hover { border-color: var(--border); background: var(--bg-1); }
+/* Left rail: pedigree row (uma + GPs + rank) · name · affinity · roster id */
+.inh-uma-tile-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; min-width: 0; }
+.inh-uma-tile-left > * { max-width: 100%; }
+.inh-uma-tile-portrait { flex: none; display: inline-flex; }
+/* Name + roster id share a row. */
+.inh-uma-name-row { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; min-width: 0; }
+/* "Parent 1/2" tag on an already-selected veteran (opacity dimmed by is-disabled). */
+.inh-uma-selected-tag {
+  flex: none; font-size: 0.62rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+  padding: 0.1rem 0.4rem; border-radius: 999px; color: #fff; background: var(--accent);
+}
+.inh-uma-tile-name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
+/* Evaluation-rank badge: the in-game rank art (G … LS24), icon only — the badge
+   art already spells the rank. Shared by the parent card + picker tile. */
+.inh-rank-badge { flex: none; display: inline-flex; align-items: center; }
+.inh-rank-badge .game-icon { flex: none; }
+
+/* Pedigree row — uma icon ──┤ stacked grandparents, with the rank badge alongside:
+ *     [uma] ──┐
+ *             ├─ [GP1]      [rank]
+ *             └─ [GP2]
+ * The connector is drawn with CSS borders: a stem from the uma, a vertical spine,
+ * and a branch tick to each GP. `--inh-ped` is the line colour. */
+/* Full rail width so the rank cell's auto margin has space to push into. */
+.inh-uma-ped { display: flex; align-items: center; width: 100%; --inh-ped: var(--accent); }
+/* Name sits in the pedigree row, just right of the grandparents. */
+.inh-parent-ped .inh-parent-name { margin-left: 0.6rem; flex: 0 1 auto; }
+/* Rank badge + its numeric score, stacked under the icon. `margin-left: auto`
+   pushes it to the right edge of the rail, away from the grandparents. */
+.inh-uma-rank-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0.1rem; margin-left: auto; }
+.inh-uma-rank-score { font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.inh-uma-gp-stack {
+  position: relative; flex: none;
+  display: flex; flex-direction: column; gap: 0.3rem;
+  margin-left: 1.1rem;   /* stem length (uma → spine) */
+  padding-left: 0.5rem;  /* branch-tick length (spine → GP) */
+}
+.inh-uma-gp-stack::before {            /* vertical spine */
+  content: ""; position: absolute; left: 0; top: 23%; bottom: 23%;
+  width: 1px; background: var(--inh-ped);
+}
+.inh-uma-gp-stack::after {             /* horizontal stem from the uma icon */
+  content: ""; position: absolute; left: -1.1rem; width: 1.1rem; top: 50%;
+  height: 1px; background: var(--inh-ped); transform: translateY(-50%);
+}
+/* single GP → no fork: drop the spine so the stem+tick read as one straight line */
+.inh-uma-gp-stack:has(> .inh-uma-gp-item:only-child)::before { content: none; }
+.inh-uma-gp-item { position: relative; display: inline-flex; flex: none; }
+.inh-uma-gp-item::before {             /* branch tick from the spine to this GP (centred on the icon) */
+  content: ""; position: absolute; left: -0.5rem; width: 0.5rem; top: 50%;
+  height: 1px; background: var(--inh-ped); transform: translateY(-50%);
+}
+.inh-uma-jsonid { flex: none; }
+/* Stat row: colour-coded stat tile + value ×5 (wraps if the rail is tight). */
+.inh-uma-stats { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; align-items: center; }
+.inh-uma-stat { display: inline-flex; align-items: center; gap: 0.15rem; font-size: 0.74rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.inh-uma-stat .game-icon { flex: none; }
+/* Affinity row — plain text (no pill). */
+.inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
+.inh-uma-aff { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Compatibility mark (◎/○/△) — neutral grey. */
+.inh-inherit-title { display: inline-flex; align-items: center; gap: 0.4rem; }
+.inh-aff-mark { flex: none; line-height: 1; font-weight: 800; font-size: 1rem; color: #64748b; }
+/* Right area: stack the lineage chip rows (blue/pink/green, then white). */
+.inh-uma-tile-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
+.inh-uma-tile-right .spark-chips { flex-wrap: wrap; }

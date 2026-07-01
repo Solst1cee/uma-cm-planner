@@ -365,6 +365,8 @@ export interface ParentRef {
   blueSpark?: { stat: Stat; stars: 1 | 2 | 3 };
   pinkSpark?: { aptitude: string; stars: 1 | 2 | 3 };
   whiteSparks?: Array<{ skillId: string; stars: 1 | 2 | 3 }>;
+  /** Inherited-unique (green) spark — see Parent.greenSpark for the id convention. */
+  greenSpark?: { skillId: string; stars: 1 | 2 | 3 };
   /** G1 race ids this grandparent won (UmaExtractor; powers the 2.0 win-bonus). */
   wonRaces?: string[];
 }
@@ -375,7 +377,13 @@ export interface Parent {
   umaId: string;
   blueSpark: { stat: Stat; stars: 1 | 2 | 3 };
   pinkSpark: { aptitude: string; stars: 1 | 2 | 3 };
-  /** skillId = the 9xxxxx inherited-unique id (what the child gains). */
+  /**
+   * Inherited-unique (green) spark. Canonically the 9xxxxx inherited-unique id
+   * the child gains (mechanics-notes §8); however the UmaExtractor importer
+   * stores the DECODED unique id it reads — base outfit 100xxx / alt 110xxx —
+   * which resolves the unique's NAME for display. M1.7 reconciles 100xxx→9xxxxx
+   * before feeding green sparks into coverage math (spark.ts).
+   */
   greenSpark?: { skillId: string; stars: 1 | 2 | 3; sourceCardId?: string };
   whiteSparks: Array<{ skillId: string; stars: 1 | 2 | 3 }>;
   grandparents?: [ParentRef?, ParentRef?];
@@ -387,7 +395,10 @@ export interface Parent {
   source: 'mine' | 'friend_rental';
   importSource?: 'umaextractor' | 'manual';
   stats?: Record<Stat, number>;
+  /** Letter grade (single_mode_rank ladder) for display. */
   rating?: string;
+  /** Raw numeric rank score (UmaExtractor `rank_score`). */
+  rankScore?: number;
 }
 
 export type Priority = 1 | 2 | 3; // 1 = core target
@@ -403,6 +414,8 @@ export interface CmPlan {
   umaId: string;
   uniqueSkillId: string;
   uniqueIsInherited?: boolean;
+  /** Unique-skill level 1–6 (in-game cap). Absent ⇒ treat as 5. Scales the unique effect's modifier. */
+  uniqueSkillLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   role: Role;
   strategy: Strategy;
   statProfile: { stats: Record<Stat, number>; mood: Mood };
