@@ -18,10 +18,12 @@ export const SPARK_NAMES: Record<string, string> = {
   front: 'Front', pace: 'Pace', late: 'Late', end: 'End',
 };
 const NAMES = SPARK_NAMES;
-interface CardDef { cat: SparkCat; title: string; keys: string[] }
+interface CardDef { cat: SparkCat; title: string; keys: string[]; groups?: string[][] }
+// Pink add-chips are laid out as the in-game three rows: surface · distance · style.
+const PINK_GROUPS = [['turf', 'dirt'], ['sprint', 'mile', 'medium', 'long'], ['front', 'pace', 'late', 'end']];
 const CARDS: CardDef[] = [
   { cat: 'blue', title: 'STAT', keys: ['spd', 'sta', 'pow', 'gut', 'wit'] },
-  { cat: 'pink', title: 'APTITUDE', keys: ['turf', 'dirt', 'sprint', 'mile', 'medium', 'long', 'front', 'pace', 'late', 'end'] },
+  { cat: 'pink', title: 'APTITUDE', keys: PINK_GROUPS.flat(), groups: PINK_GROUPS },
   { cat: 'green', title: 'UNIQUE', keys: [] },
 ];
 
@@ -131,12 +133,24 @@ export function SparkFilterCards(p: SparkFilterCardsProps) {
                   </div>
                 )
               ) : (
-                <div className="spc-add">
-                  {card.keys.filter((k) => { const v = p.value(card.cat, k); return !(v.legacy > 0 || v.total > 0); }).map((k) => (
+                (() => {
+                  const inactive = (k: string) => { const v = p.value(card.cat, k); return !(v.legacy > 0 || v.total > 0); };
+                  const chip = (k: string) => (
                     <button key={k} type="button" className="spc-add-chip" disabled={full}
                       onClick={() => { if (!full) p.onSet(card.cat, k, 0, 1); }}>+ {NAMES[k] ?? k}</button>
-                  ))}
-                </div>
+                  );
+                  // Pink: three in-game rows (surface · distance · style); others: one row.
+                  return card.groups ? (
+                    <div className="spc-add-groups">
+                      {card.groups.map((grp, gi) => {
+                        const chips = grp.filter(inactive);
+                        return chips.length > 0 ? <div key={gi} className="spc-add">{chips.map(chip)}</div> : null;
+                      })}
+                    </div>
+                  ) : (
+                    <div className="spc-add">{card.keys.filter(inactive).map(chip)}</div>
+                  );
+                })()
               )}
             </div>
           </section>
