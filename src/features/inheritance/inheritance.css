@@ -504,7 +504,9 @@ main:has(.inh-page) {
 }
 .inh-uma-modal-head { gap: 0.5rem; }
 .inh-uma-modal-head .muted { margin-left: auto; }
-.inh-uma-modal-x { margin-left: 0.4rem; }
+/* Close: pushed to the far right, red. */
+.inh-uma-modal-x { margin-left: auto; color: var(--error); }
+.inh-uma-modal-x:hover { border-color: var(--error); color: var(--error); }
 .inh-uma-searchbar {
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-1);
 }
@@ -516,12 +518,12 @@ main:has(.inh-page) {
   flex: 0 0 clamp(23rem, 40%, 33rem); min-width: 0;
   display: flex; flex-direction: column; gap: 0.7rem;
   padding: 0.7rem 0.75rem; overflow-y: auto;
-  border-right: 1px solid var(--border); background: var(--bg-2);
+  background: var(--bg-0);
 }
 .inh-uma-results-col { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 @media (max-width: 860px) {
   .inh-uma-split { flex-direction: column; }
-  .inh-uma-filter-col { flex: 0 0 auto; max-height: 45vh; border-right: 0; border-bottom: 1px solid var(--border); }
+  .inh-uma-filter-col { flex: 0 0 auto; max-height: 45vh; }
 }
 
 /* ── "Star Tracks" spark filter (design_handoff_spark_filter) ─────────────── */
