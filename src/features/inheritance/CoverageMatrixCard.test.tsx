@@ -47,4 +47,28 @@ describe('CoverageMatrixCard', () => {
     render(<CoverageMatrixCard result={{ rows: [], bars: [], bonus: [] }} hasWishlist={false} hasPlanUma />);
     expect(screen.getByText(/add skills to your wishlist/i)).toBeTruthy();
   });
+
+  it('renders the support-card icon (not initials) for a deck-source chip when renderCardIcon is supplied', () => {
+    const iconResult: CoverageResult = {
+      rows: [
+        { skillId: '200033', name: 'Straightaway', isGold: false,
+          cells: { innate: [], parent: [], gp: [], hint: [],
+            chain: [{ kind: 'chain', label: 'SP', title: 'Speedy', cardType: 'speed', cardId: '30001' }], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    render(
+      <CoverageMatrixCard
+        result={iconResult}
+        hasWishlist
+        hasPlanUma
+        renderCardIcon={(cardId, size) => <img data-testid="card-icon" data-card-id={cardId} width={size} alt="" />}
+      />,
+    );
+    const icon = screen.getByTestId('card-icon');
+    expect(icon.getAttribute('data-card-id')).toBe('30001');
+    // The initials fallback ("SP") is NOT rendered when the icon is present.
+    expect(screen.queryByText('SP')).toBeNull();
+  });
 });

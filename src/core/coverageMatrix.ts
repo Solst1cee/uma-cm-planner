@@ -17,6 +17,9 @@ export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'parent', 'gp', 'hi
 export interface CoverageChip {
   kind: CoverageColumn; label: string; title: string;
   pct?: number; tier?: string; cardType?: CardType;
+  /** Support-card id for deck-source chips (hint/chain/random) — lets the UI
+   *  render the real card icon instead of name initials. */
+  cardId?: string;
 }
 export interface CoverageRow {
   skillId: string; name: string; isGold: boolean;
@@ -150,11 +153,11 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       for (const cs of c.skills) {
         if (cs.skillId !== skillId) continue;
         if (cs.sourceType === 'hint_pool') {
-          cells.hint.push({ kind: 'hint', label: initials(c.nameEn), title: c.nameEn, tier: tierForCardSkill(c, lb, 'hint_pool'), cardType: c.type });
+          cells.hint.push({ kind: 'hint', label: initials(c.nameEn), title: c.nameEn, tier: tierForCardSkill(c, lb, 'hint_pool'), cardType: c.type, cardId: c.cardId });
         } else if (cs.sourceType === 'chain') {
-          cells.chain.push({ kind: 'chain', label: initials(c.nameEn), title: c.nameEn, cardType: c.type });
+          cells.chain.push({ kind: 'chain', label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
         } else {
-          cells.random.push({ kind: 'random', label: initials(c.nameEn), title: c.nameEn, cardType: c.type });
+          cells.random.push({ kind: 'random', label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
         }
       }
     }
@@ -221,7 +224,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   for (const c of deckCards) {
     for (const cs of c.skills) {
       const kind: CoverageColumn = cs.sourceType === 'hint_pool' ? 'hint' : cs.sourceType === 'chain' ? 'chain' : 'random';
-      addBonus(cs.skillId, { kind, label: initials(c.nameEn), title: c.nameEn, cardType: c.type });
+      addBonus(cs.skillId, { kind, label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
     }
   }
   // FIX 2: no .slice(0, 4) — return all chips

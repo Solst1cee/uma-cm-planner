@@ -71,8 +71,13 @@ describe('buildCoverageMatrix', () => {
       { skillId: '200033', sourceType: 'hint_pool' },
     ]);
     const res = buildCoverageMatrix(baseInput({ deckCards: [c], deckLbByCardId: new Map([['30001', 4]]) }));
-    expect(res.rows.find((r) => r.skillId === '200022')!.cells.chain.length).toBe(1);
-    expect(res.rows.find((r) => r.skillId === '200033')!.cells.hint.length).toBe(1);
+    const chainChip = res.rows.find((r) => r.skillId === '200022')!.cells.chain[0]!;
+    const hintChip = res.rows.find((r) => r.skillId === '200033')!.cells.hint[0]!;
+    expect(chainChip).toBeTruthy();
+    expect(hintChip).toBeTruthy();
+    // deck-source chips carry the cardId so the UI can render the real card icon
+    expect(chainChip.cardId).toBe('30001');
+    expect(hintChip.cardId).toBe('30001');
   });
 
   it('flags a fully-unsourced wishlist skill uncovered', () => {

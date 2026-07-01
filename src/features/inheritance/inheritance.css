@@ -1717,6 +1717,8 @@ main:has(.inh-page) {
 .inh-cov-matrix td.inh-cov-cell { white-space: nowrap; }
 .inh-cov-matrix .inh-cov-sep { border-left: 2px solid var(--border); }
 .inh-cov-chip-wrap { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
+.inh-cov-chip-icon { display: inline-flex; align-items: center; }
+.inh-cov-chip-icon img { border-radius: 4px; }
 .inh-cov-chip { display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px; padding: 0 4px; font-size: 0.56rem; font-weight: 800; color: #fff; border-radius: 4px; }
 .inh-cov-chip[data-round="1"] { border-radius: 999px; }
 .inh-cov-chip.tier-spark { background: var(--tier-spark); }
