@@ -26,6 +26,7 @@ const AUTO_SAVE_KEY = 'cmPlannerAutoSave';
 const SAVE_DEBOUNCE_MS = 400;
 
 const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
+type SaveCurrentPlanOptions = { commit?: 'always' | 'if-current' };
 
 export function makeDefaultPlan(cmRefOverride?: CmRefV2): CmPlan {
   // First-run / post-delete default. `cmRefOverride` (the current CM, resolved by
@@ -123,7 +124,7 @@ interface ActivePlanValue {
   /** Create a new draft as the active plan without immediately saving it. */
   setDraftPlan: (next: CmPlan) => void;
   /** Persist the active plan over its current id. */
-  saveCurrentPlan: (next?: CmPlan) => Promise<void>;
+  saveCurrentPlan: (next?: CmPlan, options?: SaveCurrentPlanOptions) => Promise<void>;
   /** Persist the active plan as a new version with the next available plan number. */
   saveCurrentPlanAs: (next?: CmPlan) => Promise<CmPlan>;
   /** Persist the uma2 (comparison) plan over its current id — never writes activePlanId. */
@@ -231,22 +232,28 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     }, SAVE_DEBOUNCE_MS);
   }, []);
 
-  const saveCurrentPlan = useCallback(async (nextPlan?: CmPlan) => {
+  const saveCurrentPlan = useCallback(async (nextPlan?: CmPlan, options?: SaveCurrentPlanOptions) => {
     window.clearTimeout(saveTimer.current);
     const toSave = nextPlan ?? pendingSave.current ?? planRef.current;
     pendingSave.current = null;
     if (!toSave) return;
+    const commitOnlyIfCurrent = options?.commit === 'if-current';
     const refreshedBeforeSave = await listPlans();
     const namedPlan = {
       ...toSave,
       name: uniquePlanName(toSave.name, refreshedBeforeSave, toSave.id),
     };
     await savePlan(namedPlan);
-    await setSetting(ACTIVE_PLAN_KEY, toSave.id);
+    const shouldCommitState = !commitOnlyIfCurrent || planRef.current === toSave;
+    if (shouldCommitState) {
+      await setSetting(ACTIVE_PLAN_KEY, toSave.id);
+    }
     const refreshedPlans = await listPlans();
     setSavedPlans(refreshedPlans);
-    planRef.current = namedPlan;
-    setPlanState(namedPlan);
+    if (shouldCommitState) {
+      planRef.current = namedPlan;
+      setPlanState(namedPlan);
+    }
   }, []);
 
   const flushPendingSave = saveCurrentPlan;

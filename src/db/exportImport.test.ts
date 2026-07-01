@@ -14,7 +14,12 @@ const PARENT: Parent = {
   blueSpark: { stat: 'spd', stars: 3 },
   pinkSpark: { aptitude: 'long', stars: 2 },
   whiteSparks: [{ skillId: '200012', stars: 1 }],
-  grandparents: [{ umaId: '100201' }, undefined],
+  grandparents: [{
+    umaId: '100201',
+    whiteSparks: [{ skillId: '200331', stars: 2 }],
+    wonRaces: ['japan-cup'],
+  }, undefined],
+  wonRaces: ['arima-kinen'],
   source: 'mine',
 };
 
@@ -213,6 +218,27 @@ describe('malformed input', () => {
     [
       { ...emptyBlob(), parents: [{ ...PARENT, blueSpark: { stat: 'spd', stars: 4 } }] },
       /blob\.parents\[0\]\.blueSpark\.stars must be 1 \| 2 \| 3/,
+    ],
+    [
+      { ...emptyBlob(), parents: [{ ...PARENT, wonRaces: ['arima-kinen', 42] }] },
+      /blob\.parents\[0\]\.wonRaces\[1\] must be a string/,
+    ],
+    [
+      {
+        ...emptyBlob(),
+        parents: [{ ...PARENT, grandparents: [{ umaId: '100201', wonRaces: 'japan-cup' }] }],
+      },
+      /blob\.parents\[0\]\.grandparents\[0\]\.wonRaces must be an array or absent/,
+    ],
+    [
+      {
+        ...emptyBlob(),
+        parents: [{
+          ...PARENT,
+          grandparents: [{ umaId: '100201', whiteSparks: [{ skillId: '200331', stars: 4 }] }],
+        }],
+      },
+      /blob\.parents\[0\]\.grandparents\[0\]\.whiteSparks\[0\]\.stars must be 1 \| 2 \| 3/,
     ],
     [
       {

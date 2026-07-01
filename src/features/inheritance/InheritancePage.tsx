@@ -123,6 +123,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const loadCatalog = deps?.loadCatalog ?? defaultLoadCatalog;
 
   const courseId = uma1Plan?.cmRef.courseId;
@@ -360,7 +361,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   // independent of the planner's auto-save toggle. setPlan keeps the UI instant.
   const editPlan = (next: CmPlan) => {
     setPlan(next);
-    void saveCurrentPlan(next);
+    saveQueue.current = saveQueue.current
+      .catch(() => undefined)
+      .then(() => saveCurrentPlan(next, { commit: 'if-current' }));
+    void saveQueue.current;
   };
 
   // Wishlist as planner-style skill plates (no traceContext → no engine/Worker),

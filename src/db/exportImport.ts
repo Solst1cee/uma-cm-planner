@@ -215,6 +215,15 @@ function optNumber(row: Rec, key: string, path: string): void {
   if (v !== undefined && typeof v !== 'number') fail(`${path}.${key}`, 'a number or absent', v);
 }
 
+function optStringArray(row: Rec, key: string, path: string): void {
+  const v = row[key];
+  if (v === undefined) return;
+  if (!Array.isArray(v)) fail(`${path}.${key}`, 'an array or absent', v);
+  v.forEach((item, index) => {
+    if (typeof item !== 'string') fail(`${path}.${key}[${index}]`, 'a string', item);
+  });
+}
+
 /** Optional auto-increment id (present when re-importing an export). */
 function optId(row: Rec, path: string): void {
   const v = row['id'];
@@ -253,6 +262,28 @@ function parseSkillSpark(v: unknown, path: string): { skillId: string; stars: 1 
   return { skillId: reqString(row, 'skillId', path), stars: reqStars(row, path) };
 }
 
+function parseParentRef(v: unknown, path: string): ParentRef {
+  const ref = asRecord(v, path);
+  reqString(ref, 'umaId', path);
+  if (ref['blueSpark'] !== undefined) {
+    const blue = asRecord(ref['blueSpark'], `${path}.blueSpark`);
+    reqOneOf(blue, 'stat', STATS, `${path}.blueSpark`);
+    reqStars(blue, `${path}.blueSpark`);
+  }
+  if (ref['pinkSpark'] !== undefined) {
+    const pink = asRecord(ref['pinkSpark'], `${path}.pinkSpark`);
+    reqString(pink, 'aptitude', `${path}.pinkSpark`);
+    reqStars(pink, `${path}.pinkSpark`);
+  }
+  if (ref['whiteSparks'] !== undefined) {
+    asArray(ref['whiteSparks'], `${path}.whiteSparks`).forEach((s, i) =>
+      parseSkillSpark(s, `${path}.whiteSparks[${i}]`),
+    );
+  }
+  optStringArray(ref, 'wonRaces', path);
+  return ref as unknown as ParentRef;
+}
+
 function parseParent(v: unknown, path: string): Parent {
   const row = asRecord(v, path);
   reqString(row, 'id', path);
@@ -278,6 +309,7 @@ function parseParent(v: unknown, path: string): Parent {
   optString(row, 'notes', path);
   optString(row, 'rating', path);
   optNumber(row, 'affinityHint', path);
+  optStringArray(row, 'wonRaces', path);
 
   if (row['grandparents'] !== undefined) {
     const gps = asArray(row['grandparents'], `${path}.grandparents`);
@@ -285,9 +317,7 @@ function parseParent(v: unknown, path: string): Parent {
     // JSON turns undefined tuple slots into null — normalize back.
     row['grandparents'] = gps.map((gp, i) => {
       if (gp === null || gp === undefined) return undefined;
-      const ref = asRecord(gp, `${path}.grandparents[${i}]`);
-      reqString(ref, 'umaId', `${path}.grandparents[${i}]`);
-      return ref as unknown as ParentRef;
+      return parseParentRef(gp, `${path}.grandparents[${i}]`);
     });
   }
 
