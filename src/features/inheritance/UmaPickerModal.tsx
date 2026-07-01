@@ -173,7 +173,9 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
         onClick={(e) => e.stopPropagation()}>
         <header className="cmp-plan-card-head inh-uma-modal-head">
           <span>Pick a parent</span>
-          <button type="button" className="cmp-small-btn inh-uma-modal-x" aria-label="Close" onClick={onClose}>✕</button>
+          <button type="button" className="cmp-inventory-icon-btn inh-clear inh-uma-modal-x" aria-label="Close" title="Close" onClick={onClose}>
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m5.3 3.9 4.7 4.7 4.7-4.7 1.4 1.4-4.7 4.7 4.7 4.7-1.4 1.4-4.7-4.7-4.7 4.7-1.4-1.4L8.6 10 3.9 5.3l1.4-1.4Z" /></svg>
+          </button>
         </header>
         <div className="inh-uma-split">
           <div className="inh-uma-filter-col">

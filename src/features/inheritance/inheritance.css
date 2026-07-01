@@ -504,9 +504,8 @@ main:has(.inh-page) {
 }
 .inh-uma-modal-head { gap: 0.5rem; }
 .inh-uma-modal-head .muted { margin-left: auto; }
-/* Close: pushed to the far right, red. */
-.inh-uma-modal-x { margin-left: auto; color: var(--error); }
-.inh-uma-modal-x:hover { border-color: var(--error); color: var(--error); }
+/* Close: far right; styled like the Parent 1/2 clear button (.inh-clear icon box). */
+.inh-uma-modal-x { margin-left: auto; }
 .inh-uma-searchbar {
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); background: var(--bg-1);
 }
