@@ -9,9 +9,9 @@ afterEach(cleanup);
 const result: CoverageResult = {
   rows: [
     { skillId: '200011', name: 'Corner Adept', isGold: false,
-      cells: { innate: [{ kind: 'innate', label: 'TR', title: 'Trainee' }], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: true },
+      cells: { innate: [{ kind: 'innate', label: 'TR', title: 'Trainee' }], event: [], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: true },
     { skillId: '200022', name: 'Slick Surge', isGold: true,
-      cells: { innate: [], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: false },
+      cells: { innate: [], event: [], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: false },
   ],
   bars: [
     { column: 'innate', count: 1, pct: 50 },
@@ -52,7 +52,7 @@ describe('CoverageMatrixCard', () => {
     const iconResult: CoverageResult = {
       rows: [
         { skillId: '200033', name: 'Straightaway', isGold: false,
-          cells: { innate: [], parent: [], gp: [], hint: [],
+          cells: { innate: [], event: [], parent: [], gp: [], hint: [],
             chain: [{ kind: 'chain', label: 'SP', title: 'Speedy', cardType: 'speed', cardId: '30001' }], random: [] },
           covered: true },
       ],

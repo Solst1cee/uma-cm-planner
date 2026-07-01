@@ -180,13 +180,13 @@ in `sparkFilter`, `greens` in `sparkAggregate`).
 
 ## M1.7 "Obtainable vs. wishlist" coverage matrix (landed 2026-07-01, refined 2026-07-02)
 
-The center-column **"Obtainable vs. wishlist"** card (`CoverageMatrixCard`) crosses each wishlist skill against where it can be obtained: the plan uma's innate kit, the two inheritance parents + grandparents (real inherit-%), and the 6-slot deck (Hint / Chain / Random). Three new cores + a wired `InheritancePage`. Built subagent-driven from the [design](../superpowers/specs/2026-07-01-m1-7-coverage-matrix-design.md) / [plan](../superpowers/plans/2026-07-01-m1-7-coverage-matrix.md), then iterated on live review (§*Live-review refinements* below).
+The center-column **"Obtainable vs. wishlist"** card (`CoverageMatrixCard`) crosses each wishlist skill against where it can be obtained: the plan uma's innate kit, its **career training events**, the two inheritance parents + grandparents (real inherit-%), and the 6-slot deck (Hint / Chain / Random). Three new cores + a wired `InheritancePage`. Built subagent-driven from the [design](../superpowers/specs/2026-07-01-m1-7-coverage-matrix-design.md) / [plan](../superpowers/plans/2026-07-01-m1-7-coverage-matrix.md), then iterated on live review (§*Live-review refinements* below).
 
 **Core additions:**
 - **`src/core/greenSparkReconcile.ts`** — `buildUniqueToInheritedMap(skills)`: maps each native-unique id (100xxx / 110xxx, as decoded by the UmaExtractor importer) to its inherited-unique form (9xxxxx) by swapping the prefix (10→90 / 11→91) then falling back to a name-match; reports any `unresolved` ids. Derived purely from `skills.json`. `reconcileGreenSkillId(id, map)` applies it per-spark.
 - **`src/core/g1Saddle.ts`** — `isG1Saddle(id, set)` / `filterG1(races, set)`: filter won-races to G1 only using a hand-patchable saddle-id set. Empty set ⇒ win-bonus stays 0 (safe, never fabricated) pending user-supplied data (see *Deferred*).
 - **`src/core/lineageAffinity.ts`** — filters `wonRaces` to G1-only (optional `g1Set` param on `planLineageAffinity`) before the win-bonus, fixing a prior over-count where all shared wins scored regardless of grade.
-- **`src/core/coverageMatrix.ts`** — `buildCoverageMatrix(CoverageInput) → CoverageResult`: per-skill coverage rows with **real per-member inherit-% from `spark.ts` contributions** (isolated per parent/grandparent member, priced off the spark the member actually holds), source classification (`Innate ‖ Parent | G.parent ‖ Hint | Chain | Random`), coverage bars, and a bonus list. Column map: `hint_pool → Hint`, `chain → Chain`, `random_event + date_event → Random`. **Matching is variant-family-aware** — see *Live-review refinements*.
+- **`src/core/coverageMatrix.ts`** — `buildCoverageMatrix(CoverageInput) → CoverageResult`: per-skill coverage rows with **real per-member inherit-% from `spark.ts` contributions** (isolated per parent/grandparent member, priced off the spark the member actually holds), source classification (`Innate | Event ‖ Parent | G.parent ‖ Hint | Chain | Random`), coverage bars, and a bonus list. Column map: `hint_pool → Hint`, `chain → Chain`, `random_event + date_event → Random`. **Matching is variant-family-aware** — see *Live-review refinements*.
 - **`src/core/types.ts`** — optional `UmaRecord.innateSkills?: string[]` (a baked override the matrix prefers if present; in practice innate data is resolved at runtime from the engine bundle — see below).
 
 **UI:**
@@ -198,13 +198,21 @@ The center-column **"Obtainable vs. wishlist"** card (`CoverageMatrixCard`) cros
 
 The **Innate** column is the uma's built-in **non-unique** kit (white + gold), e.g. Mayano Top Gun's "No Stopping Me!" / "Nimble Navigator". It **explicitly excludes** the uma's unique and inherited-unique (those aren't "innate" for coverage — you always have your unique; the inherited-unique is what a parent passes down). New **`loadInnateSkillsByUmaId()`** in `skillTechnicalDetails.ts` builds `umaId → skillId[]` from each skill's `sources[].outfitId` in the vendored engine skill collection (the same data `loadUniqueSkillByUmaId` uses, extended to all rarities); the page filters it to **white/gold** via `useGameData().skillById` rarity. This **obviates the originally-deferred "Task 8 gametora innate-skill pipeline"** — the data already ships in the committed bundle.
 
+### Career training-event column (`Event`, 2026-07-02)
+
+A column immediately right of **Innate** crediting skills the plan uma's **career training events** can grant (the user's example: Taiki Shuttle's "Beyond the Mile" → *Head-On* + *All I've Got*). `CoverageInput.planUma.eventSkills` = the uma's event-obtainable skill ids; matched **family-aware** (`○ ≡ ◎`, gold/× exact), same as Innate. It is **availability** — whether the uma's events *can* grant the skill — **not** a per-run guarantee (P3), and (like Innate) does **not** feed the bonus list.
+
+**Data pipeline:** `public/data/uma_events.json` = `{ umaId: skillId[] }`, built by **`scripts/build-uma-events.ts`** which inverts [daftuyda/UmaTools](https://github.com/daftuyda/UmaTools) `skills_all.json` `char_e` (per-skill list of outfit ids obtainable via a training event; `id` = our skill id, `char_e` = our `umaId` space — no remapping). Merges `data-overrides/uma_events_overrides.json` (`addByUma`/`removeByUma`, P5). Lazy-fetched in `InheritancePage` like `card_effects.json`.
+
+⚠️ **Provenance — path B (private-use GameTora relaxation, owner-authorized 2026-07-02, docs/provenance.md §10):** the career event→skill mapping is **not** in our `master.mdb` (only event shells + support-card hint pools are; the choice→skill effects live in undecoded story-timeline assets — GameTora's source). A full spike found **no permissively-licensed** alternative. The user chose to **relax the standing "GameTora off-limits" rule for the private build only**: daftuyda's data is GameTora-derived (its README says so), the input stays **localOnly** (`scripts/borrowed/daftuyda/`, gitignored), only the derived id→id `uma_events.json` is committed, and it **MUST be swapped for a self-extracted/manual source before any public release**. `build-uma-events.ts` is **not** in `pnpm data:build` (input absent in CI) — run `pnpm tsx scripts/build-uma-events.ts` manually.
+
 ### Live-review refinements (2026-07-02)
 
 - **Variant-family matching (`○ ≡ ◎`, gold separate)** across **every** column + the bonus filter. `○` and `◎` are the same white skill at different grades, so a source `Right-Handed ○` covers a wishlisted `Right-Handed ◎` (and vice-versa); the **gold** (`Right-Handed Demon`) and `×` variants stay **exact-match** (separate skills). Helpers `isWhiteCircle` / `coverageEquivalent` / `coveringId` in `coverageMatrix.ts` (family membership via `SkillRecord.variantSkillIds`). Parent/gp inherit-% is priced off the **held** spark (its `○`), not the wishlisted `◎`.
 - Parent **green** sparks are reconciled (native→9xxxxx) before pricing so their inherit-% isn't a fake `~0%`; grandparent **green** matches show **no** `%` (gp green career math is unpriced per mechanics-notes §10 — honest "unpriced", not `~0%`).
 - Deck chips show the real card icon; the Innate column resolves reliably regardless of whether `plan.uniqueSkillId` was ever set by the CM-planner sidebar.
 
-**Test suite:** 1163 tests pass (156 files), typecheck + build green.
+**Test suite:** 1177 tests pass (157 files), typecheck + build green.
 
 **Deferred (one data gate — card degrades gracefully; nothing fabricated):**
 - **Populate the G1 saddle-id set:** `data-overrides/g1_saddle_ids.json` (and the in-`src` copy) are empty, so the affinity **win-bonus is 0**. Drop in the real G1 saddle ids (from master.mdb) to enable it — update **both** files (see gotcha).
@@ -215,6 +223,7 @@ The **Innate** column is the uma's built-in **non-unique** kit (white + gold), e
 - **~17 native uniques unresolved by `greenSparkReconcile`:** 5-digit legacy ids (e.g. `10071` "Warning Shot!") have no 9xxxxx form. Reported via `unresolved`, harmless — the importer only emits 6-digit green sparks. A `skills.json` id reconciliation (likely the v0.18 refresh) would close it.
 - **`g1_saddle_ids.json` exists in TWO places** — `data-overrides/` (P5 hand-patch source) and `src/features/inheritance/` (the in-`src` copy imported at build time; `data-overrides/` is outside tsconfig `include`). Keep them in sync; `data:build` does NOT auto-copy.
 - **Probing the vendored bundle in a script needs the worktree cwd / an absolute import path** — a relative `./src/sim/vendor/umalator.bundle.mjs` resolves against the script's own dir.
+- **Event column data is GameTora-derived (path B).** `uma_events.json` is committed but its input `scripts/borrowed/daftuyda/skills_all.json` is gitignored — a fresh clone can't regenerate it without re-fetching daftuyda. That's intentional (private-use gate). Before public release the file MUST be swapped (docs/provenance.md §10). Event = availability, not a per-run guarantee — don't relabel it as guaranteed.
 
 ## Next (Plans 3–5)
 

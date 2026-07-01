@@ -164,6 +164,8 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   // Per-card "Unique Effect" lines (public/data/card_unique_effects.json), lazy-loaded.
   const [uniqueEffects, setUniqueEffects] = useState<CardUniqueEffects>({});
   const [baseEffects, setBaseEffects] = useState<CardBaseEffects>({});
+  // Uma → skill ids obtainable via its career training events (public/data/uma_events.json).
+  const [umaEventsByUmaId, setUmaEventsByUmaId] = useState<Record<string, string[]>>({});
   useEffect(() => {
     let cancelled = false;
     const load = <T,>(file: string, set: (v: T) => void) =>
@@ -173,6 +175,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         .catch(() => { /* optional dataset — degrade to none */ });
     void load<CardUniqueEffects>('card_unique_effects.json', setUniqueEffects);
     void load<CardBaseEffects>('card_effects.json', setBaseEffects);
+    void load<Record<string, string[]>>('uma_events.json', setUmaEventsByUmaId);
     return () => { cancelled = true; };
   }, []);
   // Uma → its innate skill kit (all outfitId-associated skills in the engine's
@@ -345,10 +348,12 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             return r === 'white' || r === 'gold';
           })
         : []);
+    // Skills this uma's career training events can grant (availability, not per-run).
+    const eventSkills = uma1Plan ? (umaEventsByUmaId[uma1Plan.umaId] ?? []) : [];
 
     return buildCoverageMatrix({
       wishlistSkillIds,
-      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills } : null,
+      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills, eventSkills } : null,
       activeParents,
       deckCards,
       deckLbByCardId,
@@ -359,7 +364,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
       memberAffinity,
       umaNameById,
     });
-  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId]);
+  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId]);
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
   const rows = useMemo(

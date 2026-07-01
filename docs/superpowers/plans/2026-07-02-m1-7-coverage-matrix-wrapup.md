@@ -12,6 +12,10 @@ The center-column **"Obtainable vs. wishlist"** coverage card on `/inheritance`.
 - Deck chips render the real **support-card icon** (no stat-type tile).
 - Parent green sparks reconciled before pricing (no fake `~0%`); gp green shows no `%` (unpriced, honest).
 
+## Added 2026-07-02 (post-wrap): career training-event `Event` column
+
+A 7th obtainability source landed after the initial wrap — a **career training-event** column right of Innate (`planUma.eventSkills`; Taiki → Head-On/All I've Got). Data: `public/data/uma_events.json` (`{ umaId: skillId[] }`) built by `scripts/build-uma-events.ts` inverting daftuyda `skills_all.json` `char_e`. **Provenance path B** — GameTora-derived, owner-authorized **private-use** relaxation (input localOnly/gitignored, `uma_events.json` **swap before public**; docs/provenance.md §10). Not in `pnpm data:build` (run `pnpm tsx scripts/build-uma-events.ts`). **1177 tests.**
+
 ## Resume here (next session)
 
 1. **Integration is unfinished.** The user was choosing Push+PR / merge / keep when we wrapped. Use `superpowers:finishing-a-development-branch`. `origin/main` had moved past this branch's base — **rebase onto latest `origin/main` first**. (At wrap time local `origin/main` ref was `dbe6543`; re-fetch.)

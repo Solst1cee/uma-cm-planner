@@ -56,6 +56,40 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.innate.length).toBe(0);
   });
 
+  describe('career training-event column', () => {
+    it('marks a wishlist skill covered via the event cell (uma event pool)', () => {
+      const res = buildCoverageMatrix(baseInput({
+        planUma: { umaId: '100301', nameEn: 'Taiki', innateSkills: [], eventSkills: ['200033'] },
+      }));
+      const row = res.rows.find((r) => r.skillId === '200033')!;
+      expect(row.cells.event.length).toBe(1);
+      expect(row.cells.innate.length).toBe(0); // event-only, not innate
+      expect(row.covered).toBe(true);
+    });
+
+    it('event availability is independent of innate (both can fire)', () => {
+      const res = buildCoverageMatrix(baseInput({
+        planUma: { umaId: '100301', nameEn: 'Taiki', innateSkills: ['200011'], eventSkills: ['200011'] },
+      }));
+      const row = res.rows.find((r) => r.skillId === '200011')!;
+      expect(row.cells.innate.length).toBe(1);
+      expect(row.cells.event.length).toBe(1);
+    });
+
+    it('no eventSkills → event cells stay empty', () => {
+      const res = buildCoverageMatrix(baseInput({}));
+      expect(res.rows.every((r) => r.cells.event.length === 0)).toBe(true);
+    });
+
+    it('counts an Event coverage bar', () => {
+      const res = buildCoverageMatrix(baseInput({
+        planUma: { umaId: '100301', nameEn: 'Taiki', innateSkills: [], eventSkills: ['200033'] },
+      }));
+      const bar = res.bars.find((b) => b.column === 'event')!;
+      expect(bar.count).toBe(1);
+    });
+  });
+
   describe('variant-family coverage (○ ≡ ◎, gold separate)', () => {
     // Right-Handed family: ○ and ◎ are the same white skill (interchangeable);
     // the Demon gold is a SEPARATE skill. Ids 5000xx to avoid the base fixtures.
@@ -87,6 +121,16 @@ describe('buildCoverageMatrix', () => {
     it('innate gold Demon does NOT cover a wishlisted white ◎ (gold is separate)', () => {
       const res = buildCoverageMatrix(famInput('500011', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500014'] } }));
       expect(res.rows[0]!.cells.innate.length).toBe(0);
+    });
+
+    // Event pool — same family rules as innate
+    it('event ○ covers a wishlisted ◎ (same white skill)', () => {
+      const res = buildCoverageMatrix(famInput('500011', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: [], eventSkills: ['500012'] } }));
+      expect(res.rows[0]!.cells.event.length).toBe(1);
+    });
+    it('event ○ does NOT cover the wishlisted gold Demon', () => {
+      const res = buildCoverageMatrix(famInput('500014', { planUma: { umaId: '100301', nameEn: 'T', innateSkills: [], eventSkills: ['500012'] } }));
+      expect(res.rows[0]!.cells.event.length).toBe(0);
     });
 
     // Parent spark — priced off the held ○, not the wishlisted ◎

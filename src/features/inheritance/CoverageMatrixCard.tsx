@@ -10,6 +10,7 @@ export type RenderCardIcon = (cardId: string, size: number) => ReactNode;
 
 const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'innate', label: 'Innate' },
+  { key: 'event', label: 'Event' },
   { key: 'parent', label: 'Parent', sep: true },
   { key: 'gp', label: 'G.parent' },
   { key: 'hint', label: 'Hint', sep: true },
@@ -17,16 +18,17 @@ const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'random', label: 'Random' },
 ];
 const BAR_LABEL: Record<CoverageColumn | 'uncovered', string> = {
-  innate: 'Innate', parent: 'Parent', gp: 'G.parent', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
+  innate: 'Innate', event: 'Event', parent: 'Parent', gp: 'G.parent', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
 };
 
 function Chip({ chip, renderCardIcon }: { chip: CoverageChip; renderCardIcon?: RenderCardIcon }) {
-  const round = chip.kind === 'innate' || chip.kind === 'parent' || chip.kind === 'gp';
+  const round = chip.kind === 'innate' || chip.kind === 'event' || chip.kind === 'parent' || chip.kind === 'gp';
   // Deck-source chips (hint/chain/random) render the real support-card icon when
   // the page supplies a renderer; otherwise fall back to the type-colored initials chip.
   const icon = chip.cardId && renderCardIcon ? renderCardIcon(chip.cardId, 20) : null;
   const cls =
     chip.kind === 'innate' ? 'inh-cov-chip tier-spark' :
+    chip.kind === 'event' ? 'inh-cov-chip inh-cov-chip-event' :
     chip.kind === 'parent' ? 'inh-cov-chip inh-cov-chip-parent' :
     chip.kind === 'gp' ? 'inh-cov-chip inh-cov-chip-gp' :
     `inh-cov-chip inh-cov-chip-card type-${chip.cardType ?? 'speed'}`;
@@ -103,9 +105,10 @@ export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCard
         </span>
         <HeaderHelp label="Obtainability matrix help">
           Crosses each wishlist skill against where you can get it: your uma's
-          innate kit, parent/grandparent sparks (with real inherit-%), and your
-          deck's hint / chain-event / random-event skills. Red-striped rows are
-          uncovered.
+          innate kit, its career training events, parent/grandparent sparks (with
+          real inherit-%), and your deck's hint / chain-event / random-event
+          skills. "Event" is availability — whether the uma's events can grant the
+          skill — not a per-run guarantee. Red-striped rows are uncovered.
         </HeaderHelp>
       </div>
       <div className="cmp-plan-card-body inh-cov-body">

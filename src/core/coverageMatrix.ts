@@ -11,8 +11,8 @@ import { tierForCardSkill } from '@/core/coverage';
 import { sparkChance } from '@/core/spark';
 import { reconcileGreenSkillId } from '@/core/greenSparkReconcile';
 
-export type CoverageColumn = 'innate' | 'parent' | 'gp' | 'hint' | 'chain' | 'random';
-export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'parent', 'gp', 'hint', 'chain', 'random'];
+export type CoverageColumn = 'innate' | 'event' | 'parent' | 'gp' | 'hint' | 'chain' | 'random';
+export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'event', 'parent', 'gp', 'hint', 'chain', 'random'];
 
 export interface CoverageChip {
   kind: CoverageColumn; label: string; title: string;
@@ -35,7 +35,7 @@ export interface CoverageInput {
    *  unique and inherited-unique are deliberately excluded — they aren't
    *  "innate" in the coverage sense (the unique you always have; the
    *  inherited-unique is what a parent passes down). */
-  planUma: { umaId: string; nameEn: string; innateSkills?: string[] } | null;
+  planUma: { umaId: string; nameEn: string; innateSkills?: string[]; eventSkills?: string[] } | null;
   activeParents: Array<{ parent: Parent; isA: boolean }>;
   deckCards: SupportCardRecord[];
   deckLbByCardId: Map<string, LimitBreak>;
@@ -98,16 +98,25 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   // family + coverage tier, so an innate "Right-Handed ○" covers a wishlisted
   // "Right-Handed ◎" (same skill, higher grade) but not the gold "Demon".
   const innateSkills = planUma?.innateSkills ?? [];
+  // Career training-event availability: the skill ids this uma's story/training
+  // events can grant (source-inverted from daftuyda's `char_e`, see uma_events.json).
+  const eventSkills = planUma?.eventSkills ?? [];
 
   const rows: CoverageRow[] = wishlistSkillIds.map((skillId) => {
     const rec = skillById.get(skillId);
     const cells: Record<CoverageColumn, CoverageChip[]> = {
-      innate: [], parent: [], gp: [], hint: [], chain: [], random: [],
+      innate: [], event: [], parent: [], gp: [], hint: [], chain: [], random: [],
     };
 
     // Innate (○/◎ family-aware, gold separate)
     if (coveringId(skillId, innateSkills, skillById)) {
       cells.innate.push({ kind: 'innate', label: initials(planUma?.nameEn ?? '?'), title: planUma?.nameEn ?? 'Innate' });
+    }
+
+    // Career training-event (○/◎ family-aware, gold separate). Availability —
+    // whether this uma's events *can* grant it — not a per-run guarantee.
+    if (coveringId(skillId, eventSkills, skillById)) {
+      cells.event.push({ kind: 'event', label: initials(planUma?.nameEn ?? '?'), title: `${planUma?.nameEn ?? 'Uma'} — training event` });
     }
 
     // Parent + grandparent (isolated per-member pct, priced off the held spark)
