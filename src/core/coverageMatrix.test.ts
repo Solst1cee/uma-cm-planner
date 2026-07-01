@@ -129,4 +129,43 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.parent[0]!.pct).toBeGreaterThan(0);
     expect(row.cells.gp[0]!.pct).toBeGreaterThan(0);
   });
+
+  it('FIX A — parent green spark is priced (pct > 0, not ~0%)', () => {
+    // greenMap maps native '100011' → inherited-unique '900011'.
+    // Parent stores green as native id; wishlist uses 9xxxxx id.
+    // Before FIX A, sparkChance saw greenSpark.skillId='100011' vs skillId='900011' → no match → pct 0.
+    const p = parent('pa', '100101', { greenSpark: { skillId: '100011', stars: 3 } });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
+    const row = res.rows.find((r) => r.skillId === '900011')!;
+    expect(row.cells.parent.length).toBe(1);
+    expect(row.cells.parent[0]!.pct).toBeGreaterThan(0); // green base [5,10,15] → 3★ > 0
+  });
+
+  it('FIX B — grandparent green-only spark chip shows no pct (unpriced, not ~0%)', () => {
+    // GP grants via a green spark only; sparkChance cannot price gp green sparks.
+    // pct must be undefined so the chip renders as "unpriced" not "~0%".
+    const gp: import('./types').ParentRef = {
+      umaId: '200301',
+      whiteSparks: [],
+      greenSpark: { skillId: '100011', stars: 3 },
+    };
+    const p = parent('pb', '100102', { grandparents: [gp, undefined] });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
+    const row = res.rows.find((r) => r.skillId === '900011')!;
+    expect(row.cells.gp.length).toBe(1);
+    expect(row.cells.gp[0]!.pct).toBeUndefined();
+  });
+
+  it('FIX B — grandparent white spark is still priced (pct > 0)', () => {
+    // A GP with a matching white spark should still get a numeric pct.
+    const gp: import('./types').ParentRef = {
+      umaId: '200401',
+      whiteSparks: [{ skillId: '200033', stars: 3 }],
+    };
+    const p = parent('pc', '100103', { grandparents: [gp, undefined] });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
+    const row = res.rows.find((r) => r.skillId === '200033')!;
+    expect(row.cells.gp.length).toBe(1);
+    expect(row.cells.gp[0]!.pct).toBeGreaterThan(0);
+  });
 });

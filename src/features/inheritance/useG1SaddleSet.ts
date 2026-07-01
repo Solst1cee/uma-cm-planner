@@ -12,6 +12,11 @@
  */
 import g1 from './g1_saddle_ids.json';
 
+// Module-level constant: the JSON is static, so allocate exactly once and reuse
+// the same Set reference across every render — callers' useMemo won't spuriously
+// recompute on the parent chip coverage calculation.
+const G1_SET: ReadonlySet<string> = new Set((g1 as { g1SaddleIds?: string[] }).g1SaddleIds ?? []);
+
 export function useG1SaddleSet(): ReadonlySet<string> {
-  return new Set((g1 as { g1SaddleIds?: string[] }).g1SaddleIds ?? []);
+  return G1_SET;
 }

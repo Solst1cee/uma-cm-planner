@@ -93,7 +93,14 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
     for (const { parent } of activeParents) {
       if (parentGrantsSkill(parent, skillId, greenMap)) {
         // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
-        const parentSelf: Parent = { ...parent, grandparents: undefined };
+        // FIX A: reconcile greenSpark.skillId so sparkChance's green path (native→9xxxxx) can match.
+        const parentSelf: Parent = {
+          ...parent,
+          greenSpark: parent.greenSpark
+            ? { ...parent.greenSpark, skillId: reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) }
+            : undefined,
+          grandparents: undefined,
+        };
         const parentPct = sparkChance({
           parents: [parentSelf], skillId, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
@@ -107,24 +114,31 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       }
       (parent.grandparents ?? []).forEach((ref, gpIndex) => {
         if (refGrantsSkill(ref, skillId, greenMap)) {
-          // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
-          const gpOnly: Parent = {
-            ...parent,
-            whiteSparks: [],
-            greenSpark: undefined,
-            grandparents: (gpIndex === 0
-              ? [ref, undefined]
-              : [undefined, ref]) as [ParentRef?, ParentRef?],
-          };
-          const gpPct = sparkChance({
-            parents: [gpOnly], skillId, rates: sparkRates,
-            opts: { memberAffinity, skillRarity: rarityLookup },
-          }).pct;
+          // FIX B: sparkChance only prices gp WHITE sparks (green gp math deferred, mechanics-notes §10).
+          // Only attach pct when the gp match is via a white spark; green-only match → pct undefined
+          // (omitting it is honest — "unpriced" not "~0%").
+          const gpWhiteMatch = ref!.whiteSparks?.some((w) => w.skillId === skillId) ?? false;
+          let gpPct: number | undefined;
+          if (gpWhiteMatch) {
+            // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
+            const gpOnly: Parent = {
+              ...parent,
+              whiteSparks: [],
+              greenSpark: undefined,
+              grandparents: (gpIndex === 0
+                ? [ref, undefined]
+                : [undefined, ref]) as [ParentRef?, ParentRef?],
+            };
+            gpPct = Math.round(sparkChance({
+              parents: [gpOnly], skillId, rates: sparkRates,
+              opts: { memberAffinity, skillRarity: rarityLookup },
+            }).pct);
+          }
           cells.gp.push({
             kind: 'gp',
             label: umaLabel(String(ref!.umaId), String(ref!.umaId)),
             title: umaTitle(String(ref!.umaId), 'Grandparent'),
-            pct: Math.round(gpPct),
+            ...(gpPct !== undefined ? { pct: gpPct } : {}),
           });
         }
       });
