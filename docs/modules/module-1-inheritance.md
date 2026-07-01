@@ -86,6 +86,21 @@ Provider-free panels: the page injects game data, `renderIcon`, and `skillName` 
 
 **Known gap:** the mockup's **Stats filter row + per-tile stat-line are NOT built** — `PoolItem` carries no per-LB stat-line values yet (tb/mb/fs_bonus/specialty_rate/race_bonus/hint_rate from euophrys). This is the one §5 element deferred; a follow-up must thread those values from the vendored data onto `PoolItem`.
 
+### M1.6 additions — card effects, deck conflict rules, detail-card polish (2026-07-01)
+
+A second M1.6 pass (merged with main's M1.4). **1119 tests**, typecheck + build green.
+
+- **Card Unique Effects** (`public/data/card_unique_effects.json`) — from master.mdb `support_card_unique_effect` × `text_data` enum; 21 hand-written conditional (type≥101) lines in `data-overrides/unique_effect_text_overrides.json`. Build: `scripts/build-card-unique-effects.ts` (+ localOnly input `scripts/borrowed/support-card-unique-effects.json`).
+- **Full base-effect list** (`public/data/card_effects.json`) — all always-on effects, LB-aware, from GameTora's effect matrix (`scripts/build-card-effects.ts`; `CAP_INDEX_BY_RARITY`, drops inactive/all-zero). Both datasets lazy-fetched in `InheritancePage` and rendered in the detail card. Provenance §6b.
+- **Detail card redesign** (`CardDetailCard`): single column — centered full-width art (soft `--ds-card-shadow`, click → full viewer), a centered meta row (stat icon + rarity above the LB stepper), **Unique Effect above the base Effects** (shared muted styling, uniform `0.28rem` rhythm), **Estimated Effect Value** under the list, wishlist count on the skill section's first line, thin separators.
+- **Deck vs. trainee conflict rules** (`deckConflicts.ts`, pure + tested): can't use a support card of the **trainee's own character** (greyed + centered "Trainee" badge, add blocked); **one card per character** (siblings blocked; template dupes greyed "Dup"). Matched by character **name** (`uma.nameEn` ≡ card `charName`, verified across the roster). Enforced in picker tiles, the detail Add button, deck slots, and a guarded `addToDeck`. Clicking a filled deck slot's icon opens its detail (`onSelect`).
+- **Skill filter** drops `unique`/`inherited_unique` skills (not card-obtainable). **Scoring weights** card moved inside the Support cards panel (below search, above grid; `weightsSlot`), smaller head, "?" `HeaderHelp` popup, **default-collapsed**. Removed the "N shown" header count.
+
+**Gotchas (this pass):**
+- **Match trainee/deck conflicts by character name** — support cards have `charName` but no `charaId`; every uma's `nameEn` equals its card `charName` (whole Global roster), so name-matching is exact. Don't reach for a charaId that isn't on `SupportCardRecord`.
+- **`addToDeck` allows the add when the card can't be resolved** (`cardById` miss) rather than early-returning — the pool renders from `items`/`cards`, and a test mock left `cardById` empty; a hard `if (!card) return` silently dropped every add.
+- **Don't commit `scripts/borrowed/gametora/`** (network-fetched `support-cards.json`/`support-effects.json`); a `scripts/borrowed/.gitignore` now ignores it. Only localOnly borrowed inputs are tracked.
+
 ## M1.4 "Inheritance" card + UmaExtractor importer + spark-filter picker (2026-06-27)
 
 The center-column **"Inheritance"** card: owned **Parent 1 & 2** slots
