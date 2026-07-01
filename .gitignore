@@ -9,6 +9,8 @@ spikes/
 
 # safety net: raw UmaExtractor exports dropped at root
 /data.json
+# UmaExtractor sample export (personal account data — sample for M1 import work)
+docs/UmaExtractorSampleData/
 *.local
 
 # editor/os
