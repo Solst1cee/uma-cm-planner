@@ -5,7 +5,7 @@
  * real inherit-% (spark.ts). Real-data port of the design handoff's detailFor.
  */
 import type {
-  CardType, LimitBreak, Parent, SkillRarity, SkillRecord, SparkRates, SupportCardRecord,
+  CardType, LimitBreak, Parent, ParentRef, SkillRarity, SkillRecord, SparkRates, SupportCardRecord,
 } from '@/core/types';
 import { tierForCardSkill } from '@/core/coverage';
 import { sparkChance } from '@/core/spark';
@@ -38,6 +38,8 @@ export interface CoverageInput {
   greenMap: Map<string, string>;
   sparkRates: SparkRates;
   memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
+  /** Optional: resolve display names for parent/grandparent chips. Key = umaId string. */
+  umaNameById?: Map<string, string>;
 }
 
 function initials(name: string): string {
@@ -61,9 +63,15 @@ function refGrantsSkill(ref: NonNullable<Parent['grandparents']>[number], skillI
 export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const {
     wishlistSkillIds, planUma, planUniqueSkillId, activeParents, deckCards, deckLbByCardId,
-    skillById, greenMap, sparkRates, memberAffinity,
+    skillById, greenMap, sparkRates, memberAffinity, umaNameById,
   } = input;
   const rarityLookup = (id: string): SkillRarity | undefined => skillById.get(id)?.rarity;
+
+  /** Resolve a display name for a umaId, falling back to the raw id. */
+  const umaLabel = (umaId: string, fallback: string) =>
+    initials(umaNameById?.get(umaId) ?? fallback);
+  const umaTitle = (umaId: string, prefix: string) =>
+    umaNameById?.get(umaId) ?? `${prefix} ${umaId}`;
 
   const innateSet = new Set(
     (planUma?.innateSkills ?? (planUniqueSkillId ? [planUniqueSkillId] : []))
@@ -81,22 +89,43 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       cells.innate.push({ kind: 'innate', label: initials(planUma?.nameEn ?? '?'), title: planUma?.nameEn ?? 'Innate' });
     }
 
-    // Parent + grandparent
+    // Parent + grandparent (FIX 1: isolated per-member pct)
     for (const { parent } of activeParents) {
       if (parentGrantsSkill(parent, skillId, greenMap)) {
-        const pct = sparkChance({
-          parents: [parent], skillId, rates: sparkRates,
+        // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
+        const parentSelf: Parent = { ...parent, grandparents: undefined };
+        const parentPct = sparkChance({
+          parents: [parentSelf], skillId, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct;
-        cells.parent.push({ kind: 'parent', label: initials(String(parent.umaId)), title: `Parent ${parent.umaId}`, pct: Math.round(pct) });
+        cells.parent.push({
+          kind: 'parent',
+          label: umaLabel(String(parent.umaId), String(parent.umaId)),
+          title: umaTitle(String(parent.umaId), 'Parent'),
+          pct: Math.round(parentPct),
+        });
       }
-      (parent.grandparents ?? []).forEach((ref, _gpIndex) => {
+      (parent.grandparents ?? []).forEach((ref, gpIndex) => {
         if (refGrantsSkill(ref, skillId, greenMap)) {
-          const pct = sparkChance({
-            parents: [parent], skillId, rates: sparkRates,
+          // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
+          const gpOnly: Parent = {
+            ...parent,
+            whiteSparks: [],
+            greenSpark: undefined,
+            grandparents: (gpIndex === 0
+              ? [ref, undefined]
+              : [undefined, ref]) as [ParentRef?, ParentRef?],
+          };
+          const gpPct = sparkChance({
+            parents: [gpOnly], skillId, rates: sparkRates,
             opts: { memberAffinity, skillRarity: rarityLookup },
           }).pct;
-          cells.gp.push({ kind: 'gp', label: initials(String(ref!.umaId)), title: `Grandparent ${ref!.umaId}`, pct: Math.round(pct) });
+          cells.gp.push({
+            kind: 'gp',
+            label: umaLabel(String(ref!.umaId), String(ref!.umaId)),
+            title: umaTitle(String(ref!.umaId), 'Grandparent'),
+            pct: Math.round(gpPct),
+          });
         }
       });
     }
@@ -130,6 +159,8 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   bars.push({ column: 'uncovered', count: uncoveredCount, pct: total ? Math.round((uncoveredCount / total) * 100) : 0 });
 
   // Bonus: deck + inheritance skills not on the wishlist
+  // FIX 2: no .slice(0, 4) — return ALL chips; capping is a UI concern.
+  // FIX 3: include grandparent sparks in addition to parent sparks.
   const wishSet = new Set(wishlistSkillIds);
   const bonusMap = new Map<string, CoverageChip[]>();
   const addBonus = (id: string, chip: CoverageChip) => {
@@ -139,8 +170,39 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
     bonusMap.set(id, arr);
   };
   for (const { parent } of activeParents) {
-    for (const w of parent.whiteSparks) addBonus(w.skillId, { kind: 'parent', label: initials(String(parent.umaId)), title: `Parent ${parent.umaId}` });
-    if (parent.greenSpark) addBonus(reconcileGreenSkillId(parent.greenSpark.skillId, greenMap), { kind: 'parent', label: initials(String(parent.umaId)), title: `Parent ${parent.umaId}` });
+    // Parent-self sparks
+    for (const w of parent.whiteSparks) {
+      addBonus(w.skillId, {
+        kind: 'parent',
+        label: umaLabel(String(parent.umaId), String(parent.umaId)),
+        title: umaTitle(String(parent.umaId), 'Parent'),
+      });
+    }
+    if (parent.greenSpark) {
+      addBonus(reconcileGreenSkillId(parent.greenSpark.skillId, greenMap), {
+        kind: 'parent',
+        label: umaLabel(String(parent.umaId), String(parent.umaId)),
+        title: umaTitle(String(parent.umaId), 'Parent'),
+      });
+    }
+    // Grandparent sparks (FIX 3)
+    for (const gp of parent.grandparents ?? []) {
+      if (!gp) continue;
+      for (const w of gp.whiteSparks ?? []) {
+        addBonus(w.skillId, {
+          kind: 'gp',
+          label: umaLabel(String(gp.umaId), String(gp.umaId)),
+          title: umaTitle(String(gp.umaId), 'Grandparent'),
+        });
+      }
+      if (gp.greenSpark) {
+        addBonus(reconcileGreenSkillId(gp.greenSpark.skillId, greenMap), {
+          kind: 'gp',
+          label: umaLabel(String(gp.umaId), String(gp.umaId)),
+          title: umaTitle(String(gp.umaId), 'Grandparent'),
+        });
+      }
+    }
   }
   for (const c of deckCards) {
     for (const cs of c.skills) {
@@ -148,8 +210,9 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       addBonus(cs.skillId, { kind, label: initials(c.nameEn), title: c.nameEn, cardType: c.type });
     }
   }
+  // FIX 2: no .slice(0, 4) — return all chips
   const bonus: BonusEntry[] = [...bonusMap.entries()].map(([skillId, chips]) => ({
-    skillId, name: skillById.get(skillId)?.nameEn ?? skillId, chips: chips.slice(0, 4),
+    skillId, name: skillById.get(skillId)?.nameEn ?? skillId, chips,
   }));
 
   return { rows, bars, bonus };

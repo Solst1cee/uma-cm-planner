@@ -106,4 +106,27 @@ describe('buildCoverageMatrix', () => {
     const res = buildCoverageMatrix(baseInput({ deckCards: [c], skillById: bonusSkillById }));
     expect(res.bonus.some((b) => b.skillId === '200099')).toBe(true);
   });
+
+  it('a date_event sourceType on a deck card lands in the random cell', () => {
+    const c = card('30002', 'EventCard', [{ skillId: '200033', sourceType: 'date_event' }]);
+    const res = buildCoverageMatrix(baseInput({ deckCards: [c], deckLbByCardId: new Map([['30002', 4]]) }));
+    const row = res.rows.find((r) => r.skillId === '200033')!;
+    expect(row.cells.random.length).toBe(1);
+  });
+
+  it('parent and grandparent with the same skill produce isolated per-member pcts (FIX 1)', () => {
+    // Parent has its own white spark for 200033, and a grandparent also has a white spark for 200033.
+    // Both cells should be populated with an independent (isolated) pct > 0.
+    const gp: import('./types').ParentRef = { umaId: '200201', whiteSparks: [{ skillId: '200033', stars: 2 }] };
+    const p = parent('pa', '100101', {
+      whiteSparks: [{ skillId: '200033', stars: 3 }],
+      grandparents: [gp, undefined],
+    });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
+    const row = res.rows.find((r) => r.skillId === '200033')!;
+    expect(row.cells.parent.length).toBe(1);
+    expect(row.cells.gp.length).toBe(1);
+    expect(row.cells.parent[0]!.pct).toBeGreaterThan(0);
+    expect(row.cells.gp[0]!.pct).toBeGreaterThan(0);
+  });
 });
