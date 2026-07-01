@@ -53,6 +53,47 @@ function initials(name: string): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?';
 }
 
+const CROSS = '×'; // "×" negative-variant glyph (e.g. "Right-Handed ×")
+
+/**
+ * Coverage tier within a variant family. ○ and ◎ are the same white skill at
+ * different grades (○ upgrades to ◎), so both are tier 1; the gold version is a
+ * strictly-higher tier 2; the "×" negative variant is tier 0. A source at tier T
+ * covers a wishlist skill at tier ≤ T (so innate/spark "Right-Handed ○" covers
+ * a wishlisted "Right-Handed ◎", but not the gold "Right-Handed Demon").
+ */
+function coverageTier(s: SkillRecord): number {
+  if (s.rarity === 'gold') return 2;
+  if (s.nameEn.includes(CROSS)) return 0;
+  return 1;
+}
+
+/** Two skill ids belong to the same variant family (or are identical). */
+function sameFamily(aId: string, bId: string, skillById: Map<string, SkillRecord>): boolean {
+  if (aId === bId) return true;
+  const a = skillById.get(aId);
+  const b = skillById.get(bId);
+  if (!a || !b) return false;
+  return (a.variantSkillIds ?? []).includes(bId) || (b.variantSkillIds ?? []).includes(aId);
+}
+
+/**
+ * Does any `have` skill cover the `want` wishlist skill? True when a held skill
+ * is in the same family AND at an equal-or-higher coverage tier. Falls back to
+ * exact-id match for skills with no variant family.
+ */
+function familyTierCovers(want: string, have: Iterable<string>, skillById: Map<string, SkillRecord>): boolean {
+  const wantRec = skillById.get(want);
+  const wantTier = wantRec ? coverageTier(wantRec) : 1;
+  for (const h of have) {
+    if (h === want) return true;
+    if (!sameFamily(h, want, skillById)) continue;
+    const hRec = skillById.get(h);
+    if (hRec && coverageTier(hRec) >= wantTier) return true;
+  }
+  return false;
+}
+
 /** A parent's own spark that grants `skillId` (white match, or green reconciled). */
 function parentGrantsSkill(p: Parent, skillId: string, greenMap: Map<string, string>): boolean {
   if (p.whiteSparks.some((w) => w.skillId === skillId)) return true;
@@ -79,10 +120,10 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const umaTitle = (umaId: string, prefix: string) =>
     umaNameById?.get(umaId) ?? `${prefix} ${umaId}`;
 
-  // Innate = the uma's built-in NON-unique kit (white + gold), matched directly
-  // against the wishlist. No green reconciliation here — unique / inherited-unique
-  // are excluded upstream, so there is nothing to translate.
-  const innateSet = new Set(planUma?.innateSkills ?? []);
+  // Innate = the uma's built-in NON-unique kit (white + gold). Matched by variant
+  // family + coverage tier, so an innate "Right-Handed ○" covers a wishlisted
+  // "Right-Handed ◎" (same skill, higher grade) but not the gold "Demon".
+  const innateSkills = planUma?.innateSkills ?? [];
 
   const rows: CoverageRow[] = wishlistSkillIds.map((skillId) => {
     const rec = skillById.get(skillId);
@@ -91,7 +132,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
     };
 
     // Innate
-    if (innateSet.has(skillId)) {
+    if (familyTierCovers(skillId, innateSkills, skillById)) {
       cells.innate.push({ kind: 'innate', label: initials(planUma?.nameEn ?? '?'), title: planUma?.nameEn ?? 'Innate' });
     }
 

@@ -56,6 +56,35 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.innate.length).toBe(0);
   });
 
+  describe('innate variant-family coverage (○ / ◎ / gold tiers)', () => {
+    // Right-Handed family: ○ and ◎ are the same white skill (tier 1); the Demon
+    // gold is tier 2. Ids 5000xx to stay clear of the base fixtures.
+    const RH: [string, string, SkillRecord['rarity'], string[]][] = [
+      ['500011', 'Right-Handed ◎', 'white', ['500012', '500014']],
+      ['500012', 'Right-Handed ○', 'white', ['500011', '500014']],
+      ['500014', 'Right-Handed Demon', 'gold', ['500011', '500012']],
+    ];
+    const famById = new Map(
+      RH.map(([id, name, rarity, variants]) => [id, { ...skill(id, name, rarity), variantSkillIds: variants }]),
+    );
+    const famInput = (wishId: string, innate: string[]) =>
+      baseInput({ wishlistSkillIds: [wishId], skillById: famById, greenMap: new Map(),
+        planUma: { umaId: '100301', nameEn: 'Trainee', innateSkills: innate } });
+
+    it('innate ○ covers a wishlisted ◎ (same white skill, higher grade)', () => {
+      const res = buildCoverageMatrix(famInput('500011', ['500012']));
+      expect(res.rows[0]!.cells.innate.length).toBe(1);
+    });
+    it('innate ○ does NOT cover the wishlisted gold Demon', () => {
+      const res = buildCoverageMatrix(famInput('500014', ['500012']));
+      expect(res.rows[0]!.cells.innate.length).toBe(0);
+    });
+    it('innate gold Demon covers a wishlisted white ◎ (higher tier covers lower)', () => {
+      const res = buildCoverageMatrix(famInput('500011', ['500014']));
+      expect(res.rows[0]!.cells.innate.length).toBe(1);
+    });
+  });
+
   it('covers a white wishlist skill via a parent white spark with an inherit %', () => {
     const p = parent('pa', '100101', { whiteSparks: [{ skillId: '200033', stars: 3 }] });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
