@@ -171,6 +171,7 @@ export function InheritanceCard() {
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
+      greenIcon={(id) => { const ic = skillById.get(id)?.iconId; return ic ? <GameIcon kind="skill" id={ic} size={30} alt="" /> : undefined; }}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />

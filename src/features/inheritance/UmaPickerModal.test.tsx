@@ -27,69 +27,62 @@ describe('UmaPickerModal', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('lists all items when open, sorted by affinity desc', () => {
+  it('lists all items when open, sorted by affinity desc + shows the box total', () => {
     render(<UmaPickerModal {...base} open />);
     const tiles = screen.getAllByRole('button', { name: /Alpha|Beta/ });
     expect(tiles[0]).toHaveTextContent('Alpha'); // 50 before 10
-    expect(screen.getByText(/2 match/)).toBeInTheDocument();
+    expect(screen.getByText(/of 2 in your box/i)).toBeInTheDocument();
   });
 
-  it('adding an any-blue >=8 filter narrows to matching tiles', () => {
+  it('filters by a blue total — activate Power, require lineage ≥4', () => {
     render(<UmaPickerModal {...base} open />);
-    fireEvent.click(screen.getByRole('button', { name: /skill \/ any-blue/i }));
-    fireEvent.click(screen.getByRole('menuitem', { name: /any blue/i }));
-    const input = screen.getByLabelText(/any-blue total/i);
-    fireEvent.change(input, { target: { value: '8' } });
+    // Alpha has Power total 8; Beta has none → require Power ≥4.
+    fireEvent.click(screen.getByRole('button', { name: '+ Power' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Power lineage 4' }));
     expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/1 match/)).toBeInTheDocument();
   });
 
-  const clickN = (name: string, n: number) => {
-    for (let i = 0; i < n; i++) fireEvent.click(screen.getByRole('button', { name }));
-  };
-
-  it('the spark grid filters by a blue total (Power total +4 → total ≥4)', () => {
+  it('a parent star auto-raises the total to match', () => {
     render(<UmaPickerModal {...base} open />);
-    // Alpha has Power total 8; Beta has none → require Power ≥4 via the total +.
-    clickN('Power total plus', 4);
-    expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/1 match/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '+ Power' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Power own 3' })); // legacy 3 → total bumps to ≥3
+    expect(screen.getByRole('button', { name: 'Power lineage 3' })).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('total reaches 9 with no legacy (silver cap removed)', () => {
+  it('enforces the 3-member budget — Power total 6 disables Stamina beyond 3★', () => {
     render(<UmaPickerModal {...base} open />);
-    clickN('Power total plus', 12); // clamps at 9
-    expect(screen.getByRole('button', { name: 'Power total plus' })).toBeDisabled(); // hit 9
+    fireEvent.click(screen.getByRole('button', { name: '+ Power' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Power lineage 6' })); // 2 members
+    fireEvent.click(screen.getByRole('button', { name: '+ Stamina' }));
+    expect(screen.getByRole('button', { name: 'Stamina lineage 4' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Stamina lineage 3' })).not.toBeDisabled();
   });
 
-  it('a legacy bump auto-raises the total to match', () => {
+  it('single legacy per category — parent stars lock on a second blue stat', () => {
     render(<UmaPickerModal {...base} open />);
-    clickN('Power legacy plus', 3); // legacy 3 → total bumps to ≥3
-    expect(screen.getByRole('button', { name: 'Power total minus' })).toBeDisabled(); // total == legacy 3, can't go lower
+    fireEvent.click(screen.getByRole('button', { name: '+ Power' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Power own 2' }));
+    fireEvent.click(screen.getByRole('button', { name: '+ Stamina' }));
+    expect(screen.getByRole('button', { name: 'Stamina own 1' })).toBeDisabled();
   });
 
-  it('enforces the 3-member budget — Power total 6 caps Stamina at 3★', () => {
+  it('Reset all clears the filters', () => {
     render(<UmaPickerModal {...base} open />);
-    clickN('Power total plus', 6); // Power total 6 → 2 members
-    clickN('Stamina total plus', 3); // Stamina up to its 3★ cap (1 member left)
-    expect(screen.getByRole('button', { name: 'Stamina total plus' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: '+ Power' }));
+    expect(screen.getByRole('button', { name: 'Power own 1' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /reset all/i }));
+    expect(screen.queryByRole('button', { name: 'Power own 1' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '+ Power' })).toBeInTheDocument(); // add chip back
   });
 
-  it('single legacy per category — legacy + on a second blue stat is locked', () => {
-    render(<UmaPickerModal {...base} open />);
-    clickN('Power legacy plus', 3); // Power legacy 3
-    expect(screen.getByRole('button', { name: 'Stamina legacy plus' })).toBeDisabled();
-  });
-
-  it('green search adds a unique-skill clause with legacy + total steppers', () => {
+  it('green search adds a unique-skill row with parent + total meters', () => {
     const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Other Unique' }];
     render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100151' ? 'Vittoria' : id)} />);
     fireEvent.change(screen.getByRole('searchbox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
     fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
-    expect(screen.getByRole('button', { name: 'Vittoria legacy plus' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Vittoria total plus' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria own 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Vittoria lineage 1' })).toBeInTheDocument();
   });
 
   it('filters tiles by the name search', () => {
@@ -97,7 +90,6 @@ describe('UmaPickerModal', () => {
     fireEvent.change(screen.getByRole('searchbox', { name: /search by name/i }), { target: { value: 'alph' } });
     expect(screen.getByRole('button', { name: /Alpha/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Beta/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/1 match/)).toBeInTheDocument();
   });
 
   it('renders the rank score under the badge, the stat row, and stacked GP nodes', () => {

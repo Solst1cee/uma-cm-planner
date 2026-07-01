@@ -8,9 +8,15 @@ import type { Parent, Stat } from '@/core/types';
 import type { SparkAgg } from './sparkAggregate';
 import { matchesFilters, type SparkFilter } from './sparkFilter';
 import { LineageSparkChips } from './LineageSparkChips';
-import { SparkFilterGrid, type TileKind, type TileValue } from './SparkFilterGrid';
-import { GreenSparkFilter, type GreenClause } from './GreenSparkFilter';
+import { SparkFilterCards, SPARK_NAMES, type SparkCat, type SparkVal } from './SparkFilterCards';
+import { SparkSummary, type SummaryChip } from './SparkSummary';
 import { maxTotalForKey } from './sparkBudget';
+
+/** Green (unique) total caps at 3★ (one member's inherited-unique spark). */
+const GREEN_TOTAL_CAP = 3;
+const STAT_ORDER = ['spd', 'sta', 'pow', 'gut', 'wit'];
+const APT_ORDER = ['turf', 'dirt', 'sprint', 'mile', 'medium', 'long', 'front', 'pace', 'late', 'end'];
+type BpKind = 'blue' | 'pink';
 
 export interface UmaPickerItem {
   /** Roster id (trained_chara_id from the json file). */
@@ -38,9 +44,12 @@ export interface UmaPickerModalProps {
   skillName: (id: string) => string;
   /** True when a spark's skill id is on the plan's wishlist → blue glow on the tile. */
   isWishlisted?: (skillId: string) => boolean;
-  whiteSkillOptions: Array<{ id: string; name: string }>;
+  /** @deprecated white-skill filter dropped in the Star Tracks redesign. */
+  whiteSkillOptions?: Array<{ id: string; name: string }>;
   /** Selectable unique skills for the green-spark search. */
   uniqueSkillOptions?: Array<{ id: string; name: string }>;
+  /** Optional green skill icon node (container-wired GameIcon). */
+  greenIcon?: (skillId: string) => ReactNode;
   onPick: (id: string) => void;
   onClose: () => void;
 }
@@ -48,23 +57,22 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkillOptions, uniqueSkillOptions = [], onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSkillOptions = [], greenIcon, onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
 
-  // --- spark-grid (blue/pink) tile state, derived from / written to `filters` ---
-  const sameTile = (f: SparkFilter, kind: TileKind, key: string) =>
+  // --- blue/pink spark state, derived from / written to `filters` ---
+  const sameTile = (f: SparkFilter, kind: BpKind, key: string) =>
     (kind === 'blue' && f.kind === 'blue' && f.stat === key) ||
     (kind === 'pink' && f.kind === 'pink' && f.aptitude === key);
-  const inCategory = (f: SparkFilter, kind: TileKind) =>
+  const inCategory = (f: SparkFilter, kind: BpKind) =>
     (kind === 'blue' && f.kind === 'blue') || (kind === 'pink' && f.kind === 'pink');
 
-  const tileValue = (kind: TileKind, key: string): TileValue => {
+  const bpValue = (kind: BpKind, key: string): SparkVal => {
     const f = filters.find((x) => sameTile(x, kind, key));
-    return f && 'legacyMin' in f ? { legacyMin: f.legacyMin, totalMin: f.totalMin } : { legacyMin: 0, totalMin: 0 };
+    return f && 'legacyMin' in f ? { legacy: f.legacyMin, total: f.totalMin } : { legacy: 0, total: 0 };
   };
-  const maxTotalFor = (kind: TileKind, key: string): number => {
+  const bpMaxTotal = (kind: BpKind, key: string): number => {
     const totals: Record<string, number> = {};
     for (const f of filters) {
       if (f.kind === 'blue' && kind === 'blue') totals[f.stat] = f.totalMin;
@@ -72,43 +80,72 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
     }
     return maxTotalForKey(totals, key);
   };
-  const legacyLockedFor = (kind: TileKind, key: string): boolean =>
+  const bpLegacyLocked = (kind: BpKind, key: string): boolean =>
     filters.some((f) => inCategory(f, kind) && 'legacyMin' in f && f.legacyMin > 0 && !sameTile(f, kind, key));
 
-  const setTile = (kind: TileKind, key: string, legacyMin: number, totalMin: number) => {
+  const setBp = (kind: BpKind, key: string, legacy: number, total: number) => {
     setFilters((xs) => {
       let others = xs.filter((f) => !sameTile(f, kind, key));
-      // Single legacy per category: setting a legacy clears it on the other types.
-      if (legacyMin > 0) {
-        others = others.map((f) => (inCategory(f, kind) && 'legacyMin' in f ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
-      }
-      if (legacyMin === 0 && totalMin === 0) return others; // cleared
+      if (legacy > 0) others = others.map((f) => (inCategory(f, kind) && 'legacyMin' in f ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
+      if (legacy === 0 && total === 0) return others;
       const clause: SparkFilter = kind === 'blue'
-        ? { id: newId(), kind: 'blue', stat: key as Stat, legacyMin, totalMin }
-        : { id: newId(), kind: 'pink', aptitude: key, legacyMin, totalMin };
+        ? { id: newId(), kind: 'blue', stat: key as Stat, legacyMin: legacy, totalMin: total }
+        : { id: newId(), kind: 'pink', aptitude: key, legacyMin: legacy, totalMin: total };
       return [...others, clause];
     });
   };
 
-  // --- green-spark search state (same budget + single-legacy rules, keyed by skillId) ---
-  const greenClauses: GreenClause[] = filters
-    .filter((f) => f.kind === 'green')
-    .map((f) => ({ id: f.id, skillId: (f as Extract<SparkFilter, { kind: 'green' }>).skillId, legacyMin: f.legacyMin, totalMin: f.totalMin }));
-  const greenMaxTotal = (skillId: string): number => {
-    const totals: Record<string, number> = {};
-    for (const c of greenClauses) totals[c.skillId] = c.totalMin;
-    return maxTotalForKey(totals, skillId);
-  };
+  // --- green (unique) spark state (single-legacy, total capped at 3) ---
+  type GreenF = Extract<SparkFilter, { kind: 'green' }>;
+  const greenClauses = filters.filter((f): f is GreenF => f.kind === 'green');
   const greenLegacyLocked = (skillId: string): boolean =>
     greenClauses.some((c) => c.legacyMin > 0 && c.skillId !== skillId);
-  const setGreen = (skillId: string, legacyMin: number, totalMin: number) => {
+  const setGreen = (skillId: string, legacy: number, total: number) => {
     setFilters((xs) => {
       let others = xs.filter((f) => !(f.kind === 'green' && f.skillId === skillId));
-      if (legacyMin > 0) others = others.map((f) => (f.kind === 'green' ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
-      if (legacyMin === 0 && totalMin === 0) return others;
-      return [...others, { id: newId(), kind: 'green', skillId, legacyMin, totalMin }];
+      if (legacy > 0) others = others.map((f) => (f.kind === 'green' ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
+      if (legacy === 0 && total === 0) return others;
+      return [...others, { id: newId(), kind: 'green', skillId, legacyMin: legacy, totalMin: total }];
     });
   };
+
+  // --- unified spark API for the cards ---
+  const sparkValue = (cat: SparkCat, key: string): SparkVal => {
+    if (cat === 'green') { const c = greenClauses.find((x) => x.skillId === key); return { legacy: c?.legacyMin ?? 0, total: c?.totalMin ?? 0 }; }
+    return bpValue(cat, key);
+  };
+  const setSpark = (cat: SparkCat, key: string, legacy: number, total: number) => {
+    if (cat === 'green') setGreen(key, legacy, total); else setBp(cat, key, legacy, total);
+  };
+  const sparkMaxTotal = (cat: SparkCat, key: string): number => (cat === 'green' ? GREEN_TOTAL_CAP : bpMaxTotal(cat, key));
+  const sparkLegacyLocked = (cat: SparkCat, key: string): boolean => (cat === 'green' ? greenLegacyLocked(key) : bpLegacyLocked(cat, key));
+  const membersUsed = (cat: SparkCat): number => {
+    if (cat === 'green') return greenClauses.length;
+    let used = 0;
+    for (const f of filters) if ((cat === 'blue' && f.kind === 'blue') || (cat === 'pink' && f.kind === 'pink')) used += Math.ceil(f.totalMin / 3);
+    return Math.min(3, used);
+  };
+  const activeGreen = greenClauses.map((c) => ({ key: c.skillId, name: skillName(c.skillId) }));
+  const greenOptions = uniqueSkillOptions.filter((o) => !greenClauses.some((c) => c.skillId === o.id));
+
+  // summary chips (canonical order) + spark-only match count
+  const chipRank = (f: SparkFilter): number => {
+    if (f.kind === 'blue') return STAT_ORDER.indexOf(f.stat);
+    if (f.kind === 'pink') return 100 + APT_ORDER.indexOf(f.aptitude);
+    if (f.kind === 'green') { const i = uniqueSkillOptions.findIndex((o) => o.id === f.skillId); return 200 + (i < 0 ? 99 : i); }
+    return 999;
+  };
+  const summaryChips: SummaryChip[] = filters
+    .filter((f): f is Extract<SparkFilter, { kind: 'blue' | 'pink' | 'green' }> =>
+      (f.kind === 'blue' || f.kind === 'pink' || f.kind === 'green') && (f.legacyMin > 0 || f.totalMin > 0))
+    .sort((a, b) => chipRank(a) - chipRank(b))
+    .map((f) => {
+      const cat = f.kind as SparkCat;
+      const key = f.kind === 'blue' ? f.stat : f.kind === 'pink' ? f.aptitude : f.skillId;
+      const name = f.kind === 'green' ? skillName(f.skillId) : (SPARK_NAMES[key] ?? key);
+      return { id: f.id, cat, name, legacy: f.legacyMin, total: f.totalMin, onRemove: () => setSpark(cat, key, 0, 0) };
+    });
+  const sparkMatchCount = useMemo(() => items.filter((it) => matchesFilters(it.agg, filters)).length, [items, filters]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,49 +167,12 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
 
   if (!open) return null;
 
-  const add = (f: SparkFilter) => { setFilters((xs) => [...xs, f]); setMenuOpen(false); };
-  const update = (id: string, patch: Partial<SparkFilter>) =>
-    setFilters((xs) => xs.map((f) => (f.id === id ? ({ ...f, ...patch } as SparkFilter) : f)));
-  const remove = (id: string) => setFilters((xs) => xs.filter((f) => f.id !== id));
-
-  const numIn = (val: number, on: (n: number) => void, label: string, max: number) => (
-    <label className="inh-uma-min">
-      <span className="muted small">{label}</span>
-      <input type="number" min={0} max={max} value={val} aria-label={label}
-        onChange={(e) => on(Math.max(0, Math.min(max, Number(e.target.value) || 0)))} />
-    </label>
-  );
-
-  // Blue/pink filters live in the spark grid; only white + any-blue use a row.
-  const filterRow = (f: SparkFilter) => (
-    <div key={f.id} className="inh-uma-filter-row">
-      {f.kind === 'white' && (
-        <>
-          <span className="badge spark-white">White</span>
-          <select aria-label="skill" value={f.skillId} onChange={(e) => update(f.id, { skillId: e.target.value })}>
-            {whiteSkillOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-          </select>
-          {numIn(f.legacyMin, (n) => update(f.id, { legacyMin: n }), 'legacy ≥', 3)}
-          {numIn(f.totalMin, (n) => update(f.id, { totalMin: n }), 'total ≥', 9)}
-        </>
-      )}
-      {f.kind === 'anyBlue' && (
-        <>
-          <span className="badge spark-blue">Any blue</span>
-          {numIn(f.totalMin, (n) => update(f.id, { totalMin: n }), 'any-blue total ≥', 9)}
-        </>
-      )}
-      <button type="button" className="cmp-small-btn inh-uma-filter-x" aria-label="Remove filter" onClick={() => remove(f.id)}>✕</button>
-    </div>
-  );
-
   const body = (
     <div className="inh-uma-modal-backdrop" data-testid="uma-modal-backdrop" onClick={onClose}>
       <div className="cmp-plan-card inh-uma-modal" role="dialog" aria-modal="true" aria-label="Pick a parent"
         onClick={(e) => e.stopPropagation()}>
         <header className="cmp-plan-card-head inh-uma-modal-head">
           <span>Pick a parent</span>
-          <span className="muted small">{shown.length} match</span>
           <button type="button" className="cmp-small-btn inh-uma-modal-x" aria-label="Close" onClick={onClose}>✕</button>
         </header>
         <div className="inh-uma-searchbar">
@@ -186,32 +186,17 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, whiteSkil
           />
         </div>
         <div className="inh-uma-filterbar">
-          <SparkFilterGrid
-            value={tileValue}
-            onTile={setTile}
-            maxTotal={maxTotalFor}
-            legacyLocked={legacyLockedFor}
+          <SparkSummary matchCount={sparkMatchCount} total={items.length} chips={summaryChips} onReset={() => setFilters([])} />
+          <SparkFilterCards
+            value={sparkValue}
+            onSet={setSpark}
+            maxTotal={sparkMaxTotal}
+            legacyLocked={sparkLegacyLocked}
+            membersUsed={membersUsed}
+            activeGreen={activeGreen}
+            greenOptions={greenOptions}
+            greenIcon={greenIcon}
           />
-          <GreenSparkFilter
-            options={uniqueSkillOptions}
-            clauses={greenClauses}
-            skillName={skillName}
-            maxTotal={greenMaxTotal}
-            legacyLocked={greenLegacyLocked}
-            onSet={setGreen}
-          />
-          <div className="inh-uma-extra-filters">
-            <div className="inh-uma-add">
-              <button type="button" className="cmp-small-btn" aria-haspopup="menu" onClick={() => setMenuOpen((o) => !o)}>+ Skill / any-blue</button>
-              {menuOpen && (
-                <div className="inh-uma-add-menu" role="menu">
-                  <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'white', skillId: whiteSkillOptions[0]?.id ?? '', legacyMin: 0, totalMin: 1 })}>White skill</button>
-                  <button type="button" role="menuitem" onClick={() => add({ id: newId(), kind: 'anyBlue', totalMin: 0 })}>Any blue</button>
-                </div>
-              )}
-            </div>
-            {filters.filter((f) => f.kind === 'white' || f.kind === 'anyBlue').map(filterRow)}
-          </div>
         </div>
         <div className="cmp-plan-card-body inh-uma-grid">
           {shown.length === 0 && <p className="muted small">No veterans match.</p>}
