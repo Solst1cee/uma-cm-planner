@@ -40,6 +40,9 @@ export interface SupportCardPoolCardProps {
   /** Optional node rendered between the search/filters and the grid (e.g. the
    *  Scoring weights card). */
   weightsSlot?: React.ReactNode;
+  /** ISO date (YYYY-MM-DD) of the CM — gates JP-ahead cards to those released by
+   *  this date. Falls back to today when omitted. */
+  asOfISO?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -74,12 +77,13 @@ export function SupportCardPoolCard({
   selectedCardId = null,
   onSelectCard,
   weightsSlot,
+  asOfISO,
 }: SupportCardPoolCardProps) {
   const [view, setView] = useState<'icon' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
 
-  const filtered = sortPool(filterPool(items, filters), sort);
+  const filtered = sortPool(filterPool(items, filters, asOfISO), sort);
 
   function setRarity(rarity: PoolFilters['rarity']) {
     setFilters((f) => ({ ...f, rarity }));
@@ -229,6 +233,17 @@ export function SupportCardPoolCard({
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+
+          {/* Upcoming (JP-ahead) toggle */}
+          <div className="inh-pool-filter-row">
+            <label className="cmp-upcoming-toggle">
+              <input
+                type="checkbox"
+                checked={filters.showUpcoming}
+                onChange={(e) => setFilters((f) => ({ ...f, showUpcoming: e.target.checked }))}
+              />{' '}show upcoming
+            </label>
+          </div>
         </div>
 
         {/* Optional card (Scoring weights) between the search/filters and the grid. */}
@@ -327,6 +342,12 @@ function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, on
             </span>
           )}
         </button>
+        {/* Predicted release date badge — shown for JP-ahead cards with a projected date. */}
+        {item.releaseDatePredicted && item.releaseDate && (
+          <span className="inh-pool-tile-release-badge" title="Predicted Global release date">
+            ~{item.releaseDate}
+          </span>
+        )}
         {/* Hover-only quick-add (top-right of the icon). Hidden once in the deck
             or when the card can't be added (trainee / duplicate character). */}
         {!inDeck && !blocked && (
