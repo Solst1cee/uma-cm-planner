@@ -1,0 +1,20 @@
+{
+  "pkg": "uma-cm-planner",
+  "globalName": "UmaCmPlanner",
+  "projectId": "96cfe0cc-ea8f-498a-b18c-cb1c23f6b89f",
+  "shape": "package",
+  "entry": ".design-sync/entry.ts",
+  "tsconfig": "tsconfig.json",
+  "provider": { "component": "GameDataProvider" },
+  "guidelinesGlob": [],
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "TimelineEntryCard": "src/features/meta-intel/TimelineEntryCard.tsx",
+    "TimelineDetailPanel": "src/features/meta-intel/TimelineDetailPanel.tsx",
+    "SearchPicker": "src/features/parents/SearchPicker.tsx",
+    "GameIcon": "src/features/data/GameIcon.tsx",
+    "BuildCards": "src/features/sp-optimizer/BuildCards.tsx",
+    "SkillPicker": "src/features/skill-planner/SkillPicker.tsx",
+    "PlanHeaderPanel": "src/features/skill-planner/PlanHeaderPanel.tsx"
+  }
+}
