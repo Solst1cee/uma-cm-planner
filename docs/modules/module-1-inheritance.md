@@ -195,7 +195,7 @@ The right-column **"Obtainable vs. wishlist"** card (`CoverageMatrixCard`) lande
 - **`src/features/inheritance/useG1SaddleSet.ts`** — hook that loads `g1_saddle_ids.json` (lazy fetch from the in-`src` copy) and returns a `Set<number>`; returns `new Set()` on empty/missing data.
 - **`src/features/inheritance/g1_saddle_ids.json`** (in-`src` copy, currently `[]`) + **`data-overrides/g1_saddle_ids.json`** (P5 hand-patch source, also currently `[]`).
 
-**Test suite:** 1151 tests pass (156 files), typecheck + build green.
+**Test suite:** 1154 tests pass (156 files), typecheck + build green.
 
 **Deferred (data-gated — pending user-supplied data; card degrades gracefully without them):**
 - **Task 8 — per-uma `innateSkills` pipeline:** the `Innate` column currently falls back to the plan's `uniqueSkillId` only (no innate-white skills). To fully populate it, `scripts/build-umas.ts` needs to be extended to read `scripts/borrowed/gametora/` innate-skill sources and bake them into `umas.json`. Until the source files are dropped in and `pnpm data:build` run, the column is a one-skill fallback — never fabricated.
