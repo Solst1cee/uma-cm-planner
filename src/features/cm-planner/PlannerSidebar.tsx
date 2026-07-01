@@ -1009,6 +1009,7 @@ export function PlannerSidebar({
             <SkillPicker
               addedSkillIds={wishlistIds}
               hiddenSkillIds={hiddenWishlistSkillIds}
+              asOfISO={asOfISO}
               onPick={(skillId) =>
                 onChange({
                   ...plan,
