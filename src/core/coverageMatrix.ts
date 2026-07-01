@@ -31,8 +31,11 @@ export interface CoverageResult { rows: CoverageRow[]; bars: CoverageBar[]; bonu
 
 export interface CoverageInput {
   wishlistSkillIds: string[];
+  /** `innateSkills` = the uma's built-in NON-unique kit (white + gold). The
+   *  unique and inherited-unique are deliberately excluded — they aren't
+   *  "innate" in the coverage sense (the unique you always have; the
+   *  inherited-unique is what a parent passes down). */
   planUma: { umaId: string; nameEn: string; innateSkills?: string[] } | null;
-  planUniqueSkillId?: string;
   activeParents: Array<{ parent: Parent; isA: boolean }>;
   deckCards: SupportCardRecord[];
   deckLbByCardId: Map<string, LimitBreak>;
@@ -65,7 +68,7 @@ function refGrantsSkill(ref: NonNullable<Parent['grandparents']>[number], skillI
 
 export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const {
-    wishlistSkillIds, planUma, planUniqueSkillId, activeParents, deckCards, deckLbByCardId,
+    wishlistSkillIds, planUma, activeParents, deckCards, deckLbByCardId,
     skillById, greenMap, sparkRates, memberAffinity, umaNameById,
   } = input;
   const rarityLookup = (id: string): SkillRarity | undefined => skillById.get(id)?.rarity;
@@ -76,10 +79,10 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const umaTitle = (umaId: string, prefix: string) =>
     umaNameById?.get(umaId) ?? `${prefix} ${umaId}`;
 
-  const innateSet = new Set(
-    (planUma?.innateSkills ?? (planUniqueSkillId ? [planUniqueSkillId] : []))
-      .map((id) => reconcileGreenSkillId(id, greenMap)),
-  );
+  // Innate = the uma's built-in NON-unique kit (white + gold), matched directly
+  // against the wishlist. No green reconciliation here — unique / inherited-unique
+  // are excluded upstream, so there is nothing to translate.
+  const innateSet = new Set(planUma?.innateSkills ?? []);
 
   const rows: CoverageRow[] = wishlistSkillIds.map((skillId) => {
     const rec = skillById.get(skillId);
@@ -88,7 +91,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
     };
 
     // Innate
-    if (innateSet.has(reconcileGreenSkillId(skillId, greenMap)) || innateSet.has(skillId)) {
+    if (innateSet.has(skillId)) {
       cells.innate.push({ kind: 'innate', label: initials(planUma?.nameEn ?? '?'), title: planUma?.nameEn ?? 'Innate' });
     }
 

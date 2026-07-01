@@ -48,6 +48,14 @@ describe('buildCoverageMatrix', () => {
     expect(row.covered).toBe(true);
   });
 
+  it('does NOT put an inherited-unique wishlist skill in the innate cell', () => {
+    // Innate holds only the non-unique kit (200011). 900011 (inherited-unique)
+    // is on the wishlist but must not be flagged innate.
+    const res = buildCoverageMatrix(baseInput({}));
+    const row = res.rows.find((r) => r.skillId === '900011')!;
+    expect(row.cells.innate.length).toBe(0);
+  });
+
   it('covers a white wishlist skill via a parent white spark with an inherit %', () => {
     const p = parent('pa', '100101', { whiteSparks: [{ skillId: '200033', stars: 3 }] });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));

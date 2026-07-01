@@ -26,7 +26,7 @@ import { SupportCardPoolCard, CardDetailCard } from './SupportCardPoolCard';
 import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
-import { loadUniqueSkillByUmaId, skillRecordToSummary, type SkillSummary } from '@/features/cm-planner/skillTechnicalDetails';
+import { loadInnateSkillsByUmaId, skillRecordToSummary } from '@/features/cm-planner/skillTechnicalDetails';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
 import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 import { PlanContextHeader } from './PlanContextHeaderView';
@@ -175,15 +175,15 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     void load<CardBaseEffects>('card_effects.json', setBaseEffects);
     return () => { cancelled = true; };
   }, []);
-  // Uma → its unique skill, so the coverage matrix's Innate column can resolve
-  // the plan uma's unique even when plan.uniqueSkillId hasn't been set from the
-  // CM-planner sidebar. (The full innate kit still needs the M1.7 data pipeline.)
-  const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
+  // Uma → its innate skill kit (all outfitId-associated skills in the engine's
+  // skill collection). The coverage matrix's Innate column keeps only the
+  // non-unique (white + gold) ones. Data already ships in the vendored bundle.
+  const [innateByUmaId, setInnateByUmaId] = useState<Map<string, string[]> | null>(null);
   useEffect(() => {
     let cancelled = false;
-    void loadUniqueSkillByUmaId()
-      .then((m) => { if (!cancelled) setUniqueByUmaId(m); })
-      .catch(() => { /* degrade: Innate falls back to plan.uniqueSkillId */ });
+    void loadInnateSkillsByUmaId()
+      .then((m) => { if (!cancelled) setInnateByUmaId(m); })
+      .catch(() => { /* degrade: Innate column stays empty */ });
     return () => { cancelled = true; };
   }, []);
   const { templates, save, remove, get } = useDeckTemplates();
@@ -334,16 +334,21 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deck.slots.forEach((id, i) => { if (id) deckLbByCardId.set(id, deck.slotLb[i] ?? 4); });
 
     const planUmaRec = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
-    // Prefer the plan's stored unique; fall back to the uma's unique resolved by
-    // id (the sidebar populates plan.uniqueSkillId, but a plan opened only here
-    // may have it empty). Keeps the Innate column working without the CM planner.
-    const planUniqueSkillId =
-      uma1Plan?.uniqueSkillId || (uma1Plan ? uniqueByUmaId?.get(uma1Plan.umaId)?.skillId : undefined);
+    // The uma's innate kit = its outfitId-associated skills, kept to white + gold
+    // (drop unique / inherited-unique — not "innate" for coverage). Prefer the
+    // baked UmaRecord.innateSkills if the data pipeline ever populates it.
+    const innateSkills =
+      planUmaRec?.innateSkills ??
+      (uma1Plan
+        ? (innateByUmaId?.get(uma1Plan.umaId) ?? []).filter((id) => {
+            const r = skillById.get(id)?.rarity;
+            return r === 'white' || r === 'gold';
+          })
+        : []);
 
     return buildCoverageMatrix({
       wishlistSkillIds,
-      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills: planUmaRec.innateSkills } : null,
-      planUniqueSkillId,
+      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills } : null,
       activeParents,
       deckCards,
       deckLbByCardId,
@@ -354,7 +359,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
       memberAffinity,
       umaNameById,
     });
-  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, uniqueByUmaId]);
+  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId]);
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
   const rows = useMemo(

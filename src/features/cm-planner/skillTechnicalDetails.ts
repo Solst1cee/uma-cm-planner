@@ -179,3 +179,30 @@ export async function loadUniqueSkillByUmaId(): Promise<Map<string, SkillSummary
   return uniqueByUmaPromise;
 }
 
+let innateByUmaPromise: Promise<Map<string, string[]>> | null = null;
+/**
+ * Uma outfit id → every skill id the outfit carries innately (the skill's
+ * `sources[].outfitId` associations in the engine's skill collection — the same
+ * data that powers loadUniqueSkillByUmaId, extended to all rarities). Callers
+ * filter to the rarities they want (M1.7's Innate column keeps white + gold and
+ * drops unique / inherited_unique via the app's own SkillRecord rarity).
+ */
+export async function loadInnateSkillsByUmaId(): Promise<Map<string, string[]>> {
+  if (innateByUmaPromise === null) {
+    innateByUmaPromise = loadSkillCollection().then((skills) => {
+      const byUma = new Map<string, string[]>();
+      for (const raw of Object.values(skills)) {
+        for (const source of raw.sources ?? []) {
+          if (source.outfitId === undefined) continue;
+          const key = String(source.outfitId);
+          const list = byUma.get(key) ?? [];
+          list.push(String(raw.id));
+          byUma.set(key, list);
+        }
+      }
+      return byUma;
+    });
+  }
+  return innateByUmaPromise;
+}
+
