@@ -10,7 +10,7 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { CmPreset, CmTrack, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
+import type { CmPreset, CmTrack, JpCmDate, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { buildAffinity } from './build-affinity';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
 import { generateCardUniqueEffects } from './build-card-unique-effects';
@@ -141,7 +141,8 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   const tracks = existsSync(cmTracksPath)
     ? readJson<{ tracks: CmTrack[] }>(cmTracksPath).tracks
     : [];
-  const timeline = buildTimeline({ presets, overrides: timelineOverrides, tracks, dataVersion: DATA_VERSION });
+  const jpSchedule = readJson<{ cms?: JpCmDate[] }>(join(OVERRIDES_DIR, 'jp-schedule.json'));
+  const timeline = buildTimeline({ presets, overrides: timelineOverrides, tracks, jpCms: jpSchedule.cms ?? [], dataVersion: DATA_VERSION });
 
   // Build-time oracle (provenance §4.1): emitted cards must agree with the
   // independent Tachyons-lab event-reward source — catches regressions of the

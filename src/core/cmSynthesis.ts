@@ -5,8 +5,9 @@
  * confirmation. PREDICTION ONLY (P3): monthly cadence, no courseId, tier
  * 'prediction'. Overrides win — any CM number already present is skipped.
  */
-import type { CmTrack, TimelineEntry } from './types';
+import type { CmTrack, JpCmDate, TimelineEntry } from './types';
 import { addMonths } from './timeline';
+import { calibratePace, projectGlobalDate, type SharedCm } from './foresight';
 import { slug } from './slug';
 
 export interface SynthesizeOpts {
@@ -17,6 +18,8 @@ export interface SynthesizeOpts {
   dataVersion: string;
   /** Source URL stamped on predicted entries. Default the uma.guide CM schedule. */
   sourceUrl?: string;
+  /** JP CM dates (data-overrides/jp-schedule.json) for pace projection; absent ⇒ +1-month fallback. */
+  jpCms?: JpCmDate[];
 }
 
 const UMA_GUIDE_URL = 'https://uma.guide/cm-schedule/';
@@ -45,6 +48,19 @@ export function synthesizeUpcomingCms(
   }
   if (anchor === null) return [];
 
+  // Calibrate a rolling JP→Global pace from CMs present on both servers (confirmed
+  // Global finals ∩ a JP date). null ⇒ too few shared CMs ⇒ +1-month fallback.
+  const jpByNum = new Map((opts.jpCms ?? []).map((c) => [c.cmNumber, c.jpDate]));
+  const shared: SharedCm[] = [];
+  for (const e of merged) {
+    const num = e.cm?.cmNumber;
+    if (e.type !== 'cm' || num === undefined) continue;
+    const global = e.dates.finals;
+    const jp = jpByNum.get(num);
+    if (global !== undefined && jp !== undefined) shared.push({ cmNumber: num, jp, global });
+  }
+  const cal = calibratePace(shared);
+
   // Predict `horizon` CMs beyond the latest confirmed CM (the anchor). The window
   // slides forward as CMs are confirmed, so it always shows the next `horizon`
   // ahead. `present` skips any number already on the timeline — a duplicate of the
@@ -60,7 +76,12 @@ export function synthesizeUpcomingCms(
       id: `cm${n}-${slug(track.cupName)}-predicted`,
       type: 'cm',
       title: track.cupName,
-      dates: { finals: addMonths(anchor.finals, (n - anchor.num) * monthsPerCm) },
+      dates: {
+        finals:
+          cal && jpByNum.has(n)
+            ? projectGlobalDate(jpByNum.get(n)!, cal)
+            : addMonths(anchor.finals, (n - anchor.num) * monthsPerCm),
+      },
       cm: {
         cmNumber: n,
         // No courseId — track direction / inner-outer unknown until official (P3).

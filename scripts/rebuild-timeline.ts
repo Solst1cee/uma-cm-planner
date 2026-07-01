@@ -6,7 +6,7 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { CmPreset, CmTrack, TimelineEntry } from '@/core/types';
+import type { CmPreset, CmTrack, JpCmDate, TimelineEntry } from '@/core/types';
 import { buildTimeline } from './build-timeline';
 import { UPSTREAM_COMMIT } from './fetch-borrowed';
 import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readJson, writeJsonDeterministic } from './lib/io';
@@ -22,7 +22,9 @@ export function rebuildTimeline(): void {
       join(OVERRIDES_DIR, 'timeline_overrides.json'),
     ).entries ?? [];
 
-  const timeline = buildTimeline({ presets, overrides, tracks, dataVersion: DATA_VERSION });
+  const jpSchedulePath = join(OVERRIDES_DIR, 'jp-schedule.json');
+  const jpSchedule = existsSync(jpSchedulePath) ? readJson<{ cms?: JpCmDate[] }>(jpSchedulePath) : {};
+  const timeline = buildTimeline({ presets, overrides, tracks, jpCms: jpSchedule.cms ?? [], dataVersion: DATA_VERSION });
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'timeline.json'), timeline);
   const predicted = timeline.entries.filter((e) => e.tier === 'prediction').length;
   console.log(`timeline.json rebuilt: ${timeline.entries.length} entries (${predicted} predicted).`);
