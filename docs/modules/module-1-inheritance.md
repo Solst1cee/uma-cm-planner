@@ -2,8 +2,8 @@
 
 > Brief module doc. Expand into a detailed living doc (like [M4's](module-4-skill-acquisition.md)) when M1 build work starts.
 
-- **Route:** not yet routed (nav shows **Inheritance** as a disabled stub).
-- **Status:** **Plans 1–2 shipped 2026-06-15** (foundation). **Plans 3–5 are the project's current "Next".**
+- **Route:** `/inheritance` — the workbench is live (un-stubbed in M1.1). The M1.4 **Inheritance card** (parents + importer + picker) is built and being landed via PR.
+- **Status:** foundation (Plans 1–2) + M1.0 affinity core + workbench M1.1–M1.5 on main; **M1.4 Inheritance card finished on `feat/m1-4-inheritance-card` (this PR).** Next: M1.6 support-card pool, M1.7 coverage matrix (+ green 9xxxxx / saddle→G1 reconciliation).
 - **Spec:** [docs/superpowers/specs/2026-06-14-m1-inheritance-design.md](../superpowers/specs/2026-06-14-m1-inheritance-design.md) (design locked) + canonical [shared-data-model](../superpowers/specs/2026-06-15-shared-data-model.md).
 - **⚠️ Mockup = the visual spec:** [docs/mockups/m1-inheritance.html](../mockups/m1-inheritance.html) (committed — open in a browser). **Current fidelity ~8%** — only a parents CRUD form exists; the pedigree tree, goal builder, roster filter, and compare-all are unbuilt. Affinity core *is* done ([src/core/affinity.ts](../../src/core/affinity.ts)); most remaining work is UI, buildable now. See CLAUDE.md → *Design fidelity*.
 
@@ -54,6 +54,83 @@ fill seam `addCardToDeck(cardId)` + the drop target are built and tested; the
 interactive drag *source* / "+ Add" button arrive with **M1.6** (support-card
 pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
 
+## M1.4 "Inheritance" card + UmaExtractor importer + spark-filter picker (2026-06-27)
+
+The center-column **"Inheritance"** card: owned **Parent 1 & 2** slots
+(`InheritanceCard`/`ParentCardView`), each showing the full lineage's sparks as
+colour-coded chips — blue (stat) · pink (aptitude) · **green (inherited-unique)** ·
+white (skill) — with **gold legacy / dark grandparent** stars. Selection persists to
+`CmPlan.parents.{a,b}`. Parent 2 has an Owned/Rental toggle (Rental → M1.4b stub);
+`Find candidates` is a heuristic pre-rank (`candidateScore`).
+
+**UmaExtractor importer** (`UploadDataButton`/`useRoster`/`umaExtractor`/`factorDecode`):
+"Upload data" parses a UmaExtractor `data.json` → `Parent[]` (factor decode → blue/
+pink/green/white sparks, grandparents from succession positions 10/20, `wonRaces`,
+`rankScore`), `bulkUpsertParents` into the Dexie `parents` store. `useRoster` is a
+shared store (`useSyncExternalStore`) so an import refreshes everywhere live. Green
+sparks store the decoded base/alt unique id (100xxx/110xxx) for name display; the
+9xxxxx reconciliation for coverage math is M1.7. Privacy: the parser drops every
+`*viewer_id`.
+
+**Picker modal** (`UmaPickerModal`): the **Pick/Change** button opens a full-screen
+modal — a **spark-filter search-builder** (`sparkAggregate`/`sparkFilter`: add-a-row
+blue/pink/white legacy+total `≥` clauses + any-blue) over the roster, a name search,
+and one-veteran-per-row **2-column tiles**: a left rail (a **pedigree row** — uma
+icon ─┤ the two grandparents stacked, rank badge + numeric score alongside — then
+name · colour-coded **stat row** · **affinity**) + a wide right area holding all the
+lineage spark chips. Affinity via `candidateAffinity` = lineage affinity + G1 win
+bonus (`useAffinityIndex` loads `affinity.json`). Shared `LineageSparkChips` drives
+the card + tile chips.
+Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-filter.
+**Deferred (M1.4b):** Parent-2 rental builder + search-link; green-spark 9xxxxx +
+saddle→G1 `wonRaces` reconciliation (M1.7).
+
+**Wishlist glow + evaluation-rank badges (2026-06-27, on PR #14 icon assets):**
+- A white/green spark whose skill is on the active plan's **wishlist** now gets the
+  planner's `.cmp-apt-card.is-current` **blue glow** (`.badge.is-wishlisted`), on both
+  the Parent cards and the picker tiles. An `isWishlisted` predicate threads
+  `InheritanceCard` → `ParentCardView`/`UmaPickerModal` → `LineageSparkChips`.
+- The veteran's **rank rating now shows the real in-game evaluation-rank badge**
+  (G…SS+, UG…US9, LG…LS24) instead of a `◆` glyph. New pure core
+  [`src/core/rankScore.ts`](../../src/core/rankScore.ts) `rankLabelFromScore(score)` —
+  the daftuyda/UmaTools `RATING_BADGE_MINIMA` thresholds (same source+version as the
+  PR #14 rank-badge atlas; first-91 bands cross-checked against master.mdb
+  `single_mode_rank`). The importer derives `Parent.rating` from `rank_score` (falls
+  back to the `rank` id via `ratingFromRank`). `GameIcon` gained a **`rank`** kind
+  (→ `rankIconPath`); a small wired `RankBadge` (**icon only** — the badge art
+  already spells the rank; label rides along as `alt`/`title`) is built by the
+  container and passed as a node to the provider-free card/picker. The picker
+  tile shows the badge but **not** the numeric rank score (icon-only by request).
+
+## M1.4 finalization — "Star Tracks" filter + affinity marks + parent guards (2026-07-01, this PR)
+
+The picker's spark filter was **redesigned to "Star Tracks"** (from a claude.ai/design
+handoff, `docs/handoff/design_handoff_spark_filter/`): three category cards **STAT
+(blue) · APTITUDE (pink) · UNIQUE (green)** with a light tinted header + lineage-member
+pips; each active factor row has **Parent (gold legacy) + Total star meters** (member
+boxes shrink as the ≤9★/≤3-member budget is consumed — `SparkMeter`), add-chips
+(pink laid out as the in-game surface/distance/style rows), and a **unique-skill search**
+for green (smaller box + **keyboard nav** ↑/↓/Enter/Esc, combobox a11y). A sticky
+**summary bar** (`SparkSummary`) shows the live match count, Reset-all, an **upload-data
+button**, and active-filter chips. Two-column modal (filter column `fit-content` + results).
+Files: `SparkFilterCards` / `SparkMeter` / `SparkSummary` (+ `sparkBudget`, `green` clause
+in `sparkFilter`, `greens` in `sparkAggregate`).
+
+- **Affinity compatibility marks** — `AffinityMark` renders the in-game **◎/○/△** symbol
+  (core `affinityTier`; neutral grey) next to each picker uma's affinity number **and**
+  beside the card header for the current Parent-1+2 selection (`charaIdOf` + `candidateAffinity`
+  sum − the double-counted A↔B term). *(No ✕ — the documented bands start at △ 0–50; ✕ isn't real.)*
+- **Same-character parent guard** — the two parents can't be the same **character** (any
+  outfit/copy), so `itemsFor` blocks + greys + tags every veteran sharing the other slot's
+  `charaId`, not just the exact roster row; Find-candidates filters the same. Tiles carry
+  `selectedLabel` ("Parent 1/2" / "Same as Parent 2") + `unavailableReason` tooltip.
+- **data.json import help** — a reusable `HeaderHelp` ("?") popup next to the Upload button
+  explains getting `data.json` from **UmaExtractor** (links `github.com/xancia/UmaExtractor`).
+- Smaller UI: roster **#tag under the uma name** on the parent cards; centered "No parent
+  selected." empty state; green/white chips keep the faithful unique name (trailing ☆) with
+  a space before the spark star; Star-Tracks CSS uses the `.badge.spark-*` colour scheme
+  (`--chip`/`--chip-ink`), neutral card borders (fixes the `parents.css .spark-*` bleed).
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
@@ -68,3 +145,7 @@ pool). Spec/plan: 2026-06-26-m1-5-your-deck-card.
 - **M1.5 deck state is browser-local, NOT per-plan** (and NOT `CmPlan.lockedDeckSlots`): `scb_deck` / `scb_deck_active` / `scb_profiles`. Don't re-introduce a `planId` to `useDeckState`/`useActiveTemplateName` — it caused cross-plan template divergence (the per-plan deck and the shared global template drift apart; fixed by going fully global).
 - **The global `input[type='text']` rule (`app.css`: `padding: 0.5rem`, `border: 1px solid var(--border)`) out-specifies a single-class selector** like `.inh-deck-tplname` (element+attribute `(0,1,1)` beats one class `(0,1,0)`). To restyle an input's padding/border in feature CSS, scope it (e.g. `.inh-deck-combo .inh-deck-tplname`) so it wins — otherwise your padding/transparent-border silently does nothing (this bit the M1.5 name field's height and a "transparent" border that never applied). `align-items: stretch` to "equalize" heights grows the *taller* sibling — match the box model instead.
 - Any new InheritancePage consumer of `useGameData()` must mock it in **both** `InheritancePage.test.tsx` and the route smoke test `src/app/App.inheritance.test.tsx` (the latter renders the real page with no `GameDataProvider`).
+- **`useRoster` reads Dexie on mount** (`subscribe` → `void reload()`). It now swallows a missing-IndexedDB error (jsdom / private mode) → empty roster. Before that guard, any page-level test rendering the roster-backed `InheritanceCard` produced an **unhandled rejection** that made `pnpm test` exit non-zero even though all tests passed. Don't remove the try/catch in `reload()`.
+- **Unique/inherited-unique skill names carry a trailing `☆`/`★` level marker in the data** (e.g. `OMG! (ﾟ∀ﾟ)  The Final Sprint! ☆`). It is part of the name (keep it faithful) — put a space before the spark-star glyph rather than stripping it, or it reads as a second star.
+- **Same-parent restriction is by `charaId` (character), not roster id** — any outfit/copy of the same character counts. `charaIdOf(umaId) = floor(umaId/100)` groups outfits. Self-vs-trainee is allowed; only the two *parents* must differ.
+- **`parents.css` has unscoped global `.spark-{blue,pink,green}` chip rules with dark borders** (`#166534` etc.) that bleed into any same-named element via equal-specificity later-wins (bit `.spc-card.spark-green`). Scope filter-card overrides with the compound `.spc-card.spark-*` (0,2,0) to win. This is the M1-flavour of the app.css single-class-specificity gotcha.

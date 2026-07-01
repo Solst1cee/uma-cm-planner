@@ -1,0 +1,545 @@
+[
+  {
+    "trained_chara_id": 47,
+    "card_id": 101501,
+    "speed": 991,
+    "stamina": 677,
+    "power": 632,
+    "wiz": 450,
+    "guts": 398,
+    "rank": 12,
+    "rank_score": 9347,
+    "rarity": 3,
+    "proper_ground_turf": 7,
+    "proper_ground_dirt": 3,
+    "proper_running_style_nige": 5,
+    "proper_running_style_senko": 7,
+    "proper_running_style_sashi": 7,
+    "proper_running_style_oikomi": 1,
+    "proper_distance_short": 1,
+    "proper_distance_mile": 3,
+    "proper_distance_middle": 7,
+    "proper_distance_long": 7,
+    "factor_id_array": [
+      202,
+      2201,
+      1001202,
+      1001701,
+      2003601,
+      3000101,
+      10150102
+    ],
+    "factor_info_array": [
+      {
+        "factor_id": 202,
+        "level": 0
+      },
+      {
+        "factor_id": 2201,
+        "level": 0
+      },
+      {
+        "factor_id": 1001202,
+        "level": 0
+      },
+      {
+        "factor_id": 1001701,
+        "level": 0
+      },
+      {
+        "factor_id": 2003601,
+        "level": 0
+      },
+      {
+        "factor_id": 3000101,
+        "level": 0
+      },
+      {
+        "factor_id": 10150102,
+        "level": 0
+      }
+    ],
+    "win_saddle_id_array": [
+      6,
+      10,
+      11,
+      13,
+      14,
+      18,
+      26
+    ],
+    "succession_chara_array": [
+      {
+        "position_id": 10,
+        "card_id": 100701,
+        "rank": 12,
+        "rarity": 2,
+        "factor_id_array": [
+          201,
+          2301,
+          1001502,
+          1001602,
+          2003602,
+          2012102
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 201,
+            "level": 0
+          },
+          {
+            "factor_id": 2301,
+            "level": 0
+          },
+          {
+            "factor_id": 1001502,
+            "level": 0
+          },
+          {
+            "factor_id": 1001602,
+            "level": 0
+          },
+          {
+            "factor_id": 2003602,
+            "level": 0
+          },
+          {
+            "factor_id": 2012102,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          6,
+          10,
+          14,
+          15,
+          16,
+          18,
+          34,
+          126
+        ],
+        "owner_viewer_id": 0
+      },
+      {
+        "position_id": 20,
+        "card_id": 100601,
+        "rank": 12,
+        "rarity": 3,
+        "factor_id_array": [
+          103,
+          3402,
+          1000702,
+          1001002,
+          1001503,
+          1001602,
+          1002402,
+          2001302,
+          2004601,
+          2006401,
+          2011802,
+          2015502,
+          2015801,
+          2016101,
+          2016601,
+          10060101
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 103,
+            "level": 0
+          },
+          {
+            "factor_id": 3402,
+            "level": 0
+          },
+          {
+            "factor_id": 1000702,
+            "level": 0
+          },
+          {
+            "factor_id": 1001002,
+            "level": 0
+          },
+          {
+            "factor_id": 1001503,
+            "level": 0
+          },
+          {
+            "factor_id": 1001602,
+            "level": 0
+          },
+          {
+            "factor_id": 1002402,
+            "level": 0
+          },
+          {
+            "factor_id": 2001302,
+            "level": 0
+          },
+          {
+            "factor_id": 2004601,
+            "level": 0
+          },
+          {
+            "factor_id": 2006401,
+            "level": 0
+          },
+          {
+            "factor_id": 2011802,
+            "level": 0
+          },
+          {
+            "factor_id": 2015502,
+            "level": 0
+          },
+          {
+            "factor_id": 2015801,
+            "level": 0
+          },
+          {
+            "factor_id": 2016101,
+            "level": 0
+          },
+          {
+            "factor_id": 2016601,
+            "level": 0
+          },
+          {
+            "factor_id": 10060101,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          1,
+          2,
+          4,
+          5,
+          6,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          23,
+          26,
+          27,
+          34
+        ],
+        "owner_viewer_id": 0
+      },
+      {
+        "position_id": 11,
+        "card_id": 101501,
+        "rank": 11,
+        "rarity": 3,
+        "factor_id_array": [
+          301,
+          2301,
+          1001901,
+          2005801,
+          10150102
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 301,
+            "level": 0
+          },
+          {
+            "factor_id": 2301,
+            "level": 0
+          },
+          {
+            "factor_id": 1001901,
+            "level": 0
+          },
+          {
+            "factor_id": 2005801,
+            "level": 0
+          },
+          {
+            "factor_id": 10150102,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          4,
+          6,
+          10,
+          11,
+          12,
+          13,
+          14,
+          17,
+          18,
+          64,
+          126
+        ],
+        "owner_viewer_id": 0
+      },
+      {
+        "position_id": 12,
+        "card_id": 100601,
+        "rank": 12,
+        "rarity": 3,
+        "factor_id_array": [
+          103,
+          3402,
+          1000702,
+          1001002,
+          1001503,
+          1001602,
+          1002402,
+          2001302,
+          2004601,
+          2006401,
+          2011802,
+          2015502,
+          2015801,
+          2016101,
+          2016601,
+          10060101
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 103,
+            "level": 0
+          },
+          {
+            "factor_id": 3402,
+            "level": 0
+          },
+          {
+            "factor_id": 1000702,
+            "level": 0
+          },
+          {
+            "factor_id": 1001002,
+            "level": 0
+          },
+          {
+            "factor_id": 1001503,
+            "level": 0
+          },
+          {
+            "factor_id": 1001602,
+            "level": 0
+          },
+          {
+            "factor_id": 1002402,
+            "level": 0
+          },
+          {
+            "factor_id": 2001302,
+            "level": 0
+          },
+          {
+            "factor_id": 2004601,
+            "level": 0
+          },
+          {
+            "factor_id": 2006401,
+            "level": 0
+          },
+          {
+            "factor_id": 2011802,
+            "level": 0
+          },
+          {
+            "factor_id": 2015502,
+            "level": 0
+          },
+          {
+            "factor_id": 2015801,
+            "level": 0
+          },
+          {
+            "factor_id": 2016101,
+            "level": 0
+          },
+          {
+            "factor_id": 2016601,
+            "level": 0
+          },
+          {
+            "factor_id": 10060101,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          1,
+          2,
+          4,
+          5,
+          6,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          23,
+          26,
+          27,
+          34
+        ],
+        "owner_viewer_id": 0
+      },
+      {
+        "position_id": 21,
+        "card_id": 103201,
+        "rank": 12,
+        "rarity": 2,
+        "factor_id_array": [
+          203,
+          3302,
+          1001902,
+          2000602,
+          2003602,
+          2004603,
+          2006403,
+          2016101
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 203,
+            "level": 0
+          },
+          {
+            "factor_id": 3302,
+            "level": 0
+          },
+          {
+            "factor_id": 1001902,
+            "level": 0
+          },
+          {
+            "factor_id": 2000602,
+            "level": 0
+          },
+          {
+            "factor_id": 2003602,
+            "level": 0
+          },
+          {
+            "factor_id": 2004603,
+            "level": 0
+          },
+          {
+            "factor_id": 2006403,
+            "level": 0
+          },
+          {
+            "factor_id": 2016101,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          2,
+          4,
+          5,
+          6,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          26,
+          45
+        ],
+        "owner_viewer_id": 0
+      },
+      {
+        "position_id": 22,
+        "card_id": 101301,
+        "rank": 12,
+        "rarity": 3,
+        "factor_id_array": [
+          103,
+          1102,
+          1000302,
+          1001202,
+          1001702,
+          1002301,
+          2001302,
+          2006402,
+          2011701,
+          3000101,
+          10130102
+        ],
+        "factor_info_array": [
+          {
+            "factor_id": 103,
+            "level": 0
+          },
+          {
+            "factor_id": 1102,
+            "level": 0
+          },
+          {
+            "factor_id": 1000302,
+            "level": 0
+          },
+          {
+            "factor_id": 1001202,
+            "level": 0
+          },
+          {
+            "factor_id": 1001702,
+            "level": 0
+          },
+          {
+            "factor_id": 1002301,
+            "level": 0
+          },
+          {
+            "factor_id": 2001302,
+            "level": 0
+          },
+          {
+            "factor_id": 2006402,
+            "level": 0
+          },
+          {
+            "factor_id": 2011701,
+            "level": 0
+          },
+          {
+            "factor_id": 3000101,
+            "level": 0
+          },
+          {
+            "factor_id": 10130102,
+            "level": 0
+          }
+        ],
+        "win_saddle_id_array": [
+          2,
+          5,
+          10,
+          11,
+          13,
+          15,
+          17,
+          18,
+          26,
+          34,
+          63,
+          145,
+          146,
+          147
+        ],
+        "owner_viewer_id": 0
+      }
+    ]
+  }
+]

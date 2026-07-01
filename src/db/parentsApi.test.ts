@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'; // must precede any dexie import
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Parent } from '@/core/types';
-import { db, deleteParent, getParent, listParents, saveParent } from './index';
+import { bulkUpsertParents, db, deleteParent, getParent, listParents, saveParent } from './index';
 
 beforeEach(async () => {
   await db.delete();
@@ -77,5 +77,24 @@ describe('parent CRUD', () => {
     await deleteParent(a.id);
     expect(await getParent(a.id)).toBeUndefined();
     expect((await listParents()).map((p) => p.id)).toEqual([b.id]);
+  });
+});
+
+describe('bulkUpsertParents', () => {
+  it('inserts new parents and overwrites by id, returning the count', async () => {
+    const base: Omit<Parent, 'id'> = {
+      umaId: '101501', blueSpark: { stat: 'sta', stars: 2 }, pinkSpark: { aptitude: 'pace', stars: 1 },
+      whiteSparks: [], source: 'mine', importSource: 'umaextractor', stats: { spd: 991, sta: 677, pow: 632, gut: 398, wit: 450 },
+    };
+    const n = await bulkUpsertParents([
+      { ...base, id: 'v1' } as Parent,
+      { ...base, id: 'v2', umaId: '100601' } as Parent,
+    ]);
+    expect(n).toBe(2);
+    // re-import v1 with a changed stat → overwrite, not duplicate
+    await bulkUpsertParents([{ ...base, id: 'v1', umaId: '999999' } as Parent]);
+    const all = await listParents();
+    expect(all.filter((p) => p.id === 'v1')).toHaveLength(1);
+    expect(all.find((p) => p.id === 'v1')!.umaId).toBe('999999');
   });
 });
