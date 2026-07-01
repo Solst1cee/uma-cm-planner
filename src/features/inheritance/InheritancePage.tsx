@@ -566,9 +566,9 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             result={coverageResult}
             hasWishlist={(uma1Plan?.wishlist?.length ?? 0) > 0}
             hasPlanUma={!!uma1Plan}
-            renderCardIcon={(cardId, size) =>
-              cardVisual({ cardId, type: cardById.get(cardId)?.type ?? 'speed' }, size, 'card')
-            }
+            renderCardIcon={(cardId, size) => (
+              <GameIcon kind="card" id={cardId} size={size} alt="" className="inh-pool-card-img" />
+            )}
           />
         </div>
         <div className="inh-col inh-col-right">
