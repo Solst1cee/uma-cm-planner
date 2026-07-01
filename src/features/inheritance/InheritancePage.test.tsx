@@ -35,7 +35,7 @@ vi.mock('@/features/parents/useUmas', () => ({
 // The page resolves wishlist skills (skillById) + the M1.5 Deck card art (cardById)
 // via useGameData; stub both (empty maps → no wishlist rows / placeholder deck art).
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map() }),
+  useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }),
   BASE_URL: '',
 }));
 // Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).

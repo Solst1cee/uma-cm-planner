@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { ComponentProps } from 'react';
 import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
-import { addCard, dropCard, emptyDeck, removeSlot } from './deckOps';
+import { addCard, dropCard, emptyDeck, moveSlot, removeSlot, type DeckState } from './deckOps';
 
 afterEach(cleanup);
 
@@ -54,6 +54,27 @@ describe('YourDeckCard', () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it('greys a slot that is the trainee’s own character (is-conflict)', () => {
+    const resolve = (): DeckCardInfo => ({ typeLabel: 'SPD', typeColor: '#3b82f6', name: 'Trainee Card', charName: 'Alpha', sameAsTrainee: true });
+    renderCard({ state: addCard(emptyDeck(), 'c1'), resolveCard: resolve });
+    expect(screen.getByTestId('deck-slot-0')).toHaveClass('is-conflict');
+  });
+
+  it('greys the 2nd copy of the same character, not the first', () => {
+    const resolve = (id: string): DeckCardInfo => ({ typeLabel: 'SPD', typeColor: '#3b82f6', name: id, charName: 'Alpha' });
+    const state = { slots: ['a', 'b', null, null, null, null], slotLb: [4, 4, 4, 4, 4, 4] } as DeckState;
+    renderCard({ state, resolveCard: resolve });
+    expect(screen.getByTestId('deck-slot-0')).not.toHaveClass('is-conflict');
+    expect(screen.getByTestId('deck-slot-1')).toHaveClass('is-conflict');
+  });
+
+  it('clicking a filled slot’s icon fires onSelect with its card id', () => {
+    const onSelect = vi.fn();
+    renderCard({ state: addCard(emptyDeck(), 'c1'), onSelect });
+    fireEvent.click(screen.getByRole('button', { name: /sky-high crescendo details/i }));
+    expect(onSelect).toHaveBeenCalledWith('c1');
+  });
+
   it('Clear fires onChange with an empty deck', () => {
     const { onChange } = renderCard({ state: addCard(emptyDeck(), 'c1') });
     fireEvent.click(screen.getByText('Clear'));
@@ -66,6 +87,17 @@ describe('YourDeckCard', () => {
     const dataTransfer = { getData: (k: string) => (k === 'text/card-id' ? 'c1' : '') };
     fireEvent.drop(slot, { dataTransfer });
     expect(onChange).toHaveBeenCalledWith(dropCard(emptyDeck(), 0, 'c1'));
+  });
+
+  it('dragging a filled slot onto another swaps them (moveSlot)', () => {
+    const state = { slots: ['c1', 'x', null, null, null, null], slotLb: [4, 4, 4, 4, 4, 4] } as DeckState;
+    const { onChange } = renderCard({ state });
+    // A shared store so dragStart's setData is visible to drop's getData.
+    const store: Record<string, string> = {};
+    const dataTransfer = { setData: (k: string, v: string) => { store[k] = v; }, getData: (k: string) => store[k] ?? '', effectAllowed: '' };
+    fireEvent.dragStart(screen.getByTestId('deck-slot-0'), { dataTransfer });
+    fireEvent.drop(screen.getByTestId('deck-slot-1'), { dataTransfer });
+    expect(onChange).toHaveBeenCalledWith(moveSlot(state, 0, 1));
   });
 
   it('shows the active template name in the combobox field', () => {

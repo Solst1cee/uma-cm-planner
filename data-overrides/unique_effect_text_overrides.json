@@ -1,0 +1,25 @@
+{
+  "_note": "Hand-written English lines for support-card compound/conditional unique effects (master.mdb support_card_unique_effect type >= 101), which have no text_data string. cardId -> array of display lines (values baked into the text). Applied by scripts/build-card-unique-effects.ts. Effects/values verified vs GameTora + Game8 (2026-07-01); wording is our own, not copied. See docs/provenance.md §6b. Keys starting with _ are ignored.",
+
+  "30053": ["When bond gauge is 80 or higher: Speed Bonus +1, Skill Point Bonus +1"],
+  "30081": ["When bond gauge is 80 or higher: Training Effectiveness +10%"],
+  "30082": ["When bond gauge is full: Wit Bonus +3"],
+  "30083": ["When bond gauge is 80+ and placed in a non-specialty facility: Training Effectiveness +20%"],
+  "30085": ["With 5 or more support-card types in your deck: Training Effectiveness +15%"],
+  "30086": ["Training Effectiveness +1% per 10,000 fans (up to +20%)"],
+  "30087": ["When bond gauge is 80 or higher: Stamina Bonus +2"],
+  "30088": ["With 4 or more support-card types in your deck: Training Effectiveness +10%"],
+  "30089": ["When bond gauge is full: Mood Effect +60%"],
+  "30090": ["Initial Wit +10 per support card in your deck (Friend/Group cards give +2 to all stats instead)"],
+  "30091": ["Friendship Bonus +3% each friendship training with this card, up to 5 times (+15% total)"],
+  "30092": ["When bond gauge is 80 or higher: Speed Bonus +2"],
+  "30093": ["When bond gauge is 80 or higher: Power Bonus +2"],
+  "30094": ["The lower your energy, the greater the Friendship Bonus (up to +15%)"],
+  "30095": ["The higher your maximum energy, the greater the Training Effectiveness (up to +20%)"],
+  "30097": ["When bond gauge is 80 or higher: Wit Bonus +1, Skill Point Bonus +1"],
+  "30099": ["The higher your supports' total bond, the greater the Training Effectiveness (up to +30%)"],
+  "30100": ["When bond gauge is 80 or higher: Training Effectiveness +10%"],
+  "30102": ["Training Effectiveness +5% per support card in the same training facility"],
+  "30103": ["When bond gauge is full: Wit Friendship Recovery +5"],
+  "30104": ["When bond gauge is 80 or higher: Training Effectiveness +10%"]
+}

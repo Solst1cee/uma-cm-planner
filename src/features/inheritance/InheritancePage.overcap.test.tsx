@@ -44,7 +44,7 @@ vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [uma], umaById: new Map([[uma.umaId, uma]]) }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
-vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: [], skillById: new Map() }), BASE_URL: '' }));
+vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }), BASE_URL: '' }));
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({ PlanInventoryCard: () => <div /> }));
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => <span data-testid="icon" /> }));
 

@@ -1,8 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import {
   DECK_SLOTS, DEFAULT_SLOT_LB, TYPE_COLORS, TYPE_LABEL,
-  emptyDeck, clearDeck, addCard, dropCard, removeSlot, toggleSlotLb, isValidDeckState, isDeckEmpty,
+  emptyDeck, clearDeck, addCard, dropCard, moveSlot, removeSlot, toggleSlotLb, isValidDeckState, isDeckEmpty,
 } from './deckOps';
+
+describe('moveSlot', () => {
+  const two = { slots: ['a', 'b', null, null, null, null], slotLb: [1, 2, 4, 4, 4, 4] as never };
+  it('swaps two filled slots (cards + LBs)', () => {
+    const r = moveSlot(two, 0, 1);
+    expect(r.slots.slice(0, 2)).toEqual(['b', 'a']);
+    expect(r.slotLb.slice(0, 2)).toEqual([2, 1]);
+  });
+  it('moves a card into an empty slot, emptying the source', () => {
+    const r = moveSlot(two, 0, 2);
+    expect(r.slots[0]).toBeNull();
+    expect(r.slots[2]).toBe('a');
+    expect(r.slotLb[2]).toBe(1);
+  });
+  it('is a no-op for equal or out-of-range indices', () => {
+    expect(moveSlot(two, 1, 1)).toBe(two);
+    expect(moveSlot(two, -1, 2)).toBe(two);
+    expect(moveSlot(two, 0, 9)).toBe(two);
+  });
+});
 
 describe('emptyDeck', () => {
   it('is 6 null slots and 6 LB-4 entries', () => {

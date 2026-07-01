@@ -44,6 +44,9 @@ main:has(.inh-page) {
   justify-content: center;
 }
 .inh-col { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+/* The right column stretches to the (tall) grid-row height so the sticky card
+   detail inside it has room to stick while the page scrolls. */
+.inh-col-right { align-self: stretch; }
 @media (max-width: 1500px) {
   .inh-grid { grid-template-columns: 1fr; }
 }
@@ -237,9 +240,9 @@ main:has(.inh-page) {
 
 /* "Deck" card (M1.5) — CM-planner card grammar (card shell + gray head bar + padded body). */
 .inh-deck {
-  position: sticky;
-  top: 0.5rem;
-  z-index: 5;
+  /* NOT sticky: the Deck, Scoring-weights and Pool cards all share this shell,
+     and three sticky cards pinned to the same top overlap — when the weights
+     card expands it would float over the pool. They flow normally instead. */
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -361,15 +364,46 @@ main:has(.inh-page) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  min-height: 86px;
+  min-height: 96px;
   padding: 0.45rem;
   border: 1.5px dashed var(--border);
   border-left: 4px solid transparent;
   border-radius: 10px;
   background: var(--bg-2);
 }
-.inh-deck-slot.is-filled { background: var(--bg-1); }
+/* Filled slots get a solid (not dashed) frame; colour comes inline from the
+   card's type, so the border matches the icon instead of a grey dashed line. */
+.inh-deck-slot.is-filled { background: var(--bg-1); border-style: solid; }
 .inh-deck-slot.drag-over { border-color: var(--accent); background: #eef4ff; }
+/* Conflicting slot (same character as the trainee, or a duplicate) — the card body
+   is greyed but the slot stays in place (a template may legitimately contain it).
+   The badge sits above the fade so its label stays legible. */
+.inh-deck-slot.is-conflict .inh-deck-slot-body { opacity: 0.4; filter: grayscale(0.9); }
+.inh-deck-slot-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.05rem 0.3rem;
+  border-radius: 6px;
+  background: var(--fg-muted);
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  z-index: 3;
+}
+/* The card icon inside a filled slot is a details button — reset button chrome. */
+.inh-deck-icon-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  border-radius: 8px;
+}
 .inh-deck-remove {
   position: absolute;
   top: 0.2rem;
@@ -401,6 +435,8 @@ main:has(.inh-page) {
   align-items: center;
   justify-content: center;
 }
+/* Real card icon in a deck slot (built by the page; same visual as the pool). */
+.inh-deck-icon { display: inline-flex; }
 .inh-deck-lb { display: flex; align-items: center; gap: 0.25rem; }
 .inh-deck-lb-label { color: var(--fg-muted); font-size: 0.6rem; font-weight: 800; }
 .inh-deck-lb-diamonds { display: inline-flex; gap: 3px; align-items: center; }
@@ -421,6 +457,920 @@ main:has(.inh-page) {
   font-size: 0.72rem;
 }
 .inh-deck-plus { display: block; font-size: 1rem; line-height: 1; }
+
+/* ── Scoring Weights panel (M1.6) ─────────────────────────────────────────── */
+/* Smaller head than the standard card head + a gap between the "?" and the caret. */
+.inh-weights-head {
+  min-height: 2rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+}
+.inh-weights-head .cmp-trace-help-btn { margin-right: 0.5rem; }
+.inh-weights-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+/* Type tabs row */
+.inh-weights-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.inh-weights-tab {
+  flex: 1 1 auto;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.inh-weights-tab:hover { background: var(--bg-1); color: var(--fg); }
+.inh-weights-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Customize toggle row */
+.inh-weights-customize-row { display: flex; align-items: center; gap: 0.5rem; }
+.inh-weights-toggle {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+}
+.inh-weights-toggle:hover { background: var(--bg-1); }
+
+/* Customize section */
+.inh-weights-customize {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+
+/* Generic field: label on top, input below */
+.inh-weights-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+.inh-weights-field label {
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+/* Scope number/range input overrides under .inh-weights so specificity beats app.css */
+.inh-weights .inh-weights-field input[type="number"],
+.inh-weights .inh-weights-field input[type="range"] {
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-size: 0.82rem;
+}
+.inh-weights .inh-weights-field input[type="number"]:focus,
+.inh-weights .inh-weights-field input[type="range"]:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+.inh-weights .inh-weights-customize input[type="number"],
+.inh-weights .inh-weights-customize input[type="range"] {
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-size: 0.82rem;
+}
+
+/* Small field (used in rows) */
+.inh-weights-field-sm { min-width: 0; }
+
+/* Horizontal row of fields */
+.inh-weights-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.inh-weights-row .inh-weights-field { flex: 1 1 4rem; }
+
+/* Group (label + children) */
+.inh-weights-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.inh-weights-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* 7 stat weight inputs (2-column grid) */
+.inh-weights-stat-weights {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.35rem 0.5rem;
+}
+
+/* Checkboxes */
+.inh-weights-checkboxes {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.inh-weights-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+/* Uma bonuses (always visible) */
+.inh-weights-uma-bonuses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+}
+.inh-weights-uma-bonuses .inh-weights-row .inh-weights-field { flex: 1 1 3.5rem; }
+.inh-weights .inh-weights-uma-bonuses input[type="number"] {
+  width: 100%;
+  padding: 0.18rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-size: 0.78rem;
+}
+
+/* Footer: reset + caption */
+.inh-weights-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.inh-weights-reset {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+}
+.inh-weights-reset:hover { background: var(--bg-1); }
+.inh-weights-caption {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+.inh-weights-caption a {
+  color: var(--accent);
+}
+
+/* ── Support-card pool panel (M1.6) ─────────────────────────────────────── */
+.inh-pool {
+  /* inherits .inh-deck card shell */
+}
+.inh-pool-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.inh-pool-title { font-weight: 700; }
+.inh-pool-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+.inh-pool-head-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.inh-pool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Toggle groups (view / sort) */
+.inh-pool-toggle-group {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.inh-pool-toggle-btn {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.inh-pool-toggle-btn:last-child { border-right: 0; }
+.inh-pool-toggle-btn:hover { background: var(--bg-1); color: var(--fg); }
+.inh-pool-toggle-btn.is-active { background: var(--accent); color: #fff; }
+
+/* Filters */
+.inh-pool-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.inh-pool-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.inh-pool-filter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  min-width: 3.5rem;
+}
+.inh-pool-chip-group {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.inh-pool-chip {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+.inh-pool-chip:hover { background: var(--bg-1); color: var(--fg); }
+.inh-pool-chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+/* Type chips that show the in-game coloured stat tile — tighten the padding;
+   the selected style is the shared .is-active accent fill (same as other rows). */
+.inh-pool-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.25rem;
+}
+/* Scope search input under .inh-pool so specificity beats global input[type=text] */
+.inh-pool .inh-pool-search {
+  flex: 1 1 10rem;
+  max-width: 22rem;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-size: 0.8rem;
+}
+.inh-pool .inh-pool-search:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Pool grid — dense small cells (collapsed = icon + LB only). An expanded
+   tile spans the full row so its detail has room. */
+.inh-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.5rem;
+  max-height: 65vh;
+  overflow-y: auto;
+  align-items: start;
+}
+
+/* Pool tile (accordion). Collapsed: a centered icon-toggle + LB stepper. */
+.inh-pool-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  cursor: grab;
+  position: relative;
+}
+.inh-pool-tile:hover { background: var(--bg-1); }
+/* Cards already in the deck read as taken — greyed + desaturated (still
+   selectable / draggable). */
+.inh-pool-tile.is-in-deck { opacity: 0.5; filter: grayscale(0.5); }
+/* Blocked cards (trainee's own character, or a same-character duplicate): the icon
+   is greyed but the centered badge stays crisp (matches the deck slot). Still
+   selectable to view details. */
+.inh-pool-tile.is-blocked { cursor: default; }
+.inh-pool-tile.is-blocked .inh-pool-tile-iconbtn,
+.inh-pool-tile.is-blocked .inh-deck-lb { opacity: 0.4; filter: grayscale(0.9); }
+/* Centered chip — same design as the deck-slot badge (.inh-deck-slot-badge). */
+.inh-pool-tile-blockbadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.05rem 0.3rem;
+  border-radius: 6px;
+  background: var(--fg-muted);
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  z-index: 3;
+}
+/* Selected card → blue "current" glow (matches cmp-apt-card.is-current); wins
+   over the in-deck dim so a selected-and-taken card still reads as selected. */
+.inh-pool-tile.is-selected {
+  opacity: 1;
+  filter: none;
+  border-color: #87aef8;
+  background: #eef5ff;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.9),
+    0 0 0 2px rgb(52 120 246 / 0.18);
+}
+.inh-pool-tile.is-expanded {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--bg-1);
+}
+/* Icon + LB stepper stacked: centered when collapsed, a narrow left column when
+   expanded (the LB sits under the icon; effectiveness + stats below that). */
+.inh-pool-tile-main {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.inh-pool-tile.is-expanded .inh-pool-tile-main {
+  width: 6.5rem;
+  align-self: flex-start;
+}
+/* Effectiveness value + effect-stat list — expanded-only, fills the column. */
+.inh-pool-tile-meta { display: none; }
+.inh-pool-tile.is-expanded .inh-pool-tile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  margin-top: 0.1rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--border);
+}
+.inh-pool-tile-stats { display: flex; flex-direction: column; gap: 0.1rem; }
+.inh-pool-stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+.inh-pool-stat-label { color: var(--fg-muted); white-space: nowrap; }
+.inh-pool-stat-val { font-weight: 700; color: var(--fg); white-space: nowrap; }
+/* Wraps the icon so the hover quick-add can sit on the icon's corner. */
+.inh-pool-tile-iconwrap { position: relative; display: inline-flex; }
+/* Hover-only "+" quick-add at the icon's top-right (covers the stat tile while
+   hovering). Revealed on tile hover or keyboard focus. */
+.inh-pool-tile-quickadd {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px; /* rounded-corner square */
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 0;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.28);
+  opacity: 0;
+  transform: scale(0.82);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 3;
+}
+.inh-pool-tile:hover .inh-pool-tile-quickadd,
+.inh-pool-tile-quickadd:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+.inh-pool-tile-quickadd:hover { filter: brightness(1.08); }
+.inh-pool-tile-quickadd:active { transform: scale(0.94); }
+/* The icon doubles as the expand toggle. */
+.inh-pool-tile-iconbtn {
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  border-radius: 6px;
+}
+/* Collapsed-only wishlist-match count, top-left of the icon (top-right holds the
+   stat-type tile). */
+.inh-pool-tile-wishbadge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  box-sizing: border-box;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  /* line-height == height → vertical centre; text-align → horizontal centre. */
+  line-height: 1.35rem;
+  text-align: center;
+}
+.inh-pool-tile-iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Detail block — hidden until the tile is expanded. */
+.inh-pool-tile-detail { display: none; }
+.inh-pool-tile.is-expanded .inh-pool-tile-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 220px;
+  min-width: 0;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--border);
+}
+/* Reserve room on the right so the name never slides under the corner Add button. */
+.inh-pool-tile-headline { display: flex; align-items: center; gap: 0.35rem; min-width: 0; padding-right: 1.8rem; }
+.inh-pool-tile-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.inh-pool-tile-char {
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inh-pool-tile-rarity {
+  display: inline-block;
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #fff;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+}
+.inh-pool-tile-score {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+.inh-pool-tile-match { flex: none; white-space: nowrap; font-size: 0.7rem; color: var(--accent); font-weight: 700; }
+
+/* Skill chips — spark-style pills (no star); wishlist matches accented. */
+.inh-pool-skill-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.inh-pool-skill-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-2);
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--fg);
+  white-space: nowrap;
+}
+/* Wishlist match → the planner's blue "current" glow (cmp-apt-card.is-current). */
+.inh-pool-skill-chip.is-match {
+  border-color: #87aef8;
+  background: #eef5ff;
+  color: #2b59c3;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.9),
+    0 0 0 2px rgb(52 120 246 / 0.14);
+}
+/* Event-skill sections (Chain / Random / Hint), each a labelled chip row. */
+.inh-pool-skill-section { display: flex; flex-direction: column; gap: 0.15rem; }
+.inh-pool-skill-section-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+/* Add button — a "+" pinned to the expanded tile's top-right corner. */
+.inh-pool-tile-add {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.inh-pool-tile-add:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+/* Deck members: a small "Added" tag in the same top-right corner. */
+.inh-pool-tile-added {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+}
+.inh-pool-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+
+/* Art view list */
+/* Art view = a 2-up card grid (mockup parity), each card with the full
+   illustration as a tall left strip. */
+.inh-pool-art-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.5rem;
+  max-height: 65vh;
+  overflow-y: auto;
+  align-items: start;
+}
+
+/* Art tile: horizontal card with a full-height art strip on the left. */
+.inh-pool-art-tile {
+  display: flex;
+  gap: 0;
+  min-height: 132px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  cursor: grab;
+  overflow: hidden;
+}
+.inh-pool-art-tile:hover { background: var(--bg-1); }
+
+/* The full in-game illustration (square 512px art, GameIcon kind="card-art")
+   as a fixed-width strip that stretches to the card's full height. */
+.inh-pool-art-icon {
+  flex: none;
+  width: 96px;
+  align-self: stretch;
+  display: flex;
+}
+/* Fill wrapper + image: the portrait art (0.75 / 384×512) covers the strip,
+   anchored to the top so the character's face is always shown. */
+.inh-pool-art-fill {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.inh-pool-art-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+/* Real bundled support-card image (square chip OR full art); the source carries
+   its own frame, so just round the corners. A card absent from the manifest
+   falls back to GameIcon's neutral placeholder box. */
+.inh-pool-card-img {
+  border-radius: 6px;
+  object-fit: contain;
+}
+/* Card icon/art + a stat-type badge overlaid top-right (in-game spd/sta/pow/gut/wit). */
+.inh-pool-card-icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+/* The in-game stat tile carries its own colour + border — show it bare, tucked
+   flush into the card's top-right corner (corners coincide, no overflow). */
+.inh-pool-card-type {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+}
+.inh-pool-card-type-img { display: block; }
+
+/* ── Card detail (right-sidebar card, M1.6.1) ──────────────────────────────── */
+/* Sticky for THIS card only (single card in the right column → no overlap like
+   the centre-column trio had). The right column is stretched (.inh-col-right)
+   so this has room to stick. */
+.inh-card-detail {
+  position: sticky;
+  /* Below the sticky .app-header (top:0, z-index:10) so it doesn't tuck under it. */
+  top: 6rem;
+}
+.inh-card-detail-head { justify-content: space-between; font-weight: 700; }
+.inh-card-detail-close {
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+  cursor: pointer;
+}
+.inh-card-detail-close:hover { color: var(--fg); }
+.inh-card-detail-body {
+  gap: 0.5rem;
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+}
+/* Names block — one centered column, full width, above the 2-column section. */
+.inh-card-detail-names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  margin-bottom: 0.45rem;
+  text-align: center;
+}
+.inh-card-detail .inh-pool-tile-name {
+  font-size: 1rem; /* match the card headbar (.inh-deck-head) */
+  white-space: normal;
+  overflow: visible;
+}
+/* The support card's uma/character name, bigger + readable. */
+.inh-card-detail-uma {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg);
+  white-space: normal;
+}
+/* Stat-type tile + rarity on a row above the LB stepper. */
+.inh-card-detail-iconlb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.15rem 0;
+}
+.inh-card-detail-typerow { display: flex; align-items: center; gap: 0.4rem; }
+.inh-card-detail-typeicon { display: inline-flex; flex: none; }
+.inh-card-detail-rarity { font-size: 0.85rem; font-weight: 800; color: var(--fg); }
+/* Bigger LB stepper in the detail card. */
+.inh-card-detail-lb .inh-deck-lb-diamonds { gap: 4px; }
+.inh-card-detail-lb .inh-deck-diamond { width: 13px; height: 20px; }
+.inh-card-detail-lb .inh-deck-lb-label { font-size: 0.66rem; }
+.inh-card-detail .inh-pool-tile-score { font-size: 0.88rem; }
+.inh-card-detail .inh-pool-stat-row { font-size: 0.8rem; line-height: 1.3; }
+
+/* Meta row — stat-type tile + LB stepper · wishlist count, centered. */
+.inh-card-detail-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+/* Estimated effect value (E-score) — under the passive effect list. */
+.inh-card-detail-evalue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.6rem;
+}
+/* Wishlist match count on the skill section's first line, right (keeps blue + size). */
+.inh-card-detail-match { position: absolute; top: 0.6rem; right: 0; }
+/* Skill sections — a thin separator line above them. */
+.inh-card-detail-skills {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+/* Full base-effect list — full width, complete set at the selected LB.
+   Uniform vertical rhythm: label→rows and row→row share the same gap. */
+.inh-card-detail-effects { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.28rem; }
+.inh-card-detail-section-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.inh-card-detail-effects-grid { display: flex; flex-direction: column; gap: 0.28rem; }
+/* Unique Effect block — same label + line styling as the passive effect list,
+   with a thin separator line above it. */
+.inh-card-detail-unique {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+.inh-card-detail-unique-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.inh-card-detail-unique-line { font-size: 0.8rem; line-height: 1.3; color: var(--fg-muted); }
+/* Full portrait art — single column, centered, square corners, face anchored top.
+   It's a <button> (opens the full-art viewer), so reset the button chrome. */
+.inh-card-detail-art {
+  position: relative;
+  width: min(240px, 68%);
+  margin: 0 auto;
+  aspect-ratio: 384 / 512;
+  overflow: hidden;
+  background: var(--bg-2);
+  display: block;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  cursor: zoom-in;
+  box-shadow: var(--ds-card-shadow, 0 6px 18px rgb(36 54 78 / 0.12));
+}
+/* The global .game-icon adds border-radius:5px — keep the full art square. */
+.inh-card-detail-art .game-icon,
+.inh-art-modal-art .game-icon { border-radius: 0; }
+
+/* Full-art viewer modal: grey backdrop + centered portrait art. */
+.inh-art-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgb(0 0 0 / 0.62);
+}
+.inh-art-modal-art {
+  position: relative;
+  height: min(86vh, 760px);
+  aspect-ratio: 384 / 512;
+  max-width: 94vw;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 0.5);
+  cursor: default;
+}
+
+.inh-card-detail-add {
+  margin-top: 0.7rem;
+  align-self: flex-start;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  background: var(--accent);
+  color: #fff;
+  /* match the picker filter chips (.inh-pool-chip) height */
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  cursor: pointer;
+}
+.inh-card-detail-add:hover:not(:disabled) { filter: brightness(1.06); }
+/* Already in the deck — greyed, disabled, still visible (label = "Added"). */
+.inh-card-detail-add:disabled {
+  background: var(--bg-2);
+  border-color: var(--border);
+  color: var(--fg-muted);
+  cursor: default;
+}
+/* "Deck is full" notice beside the Add button — gap from the button's right edge. */
+.inh-card-detail-fullmsg {
+  margin-left: 0.65rem;
+  vertical-align: middle;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--warn, #c0392b);
+}
+
+.inh-pool-art-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  min-width: 0;
+}
+
+.inh-pool-art-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* Event-skill chip rows (Chain / Random) */
+.inh-pool-art-skill-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.inh-pool-art-skill-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  min-width: 2.8rem;
+}
+
+.inh-pool-art-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.inh-pool-art-chip {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10rem;
+  color: #fff;
+}
+
+/* Chain = green (--tier-chain) */
+.inh-pool-art-chip--chain {
+  background: var(--tier-chain, #2d8f4e);
+}
+
+/* Random = orange (--tier-random) */
+.inh-pool-art-chip--random {
+  background: var(--tier-random, #c96a10);
+}
 
 /* Inheritance card (M1.4) */
 .inh-inheritance-card .cmp-plan-card-head { gap: 0.5rem; }

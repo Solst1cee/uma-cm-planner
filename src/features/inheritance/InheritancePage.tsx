@@ -4,13 +4,18 @@
  *  plan's uma and an inventory-icon button that pops the shared PlanInventoryCard
  *  (dismiss-on-outside); picking a row there switches the current plan. M1.5 adds the
  *  "Deck" card (6-slot support deck + autosave templates) in the center column. */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
-import type { CmPlan } from '@/core/types';
+import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
-import { useGameData } from '@/features/data/gameData';
+import { BASE_URL, useGameData } from '@/features/data/gameData';
+import { cardRowsByKey, resolveDeckObjects, scoreCards, umaBonusFromGrowth, DEFAULT_SCENARIO } from '@/core/cardScore';
+import { buildPoolItem, type PoolItem } from './poolModel';
+import { useScoreWeights } from './useScoreWeights';
+import { ScoreWeightsPanel } from './ScoreWeightsPanel';
+import { SupportCardPoolCard, CardDetailCard } from './SupportCardPoolCard';
 import { useUmas } from '@/features/parents/useUmas';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
@@ -35,9 +40,56 @@ import {
   wishlistSummary,
 } from './planTargets';
 import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
+import { canAddCard, isTraineeConflict } from './deckConflicts';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import './inheritance.css';
+
+/** Support-card type → the bundled in-game UI type-tile id (kind="ui"). */
+const STAT_UI_ID: Partial<Record<CardType, string>> = {
+  speed: 'stat-spd',
+  stamina: 'stat-sta',
+  power: 'stat-pow',
+  guts: 'stat-gut',
+  wit: 'stat-wit',
+  friend: 'stat-friend',
+  group: 'stat-group',
+};
+
+/** A support-card icon (square chip) or full art, with the in-game coloured
+ *  stat-type tile (spd/sta/pow/gut/wit) overlaid in the top-right corner.
+ *  friend/group cards have no stat type → no badge. The tile carries its own
+ *  in-game colour + border, so it's shown bare, flush in the corner (no overflow). */
+function cardVisual(it: { cardId: string; type: CardType }, size: number, kind: 'card' | 'card-art') {
+  const statUiId = STAT_UI_ID[it.type];
+  return (
+    <span className="inh-pool-card-icon" style={{ width: size, height: size }}>
+      <GameIcon kind={kind} id={it.cardId} size={size} alt="" className="inh-pool-card-img" />
+      {statUiId && (
+        <span className="inh-pool-card-type">
+          <GameIcon
+            kind="ui"
+            id={statUiId}
+            size={Math.max(15, Math.round(size * 0.28))}
+            alt=""
+            className="inh-pool-card-type-img"
+          />
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** Full illustration that fills its container (object-fit cover). Uses GameIcon
+ *  `fill` so it stretches to the box. No stat-type tile here — the detail card
+ *  shows that by the name instead. */
+function cardArt(it: PoolItem) {
+  return (
+    <span className="inh-pool-card-icon inh-pool-art-fill">
+      <GameIcon kind="card-art" id={it.cardId} fill alt="" className="inh-pool-art-img" />
+    </span>
+  );
+}
 
 interface Deps {
   loadCatalog?: () => Promise<CourseCatalogEntry[]>;
@@ -67,7 +119,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
-  const { skillById, cardById } = useGameData();
+  const { skillById, cardById, cards } = useGameData();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
@@ -93,7 +145,25 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
+  const { scenario, setScenario } = useScoreWeights();
   const [deck, setDeck] = useDeckState();
+  const [cardLb, setCardLb] = useState<Record<string, LimitBreak>>({});
+  // Selected pool card → its detail shows in the right-sidebar card (toggle).
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  // Per-card "Unique Effect" lines (public/data/card_unique_effects.json), lazy-loaded.
+  const [uniqueEffects, setUniqueEffects] = useState<CardUniqueEffects>({});
+  const [baseEffects, setBaseEffects] = useState<CardBaseEffects>({});
+  useEffect(() => {
+    let cancelled = false;
+    const load = <T,>(file: string, set: (v: T) => void) =>
+      fetch(`${BASE_URL}data/${file}`)
+        .then((r) => (r.ok ? r.json() : {}))
+        .then((d) => { if (!cancelled) set(d as T); })
+        .catch(() => { /* optional dataset — degrade to none */ });
+    void load<CardUniqueEffects>('card_unique_effects.json', setUniqueEffects);
+    void load<CardBaseEffects>('card_effects.json', setBaseEffects);
+    return () => { cancelled = true; };
+  }, []);
   const { templates, save, remove, get } = useDeckTemplates();
   const [activeName, setActiveName, activeNameStored] = useActiveTemplateName();
 
@@ -172,16 +242,112 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Trainee's character name (a support card of the same character is blocked).
+  const traineeCharName = uma1Plan ? umaById.get(uma1Plan.umaId)?.nameEn ?? null : null;
+
   const resolveCard = (cardId: string): DeckCardInfo | undefined => {
     const card = cardById.get(cardId);
     if (!card) return undefined;
-    return { typeLabel: TYPE_LABEL[card.type], typeColor: TYPE_COLORS[card.type], name: card.nameEn };
+    return {
+      typeLabel: TYPE_LABEL[card.type],
+      typeColor: TYPE_COLORS[card.type],
+      name: card.nameEn,
+      charName: card.charName,
+      sameAsTrainee: isTraineeConflict(card.charName, traineeCharName),
+      // Real in-game square icon + stat-type tile, same size as the pool's Icon view (60).
+      icon: cardVisual({ cardId, type: card.type }, 60, 'card'),
+    };
   };
-  // The fill seam M1.6's "+ Add" button will call. Referenced now to keep it live.
-  const addCardToDeck = (cardId: string) => setDeck(addCard(deck, cardId));
-  void addCardToDeck;
+
+  // Characters currently in the deck (only one support card per character), and a
+  // guarded add that refuses trainee / duplicate-character cards.
+  const deckCharNames = new Set(
+    (deck.slots.filter(Boolean) as string[])
+      .map((id) => cardById.get(id)?.charName)
+      .filter((c): c is string => !!c),
+  );
+  const addToDeck = (id: string) => {
+    const card = cardById.get(id);
+    // Enforce the conflict rules only when the card resolves; if we can't tell the
+    // character, allow the add rather than silently dropping it.
+    if (card && !canAddCard({ cardCharName: card.charName, traineeCharName, deckCharNames, inDeck: deck.slots.includes(id) })) return;
+    setDeck(addCard(deck, id, cardLb[id] ?? 4));
+  };
+
+  // Pool scoring memos
+  const wishlist = useMemo(
+    () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
+    [uma1Plan],
+  );
+  const byKey = useMemo(cardRowsByKey, []);
+  const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
+  const rows = useMemo(
+    () =>
+      cards
+        .map((c) => byKey.get(`${c.cardId}:${cardLb[c.cardId] ?? 4}`))
+        .filter(Boolean),
+    [cards, cardLb, byKey],
+  );
+  const scores = useMemo(
+    () => scoreCards(scenario, deckObjs, rows as never),
+    [scenario, deckObjs, rows],
+  );
+  const items = useMemo(
+    () =>
+      cards.map((c) => {
+        const lb = cardLb[c.cardId] ?? 4;
+        return buildPoolItem(c, {
+          score: scores.get(c.cardId)?.score,
+          wishlist,
+          lb,
+          statsRow: byKey.get(`${c.cardId}:${lb}`),
+        });
+      }),
+    [cards, scores, wishlist, cardLb, byKey],
+  );
+  const selectedItem = selectedCardId ? items.find((i) => i.cardId === selectedCardId) ?? null : null;
+  const wishlistSkillNames = useMemo(
+    () =>
+      [...wishlist]
+        // Unique / inherited-unique skills aren't obtainable from support cards,
+        // so they can't drive a support-card filter — drop them from the chips.
+        .filter((id) => {
+          const r = skillById.get(id)?.rarity;
+          return r !== 'unique' && r !== 'inherited_unique';
+        })
+        .map((id) => ({ id, name: skillById.get(id)?.nameEn ?? id })),
+    [wishlist, skillById],
+  );
 
   const uma = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
+
+  // Auto-match the scorer's "Uma's Bonuses" to the selected plan's uma growth
+  // (the per-stat training multiplier). Fires only when the uma changes, so the
+  // user can still hand-tune after; a ref reads the latest scenario without
+  // re-running on every weight edit.
+  const umaGrowth = uma?.statGrowth;
+  const scenarioRef = useRef(scenario);
+  scenarioRef.current = scenario;
+  useEffect(() => {
+    if (!umaGrowth) return;
+    const next = umaBonusFromGrowth(umaGrowth);
+    const s = scenarioRef.current;
+    const cur = s.general.umaBonus;
+    if (cur.length === next.length && next.every((v, i) => v === cur[i])) return;
+    setScenario({ ...s, general: { ...s.general, umaBonus: next } });
+    // Only re-run when the uma's growth changes (setScenario is stable).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [umaGrowth]);
+
+  // Reset weights to euophrys defaults, but keep the Uma's Bonuses matched to the
+  // current plan's uma (resetting those to the generic 1.06 would be wrong).
+  const resetWeights = () =>
+    setScenario(
+      umaGrowth
+        ? { ...DEFAULT_SCENARIO, general: { ...DEFAULT_SCENARIO.general, umaBonus: umaBonusFromGrowth(umaGrowth) } }
+        : DEFAULT_SCENARIO,
+    );
+
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
   const portrait = uma ? (
     // 0.9-aspect box (uma icons are 230×256) so the portrait isn't letterboxed.
@@ -304,6 +470,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             state={deck}
             onChange={setDeck}
             resolveCard={resolveCard}
+            onSelect={(id) => setSelectedCardId(id)}
             templates={templates}
             activeName={activeName}
             onRename={handleRename}
@@ -311,11 +478,58 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             onNewTemplate={handleNewTemplate}
             onDeleteTemplate={handleDeleteTemplate}
           />
-          <Placeholder title="Support cards" phase="M1.6" />
+          <SupportCardPoolCard
+            weightsSlot={
+              <ScoreWeightsPanel scenario={scenario} onChange={setScenario} onReset={resetWeights} />
+            }
+            items={items}
+            wishlistSkillNames={wishlistSkillNames}
+            statsShown={[]}
+            cardLb={cardLb}
+            onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
+            deckCardIds={new Set(deck.slots.filter(Boolean) as string[])}
+            traineeCharName={traineeCharName}
+            deckCharNames={deckCharNames}
+            onAdd={addToDeck}
+            renderIcon={(it, size) => cardVisual(it, size, 'card')}
+            renderTypeIcon={(type, size) => {
+              const id = STAT_UI_ID[type];
+              return id ? <GameIcon kind="ui" id={id} size={size} alt={TYPE_LABEL[type]} /> : null;
+            }}
+            selectedCardId={selectedCardId}
+            onSelectCard={(id) => setSelectedCardId((cur) => (cur === id ? null : id))}
+          />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>
         <div className="inh-col inh-col-right">
           <Placeholder title="Target spark" phase="M1.8" />
+          {selectedItem && (
+            <CardDetailCard
+              item={selectedItem}
+              lb={cardLb[selectedItem.cardId] ?? 4}
+              onCardLb={(id, lb) => setCardLb((m) => ({ ...m, [id]: lb }))}
+              inDeck={deck.slots.includes(selectedItem.cardId)}
+              blocked={
+                !deck.slots.includes(selectedItem.cardId) &&
+                (isTraineeConflict(selectedItem.charName, traineeCharName) ||
+                  deckCharNames.has(selectedItem.charName))
+              }
+              blockReason={
+                isTraineeConflict(selectedItem.charName, traineeCharName) ? 'trainee' : 'duplicate'
+              }
+              deckFull={!deck.slots.includes(null)}
+              onAdd={addToDeck}
+              onClose={() => setSelectedCardId(null)}
+              art={cardArt(selectedItem)}
+              typeIcon={(() => {
+                const tid = STAT_UI_ID[selectedItem.type];
+                return tid ? <GameIcon kind="ui" id={tid} size={26} alt={TYPE_LABEL[selectedItem.type]} /> : null;
+              })()}
+              uniqueEffects={uniqueEffects[selectedItem.cardId] ?? []}
+              baseEffects={baseEffects[selectedItem.cardId] ?? []}
+              skillName={(id) => skillById.get(id)?.nameEn ?? id}
+            />
+          )}
         </div>
       </div>
     </div>

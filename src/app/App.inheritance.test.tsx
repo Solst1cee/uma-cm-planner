@@ -25,7 +25,7 @@ vi.mock('@/features/inheritance/useRoster', () => ({
 // and the M1.4 white-skill options (skills) through useGameData; stub all so the
 // route needs no GameData provider.
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skillById: new Map(), cardById: new Map(), skills: [] }),
+  useGameData: () => ({ skillById: new Map(), cardById: new Map(), cards: [], skills: [] }),
   BASE_URL: '',
 }));
 
