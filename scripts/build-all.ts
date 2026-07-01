@@ -21,7 +21,7 @@ import { buildIcons } from './build-icons';
 import { buildSkills } from './build-skills';
 import { buildSparkRates } from './build-spark-rates';
 import { buildTimeline } from './build-timeline';
-import { buildUmas } from './build-umas';
+import { buildJpUmas, buildUmas } from './build-umas';
 import { borrowedFilesPresent, copyFromSpikes, DATA_VERSION } from './fetch-borrowed';
 import { loadCardAdditions } from './lib/card-additions';
 import { loadSkillAdditions } from './lib/skill-additions';
@@ -115,11 +115,20 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     courses: readBorrowedJson<CourseDataJson>('course_data.json'),
     dataVersion: DATA_VERSION,
   });
-  let umas = buildUmas({
+  const gametoraChars = readBorrowedJson<GtCharacterCard[]>('gametora/character-cards.json');
+  const umaRecords = buildUmas({
     umas: readBorrowedJson<UmalatorUmasJson>('umas.json'),
-    gametoraChars: readBorrowedJson<GtCharacterCard[]>('gametora/character-cards.json'),
+    gametoraChars,
     dataVersion: DATA_VERSION,
   });
+  const jpUmas = buildJpUmas({
+    gametoraChars,
+    masterUmaIds: new Set(umaRecords.map((u) => u.umaId)),
+    cal,
+    dataVersion: DATA_VERSION,
+  });
+  console.log(`build-umas: emitted ${jpUmas.length} JP-ahead uma(s) (${jpUmas.filter((u) => u.releaseDatePredicted).length} date-projected)`);
+  let umas = [...umaRecords, ...jpUmas].sort((a, b) => Number(a.umaId) - Number(b.umaId));
   const sparkRates = buildSparkRates();
   const relation = readBorrowedJson<{ relation_type: number; relation_point: number }[]>('relation.json');
   const relationMember = readBorrowedJson<{ id: number; relation_type: number; chara_id: number }[]>('relation_member.json');

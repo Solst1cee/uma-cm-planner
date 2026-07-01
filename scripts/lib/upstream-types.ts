@@ -136,6 +136,8 @@ export interface GtCharacterCard {
   title_en_gl?: string;
   /** Global release date (ISO), absent if unreleased on Global. */
   release_en?: string;
+  /** JP release date (ISO), present across the whole catalog incl. JP-only. */
+  release?: string;
 }
 
 export type EventSkillSourcesJson = Record<
