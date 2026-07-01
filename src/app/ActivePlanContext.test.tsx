@@ -222,6 +222,25 @@ describe('ActivePlanProvider flushPendingSave', () => {
     expect(ctx.plan?.name).toBe('My custom plan (1)');
   });
 
+  it('guarded saves do not restore stale content after a newer edit', async () => {
+    await renderProvider();
+    let resolveSave!: () => void;
+    vi.mocked(savePlan).mockImplementationOnce(
+      () => new Promise<void>((resolve) => { resolveSave = resolve; }),
+    );
+
+    const older = { ...ctx.plan!, name: 'older edit' };
+    act(() => ctx.setPlan(older));
+    const saving = ctx.saveCurrentPlan(older, { commit: 'if-current' });
+
+    await waitFor(() => expect(savePlan).toHaveBeenCalledTimes(1));
+    act(() => ctx.setPlan({ ...older, name: 'newer edit' }));
+    resolveSave();
+    await act(async () => { await saving; });
+
+    expect(ctx.plan?.name).toBe('newer edit');
+  });
+
   it('adds the next numeric suffix when Save as duplicates an existing name', async () => {
     await renderProvider();
     const draft = { ...ctx.plan!, id: 'draft', name: 'Random name' };
