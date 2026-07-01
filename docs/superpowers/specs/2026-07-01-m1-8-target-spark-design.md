@@ -102,8 +102,8 @@ distinct names, no case clash (unlike the `StatInput`/`statInput` gotcha).
 Layout (reusing existing grammar):
 - `cmp-plan-card` shell + `cmp-plan-card-head` "Target spark" bar + `cmp-plan-card-body`.
 - Intro line (muted, small): "Sparks to hunt for on a parent / rental to complete this plan."
-- `cmp-mini-label` "Blue" → `.spark-chips` of `.badge.spark-blue` (border/text tinted per
-  stat color, matching the prototype).
+- `cmp-mini-label` "Blue" → `.spark-chips` of `.badge.spark-blue` (uniform blue, matching the
+  route's existing `LineageSparkChips` precedent rather than the prototype's per-stat tint).
 - `cmp-mini-label` "Pink" → `.spark-chips` of `.badge.spark-pink`.
 - `cmp-mini-label` "White (uncovered skills)" → one of three renderings by `coverage`:
   - `'pending'` → muted small note: "Coverage pending — needs the obtainable-vs-wishlist
