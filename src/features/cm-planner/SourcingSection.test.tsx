@@ -9,11 +9,11 @@ afterEach(cleanup);
 // Icons need the GameData provider; stub them so the test focuses on the sourcing join.
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
 
-const card = (cardId: string, nameEn: string, skills: SupportCardRecord['skills']): SupportCardRecord =>
+const card = (cardId: string, nameEn: string, skills: SupportCardRecord['skills'], server: SupportCardRecord['server'] = 'global'): SupportCardRecord =>
   ({
     cardId, nameEn, charName: '', rarity: 'SSR', type: 'speed',
     perLevel: [{ limitBreak: 4, hintFrequency: 30, specialtyPriority: 0 }],
-    skills, hintPoolSize: 5, server: 'global', dataVersion: 'x',
+    skills, hintPoolSize: 5, server, dataVersion: 'x',
   } as SupportCardRecord);
 
 const cards: SupportCardRecord[] = [
@@ -45,5 +45,21 @@ describe('SourcingSection', () => {
   it('renders nothing for a unique skill (innate, not card-sourced)', () => {
     const { container } = render(<SourcingSection skillId="S1" rarity="unique" />);
     expect(container.querySelector('.cmp-sourcing')).toBeNull();
+  });
+
+  it('excludes JP-ahead cards from the sourcing index (availability gate)', () => {
+    // A global card and a JP-ahead card both hint skill S2.
+    // Only the global card should appear as a source.
+    const prevData = gameData;
+    gameData = {
+      cards: [
+        card('40001', 'GlobalCard', [{ skillId: 'S2', sourceType: 'chain' }], 'global'),
+        card('40002', 'JpCard',     [{ skillId: 'S2', sourceType: 'chain' }], 'jp'),
+      ],
+    };
+    const { container } = render(<SourcingSection skillId="S2" rarity="white" />);
+    expect(container.textContent).toContain('GlobalCard');
+    expect(container.textContent).not.toContain('JpCard');
+    gameData = prevData;
   });
 });

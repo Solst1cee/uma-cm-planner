@@ -27,7 +27,9 @@ const TIER_LABEL: Partial<Record<Tier, string>> = {
 export function useCardHintIndex() {
   const { cards } = useGameData();
   return useMemo(() => {
-    const list = cards ?? [];
+    // M4 sourcing = actionable Global sources only; JP-ahead (server:'jp') cards are
+    // preview content gated in the M1 pool, not listed here (availability gate).
+    const list = (cards ?? []).filter((c) => c.server === 'global');
     return { index: buildCardHintIndex(list), cardById: new Map(list.map((c) => [c.cardId, c])) };
   }, [cards]);
 }
