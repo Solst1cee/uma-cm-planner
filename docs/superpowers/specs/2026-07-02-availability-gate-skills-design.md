@@ -47,6 +47,18 @@ Emit the source-backed JP-ahead skills as `server:'jp'` `SkillRecord`s with a Gl
 - **(D) Approach 1 — skill-record self-sourced dates.** Use the skill's own `sup_*`/`char_*` fields against card/uma date maps; no changes to card skill-lists.
 - **(E) Undatable skills are dropped.** A JP skill with no source, or whose every source is itself undated, gets no `releaseDate` → it is **not emitted** (can't honestly date or place it).
 
+## Amendment (2026-07-02, during planning)
+
+Planning verified the source data and settled the details the brainstorm couldn't see:
+
+- **Emission set = all 1,174 source-backed JP skills** (decision B, confirmed) — including the **596 "evolution skills"** (9-digit uma-specific variants, gametora `rarity:6`, no `cost`). These are a JP-only skill-evolution mechanic; being newer than the engine pin they may drop out of sims (`simulatableBase`) and rank `na` in the charts — **accepted** as honest preview clutter (they still list + date correctly). `skills.json`: **587 → ~1,761**.
+- **gametora `rarity` → `SkillRarity` map** (derived empirically from skills present in both master and gametora): `1 → white`, `2 → gold`, `3 | 4 | 5 | 6 → unique`. (No non-evolution skill has `rarity:6`; the 596 evolution variants map to `unique`.)
+- **`baseSpCost`** = gametora `cost` when present, else `0` (uniques + evolution skills are `0`, matching the `SkillRecord` "0 for uniques" contract).
+- **Record fields come from gametora** (no master entry): `nameEn` = `loc.en.name ?? name_en ?? enname ?? jpname`; `nameJp` = `jpname`; `iconId` = `String(iconid)`; `conditions` = `serializeConditions(loc.en.condition_groups ?? condition_groups)`; `server:'jp'`, `releaseDate`, `releaseDatePredicted`, `dataVersion`.
+- **Date maps built from `jpCards` + `jpUmas` only** (the dated preview records). A JP skill sourced solely by already-Global cards/umas resolves to no dated source → dropped (decision E); such records are anomalies (a Global source implies the skill should already be in the master cutover).
+- **`SkillPicker` gate = an optional `asOfISO?: string` prop** (backward-compatible): when provided, the picker opt-ins released JP skills behind an internal `show upcoming` toggle; when absent, it stays Global-only (current behaviour). Only the **wishlist** callers pass it (`PlannerSidebar`, `PlanHeaderPanel`, `InheritancePage`); the parents `SearchPicker` does not.
+- **Safe-exclude targets found:** `InheritanceCard.tsx:48` filters white skills with **no** `server` guard (would leak JP white skills into green-spark options) → add `s.server === 'global'`; the **M2 SP optimizer** candidate-skill pool needs an audit. (`ParentForm.tsx:342` already filters `server === 'global'` ✓.)
+
 ## Components
 
 ### 1. `resolveJpSkillDate` (pure — `scripts/lib/jpSkillDate.ts`)
