@@ -488,6 +488,23 @@ main:has(.inh-page) {
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
 .inh-p2-mode { margin-left: 0.2rem; }
+/* Parent 2 "Rental" on/off toggle switch. */
+.inh-rental-toggle {
+  display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+  border: 0; background: none; padding: 0; margin-left: 0.2rem;
+  font-size: 0.72rem; font-weight: 700; color: var(--fg-muted);
+}
+.inh-rental-toggle.is-on { color: var(--accent); }
+.inh-rental-switch {
+  width: 1.6rem; height: 0.9rem; border-radius: 999px; flex: none;
+  background: var(--bg-2); border: 1px solid var(--border); position: relative; transition: background .12s, border-color .12s;
+}
+.inh-rental-toggle.is-on .inh-rental-switch { background: color-mix(in srgb, var(--accent) 30%, var(--bg-1)); border-color: var(--accent); }
+.inh-rental-knob {
+  position: absolute; top: 1px; left: 1px; width: 0.7rem; height: 0.7rem; border-radius: 50%;
+  background: var(--fg-muted); transition: transform .12s, background .12s;
+}
+.inh-rental-toggle.is-on .inh-rental-knob { transform: translateX(0.7rem); background: var(--accent); }
 .inh-uma-picker { margin-top: 0.2rem; }
 
 
@@ -566,7 +583,7 @@ main:has(.inh-page) {
 /* Active factor row (blue/pink) */
 .spc-row {
   display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.7rem; border-radius: 11px;
-  border: 1px solid color-mix(in srgb, var(--tone) 30%, var(--border));
+  border: 1px solid var(--border);
   background: color-mix(in srgb, var(--tone) 5%, var(--bg-1));
 }
 .spc-name { flex: none; width: 4.4rem; font-size: 0.92rem; font-weight: 700; color: var(--tone-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }

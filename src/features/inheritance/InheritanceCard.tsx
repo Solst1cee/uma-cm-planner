@@ -170,10 +170,11 @@ export function InheritanceCard() {
   };
 
   const p2toggle = (
-    <span className="cmp-control-group inh-p2-mode" role="group" aria-label="Parent 2 mode">
-      <button type="button" className={p2rental ? '' : 'is-active'} onClick={() => setP2rental(false)}>Owned</button>
-      <button type="button" className={p2rental ? 'is-active' : ''} onClick={() => setP2rental(true)}>Rental</button>
-    </span>
+    <button type="button" className={`inh-rental-toggle${p2rental ? ' is-on' : ''}`}
+      role="switch" aria-checked={p2rental} onClick={() => setP2rental((v) => !v)}>
+      <span className="inh-rental-switch" aria-hidden><span className="inh-rental-knob" /></span>
+      Rental
+    </button>
   );
 
   const modals = (['a', 'b'] as const).map((slot) => (

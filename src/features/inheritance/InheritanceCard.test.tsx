@@ -47,7 +47,7 @@ describe('InheritanceCard', () => {
 
   it('switches Parent 2 to a rental stub', () => {
     render(<InheritanceCard />);
-    fireEvent.click(screen.getByRole('button', { name: /rental/i }));
+    fireEvent.click(screen.getByRole('switch', { name: /rental/i }));
     expect(screen.getByText(/coming in m1\.4b/i)).toBeInTheDocument();
   });
 
