@@ -8,10 +8,11 @@
  */
 import './uma-chart.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, TimelineEntry } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { UmaChartRow, UmaChartCandidate, UmaStyleL } from '@/core/rankUmaChart';
 import { referenceBuild } from '@/core/rankUmaChart';
+import { isReleasedBy } from '@/core/availability';
 import { nullsLast } from '@/core/compare';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -56,7 +57,7 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>, rankStyle: 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
@@ -69,6 +70,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   race: SimRaceParams;
+  predictedDate?: string;
 }) {
   const traceCtx: TraceContext | undefined =
     unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race, buildLabel: 'the reference' } : undefined;
@@ -79,7 +81,10 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
     : 'No simulatable unique on this track';
   return (
     <li className={`cmp-uma-row ${row.status === 'inactive' ? 'is-dim' : ''}`.trim()} title={hover}>
-      <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
+      <span className="cmp-uma-portrait-wrap">
+        <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
+        {predictedDate && <span className="cmp-upcoming-badge">~{predictedDate}</span>}
+      </span>
       {unique ? (
         <SkillDetailDisclosure
           skill={unique}
@@ -136,16 +141,23 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   onStaleChange?: (stale: boolean) => void;
   deps?: UmaChartPanelDeps;
 }) {
-  const { umas, umaById } = useGameData();
+  const { umas, umaById, timeline } = useGameData();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   const [open, setOpen] = useState(true);
   const [sortMetric, setSortMetric] = useState<SortMetric>('mean');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [rankStyle, setRankStyle] = useState<RankStyle>('best');
   const [styleOverride, setStyleOverride] = useState<Map<string, Strategy>>(new Map());
   const [openOutfitId, setOpenOutfitId] = useState<string | null>(null);
+
+  // CM-date derivation: mirrors SkillChartPanel — derive the "as of" date from the timeline.
+  // Use optional chaining on plan.cmRef (tests may pass a stub plan with no cmRef).
+  const cmNumber = plan.cmRef?.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
+  const cmEntry = (timeline as TimelineEntry[] | undefined)?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
+  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
 
   // Memoize so an inline-arrow deps.loadUniqueByUmaId can't make the load effect re-fetch every render.
   const loadUnique = useMemo(() => deps?.loadUniqueByUmaId ?? loadUniqueSkillByUmaId, [deps?.loadUniqueByUmaId]);
@@ -157,7 +169,10 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     return () => { cancelled = true; };
   }, [loadUnique]);
 
-  const globalUmas = useMemo(() => (umas ?? []).filter((u) => u.server === plan.server), [umas, plan.server]);
+  const globalUmas = useMemo(
+    () => (umas ?? []).filter((u) => u.server === plan.server || (showUpcoming && isReleasedBy(u, asOfISO))),
+    [umas, plan.server, showUpcoming, asOfISO],
+  );
   const candidates: UmaChartCandidate[] = useMemo(
     () => globalUmas.map((u) => ({ outfitId: u.umaId, uniqueSkillId: uniqueByUmaId?.get(u.umaId)?.skillId ?? null })),
     [globalUmas, uniqueByUmaId],
@@ -273,6 +288,12 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                 >
                   <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
                 </label>
+                <label
+                  className="cmp-showall small"
+                  title="Show JP-only umas whose unique will be released on Global by this CM's start date."
+                >
+                  <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} aria-label="show upcoming" /> show upcoming
+                </label>
               </div>
 
               <div className="cmp-uma-table">
@@ -298,12 +319,14 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
               </div>
 
               <ul className="cmp-uma-rows" aria-label="Uma unique-skill ranking">
-                {visible.map(({ row, eff }) => (
+                {visible.map(({ row, eff }) => {
+                  const rowUma = umaById?.get(row.outfitId);
+                  return (
                   <UmaRow
                     key={row.outfitId}
                     row={row}
                     eff={eff}
-                    umaName={umaById?.get(row.outfitId)?.nameEn ?? `Uma ${row.outfitId}`}
+                    umaName={rowUma?.nameEn ?? `Uma ${row.outfitId}`}
                     unique={uniqueByUmaId?.get(row.outfitId) ?? null}
                     isRunner={plan.umaId === row.outfitId}
                     sortMetric={sortMetric}
@@ -313,8 +336,10 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                     race={race}
                     isOpen={openOutfitId === row.outfitId}
                     onOpenChange={(o) => setOpenOutfitId(o ? row.outfitId : null)}
+                    predictedDate={rowUma?.releaseDatePredicted ? rowUma.releaseDate : undefined}
                   />
-                ))}
+                  );
+                })}
                 {visible.length === 0 && (
                   <li className="muted small">No umas to show{!showAll ? ' (try “show all”)' : ''}.</li>
                 )}
