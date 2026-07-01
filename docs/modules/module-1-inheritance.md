@@ -178,6 +178,34 @@ in `sparkFilter`, `greens` in `sparkAggregate`).
   a space before the spark star; Star-Tracks CSS uses the `.badge.spark-*` colour scheme
   (`--chip`/`--chip-ink`), neutral card borders (fixes the `parents.css .spark-*` bleed).
 
+## M1.7 "Obtainable vs. wishlist" coverage matrix (2026-07-01)
+
+The right-column **"Obtainable vs. wishlist"** card (`CoverageMatrixCard`) landed with four new cores and a wired `InheritancePage` integration.
+
+**Core additions:**
+- **`src/core/greenSparkReconcile.ts`** — `buildUniqueToInheritedMap(skills)`: maps each native-unique id (100xxx / 110xxx, as decoded by the UmaExtractor importer) to its inherited-unique form (9xxxxx) by swapping the prefix (10→90 / 11→91) then falling back to a name-match; reports any `unresolved` ids that have no 9xxxxx counterpart. Derived purely from `skills.json` — no network call. `reconcileGreenSkillId(id, map)` applies it per-spark.
+- **`src/core/g1Saddle.ts`** — `isG1Saddle(id, set)` / `filterG1(races, set)`: filter won-races to G1 only using a hand-patchable saddle-id set. The set is currently empty (safe — win-bonus stays 0, never fabricated) pending user-supplied data (see *Deferred* below).
+- **`src/core/lineageAffinity.ts`** — now filters `wonRaces` to G1-only (optional `g1Set` param, passed through `planLineageAffinity`) before the win-bonus, fixing a prior over-count where all shared wins scored regardless of grade.
+- **`src/core/coverageMatrix.ts`** — `buildCoverageMatrix(CoverageInput) → CoverageResult`: per-skill coverage rows with **real per-member inherit-% from `spark.ts` contributions** (isolated per parent/grandparent member), source classification (`Innate | Parent | G.parent | Hint | Chain | Random`), coverage bars, and a bonus list (skills obtainable but not on the wishlist). Column map: `hint_pool → Hint`, `chain → Chain`, `random_event + date_event → Random`.
+- **`src/core/types.ts`** — added optional `UmaRecord.innateSkills?: string[]` (consumed by the Innate column; falls back to `uniqueSkillId` only until the data pipeline lands).
+
+**UI:**
+- **`src/features/inheritance/CoverageMatrixCard.tsx`** (+ `.inh-cov-*` CSS in `inheritance.css`) — provider-free card with a **Matrix / Coverage toggle** (the matrix shows per-source chips; the coverage view shows per-skill coverage bars) and a **bonus list** section. Cells cap at 2 chips + "+N more".
+- **`src/features/inheritance/InheritancePage.tsx`** wires it: resolves parents from `useRoster`, builds the `greenMap` via `buildUniqueToInheritedMap`, a `memberAffinity` resolver from `planLineageAffinity(…).memberScores`, `deckCards`, and `umaNameById`, calls `buildCoverageMatrix`, and replaces the M1.7 placeholder.
+- **`src/features/inheritance/useG1SaddleSet.ts`** — hook that loads `g1_saddle_ids.json` (lazy fetch from the in-`src` copy) and returns a `Set<number>`; returns `new Set()` on empty/missing data.
+- **`src/features/inheritance/g1_saddle_ids.json`** (in-`src` copy, currently `[]`) + **`data-overrides/g1_saddle_ids.json`** (P5 hand-patch source, also currently `[]`).
+
+**Test suite:** 1151 tests pass (156 files), typecheck + build green.
+
+**Deferred (data-gated — pending user-supplied data; card degrades gracefully without them):**
+- **Task 8 — per-uma `innateSkills` pipeline:** the `Innate` column currently falls back to the plan's `uniqueSkillId` only (no innate-white skills). To fully populate it, `scripts/build-umas.ts` needs to be extended to read `scripts/borrowed/gametora/` innate-skill sources and bake them into `umas.json`. Until the source files are dropped in and `pnpm data:build` run, the column is a one-skill fallback — never fabricated.
+- **Task 9 — populate `data-overrides/g1_saddle_ids.json`:** the G1 saddle-id set is currently empty; the win-bonus always computes as 0. To enable real win-bonus scoring, update **both** `data-overrides/g1_saddle_ids.json` AND `src/features/inheritance/g1_saddle_ids.json` with the real G1 saddle ids. (Both files must be kept in sync — see gotcha below.)
+
+**Gotchas:**
+- **~17 native uniques unresolved by `greenSparkReconcile`:** 5-digit legacy ids (e.g. `10071` "Warning Shot!") have no 9xxxxx form in `skills.json`. Correctly reported via `unresolved`, harmless — the UmaExtractor importer only produces 6-digit 100xxx/110xxx green sparks, so these never appear in practice. A `skills.json` 5-digit → 6-digit unique-id reconciliation (likely the v0.18 engine refresh) would close it.
+- **`g1_saddle_ids.json` exists in TWO places** — `data-overrides/g1_saddle_ids.json` (P5 hand-patch source) and `src/features/inheritance/g1_saddle_ids.json` (in-`src` copy served at runtime). Keep them in sync; the build script does NOT auto-copy them.
+- **`useG1SaddleSet` returns `new Set()` per call** → `coverageResult` recomputes every render (trivial hoist-to-const fix pending; low impact given the small set size).
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
