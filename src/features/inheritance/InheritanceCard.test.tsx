@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan, Parent } from '@/core/types';
+import type { CmPlan, Parent, UmaRecord } from '@/core/types';
 import { InheritanceCard } from './InheritanceCard';
 
 const ROSTER: Parent[] = [
@@ -15,16 +15,57 @@ const plan = {
 } as unknown as CmPlan;
 // Mutable so a test can simulate uma1Plan loading from null → set (read lazily in the factory).
 let activePlan: CmPlan | null = plan;
+// Mutable so the availability test can inject umas with mixed server values.
+let mockUmas: UmaRecord[] = [];
 
 vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: activePlan, setPlan }) }));
 vi.mock('./useRoster', () => ({ useRoster: () => ({ roster: ROSTER, importedAt: '2026-06-26T10:00:00.000Z', importFromFile: vi.fn() }) }));
-vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umas: [], umaById: new Map() }), umaName: (_m: unknown, id: string) => `Uma ${id}` }));
-vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
+vi.mock('@/features/parents/useUmas', () => ({
+  useUmas: () => ({ umas: mockUmas, umaById: new Map() }),
+  umaName: (_m: unknown, id: string) => `Uma ${id}`,
+}));
+// Spy: captures the `id` prop so we can assert which umaId was resolved.
+const gameIconSpy = vi.fn((_props: { id: string }) => null);
+vi.mock('@/features/data/GameIcon', () => ({ GameIcon: (props: { id: string }) => gameIconSpy(props) }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
 vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: [], skillById: new Map() }) }));
 
-afterEach(() => { cleanup(); setPlan.mockClear(); activePlan = plan; });
+// Captures the greenIcon callback so we can invoke it directly.
+let capturedGreenIcon: ((skillId: string) => React.ReactNode) | undefined;
+vi.mock('./UmaPickerModal', () => ({
+  UmaPickerModal: (props: {
+    open: boolean;
+    items: { id: string; name: string }[];
+    onPick: (id: string) => void;
+    onClose: () => void;
+    greenIcon?: (id: string) => React.ReactNode;
+  }) => {
+    if (props.greenIcon) capturedGreenIcon = props.greenIcon;
+    // Render a minimal dialog so existing "opens picker" test keeps working.
+    if (!props.open) return null;
+    return (
+      <div role="dialog" aria-label="Pick a parent">
+        {props.items.map((it) => (
+          <button key={it.id} onClick={() => props.onPick(it.id)}>
+            {it.name}
+          </button>
+        ))}
+      </div>
+    );
+  },
+}));
+
+import React from 'react';
+
+afterEach(() => {
+  cleanup();
+  setPlan.mockClear();
+  gameIconSpy.mockClear();
+  activePlan = plan;
+  mockUmas = [];
+  capturedGreenIcon = undefined;
+});
 
 describe('InheritanceCard', () => {
   it('survives uma1Plan loading from null → set without a hooks-order error', () => {
@@ -59,5 +100,26 @@ describe('InheritanceCard', () => {
     const dialog = screen.getByRole('dialog', { name: /pick a parent/i });
     fireEvent.click(within(dialog).getByRole('button', { name: /Uma 101501/ }));
     expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parents: { a: 'a' } }));
+  });
+
+  it('availability gate: charaToUma resolves representative portrait from Global uma, not JP uma', () => {
+    // charaId '1001' → unique skillId = 90001 + 1001*10 = 100011
+    // JP uma has a LOWER umaId ('100150') so it would win the !m.has race if unfiltered.
+    // Global uma has a HIGHER umaId ('100199'). With the Global filter, we expect '100199'.
+    mockUmas = [
+      { umaId: '100150', charaId: '1001', nameEn: 'JP Uma', server: 'jp', dataVersion: 'jp-test' },
+      { umaId: '100199', charaId: '1001', nameEn: 'Global Uma', server: 'global', dataVersion: 'gbl-test' },
+    ] as UmaRecord[];
+    render(<InheritanceCard />);
+    // capturedGreenIcon is wired by UmaPickerModal mock on every render
+    expect(capturedGreenIcon).toBeDefined();
+    // Invoke the greenIcon callback for the unique skill owned by charaId '1001'.
+    // greenIcon returns a React element; render it to trigger the GameIcon mock spy.
+    const icon = capturedGreenIcon!('100011') as React.ReactElement;
+    render(icon);
+    // GameIcon should have been called with the Global uma's portrait id, not the JP one
+    const calls = gameIconSpy.mock.calls.map((c) => c[0].id);
+    expect(calls).toContain('100199');
+    expect(calls).not.toContain('100150');
   });
 });

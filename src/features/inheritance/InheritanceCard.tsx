@@ -61,7 +61,9 @@ export function InheritanceCard() {
   // +10000), so charaId = (baseId − 90001)/10; the base card is charaId·100 + 1.
   const charaToUma = useMemo(() => {
     const m = new Map<string, string>();
-    for (const u of umas ?? []) if (!m.has(u.charaId)) m.set(u.charaId, u.umaId);
+    // Availability gate (slice 2b): JP-ahead umas are preview-only — resolve
+    // representative outfits from Global umas so a JP alt can't take over a portrait.
+    for (const u of umas ?? []) if (u.server === 'global' && !m.has(u.charaId)) m.set(u.charaId, u.umaId);
     return m;
   }, [umas]);
   const uniqueSkillUmaId = (skillId: string): string => {
