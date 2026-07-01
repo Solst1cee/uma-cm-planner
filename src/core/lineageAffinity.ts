@@ -4,6 +4,7 @@
  * per-member scores it returns feed spark.ts (de-approximated proc chances).
  */
 import { type AffinityIndex, charaIdOf, computeLineageAffinity } from '@/core/affinity';
+import { filterG1 } from '@/core/g1Saddle';
 import { computeWinBonus } from '@/core/winBonus';
 import type { LineageAffinity, Parent } from '@/core/types';
 
@@ -12,18 +13,19 @@ export function planLineageAffinity(
   traineeUmaId: string,
   parentA: Parent,
   parentB: Parent,
+  g1Set: ReadonlySet<string> = new Set(),
 ): LineageAffinity {
   const gpChara = (p: Parent, i: 0 | 1): number | undefined => {
     const gp = p.grandparents?.[i];
     return gp ? charaIdOf(gp.umaId) : undefined;
   };
   const winBonus = computeWinBonus({
-    parentA: { wonRaces: parentA.wonRaces },
-    parentB: { wonRaces: parentB.wonRaces },
-    gA1: { wonRaces: parentA.grandparents?.[0]?.wonRaces },
-    gA2: { wonRaces: parentA.grandparents?.[1]?.wonRaces },
-    gB1: { wonRaces: parentB.grandparents?.[0]?.wonRaces },
-    gB2: { wonRaces: parentB.grandparents?.[1]?.wonRaces },
+    parentA: { wonRaces: filterG1(parentA.wonRaces, g1Set) },
+    parentB: { wonRaces: filterG1(parentB.wonRaces, g1Set) },
+    gA1: { wonRaces: filterG1(parentA.grandparents?.[0]?.wonRaces, g1Set) },
+    gA2: { wonRaces: filterG1(parentA.grandparents?.[1]?.wonRaces, g1Set) },
+    gB1: { wonRaces: filterG1(parentB.grandparents?.[0]?.wonRaces, g1Set) },
+    gB2: { wonRaces: filterG1(parentB.grandparents?.[1]?.wonRaces, g1Set) },
   });
   return computeLineageAffinity(idx, {
     trainee: charaIdOf(traineeUmaId),
