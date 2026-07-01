@@ -32,7 +32,7 @@ const umaPortrait = (umaId: string, height: number, key?: number) => (
 export function InheritanceCard() {
   const { uma1Plan, setPlan } = useActivePlan();
   const { roster, importedAt } = useRoster();
-  const { umaById } = useUmas();
+  const { umas, umaById } = useUmas();
   const { skills, skillById } = useGameData();
   const idx = useAffinityIndex();
   const [open, setOpen] = useState(true);
@@ -53,6 +53,20 @@ export function InheritanceCard() {
       .map((s) => ({ id: s.skillId, name: s.nameEn })),
     [skills],
   );
+  // charaId → a representative (base-outfit) umaId, so a unique skill can show its
+  // owner's portrait. A unique skill id = 90001 + charaId·10 (variant-2 alts sit
+  // +10000), so charaId = (baseId − 90001)/10; the base card is charaId·100 + 1.
+  const charaToUma = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const u of umas ?? []) if (!m.has(u.charaId)) m.set(u.charaId, u.umaId);
+    return m;
+  }, [umas]);
+  const uniqueSkillUmaId = (skillId: string): string => {
+    const n = Number(skillId);
+    const base = n >= 110000 ? n - 10000 : n;
+    const charaId = Math.round((base - 90001) / 10);
+    return charaToUma.get(String(charaId)) ?? `${charaId * 100 + 1}`;
+  };
   const wishlistIds = useMemo(
     () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
     [uma1Plan?.wishlist],
@@ -171,7 +185,7 @@ export function InheritanceCard() {
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
-      greenIcon={(id) => { const ic = skillById.get(id)?.iconId; return ic ? <GameIcon kind="skill" id={ic} size={30} alt="" /> : undefined; }}
+      greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={34} alt="" />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />

@@ -18,7 +18,7 @@ let activePlan: CmPlan | null = plan;
 
 vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: activePlan, setPlan }) }));
 vi.mock('./useRoster', () => ({ useRoster: () => ({ roster: ROSTER, importedAt: '2026-06-26T10:00:00.000Z', importFromFile: vi.fn() }) }));
-vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umaById: new Map() }), umaName: (_m: unknown, id: string) => `Uma ${id}` }));
+vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umas: [], umaById: new Map() }), umaName: (_m: unknown, id: string) => `Uma ${id}` }));
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
