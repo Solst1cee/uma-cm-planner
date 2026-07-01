@@ -98,7 +98,10 @@ export function ParentCardView({
                   ))}
                 </span>
               )}
-              <span className="inh-parent-name">{name ?? parent.umaId}</span>
+              <span className="inh-parent-name">
+                <span className="inh-parent-name-text">{name ?? parent.umaId}</span>
+                <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{parent.id}</span>
+              </span>
               <span className="inh-uma-rank-cell">
                 {rankBadge}
                 {rankScore !== undefined && (

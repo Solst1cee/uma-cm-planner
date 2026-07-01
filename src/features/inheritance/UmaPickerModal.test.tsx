@@ -79,10 +79,20 @@ describe('UmaPickerModal', () => {
   it('green search adds a unique-skill row with parent + total meters', () => {
     const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Other Unique' }];
     render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100151' ? 'Vittoria' : id)} />);
-    fireEvent.change(screen.getByRole('searchbox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
+    fireEvent.change(screen.getByRole('combobox', { name: /search unique skill/i }), { target: { value: 'vitt' } });
     fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
     expect(screen.getByRole('button', { name: 'Vittoria own 1' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Vittoria lineage 1' })).toBeInTheDocument();
+  });
+
+  it('green search supports keyboard nav (↓ then Enter picks the highlighted option)', () => {
+    const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Vitesse' }];
+    render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => (id === '100201' ? 'Vitesse' : 'Vittoria')} />);
+    const box = screen.getByRole('combobox', { name: /search unique skill/i });
+    fireEvent.change(box, { target: { value: 'vit' } });
+    fireEvent.keyDown(box, { key: 'ArrowDown' }); // highlight index 1 (Vitesse)
+    fireEvent.keyDown(box, { key: 'Enter' });
+    expect(screen.getByRole('button', { name: 'Vitesse own 1' })).toBeInTheDocument();
   });
 
   it('filters tiles by the name search', () => {
@@ -128,6 +138,22 @@ describe('UmaPickerModal', () => {
     expect(onPick).not.toHaveBeenCalled(); // click blocked
     fireEvent.click(screen.getByRole('button', { name: /Beta/ }));
     expect(onPick).toHaveBeenCalledWith('b'); // enabled tile still works
+  });
+
+  it('tags an already-selected / same-character veteran and blocks its click', () => {
+    const onPick = vi.fn();
+    const tagged = items.map((it) =>
+      it.id === 'a'
+        ? { ...it, disabled: true, selectedLabel: 'Same as Parent 2', unavailableReason: "Same character as Parent 2 — can't use one character for both parents" }
+        : it,
+    );
+    render(<UmaPickerModal {...base} items={tagged} open onPick={onPick} />);
+    const alpha = screen.getByRole('button', { name: /Alpha/ });
+    expect(alpha).toHaveClass('is-disabled');
+    expect(within(alpha).getByText('Same as Parent 2')).toBeInTheDocument();
+    expect(alpha).toHaveAttribute('title', "Same character as Parent 2 — can't use one character for both parents");
+    fireEvent.click(alpha);
+    expect(onPick).not.toHaveBeenCalled();
   });
 
   it('Escape and backdrop click call onClose; window click does not', () => {

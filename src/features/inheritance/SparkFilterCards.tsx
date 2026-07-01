@@ -44,6 +44,8 @@ export interface SparkFilterCardsProps {
 
 export function SparkFilterCards(p: SparkFilterCardsProps) {
   const [query, setQuery] = useState('');
+  // Highlighted option index for green-search keyboard navigation (↑/↓/Enter/Esc).
+  const [highlight, setHighlight] = useState(0);
 
   const row = (cat: SparkCat, key: string, name: string, green: boolean) => {
     const v = p.value(cat, key);
@@ -118,20 +120,38 @@ export function SparkFilterCards(p: SparkFilterCardsProps) {
                 </div>
               )}
               {card.cat === 'green' ? (
-                !full && (
-                  <div className="spc-green-search">
-                    <input type="search" className="spc-green-input" placeholder="Search unique skill…"
-                      aria-label="Search unique skill" value={query} onChange={(e) => setQuery(e.target.value)} />
-                    {greenMatches.length > 0 && (
-                      <div className="spc-green-results" role="listbox">
-                        {greenMatches.map((o) => (
-                          <button key={o.id} type="button" role="option" aria-selected={false}
-                            onClick={() => { p.onSet('green', o.id, 0, 1); setQuery(''); }}>{o.name}</button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
+                !full && (() => {
+                  const hlIdx = Math.min(highlight, greenMatches.length - 1);
+                  const pick = (o: { id: string; name: string }) => { p.onSet('green', o.id, 0, 1); setQuery(''); setHighlight(0); };
+                  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === 'Escape') { setQuery(''); setHighlight(0); return; }
+                    if (greenMatches.length === 0) return;
+                    if (e.key === 'ArrowDown') { e.preventDefault(); setHighlight((a) => Math.min(a + 1, greenMatches.length - 1)); }
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); setHighlight((a) => Math.max(a - 1, 0)); }
+                    else if (e.key === 'Enter') { e.preventDefault(); const o = greenMatches[hlIdx]; if (o) pick(o); }
+                  };
+                  return (
+                    <div className="spc-green-search">
+                      <input type="search" className="spc-green-input" placeholder="Search unique skill…"
+                        aria-label="Search unique skill" role="combobox"
+                        aria-expanded={greenMatches.length > 0} aria-controls="spc-green-listbox"
+                        aria-activedescendant={greenMatches.length > 0 ? `spc-green-opt-${hlIdx}` : undefined}
+                        value={query}
+                        onChange={(e) => { setQuery(e.target.value); setHighlight(0); }}
+                        onKeyDown={onKeyDown} />
+                      {greenMatches.length > 0 && (
+                        <div className="spc-green-results" role="listbox" id="spc-green-listbox">
+                          {greenMatches.map((o, i) => (
+                            <button key={o.id} id={`spc-green-opt-${i}`} type="button" role="option"
+                              aria-selected={i === hlIdx} className={i === hlIdx ? 'is-active' : undefined}
+                              onMouseEnter={() => setHighlight(i)}
+                              onClick={() => pick(o)}>{o.name}</button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()
               ) : (
                 (() => {
                   const inactive = (k: string) => { const v = p.value(card.cat, k); return !(v.legacy > 0 || v.total > 0); };

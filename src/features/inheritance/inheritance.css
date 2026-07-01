@@ -427,6 +427,8 @@ main:has(.inh-page) {
 /* The tools group owns the auto-margin (right-aligns Updated + Upload); the caret
    then sits flush to its right as the last item, so the bar stays one tidy row. */
 .inh-inherit-tools { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
+.inh-help-steps { margin: 0.4rem 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.inh-help-steps code { padding: 0.05rem 0.25rem; border-radius: 4px; background: var(--bg-2); font-size: 0.85em; }
 .inh-inheritance-card .cmp-collapse-caret { margin-left: 0; }
 .inh-inherit-sub,
 .inh-updated {
@@ -460,13 +462,16 @@ main:has(.inh-page) {
   background: var(--bg-1); border: 1px solid var(--border); border-radius: 10px;
   box-shadow: 0 12px 30px rgb(20 30 50 / 0.24); padding: 0.4rem; text-align: left;
 }
-.inh-parent-content { display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
+.inh-parent-content { flex: 1; display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
+/* Empty state fills the (grid-stretched) card and centers both ways. */
+.inh-parent-empty { margin: auto; text-align: center; }
 .inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
 /* Clear button: red glyph; hover highlights red (overrides the icon-btn accent hover). */
 .inh-clear { color: var(--error); }
 .cmp-inventory-icon-btn.inh-clear:not(:disabled):hover { border-color: var(--error); color: var(--error); }
 .inh-parent-body { display: flex; flex-direction: column; gap: 0.4rem; }
-.inh-parent-name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.inh-parent-name { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.inh-parent-name-text { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* `.spark-chips` lives in parents.css (not loaded on this route) — define the
    flex row here for the inheritance card + the portalled picker modal. */
 .inh-parent .spark-chips,
@@ -536,22 +541,32 @@ main:has(.inh-page) {
   display: flex; flex-direction: column; gap: 0.7rem;
   padding: 0.7rem 0.75rem; overflow-y: auto;
   background: var(--bg-0);
+  border-right: 1px solid var(--border); /* separator between the filter + results columns */
 }
 .inh-uma-results-col { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
-/* Percentage-width children shouldn't force the fit-content column wider. */
+/* Percentage-width children shouldn't force the fit-content column wider;
+ * width:100% lets them fill the column so the box matches the container. */
 .inh-uma-filter-col .spc-green-input,
 .inh-uma-filter-col .spc-green-results { width: 100%; }
+/* Compact green search box height (beats the global input[type='search'] rule). */
+.inh-uma-filter-col .spc-green-input { padding: 0.3rem 0.5rem; font-size: 0.82rem; }
 .inh-uma-filter-col .spc-green-results button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 860px) {
   .inh-uma-split { flex-direction: column; }
-  .inh-uma-filter-col { flex: 0 0 auto; width: auto; max-width: none; max-height: 45vh; }
+  .inh-uma-filter-col {
+    flex: 0 0 auto; width: auto; max-width: none; max-height: 45vh;
+    /* Stacked: separator runs along the bottom, not the right. */
+    border-right: 0; border-bottom: 1px solid var(--border);
+  }
 }
 
 /* ── "Star Tracks" spark filter (design_handoff_spark_filter) ─────────────── */
 /* per-category tone + header gradient (shared by cards + summary chips). */
-.spc-card.spark-blue,  .spc-sum-chip.spark-blue  { --tone: #2563eb; --grad: linear-gradient(90deg, #3b82f6, #2563eb); }
-.spc-card.spark-pink,  .spc-sum-chip.spark-pink  { --tone: #db2777; --grad: linear-gradient(90deg, #ec4899, #db2777); }
-.spc-card.spark-green, .spc-sum-chip.spark-green { --tone: #16a34a; --grad: linear-gradient(90deg, #22c55e, #16a34a); }
+/* `--chip`/`--chip-ink` mirror the `.badge.spark-*` scheme (app.css): base hue +
+ * text ~70% toward --fg. Used for row/add-chip borders + factor-name text. */
+.spc-card.spark-blue,  .spc-sum-chip.spark-blue  { --tone: #2563eb; --chip: #3b82f6; --chip-ink: color-mix(in srgb, #3b82f6 72%, var(--fg)); --grad: linear-gradient(90deg, #3b82f6, #2563eb); }
+.spc-card.spark-pink,  .spc-sum-chip.spark-pink  { --tone: #db2777; --chip: #ec4899; --chip-ink: color-mix(in srgb, #ec4899 74%, var(--fg)); --grad: linear-gradient(90deg, #ec4899, #db2777); }
+.spc-card.spark-green, .spc-sum-chip.spark-green { --tone: #16a34a; --chip: #22c55e; --chip-ink: color-mix(in srgb, #22c55e 64%, var(--fg)); --grad: linear-gradient(90deg, #22c55e, #16a34a); }
 .spc-card, .spc-sum-chip { --tone-ink: color-mix(in srgb, var(--tone) 60%, var(--fg)); }
 
 /* Summary bar */
@@ -565,7 +580,8 @@ main:has(.inh-page) {
 .spc-count { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--accent); line-height: 1; }
 .spc-count-lbl { display: flex; flex-direction: column; line-height: 1.15; }
 .spc-count-lbl b { font-weight: 700; font-size: 0.82rem; }
-.spc-reset { margin-left: auto; cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--fg-muted); background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.75rem; }
+.spc-summary-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
+.spc-reset { cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--fg-muted); background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.75rem; }
 .spc-summary-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .spc-sum-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.75rem; border: 1px solid color-mix(in srgb, var(--tone) 35%, var(--border)); background: color-mix(in srgb, var(--tone) 8%, var(--bg-1)); }
 .spc-sum-name { font-weight: 700; color: var(--tone-ink); }
@@ -573,10 +589,18 @@ main:has(.inh-page) {
 .spc-sum-gold { color: #eab308; font-weight: 800; }
 .spc-sum-tone { color: var(--tone-ink); font-weight: 800; }
 .spc-sum-x { border: 0; background: none; cursor: pointer; opacity: .6; font-size: 0.75rem; line-height: 1; padding: 0; color: inherit; }
+/* Summary chips + rows + add-chips all match their `.badge.spark-*` counterparts. */
+.spc-sum-chip { border-color: color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border)); }
+.spc-sum-chip .spc-sum-name,
+.spc-sum-chip .spc-sum-tone { color: var(--chip-ink, var(--tone-ink)); }
 
 /* Category cards */
 .spc { display: flex; flex-direction: column; gap: 0.7rem; }
 .spc-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg-1); }
+/* Neutralize the dark spark-* border bleeding in from the global `.spark-{blue,
+ * pink,green}` chip rules in parents.css (class-name collision, equal specificity
+ * → later-loaded wins). Scope back to the theme border. */
+.spc-card.spark-blue, .spc-card.spark-pink, .spc-card.spark-green { border-color: var(--border); }
 .spc-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; color: #fff; background: var(--grad); }
 .spc-title { font-size: 0.82rem; font-weight: 800; letter-spacing: .04em; }
 .spc-pips { margin-left: auto; display: inline-flex; gap: 0.25rem; }
@@ -588,11 +612,17 @@ main:has(.inh-page) {
 /* Active factor row (blue/pink) */
 .spc-row {
   display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0.7rem; border-radius: 11px;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border));
   background: color-mix(in srgb, var(--tone) 5%, var(--bg-1));
 }
-.spc-name { flex: none; width: 4.4rem; font-size: 0.92rem; font-weight: 700; color: var(--tone-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-.spc-meters { display: flex; flex-direction: column; gap: 0.5rem; }
+.spc-name { flex: none; align-self: center; width: 3.7rem; font-size: 0.92rem; font-weight: 700; color: var(--chip-ink, var(--tone-ink)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spc-meters { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding-left: 0.5rem; }
+/* Thin divider between the factor name and its Parent/Total meters — sits in the
+ * row gap and stops short of the meters' top/bottom. */
+.spc-meters::before {
+  content: ''; position: absolute; left: -0.4rem; top: 0.2rem; bottom: 0.2rem;
+  width: 1px; background: var(--border);
+}
 .spc-meter { display: inline-flex; align-items: center; gap: 0.6rem; }
 .spc-lbl { width: 2.75rem; font-size: 0.56rem; font-weight: 800; letter-spacing: .05em; }
 .spc-lbl-parent { color: #b8860b; }
@@ -606,7 +636,7 @@ main:has(.inh-page) {
 .spc-green-ph { width: 34px; height: 38px; border-radius: 6px; background: color-mix(in srgb, #16a34a 22%, var(--bg-2)); }
 .spc-green-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
 .spc-green-head { display: flex; align-items: center; gap: 0.5rem; }
-.spc-name-full { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--tone-ink); }
+.spc-name-full { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--chip-ink, var(--tone-ink)); }
 .spc-green-meters { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .spc-green-meters .spc-meter { gap: 0.4rem; }
 .spc-green-meters .spc-lbl { width: auto; }
@@ -616,7 +646,7 @@ main:has(.inh-page) {
 .spc-add { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .spc-add-chip {
   cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.6rem; border-radius: 999px;
-  border: 1px dashed color-mix(in srgb, var(--tone) 45%, var(--border)); color: var(--tone-ink); background: var(--bg-1);
+  border: 1px dashed color-mix(in srgb, var(--chip, var(--tone)) 55%, var(--border)); color: var(--chip-ink, var(--tone-ink)); background: var(--bg-1);
 }
 .spc-add-chip:disabled { cursor: not-allowed; border-color: var(--border); color: var(--fg-muted); background: var(--bg-2); opacity: .5; }
 
@@ -628,8 +658,10 @@ main:has(.inh-page) {
   display: flex; flex-direction: column; max-height: 14rem; overflow: auto;
   border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1);
 }
-.spc-green-results button { text-align: left; padding: 0.35rem 0.6rem; background: none; border: 0; cursor: pointer; }
-.spc-green-results button:hover { background: var(--bg-2); }
+.spc-green-results button { text-align: left; padding: 0.3rem 0.55rem; font-size: 0.8rem; background: none; border: 0; cursor: pointer; }
+.spc-green-results button:hover,
+.spc-green-results button.is-active { background: var(--bg-2); }
+.spc-green-results button.is-active { color: var(--tone-ink); }
 
 /* Star meters (SparkMeter) */
 .spm-row { display: inline-flex; align-items: center; }
@@ -666,6 +698,11 @@ main:has(.inh-page) {
 .inh-uma-tile-portrait { flex: none; display: inline-flex; }
 /* Name + roster id share a row. */
 .inh-uma-name-row { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; min-width: 0; }
+/* "Parent 1/2" tag on an already-selected veteran (opacity dimmed by is-disabled). */
+.inh-uma-selected-tag {
+  flex: none; font-size: 0.62rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+  padding: 0.1rem 0.4rem; border-radius: 999px; color: #fff; background: var(--accent);
+}
 .inh-uma-tile-name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
 /* Evaluation-rank badge: the in-game rank art (G … LS24), icon only — the badge
    art already spells the rank. Shared by the parent card + picker tile. */
@@ -715,6 +752,10 @@ main:has(.inh-page) {
 /* Affinity row — plain text (no pill). */
 .inh-uma-aff-row { display: flex; align-items: center; gap: 0.35rem; }
 .inh-uma-aff { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Compatibility mark (◎/○/△) — neutral grey. */
+.inh-inherit-title { display: inline-flex; align-items: center; gap: 0.4rem; }
+.inh-aff-mark { flex: none; line-height: 1; font-weight: 800; font-size: 1rem; color: #64748b; }
 /* Right area: stack the lineage chip rows (blue/pink/green, then white). */
 .inh-uma-tile-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
 .inh-uma-tile-right .spark-chips { flex-wrap: wrap; }

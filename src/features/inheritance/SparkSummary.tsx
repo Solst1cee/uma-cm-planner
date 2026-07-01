@@ -1,6 +1,8 @@
 /** Sticky match-count summary for the Star Tracks spark filter (M1.4): the live
- *  "N parents match / of M in your box" readout, a Reset-all button, and the
- *  active-filter chips (name + gold parent★ + category total★). Provider-free. */
+ *  "N parents match / of M in your box" readout, an (optional) upload button +
+ *  Reset-all on the right, and the active-filter chips (name + gold parent★ +
+ *  category total★). Provider-free. */
+import type { ReactNode } from 'react';
 import type { SparkCat } from './SparkFilterCards';
 
 export interface SummaryChip {
@@ -12,11 +14,13 @@ export interface SummaryChip {
   onRemove: () => void;
 }
 
-export function SparkSummary({ matchCount, total, chips, onReset }: {
+export function SparkSummary({ matchCount, total, chips, onReset, uploadButton }: {
   matchCount: number;
   total: number;
   chips: SummaryChip[];
   onReset: () => void;
+  /** Optional container-wired upload-data control, pinned to the right. */
+  uploadButton?: ReactNode;
 }) {
   return (
     <div className="spc-summary">
@@ -26,9 +30,12 @@ export function SparkSummary({ matchCount, total, chips, onReset }: {
           <b>parents match</b>
           <span className="muted small">of {total} in your box</span>
         </span>
-        {chips.length > 0 && (
-          <button type="button" className="spc-reset" onClick={onReset}>Reset all</button>
-        )}
+        <span className="spc-summary-actions">
+          {chips.length > 0 && (
+            <button type="button" className="spc-reset" onClick={onReset}>Reset all</button>
+          )}
+          {uploadButton}
+        </span>
       </div>
       {chips.length > 0 && (
         <div className="spc-summary-chips">

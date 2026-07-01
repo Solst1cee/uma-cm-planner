@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import type { Parent } from '@/core/types';
 import { GameIcon } from '@/features/data/GameIcon';
+import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import { useGameData } from '@/features/data/gameData';
 import { umaName, useUmas } from '@/features/parents/useUmas';
 import { topCandidates } from './candidateScore';
@@ -14,6 +15,8 @@ import { useRoster } from './useRoster';
 import { UmaPickerModal, type UmaPickerItem } from './UmaPickerModal';
 import { aggregate } from './sparkAggregate';
 import { candidateAffinity } from './candidateAffinity';
+import { AffinityMark } from './AffinityMark';
+import { aff2, charaIdOf } from '@/core/affinity';
 import { useAffinityIndex } from './useAffinityIndex';
 
 type Slot = 'a' | 'b';
@@ -75,6 +78,20 @@ export function InheritanceCard() {
 
   const isWishlisted = (skillId: string) => wishlistIds.has(skillId);
   const byId = new Map(pool.map((p) => [p.id, p]));
+  // Current-selection compatibility for the header mark. Sum both chosen parents'
+  // candidate affinity (each incl. its G1 win bonus + the parent↔parent cross),
+  // subtracting the doubly-counted A↔B term. Null when no parent is picked / no idx.
+  const selectionAffinity = ((): number | null => {
+    if (!idx) return null;
+    const pa = uma1Plan.parents.a ? byId.get(uma1Plan.parents.a) : undefined;
+    const pb = uma1Plan.parents.b ? byId.get(uma1Plan.parents.b) : undefined;
+    if (!pa && !pb) return null;
+    let total = 0;
+    if (pa) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pa, other: pb });
+    if (pb) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pb, other: pa });
+    if (pa && pb) total -= aff2(idx, charaIdOf(pa.umaId), charaIdOf(pb.umaId));
+    return total;
+  })();
   const select = (slot: Slot, parentId: string | undefined) => {
     setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
     setMode((m) => ({ ...m, [slot]: null }));
@@ -98,32 +115,57 @@ export function InheritanceCard() {
         ))}
       </>
     ) : undefined;
+  const SLOT_LABEL: Record<Slot, string> = { a: 'Parent 1', b: 'Parent 2' };
   const itemsFor = (slot: Slot): UmaPickerItem[] => {
-    const otherId = uma1Plan.parents[slot === 'a' ? 'b' : 'a'];
+    const otherSlot: Slot = slot === 'a' ? 'b' : 'a';
+    const otherId = uma1Plan.parents[otherSlot];
     const other = otherId ? byId.get(otherId) : undefined;
-    return pool.map((p) => ({
-      id: p.id,
-      name: umaName(umaById, p.umaId),
-      rankBadge: <RankBadge rating={p.rating} size={42} />,
-      rankScore: p.rankScore,
-      portrait: umaPortrait(p.umaId, 56),
-      gpPortraits: gpPortraitsFor(p),
-      statRow: statRowFor(p),
-      parent: p,
-      agg: aggregate(p),
-      affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,
-      // The same veteran can't fill both slots — grey out + sink the one already
-      // chosen in the other slot (still visible, just not selectable).
-      disabled: p.id === otherId,
-    }));
+    // The two parents can't be the same CHARACTER (any outfit/copy of it), so block
+    // every veteran sharing the other slot's charaId — not just the exact roster row.
+    const otherChara = other ? charaIdOf(other.umaId) : undefined;
+    return pool.map((p) => {
+      const inSlot: Slot | undefined =
+        uma1Plan.parents.a === p.id ? 'a' : uma1Plan.parents.b === p.id ? 'b' : undefined;
+      const sameCharAsOther = otherChara !== undefined && charaIdOf(p.umaId) === otherChara;
+      // Tag it: where it's actually selected ("Parent 1/2"), else why it's blocked
+      // ("Same as Parent 1/2" — its character is already used in the other slot).
+      const selectedLabel = inSlot
+        ? SLOT_LABEL[inSlot]
+        : sameCharAsOther ? `Same as ${SLOT_LABEL[otherSlot]}` : undefined;
+      const unavailableReason = inSlot
+        ? `Already selected as ${SLOT_LABEL[inSlot]}`
+        : sameCharAsOther
+          ? `Same character as ${SLOT_LABEL[otherSlot]} — can't use one character for both parents`
+          : undefined;
+      return {
+        id: p.id,
+        name: umaName(umaById, p.umaId),
+        rankBadge: <RankBadge rating={p.rating} size={42} />,
+        rankScore: p.rankScore,
+        portrait: umaPortrait(p.umaId, 56),
+        gpPortraits: gpPortraitsFor(p),
+        statRow: statRowFor(p),
+        parent: p,
+        agg: aggregate(p),
+        affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,
+        disabled: inSlot !== undefined || sameCharAsOther,
+        selectedLabel,
+        unavailableReason,
+      };
+    });
   };
 
   const slotPicker = (slot: Slot) => {
     const m = mode[slot];
     if (m === 'find') {
-      // Exclude the veteran already chosen in the other slot — can't reuse it.
+      // Exclude any veteran sharing the other slot's character — can't use one
+      // character for both parents (any outfit/copy counts).
       const otherId = uma1Plan.parents[slot === 'a' ? 'b' : 'a'];
-      const top = topCandidates(pool.filter((p) => p.id !== otherId), uma1Plan.sparkGoals);
+      const otherChara = otherId ? (() => { const o = byId.get(otherId); return o ? charaIdOf(o.umaId) : undefined; })() : undefined;
+      const top = topCandidates(
+        pool.filter((p) => otherChara === undefined || charaIdOf(p.umaId) !== otherChara),
+        uma1Plan.sparkGoals,
+      );
       return (
         <ul className="picker-results" aria-label="candidates">
           {top.length === 0 && <li className="muted">No roster veterans — Upload data.</li>}
@@ -187,6 +229,7 @@ export function InheritanceCard() {
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
       greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />}
+      uploadButton={<UploadDataButton />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />
@@ -207,7 +250,13 @@ export function InheritanceCard() {
           }
         }}
       >
-        <span>Inheritance</span>
+        <span className="inh-inherit-title">
+          Inheritance
+          {selectionAffinity != null && (
+            <AffinityMark score={selectionAffinity} size={18}
+              title={`Lineage compatibility — affinity ${selectionAffinity}`} />
+          )}
+        </span>
         <span className="inh-inherit-tools" onClick={(e) => e.stopPropagation()}>
           {importedAt && (
             <span className="muted small inh-updated" title={importedAt}>
@@ -215,6 +264,19 @@ export function InheritanceCard() {
             </span>
           )}
           <UploadDataButton />
+          <HeaderHelp label="How to get data.json">
+            <p><strong>data.json</strong> is your trained-uma roster, exported by <strong>UmaExtractor</strong> — it reads your running Global client on the Veteran List screen (no server access; your data stays local).</p>
+            <ol className="inh-help-steps">
+              <li>Download &amp; run UmaExtractor on your PC with the game open.</li>
+              <li>Open the in-game <em>Veteran List</em> so it dumps <code>data.json</code>.</li>
+              <li>Click <strong>Upload data</strong> above and pick that file.</li>
+            </ol>
+            <p>
+              <a href="https://github.com/xancia/UmaExtractor" target="_blank" rel="noreferrer noopener">
+                github.com/xancia/UmaExtractor →
+              </a>
+            </p>
+          </HeaderHelp>
         </span>
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>

@@ -59,7 +59,7 @@ export function LineageSparkChips({
         <span className="spark-chips">
           {greens.map((m, i) => (
             <span key={`g${i}`} className={`badge spark-green inh-white-chip${wished(m.src.greenSpark!.skillId)}`} title="Inherited unique spark">
-              <span className="inh-white-chip-name">{name(m.src.greenSpark!.skillId)}</span>
+              <span className="inh-white-chip-name">{name(m.src.greenSpark!.skillId)}</span>{' '}
               {star(m.src.greenSpark!.stars, m.gp)}
             </span>
           ))}
@@ -69,7 +69,7 @@ export function LineageSparkChips({
         <span className="spark-chips inh-white-chips">
           {whites.map(({ w, gp }, i) => (
             <span key={`w${i}`} className={`badge spark-white inh-white-chip${wished(w.skillId)}`}>
-              <span className="inh-white-chip-name">{name(w.skillId)}</span>
+              <span className="inh-white-chip-name">{name(w.skillId)}</span>{' '}
               {star(w.stars, gp)}
             </span>
           ))}

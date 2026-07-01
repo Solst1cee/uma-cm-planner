@@ -10,6 +10,7 @@ import { matchesFilters, type SparkFilter } from './sparkFilter';
 import { LineageSparkChips } from './LineageSparkChips';
 import { SparkFilterCards, SPARK_NAMES, type SparkCat, type SparkVal } from './SparkFilterCards';
 import { SparkSummary, type SummaryChip } from './SparkSummary';
+import { AffinityMark } from './AffinityMark';
 import { maxTotalForKey } from './sparkBudget';
 
 /** Green (unique) total caps at 3★ (one member's inherited-unique spark). */
@@ -35,8 +36,12 @@ export interface UmaPickerItem {
   parent: Parent;
   agg: SparkAgg;
   affinity: number | null;
-  /** Already chosen in the other parent slot — greyed, not selectable, sorted last. */
+  /** Already chosen in a parent slot — greyed, not selectable, sorted last. */
   disabled?: boolean;
+  /** Short tag on the tile ("Parent 1" / "Parent 2" / "Same as Parent 1"). */
+  selectedLabel?: string;
+  /** Full tooltip explaining why the tile is unavailable. */
+  unavailableReason?: string;
 }
 export interface UmaPickerModalProps {
   open: boolean;
@@ -50,6 +55,8 @@ export interface UmaPickerModalProps {
   uniqueSkillOptions?: Array<{ id: string; name: string }>;
   /** Optional green skill icon node (container-wired GameIcon). */
   greenIcon?: (skillId: string) => ReactNode;
+  /** Optional container-wired upload-data control, pinned to the summary bar's right. */
+  uploadButton?: ReactNode;
   onPick: (id: string) => void;
   onClose: () => void;
 }
@@ -57,7 +64,7 @@ export interface UmaPickerModalProps {
 let seq = 0;
 const newId = () => `f${(seq += 1)}`;
 
-export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSkillOptions = [], greenIcon, onPick, onClose }: UmaPickerModalProps) {
+export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSkillOptions = [], greenIcon, uploadButton, onPick, onClose }: UmaPickerModalProps) {
   const [filters, setFilters] = useState<SparkFilter[]>([]);
   const [query, setQuery] = useState('');
 
@@ -179,7 +186,7 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
         </header>
         <div className="inh-uma-split">
           <div className="inh-uma-filter-col">
-            <SparkSummary matchCount={sparkMatchCount} total={items.length} chips={summaryChips} onReset={() => setFilters([])} />
+            <SparkSummary matchCount={sparkMatchCount} total={items.length} chips={summaryChips} onReset={() => setFilters([])} uploadButton={uploadButton} />
             <SparkFilterCards
               value={sparkValue}
               onSet={setSpark}
@@ -208,7 +215,7 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
             <button key={it.id} type="button"
               className={`inh-uma-tile${it.disabled ? ' is-disabled' : ''}`}
               aria-disabled={it.disabled || undefined}
-              title={it.disabled ? 'Already selected as the other parent' : undefined}
+              title={it.unavailableReason}
               onClick={() => { if (!it.disabled) onPick(it.id); }}>
               <span className="inh-uma-tile-left">
                 {/* Pedigree row: uma icon ──┤ stacked grandparents, rank badge alongside. */}
@@ -231,11 +238,13 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
                 <span className="inh-uma-name-row">
                   <span className="inh-uma-tile-name">{it.name}</span>
                   <span className="inh-uma-jsonid muted small" title="Roster ID (json)">#{it.id}</span>
+                  {it.selectedLabel && <span className="inh-uma-selected-tag">{it.selectedLabel}</span>}
                 </span>
                 {it.statRow && <span className="inh-uma-stats">{it.statRow}</span>}
                 <span className="inh-uma-aff-row">
                   <span className="muted small">Affinity</span>
                   <span className="inh-uma-aff" title="Affinity (incl. G1 win bonus)">{it.affinity ?? '—'}</span>
+                  {it.affinity != null && <AffinityMark score={it.affinity} />}
                 </span>
               </span>
               <span className="inh-uma-tile-right">
