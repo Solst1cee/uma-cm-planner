@@ -164,6 +164,18 @@ describe('public/data/support_cards.json', () => {
     }
   });
 
+  it('gates JP-ahead cards: server-tagged, dated, predicted', () => {
+    // JP-ahead cards are server-tagged, dated, and honestly flagged as predicted (P3).
+    const jpCards = cards.filter((c) => c.server === 'jp');
+    expect(jpCards.every((c) => c.server === 'jp')).toBe(true);
+    expect(jpCards.every((c) => typeof c.releaseDate === 'string')).toBe(true);
+    expect(jpCards.every((c) => c.releaseDatePredicted === true)).toBe(true);
+    // spot-check a known JP-only card (early R "Tracen Academy", not in the Global master set)
+    const sample = cards.find((c) => c.cardId === '10079');
+    expect(sample?.server).toBe('jp');
+    expect(sample?.releaseDatePredicted).toBe(true);
+  });
+
   it('hint_pool entries carry hintLevels (hint_value_2); event entries never do', () => {
     for (const card of cards) {
       for (const skill of card.skills) {
