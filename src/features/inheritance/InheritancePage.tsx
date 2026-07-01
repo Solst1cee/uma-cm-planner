@@ -8,6 +8,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
+import { buildUniqueToInheritedMap } from '@/core/greenSparkReconcile';
+import { buildCoverageMatrix } from '@/core/coverageMatrix';
+import { planLineageAffinity } from '@/core/lineageAffinity';
+import { useRoster } from './useRoster';
+import { useAffinityIndex } from './useAffinityIndex';
+import { useG1SaddleSet } from './useG1SaddleSet';
+import { CoverageMatrixCard } from './CoverageMatrixCard';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
 import { BASE_URL, useGameData } from '@/features/data/gameData';
@@ -119,7 +126,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
-  const { skillById, cardById, cards } = useGameData();
+  const { skillById, cardById, cards, skills, sparkRates } = useGameData();
+  const { roster } = useRoster();
+  const affinityIdx = useAffinityIndex();
+  const g1Set = useG1SaddleSet();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
@@ -280,6 +290,55 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
     [uma1Plan],
   );
+
+  // Coverage matrix (M1.7)
+  const umaNameById = useMemo(
+    () => new Map([...umaById].map(([id, u]) => [id, u.nameEn])),
+    [umaById],
+  );
+  const coverageResult = useMemo(() => {
+    const wishlistSkillIds = (uma1Plan?.wishlist ?? []).map((w) => w.skillId);
+    const greenMap = buildUniqueToInheritedMap(skills).map;
+    const rosterById = new Map(roster.map((p) => [p.id, p]));
+    const pA = uma1Plan?.parents.a ? rosterById.get(uma1Plan.parents.a) : undefined;
+    const pB = uma1Plan?.parents.b ? rosterById.get(uma1Plan.parents.b) : undefined;
+    const activeParents = [
+      ...(pA ? [{ parent: pA, isA: true as const }] : []),
+      ...(pB ? [{ parent: pB, isA: false as const }] : []),
+    ];
+
+    let memberAffinity: ((ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined) | undefined;
+    if (affinityIdx && uma1Plan && pA && pB) {
+      const la = planLineageAffinity(affinityIdx, uma1Plan.umaId, pA, pB, g1Set);
+      memberAffinity = ({ parentId, grandparent, gpIndex }) => {
+        if (!grandparent) return parentId === pA.id ? la.memberScores.parentA : parentId === pB.id ? la.memberScores.parentB : undefined;
+        if (parentId === pA.id) return gpIndex === 0 ? la.memberScores.gA1 : la.memberScores.gA2;
+        if (parentId === pB.id) return gpIndex === 0 ? la.memberScores.gB1 : la.memberScores.gB2;
+        return undefined;
+      };
+    }
+
+    const deckCards = deck.slots.filter((id): id is string => !!id).map((id) => cardById.get(id)).filter((c): c is NonNullable<typeof c> => !!c);
+    const deckLbByCardId = new Map<string, LimitBreak>();
+    deck.slots.forEach((id, i) => { if (id) deckLbByCardId.set(id, deck.slotLb[i] ?? 4); });
+
+    const planUmaRec = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
+
+    return buildCoverageMatrix({
+      wishlistSkillIds,
+      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills: planUmaRec.innateSkills } : null,
+      planUniqueSkillId: uma1Plan?.uniqueSkillId,
+      activeParents,
+      deckCards,
+      deckLbByCardId,
+      skillById,
+      cardById,
+      greenMap,
+      sparkRates,
+      memberAffinity,
+      umaNameById,
+    });
+  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById]);
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
   const rows = useMemo(
@@ -503,7 +562,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             selectedCardId={selectedCardId}
             onSelectCard={(id) => setSelectedCardId((cur) => (cur === id ? null : id))}
           />
-          <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
+          <CoverageMatrixCard
+            result={coverageResult}
+            hasWishlist={(uma1Plan?.wishlist?.length ?? 0) > 0}
+            hasPlanUma={!!uma1Plan}
+          />
         </div>
         <div className="inh-col inh-col-right">
           <Placeholder title="Target spark" phase="M1.8" />
