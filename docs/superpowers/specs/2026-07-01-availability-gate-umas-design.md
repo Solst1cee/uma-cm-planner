@@ -24,11 +24,11 @@ This slice applies it to **umas**. Findings that shape it (verified 2026-07-01):
 
 ## Goal
 
-Emit the ~170 JP-only umas as `server:'jp'` `UmaRecord`s with foresight-projected Global dates **and their unique-skill records** (`server:'jp'` skills so the chart displays them; the engine already sims them), then gate **both** uma surfaces — `UmaChartPanel` and the `PlannerSidebar` runner search — by the plan's CM date + a `show upcoming` toggle.
+Emit the ~170 JP-only umas as `server:'jp'` `UmaRecord`s with foresight-projected Global dates, then gate **both** uma surfaces — `UmaChartPanel` and the `PlannerSidebar` runner search — by the plan's CM date + a `show upcoming` toggle. Their **uniques come free from the engine bundle** (the chart's `loadUniqueSkillByUmaId` + the sim both read `@/sim/vendor/umalator.bundle.mjs`, which already carries JP uniques) — no skill emission needed.
 
 ## Scope
 
-**In:** `UmaRecord` release-date fields; `buildJpUmas` + the JP-unique-skill emitter + `GtCharacterCard` extension + `build-all` wiring; the two gates (`UmaChartPanel` + `PlannerSidebar`); safe-exclude of JP umas from other `umas` consumers.
+**In:** `UmaRecord` release-date fields; `buildJpUmas` + `GtCharacterCard` extension + `build-all` wiring; the two gates (`UmaChartPanel` + `PlannerSidebar`); safe-exclude of JP umas from other `umas` consumers. (No skill emission — uniques come from the engine bundle.)
 
 **Out (follow-ups / later slices):** 2c's general JP-ahead skill catalog (this slice emits only the JP umas' *uniques*); gating the parents picker with a CM-date toggle (it safe-excludes JP here); the `#3` badge/readout polish.
 
@@ -55,11 +55,18 @@ For each gametora char whose `card_id` is **not** in the master extract → a `s
 
 Extend `GtCharacterCard` with the fields read (`release?`, `title?` already there, `skills_unique?: number[]`, `name_en?` already there).
 
-### 3. JP unique-skill emitter (`scripts/build-skills.ts` or a sibling helper)
-Emit each JP uma's unique as a `server:'jp'` `SkillRecord` (rarity `unique`), metadata (nameEn, conditions, baseSpCost 0, iconId) from gametora's skill catalog, dated identically to its uma via `projectReleaseDate`. Deduplicate (one record per unique id). **Purpose: display** in the chart's `SkillDetailDisclosure`; the engine supplies the sim effect.
+### 3. ~~JP unique-skill emitter~~ — NOT NEEDED (corrected 2026-07-01)
+The uma→unique map (`loadUniqueSkillByUmaId`) reads `loadSkillCollection()`, which
+imports **the engine bundle** (`@/sim/vendor/umalator.bundle.mjs` `skillsService.skillCollection`)
+— the full JP+Global catalog. It already carries the JP uniques (`120011`/`110071`/`120131`
+verified in the bundle) with their `sources[].outfitId` mapping, so the chart **loads +
+displays** a JP uma's unique (`rawToSummary`) and the engine **sims** it, both from the
+bundle. **No `SkillRecord` is emitted into `skills.json`** — `skills.json`/skill counts are
+untouched this slice. (The plan verifies a JP uma's `outfitId` appears in the bundle's
+`loadUniqueSkillByUmaId` map.)
 
 ### 4. Build wiring (`scripts/build-all.ts`)
-Reuse the calibration computed for the cards slice (jp-schedule ∩ `timeline_overrides` confirmed CMs); pass `cal` to `buildJpUmas` and the JP-unique emitter; concat into `umas` / `skills`. Update `outputs.test.ts` counts.
+Reuse the calibration computed for the cards slice (jp-schedule ∩ `timeline_overrides` confirmed CMs); pass `cal` to `buildJpUmas`; concat into `umas`. Update the `outputs.test.ts` uma count only.
 
 ### 5. Two gates
 - **`UmaChartPanel`**: filter its candidate uma list by `it.server === 'global' || (showUpcoming && isReleasedBy(it, asOfISO))`; add a `show upcoming` checkbox + a `~date` predicted badge; `asOfISO` from the plan's CM date (the `cmEntry` pattern from `SkillChartPanel`). Its `Select` commits an upcoming uma to the plan.
@@ -70,7 +77,7 @@ Any *other* consumer of `useGameData().umas` (parents picker, deck, etc.) filter
 
 ## Key decisions
 
-- **(A) Uniques ride with the uma** — each JP uma's unique is emitted as a `server:'jp'` skill dated identically. The engine sims it (data present); the record is for display.
+- **(A) Uniques come free from the engine bundle** — `loadUniqueSkillByUmaId` + the sim both read the bundle's `skillCollection`, which already carries JP uniques with their `outfitId` mapping. So a JP uma displays + ranks by its unique with **no skill emission and no `skills.json` change**.
 - **(B) Residual limit** — a brand-new JP uma whose unique postdates the engine pin isn't engine-known → `simulatableBase` drops it → that uma ranks *without* its unique (degraded, not broken). Rare; flagged; the common uniques were verified present.
 - **(C) Name/epithet fallback** — JP umas have no official EN title → gametora fan-TL `title`/`name_en` (honest preview, P3).
 
@@ -79,20 +86,20 @@ Any *other* consumer of `useGameData().umas` (parents picker, deck, etc.) filter
 ```
 gametora character-cards (257) ──────────────┐
 timeline_overrides (confirmed CMs), jp-schedule┘→ buildForesightCalibration → cal
-   buildJpUmas:  chars NOT in master → UmaRecord{server:jp, releaseDate, uniqueSkillId, aptitudes…}
-   JP-unique emitter: each uniqueSkillId → SkillRecord{server:jp, rarity:unique, releaseDate}
-   → public/data/umas.json (87 + ~170)   public/data/skills.json (587 + ~170 uniques)
+   buildJpUmas:  chars NOT in master → UmaRecord{server:jp, releaseDate, aptitudes…}
+   → public/data/umas.json (87 + ~170)          [skills.json UNCHANGED]
    → UmaChartPanel + PlannerSidebar: isReleasedBy(uma, planCmDate) + showUpcoming toggle + ~date badge
+        (each JP uma's unique loads from the engine bundle via loadUniqueSkillByUmaId — free)
    → other umas consumers: server==='global' (safe-exclude)
 ```
 
 ## Testing
 
-- **`buildJpUmas`**: a JP uma (Special Week outfit `100103`) → `server:'jp'`, projected `releaseDate` + `releaseDatePredicted`, `uniqueSkillId:'120011'`, aptitudes/growth mapped; a Global uma (in master) is skipped.
-- **JP-unique emitter**: `120011` emitted once as `server:'jp'` rarity `unique`, dated.
-- **`UmaChartPanel` gate**: a JP uma hidden by default; shown when `show upcoming` on AND released by the CM date; `~date` badge; `Select` still writes `umaId`.
+- **`buildJpUmas`**: a JP uma (Special Week outfit `100103`) → `server:'jp'`, projected `releaseDate` + `releaseDatePredicted`, aptitudes/growth/epithet mapped; a Global uma (in master) is skipped.
+- **Engine-unique wiring** (integration): `loadUniqueSkillByUmaId()` (from the bundle) contains an entry for a JP outfitId (e.g. `100103` → its unique summary) — proves the chart can display + rank JP umas without any skill emission.
+- **`UmaChartPanel` gate**: a JP uma hidden by default; shown when `show upcoming` on AND released by the CM date; `~date` badge; `Select` still writes `umaId` + `uniqueSkillId`.
 - **`PlannerSidebar` gate**: JP uma absent from the runner search by default; shown when toggled + released.
-- **`outputs.test.ts`**: uma count (87 → ~257) + skill count (587 → +unique JP), all JP umas `server:'jp'` + dated + predicted.
+- **`outputs.test.ts`**: uma count (87 → ~257); all JP umas `server:'jp'` + dated + predicted. (`skills.json` count unchanged.)
 - **Safe-exclude**: JP umas absent from the parents-picker uma list.
 
 ## Risks & mitigations
@@ -100,14 +107,13 @@ timeline_overrides (confirmed CMs), jp-schedule┘→ buildForesightCalibration 
 | Risk | Mitigation |
 |---|---|
 | Other uma consumers leak JP umas ungated | audit + `server==='global'` filter; whole-branch review hunts them (caught the cards sourcing leak) |
-| JP unique metadata missing from gametora skill catalog | plan verifies the JP uniques resolve in gametora skills; a missing one → emit a minimal record (id + name) so display doesn't blank |
-| Newest JP uma's unique not in the engine (decision B) | `simulatableBase` drops it → ranks without unique; flagged, degrades gracefully |
-| Count churn (umas + skills) | update `outputs.test.ts`; asserted counts fail the build on drift |
+| Newest JP uma's unique not in the engine (decision B) | `loadUniqueSkillByUmaId` simply lacks it → the uma shows no unique / `na` rank; flagged, degrades gracefully |
+| Count churn (umas) | update the `outputs.test.ts` uma count; asserted count fails the build on drift |
 | JP uma names are fan-TL/Japanese | honest P3 preview (decision C), only behind `show upcoming` |
 
 ## Open items for the plan
 
-1. Confirm the JP uniques (`skills_unique` ids) resolve in gametora's skill catalog (`gametora/skills.json`) for name/conditions; define the minimal-record fallback for any that don't.
-2. Confirm the `UmaChartPanel` candidate-list build site + how `Select` writes the plan (to place the gate + keep Select working for JP umas).
+1. ~~JP unique metadata~~ **RESOLVED 2026-07-01:** uniques come from the engine bundle via `loadUniqueSkillByUmaId` (reads `@/sim/vendor/umalator.bundle.mjs`); `120011`/`110071`/`120131` verified present — no skill emission. Plan checks a JP `outfitId` is in that map.
+2. Confirm the `UmaChartPanel` candidate-list build site (`useUmaChart`/`rankUmaChart`) + how `Select` writes the plan (to place the gate + keep Select working for JP umas).
 3. Confirm the `PlannerSidebar` runner-search list build site for the second gate.
 4. Enumerate other `useGameData().umas` consumers to safe-exclude (parents picker at minimum).
