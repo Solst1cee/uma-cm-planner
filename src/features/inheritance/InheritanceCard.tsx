@@ -208,7 +208,6 @@ export function InheritanceCard() {
         }}
       >
         <span>Inheritance</span>
-        <span className="muted small inh-inherit-sub">parents 1 &amp; 2</span>
         <span className="inh-inherit-tools" onClick={(e) => e.stopPropagation()}>
           {importedAt && (
             <span className="muted small inh-updated" title={importedAt}>
