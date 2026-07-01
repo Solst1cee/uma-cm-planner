@@ -64438,5 +64438,453 @@
         2
       ]
     }
+  ],
+  "30301": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "symbol": "percent",
+      "valuesByLb": [
+        20,
+        20,
+        20,
+        25,
+        25
+      ]
+    },
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        20,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        20
+      ]
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        15,
+        15,
+        15,
+        20,
+        20
+      ]
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        15,
+        30
+      ]
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        5,
+        5,
+        5,
+        5,
+        10
+      ]
+    },
+    {
+      "type": 16,
+      "nameEn": "Fan Bonus",
+      "descEn": "Increases fan gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        15
+      ]
+    },
+    {
+      "type": 17,
+      "nameEn": "Hint Levels",
+      "descEn": "Increases the level of hints gained through events",
+      "symbol": "level",
+      "valuesByLb": [
+        2,
+        2,
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "symbol": "percent",
+      "valuesByLb": [
+        50,
+        50,
+        50,
+        80,
+        80
+      ]
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "symbol": "none",
+      "valuesByLb": [
+        50,
+        50,
+        50,
+        50,
+        80
+      ]
+    },
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    }
+  ],
+  "30302": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "symbol": "percent",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        35
+      ]
+    },
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        20,
+        20,
+        20,
+        30,
+        30
+      ]
+    },
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "symbol": "percent",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        10,
+        20
+      ]
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        5,
+        10,
+        25,
+        25,
+        25
+      ]
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        15,
+        15,
+        15,
+        20,
+        20
+      ]
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        35
+      ]
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        5,
+        5,
+        5,
+        5,
+        10
+      ]
+    },
+    {
+      "type": 16,
+      "nameEn": "Fan Bonus",
+      "descEn": "Increases fan gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        15
+      ]
+    },
+    {
+      "type": 17,
+      "nameEn": "Hint Levels",
+      "descEn": "Increases the level of hints gained through events",
+      "symbol": "level",
+      "valuesByLb": [
+        2,
+        2,
+        2,
+        2,
+        4
+      ]
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "symbol": "percent",
+      "valuesByLb": [
+        60,
+        60,
+        60,
+        60,
+        100
+      ]
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "symbol": "none",
+      "valuesByLb": [
+        60,
+        60,
+        60,
+        60,
+        100
+      ]
+    },
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    }
+  ],
+  "30303": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "symbol": "percent",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        30
+      ]
+    },
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        20,
+        20,
+        20,
+        30,
+        30
+      ]
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        5,
+        10,
+        25,
+        25,
+        25
+      ]
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        30
+      ]
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        15,
+        30
+      ]
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        5,
+        5
+      ]
+    },
+    {
+      "type": 16,
+      "nameEn": "Fan Bonus",
+      "descEn": "Increases fan gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        5,
+        5,
+        5,
+        10,
+        10
+      ]
+    },
+    {
+      "type": 17,
+      "nameEn": "Hint Levels",
+      "descEn": "Increases the level of hints gained through events",
+      "symbol": "level",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "symbol": "percent",
+      "valuesByLb": [
+        20,
+        20,
+        20,
+        50,
+        50
+      ]
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "symbol": "none",
+      "valuesByLb": [
+        35,
+        35,
+        35,
+        50,
+        50
+      ]
+    }
   ]
 }

@@ -107,6 +107,16 @@ export interface GtCard {
    * support_card_effect_table (docs/mechanics-notes.md §9).
    */
   effects?: number[][];
+  rarity: number; // 1=R 2=SR 3=SSR
+  type: string; // speed|stamina|power|guts|intelligence|friend|group
+  char_name: string;
+  title_en?: string; // fan/EN card title; absent for JP-only
+  title_ja?: string;
+  hints?: { hint_skills?: number[]; hint_others?: unknown[] };
+  event_skills?: number[];
+  release?: string; // JP release date (ISO)
+  title_en_gl?: string;
+  release_en?: string; // Global release date, absent if unreleased
 }
 
 /** gametora/character-cards.json — full JP+Global catalog (254 playable outfits). */
