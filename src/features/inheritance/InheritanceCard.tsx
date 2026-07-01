@@ -44,15 +44,18 @@ export function InheritanceCard() {
 
   const pool = useMemo(() => roster.filter((p) => p.source === 'mine'), [roster]);
   // All hooks must run before the early return below — keep this useMemo above the guard.
+  // Availability gate (2c): white-spark search options are Global-only; JP-ahead
+  // skills are preview-only and must not leak into the inheritance picker.
   const whiteSkillOptions = useMemo(
-    () => skills.filter((s) => s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
+    () => skills.filter((s) => s.server === 'global' && s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
     [skills],
   );
   // Green sparks decode to the 6-digit 100xxx/110xxx unique ids; only those can
   // appear as inherited-unique sparks, so offer just them as green-search options.
+  // Availability gate (2c): Global-only — JP-ahead inherited-uniques are preview.
   const uniqueSkillOptions = useMemo(
     () => skills
-      .filter((s) => s.rarity === 'unique' && s.skillId.length === 6 && (s.skillId.startsWith('100') || s.skillId.startsWith('110')))
+      .filter((s) => s.server === 'global' && s.rarity === 'unique' && s.skillId.length === 6 && (s.skillId.startsWith('100') || s.skillId.startsWith('110')))
       .map((s) => ({ id: s.skillId, name: s.nameEn })),
     [skills],
   );
