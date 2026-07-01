@@ -1,13 +1,14 @@
 // src/features/inheritance/SupportCardPoolCard.test.tsx
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { SupportCardPoolCard } from './SupportCardPoolCard';
 import { buildPoolItem } from './poolModel';
 import type { SupportCardRecord } from '@/core/types';
 
 const mk = (id: string, type: SupportCardRecord['type'], rarity: SupportCardRecord['rarity'], name: string) =>
-  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills: [] } as unknown as SupportCardRecord);
+  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills: [], server: 'global' } as unknown as SupportCardRecord);
 const items = [
   buildPoolItem(mk('1', 'speed', 'SSR', 'Alpha'), { score: 10, wishlist: new Set(), lb: 4 }),
   buildPoolItem(mk('2', 'stamina', 'SR', 'Beta'), { score: 20, wishlist: new Set(), lb: 4 }),
@@ -77,5 +78,26 @@ describe('SupportCardPoolCard', () => {
     // Order is read from the icon buttons' labels ("<name> details"), in grid order.
     const order = screen.getAllByRole('button', { name: /details$/i }).map((b) => b.getAttribute('aria-label'));
     expect(order[0]).toBe('Beta details');
+  });
+
+  it('hides upcoming JP cards by default and shows them + the predicted badge after toggling', async () => {
+    const mkJp = (id: string, name: string) =>
+      ({ cardId: id, nameEn: name, charName: name, rarity: 'SSR', type: 'speed', skills: [],
+         server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true } as unknown as SupportCardRecord);
+    const jpItem = buildPoolItem(mkJp('j', 'Fuji'), { score: 15, wishlist: new Set(), lb: 4 });
+    const mixedItems = [...items, jpItem];
+
+    render(<SupportCardPoolCard {...base} items={mixedItems} asOfISO="2026-08-01" />);
+    // JP card is hidden by default (showUpcoming: false).
+    expect(screen.queryByRole('button', { name: /fuji details/i })).not.toBeInTheDocument();
+    // Global cards still show.
+    expect(screen.getByRole('button', { name: /alpha details/i })).toBeInTheDocument();
+
+    // Toggle "show upcoming" — the JP card (released 2026-07-01, asOf 2026-08-01) appears.
+    await userEvent.click(screen.getByLabelText(/show upcoming/i));
+    expect(screen.getByRole('button', { name: /fuji details/i })).toBeInTheDocument();
+
+    // The predicted date badge renders.
+    expect(screen.getByText(/~2026-07-01/)).toBeInTheDocument();
   });
 });

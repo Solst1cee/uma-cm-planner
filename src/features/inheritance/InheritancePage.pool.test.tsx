@@ -32,7 +32,7 @@ vi.mock('@/features/data/gameData', () => ({
     cardById: new Map(),
     skillById: new Map(),
     skills: [],
-    cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [] }],
+    cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [], server: 'global' }],
     // GameIcon resolves a card image only when the id is in the manifest.
     iconManifest: {
       dataVersion: 'test',

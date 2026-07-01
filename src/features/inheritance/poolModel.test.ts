@@ -1,10 +1,11 @@
 // src/features/inheritance/poolModel.test.ts
 import { describe, expect, it } from 'vitest';
 import { buildPoolItem, cardStatLines, filterPool, sortPool } from './poolModel';
+import type { PoolFilters, PoolItem } from './poolModel';
 import type { SupportCardRecord } from '@/core/types';
 
 const mk = (id: string, type: SupportCardRecord['type'], rarity: SupportCardRecord['rarity'], name: string, skills: { skillId: string; sourceType: string }[] = []) =>
-  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills } as unknown as SupportCardRecord);
+  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills, server: 'global' } as unknown as SupportCardRecord);
 
 describe('poolModel', () => {
   const wishlist = new Set(['s1']);
@@ -33,11 +34,28 @@ describe('poolModel', () => {
   });
   it('filters by rarity/type/search', () => {
     const all = [a, b, c];
-    expect(filterPool(all, { rarity: 'SSR', type: 'all', skill: null, search: '' }).map((i) => i.cardId)).toEqual(['1', '3']);
-    expect(filterPool(all, { rarity: 'all', type: 'speed', skill: null, search: 'gam' }).map((i) => i.cardId)).toEqual(['3']);
+    expect(filterPool(all, { rarity: 'SSR', type: 'all', skill: null, search: '', showUpcoming: false }).map((i) => i.cardId)).toEqual(['1', '3']);
+    expect(filterPool(all, { rarity: 'all', type: 'speed', skill: null, search: 'gam', showUpcoming: false }).map((i) => i.cardId)).toEqual(['3']);
   });
   it('sorts by matches then effect', () => {
     expect(sortPool([b, a, c], 'matches').map((i) => i.cardId)).toEqual(['1', '2', '3']); // a matches → first
     expect(sortPool([a, b, c], 'effect').map((i) => i.cardId)).toEqual(['2', '1', '3']); // 20,10,null
+  });
+});
+
+describe('filterPool — availability gating', () => {
+  const base = { cardId: 'x', name: 'X', charName: 'X', rarity: 'SSR', type: 'speed', typeColor: '', typeLabel: '', score: null, matchCount: 0, matchedIds: [], chain: [], random: [], hint: [], stats: [], server: 'global' } as unknown as PoolItem;
+  const globalItem: PoolItem = { ...base, cardId: 'g', server: 'global' };
+  const jpSoon: PoolItem = { ...base, cardId: 'j1', server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true };
+  const jpLater: PoolItem = { ...base, cardId: 'j2', server: 'jp', releaseDate: '2027-01-01', releaseDatePredicted: true };
+  const filters = { rarity: 'all', type: 'all', skill: null, search: '', showUpcoming: false } as PoolFilters;
+
+  it('hides jp cards when showUpcoming is off', () => {
+    const out = filterPool([globalItem, jpSoon], filters, '2026-08-01');
+    expect(out.map((i) => i.cardId)).toEqual(['g']);
+  });
+  it('shows jp cards released by the CM date when showUpcoming is on', () => {
+    const out = filterPool([globalItem, jpSoon, jpLater], { ...filters, showUpcoming: true }, '2026-08-01');
+    expect(out.map((i) => i.cardId).sort()).toEqual(['g', 'j1']); // j2 not out by 2026-08-01
   });
 });

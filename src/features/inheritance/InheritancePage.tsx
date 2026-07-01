@@ -6,7 +6,7 @@
  *  "Deck" card (6-slot support deck + autosave templates) in the center column. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
-import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak } from '@/core/types';
+import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak, TimelineEntry } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -119,7 +119,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
-  const { skillById, cardById, cards } = useGameData();
+  const { skillById, cardById, cards, timeline } = useGameData();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
@@ -349,6 +349,13 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         : DEFAULT_SCENARIO,
     );
 
+  // Derive the CM date from the timeline so JP-ahead cards are gated against the
+  // plan's actual CM date (not today). Mirrors the pattern in SkillChartPanel.
+  const cmNumber = uma1Plan?.cmRef.kind === 'cm' ? uma1Plan.cmRef.cmNumber : undefined;
+  const cmEntry = (timeline as TimelineEntry[] | undefined)
+    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
+  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
+
   const aptChips = uma1Plan ? umaPlanAptChips(uma1Plan) : [];
   const portrait = uma ? (
     // 0.9-aspect box (uma icons are 230×256) so the portrait isn't letterboxed.
@@ -502,6 +509,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             }}
             selectedCardId={selectedCardId}
             onSelectCard={(id) => setSelectedCardId((cur) => (cur === id ? null : id))}
+            asOfISO={asOfISO}
           />
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>

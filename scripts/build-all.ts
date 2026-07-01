@@ -12,7 +12,8 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CmPreset, CmTrack, JpCmDate, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { buildAffinity } from './build-affinity';
-import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
+import { assertTachyonsParity, buildCards, buildJpCards, recomputeHintPoolSizes } from './build-cards';
+import { buildForesightCalibration, type ConfirmedCm } from './lib/foresight-build';
 import { generateCardUniqueEffects } from './build-card-unique-effects';
 import { generateCardEffects } from './build-card-effects';
 import { buildCmPresets } from './build-cm-presets';
@@ -67,10 +68,13 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     skills = [...skills, ...skillAdditions].sort((a, b) => Number(a.skillId) - Number(b.skillId));
     console.log(`applied skill_additions.json → ${skillAdditions.length} upcoming skill(s)`);
   }
+  const masterCards = readBorrowedJson<MasterCardsJson>('support-cards.json');
+  const gametoraCards = readBorrowedJson<GtCard[]>('gametora/support-cards.json');
+  const eventSources = readBorrowedJson<EventSkillSourcesJson>('gametora/event-skill-sources.json');
   let cards = buildCards({
-    master: readBorrowedJson<MasterCardsJson>('support-cards.json'),
-    gametoraCards: readBorrowedJson<GtCard[]>('gametora/support-cards.json'),
-    eventSources: readBorrowedJson<EventSkillSourcesJson>('gametora/event-skill-sources.json'),
+    master: masterCards,
+    gametoraCards,
+    eventSources,
     tachyons,
     releasedSkillIds,
     dataVersion: DATA_VERSION,
@@ -95,6 +99,17 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     cards = [...cards, ...upcomingCards].sort((a, b) => Number(a.cardId) - Number(b.cardId));
     console.log(`applied upcoming_cards.json → ${upcomingCards.length} upcoming card(s)`);
   }
+  // JP-ahead cards, dated by build-time foresight.
+  const jpSchedule = readJson<{ cms?: JpCmDate[] }>(join(OVERRIDES_DIR, 'jp-schedule.json'));
+  const tlOverrides = readJson<{ entries?: Array<{ cm?: { cmNumber?: number }; dates?: { finals?: string }; status?: string }> }>(join(OVERRIDES_DIR, 'timeline_overrides.json')).entries ?? [];
+  const confirmed: ConfirmedCm[] = tlOverrides
+    .filter((e) => e.status === 'confirmed' && e.cm?.cmNumber !== undefined && e.dates?.finals !== undefined)
+    .map((e) => ({ cmNumber: e.cm!.cmNumber!, global: e.dates!.finals! }));
+  const cal = buildForesightCalibration(jpSchedule.cms ?? [], confirmed);
+  const masterIds = new Set(Object.values(masterCards).map((c) => c.id));
+  const jpCards = buildJpCards({ gametoraCards, masterIds, eventSources, releasedSkillIds, cal, dataVersion: DATA_VERSION });
+  console.log(`build-cards: emitted ${jpCards.length} JP-ahead card(s) (${jpCards.filter((c) => c.releaseDatePredicted).length} date-projected)`);
+  cards = [...cards, ...jpCards].sort((a, b) => Number(a.cardId) - Number(b.cardId));
   let presets = buildCmPresets({
     presets: readBorrowedJson<UpstreamCmPreset[]>('cm-presets.json'),
     courses: readBorrowedJson<CourseDataJson>('course_data.json'),
@@ -141,7 +156,6 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   const tracks = existsSync(cmTracksPath)
     ? readJson<{ tracks: CmTrack[] }>(cmTracksPath).tracks
     : [];
-  const jpSchedule = readJson<{ cms?: JpCmDate[] }>(join(OVERRIDES_DIR, 'jp-schedule.json'));
   const timeline = buildTimeline({ presets, overrides: timelineOverrides, tracks, jpCms: jpSchedule.cms ?? [], dataVersion: DATA_VERSION });
 
   // Build-time oracle (provenance §4.1): emitted cards must agree with the

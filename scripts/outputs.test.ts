@@ -66,13 +66,16 @@ describe('public/data/skills.json', () => {
 });
 
 describe('public/data/support_cards.json', () => {
-  it('contains the 222 Global cards, all server=global on the pinned dataVersion', () => {
-    expect(cards).toHaveLength(222);
-    expect(cards.every((c) => c.server === 'global')).toBe(true);
+  it('contains 222 Global cards + JP-ahead cards (total 539), Global cards all server=global', () => {
+    const globalCards = cards.filter((c) => c.server === 'global');
+    const jpCards = cards.filter((c) => c.server === 'jp');
+    expect(globalCards).toHaveLength(222);
+    expect(jpCards.length).toBeGreaterThan(0);
+    expect(cards).toHaveLength(539);
     // The v0.16.1 pin (76214c82) now emits 30102/30103/30104, so the former
-    // card_additions.json entries were retired — every card carries the pin
+    // card_additions.json entries were retired — every Global card carries the pin
     // dataVersion and none carries the old master.mdb addition stamp.
-    expect(cards.filter((c) => c.dataVersion === 'global-76214c82')).toHaveLength(222);
+    expect(cards.filter((c) => c.server === 'global' && c.dataVersion === 'global-76214c82')).toHaveLength(222);
     expect(cards.filter((c) => c.dataVersion === 'global-mdb-10006400')).toHaveLength(0);
   });
 
@@ -159,6 +162,18 @@ describe('public/data/support_cards.json', () => {
         `card ${cardId} should source skill ${skillId} as ${sourceType}`,
       ).toBe(true);
     }
+  });
+
+  it('gates JP-ahead cards: server-tagged, dated, predicted', () => {
+    // JP-ahead cards are server-tagged, dated, and honestly flagged as predicted (P3).
+    const jpCards = cards.filter((c) => c.server === 'jp');
+    expect(jpCards.every((c) => c.server === 'jp')).toBe(true);
+    expect(jpCards.every((c) => typeof c.releaseDate === 'string')).toBe(true);
+    expect(jpCards.every((c) => c.releaseDatePredicted === true)).toBe(true);
+    // spot-check a known JP-only card (early R "Tracen Academy", not in the Global master set)
+    const sample = cards.find((c) => c.cardId === '10079');
+    expect(sample?.server).toBe('jp');
+    expect(sample?.releaseDatePredicted).toBe(true);
   });
 
   it('hint_pool entries carry hintLevels (hint_value_2); event entries never do', () => {
