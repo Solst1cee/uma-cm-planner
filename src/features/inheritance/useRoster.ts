@@ -40,8 +40,15 @@ function emit(): void {
   for (const l of listeners) l();
 }
 async function reload(): Promise<void> {
-  const [rows, ts] = await Promise.all([listParents(), getSetting<string>(ROSTER_IMPORTED_AT_KEY)]);
-  store = { roster: rows, importedAt: ts ?? null };
+  try {
+    const [rows, ts] = await Promise.all([listParents(), getSetting<string>(ROSTER_IMPORTED_AT_KEY)]);
+    store = { roster: rows, importedAt: ts ?? null };
+  } catch {
+    // No IndexedDB (jsdom tests / private-mode browsers) — keep an empty roster
+    // instead of throwing an unhandled rejection from the fire-and-forget
+    // subscribe() path (`void reload()`).
+    store = { roster: [], importedAt: null };
+  }
   loaded = true;
   emit();
 }
