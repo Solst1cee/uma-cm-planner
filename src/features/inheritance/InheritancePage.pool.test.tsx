@@ -50,37 +50,42 @@ afterEach(cleanup);
 it('renders the support-card pool with a card', async () => {
   render(<InheritancePage deps={{ loadCatalog: () => Promise.resolve([]) }} />);
   await waitFor(() => expect(screen.getByText('Support cards')).toBeInTheDocument());
-  expect(screen.getByText('Kitasan')).toBeInTheDocument();
+  // The tile shows no text now (icon only); the card is identified by its icon
+  // button's accessible name ("<name> details").
+  expect(screen.getByRole('button', { name: /kitasan details/i })).toBeInTheDocument();
 });
 
 it('renders the real square card icon (GameIcon) for a manifest-present card', async () => {
   const { container } = render(<InheritancePage deps={{ loadCatalog: () => Promise.resolve([]) }} />);
-  await waitFor(() => expect(screen.getByText('Kitasan')).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole('button', { name: /kitasan details/i })).toBeInTheDocument());
   // The tile's icon slot is a GameIcon kind="card" → a real <img>, NOT the old
   // type-letter placeholder. The src resolves to the bundled support webp.
   const img = container.querySelector('img.inh-pool-card-img') as HTMLImageElement | null;
   expect(img).not.toBeNull();
   expect(img!.getAttribute('src')).toContain('data/icons/support/30028.webp');
   // A stat-type badge (kind="ui") is overlaid top-right; Kitasan is a speed card.
+  // The badge IS the in-game coloured stat tile now — no inline colour backing.
   const typeBadge = container.querySelector('img.inh-pool-card-type-img') as HTMLImageElement | null;
   expect(typeBadge).not.toBeNull();
   expect(typeBadge!.getAttribute('src')).toContain('data/icons/ui/stat-spd.webp');
-  // The badge body is filled with the card's in-game type color (set inline).
   const badge = container.querySelector('.inh-pool-card-type') as HTMLElement | null;
-  expect(badge?.style.background).not.toBe('');
+  expect(badge).not.toBeNull();
+  expect(badge!.style.background).toBe('');
 });
 
 it('Add carries the tile LB into the deck slot — non-default LB 2 lands in deck', async () => {
   localStorage.clear();
   render(<InheritancePage deps={{ loadCatalog: () => Promise.resolve([]) }} />);
-  await waitFor(() => expect(screen.getByText('Kitasan')).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole('button', { name: /kitasan details/i })).toBeInTheDocument());
 
-  // The pool tile's diamond buttons are labelled "LB 1"–"LB 4".
-  // Click "LB 2" to set Kitasan's limit-break to 2 on the tile.
+  // Set LB 2 on the tile (only the tile's stepper exists before selecting).
   fireEvent.click(screen.getByRole('button', { name: 'LB 2' }));
 
-  // Click Add to put the card into the deck.
-  fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+  // Select the card → its detail card (with the Add button) opens in the sidebar.
+  fireEvent.click(screen.getByRole('button', { name: /kitasan details/i }));
+
+  // Add to deck from the detail card.
+  fireEvent.click(screen.getByRole('button', { name: /add to deck/i }));
 
   // The deck slot now contains Kitasan. Read localStorage to verify slotLb[0] === 2
   // (the slot the card lands in since it's the first empty slot).

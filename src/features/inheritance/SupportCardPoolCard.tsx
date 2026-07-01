@@ -1,9 +1,10 @@
 // src/features/inheritance/SupportCardPoolCard.tsx
 /** M1.6 — "Support cards" pool panel: shell + header + filters + Icon view.
  *  Provider-free — all data comes via props. */
-import { useState } from 'react';
-import type { CardType, LimitBreak } from '@/core/types';
+import { useEffect, useState } from 'react';
+import type { CardBaseEffect, CardEffect, CardType, LimitBreak } from '@/core/types';
 import { TYPE_COLORS, TYPE_LABEL } from './deckOps';
+import { isTraineeConflict } from './deckConflicts';
 import {
   filterPool,
   sortPool,
@@ -23,10 +24,22 @@ export interface SupportCardPoolCardProps {
   cardLb: Record<string, LimitBreak>;
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   deckCardIds: ReadonlySet<string>;
+  /** Trainee's character name — cards of this character are blocked + greyed. */
+  traineeCharName?: string | null;
+  /** Character names occupying the deck — sibling cards are blocked + greyed. */
+  deckCharNames?: ReadonlySet<string>;
   onAdd: (cardId: string) => void;
   renderIcon: (item: PoolItem, size: number) => React.ReactNode;
-  /** Map a skill id to its display name. Defaults to the raw id. */
-  skillName?: (id: string) => string;
+  /** Render the in-game coloured stat tile for a type filter chip; return null
+   *  for types with no stat icon (friend/group) → falls back to the text label. */
+  renderTypeIcon?: (type: CardType, size: number) => React.ReactNode;
+  /** The currently-selected card (its detail shows in the right sidebar), or null. */
+  selectedCardId?: string | null;
+  /** Click an icon to select it (toggles); the page shows its detail card. */
+  onSelectCard?: (cardId: string) => void;
+  /** Optional node rendered between the search/filters and the grid (e.g. the
+   *  Scoring weights card). */
+  weightsSlot?: React.ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -52,16 +65,18 @@ export function SupportCardPoolCard({
   cardLb,
   onCardLb,
   deckCardIds,
+  traineeCharName = null,
+  deckCharNames,
   onAdd,
   renderIcon,
-  skillName = (id) => id,
+  renderTypeIcon,
+  selectedCardId = null,
+  onSelectCard,
+  weightsSlot,
 }: SupportCardPoolCardProps) {
-  const [view, setView] = useState<'icon' | 'art' | 'plot'>('icon');
+  const [view, setView] = useState<'icon' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
-  // Icon view is an accordion: at most one tile expanded at a time. Collapsed
-  // tiles show only the icon + LB stepper (keeps the dense grid uncluttered).
-  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const filtered = sortPool(filterPool(items, filters), sort);
 
@@ -86,11 +101,10 @@ export function SupportCardPoolCard({
       {/* ── Head ── */}
       <div className="inh-deck-head inh-pool-head">
         <span className="inh-pool-title">Support cards</span>
-        <span className="inh-pool-count">{filtered.length} shown</span>
         <div className="inh-pool-head-right">
           {/* View toggle */}
           <div className="inh-pool-toggle-group" role="group" aria-label="View">
-            {(['icon', 'art', 'plot'] as const).map((v) => (
+            {(['icon', 'plot'] as const).map((v) => (
               <button
                 key={v}
                 type="button"
@@ -153,17 +167,26 @@ export function SupportCardPoolCard({
               >
                 All
               </button>
-              {TYPES.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={`inh-pool-chip${filters.type === t ? ' is-active' : ''}`}
-                  style={filters.type === t ? { background: TYPE_COLORS[t], borderColor: TYPE_COLORS[t], color: '#fff' } : { borderColor: TYPE_COLORS[t] }}
-                  onClick={() => setType(t)}
-                >
-                  {TYPE_LABEL[t]}
-                </button>
-              ))}
+              {TYPES.map((t) => {
+                const icon = renderTypeIcon?.(t, 18);
+                const active = filters.type === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`inh-pool-chip${icon ? ' inh-pool-chip-icon' : ''}${active ? ' is-active' : ''}`}
+                    // Inactive: a per-type colour border tint. Active: the shared
+                    // accent fill (.is-active), same as every other filter row.
+                    style={active ? undefined : { borderColor: TYPE_COLORS[t] }}
+                    onClick={() => setType(t)}
+                    aria-label={TYPE_LABEL[t]}
+                    aria-pressed={active}
+                    title={TYPE_LABEL[t]}
+                  >
+                    {icon ?? TYPE_LABEL[t]}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -207,40 +230,36 @@ export function SupportCardPoolCard({
           </div>
         </div>
 
+        {/* Optional card (Scoring weights) between the search/filters and the grid. */}
+        {weightsSlot}
+
         {/* ── Grid ── */}
         {view === 'icon' ? (
           <div className="inh-pool-grid">
-            {filtered.map((item) => (
-              <PoolTile
-                key={item.cardId}
-                item={item}
-                lb={cardLb[item.cardId] ?? 4}
-                onCardLb={onCardLb}
-                inDeck={deckCardIds.has(item.cardId)}
-                onAdd={onAdd}
-                renderIcon={renderIcon}
-                skillName={skillName}
-                expanded={expandedCardId === item.cardId}
-                onToggle={() =>
-                  setExpandedCardId((cur) => (cur === item.cardId ? null : item.cardId))
-                }
-              />
-            ))}
-          </div>
-        ) : view === 'art' ? (
-          <div className="inh-pool-art-list">
-            {filtered.map((item) => (
-              <ArtTile
-                key={item.cardId}
-                item={item}
-                lb={cardLb[item.cardId] ?? 4}
-                onCardLb={onCardLb}
-                inDeck={deckCardIds.has(item.cardId)}
-                onAdd={onAdd}
-                renderIcon={renderIcon}
-                skillName={skillName}
-              />
-            ))}
+            {filtered.map((item) => {
+              const inDeck = deckCardIds.has(item.cardId);
+              const sameAsTrainee = isTraineeConflict(item.charName, traineeCharName);
+              // Blocked = trainee's own character, or a sibling of a character already
+              // in the deck (only one support card per character).
+              const blocked =
+                !inDeck &&
+                (sameAsTrainee || (deckCharNames?.has(item.charName) ?? false));
+              return (
+                <PoolTile
+                  key={item.cardId}
+                  item={item}
+                  lb={cardLb[item.cardId] ?? 4}
+                  onCardLb={onCardLb}
+                  inDeck={inDeck}
+                  blocked={blocked}
+                  blockReason={sameAsTrainee ? 'trainee' : 'duplicate'}
+                  onAdd={onAdd}
+                  renderIcon={renderIcon}
+                  selected={selectedCardId === item.cardId}
+                  onSelect={() => onSelectCard?.(item.cardId)}
+                />
+              );
+            })}
           </div>
         ) : (
           <PoolPlot items={filtered} onAdd={onAdd} />
@@ -259,51 +278,75 @@ interface PoolTileProps {
   lb: LimitBreak;
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   inDeck: boolean;
+  /** Can't be added (trainee's own character or a same-character duplicate). */
+  blocked?: boolean;
+  blockReason?: 'trainee' | 'duplicate';
   onAdd: (cardId: string) => void;
   renderIcon: (item: PoolItem, size: number) => React.ReactNode;
-  skillName: (id: string) => string;
-  expanded: boolean;
-  onToggle: () => void;
+  selected: boolean;
+  onSelect: () => void;
 }
 
-function PoolTile({
-  item,
-  lb,
-  onCardLb,
-  inDeck,
-  onAdd,
-  renderIcon,
-  skillName,
-  expanded,
-  onToggle,
-}: PoolTileProps) {
+function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, onAdd, renderIcon, selected, onSelect }: PoolTileProps) {
   function handleDragStart(e: React.DragEvent) {
+    // Blocked cards can't be dropped into the deck — cancel the drag.
+    if (blocked) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData('text/card-id', item.cardId);
     e.dataTransfer.setData('text/card-lb', String(lb));
   }
-  const matched = new Set(item.matchedIds);
-  // All skills the card can provide (hints + chain/random events), de-duped.
-  const skills = [...new Set([...item.hint, ...item.chain, ...item.random])];
+  const blockTitle =
+    blockReason === 'trainee'
+      ? 'Same character as the trainee — can’t be used'
+      : 'Only one support card per character in a deck';
 
   return (
     <div
-      className={`inh-pool-tile${expanded ? ' is-expanded' : ''}`}
-      draggable
+      className={`inh-pool-tile${selected ? ' is-selected' : ''}${inDeck ? ' is-in-deck' : ''}${blocked ? ' is-blocked' : ''}`}
+      data-testid={`pool-tile-${item.cardId}`}
+      title={blocked ? blockTitle : undefined}
+      draggable={!blocked}
       onDragStart={handleDragStart}
     >
-      {/* Icon doubles as the expand toggle. Collapsed = just this + the LB
-          stepper; the detail block below is revealed on expand. */}
-      <button
-        type="button"
-        className="inh-pool-tile-iconbtn"
-        aria-expanded={expanded}
-        aria-label={`${item.name} details`}
-        onClick={onToggle}
-      >
-        {renderIcon(item, 60)}
-      </button>
+      <div className="inh-pool-tile-iconwrap">
+        {/* Icon = select toggle; the full detail opens in the right sidebar. */}
+        <button
+          type="button"
+          className="inh-pool-tile-iconbtn"
+          aria-pressed={selected}
+          aria-label={`${item.name} details`}
+          onClick={onSelect}
+        >
+          {renderIcon(item, 60)}
+          {item.matchCount > 0 && (
+            <span className="inh-pool-tile-wishbadge" title={`${item.matchCount} wishlist skills`}>
+              {item.matchCount}
+            </span>
+          )}
+        </button>
+        {/* Hover-only quick-add (top-right of the icon). Hidden once in the deck
+            or when the card can't be added (trainee / duplicate character). */}
+        {!inDeck && !blocked && (
+          <button
+            type="button"
+            className="inh-pool-tile-quickadd"
+            aria-label={`Add ${item.name} to deck`}
+            title="Add to deck"
+            onClick={() => onAdd(item.cardId)}
+          >
+            +
+          </button>
+        )}
+        {/* Blocked indicator — centered chip, same design as the deck-slot badge. */}
+        {blocked && (
+          <span className="inh-pool-tile-blockbadge">
+            {blockReason === 'trainee' ? 'Trainee' : 'Dup'}
+          </span>
+        )}
+      </div>
 
-      {/* LB diamonds — always visible */}
       <div className="inh-deck-lb">
         <span className="inh-deck-lb-label">LB</span>
         <div className="inh-deck-lb-diamonds">
@@ -313,171 +356,252 @@ function PoolTile({
               type="button"
               className={`inh-deck-diamond${lb >= level ? ' is-on' : ''}`}
               aria-label={`LB ${level}`}
-              onClick={() => onCardLb(item.cardId, level as LimitBreak)}
+              // Clicking the current LB clears it to 0.
+              onClick={() => onCardLb(item.cardId, lb === level ? 0 : level)}
             />
           ))}
         </div>
-      </div>
-
-      {/* Detail — revealed only when expanded (CSS-hidden when collapsed) */}
-      <div className="inh-pool-tile-detail">
-        <div className="inh-pool-tile-headline">
-          <span className="inh-pool-tile-rarity" style={{ background: item.typeColor }}>
-            {item.rarity}
-          </span>
-          <span className="inh-pool-tile-name" data-testid="pool-card-name">
-            {item.name}
-          </span>
-        </div>
-        {item.charName !== item.name && (
-          <span className="inh-pool-tile-char">{item.charName}</span>
-        )}
-
-        <div className="inh-pool-tile-score">
-          <span>E {item.score !== null ? item.score : '—'}</span>
-          {item.matchCount > 0 && (
-            <span className="inh-pool-tile-match">{item.matchCount} wishlist</span>
-          )}
-        </div>
-
-        {skills.length > 0 && (
-          <div className="inh-pool-skill-chips">
-            {skills.map((id) => (
-              <span
-                key={id}
-                className={`inh-pool-skill-chip${matched.has(id) ? ' is-match' : ''}`}
-              >
-                {skillName(id)}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {inDeck ? (
-          <span className="inh-pool-tile-added">Added</span>
-        ) : (
-          <button type="button" className="inh-pool-tile-add" onClick={() => onAdd(item.cardId)}>
-            Add
-          </button>
-        )}
       </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Art tile (Art view)
+// Card detail (right sidebar) — full art + everything about the selected card.
+// Reuses the old expanded-tile content; the page renders it next to M1.8.
 // ---------------------------------------------------------------------------
 
-interface ArtTileProps {
+export interface CardDetailCardProps {
   item: PoolItem;
   lb: LimitBreak;
   onCardLb: (cardId: string, lb: LimitBreak) => void;
   inDeck: boolean;
   onAdd: (cardId: string) => void;
-  renderIcon: (item: PoolItem, size: number) => React.ReactNode;
-  skillName: (id: string) => string;
+  /** Can't be added: trainee's own character or a same-character duplicate. */
+  blocked?: boolean;
+  blockReason?: 'trainee' | 'duplicate';
+  /** True when the deck has no free slot — Add then shows a "deck full" notice. */
+  deckFull?: boolean;
+  /** Deselect → hides this card. */
+  onClose: () => void;
+  /** Full-art node, built by the page (GameIcon kind="card-art", no badge). */
+  art: React.ReactNode;
+  /** The in-game stat-type tile node (shown by the name), or null. */
+  typeIcon?: React.ReactNode;
+  /** The card's resolved unique-effect lines (shown under the E value). */
+  uniqueEffects?: CardEffect[];
+  /** The card's full base (always-on) effect set, LB-aware. */
+  baseEffects?: CardBaseEffect[];
+  skillName?: (id: string) => string;
 }
 
-function ArtTile({ item, lb, onCardLb, inDeck, onAdd, renderIcon, skillName }: ArtTileProps) {
-  function handleDragStart(e: React.DragEvent) {
-    e.dataTransfer.setData('text/card-id', item.cardId);
-    e.dataTransfer.setData('text/card-lb', String(lb));
-  }
+export function CardDetailCard({
+  item,
+  lb,
+  onCardLb,
+  inDeck,
+  onAdd,
+  blocked = false,
+  blockReason,
+  deckFull = false,
+  onClose,
+  art,
+  typeIcon = null,
+  uniqueEffects = [],
+  baseEffects = [],
+  skillName = (id) => id,
+}: CardDetailCardProps) {
+  const matched = new Set(item.matchedIds);
+  const sections: { label: string; ids: string[] }[] = [
+    { label: 'Chain', ids: [...new Set(item.chain)] },
+    { label: 'Random', ids: [...new Set(item.random)] },
+    { label: 'Hint', ids: [...new Set(item.hint)] },
+  ].filter((s) => s.ids.length > 0);
+
+  // Click the art → centered full-art viewer; click the grey backdrop / Esc closes.
+  const [artOpen, setArtOpen] = useState(false);
+  useEffect(() => {
+    if (!artOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setArtOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [artOpen]);
+
+  // Transient "deck is full" notice shown when Add can't add (auto-clears).
+  const [showFull, setShowFull] = useState(false);
+  useEffect(() => {
+    if (!showFull) return;
+    const t = setTimeout(() => setShowFull(false), 3000);
+    return () => clearTimeout(t);
+  }, [showFull]);
 
   return (
-    <div
-      className="inh-pool-art-tile"
-      draggable
-      onDragStart={handleDragStart}
-    >
-      {/* Art / icon column */}
-      <div className="inh-pool-art-icon" style={{ background: item.typeColor }}>
-        {renderIcon(item, 56)}
+    <>
+    <div className="inh-deck inh-card-detail">
+      <div className="inh-deck-head inh-card-detail-head">
+        <span>Card details</span>
+        <button
+          type="button"
+          className="inh-card-detail-close"
+          aria-label="Close card details"
+          onClick={onClose}
+        >
+          ×
+        </button>
       </div>
-
-      {/* Content column */}
-      <div className="inh-pool-art-content">
-        {/* Name + rarity + type chip */}
-        <div className="inh-pool-art-header">
-          <span className="inh-pool-tile-name">{item.name}</span>
+      <div className="inh-deck-body inh-card-detail-body">
+        {/* Section 1 — art (left, half) | name + card stats + LB stepper (right). */}
+        {/* Names — one centered column, full width, above the 2-column section. */}
+        <div className="inh-card-detail-names">
+          <span className="inh-pool-tile-name" data-testid="detail-card-name">{item.name}</span>
           {item.charName !== item.name && (
-            <span className="inh-pool-tile-char">{item.charName}</span>
-          )}
-          <span
-            className="inh-pool-tile-rarity"
-            style={{ background: item.typeColor }}
-          >
-            {item.rarity}
-          </span>
-        </div>
-
-        {/* Chain event-skill chips (green) */}
-        {item.chain.length > 0 && (
-          <div className="inh-pool-art-skill-row">
-            <span className="inh-pool-art-skill-label">Chain</span>
-            <div className="inh-pool-art-chips">
-              {item.chain.map((id) => (
-                <span key={id} className="inh-pool-art-chip inh-pool-art-chip--chain">
-                  {skillName(id)}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Random event-skill chips (orange) */}
-        {item.random.length > 0 && (
-          <div className="inh-pool-art-skill-row">
-            <span className="inh-pool-art-skill-label">Random</span>
-            <div className="inh-pool-art-chips">
-              {item.random.map((id) => (
-                <span key={id} className="inh-pool-art-chip inh-pool-art-chip--random">
-                  {skillName(id)}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Score */}
-        <div className="inh-pool-tile-score">
-          <span>E {item.score !== null ? item.score : '—'}</span>
-          {item.matchCount > 0 && (
-            <span className="inh-pool-tile-match">{item.matchCount} wishlist</span>
+            <span className="inh-pool-tile-char inh-card-detail-uma">{item.charName}</span>
           )}
         </div>
 
-        {/* LB diamonds */}
-        <div className="inh-deck-lb">
-          <span className="inh-deck-lb-label">LB</span>
-          <div className="inh-deck-lb-diamonds">
-            {([1, 2, 3, 4] as const).map((level) => (
-              <button
-                key={level}
-                type="button"
-                className={`inh-deck-diamond${lb >= level ? ' is-on' : ''}`}
-                aria-label={`LB ${level}`}
-                onClick={() => onCardLb(item.cardId, level as LimitBreak)}
-              />
+        {/* Full art — single column, full width. */}
+        <button
+          type="button"
+          className="inh-card-detail-art"
+          aria-label="View full art"
+          onClick={() => setArtOpen(true)}
+        >
+          {art}
+        </button>
+
+        {/* Meta row — stat-type tile + LB stepper · wishlist count · E score. */}
+        <div className="inh-card-detail-meta">
+          <div className="inh-card-detail-iconlb">
+            <div className="inh-card-detail-typerow">
+              {typeIcon && <span className="inh-card-detail-typeicon">{typeIcon}</span>}
+              <span className="inh-card-detail-rarity">{item.rarity}</span>
+            </div>
+            <div className="inh-deck-lb inh-card-detail-lb">
+              <span className="inh-deck-lb-label">LB</span>
+              <div className="inh-deck-lb-diamonds">
+                {([1, 2, 3, 4] as const).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    className={`inh-deck-diamond${lb >= level ? ' is-on' : ''}`}
+                    aria-label={`LB ${level}`}
+                    // Clicking the current LB clears it to 0.
+                    onClick={() => onCardLb(item.cardId, lb === level ? 0 : level)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Unique Effect — above the base effect list (lines can wrap). */}
+        {uniqueEffects.length > 0 && (
+          <div className="inh-card-detail-unique">
+            <span className="inh-card-detail-unique-label">Unique Effect</span>
+            {uniqueEffects.map((e, i) => (
+              <span key={`${e.type}-${i}`} className="inh-card-detail-unique-line">
+                {e.conditional
+                  ? e.descEn
+                  : `${e.descEn} (${e.value}${e.symbol === 'percent' ? '%' : ''})`}
+              </span>
             ))}
           </div>
+        )}
+
+        {/* Full base-effect list (all always-on effects) at the selected LB. */}
+        {baseEffects.length > 0 && (
+          <div className="inh-card-detail-effects">
+            <span className="inh-card-detail-section-label">Effects</span>
+            <div className="inh-card-detail-effects-grid">
+              {baseEffects.map((e) => {
+                const v = e.valuesByLb[lb] ?? 0;
+                if (v === 0) return null;
+                return (
+                  <div key={e.type} className="inh-pool-stat-row">
+                    <span className="inh-pool-stat-label">{e.nameEn}</span>
+                    <span className="inh-pool-stat-val">+{v}{e.symbol === 'percent' ? '%' : ''}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Estimated effect value (the euophrys E-score) — under the effect list. */}
+        <div className="inh-card-detail-evalue">
+          <span className="inh-card-detail-section-label">Estimated Effect Value</span>
+          <span className="inh-pool-tile-score">E {item.score !== null ? item.score.toFixed(2) : '—'}</span>
         </div>
 
-        {/* Add / Added */}
-        {inDeck ? (
-          <span className="inh-pool-tile-added">Added</span>
-        ) : (
-          <button
-            type="button"
-            className="inh-pool-tile-add"
-            onClick={() => onAdd(item.cardId)}
-          >
-            Add
-          </button>
+        {/* Section 2 — obtainable skills; wishlist count on the first line, right. */}
+        {sections.length > 0 && (
+          <div className="inh-card-detail-skills">
+            {item.matchCount > 0 && (
+              <span className="inh-pool-tile-match inh-card-detail-match">{item.matchCount} wishlist</span>
+            )}
+            {sections.map((s) => (
+              <div key={s.label} className="inh-pool-skill-section">
+                <span className="inh-pool-skill-section-label">{s.label}</span>
+                <div className="inh-pool-skill-chips">
+                  {s.ids.map((id) => (
+                    <span
+                      key={id}
+                      className={`inh-pool-skill-chip${matched.has(id) ? ' is-match' : ''}`}
+                    >
+                      {skillName(id)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Stays in place when added — greyed + disabled, label flips to "Added".
+            Blocked cards (trainee / duplicate character) are disabled with a reason. */}
+        <button
+          type="button"
+          className="inh-card-detail-add"
+          disabled={inDeck || blocked}
+          onClick={() => {
+            if (deckFull) {
+              setShowFull(true);
+              return;
+            }
+            onAdd(item.cardId);
+          }}
+        >
+          {inDeck
+            ? 'Added'
+            : blocked
+              ? blockReason === 'trainee'
+                ? 'Same as trainee'
+                : 'Character already in deck'
+              : '+ Add to deck'}
+        </button>
+        {showFull && !inDeck && (
+          <span className="inh-card-detail-fullmsg" role="status">
+            Deck is full — remove a card first.
+          </span>
         )}
       </div>
     </div>
+
+    {/* Full-art viewer: greyed backdrop + centered art; click outside / Esc closes. */}
+    {artOpen && (
+      <div
+        className="inh-art-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Full art"
+        onClick={() => setArtOpen(false)}
+      >
+        <div className="inh-art-modal-art" onClick={(e) => e.stopPropagation()}>{art}</div>
+      </div>
+    )}
+    </>
   );
 }
 

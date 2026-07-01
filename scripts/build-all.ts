@@ -13,6 +13,8 @@ import { join } from 'node:path';
 import type { CmPreset, CmTrack, SkillRecord, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { buildAffinity } from './build-affinity';
 import { assertTachyonsParity, buildCards, recomputeHintPoolSizes } from './build-cards';
+import { generateCardUniqueEffects } from './build-card-unique-effects';
+import { generateCardEffects } from './build-card-effects';
 import { buildCmPresets } from './build-cm-presets';
 import { buildIcons } from './build-icons';
 import { buildSkills } from './build-skills';
@@ -148,6 +150,8 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
 
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'skills.json'), skills);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'support_cards.json'), cards);
+  generateCardUniqueEffects(); // → public/data/card_unique_effects.json
+  generateCardEffects(); // → public/data/card_effects.json (base effects, LB-aware)
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'spark_rates.json'), sparkRates);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'cm_presets.json'), presets);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'umas.json'), umas);

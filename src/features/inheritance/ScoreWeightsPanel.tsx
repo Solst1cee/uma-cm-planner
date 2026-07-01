@@ -1,6 +1,7 @@
 // src/features/inheritance/ScoreWeightsPanel.tsx
 /** M1.6 — provider-free scoring weights panel (mirrors euophrys Weights.jsx). */
 import { useState } from 'react';
+import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import type { UmaTiersScenario } from '@/vendor/uma-tiers/index';
 import {
   TYPE_TABS,
@@ -32,7 +33,8 @@ const RACE_LABELS = ['G1', 'G2-3', 'OP'] as const;
 export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
   const [currentState, setCurrentState] = useState<TypeKey>('speed');
   const [show, setShow] = useState(false);
-  const [open, setOpen] = useState(true);
+  // Default collapsed — resets on every mount (refresh / first visit).
+  const [open, setOpen] = useState(false);
 
   const activeType = scenario[currentState] as {
     stats: number[];
@@ -46,33 +48,28 @@ export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
     <div className="inh-deck inh-weights">
       {/* Card head with collapse */}
       <div
-        className="inh-deck-head"
+        className="inh-deck-head inh-weights-head"
         style={{ cursor: 'pointer', userSelect: 'none' }}
         onClick={() => setOpen((v) => !v)}
       >
         <span style={{ flex: 1 }}>Scoring weights</span>
-        <span className="inh-weights-caret" aria-hidden>
-          {open ? '▾' : '▸'}
-        </span>
+        <HeaderHelp label="About the Estimated Effect Value">
+          Training power · URA scenario · via{' '}
+          <a
+            href="https://euophrys.github.io/uma-tiers/#/global"
+            target="_blank"
+            rel="noreferrer"
+          >
+            euophrys
+          </a>{' '}
+          — affects the Estimated Effect Value only.
+        </HeaderHelp>
+        <span className="cmp-collapse-caret" data-open={open ? '' : undefined} aria-hidden />
       </div>
 
       {open && (
         <div className="inh-deck-body inh-weights-body">
-          {/* Type tabs */}
-          <div className="inh-weights-tabs" role="group" aria-label="Training type">
-            {TYPE_TABS.map(({ key, label }) => (
-              <button
-                key={key}
-                aria-pressed={currentState === key}
-                className={`inh-weights-tab${currentState === key ? ' is-active' : ''}`}
-                onClick={() => setCurrentState(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Customize settings toggle */}
+          {/* Customize settings toggle + Reset, on one row (Customize before Reset). */}
           <div className="inh-weights-customize-row">
             <button
               className="inh-weights-toggle"
@@ -81,10 +78,27 @@ export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
             >
               Customize settings {show ? '▴' : '▾'}
             </button>
+            <button className="inh-weights-reset" onClick={onReset}>
+              Reset to defaults
+            </button>
           </div>
 
           {show && (
             <div className="inh-weights-customize">
+              {/* Type tabs — scope the per-type stat weights / cap / minimum below. */}
+              <div className="inh-weights-tabs" role="group" aria-label="Training type">
+                {TYPE_TABS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    aria-pressed={currentState === key}
+                    className={`inh-weights-tab${currentState === key ? ' is-active' : ''}`}
+                    onClick={() => setCurrentState(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
               {/* Bond Rate */}
               <div className="inh-weights-field">
                 <label htmlFor="inh-wt-bond-rate">Bond rate</label>
@@ -301,23 +315,6 @@ export function ScoreWeightsPanel({ scenario, onChange, onReset }: Props) {
             </div>
           </div>
 
-          {/* Reset + caption */}
-          <div className="inh-weights-footer">
-            <button className="inh-weights-reset" onClick={onReset}>
-              Reset to defaults
-            </button>
-            <p className="inh-weights-caption">
-              Training power · URA scenario · via{' '}
-              <a
-                href="https://euophrys.github.io/uma-tiers/#/global"
-                target="_blank"
-                rel="noreferrer"
-              >
-                euophrys
-              </a>{' '}
-              — affects the Effect score only.
-            </p>
-          </div>
         </div>
       )}
     </div>

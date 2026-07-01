@@ -14,15 +14,16 @@ export interface DeckState {
   slotLb: LimitBreak[];
 }
 
-/** Support-card type → display color (prototype's 5 + friend/group). */
+/** Support-card type → display color, sampled from the in-game type tiles
+ *  (public/data/icons/ui/stat-*.webp) so chips/borders match the icons exactly. */
 export const TYPE_COLORS: Record<CardType, string> = {
-  speed: '#3b82f6',
-  stamina: '#ef4444',
-  power: '#ec4899',
-  guts: '#f59e0b',
-  wit: '#10b981',
-  friend: '#f472b6',
-  group: '#a78bfa',
+  speed: '#007eda', // blue
+  stamina: '#da4427', // red-orange
+  power: '#eb7300', // orange
+  guts: '#f0357e', // pink
+  wit: '#00c885', // green
+  friend: '#ffb709', // gold (Pal)
+  group: '#4ecd00', // green
 };
 
 /** Support-card type → 3-letter uppercase tag shown on the slot tile. */
@@ -66,6 +67,21 @@ export function dropCard(s: DeckState, index: number, cardId: string, lb: LimitB
   if (existing !== -1) slots[existing] = null; // move
   slots[index] = cardId;
   slotLb[index] = clampLb(lb);
+  return { slots, slotLb };
+}
+
+/** Swap slots `from` and `to` (cards + their LBs) — used for drag-reordering the
+ *  deck. If `to` is empty the card just moves there; no-op for out-of-range or equal. */
+export function moveSlot(s: DeckState, from: number, to: number): DeckState {
+  if (!inRange(from) || !inRange(to) || from === to) return s;
+  const slots = s.slots.slice();
+  const slotLb = s.slotLb.slice();
+  const cardFrom = slots[from] ?? null;
+  const lbFrom = slotLb[from] ?? DEFAULT_SLOT_LB;
+  slots[from] = slots[to] ?? null;
+  slotLb[from] = slotLb[to] ?? DEFAULT_SLOT_LB;
+  slots[to] = cardFrom;
+  slotLb[to] = lbFrom;
   return { slots, slotLb };
 }
 

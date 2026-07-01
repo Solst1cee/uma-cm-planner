@@ -156,6 +156,50 @@ export interface CardSkill {
   hintLevels?: number;
 }
 
+/**
+ * A single resolved support-card effect line (used for the card "Unique Effect"
+ * block). Sourced from master.mdb `support_card_unique_effect` × the effect-type
+ * enum (Cygames `text_data`). See scripts/build-card-unique-effects.ts.
+ */
+export interface CardEffect {
+  /** Effect-type id (shared enum); >= 101 = compound/conditional (no text_data string). */
+  type: number;
+  /** English label, e.g. "Wit Bonus". */
+  nameEn: string;
+  /** English description, e.g. "Increases Wit gain when training together". */
+  descEn: string;
+  /** Magnitude at the unique-effect unlock level. */
+  value: number;
+  /** Value formatting: 'percent' → N%, 'level'/'none' → N. */
+  symbol: 'percent' | 'level' | 'none';
+  /** Raw sub-values for compound/conditional (type >= 101) effects, else absent. */
+  conditional?: number[];
+}
+
+/** public/data/card_unique_effects.json shape: cardId → its unique-effect lines. */
+export type CardUniqueEffects = Record<string, CardEffect[]>;
+
+/**
+ * A support-card BASE (always-on) effect, with its value at each limit break.
+ * Sourced from the GameTora / master.mdb `support_card_effect_table` per-level
+ * matrix × the effect-type enum. See scripts/build-card-effects.ts.
+ */
+export interface CardBaseEffect {
+  /** Effect-type id (shared enum). */
+  type: number;
+  /** English label, e.g. "Wit Bonus", "Skill Point Bonus". */
+  nameEn: string;
+  /** English description. */
+  descEn: string;
+  /** Value formatting: 'percent' → N%, 'level'/'none' → N. */
+  symbol: 'percent' | 'level' | 'none';
+  /** Value at LB 0..4 (0 = not present at that LB). */
+  valuesByLb: number[];
+}
+
+/** public/data/card_effects.json shape: cardId → its base effects (LB-aware). */
+export type CardBaseEffects = Record<string, CardBaseEffect[]>;
+
 export interface SupportCardRecord {
   /** master.mdb support card id, as string (e.g. "30028"). */
   cardId: string;

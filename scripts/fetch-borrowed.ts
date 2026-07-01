@@ -74,6 +74,14 @@ export const BORROWED_FILES: ReadonlyArray<BorrowedFile> = [
     local: 'relation_member.json',
     localOnly: true,
   },
+  // Support-card unique-effect table (master.mdb support_card_unique_effect),
+  // extracted in Phase 0; local-only like the relation tables. Joined with the
+  // effect-type enum (gametora/support-effects.json) in build-card-unique-effects.
+  {
+    upstream: 'db/extract/unique_effects.json',
+    local: 'support-card-unique-effects.json',
+    localOnly: true,
+  },
   {
     upstream: 'front/src/app/data/data.json',
     local: 'tachyons-data.json',

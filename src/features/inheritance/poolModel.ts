@@ -18,6 +18,41 @@ export interface PoolFilters {
 
 export type PoolSort = 'matches' | 'effect';
 
+/** A single displayed effect stat (label + formatted value). */
+export interface StatLine {
+  label: string;
+  value: string;
+}
+
+/** The effect fields we read off a vendored euophrys card row (UmaTiersCard
+ *  structurally satisfies this). Multipliers: tb/mb/fs_bonus/hint_rate (1.15 →
+ *  +15%); raw: race_bonus (%), specialty_rate, sb (starting bond / init gauge). */
+export interface CardEffectRow {
+  tb: number;
+  mb: number;
+  fs_bonus: number;
+  race_bonus: number;
+  specialty_rate: number;
+  hint_rate: number;
+  sb: number;
+}
+
+/** Effect stats for the expanded tile, one line each (mockup order). Empty when
+ *  no row is supplied (e.g. a card with no scorer data). */
+export function cardStatLines(row: CardEffectRow | undefined): StatLine[] {
+  if (!row) return [];
+  const pct = (mult: number) => `+${Math.round((mult - 1) * 100)}%`;
+  return [
+    { label: 'Training', value: pct(row.tb) },
+    { label: 'Friendship', value: pct(row.fs_bonus) },
+    { label: 'Mood', value: pct(row.mb) },
+    { label: 'Specialty', value: String(row.specialty_rate) },
+    { label: 'Race bonus', value: `${row.race_bonus}%` },
+    { label: 'Init. gauge', value: String(row.sb) },
+    { label: 'Hint freq', value: pct(row.hint_rate) },
+  ];
+}
+
 export interface PoolItem {
   cardId: string;
   name: string;
@@ -36,6 +71,8 @@ export interface PoolItem {
   random: string[];
   /** All skill ids with sourceType 'hint_pool'. */
   hint: string[];
+  /** Effect stat lines (Training/Friendship/… ) at the selected LB; [] if no row. */
+  stats: StatLine[];
 }
 
 // ---------------------------------------------------------------------------
@@ -46,6 +83,8 @@ export interface BuildPoolItemOpts {
   score?: number;
   wishlist: ReadonlySet<string>;
   lb: LimitBreak;
+  /** The euophrys card row at the selected LB, for the effect-stat lines. */
+  statsRow?: CardEffectRow;
 }
 
 export function buildPoolItem(card: SupportCardRecord, opts: BuildPoolItemOpts): PoolItem {
@@ -80,6 +119,7 @@ export function buildPoolItem(card: SupportCardRecord, opts: BuildPoolItemOpts):
     chain,
     random,
     hint,
+    stats: cardStatLines(opts.statsRow),
   };
 }
 

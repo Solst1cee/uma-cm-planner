@@ -3,7 +3,7 @@
  *  Scores each card under ITS OWN training type's weights, as the marginal
  *  addition to the current deck. P3: this is training-power, not inheritance
  *  value — see docs/superpowers/specs/2026-06-26-m1-6-support-card-pool-design.md. */
-import type { LimitBreak } from '@/core/types';
+import type { LimitBreak, Stat } from '@/core/types';
 import type { DeckState } from '@/features/inheritance/deckOps';
 import type { UmaTiersCard, UmaTiersScenario } from '@/vendor/uma-tiers/index';
 import glCards from '@/vendor/uma-tiers/gl';
@@ -15,6 +15,14 @@ export const DEFAULT_SCENARIO: UmaTiersScenario = getDefaultScenario('gl');
 export interface ScoredCard {
   score: number;
   lb: LimitBreak;
+}
+
+/** The scorer's `general.umaBonus` (a per-stat training-gain multiplier) derived
+ *  from a uma's growth bonuses (% → multiplier). Order [spd,sta,pow,gut,wit,skill];
+ *  the skill slot has no growth → 1. E.g. {spd:20,gut:10} → [1.2,1,1,1.1,1,1]. */
+export function umaBonusFromGrowth(growth: Record<Stat, number>): number[] {
+  const m = (p: number) => 1 + (p ?? 0) / 100;
+  return [m(growth.spd), m(growth.sta), m(growth.pow), m(growth.gut), m(growth.wit), 1];
 }
 
 /** Map of every vendored row keyed "id:lb" (e.g. "30028:4"). */

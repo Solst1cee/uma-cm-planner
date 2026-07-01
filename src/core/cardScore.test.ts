@@ -1,7 +1,7 @@
 // src/core/cardScore.test.ts
 import { describe, expect, it } from 'vitest';
 import cards from '@/vendor/uma-tiers/gl';
-import { DEFAULT_SCENARIO, cardRowsByKey, resolveDeckObjects, scoreCards } from './cardScore';
+import { DEFAULT_SCENARIO, cardRowsByKey, resolveDeckObjects, scoreCards, umaBonusFromGrowth } from './cardScore';
 import { emptyDeck } from '@/features/inheritance/deckOps';
 
 describe('cardScore', () => {
@@ -31,5 +31,11 @@ describe('cardScore', () => {
   it('omits ids absent from the vendored set', () => {
     const scores = scoreCards(DEFAULT_SCENARIO, [], []);
     expect(scores.size).toBe(0);
+  });
+
+  it('umaBonusFromGrowth converts growth % to per-stat multipliers (skill = 1)', () => {
+    // Agnes Tachyon: spd +20, gut +10 → [1.2, 1, 1, 1.1, 1, 1].
+    expect(umaBonusFromGrowth({ spd: 20, sta: 0, pow: 0, gut: 10, wit: 0 }))
+      .toEqual([1.2, 1, 1, 1.1, 1, 1]);
   });
 });

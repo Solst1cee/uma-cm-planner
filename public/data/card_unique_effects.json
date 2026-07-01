@@ -1,0 +1,2125 @@
+{
+  "20001": [
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20002": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "20003": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20004": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20005": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20006": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20007": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20008": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20009": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20010": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20011": [
+    {
+      "type": 6,
+      "nameEn": "Guts Bonus",
+      "descEn": "Increases Guts gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20012": [
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20013": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20014": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20015": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20016": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "20017": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20018": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20019": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20020": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20021": [
+    {
+      "type": 27,
+      "nameEn": "Failure Protection",
+      "descEn": "Decreases the probability of failure when training together",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 28,
+      "nameEn": "Energy Cost Reduction",
+      "descEn": "Decreases Energy consumed when training together",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20022": [
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20023": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20024": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20025": [
+    {
+      "type": 7,
+      "nameEn": "Wit Bonus",
+      "descEn": "Increases Wit gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20026": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20027": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20028": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20029": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "20030": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20031": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "20032": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "20034": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20035": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20037": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "20038": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20039": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "20040": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 6,
+      "nameEn": "Guts Bonus",
+      "descEn": "Increases Guts gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "20041": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20042": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20043": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20044": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "20045": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20046": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20047": [
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "20048": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30001": [
+    {
+      "type": 6,
+      "nameEn": "Guts Bonus",
+      "descEn": "Increases Guts gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30002": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30003": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30004": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30005": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30006": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30007": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30008": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30009": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30010": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30011": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30012": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30013": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30014": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30015": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30016": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30017": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30018": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30019": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30020": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30021": [
+    {
+      "type": 27,
+      "nameEn": "Failure Protection",
+      "descEn": "Decreases the probability of failure when training together",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 28,
+      "nameEn": "Energy Cost Reduction",
+      "descEn": "Decreases Energy consumed when training together",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30022": [
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30023": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30024": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30025": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30026": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30027": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30028": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30029": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30030": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30031": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30032": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30033": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30034": [
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30036": [
+    {
+      "type": 27,
+      "nameEn": "Failure Protection",
+      "descEn": "Decreases the probability of failure when training together",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 28,
+      "nameEn": "Energy Cost Reduction",
+      "descEn": "Decreases Energy consumed when training together",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30038": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30039": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30040": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30041": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30042": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30043": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 6,
+      "nameEn": "Guts Bonus",
+      "descEn": "Increases Guts gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30044": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30045": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30046": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30047": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30048": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30053": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Speed Bonus +1, Skill Point Bonus +1",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30054": [
+    {
+      "type": 7,
+      "nameEn": "Wit Bonus",
+      "descEn": "Increases Wit gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30055": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 13,
+      "nameEn": "Initial Wit",
+      "descEn": "Increases initial Wit when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30056": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30057": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30058": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 11,
+      "nameEn": "Initial Power",
+      "descEn": "Increases initial Power when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30059": [
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30060": [
+    {
+      "type": 6,
+      "nameEn": "Guts Bonus",
+      "descEn": "Increases Guts gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30061": [
+    {
+      "type": 7,
+      "nameEn": "Wit Bonus",
+      "descEn": "Increases Wit gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30062": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 10,
+      "nameEn": "Initial Stamina",
+      "descEn": "Increases initial Stamina when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30063": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30064": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30065": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30066": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 9,
+      "nameEn": "Initial Speed",
+      "descEn": "Increases initial Speed when beginning a Career playthrough",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30068": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30069": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30070": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30071": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30072": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "value": 15,
+      "symbol": "none"
+    }
+  ],
+  "30073": [
+    {
+      "type": 3,
+      "nameEn": "Speed Bonus",
+      "descEn": "Increases Speed gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "value": 20,
+      "symbol": "none"
+    }
+  ],
+  "30074": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30075": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "value": 10,
+      "symbol": "percent"
+    },
+    {
+      "type": 4,
+      "nameEn": "Stamina Bonus",
+      "descEn": "Increases Stamina gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30076": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30077": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30078": [
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "value": 15,
+      "symbol": "percent"
+    },
+    {
+      "type": 27,
+      "nameEn": "Failure Protection",
+      "descEn": "Decreases the probability of failure when training together",
+      "value": 10,
+      "symbol": "percent"
+    }
+  ],
+  "30079": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30081": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Training Effectiveness +10%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30082": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is full: Wit Bonus +3",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30083": [
+    {
+      "type": 102,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80+ and placed in a non-specialty facility: Training Effectiveness +20%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30084": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "value": 5,
+      "symbol": "percent"
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "value": 20,
+      "symbol": "percent"
+    }
+  ],
+  "30085": [
+    {
+      "type": 103,
+      "nameEn": "Unique Effect",
+      "descEn": "With 5 or more support-card types in your deck: Training Effectiveness +15%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30086": [
+    {
+      "type": 104,
+      "nameEn": "Unique Effect",
+      "descEn": "Training Effectiveness +1% per 10,000 fans (up to +20%)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30087": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Stamina Bonus +2",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30088": [
+    {
+      "type": 103,
+      "nameEn": "Unique Effect",
+      "descEn": "With 4 or more support-card types in your deck: Training Effectiveness +10%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30089": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is full: Mood Effect +60%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30090": [
+    {
+      "type": 105,
+      "nameEn": "Unique Effect",
+      "descEn": "Initial Wit +10 per support card in your deck (Friend/Group cards give +2 to all stats instead)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30091": [
+    {
+      "type": 106,
+      "nameEn": "Unique Effect",
+      "descEn": "Friendship Bonus +3% each friendship training with this card, up to 5 times (+15% total)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30092": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Speed Bonus +2",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30093": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Power Bonus +2",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30094": [
+    {
+      "type": 107,
+      "nameEn": "Unique Effect",
+      "descEn": "The lower your energy, the greater the Friendship Bonus (up to +15%)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30095": [
+    {
+      "type": 108,
+      "nameEn": "Unique Effect",
+      "descEn": "The higher your maximum energy, the greater the Training Effectiveness (up to +20%)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30096": [
+    {
+      "type": 5,
+      "nameEn": "Power Bonus",
+      "descEn": "Increases Power gain when training together",
+      "value": 1,
+      "symbol": "none"
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "value": 5,
+      "symbol": "percent"
+    }
+  ],
+  "30097": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Wit Bonus +1, Skill Point Bonus +1",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30098": [
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "value": 1,
+      "symbol": "none"
+    }
+  ],
+  "30099": [
+    {
+      "type": 109,
+      "nameEn": "Unique Effect",
+      "descEn": "The higher your supports' total bond, the greater the Training Effectiveness (up to +30%)",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30100": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Training Effectiveness +10%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30102": [
+    {
+      "type": 110,
+      "nameEn": "Unique Effect",
+      "descEn": "Training Effectiveness +5% per support card in the same training facility",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30103": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is full: Wit Friendship Recovery +5",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ],
+  "30104": [
+    {
+      "type": 101,
+      "nameEn": "Unique Effect",
+      "descEn": "When bond gauge is 80 or higher: Training Effectiveness +10%",
+      "value": 0,
+      "symbol": "none",
+      "conditional": []
+    }
+  ]
+}

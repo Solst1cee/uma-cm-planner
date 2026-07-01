@@ -13,10 +13,10 @@
  * readers don't double-read the name.
  */
 import { useEffect, useState } from 'react';
-import { cardIconPath, skillIconPath, uiIconPath, umaIconPath } from '@/core/icons';
+import { cardArtPath, cardIconPath, skillIconPath, uiIconPath, umaIconPath } from '@/core/icons';
 import { BASE_URL, useGameData } from '@/features/data/gameData';
 
-export type GameIconKind = 'skill' | 'card' | 'uma' | 'ui';
+export type GameIconKind = 'skill' | 'card' | 'card-art' | 'uma' | 'ui';
 
 function relativePathFor(
   kind: GameIconKind,
@@ -28,6 +28,8 @@ function relativePathFor(
       return skillIconPath(id, manifest);
     case 'card':
       return cardIconPath(id, manifest);
+    case 'card-art':
+      return cardArtPath(id, manifest);
     case 'uma':
       return umaIconPath(id, manifest);
     case 'ui':
@@ -41,6 +43,7 @@ export function GameIcon({
   size = 22,
   width,
   height,
+  fill = false,
   alt,
   className,
 }: {
@@ -53,6 +56,9 @@ export function GameIcon({
   width?: number;
   /** Optional non-square rendered height in px, used for in-game UI pills. */
   height?: number;
+  /** Fill the parent (width/height 100%, object-fit cover) instead of a fixed
+   *  px box — for art that should stretch to its container (e.g. a card strip). */
+  fill?: boolean;
   /** Accessible name; pass "" for decorative use beside a visible label. */
   alt: string;
   className?: string;
@@ -68,7 +74,9 @@ export function GameIcon({
 
   const boxWidth = width ?? size;
   const boxHeight = height ?? size;
-  const boxStyle = { width: boxWidth, height: boxHeight } as const;
+  const boxStyle = fill
+    ? ({ width: '100%', height: '100%' } as const)
+    : ({ width: boxWidth, height: boxHeight } as const);
 
   if (relative === undefined || broken) {
     // Neutral placeholder: keeps row rhythm + tap-target size without a broken
@@ -89,9 +97,9 @@ export function GameIcon({
     <img
       className={`game-icon ${className ?? ''}`.trim()}
       src={`${BASE_URL}${relative}`}
-      width={boxWidth}
-      height={boxHeight}
-      style={boxStyle}
+      width={fill ? undefined : boxWidth}
+      height={fill ? undefined : boxHeight}
+      style={fill ? { ...boxStyle, objectFit: 'cover' } : boxStyle}
       loading="lazy"
       decoding="async"
       alt={alt}
