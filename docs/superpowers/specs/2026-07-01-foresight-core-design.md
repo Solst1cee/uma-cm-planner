@@ -75,31 +75,28 @@ per-card/uma/skill release dates. The core exposes the calibration numbers
 
 ## Components
 
-### 1. `scripts/import-jp-schedule.ts` → `public/data/jp-schedule.json`
+### 1. `data-overrides/jp-schedule.json` (hand-curated)
 
-An importer (invoked out-of-band, like `import-uma-guide.ts`; **not** in the
-reproducible build) that fetches the JP schedule from uma.guide and writes:
+A small hand-maintained override file (sibling to `timeline_overrides.json`),
+**seeded once** by cross-checking Moomoolator's public
+`docs/jp-champions-meetings.json` / `jp-*-releases.json` + public trackers, then
+hand-edited when JP announces new content. **No importer / no live fetch** —
+uma.guide's `/cm-schedule` page was verified (2026-07-01) to carry *no dates*,
+only track logistics. Shape:
 
 ```jsonc
 {
-  "dataVersion": "global-<first8>",
   "cms":       [{ "cmNumber": 10, "cupName": "Aquarius Cup", "jpDate": "2022-02-15" }],
   "banners":   [{ "name": "...", "jpDate": "YYYY-MM-DD", "kind": "support" | "uma" }],
   "scenarios": [{ "name": "UAF", "jpDate": "YYYY-MM-DD" }]
 }
 ```
 
-`jpDate` = the JP-server date (finals for CMs; release/start for
-banners/scenarios). Fields beyond what a step needs may be omitted.
-
-> ⚠️ **Verify-first (plan gate):** the existing `import-uma-guide.ts`
-> (`/cm-schedule`) returns tracks **without dates**. Confirm uma.guide exposes JP
-> **dates** (likely a different page/endpoint than the track schedule) before
-> building the importer. **Fallback:** seed `jp-schedule.json` once from
-> Moomoolator's compiled `docs/jp-champions-meetings.json` / `jp-*-releases.json`
-> (public-fact dates) + hand-maintain. Either way the *shape above* is stable, so
-> `foresight.ts` and its tests can be built against a fixture independently of the
-> sourcing decision.
+`jpDate` = JP-server date (finals for CMs; release/start for banners/scenarios).
+Read by `build-all.ts` / `rebuild-timeline.ts` like the other `data-overrides/`
+files. JP dates are public facts (dates aren't copyrightable); Moomoolator /
+GameTora are **cross-check references only**, not vendored. The stable shape lets
+`foresight.ts` + tests be built against a fixture independent of the data.
 
 ### 2. `src/core/foresight.ts` (pure, P6 — unit-tested)
 
@@ -171,7 +168,7 @@ CMs with **no** confirmed Global date. Predicted entries keep `tier:'prediction'
 ## Data flow
 
 ```
-uma.guide ──import──> public/data/jp-schedule.json (JP dates)
+data-overrides/jp-schedule.json (hand-curated JP dates)
                                    │
 timeline (confirmed Global dates) ─┤
                                    ▼
@@ -208,16 +205,18 @@ timeline (confirmed Global dates) ─┤
 
 | Risk | Mitigation |
 |---|---|
-| uma.guide may not expose JP **dates** (cm-schedule gives tracks only) | **Verify-first** in the plan; fallback = seed from Moomoolator's `jp-*.json` + hand-maintain. `foresight.ts`/tests use a fixture, so they're unblocked either way. |
-| Banner/scenario JP data coverage/quality | Out of the wired path this slice (CMs only wired); produced but consumed later. Flag gaps in the importer log. |
+| ~~uma.guide may not expose JP dates~~ **RESOLVED 2026-07-01** — it doesn't | Sourcing pivoted to a hand-curated `data-overrides/jp-schedule.json` seeded from Moomoolator's public dates. |
+| JP date accuracy (hand-curated) | Cross-check each seeded date against ≥2 references (Moomoolator + a public tracker); the self-validation test catches gross errors (pace/gap would diverge from GameTora's ~1.33×/1441d). |
+| Banner/scenario JP data coverage/quality | Out of the wired path this slice (CMs only wired); dates are collected but not consumed. |
 | Pace instability with few shared CMs | `calibratePace` returns null < 2 shared CMs → `cmSynthesis` keeps the `addMonths` fallback. |
 | Prediction presented as fact (P3) | Predicted CMs stay `tier:'prediction'`; confirmed Global dates always win. |
 
-## Open items for the plan
+## Resolved decisions
 
-1. **Verify uma.guide date coverage** (or commit to the Moomoolator-seed
-   fallback) before writing the importer.
-2. Decide `jp-schedule.json` location: generated `public/data/` (importer output,
-   like `cm_tracks.json`) vs hand-maintained `data-overrides/`. Leaning
-   `public/data/` (generated) with the fallback seed committed once.
-3. Confirm the JP dates for CM10–15 to hard-code the self-validation test.
+1. ~~Verify uma.guide date coverage~~ — **done 2026-07-01**: uma.guide has no
+   dates → hand-curated `data-overrides/jp-schedule.json`, seeded from Moomoolator.
+2. **Location:** `data-overrides/jp-schedule.json` (hand-curated), read by the
+   build like the other override files.
+3. **Self-validation JP dates:** compile the JP dates for CM10–15 (Aquarius→Cancer)
+   from Moomoolator's `jp-champions-meetings.json` during the seed task; hard-code
+   them in the `calibratePace` test alongside the existing Global fixture dates.
