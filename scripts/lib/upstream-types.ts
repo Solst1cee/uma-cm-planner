@@ -82,6 +82,8 @@ export interface GtLocEn {
   sup_e?: number[][] | number[];
   char?: number[];
   char_e?: number[];
+  /** Global-localized display name (present once the skill localizes). */
+  name?: string;
 }
 
 export interface GtSkill {
@@ -97,6 +99,18 @@ export interface GtSkill {
   sup_e?: number[][] | number[];
   char?: number[];
   char_e?: number[];
+  /** gametora rarity: 1=white, 2=gold, 3/4/5=unique, 6=evolution (→unique). */
+  rarity?: number;
+  /** SP shop cost; absent for uniques/evolution skills (→ 0). */
+  cost?: number;
+  /** Shared skill-icon id. */
+  iconid?: number;
+  /** English display name (fan/official). */
+  name_en?: string;
+  /** Fallback English name field seen on some records. */
+  enname?: string;
+  /** Same-family variant skill ids. */
+  versions?: number[];
 }
 
 export interface GtCard {

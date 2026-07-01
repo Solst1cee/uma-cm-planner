@@ -19,9 +19,13 @@ const presets = readData<CmPreset[]>('cm_presets.json');
 const umas = readData<UmaRecord[]>('umas.json');
 
 describe('public/data/skills.json', () => {
-  it('contains the 587 Global-released skills, all server=global with the pinned dataVersion', () => {
-    expect(skills).toHaveLength(587);
-    expect(skills.every((s) => s.server === 'global')).toBe(true);
+  it('contains 587 Global skills + 962 JP-ahead skills (total 1549), all on the pinned dataVersion', () => {
+    expect(skills).toHaveLength(1549);
+    const global = skills.filter((s) => s.server === 'global');
+    const jp = skills.filter((s) => s.server === 'jp');
+    expect(global).toHaveLength(587);
+    expect(jp).toHaveLength(962);
+    expect(jp.every((s) => s.releaseDate !== undefined)).toBe(true); // every JP skill is dated
     expect(skills.every((s) => s.dataVersion === 'global-76214c82')).toBe(true);
   });
 
