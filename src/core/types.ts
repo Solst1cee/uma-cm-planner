@@ -314,6 +314,33 @@ export interface CmTrack {
   surface: 'turf' | 'dirt';
 }
 
+/**
+ * Hand-curated JP schedule (data-overrides/jp-schedule.json). Global CM number N
+ * mirrors JP CM number N, so `cmNumber` is the shared index. `jpDate` = JP-server
+ * date (CM: finals-adjacent start; banner/scenario: release/start). Dates are
+ * public facts; seeded by cross-checking Moomoolator + trackers. PREDICTION input
+ * only (P3). uma.guide carries no dates, so this is not imported.
+ */
+export interface JpCmDate {
+  cmNumber: number;
+  cupName: string;
+  jpDate: string; // YYYY-MM-DD
+}
+export interface JpBanner {
+  name: string;
+  jpDate: string; // YYYY-MM-DD
+  kind: 'support' | 'uma';
+}
+export interface JpScenario {
+  name: string;
+  jpDate: string; // YYYY-MM-DD
+}
+export interface JpSchedule {
+  cms: JpCmDate[];
+  banners: JpBanner[];
+  scenarios: JpScenario[];
+}
+
 export type TimelineTier = 'official' | 'datamined' | 'prediction';
 export type TimelineStatus = 'confirmed' | 'unconfirmed';
 export type TimelineSourceKind =
