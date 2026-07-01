@@ -185,7 +185,7 @@ export function InheritanceCard() {
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
-      greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={34} alt="" />}
+      greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
     />

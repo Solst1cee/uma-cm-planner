@@ -579,9 +579,9 @@ main:has(.inh-page) {
 
 /* Green row */
 .spc-row-green { align-items: center; }
-.spc-green-icon { width: 38px; height: 38px; border-radius: 50%; flex: none; background: var(--bg-2); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
-.spc-green-icon .game-icon { border-radius: 50%; }
-.spc-green-ph { width: 18px; height: 18px; border-radius: 50% 50% 45% 45%; background: color-mix(in srgb, #16a34a 40%, var(--fg-muted)); }
+/* Just the uma portrait — no framing circle. */
+.spc-green-icon { flex: none; display: inline-flex; }
+.spc-green-ph { width: 34px; height: 38px; border-radius: 6px; background: color-mix(in srgb, #16a34a 22%, var(--bg-2)); }
 .spc-green-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
 .spc-green-head { display: flex; align-items: center; gap: 0.5rem; }
 .spc-name-full { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.2; color: var(--tone-ink); }
