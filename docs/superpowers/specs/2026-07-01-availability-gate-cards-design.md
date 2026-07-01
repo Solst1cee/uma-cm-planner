@@ -110,11 +110,12 @@ gametora/support-cards.json (539)
 ## Decisions
 
 - **(A) JP cards' unreleased skills are dropped this slice.** A JP card shows its released-subset skill list; the full list arrives with slice 2c (skills). Rationale: keeps the slice bounded; the availability gate's job (does the card exist by the CM) is served without the skill catalog change.
-- **(B) `perLevel` for JP cards comes from gametora `effects`** (Global cards keep their master-derived `perLevel`). New mapping, validated against shared cards (see Testing).
+- **(B) `perLevel` reuses the existing `buildPerLevel(gt.effects, rarity)`** — **no new mapping** (corrected 2026-07-01: `build-cards.ts:127` already derives *every* card's `perLevel` from gametora `effects`, not master.mdb). JP cards call the identical function, so `perLevel` is correct by construction. Group cards (e.g. Throne) legitimately lack the hint effect-types (17/18/19) — `buildPerLevel` already handles that for Global group cards.
+- **(C) JP cards are built from gametora alone** (they aren't in the master extract): `rarity` from `gt.rarity` (1/2/3 → R/SR/SSR), `type` from `gt.type` string (`speed/stamina/power/guts/friend/group`, **`intelligence`→`wit`**), hint pool from `gt.hints.hint_skills`, events from `gt.event_skills` (both dropped-filtered to released skills), `nameEn` = `gt.title_en ?? gt.title_ja` (JP-only cards have no EN title yet — Japanese name shown as honest preview, P3), `charName` = `gt.char_name`.
 
 ## Testing
 
-- **perLevel self-validation (correctness anchor):** for a card present in *both* master and gametora, the gametora-`effects`→`perLevel` mapping equals the master-derived `perLevel`. If they agree on a shared card, the JP-only mapping is trustworthy.
+- **perLevel by construction:** JP cards call the same `buildPerLevel(gt.effects, rarity)` Global cards already use, so no separate validation is needed. Test instead that a normal JP SSR (e.g. Symboli Rudolf `20058`, gametora rarity 2 = SR, type `stamina`) builds a non-empty `perLevel` and a group card (Throne `30067`) builds without crashing.
 - **foresight-build:** `buildForesightCalibration` over the CM10–15 fixture yields the same `Calibration` the core `foresight` test pins (pace ≈ 1.327); `projectReleaseDate` returns `predicted:false` + the announced date when `release_en` is set, and `predicted:true` + a projected date otherwise; `cal===null` ⇒ undefined `releaseDate`.
 - **build-cards:** emits the JP-only cards as `server:'jp'` with a `releaseDate`; total count 222 → ~543; a spot-checked JP card (e.g. `30067` "The Throne's Assemblage", JP `2022-07-20`) has a plausible projected Global date + `releaseDatePredicted:true`.
 - **`SupportCardPoolCard`:** a JP card is hidden when `planCmDate < releaseDate` with the toggle off; shown when the toggle is on and `isReleasedBy` passes; the `~date` badge renders for predicted cards. (Test stubs `useGameData` with a JP card, per existing pool tests.)
