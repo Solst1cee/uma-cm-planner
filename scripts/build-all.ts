@@ -201,6 +201,12 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'umas.json'), umas);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'affinity.json'), affinity);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'timeline.json'), timeline);
+  writeJsonDeterministic(
+    join(PUBLIC_DATA_DIR, 'foresight.json'),
+    cal
+      ? { pace: cal.pace, gapDays: cal.gapDays, windowSteps: cal.windowSteps, anchorJp: cal.anchorJp, anchorGlobal: cal.anchorGlobal, dataVersion: DATA_VERSION }
+      : { cal: null, dataVersion: DATA_VERSION },
+  );
 
   console.log(
     `public/data written: ${skills.length} skills, ${cards.length} support cards, ` +

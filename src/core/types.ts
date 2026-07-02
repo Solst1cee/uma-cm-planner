@@ -367,6 +367,24 @@ export interface TimelineEntry {
   dataVersion: string;
 }
 
+/**
+ * Build-time rolling foresight calibration (Availability #3, src/core/foresight.ts
+ * `Calibration`), baked to public/data/foresight.json for app-wide planning-horizon
+ * math (e.g. the M4 tooltip). `null` calibration (< 2 shared CMs) bakes to
+ * `{ cal: null }` instead — see gameData's loader.
+ */
+export interface ForesightInfo {
+  /** JP days per Global day over the window (>1 ⇒ Global compresses JP). */
+  pace: number;
+  /** global[last] − jp[last]: how far behind JP the latest shared CM is. */
+  gapDays: number;
+  /** CM-to-CM steps used (window length − 1). */
+  windowSteps: number;
+  anchorJp: string;
+  anchorGlobal: string;
+  dataVersion: string;
+}
+
 /** M3→M4 projection (shared-data-model §6): one row per CM entry that has a cmNumber. */
 export type CmScheduleRow = { date: string; cmId: CmId; cmNumber: number; name: string; courseId: string };
 

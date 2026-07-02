@@ -334,3 +334,12 @@ describe('public/data/cm_presets.json', () => {
     expect(dates).toEqual([...dates].sort());
   });
 });
+
+describe('public/data/foresight.json', () => {
+  const foresight = readData<{ pace?: number; gapDays?: number; windowSteps?: number; cal?: null }>('foresight.json');
+  it('carries the rolling calibration', () => {
+    expect(foresight.pace).toBeGreaterThan(1);
+    expect(foresight.gapDays).toBeGreaterThan(1000);
+    expect(foresight.windowSteps).toBeGreaterThanOrEqual(2);
+  });
+});
