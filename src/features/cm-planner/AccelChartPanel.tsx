@@ -12,10 +12,9 @@
  */
 import './skill-chart.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
+import type { CmPlan, SkillRecord } from '@/core/types';
 import type { SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
-import { isReleasedBy } from '@/core/availability';
 import { nullsLast } from '@/core/compare';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { purchaseSpCost } from '@/core/cost';
@@ -28,6 +27,8 @@ import {
   wishlistSkillRecord,
 } from '@/features/skill-planner/skillFamilies';
 import { useGameData } from '@/features/data/gameData';
+import { useAvailability } from '@/app/useAvailability';
+import { TierChip } from '@/app/TierChip';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { HeaderHelp } from './HeaderHelp';
 import {
@@ -100,12 +101,12 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   warnThresholdPct?: number;
   deps?: AccelChartPanelDeps;
 }) {
-  const { skills, skillById, sparkRates, timeline } = useGameData();
+  const { skills, skillById, sparkRates } = useGameData();
+  const { visible, tierOf } = useAvailability();
   const [open, setOpen] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SkillFilter>('all');
   const [showAll, setShowAll] = useState(false);
-  const [showUpcoming, setShowUpcoming] = useState(false);
   const [sortMetric, setSortMetric] = useState<SortMetric>('L');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -135,30 +136,20 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
 
-  const cmNumber = plan.cmRef.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
-  const cmEntry = (timeline as TimelineEntry[] | undefined)
-    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
-  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
-
   // All acquirable skill reps (same derivation as SkillChartPanel)
   const reps = useMemo(() => {
     const catalog = acquirableSkills(skills ?? [], plan.server);
     const baseReps = (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
       familyRepresentatives(catalog.filter((s) => s.rarity === r), skillById),
     );
-    const upcoming =
-      plan.server === 'global'
-        ? (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
-            familyRepresentatives(
-              (skills ?? []).filter(
-                (s) => s.server === 'jp' && s.rarity === r && isReleasedBy(s, asOfISO),
-              ),
-              skillById,
-            ),
-          )
-        : [];
+    const upcoming = (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
+      familyRepresentatives(
+        (skills ?? []).filter((s) => s.server === 'jp' && s.rarity === r && visible(s)),
+        skillById,
+      ),
+    );
     return [...baseReps, ...upcoming];
-  }, [skills, skillById, plan.server, asOfISO]);
+  }, [skills, skillById, plan.server, visible]);
 
   // Filter reps to accel skills only (while accelIds is null → empty, no sim yet)
   const accelReps = useMemo(
@@ -243,7 +234,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
-      if (!showUpcoming && v.skill.server === 'jp') return false;
       if (!showAll && v.row.status === 'inactive') return false;
       if (!matchesFilter(v.skill.rarity, filter)) return false;
       if (q && !v.skill.nameEn.toLowerCase().includes(q)) return false;
@@ -342,12 +332,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                     >
                       <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
                     </label>
-                    <label
-                      className="cmp-showall small"
-                      title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
-                    >
-                      <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
-                    </label>
                   </div>
 
                   <div className="cmp-skill-table">
@@ -394,8 +378,18 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                               }
                             />
                             {v.skill.releaseDatePredicted && (
-                              <span className="cmp-upcoming-badge">~{v.skill.releaseDate}</span>
+                              <span
+                                className="cmp-upcoming-badge"
+                                title={
+                                  v.skill.releaseDatePredicted
+                                    ? 'Projected Global date (foresight pace) — not announced'
+                                    : 'Announced Global release'
+                                }
+                              >
+                                ~{v.skill.releaseDate}
+                              </span>
                             )}
+                            <TierChip tier={tierOf(v.skill)} />
                             <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
                               {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                             </span>
