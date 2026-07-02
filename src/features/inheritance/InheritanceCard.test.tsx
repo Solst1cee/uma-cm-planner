@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan, Parent, UmaRecord } from '@/core/types';
+import type { CmPlan, Parent, SkillRecord, UmaRecord } from '@/core/types';
 import { InheritanceCard } from './InheritanceCard';
 
 const ROSTER: Parent[] = [
@@ -17,6 +17,8 @@ const plan = {
 let activePlan: CmPlan | null = plan;
 // Mutable so the availability test can inject umas with mixed server values.
 let mockUmas: UmaRecord[] = [];
+// Mutable so the availability gate test can inject skills with mixed server values.
+let mockSkills: SkillRecord[] = [];
 
 vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: activePlan, setPlan }) }));
 vi.mock('./useRoster', () => ({ useRoster: () => ({ roster: ROSTER, importedAt: '2026-06-26T10:00:00.000Z', importFromFile: vi.fn() }) }));
@@ -29,10 +31,13 @@ const gameIconSpy = vi.fn((_props: { id: string }) => null);
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: (props: { id: string }) => gameIconSpy(props) }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
-vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: [], skillById: new Map() }) }));
+vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: mockSkills, skillById: new Map() }) }));
 
 // Captures the greenIcon callback so we can invoke it directly.
 let capturedGreenIcon: ((skillId: string) => React.ReactNode) | undefined;
+// Captures the white/unique skill option lists offered to the green/white spark search.
+let capturedWhiteOptions: Array<{ id: string; name: string }> | undefined;
+let capturedUniqueOptions: Array<{ id: string; name: string }> | undefined;
 vi.mock('./UmaPickerModal', () => ({
   UmaPickerModal: (props: {
     open: boolean;
@@ -40,8 +45,12 @@ vi.mock('./UmaPickerModal', () => ({
     onPick: (id: string) => void;
     onClose: () => void;
     greenIcon?: (id: string) => React.ReactNode;
+    whiteSkillOptions?: Array<{ id: string; name: string }>;
+    uniqueSkillOptions?: Array<{ id: string; name: string }>;
   }) => {
     if (props.greenIcon) capturedGreenIcon = props.greenIcon;
+    capturedWhiteOptions = props.whiteSkillOptions;
+    capturedUniqueOptions = props.uniqueSkillOptions;
     // Render a minimal dialog so existing "opens picker" test keeps working.
     if (!props.open) return null;
     return (
@@ -64,7 +73,10 @@ afterEach(() => {
   gameIconSpy.mockClear();
   activePlan = plan;
   mockUmas = [];
+  mockSkills = [];
   capturedGreenIcon = undefined;
+  capturedWhiteOptions = undefined;
+  capturedUniqueOptions = undefined;
 });
 
 describe('InheritanceCard', () => {
@@ -121,5 +133,24 @@ describe('InheritanceCard', () => {
     const calls = gameIconSpy.mock.calls.map((c) => c[0].id);
     expect(calls).toContain('100199');
     expect(calls).not.toContain('100150');
+  });
+
+  it('availability gate: white + unique (green) spark options exclude JP-ahead skills', () => {
+    mockSkills = [
+      { skillId: 'w-global', nameEn: 'Global White', rarity: 'white', server: 'global' } as SkillRecord,
+      { skillId: 'w-jp', nameEn: 'JP White', rarity: 'white', server: 'jp' } as SkillRecord,
+      { skillId: '100011', nameEn: 'Global Unique', rarity: 'unique', server: 'global' } as SkillRecord,
+      { skillId: '100021', nameEn: 'JP Unique', rarity: 'unique', server: 'jp' } as SkillRecord,
+    ];
+    render(<InheritanceCard />);
+    // Open the Parent 1 picker so UmaPickerModal renders (props captured either way,
+    // but this also guards against a JP option leaking into the rendered dialog).
+    fireEvent.click(screen.getAllByRole('button', { name: /^Pick$/i })[0]!);
+
+    expect(capturedWhiteOptions?.map((o) => o.id)).toContain('w-global');
+    expect(capturedWhiteOptions?.map((o) => o.id)).not.toContain('w-jp');
+
+    expect(capturedUniqueOptions?.map((o) => o.id)).toContain('100011');
+    expect(capturedUniqueOptions?.map((o) => o.id)).not.toContain('100021');
   });
 });

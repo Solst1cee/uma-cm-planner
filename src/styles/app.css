@@ -266,6 +266,14 @@ button:disabled {
   flex: 1;
   min-width: 0;
 }
+.picker-upcoming {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
 
 /* ---- Badges & chips ---- */
 

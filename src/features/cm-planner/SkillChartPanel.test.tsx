@@ -280,6 +280,25 @@ describe('SkillChartPanel', () => {
     await waitFor(() => expect(rowTexts().some((t) => t.includes('Upcoming Gold'))).toBe(true));
   });
 
+  it('shows a ~date badge for predicted JP skills once show-upcoming is on', async () => {
+    const up = { skillId: 'up1', nameEn: 'Upcoming Gold', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-06-01', releaseDatePredicted: true } as unknown as SkillRecord;
+    const skills = [...h.skills, up];
+    h.useGameData.mockReturnValue({
+      status: 'ready', skills, skillById: new Map(skills.map((s) => [s.skillId, s])),
+      sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null,
+      timeline: [{ type: 'cm', cm: { cmNumber: 15 }, dates: { start: '2026-06-21' } }],
+    });
+    const plan = { ...basePlan, cmRef: { cmNumber: 15, courseId: '10906' } } as unknown as CmPlan;
+    render(<SkillChartPanel courseId="10906" plan={plan} onChange={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(within(list()).getAllByRole('listitem').length).toBeGreaterThan(0));
+    expect(screen.queryByText(/~2026-06-01/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('checkbox', { name: /show upcoming/i }));
+    await waitFor(() => expect(screen.getByText(/~2026-06-01/)).toBeInTheDocument());
+  });
+
   it('shows a stamina-out banner with the survival % when survival is below the threshold', async () => {
     const vacuum = vi.fn(async () => ({
       mean: 0, median: 0, min: 0, max: 0, nsamples: 30, results: [],

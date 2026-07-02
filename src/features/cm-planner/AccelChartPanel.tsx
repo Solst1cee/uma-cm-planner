@@ -393,6 +393,9 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                                   : undefined
                               }
                             />
+                            {v.skill.releaseDatePredicted && (
+                              <span className="cmp-upcoming-badge">~{v.skill.releaseDate}</span>
+                            )}
                             <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
                               {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                             </span>

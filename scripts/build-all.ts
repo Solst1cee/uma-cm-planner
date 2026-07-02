@@ -18,7 +18,8 @@ import { generateCardUniqueEffects } from './build-card-unique-effects';
 import { generateCardEffects } from './build-card-effects';
 import { buildCmPresets } from './build-cm-presets';
 import { buildIcons } from './build-icons';
-import { buildSkills } from './build-skills';
+import { buildJpSkills, buildSkills } from './build-skills';
+import type { DateEntry } from './lib/jpSkillDate';
 import { buildSparkRates } from './build-spark-rates';
 import { buildTimeline } from './build-timeline';
 import { buildJpUmas, buildUmas } from './build-umas';
@@ -129,6 +130,25 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   });
   console.log(`build-umas: emitted ${jpUmas.length} JP-ahead uma(s) (${jpUmas.filter((u) => u.releaseDatePredicted).length} date-projected)`);
   let umas = [...umaRecords, ...jpUmas].sort((a, b) => Number(a.umaId) - Number(b.umaId));
+  const cardDates = new Map<string, DateEntry>();
+  for (const c of jpCards) {
+    if (c.releaseDate) cardDates.set(c.cardId, { date: c.releaseDate, predicted: c.releaseDatePredicted === true });
+  }
+  const umaDates = new Map<string, DateEntry>();
+  for (const u of jpUmas) {
+    if (u.releaseDate) umaDates.set(u.umaId, { date: u.releaseDate, predicted: u.releaseDatePredicted === true });
+  }
+  const jpSkills = buildJpSkills({
+    gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
+    // Dedup JP skills against every id already present (master + skill_additions),
+    // not just master, so a hand-added upcoming skill can't be emitted twice.
+    masterSkillIds: new Set(skills.map((s) => s.skillId)),
+    cardDates,
+    umaDates,
+    dataVersion: DATA_VERSION,
+  });
+  console.log(`build-skills: emitted ${jpSkills.length} JP-ahead skill(s) (${jpSkills.filter((s) => s.releaseDatePredicted).length} date-projected)`);
+  skills = [...skills, ...jpSkills].sort((a, b) => Number(a.skillId) - Number(b.skillId));
   const sparkRates = buildSparkRates();
   const relation = readBorrowedJson<{ relation_type: number; relation_point: number }[]>('relation.json');
   const relationMember = readBorrowedJson<{ id: number; relation_type: number; chara_id: number }[]>('relation_member.json');

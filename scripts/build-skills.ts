@@ -7,6 +7,7 @@
  */
 import type { SkillRarity, SkillRecord } from '@/core/types';
 import type { GtConditionGroup, GtSkill, MasterSkill, MasterSkillsJson } from './lib/upstream-types';
+import { resolveJpSkillDate, type DateEntry } from './lib/jpSkillDate';
 
 /**
  * GameTora release-order scenario number (GT#) → game-internal
@@ -198,6 +199,67 @@ export function buildSkills(inputs: {
     records.push(record);
   }
 
+  records.sort((a, b) => Number(a.skillId) - Number(b.skillId));
+  return records;
+}
+
+/** gametora rarity → our SkillRarity (empirically derived; 6 = evolution → unique). */
+function mapGtRarity(gtRarity: number | undefined): SkillRarity {
+  if (gtRarity === 1) return 'white';
+  if (gtRarity === 2) return 'gold';
+  return 'unique'; // 3/4/5/6 (+ undefined) → unique
+}
+
+/** English display name from gametora, most-localized first. */
+function jpSkillNameEn(gt: GtSkill): string {
+  return gt.loc?.en?.name ?? gt.name_en ?? gt.enname ?? gt.jpname ?? `Skill ${gt.id}`;
+}
+
+/**
+ * JP-ahead skills: gametora skills absent from the Global master that have a
+ * dated card/uma source (server:'jp'). Display fields come from gametora; the
+ * sim effect comes from the engine bundle keyed by id. Undated → dropped.
+ */
+export function buildJpSkills(inputs: {
+  gametora: GtSkill[];
+  masterSkillIds: ReadonlySet<string>;
+  cardDates: ReadonlyMap<string, DateEntry>;
+  umaDates: ReadonlyMap<string, DateEntry>;
+  dataVersion: string;
+}): SkillRecord[] {
+  const { gametora, masterSkillIds, cardDates, umaDates, dataVersion } = inputs;
+  const records: SkillRecord[] = [];
+  for (const gt of gametora) {
+    const skillId = String(gt.id);
+    if (masterSkillIds.has(skillId)) continue; // Global skill
+    const cardIds = [
+      ...flattenIds(globalField(gt, 'sup_hint')),
+      ...flattenIds(globalField(gt, 'sup_e')),
+    ].map(String);
+    const umaIds = [
+      ...(globalField(gt, 'char') ?? []),
+      ...(globalField(gt, 'char_e') ?? []),
+    ].map(String);
+    const { releaseDate, predicted } = resolveJpSkillDate(cardIds, umaIds, cardDates, umaDates);
+    if (releaseDate === undefined) continue; // undatable → drop (spec decision E)
+    const groups = gt.loc?.en?.condition_groups ?? gt.condition_groups;
+    const record: SkillRecord = {
+      skillId,
+      nameEn: jpSkillNameEn(gt),
+      nameJp: gt.jpname ?? '',
+      baseSpCost: gt.cost ?? 0,
+      rarity: mapGtRarity(gt.rarity),
+      iconId: String(gt.iconid ?? ''),
+      conditions: groups !== undefined && groups.length > 0 ? serializeConditions(groups) : '',
+      server: 'jp',
+      releaseDate,
+      dataVersion,
+    };
+    if (predicted) record.releaseDatePredicted = true;
+    const variants = (gt.versions ?? []).map(String).filter((id) => id !== skillId);
+    if (variants.length > 0) record.variantSkillIds = variants;
+    records.push(record);
+  }
   records.sort((a, b) => Number(a.skillId) - Number(b.skillId));
   return records;
 }
