@@ -1,23 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isReleasedBy, availabilityTier, visibleAtHorizon, type PlanningHorizon } from './availability';
-
-describe('isReleasedBy', () => {
-  it('treats an undated global record as always released', () => {
-    expect(isReleasedBy({ server: 'global' }, '2020-01-01')).toBe(true);
-  });
-  it('treats an undated jp record as never released', () => {
-    expect(isReleasedBy({ server: 'jp' }, '2999-01-01')).toBe(false);
-  });
-  it('gates a dated record by asOf >= releaseDate', () => {
-    const rec = { server: 'jp' as const, releaseDate: '2026-07-30' };
-    expect(isReleasedBy(rec, '2026-07-29')).toBe(false);
-    expect(isReleasedBy(rec, '2026-07-30')).toBe(true); // inclusive: available on release day
-    expect(isReleasedBy(rec, '2026-08-01')).toBe(true);
-  });
-  it('a dated global record is also gated by its date', () => {
-    expect(isReleasedBy({ server: 'global', releaseDate: '2026-07-30' }, '2026-07-01')).toBe(false);
-  });
-});
+import { availabilityTier, visibleAtHorizon, type PlanningHorizon } from './availability';
 
 describe('availabilityTier', () => {
   const today = '2026-07-02';
@@ -25,8 +7,26 @@ describe('availabilityTier', () => {
   it('global records are now', () => {
     expect(availabilityTier({ server: 'global' }, cutoff, today)).toBe('now');
   });
-  it('jp released by today is also now (already on Global)', () => {
-    expect(availabilityTier({ server: 'jp', releaseDate: '2026-06-01' }, cutoff, today)).toBe('now');
+  it('jp announced-elapsed (not predicted) is now (already on Global)', () => {
+    expect(
+      availabilityTier({ server: 'jp', releaseDate: '2026-06-01' }, cutoff, today),
+    ).toBe('now');
+    expect(
+      availabilityTier(
+        { server: 'jp', releaseDate: '2026-06-01', releaseDatePredicted: false },
+        cutoff,
+        today,
+      ),
+    ).toBe('now');
+  });
+  it('jp predicted-elapsed is upcoming, not now (a projection having elapsed is still a guess)', () => {
+    expect(
+      availabilityTier(
+        { server: 'jp', releaseDate: '2026-06-01', releaseDatePredicted: true },
+        cutoff,
+        today,
+      ),
+    ).toBe('upcoming');
   });
   it('jp releasing between today and the cutoff is upcoming', () => {
     expect(availabilityTier({ server: 'jp', releaseDate: '2026-08-01' }, cutoff, today)).toBe('upcoming');

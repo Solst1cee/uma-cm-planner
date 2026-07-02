@@ -142,12 +142,15 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     const baseReps = (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
       familyRepresentatives(catalog.filter((s) => s.rarity === r), skillById),
     );
-    const upcoming = (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
-      familyRepresentatives(
-        (skills ?? []).filter((s) => s.server === 'jp' && s.rarity === r && visible(s)),
-        skillById,
-      ),
-    );
+    const upcoming =
+      plan.server === 'global'
+        ? (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
+            familyRepresentatives(
+              (skills ?? []).filter((s) => s.server === 'jp' && s.rarity === r && visible(s)),
+              skillById,
+            ),
+          )
+        : [];
     return [...baseReps, ...upcoming];
   }, [skills, skillById, plan.server, visible]);
 
@@ -380,11 +383,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                             {v.skill.releaseDatePredicted && (
                               <span
                                 className="cmp-upcoming-badge"
-                                title={
-                                  v.skill.releaseDatePredicted
-                                    ? 'Projected Global date (foresight pace) — not announced'
-                                    : 'Announced Global release'
-                                }
+                                title="Projected Global date (foresight pace) — not announced"
                               >
                                 ~{v.skill.releaseDate}
                               </span>

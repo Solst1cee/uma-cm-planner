@@ -63,6 +63,16 @@ describe('HorizonControl', () => {
     expect(setHorizon).toHaveBeenCalledWith({ kind: 'cm', cmNumber: 17 });
   });
 
+  it('CM segment label shows the chosen CM\'s date — confirmed uses ·, predicted uses ~', () => {
+    mockHorizon = { kind: 'cm', cmNumber: 16 };
+    const { rerender } = render(<HorizonControl />);
+    expect(screen.getByRole('button', { name: 'Leo Cup · 2026-07-30' })).toBeInTheDocument();
+
+    mockHorizon = { kind: 'cm', cmNumber: 17 };
+    rerender(<HorizonControl />);
+    expect(screen.getByRole('button', { name: 'Virgo Cup ~2026-08-26' })).toBeInTheDocument();
+  });
+
   it('foresight tooltip carries pace and gap', () => {
     render(<HorizonControl />);
     const help = screen.getByTitle(/1441/);

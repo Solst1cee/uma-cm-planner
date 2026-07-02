@@ -603,11 +603,7 @@ export function PlannerSidebar({
                               {uma.releaseDatePredicted && (
                                 <span
                                   className="cmp-upcoming-badge"
-                                  title={
-                                    uma.releaseDatePredicted
-                                      ? 'Projected Global date (foresight pace) — not announced'
-                                      : 'Announced Global release'
-                                  }
+                                  title="Projected Global date (foresight pace) — not announced"
                                 >
                                   ~{uma.releaseDate}
                                 </span>

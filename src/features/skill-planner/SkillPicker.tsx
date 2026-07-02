@@ -110,11 +110,7 @@ export function SkillPicker({
                   {skill.releaseDatePredicted && (
                     <span
                       className="muted small"
-                      title={
-                        skill.releaseDatePredicted
-                          ? 'Projected Global date (foresight pace) — not announced'
-                          : 'Announced Global release'
-                      }
+                      title="Projected Global date (foresight pace) — not announced"
                     >
                       ~{skill.releaseDate}
                     </span>

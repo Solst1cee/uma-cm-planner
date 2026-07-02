@@ -89,11 +89,7 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
         {predictedDate && (
           <span
             className="cmp-upcoming-badge"
-            title={
-              predictedDate
-                ? 'Projected Global date (foresight pace) — not announced'
-                : 'Announced Global release'
-            }
+            title="Projected Global date (foresight pace) — not announced"
           >
             ~{predictedDate}
           </span>

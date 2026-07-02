@@ -341,11 +341,7 @@ function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, on
         {item.releaseDatePredicted && item.releaseDate && (
           <span
             className="inh-pool-tile-release-badge"
-            title={
-              item.releaseDatePredicted
-                ? 'Projected Global date (foresight pace) — not announced'
-                : 'Announced Global release'
-            }
+            title="Projected Global date (foresight pace) — not announced"
           >
             ~{item.releaseDate}
           </span>

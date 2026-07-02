@@ -24,9 +24,10 @@ export function useAvailability() {
     } else if (horizon.kind === 'allJp') {
       cutoffISO = planCmISO; // tiers still labeled against the plan's CM
     }
-    const tierOf = (r: { server: Server; releaseDate?: string }): AvailabilityTier =>
+    const tierOf = (r: { server: Server; releaseDate?: string; releaseDatePredicted?: boolean }): AvailabilityTier =>
       availabilityTier(r, cutoffISO, today);
-    const visible = (r: { server: Server; releaseDate?: string }) => visibleAtHorizon(tierOf(r), horizon);
+    const visible = (r: { server: Server; releaseDate?: string; releaseDatePredicted?: boolean }) =>
+      visibleAtHorizon(tierOf(r), horizon);
     const futureCms = cms
       .filter((e) => cmDate(e) >= today)
       .sort((a, b) => cmDate(a).localeCompare(cmDate(b)))

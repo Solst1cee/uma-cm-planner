@@ -1,20 +1,5 @@
 import type { Server } from './types';
 
-/**
- * Is a server-versioned record available on Global as of `asOfISO` (yyyy-mm-dd)?
- * Dated records gate on releaseDate (inclusive); undated records fall back to
- * server ('global' = on Global now, 'jp' = preview, not yet). The reference
- * date is supplied by the caller (planner → CM start date; a generic view →
- * today + horizon). See the 2026-06-19 data-timeline-currency spec.
- */
-export function isReleasedBy(
-  record: { releaseDate?: string; server: Server },
-  asOfISO: string,
-): boolean {
-  if (record.releaseDate !== undefined) return record.releaseDate <= asOfISO;
-  return record.server === 'global';
-}
-
 /** Availability tier of a record relative to a cutoff date (a CM's date). */
 export type AvailabilityTier = 'now' | 'upcoming' | 'future';
 
@@ -25,18 +10,22 @@ export type PlanningHorizon =
   | { kind: 'allJp' };
 
 /**
- * now      = available on Global today (server global, or dated ≤ today);
- * upcoming = JP-ahead, arriving by the cutoff (releaseDate ≤ cutoffISO);
+ * now      = available on Global today (server global, or an *announced* date
+ *            that's elapsed — a foresight-PROJECTED date having elapsed is
+ *            still a guess, per P4/P3, so it does NOT count as 'now');
+ * upcoming = JP-ahead, arriving by the cutoff (releaseDate ≤ cutoffISO) —
+ *            this also catches a predicted-elapsed date, since its date is
+ *            always ≤ today ≤ cutoff;
  * future   = JP-ahead after the cutoff, or undated JP.
  */
 export function availabilityTier(
-  record: { server: Server; releaseDate?: string },
+  record: { server: Server; releaseDate?: string; releaseDatePredicted?: boolean },
   cutoffISO: string,
   todayISO: string,
 ): AvailabilityTier {
   if (record.server === 'global') return 'now';
   if (record.releaseDate === undefined) return 'future';
-  if (record.releaseDate <= todayISO) return 'now';
+  if (record.releaseDate <= todayISO && record.releaseDatePredicted !== true) return 'now';
   if (record.releaseDate <= cutoffISO) return 'upcoming';
   return 'future';
 }

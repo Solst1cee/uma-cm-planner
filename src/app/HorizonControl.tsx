@@ -29,7 +29,11 @@ export function HorizonControl() {
   useDismissOnOutside(containerRef, menuOpen, () => setMenuOpen(false), { esc: true });
 
   const chosenCm = horizon.kind === 'cm' ? futureCms.find((c) => c.cmNumber === horizon.cmNumber) : undefined;
-  const cmLabel = chosenCm ? `${chosenCm.title}${chosenCm.predicted ? ' ~' : ''}` : 'CM';
+  const cmLabel = chosenCm
+    ? chosenCm.predicted
+      ? `${chosenCm.title} ~${chosenCm.date}`
+      : `${chosenCm.title} · ${chosenCm.date}`
+    : 'CM';
 
   const pick = (cmNumber: number) => {
     setHorizon({ kind: 'cm', cmNumber });
