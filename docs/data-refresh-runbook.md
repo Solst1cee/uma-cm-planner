@@ -279,6 +279,108 @@ data pipeline + predicate are built and ready; only that toggle UI remains.
 
 ---
 
+## 4. Record a skill rebalance
+
+**Trigger:** JP patch notes (or, later, Global patch notes) change a skill's
+conditions/modifier/duration/cooldown. This is a hand-curated history, separate
+from the AUTO condition-diff detector (`detectCandidates`) that flags JP-vs-Global
+skill drift on every rebuild — a curated entry here absorbs that flagged
+candidate into a full versioned record instead of leaving it a placeholder.
+
+### JP patch notes land
+
+Open `data-overrides/rebalances.json` and add a new entry (new skill) or append
+a new version (skill already tracked). Full schema + validation rules:
+[`data-overrides/README.md` § `rebalances.json` schema](../data-overrides/README.md#rebalancesjson-schema);
+recap of the rules that bite:
+
+- `versions` must be `ver`-ascending and unique; `ver: 1` is the **baseline** and
+  must carry no `modifier`/`duration`/`cooldown` (only later versions record changes).
+- `globalVer` names which version is *currently live on Global* — leave it
+  pointing at the last Global-confirmed version; it does **not** move just
+  because JP got a new version.
+- `conditions` uses the engine condition DSL (e.g. `"corner==2"`) — same
+  syntax as the rest of the skill data.
+- **Honesty ladder (P3):** any version `>= 2` that sets `modifier`, `duration`,
+  or `cooldown` **requires `sourceUrl`** — a conditions-only version may omit
+  it, but a numeric change without a cited source fails `loadRebalances`.
+- `jpDate` (when the version is JP-only) lets the shared foresight clock
+  project a Global arrival; `globalDate` (once Global patch notes confirm it —
+  see 4b) wins over that projection.
+
+Example — adding a JP-only ver 2 to a tracked skill:
+
+```jsonc
+// data-overrides/rebalances.json
+{
+  "skillId": "200012",
+  "globalVer": 1,               // Global is still on the baseline
+  "versions": [
+    { "ver": 1 },
+    {
+      "ver": 2,
+      "jpDate": "2026-06-15",   // JP patch-note date — projects a Global arrival
+      "modifier": 0.25,
+      "sourceUrl": "https://umamusume.jp/news/<id>/",  // required: ver>=2 sets modifier
+      "note": "JP nerf, 2026-06 balance patch"
+    }
+  ]
+}
+```
+
+### Global patch notes confirm it
+
+When the same change lands on Global, patch the version's own object in place:
+set `globalDate` to the announced/confirmed date and flip the entry's
+`globalVer` to that version's `ver`. Don't touch `jpDate` or delete it — it
+stays as the historical JP record.
+
+```jsonc
+{
+  "ver": 2,
+  "jpDate": "2026-06-15",
+  "globalDate": "2026-09-02",   // NEW: confirmed Global date, wins over projection
+  "modifier": 0.25,
+  "sourceUrl": "https://umamusume.jp/news/<id>/",
+  "note": "JP nerf, 2026-06 balance patch"
+}
+```
+
+```jsonc
+{ "skillId": "200012", "globalVer": 2, "versions": [ /* ... */ ] }  // bumped from 1
+```
+
+### Rebuild (both cases)
+
+```sh
+pnpm data:build
+```
+
+**Always the FULL build, never `pnpm timeline:rebuild` alone** — this is the
+same rule as confirming a CM (§2). Rebalance arrivals project on the shared
+foresight calibration clock (`calibrateFromConfirmed`, one clock for record
+dating, `cmSynthesis`, and rebalance `globalArrival`); a partial rebuild leaves
+projected arrival dates on the stale clock even though the override file
+itself changed.
+
+**What the build produces:**
+
+- `public/data/skills.json` — each affected `SkillRecord` gains a baked
+  `rebalance: RebalanceInfo` (versions + resolved `globalArrival`/
+  `globalDatePredicted` per version, from `bakeRebalances`).
+- A `TimelineEntry` (`type: 'patch'`) for any version whose Global arrival
+  falls on the timeline, so it shows up as a patch marker in the M3 timeline.
+- The M4 skill chart/detail Δ badge and the version-history readout, driven
+  off the baked `rebalance` field — no separate UI wiring needed once the
+  data is baked.
+
+The engine (sim) does **not** yet apply rebalanced modifier/duration/cooldown
+values when running skill comparisons — that's component 4b (sim effects),
+tracked separately. This section only covers the curated data + timeline/UI
+surface.
+
+---
+
 ## Quick reference
 
 | Task | File(s) to edit | Command |
@@ -288,4 +390,5 @@ data pipeline + predicate are built and ready; only that toggle UI remains.
 | Add confirmed CM | `data-overrides/timeline_overrides.json` | `pnpm data:build` |
 | Add upcoming skill | `data-overrides/skill_additions.json` | `pnpm data:build` |
 | Add upcoming card | `data-overrides/upcoming_cards.json` | `pnpm data:build` |
+| Record a skill rebalance | `data-overrides/rebalances.json` | `pnpm data:build` |
 | Full rebuild from local mdb | — | `pnpm data:build -- --from-spikes` |

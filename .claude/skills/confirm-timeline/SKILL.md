@@ -110,6 +110,34 @@ Branch first (`data/<event>-confirmed`), commit the override edit(s) **and** the
 regenerated `public/data/` together, message style
 `data(timeline): confirm CM16 Leo Cup — … (<news url>)`. Do not push/PR unless asked.
 
+## Rebalance confirmations
+
+**Trigger:** an official Global announcement/patch note confirms a skill balance
+change (conditions/modifier/duration/cooldown) that is already tracked — as a
+JP-dated version or a curated candidate — in `data-overrides/rebalances.json`.
+This is a separate curated system from the CM/banner timeline above (schema +
+authoring rules: `docs/data-refresh-runbook.md` §4 and
+`data-overrides/README.md` § `rebalances.json` schema); this subsection is only
+the confirmation step, mirroring the CM-confirmation flow above.
+
+1. Locate the skill's entry in `data-overrides/rebalances.json` by `skillId`.
+   If the version the announcement describes isn't there yet, add it first
+   per the runbook §4 rules (ver-ascending, `sourceUrl` required for any
+   `modifier`/`duration`/`cooldown` on ver ≥ 2) — a confirmation never
+   invents version content, it only dates an existing one.
+2. Set `globalDate` on that version to the announced date (leave `jpDate`
+   alone — it's the historical JP record, not overwritten).
+3. Bump the entry's `globalVer` to that version's `ver` — this is what marks
+   it "currently live on Global," not just dated.
+4. **Full `pnpm data:build`** — same rule as a CM confirmation: rebalance
+   arrivals project on the same shared foresight calibration clock
+   (`calibrateFromConfirmed`), so a partial `pnpm timeline:rebuild` leaves the
+   projection stale even though the override file itself is correct.
+5. Verify: the version's own `TimelineEntry` (`type: 'patch'`) flips to
+   `tier: 'official'` / `status: 'confirmed'` in `public/data/timeline.json`,
+   and the skill's version-history readout in the UI shows `Global (live)` on
+   the newly confirmed version instead of a projected date.
+
 ## Common mistakes
 
 | Mistake | Reality |
@@ -120,3 +148,4 @@ regenerated `public/data/` together, message style
 | `timeline:rebuild` after a status flip | Record dates stay on the old clock — full `pnpm data:build`. |
 | Confirming by editing `jp-schedule.json` | That file is JP history (calibration input), never Global confirmations. |
 | Prediction entry left `status: "confirmed"` | Only real announcements are confirmed — status drives the calibration clock. |
+| Confirming a rebalance without bumping `globalVer` | `globalDate` alone only dates the version — `globalVer` is what marks it live on Global. |
