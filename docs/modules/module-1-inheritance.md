@@ -178,6 +178,21 @@ in `sparkFilter`, `greens` in `sparkAggregate`).
   a space before the spark star; Star-Tracks CSS uses the `.badge.spark-*` colour scheme
   (`--chip`/`--chip-ink`), neutral card borders (fixes the `parents.css .spark-*` bleed).
 
+## M1.8 "Target spark" card (2026-07-03, `feat/m1-8-target-spark`)
+
+Right-column read-off panel (handoff §7) — BLUE (`blueSparkRows`) + PINK
+(`pinkSparkRows`) plan goals verbatim, plus WHITE (uncovered wishlist skills)
+behind an **M1.7 coverage seam**. Pure `buildTargetSpark(plan, uma, skillById,
+uncoveredSkillIds)` (`targetSpark.ts`) returns `{ blue, pink, white, coverage }`
+(`coverage: 'pending' | 'covered' | 'gaps'`) and is the reusable seeding contract
+for M1.4b's rental "Load from Target spark". `TargetSparkCard` is provider-free
+(not collapsible, `cmp-plan-card` grammar, global `.badge.spark-*` chips + an
+`.inh-target-spark .spark-chips` scope rule). Until M1.7 merges, the page passes
+`uncoveredSkillIds: undefined` → the panel shows a "coverage pending" note (never
+a false green checkmark); wiring it live is a one-liner in `InheritancePage`:
+`coverageResult.rows.filter(r => !r.covered).map(r => r.skillId)`. Spec:
+[2026-07-01-m1-8-target-spark-design](../superpowers/specs/2026-07-01-m1-8-target-spark-design.md).
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).

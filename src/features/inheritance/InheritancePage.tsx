@@ -26,6 +26,8 @@ import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
 import { InheritanceCard } from './InheritanceCard';
+import { TargetSparkCard } from './TargetSparkCard';
+import { buildTargetSpark } from './targetSpark';
 import { umaPlanAptChips } from './umaPlanApt';
 import {
   addBlueSpark,
@@ -429,6 +431,13 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     />
   ) : null;
 
+  // M1.8 — Target spark. WHITE is fed by the M1.7 coverage matrix, which is not
+  // yet on main; pass `undefined` so the panel shows "coverage pending". When
+  // M1.7 lands, swap this for its uncovered-skill id list.
+  const targetSpark = uma1Plan
+    ? buildTargetSpark(uma1Plan, uma, skillById, undefined)
+    : null;
+
   return (
     <div className="inh-page">
       <PlanContextHeader plan={uma1Plan} trackName={track} />
@@ -506,7 +515,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
         </div>
         <div className="inh-col inh-col-right">
-          <Placeholder title="Target spark" phase="M1.8" />
+          {targetSpark && <TargetSparkCard spark={targetSpark} />}
           {selectedItem && (
             <CardDetailCard
               item={selectedItem}
