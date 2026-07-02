@@ -44,16 +44,33 @@ function Chip({ chip, renderCardIcon, renderEventHint }: {
     chip.kind === 'parent' ? 'inh-cov-chip inh-cov-chip-parent' :
     chip.kind === 'gp' ? 'inh-cov-chip inh-cov-chip-gp' :
     `inh-cov-chip inh-cov-chip-card type-${chip.cardType ?? 'speed'}`;
+  // Per-chip % lives in the hover title; the CELL shows one combined number.
+  const title = chip.pct !== undefined ? `${chip.title} — ~${chip.pct}%` : chip.title;
   return (
-    <span className="inh-cov-chip-wrap" title={chip.title}>
+    <span className="inh-cov-chip-wrap" title={title}>
       {icon ? (
         <span className="inh-cov-chip-icon">{icon}</span>
       ) : (
         <span className={cls} data-round={round ? '1' : undefined}>{chip.label}</span>
       )}
-      {chip.pct !== undefined && <span className="inh-cov-pct">~{chip.pct}%</span>}
     </span>
   );
+}
+
+/** One combined inherit-% per cell: the chance AT LEAST ONE priced source passes
+ *  the spark down, 1 − ∏(1 − pᵢ). Hover explains the per-source breakdown. */
+function CombinedPct({ chips }: { chips: CoverageChip[] }) {
+  const priced = chips.filter((c): c is CoverageChip & { pct: number } => c.pct !== undefined);
+  if (priced.length === 0) return null;
+  const combined = Math.round((1 - priced.reduce((m, c) => m * (1 - c.pct / 100), 1)) * 100);
+  const lines = priced.map((c) => `${c.title}: ~${c.pct}%`);
+  if (priced.length > 1) {
+    lines.push(
+      `Combined (at least one succeeds): 1 − ${priced.map((c) => `(1−${c.pct}%)`).join(' × ')} ≈ ${combined}%`,
+      'Each source is priced in isolation and assumed to roll independently.',
+    );
+  }
+  return <span className="inh-cov-pct inh-cov-combined" title={lines.join('\n')}>~{combined}%</span>;
 }
 
 function Cell({ chips, renderCardIcon, renderEventHint }: {
@@ -69,6 +86,7 @@ function Cell({ chips, renderCardIcon, renderEventHint }: {
         {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
         {extra > 0 && <span className="inh-cov-more">+{extra}</span>}
       </span>
+      <CombinedPct chips={chips} />
     </td>
   );
 }

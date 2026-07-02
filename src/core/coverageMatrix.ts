@@ -166,7 +166,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
         cells.parent.push({
           kind: 'parent',
           label: umaLabel(String(parent.umaId), String(parent.umaId)),
-          title: umaTitle(String(parent.umaId), 'Parent'),
+          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent ${pWhiteCover ? 'white' : 'green'} spark`,
           pct: Math.round(parentPct),
         });
       }
@@ -196,7 +196,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
         cells.gp.push({
           kind: 'gp',
           label: umaLabel(String(ref.umaId), String(ref.umaId)),
-          title: umaTitle(String(ref.umaId), 'Grandparent'),
+          title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green'} spark${gpWhiteCover ? '' : ' (unpriced)'}`,
           ...(gpPct !== undefined ? { pct: gpPct } : {}),
         });
       });

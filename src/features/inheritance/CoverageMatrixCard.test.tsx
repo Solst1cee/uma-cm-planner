@@ -48,6 +48,48 @@ describe('CoverageMatrixCard', () => {
     expect(screen.getByText(/add skills to your wishlist/i)).toBeTruthy();
   });
 
+  it('combines multiple priced sparks into ONE cell % (1 − ∏(1−p)) with a breakdown title', () => {
+    const multiResult: CoverageResult = {
+      rows: [
+        { skillId: '200033', name: 'Straightaway', isGold: false,
+          cells: { innate: [], event: [],
+            parent: [
+              { kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent white spark', pct: 13 },
+              { kind: 'parent', label: 'SR', title: 'Silence Suzuka · parent white spark', pct: 13 },
+            ],
+            gp: [], hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    const { container } = render(<CoverageMatrixCard result={multiResult} hasWishlist hasPlanUma />);
+    const combined = container.querySelector('.inh-cov-combined')!;
+    // 1 − (1−0.13)² = 0.2431 → ~24%; exactly ONE number in the cell.
+    expect(combined.textContent).toBe('~24%');
+    expect(container.querySelectorAll('.inh-cov-combined')).toHaveLength(1);
+    expect(combined.getAttribute('title')).toContain('Mayano Top Gun · parent white spark: ~13%');
+    expect(combined.getAttribute('title')).toContain('1 − (1−13%) × (1−13%) ≈ 24%');
+    // Per-chip % moved into the chip hover title, not the visible cell.
+    expect(screen.queryByText('~13%')).toBeNull();
+  });
+
+  it('a single priced spark shows its own % as the cell number (no formula line)', () => {
+    const oneResult: CoverageResult = {
+      rows: [
+        { skillId: '200033', name: 'Straightaway', isGold: false,
+          cells: { innate: [], event: [],
+            parent: [{ kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent white spark', pct: 13 }],
+            gp: [], hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    const { container } = render(<CoverageMatrixCard result={oneResult} hasWishlist hasPlanUma />);
+    const combined = container.querySelector('.inh-cov-combined')!;
+    expect(combined.textContent).toBe('~13%');
+    expect(combined.getAttribute('title')).not.toContain('Combined');
+  });
+
   it('renders the event hint button (not the initials chip) when renderEventHint returns a node', () => {
     const evResult: CoverageResult = {
       rows: [
