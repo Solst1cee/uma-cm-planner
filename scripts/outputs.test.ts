@@ -19,14 +19,30 @@ const presets = readData<CmPreset[]>('cm_presets.json');
 const umas = readData<UmaRecord[]>('umas.json');
 
 describe('public/data/skills.json', () => {
-  it('contains 587 Global skills + 962 JP-ahead skills (total 1549), all on the pinned dataVersion', () => {
-    expect(skills).toHaveLength(1549);
+  it('contains 587 Global skills + 1132 JP-ahead skills (total 1719), all on the pinned dataVersion', () => {
+    expect(skills).toHaveLength(1719);
     const global = skills.filter((s) => s.server === 'global');
     const jp = skills.filter((s) => s.server === 'jp');
     expect(global).toHaveLength(587);
-    expect(jp).toHaveLength(962);
+    expect(jp).toHaveLength(1132);
     expect(jp.every((s) => s.releaseDate !== undefined)).toBe(true); // every JP skill is dated
     expect(skills.every((s) => s.dataVersion === 'global-76214c82')).toBe(true);
+  });
+
+  it('emits JP inherited-unique twins nested under gametora gene_version (170 of the 962 JP uniques)', () => {
+    // gametora nests each inherited unique under its parent unique's
+    // gene_version; buildJpSkills emits those as inherited_unique records
+    // (id starts with '9', mirroring the Global 9xxxxx convention, though
+    // some gametora gene ids run longer than 6 digits) dated like their
+    // parent (175 carry gene_version, 5 collide within gametora's own data —
+    // two evolution-stage uniques sharing one gene id — and are deduped to a
+    // single record, netting 170).
+    const jp = skills.filter((s) => s.server === 'jp');
+    const inherited = jp.filter((s) => s.rarity === 'inherited_unique');
+    expect(inherited).toHaveLength(170);
+    expect(inherited.every((s) => /^9\d+$/.test(s.skillId))).toBe(true);
+    expect(inherited.every((s) => s.baseSpCost === 0)).toBe(true);
+    expect(inherited.every((s) => s.releaseDate !== undefined)).toBe(true);
   });
 
   it('links gold skills to their white prereq (Professor of Curvature → Corner Adept ○)', () => {
@@ -51,7 +67,10 @@ describe('public/data/skills.json', () => {
   });
 
   it('classifies rarities incl. inherited uniques (9xxxxx) and uniques (cost 0)', () => {
-    const inherited = skills.filter((s) => s.rarity === 'inherited_unique');
+    // Global inherited uniques only — JP-ahead inherited uniques (170, see
+    // the gene_version test above) are covered separately since they're not
+    // constrained to the 6-digit 9xxxxx block.
+    const inherited = skills.filter((s) => s.server === 'global' && s.rarity === 'inherited_unique');
     expect(inherited).toHaveLength(87);
     expect(inherited.every((s) => /^9\d{5}$/.test(s.skillId))).toBe(true);
     const uniques = skills.filter((s) => s.rarity === 'unique');
