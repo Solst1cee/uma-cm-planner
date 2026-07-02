@@ -56,6 +56,35 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.innate.length).toBe(0);
   });
 
+  describe('innate potential-level badge', () => {
+    it('shows "LvN" when the unlocking potential level is known', () => {
+      const res = buildCoverageMatrix(baseInput({
+        planUma: { umaId: '100301', nameEn: 'Mayano', innateSkills: ['200011'], innateRankBySkillId: { '200011': 5 } },
+      }));
+      const chip = res.rows.find((r) => r.skillId === '200011')!.cells.innate[0]!;
+      expect(chip.label).toBe('Lv5');
+      expect(chip.title).toContain('potential Lv5');
+    });
+
+    it('uses the COVERING skill\'s rank for a family match (held ○ vs wishlisted ◎)', () => {
+      const fam = new Map([
+        ['500011', { ...skill('500011', 'Right-Handed ◎', 'white'), variantSkillIds: ['500012'] }],
+        ['500012', { ...skill('500012', 'Right-Handed ○', 'white'), variantSkillIds: ['500011'] }],
+      ]);
+      const res = buildCoverageMatrix(baseInput({
+        wishlistSkillIds: ['500011'], skillById: fam, greenMap: new Map(),
+        planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500012'], innateRankBySkillId: { '500012': 3 } },
+      }));
+      expect(res.rows[0]!.cells.innate[0]!.label).toBe('Lv3');
+    });
+
+    it('falls back to uma initials when the rank is unknown (honest, no fabricated level)', () => {
+      const res = buildCoverageMatrix(baseInput({}));
+      const chip = res.rows.find((r) => r.skillId === '200011')!.cells.innate[0]!;
+      expect(chip.label).toBe('T'); // initials of the one-word "Trainee"
+    });
+  });
+
   describe('career training-event column', () => {
     it('marks a wishlist skill covered via the event cell (uma event pool)', () => {
       const res = buildCoverageMatrix(baseInput({

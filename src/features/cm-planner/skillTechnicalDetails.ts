@@ -28,6 +28,8 @@ export interface RawSkillAlternative {
 
 export interface RawSkillSource {
   outfitId?: number | string;
+  /** Potential (awakening) level that unlocks this skill on that outfit; 0 = base kit (level 1). */
+  needRank?: number;
   name?: string;
   outfit?: string;
 }
@@ -179,7 +181,7 @@ export async function loadUniqueSkillByUmaId(): Promise<Map<string, SkillSummary
   return uniqueByUmaPromise;
 }
 
-let innateByUmaPromise: Promise<Map<string, string[]>> | null = null;
+let innateByUmaPromise: Promise<Map<string, Map<string, number>>> | null = null;
 /**
  * Uma outfit id → every skill id the outfit carries innately (the skill's
  * `sources[].outfitId` associations in the engine's skill collection — the same
@@ -187,17 +189,20 @@ let innateByUmaPromise: Promise<Map<string, string[]>> | null = null;
  * filter to the rarities they want (M1.7's Innate column keeps white + gold and
  * drops unique / inherited_unique via the app's own SkillRecord rarity).
  */
-export async function loadInnateSkillsByUmaId(): Promise<Map<string, string[]>> {
+/** Uma → (skillId → potential level that unlocks it). Skill ids = the map keys.
+ *  `needRank` 0 in the bundle means the skill is in the base kit — normalized
+ *  to level 1 here (in-game potential runs 1–5). */
+export async function loadInnateSkillsByUmaId(): Promise<Map<string, Map<string, number>>> {
   if (innateByUmaPromise === null) {
     innateByUmaPromise = loadSkillCollection().then((skills) => {
-      const byUma = new Map<string, string[]>();
+      const byUma = new Map<string, Map<string, number>>();
       for (const raw of Object.values(skills)) {
         for (const source of raw.sources ?? []) {
           if (source.outfitId === undefined) continue;
           const key = String(source.outfitId);
-          const list = byUma.get(key) ?? [];
-          list.push(String(raw.id));
-          byUma.set(key, list);
+          let ranks = byUma.get(key);
+          if (!ranks) { ranks = new Map<string, number>(); byUma.set(key, ranks); }
+          ranks.set(String(raw.id), Math.max(source.needRank ?? 0, 1));
         }
       }
       return byUma;

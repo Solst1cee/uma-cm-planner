@@ -48,6 +48,42 @@ describe('CoverageMatrixCard', () => {
     expect(screen.getByText(/add skills to your wishlist/i)).toBeTruthy();
   });
 
+  it('renders the event hint button (not the initials chip) when renderEventHint returns a node', () => {
+    const evResult: CoverageResult = {
+      rows: [
+        { skillId: '201902', name: 'Head-On', isGold: false,
+          cells: { innate: [], event: [{ kind: 'event', label: 'TS', title: 'Taiki — training event', skillId: '201902' }],
+            parent: [], gp: [], hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    render(
+      <CoverageMatrixCard
+        result={evResult}
+        hasWishlist
+        hasPlanUma
+        renderEventHint={(skillId) => <button type="button" data-testid="ev-hint" data-skill-id={skillId}>?</button>}
+      />,
+    );
+    expect(screen.getByTestId('ev-hint').getAttribute('data-skill-id')).toBe('201902');
+    expect(screen.queryByText('TS')).toBeNull(); // initials fallback replaced by the hint button
+  });
+
+  it('falls back to the plain event chip when renderEventHint returns null', () => {
+    const evResult: CoverageResult = {
+      rows: [
+        { skillId: '201902', name: 'Head-On', isGold: false,
+          cells: { innate: [], event: [{ kind: 'event', label: 'TS', title: 'Taiki — training event', skillId: '201902' }],
+            parent: [], gp: [], hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    render(<CoverageMatrixCard result={evResult} hasWishlist hasPlanUma renderEventHint={() => null} />);
+    expect(screen.getByText('TS')).toBeTruthy();
+  });
+
   it('renders the support-card icon (not initials) for a deck-source chip when renderCardIcon is supplied', () => {
     const iconResult: CoverageResult = {
       rows: [

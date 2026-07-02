@@ -4,7 +4,7 @@
  *  plan's uma and an inventory-icon button that pops the shared PlanInventoryCard
  *  (dismiss-on-outside); picking a row there switches the current plan. M1.5 adds the
  *  "Deck" card (6-slot support deck + autosave templates) in the center column. */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
@@ -24,6 +24,7 @@ import { useScoreWeights } from './useScoreWeights';
 import { ScoreWeightsPanel } from './ScoreWeightsPanel';
 import { SupportCardPoolCard, CardDetailCard } from './SupportCardPoolCard';
 import { useUmas } from '@/features/parents/useUmas';
+import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
 import { loadInnateSkillsByUmaId, skillRecordToSummary } from '@/features/cm-planner/skillTechnicalDetails';
@@ -103,6 +104,16 @@ interface Deps {
 }
 const defaultLoadCatalog = () => import('@/sim/courseCatalog').then((m) => m.courseCatalog());
 
+/** One rendered training-event entry from public/data/uma_event_details.json
+ *  (baked by scripts/build-uma-event-details.ts — mirror of its UmaEventDetail). */
+interface UmaEventDetail {
+  name: string;
+  category: string;
+  jpCurrentDiffers?: boolean;
+  conditions?: string[];
+  choices: Array<{ option: string; rewards: Array<{ label: string; skillId?: string }> }>;
+}
+
 /** Placeholder for a workbench card not yet built (M1.3–M1.8). */
 function Placeholder({ title, phase }: { title: string; phase: string }) {
   return (
@@ -166,6 +177,9 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const [baseEffects, setBaseEffects] = useState<CardBaseEffects>({});
   // Uma → skill ids obtainable via its career training events (public/data/uma_events.json).
   const [umaEventsByUmaId, setUmaEventsByUmaId] = useState<Record<string, string[]>>({});
+  // Uma → rendered training-event details for the Event-cell popup
+  // (public/data/uma_event_details.json — see scripts/build-uma-event-details.ts).
+  const [umaEventDetails, setUmaEventDetails] = useState<Record<string, UmaEventDetail[]>>({});
   useEffect(() => {
     let cancelled = false;
     const load = <T,>(file: string, set: (v: T) => void) =>
@@ -176,12 +190,13 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     void load<CardUniqueEffects>('card_unique_effects.json', setUniqueEffects);
     void load<CardBaseEffects>('card_effects.json', setBaseEffects);
     void load<Record<string, string[]>>('uma_events.json', setUmaEventsByUmaId);
+    void load<Record<string, UmaEventDetail[]>>('uma_event_details.json', setUmaEventDetails);
     return () => { cancelled = true; };
   }, []);
-  // Uma → its innate skill kit (all outfitId-associated skills in the engine's
-  // skill collection). The coverage matrix's Innate column keeps only the
-  // non-unique (white + gold) ones. Data already ships in the vendored bundle.
-  const [innateByUmaId, setInnateByUmaId] = useState<Map<string, string[]> | null>(null);
+  // Uma → its innate skill kit (skillId → unlocking potential level, from the
+  // engine's skill collection `sources[].needRank`). The coverage matrix's
+  // Innate column keeps only the non-unique (white + gold) ones.
+  const [innateByUmaId, setInnateByUmaId] = useState<Map<string, Map<string, number>> | null>(null);
   useEffect(() => {
     let cancelled = false;
     void loadInnateSkillsByUmaId()
@@ -340,20 +355,24 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     // The uma's innate kit = its outfitId-associated skills, kept to white + gold
     // (drop unique / inherited-unique — not "innate" for coverage). Prefer the
     // baked UmaRecord.innateSkills if the data pipeline ever populates it.
+    const innateRanks = uma1Plan ? innateByUmaId?.get(uma1Plan.umaId) : undefined;
     const innateSkills =
       planUmaRec?.innateSkills ??
-      (uma1Plan
-        ? (innateByUmaId?.get(uma1Plan.umaId) ?? []).filter((id) => {
+      (innateRanks
+        ? [...innateRanks.keys()].filter((id) => {
             const r = skillById.get(id)?.rarity;
             return r === 'white' || r === 'gold';
           })
         : []);
+    const innateRankBySkillId = innateRanks ? Object.fromEntries(innateRanks) : undefined;
     // Skills this uma's career training events can grant (availability, not per-run).
     const eventSkills = uma1Plan ? (umaEventsByUmaId[uma1Plan.umaId] ?? []) : [];
 
     return buildCoverageMatrix({
       wishlistSkillIds,
-      planUma: planUmaRec ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills, eventSkills } : null,
+      planUma: planUmaRec
+        ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills, eventSkills, innateRankBySkillId }
+        : null,
       activeParents,
       deckCards,
       deckLbByCardId,
@@ -365,6 +384,48 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
       umaNameById,
     });
   }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId]);
+
+  // Event-cell hint button + popup: the training events of the plan uma that can
+  // grant the (family-resolved) skill. Returns null when no details exist — the
+  // cell then falls back to the plain chip.
+  const renderEventHint = (skillId: string): ReactNode => {
+    if (!uma1Plan) return null;
+    const events = (umaEventDetails[uma1Plan.umaId] ?? []).filter((e) =>
+      e.choices.some((ch) => ch.rewards.some((r) => r.skillId === skillId)));
+    if (events.length === 0) return null;
+    return (
+      <HeaderHelp label="Training-event details">
+        <div className="inh-ev-pop">
+          {events.map((e) => (
+            <div key={e.name} className="inh-ev-detail">
+              <div className="inh-ev-name">
+                {e.name}
+                {e.jpCurrentDiffers && (
+                  <span className="inh-ev-flag" title="JP-current rewards differ — showing Global-period data">Global</span>
+                )}
+              </div>
+              {e.conditions && e.conditions.length > 0 && (
+                <>
+                  <div className="inh-ev-sub">Conditions</div>
+                  <ul className="inh-ev-conds">{e.conditions.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                </>
+              )}
+              {e.choices.map((ch, i) => (
+                <div key={i} className="inh-ev-choice">
+                  <div className="inh-ev-sub">{ch.option || 'Reward'}</div>
+                  <ul className="inh-ev-rewards">
+                    {ch.rewards.map((r, j) => (
+                      <li key={j} className={r.skillId === skillId ? 'is-target' : undefined}>{r.label}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </HeaderHelp>
+    );
+  };
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
   const rows = useMemo(
@@ -595,6 +656,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             renderCardIcon={(cardId, size) => (
               <GameIcon kind="card" id={cardId} size={size} alt="" className="inh-pool-card-img" />
             )}
+            renderEventHint={renderEventHint}
           />
         </div>
         <div className="inh-col inh-col-right">

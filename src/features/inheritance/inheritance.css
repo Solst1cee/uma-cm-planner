@@ -1714,7 +1714,12 @@ main:has(.inh-page) {
 .inh-cov-head { display: flex; align-items: center; gap: 0.5rem; }
 .inh-cov-title { font-weight: 700; }
 .inh-cov-toggle { margin-left: auto; }
-.inh-cov-matrix td.inh-cov-cell { white-space: nowrap; }
+/* Source cells: content centered both ways; chips lay out 2 rows × 3 columns. */
+.inh-cov-matrix td.inh-cov-cell { white-space: nowrap; text-align: center; vertical-align: middle; }
+.inh-cov-matrix thead th:not(.skill-col) { text-align: center; vertical-align: middle; }
+.inh-cov-matrix tbody th.skill-col { vertical-align: middle; }
+.inh-cov-cell-grid { display: inline-grid; grid-template-columns: repeat(3, auto); gap: 3px 5px; justify-items: center; align-items: center; }
+.inh-cov-cell-grid .inh-cov-chip-wrap { margin-right: 0; }
 .inh-cov-matrix .inh-cov-sep { border-left: 2px solid var(--border); }
 .inh-cov-chip-wrap { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
 .inh-cov-chip-icon { display: inline-flex; align-items: center; }
@@ -1729,6 +1734,14 @@ main:has(.inh-page) {
 .inh-cov-chip-card.type-power { background: #ec4899; } .inh-cov-chip-card.type-guts { background: #f59e0b; }
 .inh-cov-chip-card.type-wit { background: #10b981; } .inh-cov-chip-card.type-friend, .inh-cov-chip-card.type-group { background: #64748b; }
 .inh-cov-pct { font-size: 0.6rem; font-weight: 700; color: var(--fg-muted); }
+/* Event-cell hint popup (content inside the shared cmp-trace-help-pop) */
+.inh-ev-pop { display: flex; flex-direction: column; gap: 0.55rem; max-height: 340px; overflow-y: auto; text-align: left; }
+.inh-ev-name { font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem; }
+.inh-ev-flag { font-size: 0.56rem; font-weight: 800; color: #7c3aed; border: 1px solid #a78bfa; border-radius: 999px; padding: 0 0.3rem; }
+.inh-ev-sub { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: var(--fg-muted); margin-top: 0.25rem; }
+.inh-ev-conds, .inh-ev-rewards { margin: 0.1rem 0 0; padding-left: 1rem; font-size: 0.72rem; }
+.inh-ev-conds { color: var(--fg-muted); }
+.inh-ev-rewards li.is-target { font-weight: 800; color: #7c3aed; }
 .inh-cov-more { font-size: 0.6rem; color: var(--fg-muted); }
 .inh-cov-bars { display: flex; flex-direction: column; gap: 0.35rem; }
 .inh-cov-bar-row { display: grid; grid-template-columns: 5rem 1fr auto; align-items: center; gap: 0.5rem; font-size: 0.72rem; }

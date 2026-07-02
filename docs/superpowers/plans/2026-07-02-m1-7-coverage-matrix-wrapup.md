@@ -14,7 +14,7 @@ The center-column **"Obtainable vs. wishlist"** coverage card on `/inheritance`.
 
 ## Added 2026-07-02 (post-wrap): career training-event `Event` column
 
-A 7th obtainability source landed after the initial wrap — a **career training-event** column right of Innate (`planUma.eventSkills`; Taiki → Head-On/All I've Got). Data: `public/data/uma_events.json` (`{ umaId: skillId[] }`) built by `scripts/build-uma-events.ts` inverting daftuyda `skills_all.json` `char_e`. **Provenance path B** — GameTora-derived, owner-authorized **private-use** relaxation (input localOnly/gitignored, `uma_events.json` **swap before public**; docs/provenance.md §10). Not in `pnpm data:build` (run `pnpm tsx scripts/build-uma-events.ts`). **1177 tests.**
+A 7th obtainability source landed after the initial wrap — a **career training-event** column right of Innate (`planUma.eventSkills`; Taiki → Head-On/All I've Got). Data: `public/data/uma_events.json` (`{ umaId: skillId[] }`) built by `scripts/build-uma-events.ts` inverting daftuyda `skills_all.json` `char_e`. **Provenance path B** — GameTora-derived, owner-authorized **private-use** relaxation (input localOnly/gitignored, `uma_events.json` **swap before public**; docs/provenance.md §10). Not in `pnpm data:build` (run `pnpm tsx scripts/build-uma-events.ts`, then fetch-gametora-chara-events + build-uma-event-details for the popup data). **1197 tests.**
 
 ## Resume here (next session)
 

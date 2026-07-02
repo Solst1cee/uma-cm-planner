@@ -7,6 +7,10 @@ import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 
 /** Provider-free renderer for a support-card icon (the page supplies it). */
 export type RenderCardIcon = (cardId: string, size: number) => ReactNode;
+/** Provider-free renderer for an event-detail hint button + popup (the page
+ *  supplies it). Return null when no event details exist for the skill —
+ *  the cell then falls back to the plain chip. */
+export type RenderEventHint = (skillId: string) => ReactNode;
 
 const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'innate', label: 'Innate' },
@@ -21,7 +25,15 @@ const BAR_LABEL: Record<CoverageColumn | 'uncovered', string> = {
   innate: 'Innate', event: 'Event', parent: 'Parent', gp: 'G.parent', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
 };
 
-function Chip({ chip, renderCardIcon }: { chip: CoverageChip; renderCardIcon?: RenderCardIcon }) {
+function Chip({ chip, renderCardIcon, renderEventHint }: {
+  chip: CoverageChip; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+}) {
+  // Event chips render the page-supplied hint button + popup when event details
+  // exist for the covering skill; otherwise fall through to the plain chip.
+  if (chip.kind === 'event' && chip.skillId && renderEventHint) {
+    const hint = renderEventHint(chip.skillId);
+    if (hint) return <span className="inh-cov-chip-wrap inh-cov-ev-hint" title={chip.title}>{hint}</span>;
+  }
   const round = chip.kind === 'innate' || chip.kind === 'event' || chip.kind === 'parent' || chip.kind === 'gp';
   // Deck-source chips (hint/chain/random) render the real support-card icon when
   // the page supplies a renderer; otherwise fall back to the type-colored initials chip.
@@ -44,19 +56,26 @@ function Chip({ chip, renderCardIcon }: { chip: CoverageChip; renderCardIcon?: R
   );
 }
 
-function Cell({ chips, renderCardIcon }: { chips: CoverageChip[]; renderCardIcon?: RenderCardIcon }) {
+function Cell({ chips, renderCardIcon, renderEventHint }: {
+  chips: CoverageChip[]; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+}) {
   if (chips.length === 0) return <td className="inh-cov-cell muted">·</td>;
-  const shown = chips.slice(0, 2);
+  // Up to 6 chips laid out 2 rows × 3 columns; overflow collapses to "+N".
+  const shown = chips.slice(0, 6);
   const extra = chips.length - shown.length;
   return (
     <td className="inh-cov-cell">
-      {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} />)}
-      {extra > 0 && <span className="inh-cov-more">+{extra}</span>}
+      <span className="inh-cov-cell-grid">
+        {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
+        {extra > 0 && <span className="inh-cov-more">+{extra}</span>}
+      </span>
     </td>
   );
 }
 
-function MatrixTable({ rows, renderCardIcon }: { rows: CoverageRow[]; renderCardIcon?: RenderCardIcon }) {
+function MatrixTable({ rows, renderCardIcon, renderEventHint }: {
+  rows: CoverageRow[]; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+}) {
   return (
     <table className="matrix inh-cov-matrix">
       <thead>
@@ -69,7 +88,7 @@ function MatrixTable({ rows, renderCardIcon }: { rows: CoverageRow[]; renderCard
         {rows.map((r) => (
           <tr key={r.skillId} className={r.covered ? undefined : 'row-uncovered'}>
             <th className="skill-col" style={r.isGold ? { color: '#c27a00' } : undefined}>{r.name}</th>
-            {COLS.map((c) => <Cell key={c.key} chips={r.cells[c.key]} renderCardIcon={renderCardIcon} />)}
+            {COLS.map((c) => <Cell key={c.key} chips={r.cells[c.key]} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
           </tr>
         ))}
       </tbody>
@@ -91,8 +110,9 @@ function Bars({ result }: { result: CoverageResult }) {
   );
 }
 
-export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCardIcon }: {
-  result: CoverageResult; hasWishlist: boolean; hasPlanUma: boolean; renderCardIcon?: RenderCardIcon;
+export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCardIcon, renderEventHint }: {
+  result: CoverageResult; hasWishlist: boolean; hasPlanUma: boolean;
+  renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
 }) {
   const [view, setView] = useState<'matrix' | 'bars'>('matrix');
   return (
@@ -118,7 +138,9 @@ export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCard
           <p className="muted">Add skills to your wishlist to see coverage.</p>
         ) : (
           <>
-            {view === 'matrix' ? <MatrixTable rows={result.rows} renderCardIcon={renderCardIcon} /> : <Bars result={result} />}
+            {view === 'matrix'
+              ? <MatrixTable rows={result.rows} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />
+              : <Bars result={result} />}
             {result.bonus.length > 0 && (
               <div className="inh-cov-bonus">
                 <div className="inh-cov-bonus-head">BONUS — obtainable, not on wishlist</div>
