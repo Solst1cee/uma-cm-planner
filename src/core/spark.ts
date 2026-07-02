@@ -95,6 +95,14 @@ function perCareerChance(pEvent: number, rates: SparkRates): number {
  * sparks (white skill sparks + green inherited-unique sparks, incl. the
  * grandparents recorded on each parent).
  *
+ * ⚠ Scope: this prices the PROBABILISTIC spark rolls (the two inspiration
+ * events, Ice-sheet goldens). The DIRECT parents' green sparks are additionally
+ * GUARANTEED at career start (mechanics-notes §1; user-verified in-game
+ * 2026-07-03) — a consumer asking "will the child have the parents' uniques?"
+ * should treat those as 100% and not call this for them (the coverage matrix
+ * does exactly that). Grandparent greens have no career-start grant — they
+ * only roll here.
+ *
  * Affinity inputs:
  * - Parent-held sparks scale by `Parent.affinityHint ?? 0` (see module
  *   docblock for the total-vs-per-member caveat). A contributing parent with
@@ -187,8 +195,10 @@ export function sparkChance(args: {
     }
 
     // --- sparks held by this parent's grandparents (ParentRef) ------------
-    // ParentRef carries whiteSparks only — green career math for grandparents
-    // is unverified anyway (mechanics-notes §1 note, §10 item 3).
+    // Grandparent GREEN sparks roll at the two inspiration events like any other
+    // spark (they are NOT career-start-guaranteed the way the direct parents'
+    // greens are — mechanics-notes §1, user-verified in-game 2026-07-03), so
+    // they price with the green base table + the gp's member affinity.
     const gpAffinity = opts?.grandparentAffinity ?? 0;
     const gps = parent.grandparents ?? [];
     for (let gpIndex = 0; gpIndex < gps.length; gpIndex++) {
@@ -196,10 +206,17 @@ export function sparkChance(args: {
       const computedGp = opts?.memberAffinity?.({ parentId: parent.id, grandparent: true, gpIndex });
       const gpUseAffinity = computedGp ?? gpAffinity;
       const gpApprox = computedGp === undefined; // computed ⇒ exact; fallback floor ⇒ approximate
+      const gpMatching: Array<{ family: SparkFamily; stars: 1 | 2 | 3 }> = [];
       for (const spark of gp?.whiteSparks ?? []) {
         if (spark.skillId !== skillId) continue;
         if (!isWhiteSparkTarget(spark.skillId)) continue;
-        const pEvent = perEventChance(baseProcPct(rates, 'whiteSkill', spark.stars), gpUseAffinity);
+        gpMatching.push({ family: 'whiteSkill', stars: spark.stars });
+      }
+      if (gp?.greenSpark?.skillId === skillId) {
+        gpMatching.push({ family: 'green', stars: gp.greenSpark.stars });
+      }
+      for (const spark of gpMatching) {
+        const pEvent = perEventChance(baseProcPct(rates, spark.family, spark.stars), gpUseAffinity);
         contributions.push({
           parentId: parent.id,
           grandparent: true,

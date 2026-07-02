@@ -140,6 +140,24 @@ describe('sparkChance — Ice sheet goldens (Complete Distribution Table)', () =
     const result = sparkChance({ parents: [parent], skillId: '900021', rates });
     expect(result.pct).toBeCloseTo(35.1975, 9);
   });
+
+  it('grandparent green spark prices with the SAME green table + gp affinity (gp greens roll, not guaranteed)', () => {
+    // Same math as AO715 but the spark sits on a grandparent whose computed
+    // member affinity is 95 — the green base table applies identically
+    // (mechanics-notes §1: only the DIRECT parents' greens are career-start
+    // guaranteed; gp greens roll at the two inspiration events).
+    const parent = makeParent({
+      id: 'p1',
+      grandparents: [{ umaId: '200301', whiteSparks: [], greenSpark: { skillId: '900021', stars: 1 } }, undefined],
+    });
+    const result = sparkChance({
+      parents: [parent], skillId: '900021', rates,
+      opts: { memberAffinity: ({ grandparent }) => (grandparent ? 95 : undefined) },
+    });
+    expect(result.pct).toBeCloseTo(18.549375, 9);
+    expect(result.contributions[0]!.grandparent).toBe(true);
+    expect(result.approximate).toBe(false); // computed member affinity ⇒ exact
+  });
 });
 
 // --- model behavior ----------------------------------------------------------

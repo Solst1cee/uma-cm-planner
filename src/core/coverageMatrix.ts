@@ -147,26 +147,31 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       // The parent's own white spark that covers this wishlist skill (○/◎), if any.
       const pWhiteCover = coveringId(skillId, parent.whiteSparks.map((w) => w.skillId), skillById);
       const pGreenCovers = !!(parent.greenSpark && reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) === skillId);
-      if (pWhiteCover || pGreenCovers) {
+      if (pGreenCovers && !pWhiteCover) {
+        // A DIRECT parent's unique (green) spark is GUARANTEED at career start —
+        // it never rolls (mechanics-notes §1; gp greens are the ones that roll).
+        cells.parent.push({
+          kind: 'parent',
+          label: umaLabel(String(parent.umaId), String(parent.umaId)),
+          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent unique spark — guaranteed at career start`,
+          pct: 100,
+        });
+      } else if (pWhiteCover) {
         // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
-        // Reconcile greenSpark.skillId so sparkChance's green path (native→9xxxxx) can match.
         const parentSelf: Parent = {
           ...parent,
-          greenSpark: parent.greenSpark
-            ? { ...parent.greenSpark, skillId: reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) }
-            : undefined,
+          greenSpark: undefined,
           grandparents: undefined,
         };
         // Price the spark the parent actually holds (its ○), not the wishlisted ◎.
-        const priceSkillId = pWhiteCover ?? skillId;
         const parentPct = sparkChance({
-          parents: [parentSelf], skillId: priceSkillId, rates: sparkRates,
+          parents: [parentSelf], skillId: pWhiteCover, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct;
         cells.parent.push({
           kind: 'parent',
           label: umaLabel(String(parent.umaId), String(parent.umaId)),
-          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent ${pWhiteCover ? 'white' : 'green'} spark`,
+          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent white spark`,
           pct: Math.round(parentPct),
         });
       }
@@ -175,29 +180,30 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
         const gpWhiteCover = coveringId(skillId, ref.whiteSparks?.map((w) => w.skillId) ?? [], skillById);
         const gpGreenCovers = !!(ref.greenSpark && reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) === skillId);
         if (!gpWhiteCover && !gpGreenCovers) return;
-        // sparkChance only prices gp WHITE sparks (green gp math deferred, mechanics-notes §10).
-        // Attach pct only for a white cover; green-only match → pct undefined (honest "unpriced").
-        let gpPct: number | undefined;
-        if (gpWhiteCover) {
-          // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
-          const gpOnly: Parent = {
-            ...parent,
-            whiteSparks: [],
-            greenSpark: undefined,
-            grandparents: (gpIndex === 0
-              ? [ref, undefined]
-              : [undefined, ref]) as [ParentRef?, ParentRef?],
-          };
-          gpPct = Math.round(sparkChance({
-            parents: [gpOnly], skillId: gpWhiteCover, rates: sparkRates,
-            opts: { memberAffinity, skillRarity: rarityLookup },
-          }).pct);
-        }
+        // Grandparent greens ROLL at the inspiration events (unlike the direct
+        // parents' career-start-guaranteed greens) — priced by sparkChance's
+        // green path. Reconcile the held green id so the match works.
+        const refPriced: ParentRef = gpGreenCovers && ref.greenSpark
+          ? { ...ref, greenSpark: { ...ref.greenSpark, skillId: reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) } }
+          : ref;
+        // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
+        const gpOnly: Parent = {
+          ...parent,
+          whiteSparks: [],
+          greenSpark: undefined,
+          grandparents: (gpIndex === 0
+            ? [refPriced, undefined]
+            : [undefined, refPriced]) as [ParentRef?, ParentRef?],
+        };
+        const gpPct = Math.round(sparkChance({
+          parents: [gpOnly], skillId: gpWhiteCover ?? skillId, rates: sparkRates,
+          opts: { memberAffinity, skillRarity: rarityLookup },
+        }).pct);
         cells.gp.push({
           kind: 'gp',
           label: umaLabel(String(ref.umaId), String(ref.umaId)),
-          title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green'} spark${gpWhiteCover ? '' : ' (unpriced)'}`,
-          ...(gpPct !== undefined ? { pct: gpPct } : {}),
+          title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,
+          pct: gpPct,
         });
       });
     }

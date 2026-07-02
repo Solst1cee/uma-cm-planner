@@ -192,11 +192,13 @@ describe('buildCoverageMatrix', () => {
     expect(row.covered).toBe(true);
   });
 
-  it('covers an inherited-unique wishlist skill via a parent green spark (reconciled id)', () => {
+  it('a parent green spark is GUARANTEED (100%) — direct parents\' uniques never roll', () => {
     const p = parent('pa', '100101', { greenSpark: { skillId: '100011', stars: 2 } });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
     const row = res.rows.find((r) => r.skillId === '900011')!;
     expect(row.cells.parent.length).toBe(1);
+    expect(row.cells.parent[0]!.pct).toBe(100);
+    expect(row.cells.parent[0]!.title).toContain('guaranteed at career start');
     expect(row.covered).toBe(true);
   });
 
@@ -281,9 +283,9 @@ describe('buildCoverageMatrix', () => {
     expect(row.cells.parent[0]!.pct).toBeGreaterThan(0); // green base [5,10,15] → 3★ > 0
   });
 
-  it('FIX B — grandparent green-only spark chip shows no pct (unpriced, not ~0%)', () => {
-    // GP grants via a green spark only; sparkChance cannot price gp green sparks.
-    // pct must be undefined so the chip renders as "unpriced" not "~0%".
+  it('a grandparent green spark IS priced — gp greens roll at the inspiration events', () => {
+    // Unlike the direct parents' guaranteed greens, a gp green rolls with the
+    // green base table (reconciled native→9xxxxx id before pricing).
     const gp: import('./types').ParentRef = {
       umaId: '200301',
       whiteSparks: [],
@@ -293,7 +295,10 @@ describe('buildCoverageMatrix', () => {
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
     const row = res.rows.find((r) => r.skillId === '900011')!;
     expect(row.cells.gp.length).toBe(1);
-    expect(row.cells.gp[0]!.pct).toBeUndefined();
+    const chip = row.cells.gp[0]!;
+    expect(chip.pct).toBeGreaterThan(0);
+    expect(chip.pct).toBeLessThan(100);
+    expect(chip.title).toContain('grandparent green (unique) spark');
   });
 
   it('FIX B — grandparent white spark is still priced (pct > 0)', () => {

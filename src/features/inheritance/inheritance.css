@@ -1717,13 +1717,16 @@ main:has(.inh-page) {
 /* Source cells: content centered both ways; chips lay out 2 rows × 3 columns. */
 .inh-cov-matrix td.inh-cov-cell { white-space: nowrap; text-align: center; vertical-align: middle; }
 .inh-cov-matrix thead th:not(.skill-col) { text-align: center; vertical-align: middle; }
-.inh-cov-matrix tbody th.skill-col { vertical-align: middle; }
-.inh-cov-cell-grid { display: inline-grid; grid-template-columns: repeat(3, auto); gap: 3px 5px; justify-items: center; align-items: center; }
+.inh-cov-matrix tbody th.skill-col { vertical-align: middle; font-size: 0.72rem; }
+/* Uniform row height: blank cells match one-chip-row cells (td height = min-height). */
+.inh-cov-matrix tbody th, .inh-cov-matrix tbody td { height: 30px; padding-top: 2px; padding-bottom: 2px; }
+.inh-cov-cell-grid { display: inline-grid; grid-template-columns: repeat(3, auto); gap: 1px 2px; justify-items: center; align-items: center; vertical-align: middle; }
 .inh-cov-cell-grid .inh-cov-chip-wrap { margin-right: 0; }
+.inh-cov-combined { vertical-align: middle; }
 .inh-cov-matrix .inh-cov-sep { border-left: 2px solid var(--border); }
 .inh-cov-chip-wrap { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
 .inh-cov-chip-icon { display: inline-flex; align-items: center; }
-.inh-cov-chip-icon img { border-radius: 4px; }
+.inh-cov-chip-icon img { border-radius: 4px; display: block; }
 .inh-cov-chip { display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px; padding: 0 4px; font-size: 0.56rem; font-weight: 800; color: #fff; border-radius: 4px; }
 .inh-cov-chip[data-round="1"] { border-radius: 999px; }
 .inh-cov-chip.tier-spark { background: var(--tier-spark); }
