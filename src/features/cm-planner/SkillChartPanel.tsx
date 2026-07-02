@@ -26,6 +26,7 @@ import {
 import { useGameData } from '@/features/data/gameData';
 import { useAvailability } from '@/app/useAvailability';
 import { TierChip } from '@/app/TierChip';
+import { RebalanceBadge } from '@/app/RebalanceBadge';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { HeaderHelp } from './HeaderHelp';
 import { skillRecordToSummary } from './skillTechnicalDetails';
@@ -324,6 +325,7 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                         </span>
                       )}
                       <TierChip tier={tierOf(v.skill)} />
+                      <RebalanceBadge info={v.skill.rebalance} />
                       <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
                         {/* L == null = un-simmed (e.g. an in-build row added before any Run) → "—", NOT a fabricated +0.00 */}
                         {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
