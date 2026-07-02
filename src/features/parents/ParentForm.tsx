@@ -5,6 +5,7 @@
  * ParentDraft and validates the required picks.
  */
 import { useMemo, useState, type FormEvent } from 'react';
+import { useAvailability } from '@/app/useAvailability';
 import type { Parent, ParentRef, SkillRecord, Stat } from '@/core/types';
 import type { ParentDraft } from '@/db';
 import { useGameData } from '@/features/data/gameData';
@@ -290,6 +291,7 @@ export function ParentForm({
 }) {
   const { skills, skillById } = useGameData();
   const { umas, umaById } = useUmas();
+  const { visible } = useAvailability();
 
   const [umaId, setUmaId] = useState<string | null>(initial?.umaId ?? null);
   const [blueStat, setBlueStat] = useState<Stat>(initial?.blueSpark.stat ?? 'spd');
@@ -319,27 +321,28 @@ export function ParentForm({
 
   const skillName = (id: string) => skillById.get(id)?.nameEn ?? `Skill ${id}`;
 
-  // P4: only Global records are offered.
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const umaItems = useMemo<SearchItem[]>(
     () =>
       umas
-        .filter((u) => u.server === 'global')
+        .filter((u) => visible(u))
         .map((u) => ({
           id: u.umaId,
           name: u.nameEn,
           sub: u.epithet,
           icon: <GameIcon kind="uma" id={u.umaId} size={32} alt="" />,
         })),
-    [umas],
+    [umas, visible],
   );
   // FINDING 1: white sparks are white-skill ONLY. Gold/unique skills are not
   // white-spark inheritance targets (mechanics-notes §8; white_spark_skills.json
   // carries white ids exclusively); offering+pricing a gold as a white spark
   // fabricates an inheritance % for an event that cannot occur (P3).
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const whiteItems = useMemo<SearchItem[]>(
     () =>
       skills
-        .filter((s) => s.server === 'global' && s.rarity === 'white')
+        .filter((s) => visible(s) && s.rarity === 'white')
         .map((s) => ({
           id: s.skillId,
           name: s.nameEn,
@@ -347,13 +350,14 @@ export function ParentForm({
           badgeClass: `rarity-${s.rarity}`,
           icon: <GameIcon kind="skill" id={s.iconId} size={24} alt="" />,
         })),
-    [skills],
+    [skills, visible],
   );
   // Green sparks grant the 9xxxxx inherited-unique skill (mechanics-notes §8).
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const greenItems = useMemo<SearchItem[]>(
     () =>
       skills
-        .filter((s) => s.server === 'global' && s.rarity === 'inherited_unique')
+        .filter((s) => visible(s) && s.rarity === 'inherited_unique')
         .map((s) => ({
           id: s.skillId,
           name: s.nameEn,
@@ -361,7 +365,7 @@ export function ParentForm({
           badgeClass: `rarity-${s.rarity}`,
           icon: <GameIcon kind="skill" id={s.iconId} size={24} alt="" />,
         })),
-    [skills],
+    [skills, visible],
   );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
