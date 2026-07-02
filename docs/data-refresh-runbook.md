@@ -306,7 +306,7 @@ recap of the rules that bite:
   it, but a numeric change without a cited source fails `loadRebalances`.
 - `jpDate` (when the version is JP-only) lets the shared foresight clock
   project a Global arrival; `globalDate` (once Global patch notes confirm it —
-  see 4b) wins over that projection.
+  see *Global patch notes confirm it* below) wins over that projection.
 
 Example — adding a JP-only ver 2 to a tracked skill:
 
