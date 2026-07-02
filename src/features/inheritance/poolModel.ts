@@ -2,7 +2,6 @@
 /** M1.6 — pool view-model: build, filter, sort. Pure helpers. */
 import type { CardType, LimitBreak, Server, SupportCardRecord } from '@/core/types';
 import { matchedSkillIds } from '@/core/cardMatches';
-import { isReleasedBy } from '@/core/availability';
 import { TYPE_COLORS, TYPE_LABEL } from './deckOps';
 
 // ---------------------------------------------------------------------------
@@ -15,8 +14,6 @@ export interface PoolFilters {
   /** Skill id to filter on, or null for no skill filter. */
   skill: string | null;
   search: string;
-  /** When true, show JP-ahead cards that are released by the CM date. */
-  showUpcoming: boolean;
 }
 
 export type PoolSort = 'matches' | 'effect';
@@ -136,15 +133,17 @@ export function buildPoolItem(card: SupportCardRecord, opts: BuildPoolItemOpts):
 // Filter
 // ---------------------------------------------------------------------------
 
-export function filterPool(items: PoolItem[], filters: PoolFilters, asOfISO?: string): PoolItem[] {
-  const { rarity, type, skill, search, showUpcoming } = filters;
+export function filterPool(
+  items: PoolItem[],
+  filters: PoolFilters,
+  visible: (it: PoolItem) => boolean,
+): PoolItem[] {
+  const { rarity, type, skill, search } = filters;
   const lowerSearch = search.toLowerCase();
-  const now = asOfISO ?? new Date().toISOString().slice(0, 10);
 
-  // Availability gate: global cards always show; jp cards only when showUpcoming + released by date
-  items = items.filter((it) =>
-    it.server === 'global' || (showUpcoming && isReleasedBy(it, now)),
-  );
+  // Availability gate: the shared app-wide planning-horizon lens decides which
+  // server/releaseDate combinations are visible at the current horizon.
+  items = items.filter(visible);
 
   return items.filter((item) => {
     // Rarity filter

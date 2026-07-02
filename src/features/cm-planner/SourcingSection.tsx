@@ -5,6 +5,7 @@
 import './sourcing.css';
 import { useMemo } from 'react';
 import { useGameData } from '@/features/data/gameData';
+import { useAvailability } from '@/app/useAvailability';
 import { GameIcon } from '@/features/data/GameIcon';
 import { buildCardHintIndex, sourcingForSkill } from '@/core/sourcing';
 import type { SkillRarity, Tier } from '@/core/types';
@@ -26,12 +27,13 @@ const TIER_LABEL: Partial<Record<Tier, string>> = {
 /** Reverse card-hint index + cardById, memoized over the (stable) GameData card list. */
 export function useCardHintIndex() {
   const { cards } = useGameData();
+  const { visible } = useAvailability();
   return useMemo(() => {
-    // M4 sourcing = actionable Global sources only; JP-ahead (server:'jp') cards are
-    // preview content gated in the M1 pool, not listed here (availability gate).
-    const list = (cards ?? []).filter((c) => c.server === 'global');
+    // M4 sourcing = sources visible at the shared app-wide planning horizon — the
+    // horizon control (header) decides how far ahead JP-preview cards are shown.
+    const list = (cards ?? []).filter(visible);
     return { index: buildCardHintIndex(list), cardById: new Map(list.map((c) => [c.cardId, c])) };
-  }, [cards]);
+  }, [cards, visible]);
 }
 
 export function SourcingSection({ skillId, rarity }: { skillId: string; rarity: SkillRarity }) {

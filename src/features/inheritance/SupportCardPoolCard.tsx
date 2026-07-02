@@ -3,6 +3,8 @@
  *  Provider-free — all data comes via props. */
 import { useEffect, useState } from 'react';
 import type { CardBaseEffect, CardEffect, CardType, LimitBreak } from '@/core/types';
+import type { AvailabilityTier } from '@/core/availability';
+import { TierChip } from '@/app/TierChip';
 import { TYPE_COLORS, TYPE_LABEL } from './deckOps';
 import { isTraineeConflict } from './deckConflicts';
 import {
@@ -40,9 +42,11 @@ export interface SupportCardPoolCardProps {
   /** Optional node rendered between the search/filters and the grid (e.g. the
    *  Scoring weights card). */
   weightsSlot?: React.ReactNode;
-  /** ISO date (YYYY-MM-DD) of the CM — gates JP-ahead cards to those released by
-   *  this date. Falls back to today when omitted. */
-  asOfISO?: string;
+  /** The shared app-wide planning-horizon lens (from `useAvailability()`): which
+   *  server/releaseDate combinations are visible at the current horizon. */
+  visible: (it: PoolItem) => boolean;
+  /** The availability tier ('now' | 'upcoming' | 'future') for a pool item. */
+  tierOf: (it: PoolItem) => AvailabilityTier;
 }
 
 // ---------------------------------------------------------------------------
@@ -56,7 +60,6 @@ const DEFAULT_FILTERS: PoolFilters = {
   type: 'all',
   skill: null,
   search: '',
-  showUpcoming: false,
 };
 
 // ---------------------------------------------------------------------------
@@ -77,13 +80,14 @@ export function SupportCardPoolCard({
   selectedCardId = null,
   onSelectCard,
   weightsSlot,
-  asOfISO,
+  visible,
+  tierOf,
 }: SupportCardPoolCardProps) {
   const [view, setView] = useState<'icon' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
 
-  const filtered = sortPool(filterPool(items, filters, asOfISO), sort);
+  const filtered = sortPool(filterPool(items, filters, visible), sort);
 
   function setRarity(rarity: PoolFilters['rarity']) {
     setFilters((f) => ({ ...f, rarity }));
@@ -233,17 +237,6 @@ export function SupportCardPoolCard({
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-
-          {/* Upcoming (JP-ahead) toggle */}
-          <div className="inh-pool-filter-row">
-            <label className="cmp-upcoming-toggle">
-              <input
-                type="checkbox"
-                checked={filters.showUpcoming}
-                onChange={(e) => setFilters((f) => ({ ...f, showUpcoming: e.target.checked }))}
-              />{' '}show upcoming
-            </label>
-          </div>
         </div>
 
         {/* Optional card (Scoring weights) between the search/filters and the grid. */}
@@ -273,6 +266,7 @@ export function SupportCardPoolCard({
                   renderIcon={renderIcon}
                   selected={selectedCardId === item.cardId}
                   onSelect={() => onSelectCard?.(item.cardId)}
+                  tierOf={tierOf}
                 />
               );
             })}
@@ -301,9 +295,10 @@ interface PoolTileProps {
   renderIcon: (item: PoolItem, size: number) => React.ReactNode;
   selected: boolean;
   onSelect: () => void;
+  tierOf: (it: PoolItem) => AvailabilityTier;
 }
 
-function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, onAdd, renderIcon, selected, onSelect }: PoolTileProps) {
+function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, onAdd, renderIcon, selected, onSelect, tierOf }: PoolTileProps) {
   function handleDragStart(e: React.DragEvent) {
     // Blocked cards can't be dropped into the deck — cancel the drag.
     if (blocked) {
@@ -344,10 +339,18 @@ function PoolTile({ item, lb, onCardLb, inDeck, blocked = false, blockReason, on
         </button>
         {/* Predicted release date badge — shown for JP-ahead cards with a projected date. */}
         {item.releaseDatePredicted && item.releaseDate && (
-          <span className="inh-pool-tile-release-badge" title="Predicted Global release date">
+          <span
+            className="inh-pool-tile-release-badge"
+            title={
+              item.releaseDatePredicted
+                ? 'Projected Global date (foresight pace) — not announced'
+                : 'Announced Global release'
+            }
+          >
             ~{item.releaseDate}
           </span>
         )}
+        <TierChip tier={tierOf(item)} />
         {/* Hover-only quick-add (top-right of the icon). Hidden once in the deck
             or when the card can't be added (trainee / duplicate character). */}
         {!inDeck && !blocked && (

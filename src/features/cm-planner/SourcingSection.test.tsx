@@ -24,6 +24,16 @@ const cards: SupportCardRecord[] = [
 let gameData: { cards: SupportCardRecord[] } = { cards };
 vi.mock('@/features/data/gameData', () => ({ useGameData: () => gameData }));
 
+// The reverse card-hint index reads the shared app-wide planning horizon; default
+// mirrors "current" (global only). Tests can swap `availabilityFixture` for a
+// cm-like predicate that also admits released-by-cutoff JP-ahead cards.
+let availabilityFixture: { visible: (r: { server: string; releaseDate?: string }) => boolean } = {
+  visible: (r) => r.server === 'global',
+};
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => availabilityFixture,
+}));
+
 describe('SourcingSection', () => {
   it('lists the cards that hint a white skill, best tier first, with a tier badge', () => {
     const { container } = render(<SourcingSection skillId="S1" rarity="white" />);
@@ -61,5 +71,23 @@ describe('SourcingSection', () => {
     expect(container.textContent).toContain('GlobalCard');
     expect(container.textContent).not.toContain('JpCard');
     gameData = prevData;
+  });
+
+  it('includes an upcoming JP-ahead card as a source when the horizon predicate admits it', () => {
+    const prevData = gameData;
+    const prevAvailability = availabilityFixture;
+    gameData = {
+      cards: [
+        card('40001', 'GlobalCard', [{ skillId: 'S3', sourceType: 'chain' }], 'global'),
+        card('40003', 'JpUpcoming', [{ skillId: 'S3', sourceType: 'chain' }], 'jp'),
+      ],
+    };
+    // A cm-like predicate: released by the plan's CM cutoff, regardless of server.
+    availabilityFixture = { visible: () => true };
+    const { container } = render(<SourcingSection skillId="S3" rarity="white" />);
+    expect(container.textContent).toContain('GlobalCard');
+    expect(container.textContent).toContain('JpUpcoming');
+    gameData = prevData;
+    availabilityFixture = prevAvailability;
   });
 });

@@ -9,6 +9,19 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 vi.mock('@/app/ActivePlanContext', () => ({
   useActivePlan: () => ({ uma1Plan: null, plan: null, setPlan: vi.fn() }),
 }));
+// The page's pool card reads the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 // useUmas + useGameData are called unconditionally by the page; stub both so it needs no provider.
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [], umaById: new Map() }),
