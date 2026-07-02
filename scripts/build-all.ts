@@ -20,6 +20,7 @@ import { buildCmPresets } from './build-cm-presets';
 import { buildIcons } from './build-icons';
 import { buildJpSkills, buildSkills } from './build-skills';
 import type { DateEntry } from './lib/jpSkillDate';
+import { bakeRebalances, detectCandidates, loadRebalances } from './lib/rebalances';
 import { buildSparkRates } from './build-spark-rates';
 import { buildTimeline } from './build-timeline';
 import { buildJpUmas, buildUmas } from './build-umas';
@@ -55,9 +56,10 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   const masterSkills = readBorrowedJson<MasterSkillsJson>('skills.json');
   const releasedSkillIds = new Set(Object.keys(masterSkills));
   const tachyons = readBorrowedJson<TachyonsDataJson>('tachyons-data.json');
+  const gametoraSkills = readBorrowedJson<GtSkill[]>('gametora/skills.json');
   let skills = buildSkills({
     master: masterSkills,
-    gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
+    gametora: gametoraSkills,
     dataVersion: DATA_VERSION,
   });
   // Additions: full records for upcoming (server:'jp') skills not yet in the Global cutover
@@ -139,7 +141,7 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     if (u.releaseDate) umaDates.set(u.umaId, { date: u.releaseDate, predicted: u.releaseDatePredicted === true });
   }
   const jpSkills = buildJpSkills({
-    gametora: readBorrowedJson<GtSkill[]>('gametora/skills.json'),
+    gametora: gametoraSkills,
     // Dedup JP skills against every id already present (master + skill_additions),
     // not just master, so a hand-added upcoming skill can't be emitted twice.
     masterSkillIds: new Set(skills.map((s) => s.skillId)),
@@ -176,6 +178,43 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     console.log(`applied ${override.fileName} → ${override._target}`);
   }
   recomputeHintPoolSizes(cards); // hintPoolSize is derived; overrides may re-type sources
+
+  // Skill rebalances (Availability #4a slice 4a): bake auto-detected (JP-vs-Global
+  // condition diff) + hand-curated version history onto the final skills array.
+  const rebalanceMap = bakeRebalances({
+    candidates: detectCandidates(gametoraSkills, releasedSkillIds),
+    curated: loadRebalances(join(OVERRIDES_DIR, 'rebalances.json')),
+    cal,
+  });
+  skills = skills.map((s) => {
+    const info = rebalanceMap.get(s.skillId);
+    return info ? { ...s, rebalance: info } : s;
+  });
+  console.log(`rebalances: ${rebalanceMap.size} annotated (${[...rebalanceMap.values()].filter((r) => r.uncuratedCandidate).length} uncurated candidates)`);
+
+  // Timeline `patch` entries for curated (non-candidate) rebalance versions with
+  // a resolved Global arrival — uncurated candidates emit no timeline entry.
+  const skillNameById = new Map(skills.map((s) => [s.skillId, s.nameEn]));
+  const rebalancePatchEntries: TimelineEntry[] = [];
+  for (const [skillId, info] of rebalanceMap) {
+    if (info.uncuratedCandidate) continue;
+    const skillName = skillNameById.get(skillId) ?? skillId;
+    for (const v of info.versions) {
+      if (v.globalArrival === undefined) continue;
+      rebalancePatchEntries.push({
+        id: `patch-${skillId}-v${v.ver}`,
+        type: 'patch',
+        title: `Skill rebalance: ${skillName} v${v.ver}`,
+        dates: { start: v.globalArrival },
+        tier: v.globalDatePredicted ? 'prediction' : 'official',
+        status: v.globalDatePredicted ? 'unconfirmed' : 'confirmed',
+        source: { kind: 'manual', url: v.sourceUrl ?? '' },
+        server: 'global',
+        dataVersion: DATA_VERSION,
+      });
+    }
+  }
+
   // Timeline: built after cm_preset overrides are applied so patched presets flow in.
   // Read directly (not via loadOverrideFiles) — timeline_overrides.json is insert-capable.
   const timelineOverrides = (readJson<{ entries?: Array<Partial<TimelineEntry> & { id: string }> }>(join(OVERRIDES_DIR, 'timeline_overrides.json')).entries ?? []);
@@ -185,7 +224,14 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
   const tracks = existsSync(cmTracksPath)
     ? readJson<{ tracks: CmTrack[] }>(cmTracksPath).tracks
     : [];
-  const timeline = buildTimeline({ presets, overrides: timelineOverrides, tracks, jpCms: jpSchedule.cms ?? [], dataVersion: DATA_VERSION });
+  const timeline = buildTimeline({
+    presets,
+    overrides: timelineOverrides,
+    tracks,
+    jpCms: jpSchedule.cms ?? [],
+    dataVersion: DATA_VERSION,
+    extraEntries: rebalancePatchEntries,
+  });
 
   // Build-time oracle (provenance §4.1): emitted cards must agree with the
   // independent Tachyons-lab event-reward source — catches regressions of the

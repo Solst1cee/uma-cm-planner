@@ -41,7 +41,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&change_order_onetime<0&order>=3",
+        "global": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3"
+      }
+    }
   },
   {
     "skillId": "10141",
@@ -52,7 +66,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&hp_per>=30&order<=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&hp_per>=30&order<=2",
+        "global": "is_finalcorner==1&corner==0&hp_per>=30&order<=2"
+      }
+    }
   },
   {
     "skillId": "10181",
@@ -107,7 +135,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=5",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&order<=5",
+        "global": "is_finalcorner==1&corner==0&order<=5"
+      }
+    }
   },
   {
     "skillId": "10411",
@@ -260,7 +302,21 @@
     "iconId": "20013",
     "conditions": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase>=2&order>=1&order_rate<=70&change_order_onetime<0",
+        "global": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "100021",
@@ -282,7 +338,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&running_style==2&course_distance==2400@is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1"
+      }
+    }
   },
   {
     "skillId": "100041",
@@ -304,7 +374,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "remain_distance<=300",
+        "global": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1"
+      }
+    }
   },
   {
     "skillId": "100061",
@@ -370,7 +454,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&change_order_onetime<0&order>=3",
+        "global": "is_finalcorner==1&corner==0&change_order_onetime<0&order>=3"
+      }
+    }
   },
   {
     "skillId": "100121",
@@ -381,7 +479,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "100131",
@@ -392,7 +504,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2@is_finalcorner==1&corner!=0&distance_diff_rate<=30",
+        "global": "is_finalcorner==1&corner!=0&distance_diff_rate<=30"
+      }
+    }
   },
   {
     "skillId": "100141",
@@ -403,7 +529,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&hp_per>=30&order<=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&hp_per>=30&order<=2",
+        "global": "is_finalcorner==1&corner==0&hp_per>=30&order<=2"
+      }
+    }
   },
   {
     "skillId": "100151",
@@ -436,7 +576,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&change_order_up_end_after>=3&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&change_order_up_end_after>=3",
+        "global": "is_finalcorner==1&change_order_up_end_after>=3&corner==0"
+      }
+    }
   },
   {
     "skillId": "100181",
@@ -502,7 +656,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order<=4",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0@phase>=2&is_finalcorner==1&order<=4",
+        "global": "is_finalcorner==1&change_order_onetime<0&order<=4"
+      }
+    }
   },
   {
     "skillId": "100241",
@@ -535,7 +703,21 @@
     "iconId": "20013",
     "conditions": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_badstart==0&order<=3&is_last_straight==1&order_rate_in20_continue==1@is_badstart==0&order<=3&is_last_straight==1",
+        "global": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "100271",
@@ -557,7 +739,21 @@
     "iconId": "20013",
     "conditions": "distance_rate>=45&distance_rate<=60&order>=3&order_rate<=50&hp_per<=70",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_rate>=45&distance_rate<=60&order>=2&order_rate<=50&is_overtake==1&distance_type==1@distance_rate>=45&distance_rate<=60&order>=2&order_rate<=50&is_overtake==1",
+        "global": "distance_rate>=45&distance_rate<=60&order>=3&order_rate<=50&hp_per<=70"
+      }
+    }
   },
   {
     "skillId": "100291",
@@ -581,7 +777,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "100311",
@@ -614,7 +824,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate<80@is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate>=80",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&distance_diff_top>=5&order_rate<80@is_last_straight==1&distance_diff_top>=5&order_rate>=80",
+        "global": "is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate<80@is_finalcorner==1&corner==0&distance_diff_top>=5&order_rate>=80"
+      }
+    }
   },
   {
     "skillId": "100341",
@@ -636,7 +860,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=5",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&order<=5",
+        "global": "is_finalcorner==1&corner==0&order<=5"
+      }
+    }
   },
   {
     "skillId": "100361",
@@ -647,7 +885,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "100371",
@@ -658,7 +910,21 @@
     "iconId": "20013",
     "conditions": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "temptation_count==0&order>=3&is_last_straight==1&order_rate_in80_continue==1&order_rate_out40_continue==1@temptation_count==0&order>=3&is_last_straight==1",
+        "global": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "100381",
@@ -669,7 +935,21 @@
     "iconId": "20013",
     "conditions": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=40&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=50&change_order_onetime<0",
+        "global": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=40&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "100391",
@@ -680,7 +960,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&blocked_side_continuetime>=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&blocked_side_continuetime>=2",
+        "global": "is_finalcorner==1&corner==0&blocked_side_continuetime>=2"
+      }
+    }
   },
   {
     "skillId": "100401",
@@ -691,7 +985,21 @@
     "iconId": "20043",
     "conditions": "distance_rate>=50&order_rate>=40&order_rate<=70&is_overtake==1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_rate>=50&order_rate>=40&order_rate<=80&is_overtake==1",
+        "global": "distance_rate>=50&order_rate>=40&order_rate<=70&is_overtake==1"
+      }
+    }
   },
   {
     "skillId": "100411",
@@ -785,7 +1093,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&order_rate<=40&overtake_target_time>=1@is_last_straight==1&order_rate<=40&is_overtake==1",
+        "global": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "100491",
@@ -905,7 +1227,21 @@
     "iconId": "20013",
     "conditions": "phase>=2&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase>=2&change_order_onetime<0",
+        "global": "phase>=2&corner!=0&order>=3&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "100591",
@@ -1056,7 +1392,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&bashin_diff_behind<=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&bashin_diff_behind<=1",
+        "global": "is_finalcorner==1&corner==0&bashin_diff_behind<=1"
+      }
+    }
   },
   {
     "skillId": "100721",
@@ -1843,7 +2193,21 @@
     "iconId": "20023",
     "conditions": "phase==1&order>=2&order_rate<=70&activate_count_middle>=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&order>=2&order_rate<=80&activate_count_middle>=2",
+        "global": "phase==1&order>=2&order_rate<=70&activate_count_middle>=2"
+      }
+    }
   },
   {
     "skillId": "110021",
@@ -1867,7 +2231,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "110041",
@@ -1985,7 +2363,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+        "global": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1"
+      }
+    }
   },
   {
     "skillId": "110141",
@@ -2031,7 +2423,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_finalcorner==1",
+        "global": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2"
+      }
+    }
   },
   {
     "skillId": "110181",
@@ -2101,7 +2507,21 @@
     "iconId": "20013",
     "conditions": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+        "global": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40"
+      }
+    }
   },
   {
     "skillId": "110241",
@@ -2112,7 +2532,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
+        "global": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "110251",
@@ -2186,7 +2620,21 @@
     "iconId": "20023",
     "conditions": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&order>=2&order_rate<=50",
+        "global": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1"
+      }
+    }
   },
   {
     "skillId": "110311",
@@ -2275,7 +2723,21 @@
     "iconId": "20013",
     "conditions": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "change_order_up_finalcorner_after>=2&is_last_straight==1",
+        "global": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "110381",
@@ -2360,7 +2822,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order<=4&bashin_diff_infront<=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&order<=4&bashin_diff_infront<=1",
+        "global": "is_finalcorner==1&corner==0&order<=4&bashin_diff_infront<=1"
+      }
+    }
   },
   {
     "skillId": "110461",
@@ -2534,7 +3010,21 @@
     "iconId": "20013",
     "conditions": "is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity>=4@is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity<4",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1&order_rate>=40&order_rate<=70&popularity>=4@is_last_straight==1&order_rate>=40&order_rate<=70&popularity<4",
+        "global": "is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity>=4@is_finalcorner==1&corner==0&order_rate>=40&order_rate<=70&popularity<4"
+      }
+    }
   },
   {
     "skillId": "110611",
@@ -2545,7 +3035,21 @@
     "iconId": "20043",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_last_straight==1",
+        "global": "is_finalcorner==1&corner==0"
+      }
+    }
   },
   {
     "skillId": "110621",
@@ -4966,7 +5470,21 @@
       "200352",
       "200353"
     ],
-    "prereqSkillId": "200352"
+    "prereqSkillId": "200352",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&corner!=0",
+        "global": "corner_random==1@corner_random==2@corner_random==3@corner_random==4"
+      }
+    }
   },
   {
     "skillId": "200352",
@@ -4981,7 +5499,21 @@
     "variantSkillIds": [
       "200351",
       "200353"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&corner!=0",
+        "global": "corner_random==1@corner_random==2@corner_random==3@corner_random==4"
+      }
+    }
   },
   {
     "skillId": "200353",
@@ -4996,7 +5528,21 @@
     "variantSkillIds": [
       "200351",
       "200352"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&corner!=0",
+        "global": "corner_random==1@corner_random==2@corner_random==3@corner_random==4"
+      }
+    }
   },
   {
     "skillId": "200361",
@@ -5069,7 +5615,21 @@
     "variantSkillIds": [
       "200382"
     ],
-    "prereqSkillId": "200382"
+    "prereqSkillId": "200382",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&corner==0",
+        "global": "straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200382",
@@ -5083,7 +5643,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200381"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&corner==0",
+        "global": "straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200391",
@@ -5391,7 +5965,21 @@
     "variantSkillIds": [
       "200512"
     ],
-    "prereqSkillId": "200512"
+    "prereqSkillId": "200512",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_lastspurt==1&phase_firsthalf_random==3",
+        "global": "is_lastspurt==1&phase_random==3"
+      }
+    }
   },
   {
     "skillId": "200512",
@@ -5405,7 +5993,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200511"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "is_lastspurt==1&phase_firsthalf_random==3",
+        "global": "is_lastspurt==1&phase_random==3"
+      }
+    }
   },
   {
     "skillId": "200521",
@@ -5431,7 +6033,21 @@
     "variantSkillIds": [
       "200532"
     ],
-    "prereqSkillId": "200532"
+    "prereqSkillId": "200532",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==1&always==1",
+        "global": "running_style==1&phase==0"
+      }
+    }
   },
   {
     "skillId": "200532",
@@ -5445,7 +6061,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200531"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==1&always==1",
+        "global": "running_style==1&phase==0"
+      }
+    }
   },
   {
     "skillId": "200541",
@@ -5605,7 +6235,21 @@
     "variantSkillIds": [
       "200592"
     ],
-    "prereqSkillId": "200592"
+    "prereqSkillId": "200592",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_random==1&order_rate>=40",
+        "global": "running_style==3&phase_random==1&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "200592",
@@ -5619,7 +6263,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200591"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_random==1&order_rate>=40",
+        "global": "running_style==3&phase_random==1&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "200601",
@@ -5634,7 +6292,21 @@
     "variantSkillIds": [
       "200602"
     ],
-    "prereqSkillId": "200602"
+    "prereqSkillId": "200602",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+        "global": "running_style==3&phase_random==2&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "200602",
@@ -5648,7 +6320,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200601"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+        "global": "running_style==3&phase_random==2&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "200611",
@@ -5721,7 +6407,21 @@
     "variantSkillIds": [
       "200632"
     ],
-    "prereqSkillId": "200632"
+    "prereqSkillId": "200632",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
+        "global": "running_style==4&phase_random==2&distance_diff_rate>=50"
+      }
+    }
   },
   {
     "skillId": "200632",
@@ -5735,7 +6435,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200631"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
+        "global": "running_style==4&phase_random==2&distance_diff_rate>=50"
+      }
+    }
   },
   {
     "skillId": "200641",
@@ -5779,7 +6493,21 @@
     "variantSkillIds": [
       "200652"
     ],
-    "prereqSkillId": "200652"
+    "prereqSkillId": "200652",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==1&phase_random==2",
+        "global": "distance_type==1&straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200652",
@@ -5793,7 +6521,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200651"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==1&phase_random==2",
+        "global": "distance_type==1&straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200662",
@@ -5848,7 +6590,21 @@
     "variantSkillIds": [
       "200682"
     ],
-    "prereqSkillId": "200682"
+    "prereqSkillId": "200682",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+        "global": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50"
+      }
+    }
   },
   {
     "skillId": "200682",
@@ -5862,7 +6618,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200681"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+        "global": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50"
+      }
+    }
   },
   {
     "skillId": "200691",
@@ -5993,7 +6763,21 @@
     "variantSkillIds": [
       "200732"
     ],
-    "prereqSkillId": "200732"
+    "prereqSkillId": "200732",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+        "global": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0"
+      }
+    }
   },
   {
     "skillId": "200732",
@@ -6007,7 +6791,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200731"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+        "global": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0"
+      }
+    }
   },
   {
     "skillId": "200741",
@@ -6022,7 +6820,21 @@
     "variantSkillIds": [
       "200742"
     ],
-    "prereqSkillId": "200742"
+    "prereqSkillId": "200742",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==4&phase_random==1",
+        "global": "distance_type==4&straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200742",
@@ -6036,7 +6848,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200741"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==4&phase_random==1",
+        "global": "distance_type==4&straight_random==1"
+      }
+    }
   },
   {
     "skillId": "200751",
@@ -6108,7 +6934,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200772"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+        "global": "phase==1&order_rate<=50&temptation_count_behind>=1"
+      }
+    }
   },
   {
     "skillId": "200772",
@@ -6123,7 +6963,21 @@
     "variantSkillIds": [
       "200771"
     ],
-    "prereqSkillId": "200771"
+    "prereqSkillId": "200771",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+        "global": "phase==1&order_rate<=50&temptation_count_behind>=1"
+      }
+    }
   },
   {
     "skillId": "200781",
@@ -6134,7 +6988,21 @@
     "iconId": "30051",
     "conditions": "phase==1&order_rate>50&temptation_count_infront>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "phase==1&order_rate>50&temptation_opponent_count_infront>=1",
+        "global": "phase==1&order_rate>50&temptation_count_infront>=1"
+      }
+    }
   },
   {
     "skillId": "200791",
@@ -6145,7 +7013,21 @@
     "iconId": "30041",
     "conditions": "running_style_temptation_count_nige>=1&is_temptation==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style_temptation_opponent_count_nige>=1&is_temptation==0",
+        "global": "running_style_temptation_count_nige>=1&is_temptation==0"
+      }
+    }
   },
   {
     "skillId": "200801",
@@ -6156,7 +7038,21 @@
     "iconId": "30041",
     "conditions": "running_style_temptation_count_senko>=1&is_temptation==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style_temptation_opponent_count_senko>=1&is_temptation==0",
+        "global": "running_style_temptation_count_senko>=1&is_temptation==0"
+      }
+    }
   },
   {
     "skillId": "200811",
@@ -6167,7 +7063,21 @@
     "iconId": "30041",
     "conditions": "running_style_temptation_count_sashi>=1&is_temptation==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style_temptation_opponent_count_sashi>=1&is_temptation==0",
+        "global": "running_style_temptation_count_sashi>=1&is_temptation==0"
+      }
+    }
   },
   {
     "skillId": "200821",
@@ -6178,7 +7088,21 @@
     "iconId": "30041",
     "conditions": "running_style_temptation_count_oikomi>=1&is_temptation==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style_temptation_opponent_count_oikomi>=1&is_temptation==0",
+        "global": "running_style_temptation_count_oikomi>=1&is_temptation==0"
+      }
+    }
   },
   {
     "skillId": "200831",
@@ -6724,7 +7648,21 @@
     "variantSkillIds": [
       "201062"
     ],
-    "prereqSkillId": "201062"
+    "prereqSkillId": "201062",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+        "global": "distance_type==2&phase==1&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "201062",
@@ -6738,7 +7676,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201061"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+        "global": "distance_type==2&phase==1&change_order_onetime<0"
+      }
+    }
   },
   {
     "skillId": "201071",
@@ -6960,7 +7912,21 @@
     "variantSkillIds": [
       "201132"
     ],
-    "prereqSkillId": "201132"
+    "prereqSkillId": "201132",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase_random==1",
+        "global": "distance_type==3&phase_random==1&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "201132",
@@ -6974,7 +7940,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201131"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase_random==1",
+        "global": "distance_type==3&phase_random==1&order_rate>50"
+      }
+    }
   },
   {
     "skillId": "201141",
@@ -7489,7 +8469,21 @@
     "variantSkillIds": [
       "201292"
     ],
-    "prereqSkillId": "201292"
+    "prereqSkillId": "201292",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==1&phase_random==2",
+        "global": "running_style==1&phase_random==1&order>=2"
+      }
+    }
   },
   {
     "skillId": "201292",
@@ -7503,7 +8497,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201291"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==1&phase_random==2",
+        "global": "running_style==1&phase_random==1&order>=2"
+      }
+    }
   },
   {
     "skillId": "201302",
@@ -7912,7 +8920,21 @@
     "variantSkillIds": [
       "201422"
     ],
-    "prereqSkillId": "201422"
+    "prereqSkillId": "201422",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_random==1&order_rate>=40",
+        "global": "running_style==3&phase_random==2"
+      }
+    }
   },
   {
     "skillId": "201422",
@@ -7926,7 +8948,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201421"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_random==1&order_rate>=40",
+        "global": "running_style==3&phase_random==2"
+      }
+    }
   },
   {
     "skillId": "201431",
@@ -8148,7 +9184,21 @@
     "variantSkillIds": [
       "201492"
     ],
-    "prereqSkillId": "201492"
+    "prereqSkillId": "201492",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+        "global": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10"
+      }
+    }
   },
   {
     "skillId": "201492",
@@ -8162,7 +9212,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201491"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+        "global": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10"
+      }
+    }
   },
   {
     "skillId": "201501",
@@ -8662,7 +9726,21 @@
     "variantSkillIds": [
       "201692"
     ],
-    "prereqSkillId": "201692"
+    "prereqSkillId": "201692",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+        "global": "running_style==3&phase_laterhalf_random==0&order_rate>=50"
+      }
+    }
   },
   {
     "skillId": "201692",
@@ -8676,7 +9754,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201691"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+        "global": "running_style==3&phase_laterhalf_random==0&order_rate>=50"
+      }
+    }
   },
   {
     "skillId": "201701",
@@ -8691,7 +9783,21 @@
     "variantSkillIds": [
       "201702"
     ],
-    "prereqSkillId": "201702"
+    "prereqSkillId": "201702",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
+        "global": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60"
+      }
+    }
   },
   {
     "skillId": "201702",
@@ -8705,7 +9811,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201701"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
+        "global": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60"
+      }
+    }
   },
   {
     "skillId": "201801",
@@ -8731,7 +9851,21 @@
     "variantSkillIds": [
       "201902"
     ],
-    "prereqSkillId": "201902"
+    "prereqSkillId": "201902",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+        "global": "running_style==2&phase_random==2&order_rate<=50"
+      }
+    }
   },
   {
     "skillId": "201902",
@@ -8745,7 +9879,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201901"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+        "global": "running_style==2&phase_random==2&order_rate<=50"
+      }
+    }
   },
   {
     "skillId": "202001",
@@ -8954,7 +10102,21 @@
     "variantSkillIds": [
       "202082"
     ],
-    "prereqSkillId": "202082"
+    "prereqSkillId": "202082",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+        "global": "distance_type==3&phase_random==2&order_rate>=50"
+      }
+    }
   },
   {
     "skillId": "202082",
@@ -8968,7 +10130,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "202081"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+        "global": "distance_type==3&phase_random==2&order_rate>=50"
+      }
+    }
   },
   {
     "skillId": "202091",
@@ -8983,7 +10159,21 @@
     "variantSkillIds": [
       "202092"
     ],
-    "prereqSkillId": "202092"
+    "prereqSkillId": "202092",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+        "global": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2"
+      }
+    }
   },
   {
     "skillId": "202092",
@@ -8997,7 +10187,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "202091"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+        "global": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2"
+      }
+    }
   },
   {
     "skillId": "202101",
@@ -9070,7 +10274,21 @@
     "variantSkillIds": [
       "202122"
     ],
-    "prereqSkillId": "202122"
+    "prereqSkillId": "202122",
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+        "global": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70"
+      }
+    }
   },
   {
     "skillId": "202122",
@@ -9084,7 +10302,21 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "202121"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 1,
+      "jpVer": 1,
+      "versions": [
+        {
+          "ver": 1
+        }
+      ],
+      "uncuratedCandidate": true,
+      "candidateConditions": {
+        "jp": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+        "global": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70"
+      }
+    }
   },
   {
     "skillId": "202131",

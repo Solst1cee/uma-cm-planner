@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, UmaRecord } from '@/core/types';
+import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import { PUBLIC_DATA_DIR } from './lib/io';
 
 function readData<T>(name: string): T {
@@ -17,6 +17,7 @@ const cards = readData<SupportCardRecord[]>('support_cards.json');
 const sparkRates = readData<SparkRates>('spark_rates.json');
 const presets = readData<CmPreset[]>('cm_presets.json');
 const umas = readData<UmaRecord[]>('umas.json');
+const timeline = readData<{ dataVersion: string; entries: TimelineEntry[] }>('timeline.json');
 
 describe('public/data/skills.json', () => {
   it('contains 587 Global skills + 1132 JP-ahead skills (total 1719), all on the pinned dataVersion', () => {
@@ -90,6 +91,21 @@ describe('public/data/skills.json', () => {
   it('has no duplicate skill ids', () => {
     const ids = skills.map((s) => s.skillId);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('bakes rebalance annotations: 88 uncurated auto-candidates, 0 curated (empty rebalances.json)', () => {
+    // Availability #4a: with data-overrides/rebalances.json empty, every
+    // annotated record comes from the AUTO JP-vs-Global condition-diff feed
+    // (detectCandidates) — none are hand-curated yet.
+    const annotated = skills.filter((s) => s.rebalance !== undefined);
+    const uncurated = annotated.filter((s) => s.rebalance?.uncuratedCandidate === true);
+    const curated = annotated.filter((s) => s.rebalance && s.rebalance.versions.length > 1);
+    expect(uncurated).toHaveLength(88);
+    expect(curated).toHaveLength(0);
+    expect(annotated).toHaveLength(uncurated.length + curated.length);
+    for (const s of uncurated) {
+      expect(s.rebalance?.candidateConditions?.jp).not.toBe(s.rebalance?.candidateConditions?.global);
+    }
   });
 });
 
@@ -351,6 +367,16 @@ describe('public/data/cm_presets.json', () => {
   it('is sorted by code-point date order (deterministic, locale-independent)', () => {
     const dates = presets.map((p) => p.date);
     expect(dates).toEqual([...dates].sort());
+  });
+});
+
+describe('public/data/timeline.json', () => {
+  it('emits no skill-rebalance patch entries while data-overrides/rebalances.json is empty', () => {
+    // Uncurated auto-candidates never emit a timeline entry (only curated,
+    // dated versions do) — with rebalances.json == [], the patch lane is empty
+    // and timeline.json is otherwise byte-identical to pre-Task-3.
+    const patches = timeline.entries.filter((e) => e.type === 'patch');
+    expect(patches).toHaveLength(0);
   });
 });
 

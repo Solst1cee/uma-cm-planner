@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CmPreset, CmTrack } from '@/core/types';
+import type { CmPreset, CmTrack, TimelineEntry } from '@/core/types';
 import { buildTimeline } from './build-timeline';
 
 const PRESETS: CmPreset[] = [
@@ -32,5 +32,35 @@ describe('buildTimeline synthesis', () => {
     const { entries } = buildTimeline({ presets: PRESETS, overrides: OVERRIDES, tracks: TRACKS, dataVersion: 'test', horizon: 2 });
     const dates = entries.map((e) => e.dates.finals ?? '');
     expect([...dates]).toEqual([...dates].sort());
+  });
+
+  it('merges extraEntries in, sorted alongside cm/predicted entries (rebalance patch lane)', () => {
+    const patch: TimelineEntry = {
+      id: 'patch-200011-v2',
+      type: 'patch',
+      title: 'Skill rebalance: Right-Handed Demon v2',
+      dates: { start: '2026-06-15' },
+      tier: 'official',
+      status: 'confirmed',
+      source: { kind: 'manual', url: 'https://example.com' },
+      server: 'global',
+      dataVersion: 'test',
+    };
+    const { entries } = buildTimeline({
+      presets: PRESETS,
+      overrides: OVERRIDES,
+      tracks: TRACKS,
+      dataVersion: 'test',
+      horizon: 2,
+      extraEntries: [patch],
+    });
+    expect(entries.find((e) => e.id === 'patch-200011-v2')).toEqual(patch);
+    const dates = entries.map((e) => e.dates.finals ?? e.dates.start ?? '');
+    expect([...dates]).toEqual([...dates].sort());
+  });
+
+  it('produces no extra entries when extraEntries is omitted', () => {
+    const { entries } = buildTimeline({ presets: PRESETS, overrides: OVERRIDES, tracks: TRACKS, dataVersion: 'test', horizon: 2 });
+    expect(entries.some((e) => e.type === 'patch')).toBe(false);
   });
 });
