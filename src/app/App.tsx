@@ -4,6 +4,7 @@
  */
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { ActivePlanProvider } from '@/app/ActivePlanContext';
+import { HorizonBanner, HorizonControl } from '@/app/HorizonControl';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
 import { CmPlannerPage } from '@/features/cm-planner/CmPlannerPage';
@@ -48,6 +49,7 @@ function Shell() {
         <div className="app-title-row">
           <h1>Uma CM Planner</h1>
           <CurrentCmBadge />
+          <HorizonControl />
           <SettingsMenu />
         </div>
         <nav aria-label="Modules">
@@ -72,6 +74,7 @@ function Shell() {
         </nav>
       </header>
       <FixtureBanner />
+      <HorizonBanner />
       <main>
         <Routes>
           <Route path="/" element={<CmPlannerPage />} />

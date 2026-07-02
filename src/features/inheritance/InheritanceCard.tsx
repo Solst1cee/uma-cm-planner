@@ -2,6 +2,7 @@
  *  spark display, selection persisted to plan.parents. Rental → M1.4b stub. */
 import { useMemo, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
+import { useAvailability } from '@/app/useAvailability';
 import type { Parent } from '@/core/types';
 import { GameIcon } from '@/features/data/GameIcon';
 import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
@@ -34,6 +35,7 @@ const umaPortrait = (umaId: string, height: number, key?: number) => (
 
 export function InheritanceCard() {
   const { uma1Plan, setPlan } = useActivePlan();
+  const { visible } = useAvailability();
   const { roster, importedAt } = useRoster();
   const { umas, umaById } = useUmas();
   const { skills, skillById } = useGameData();
@@ -44,31 +46,29 @@ export function InheritanceCard() {
 
   const pool = useMemo(() => roster.filter((p) => p.source === 'mine'), [roster]);
   // All hooks must run before the early return below — keep this useMemo above the guard.
-  // Availability gate (2c): white-spark search options are Global-only; JP-ahead
-  // skills are preview-only and must not leak into the inheritance picker.
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const whiteSkillOptions = useMemo(
-    () => skills.filter((s) => s.server === 'global' && s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
-    [skills],
+    () => skills.filter((s) => visible(s) && s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
+    [skills, visible],
   );
   // Green sparks decode to the 6-digit 100xxx/110xxx unique ids; only those can
   // appear as inherited-unique sparks, so offer just them as green-search options.
-  // Availability gate (2c): Global-only — JP-ahead inherited-uniques are preview.
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const uniqueSkillOptions = useMemo(
     () => skills
-      .filter((s) => s.server === 'global' && s.rarity === 'unique' && s.skillId.length === 6 && (s.skillId.startsWith('100') || s.skillId.startsWith('110')))
+      .filter((s) => visible(s) && s.rarity === 'unique' && s.skillId.length === 6 && (s.skillId.startsWith('100') || s.skillId.startsWith('110')))
       .map((s) => ({ id: s.skillId, name: s.nameEn })),
-    [skills],
+    [skills, visible],
   );
   // charaId → a representative (base-outfit) umaId, so a unique skill can show its
   // owner's portrait. A unique skill id = 90001 + charaId·10 (variant-2 alts sit
   // +10000), so charaId = (baseId − 90001)/10; the base card is charaId·100 + 1.
+  // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
   const charaToUma = useMemo(() => {
     const m = new Map<string, string>();
-    // Availability gate (slice 2b): JP-ahead umas are preview-only — resolve
-    // representative outfits from Global umas so a JP alt can't take over a portrait.
-    for (const u of umas ?? []) if (u.server === 'global' && !m.has(u.charaId)) m.set(u.charaId, u.umaId);
+    for (const u of umas ?? []) if (visible(u) && !m.has(u.charaId)) m.set(u.charaId, u.umaId);
     return m;
-  }, [umas]);
+  }, [umas, visible]);
   const uniqueSkillUmaId = (skillId: string): string => {
     const n = Number(skillId);
     const base = n >= 110000 ? n - 10000 : n;

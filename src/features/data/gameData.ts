@@ -16,7 +16,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { CmPreset, CmScheduleRow, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
+import type { CmPreset, CmScheduleRow, ForesightInfo, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import type { IconManifest } from '@/core/icons';
 import { currentCm as selectCurrentCm, projectCmSchedule } from '@/core/timeline';
 import {
@@ -77,6 +77,14 @@ export interface GameData {
    * literals keep compiling — consumers should treat undefined as null.
    */
   currentCm?: TimelineEntry | null;
+  /**
+   * Build-time rolling foresight calibration (Availability #3). `null` when
+   * fewer than 2 shared CMs were available at build time, or the fetch
+   * failed/is missing on an older deploy. Optional so pre-existing GameData
+   * literals (test fixtures) keep compiling — consumers should treat
+   * `undefined` the same as `null` (no calibration to show).
+   */
+  foresight?: ForesightInfo | null;
   skillById: Map<string, SkillRecord>;
   cardById: Map<string, SupportCardRecord>;
   umaById?: Map<string, UmaRecord>;
@@ -103,6 +111,7 @@ interface Datasets {
   umas: UmaRecord[];
   iconManifest: IconManifest | null;
   timeline: TimelineEntry[];
+  foresight: ForesightInfo | null;
 }
 
 const FIXTURE_DATASETS: Datasets = {
@@ -117,6 +126,8 @@ const FIXTURE_DATASETS: Datasets = {
   iconManifest: null,
   // No timeline in fixture mode — M3 views degrade to empty.
   timeline: [],
+  // No foresight calibration in fixture mode — the planning-horizon tooltip degrades to no numbers.
+  foresight: null,
 };
 
 async function fetchJson<T>(file: string): Promise<T> {
@@ -160,7 +171,17 @@ async function loadDatasets(): Promise<Datasets> {
     },
   );
   const timeline = timelineJson.entries;
-  return { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline };
+  // foresight.json ships with Availability #3. Like umas.json, its failure/absence
+  // must NOT flip the whole provider to fixture mode — the planning-horizon tooltip
+  // simply has no calibration to show. A `{ cal: null }` payload (< 2 shared CMs at
+  // build time) also normalizes to null here.
+  const foresight: ForesightInfo | null = await fetchJson<ForesightInfo & { cal?: null }>('foresight.json')
+    .then((f) => ('cal' in f && f.cal === null ? null : f))
+    .catch((err: unknown) => {
+      console.warn('[gameData] foresight.json unavailable — planning-horizon tooltip degrades to no numbers.', err);
+      return null;
+    });
+  return { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline, foresight };
 }
 
 const GameDataContext = createContext<GameData | null>(null);
@@ -188,7 +209,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<GameData>(() => {
-    const { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline } = state.data;
+    const { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline, foresight } = state.data;
     return {
       status: state.status,
       skills,
@@ -198,6 +219,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       umas,
       iconManifest,
       timeline,
+      foresight,
       cmSchedule: projectCmSchedule(timeline),
       currentCm: selectCurrentCm(
         timeline.filter((e) => e.type === 'cm'),

@@ -1,10 +1,9 @@
 // src/features/inheritance/SupportCardPoolCard.test.tsx
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { SupportCardPoolCard } from './SupportCardPoolCard';
-import { buildPoolItem } from './poolModel';
+import { buildPoolItem, type PoolItem } from './poolModel';
 import type { SupportCardRecord } from '@/core/types';
 
 const mk = (id: string, type: SupportCardRecord['type'], rarity: SupportCardRecord['rarity'], name: string) =>
@@ -13,9 +12,12 @@ const items = [
   buildPoolItem(mk('1', 'speed', 'SSR', 'Alpha'), { score: 10, wishlist: new Set(), lb: 4 }),
   buildPoolItem(mk('2', 'stamina', 'SR', 'Beta'), { score: 20, wishlist: new Set(), lb: 4 }),
 ];
+const visibleCurrent = (it: PoolItem) => it.server === 'global';
+const visibleUpcoming = () => true;
 const base = {
   items, wishlistSkillNames: [], statsShown: [], cardLb: {}, onCardLb: vi.fn(),
   deckCardIds: new Set<string>(), onAdd: vi.fn(), renderIcon: () => <i />,
+  visible: visibleCurrent, tierOf: () => 'now' as const,
 };
 afterEach(cleanup);
 
@@ -80,24 +82,39 @@ describe('SupportCardPoolCard', () => {
     expect(order[0]).toBe('Beta details');
   });
 
-  it('hides upcoming JP cards by default and shows them + the predicted badge after toggling', async () => {
+  it('hides JP cards under the current-horizon predicate; no "show upcoming" checkbox remains', () => {
     const mkJp = (id: string, name: string) =>
       ({ cardId: id, nameEn: name, charName: name, rarity: 'SSR', type: 'speed', skills: [],
          server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true } as unknown as SupportCardRecord);
     const jpItem = buildPoolItem(mkJp('j', 'Fuji'), { score: 15, wishlist: new Set(), lb: 4 });
     const mixedItems = [...items, jpItem];
 
-    render(<SupportCardPoolCard {...base} items={mixedItems} asOfISO="2026-08-01" />);
-    // JP card is hidden by default (showUpcoming: false).
+    render(<SupportCardPoolCard {...base} items={mixedItems} />);
     expect(screen.queryByRole('button', { name: /fuji details/i })).not.toBeInTheDocument();
-    // Global cards still show.
     expect(screen.getByRole('button', { name: /alpha details/i })).toBeInTheDocument();
+    // The app-wide horizon control owns "show upcoming" now — no local checkbox.
+    expect(screen.queryByLabelText(/show upcoming/i)).not.toBeInTheDocument();
+  });
 
-    // Toggle "show upcoming" — the JP card (released 2026-07-01, asOf 2026-08-01) appears.
-    await userEvent.click(screen.getByLabelText(/show upcoming/i));
+  it('shows a JP card + its predicted badge and an upcoming tier chip under an upcoming-horizon predicate', () => {
+    const mkJp = (id: string, name: string) =>
+      ({ cardId: id, nameEn: name, charName: name, rarity: 'SSR', type: 'speed', skills: [],
+         server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true } as unknown as SupportCardRecord);
+    const jpItem = buildPoolItem(mkJp('j', 'Fuji'), { score: 15, wishlist: new Set(), lb: 4 });
+    const mixedItems = [...items, jpItem];
+
+    render(
+      <SupportCardPoolCard
+        {...base}
+        items={mixedItems}
+        visible={visibleUpcoming}
+        tierOf={(it) => (it.server === 'jp' ? 'upcoming' : 'now')}
+      />,
+    );
     expect(screen.getByRole('button', { name: /fuji details/i })).toBeInTheDocument();
-
     // The predicted date badge renders.
     expect(screen.getByText(/~2026-07-01/)).toBeInTheDocument();
+    // The tier chip renders "upcoming" for the JP card.
+    expect(screen.getByText('upcoming')).toBeInTheDocument();
   });
 });

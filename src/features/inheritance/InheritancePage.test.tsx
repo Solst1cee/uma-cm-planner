@@ -38,6 +38,19 @@ vi.mock('@/features/data/gameData', () => ({
   useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }),
   BASE_URL: '',
 }));
+// The page's pickers read the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 // Stub the heavyweight inventory card (own courseCatalog import + GameIcon need providers).
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
   PlanInventoryCard: (props: { uma1PlanId?: string }) => (

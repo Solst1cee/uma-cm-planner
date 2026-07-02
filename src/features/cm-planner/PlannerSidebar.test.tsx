@@ -168,6 +168,27 @@ vi.mock('@/features/data/gameData', () => ({
   }),
 }));
 
+// The shared app-wide horizon lens — mocked with a mutable fixture so individual
+// tests can simulate 'current' (default) and 'cm' horizon behavior without a full
+// ActivePlanContext/gameData provider stack.
+const avail = vi.hoisted(() => ({
+  visible: (r: { server: string; releaseDate?: string }) => r.server === 'global',
+  tierOf: (r: { server: string; releaseDate?: string }): 'now' | 'upcoming' | 'future' =>
+    r.server === 'global' ? 'now' : 'upcoming',
+}));
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: avail.visible,
+    tierOf: avail.tierOf,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
+
 vi.mock('./skillTechnicalDetails', () => ({
   loadUniqueSkillByUmaId: h.loadUniqueSkillByUmaId,
   loadSkillTechnicalDetail: h.loadSkillTechnicalDetail,
@@ -206,6 +227,8 @@ import { PlannerSidebar } from './PlannerSidebar';
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  avail.visible = (r) => r.server === 'global';
+  avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
 });
 
 function renderSidebar(
@@ -739,34 +762,35 @@ describe('PlannerSidebar', () => {
     expect(screen.queryByText('Loading technical detail...')).not.toBeInTheDocument();
   });
 
-  it('hides JP umas by default and shows them with the "show upcoming" toggle', async () => {
+  it('current horizon: JP uma absent from runner search (behavior preservation)', async () => {
     const user = userEvent.setup();
     renderSidebar();
     await waitForUniqueMap();
 
     const searchInput = screen.getByLabelText('Search uma or unique skill');
-
-    // 1. Toggle "show upcoming" FIRST (while picker is closed, checkbox is always rendered)
-    const checkbox = screen.getByLabelText('show upcoming');
-    expect(checkbox).not.toBeChecked();
-    await user.click(checkbox);
-    await waitFor(() => expect(checkbox).toBeChecked());
-
-    // 2. Open the picker with an empty query
     await user.click(searchInput);
     await user.clear(searchInput);
     await waitFor(() => expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument());
 
-    // 3. JP uma should now be visible
-    expect(screen.getByText('JP Preview Uma')).toBeInTheDocument();
+    expect(screen.queryByText('JP Preview Uma')).not.toBeInTheDocument();
+  });
 
+  it('cm horizon reveals the JP uma in runner search with a tier chip', async () => {
+    avail.visible = (r) => r.server === 'global' || r.server === 'jp';
+    avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
+    const user = userEvent.setup();
+    renderSidebar();
+    await waitForUniqueMap();
+
+    const searchInput = screen.getByLabelText('Search uma or unique skill');
+    await user.click(searchInput);
+    await user.clear(searchInput);
+    await waitFor(() => expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument());
+
+    expect(screen.getByText('JP Preview Uma')).toBeInTheDocument();
     // Badge for predicted release date is rendered
     expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
-
-    // 4. Verify default behavior: close picker, toggle off, re-open — JP uma gone again
-    await user.click(checkbox);
-    await waitFor(() => expect(checkbox).not.toBeChecked());
-    await user.click(searchInput);
-    await waitFor(() => expect(screen.queryByText('JP Preview Uma')).not.toBeInTheDocument());
+    const row = screen.getByText('JP Preview Uma').closest('li')!;
+    expect(within(row).getByText('upcoming')).toBeInTheDocument();
   });
 });

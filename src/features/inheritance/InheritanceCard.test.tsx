@@ -32,6 +32,15 @@ vi.mock('@/features/data/GameIcon', () => ({ GameIcon: (props: { id: string }) =
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
 vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: mockSkills, skillById: new Map() }) }));
+// The shared app-wide horizon lens — mocked with a mutable fixture so a test can
+// simulate 'current' (default, ≡ Global-only) vs a cm-like horizon that reveals
+// upcoming JP-ahead records.
+const avail = vi.hoisted(() => ({
+  visible: (r: { server: string; releaseDate?: string }) => r.server === 'global',
+}));
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({ visible: avail.visible }),
+}));
 
 // Captures the greenIcon callback so we can invoke it directly.
 let capturedGreenIcon: ((skillId: string) => React.ReactNode) | undefined;
@@ -77,6 +86,7 @@ afterEach(() => {
   capturedGreenIcon = undefined;
   capturedWhiteOptions = undefined;
   capturedUniqueOptions = undefined;
+  avail.visible = (r) => r.server === 'global';
 });
 
 describe('InheritanceCard', () => {
@@ -114,10 +124,11 @@ describe('InheritanceCard', () => {
     expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parents: { a: 'a' } }));
   });
 
-  it('availability gate: charaToUma resolves representative portrait from Global uma, not JP uma', () => {
+  it('planning horizon (current, default): charaToUma resolves representative portrait from Global uma, not JP uma', () => {
     // charaId '1001' → unique skillId = 90001 + 1001*10 = 100011
     // JP uma has a LOWER umaId ('100150') so it would win the !m.has race if unfiltered.
-    // Global uma has a HIGHER umaId ('100199'). With the Global filter, we expect '100199'.
+    // Global uma has a HIGHER umaId ('100199'). At the current horizon (visible ≡
+    // Global-only), we expect '100199'.
     mockUmas = [
       { umaId: '100150', charaId: '1001', nameEn: 'JP Uma', server: 'jp', dataVersion: 'jp-test' },
       { umaId: '100199', charaId: '1001', nameEn: 'Global Uma', server: 'global', dataVersion: 'gbl-test' },
@@ -135,7 +146,7 @@ describe('InheritanceCard', () => {
     expect(calls).not.toContain('100150');
   });
 
-  it('availability gate: white + unique (green) spark options exclude JP-ahead skills', () => {
+  it('planning horizon (current, default): white + unique (green) spark options exclude JP-ahead skills', () => {
     mockSkills = [
       { skillId: 'w-global', nameEn: 'Global White', rarity: 'white', server: 'global' } as SkillRecord,
       { skillId: 'w-jp', nameEn: 'JP White', rarity: 'white', server: 'jp' } as SkillRecord,
@@ -152,5 +163,20 @@ describe('InheritanceCard', () => {
 
     expect(capturedUniqueOptions?.map((o) => o.id)).toContain('100011');
     expect(capturedUniqueOptions?.map((o) => o.id)).not.toContain('100021');
+  });
+
+  it('planning horizon (cm-like): a wider lens reveals the upcoming JP white in the spark options', () => {
+    avail.visible = () => true; // simulate a cm/allJp horizon that reveals everything
+    mockSkills = [
+      { skillId: 'w-global', nameEn: 'Global White', rarity: 'white', server: 'global' } as SkillRecord,
+      { skillId: 'w-jp', nameEn: 'JP White', rarity: 'white', server: 'jp', releaseDate: '2026-08-01' } as SkillRecord,
+      { skillId: '100011', nameEn: 'Global Unique', rarity: 'unique', server: 'global' } as SkillRecord,
+      { skillId: '100021', nameEn: 'JP Unique', rarity: 'unique', server: 'jp', releaseDate: '2026-08-01' } as SkillRecord,
+    ];
+    render(<InheritanceCard />);
+    fireEvent.click(screen.getAllByRole('button', { name: /^Pick$/i })[0]!);
+
+    expect(capturedWhiteOptions?.map((o) => o.id)).toContain('w-jp');
+    expect(capturedUniqueOptions?.map((o) => o.id)).toContain('100021');
   });
 });

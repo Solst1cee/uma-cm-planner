@@ -229,6 +229,11 @@ export function buildJpSkills(inputs: {
 }): SkillRecord[] {
   const { gametora, masterSkillIds, cardDates, umaDates, dataVersion } = inputs;
   const records: SkillRecord[] = [];
+  // Tracks every id claimed so far (master + already-emitted JP records), so a
+  // gene_version id can't collide with the master set OR with another JP
+  // unique's gene_version pointing at the same inherited-unique id (observed:
+  // gametora nests two evolution-stage uniques under one shared gene id).
+  const claimedIds = new Set(masterSkillIds);
   for (const gt of gametora) {
     const skillId = String(gt.id);
     if (masterSkillIds.has(skillId)) continue; // Global skill
@@ -259,6 +264,31 @@ export function buildJpSkills(inputs: {
     const variants = (gt.versions ?? []).map(String).filter((id) => id !== skillId);
     if (variants.length > 0) record.variantSkillIds = variants;
     records.push(record);
+    claimedIds.add(skillId);
+
+    // Inherited-unique twin: gametora nests it under the native unique's gene_version
+    // (same structure buildSkills reads for Global inherited uniques). Dated like its parent.
+    if (record.rarity === 'unique' && gt.gene_version) {
+      const geneId = String(gt.gene_version.id);
+      if (!claimedIds.has(geneId)) {
+        const geneGroups = gt.loc?.en?.gene_version?.condition_groups ?? gt.gene_version.condition_groups;
+        const gene: SkillRecord = {
+          skillId: geneId,
+          nameEn: record.nameEn,
+          nameJp: record.nameJp,
+          baseSpCost: 0,
+          rarity: 'inherited_unique',
+          iconId: record.iconId,
+          conditions: geneGroups !== undefined && geneGroups.length > 0 ? serializeConditions(geneGroups) : record.conditions,
+          server: 'jp',
+          releaseDate: record.releaseDate!,
+          dataVersion,
+        };
+        if (record.releaseDatePredicted) gene.releaseDatePredicted = true;
+        records.push(gene);
+        claimedIds.add(geneId);
+      }
+    }
   }
   records.sort((a, b) => Number(a.skillId) - Number(b.skillId));
   return records;

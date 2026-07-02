@@ -19,6 +19,8 @@ This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / Uma
 
 **Update (2026-06-25) — pivoted to the M1 Inheritance workbench.** A high-fidelity claude.ai/design handoff (**Support Card Builder + Parent Picker**) landed at [docs/modules/design_handoff_support_card_builder/](modules/design_handoff_support_card_builder/) (README + 7 screenshots + the `.dc.html` prototype + the bundled `_ds` design system). It **becomes the M1 build** (un-stub `/inheritance`), **supersedes** the 2026-06-14 M1 spec by expanding it into one dense workbench that also absorbs the **coverage matrix + support-card deck builder** (the UI removed 2026-06-15), and **subsumes the M4 §3 card-hint sourcing** (just the Chain/Random columns of M1's matrix) — so that item is **dropped from P2**. M1 is built **card-by-card** in small phases (M1.0–M1.8 below). M4-Phase-2 is **paused**. See *M1 — Inheritance workbench*.
 
+**Update (2026-07-01→02) — Availability epic shipped (PRs #25–#28 + planning-horizon branch).** A new track that interleaved with M1: **foresight** (rolling JP→Global date projection, #25) → **JP-ahead content baked in** (317 cards #26, 170 umas #27, 962 skills + 170 inherited-uniques #28+horizon; all `server:'jp'` with projected/announced Global dates) → the **app-wide planning horizon** (`Current | CM ▾ | All JP` header lens; one `useAvailability().visible()` predicate across every availability site; tier chips; foresight readout; hypothetical banner at All-JP). This **completes the P3 "release dates" data task and M4's "Now/Upcoming/Future" deferred item** ahead of schedule. Remaining in the track: **availability #4 — rebalance patches** (model JP balance changes for Global previews) + the [followups list](superpowers/plans/2026-07-02-planning-horizon-followups.md).
+
 ---
 
 ## Sidelists (parallel, non-blocking)
@@ -140,6 +142,7 @@ One shared, themeable (light default + dark) token system + `ds-*` component cla
 | S3 M4 polish + mechanics | ⬜ not started | projectedL refresh, accel label/plate readability, hint-button polish, rushed/struggle/dueling stamina review, provenance |
 | A1 inline effect-chips | ⬜ future | deferred from P2; opportunistic |
 | P1 Design system | ✅ done | PR #9 — tokens (light+dark) + ds-* + /styleguide + theme toggle; 862 tests, zero light regression |
+| **Availability epic (foresight + JP-ahead + horizon)** | ✅ done (core) / 🟧 #4 left | #25 foresight · #26 cards · #27 umas · #28 skills · horizon branch (app-wide lens, 1205 tests). Left: #4 rebalance patches + [followups](superpowers/plans/2026-07-02-planning-horizon-followups.md) |
 | **M1 Inheritance workbench** | **🟧 active** | **from the 2026-06-25 handoff; built card-by-card M1.0–M1.8 (see section). On main: M1.0–M1.5 + M1.4 inheritance card (parents + UmaExtractor importer + Star-Tracks picker + affinity marks + same-character guard). Landing via this PR: M1.6 support-card pool (unique + base effects, deck vs. trainee conflict rules, detail-card polish). Next: M1.7 coverage matrix (+ green 9xxxxx / saddle→G1 reconciliation).** |
 | P2 M4 fidelity | ⏸ paused | resumes after M1; §3 sourcing dropped (→ M1), A1 → future, A2 (card migration) first when resumed |
 | P3 Data tasks | ⬜ not started | skill duration, innate skills, release dates |

@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { CmId, CmPlan, CmRefV2, TimelineEntry } from '@/core/types';
+import type { PlanningHorizon } from '@/core/availability';
 import { copyPlanInto } from '@/core/cmPlanCopy';
 import { isPlanContentSaved, nextPlanNumberForContent } from '@/core/planIdentity';
 import { generatePlanName, uniquePlanName } from '@/core/planName';
@@ -23,7 +24,16 @@ import { cmRefForEntry } from '@/features/planner/race-setup/cmRefSelection';
 
 const ACTIVE_PLAN_KEY = 'activePlanId';
 const AUTO_SAVE_KEY = 'cmPlannerAutoSave';
+const HORIZON_KEY = 'planningHorizon';
 const SAVE_DEBOUNCE_MS = 400;
+
+function isValidHorizon(value: unknown): value is PlanningHorizon {
+  if (typeof value !== 'object' || value === null) return false;
+  const kind = (value as { kind?: unknown }).kind;
+  if (kind === 'current' || kind === 'allJp') return true;
+  if (kind === 'cm') return Number.isFinite((value as { cmNumber?: unknown }).cmNumber);
+  return false;
+}
 
 const DATA_VERSION = '2026-06-15'; // TODO: source from a generated constant when available
 type SaveCurrentPlanOptions = { commit?: 'always' | 'if-current' };
@@ -108,6 +118,9 @@ interface ActivePlanValue {
   autoSave: boolean;
   isSaved: boolean;
   setAutoSave: (enabled: boolean) => void;
+  /** App-wide planning-horizon lens (Availability #3). Persisted across loads. */
+  horizon: PlanningHorizon;
+  setHorizon: (h: PlanningHorizon) => void;
   /** Replace the active plan; persisted (debounced) on every call. */
   setPlan: (next: CmPlan) => void;
   /** Load a saved plan, make it active, and persist that active-plan choice. */
@@ -147,6 +160,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
   const [plan, setPlanState] = useState<CmPlan | null>(null);
   const [savedPlans, setSavedPlans] = useState<CmPlan[]>([]);
   const [autoSave, setAutoSaveState] = useState(false);
+  const [horizon, setHorizonState] = useState<PlanningHorizon>({ kind: 'current' });
   const [loadError, setLoadError] = useState<string | null>(null);
   const saveTimer = useRef<number | undefined>(undefined);
   const pendingSave = useRef<CmPlan | null>(null);
@@ -181,6 +195,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     (async () => {
       const savedId = await getSetting<string>(ACTIVE_PLAN_KEY);
       const savedAutoSave = await getSetting<boolean>(AUTO_SAVE_KEY);
+      const savedHorizon = await getSetting<PlanningHorizon>(HORIZON_KEY);
       const allPlans = await listPlans();
       let loaded = savedId ? await getPlan(savedId) : undefined;
       if (!loaded) {
@@ -204,6 +219,7 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
         setSavedPlans(refreshedPlans);
         setAutoSaveState(savedAutoSave === true);
         autoSaveRef.current = savedAutoSave === true;
+        if (isValidHorizon(savedHorizon)) setHorizonState(savedHorizon);
         planRef.current = loaded;
         setPlanState(loaded);
       }
@@ -347,6 +363,11 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
     pendingSave.current = next;
     planRef.current = next;
     setPlanState(next);
+  }, []);
+
+  const setHorizon = useCallback((h: PlanningHorizon) => {
+    setHorizonState(h);
+    void setSetting(HORIZON_KEY, h).catch(() => undefined);
   }, []);
 
   const setAutoSave = useCallback((enabled: boolean) => {
@@ -519,6 +540,8 @@ export function ActivePlanProvider({ children }: { children: ReactNode }) {
         autoSave,
         isSaved,
         setAutoSave,
+        horizon,
+        setHorizon,
         setPlan,
         selectPlan,
         loadPlanIntoSlot,

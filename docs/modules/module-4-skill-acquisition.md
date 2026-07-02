@@ -115,7 +115,7 @@ Reused: `PlanHeaderPanel`/`SkillPicker` (from `skill-planner/`), `useActivePlan`
 | Uma base-aptitude "usable here" filter + §3 **uma-innate column** | **Base aptitudes + stat growth DONE 2026-06-17:** `scripts/build-umas.ts` bakes `aptitude` and `stat_bonus` from `scripts/borrowed/gametora/character-cards.json` into `umas.json` as `baseAptitudes` / `statGrowth`; the sidebar uses this for growth display and pink-spark requirement chips. Still open: innate skills, release dates, and the actual "usable here" filtering / innate-source columns. |
 | §0 race-track diagram (SVG activation zones) | Engine `CourseData` has geometry; rendering is later-milestone work. |
 | §5.2 stat-target auto-seed (`cm_stat_targets.json`) | User hand-enters stats for now. |
-| Now / Upcoming / Future availability toggle | Needs per-record release dates (shared with M3). "Now" only for the slice. |
+| ~~Now / Upcoming / Future availability toggle~~ | ✅ **DONE 2026-07-02 (availability epic)** — superseded by the **app-wide planning horizon** (`Current \| CM ▾ \| All JP` header lens): per-record release dates baked for cards/umas/skills (foresight-projected), every M4 surface reads `useAvailability().visible()`, JP rows carry tier chips. See CLAUDE.md *Availability epic* + [horizon spec](../superpowers/specs/2026-07-02-planning-horizon-design.md). |
 | Debuffer-specific L | Self-L with caveat (Ace/Hybrid honest) for now — spec §5.1. |
 
 **Slice 1b is the natural next M4 step** and is gated primarily on sourcing innate skills/release dates, the white/gold skill chart, card-hint sourcing, duration/L-vs-distance data, and track activation overlays.

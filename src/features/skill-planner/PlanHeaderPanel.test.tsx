@@ -11,6 +11,19 @@ vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
   return { useGameData: () => fixtureGameData() };
 });
+// The embedded SkillPicker reads the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 
 afterEach(cleanup);
 

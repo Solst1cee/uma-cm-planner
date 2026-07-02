@@ -3,6 +3,19 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
 
+// The sidebar reads the app-wide planning horizon; default = current (Global-only).
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 // CRITICAL: mock useSkillTrace before the sidebar is imported — opening a
 // SkillDetailDisclosure with a traceContext would construct a real Worker
 // (jsdom has none). See the jsdom Worker gotcha in CLAUDE.md.

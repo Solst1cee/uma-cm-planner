@@ -32,10 +32,12 @@ describe('poolModel', () => {
     });
     expect(cardStatLines(undefined)).toEqual([]);
   });
+  const visibleGlobal = (it: PoolItem) => it.server === 'global';
+
   it('filters by rarity/type/search', () => {
     const all = [a, b, c];
-    expect(filterPool(all, { rarity: 'SSR', type: 'all', skill: null, search: '', showUpcoming: false }).map((i) => i.cardId)).toEqual(['1', '3']);
-    expect(filterPool(all, { rarity: 'all', type: 'speed', skill: null, search: 'gam', showUpcoming: false }).map((i) => i.cardId)).toEqual(['3']);
+    expect(filterPool(all, { rarity: 'SSR', type: 'all', skill: null, search: '' }, visibleGlobal).map((i) => i.cardId)).toEqual(['1', '3']);
+    expect(filterPool(all, { rarity: 'all', type: 'speed', skill: null, search: 'gam' }, visibleGlobal).map((i) => i.cardId)).toEqual(['3']);
   });
   it('sorts by matches then effect', () => {
     expect(sortPool([b, a, c], 'matches').map((i) => i.cardId)).toEqual(['1', '2', '3']); // a matches → first
@@ -48,14 +50,19 @@ describe('filterPool — availability gating', () => {
   const globalItem: PoolItem = { ...base, cardId: 'g', server: 'global' };
   const jpSoon: PoolItem = { ...base, cardId: 'j1', server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true };
   const jpLater: PoolItem = { ...base, cardId: 'j2', server: 'jp', releaseDate: '2027-01-01', releaseDatePredicted: true };
-  const filters = { rarity: 'all', type: 'all', skill: null, search: '', showUpcoming: false } as PoolFilters;
+  const filters = { rarity: 'all', type: 'all', skill: null, search: '' } as PoolFilters;
 
-  it('hides jp cards when showUpcoming is off', () => {
-    const out = filterPool([globalItem, jpSoon], filters, '2026-08-01');
+  it('hides jp cards when the predicate hides jp', () => {
+    const out = filterPool([globalItem, jpSoon], filters, (it) => it.server === 'global');
     expect(out.map((i) => i.cardId)).toEqual(['g']);
   });
-  it('shows jp cards released by the CM date when showUpcoming is on', () => {
-    const out = filterPool([globalItem, jpSoon, jpLater], { ...filters, showUpcoming: true }, '2026-08-01');
+  it('shows jp cards released by the CM date when the predicate allows them', () => {
+    const cutoff = '2026-08-01';
+    const out = filterPool(
+      [globalItem, jpSoon, jpLater],
+      filters,
+      (it) => it.server === 'global' || (it.releaseDate !== undefined && it.releaseDate <= cutoff),
+    );
     expect(out.map((i) => i.cardId).sort()).toEqual(['g', 'j1']); // j2 not out by 2026-08-01
   });
 });

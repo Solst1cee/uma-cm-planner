@@ -45,6 +45,27 @@ vi.mock('./useSkillTrace', () => ({
   }),
 }));
 
+// The shared app-wide horizon lens — mocked with a mutable fixture so individual
+// tests can simulate 'current' (default) and 'cm' horizon behavior without a full
+// ActivePlanContext/gameData provider stack.
+const avail = vi.hoisted(() => ({
+  visible: (r: { server: string; releaseDate?: string }) => r.server === 'global',
+  tierOf: (r: { server: string; releaseDate?: string }): 'now' | 'upcoming' | 'future' =>
+    r.server === 'global' ? 'now' : 'upcoming',
+}));
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: avail.visible,
+    tierOf: avail.tierOf,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
+
 import { UmaChartPanel } from './UmaChartPanel';
 
 const plan = { umaId: '', server: 'global' } as unknown as CmPlan;
@@ -52,6 +73,8 @@ const plan = { umaId: '', server: 'global' } as unknown as CmPlan;
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  avail.visible = (r) => r.server === 'global';
+  avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
 });
 
 describe('UmaChartPanel', () => {
@@ -165,21 +188,27 @@ describe('UmaChartPanel', () => {
     expect(document.querySelectorAll('details.cmp-uma-plate[open]').length).toBe(1);
   });
 
-  it('gates JP umas behind show-upcoming + the CM date', async () => {
+  it('current horizon: JP uma absent from the ranking (behavior preservation)', async () => {
     const planWithCmRef = { umaId: '', server: 'global', cmRef: { kind: 'cm', cmNumber: 1 } } as unknown as CmPlan;
     render(<UmaChartPanel courseId="10906" plan={planWithCmRef} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
-    // wait for Run to be enabled, then click
     await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
     await userEvent.click(screen.getByRole('button', { name: 'Run' }));
     await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
-    // JP uma's unique skill is hidden by default
     expect(screen.queryByText('JP Preview Beam')).not.toBeInTheDocument();
-    // toggle show upcoming — chart goes stale
-    await userEvent.click(screen.getByLabelText(/show upcoming/i));
-    // re-run to include JP uma
-    await userEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+  });
+
+  it('cm horizon reveals the JP uma with a tier chip', async () => {
+    avail.visible = (r) => r.server === 'global' || r.server === 'jp';
+    avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
+    const planWithCmRef = { umaId: '', server: 'global', cmRef: { kind: 'cm', cmNumber: 1 } } as unknown as CmPlan;
+    render(<UmaChartPanel courseId="10906" plan={planWithCmRef} onSelectRunner={vi.fn()} deps={{ skillDelta: h.skillDelta }} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByLabelText('Uma unique-skill ranking')).toBeInTheDocument());
     await waitFor(() => expect(screen.getByText('JP Preview Beam')).toBeInTheDocument());
     // the predicted date badge should also render
     expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
+    const row = screen.getByText('JP Preview Beam').closest('li')!;
+    expect(within(row).getByText('upcoming')).toBeInTheDocument();
   });
 });
