@@ -1,12 +1,14 @@
 /**
  * Searchable skill picker: filters by EN name (case-insensitive), shows SP
- * cost + rarity badge. Global-server records only (P4 — JP-ahead content is
- * never silently offered for a Global plan).
+ * cost + rarity badge. JP-ahead records are gated by the shared app-wide
+ * planning horizon (P4 — JP-ahead content is never silently offered outside
+ * the chosen horizon).
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
-import { isReleasedBy } from '@/core/availability';
+import { useAvailability } from '@/app/useAvailability';
+import { TierChip } from '@/app/TierChip';
 import { isBlockedBySelectedVariant } from './skillFamilies';
 
 const MAX_RESULTS = 30;
@@ -16,31 +18,29 @@ export function SkillPicker({
   addedSkillIds,
   hiddenSkillIds = EMPTY_SKILL_IDS,
   onPick,
-  asOfISO,
 }: {
   addedSkillIds: ReadonlySet<string>;
   hiddenSkillIds?: ReadonlySet<string>;
   onPick: (skillId: string) => void;
-  asOfISO?: string;
 }) {
   const { skills, skillById } = useGameData();
+  const { visible, tierOf } = useAvailability();
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showUpcoming, setShowUpcoming] = useState(false);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q === '') return [];
     return skills
       .filter((s) => (
-        (s.server === 'global' || (asOfISO !== undefined && showUpcoming && isReleasedBy(s, asOfISO)))
+        visible(s)
         && s.rarity !== 'unique'
         && !hiddenSkillIds.has(s.skillId)
         && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
         && s.nameEn.toLowerCase().includes(q)
       ))
       .slice(0, MAX_RESULTS);
-  }, [addedSkillIds, asOfISO, hiddenSkillIds, query, showUpcoming, skillById, skills]);
+  }, [addedSkillIds, hiddenSkillIds, query, skillById, skills, visible]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -88,16 +88,6 @@ export function SkillPicker({
           placeholder="+ Search skills by name..."
         />
       </label>
-      {asOfISO !== undefined && (
-        <label className="picker-upcoming small">
-          <input
-            type="checkbox"
-            checked={showUpcoming}
-            onChange={(e) => setShowUpcoming(e.target.checked)}
-          />{' '}
-          show upcoming skills
-        </label>
-      )}
       {query.trim() !== '' && (
         <ul className="picker-results" aria-label="Skill search results">
           {results.length === 0 && <li className="muted">No matching skills.</li>}
@@ -117,7 +107,19 @@ export function SkillPicker({
                   <GameIcon kind="skill" id={skill.iconId} size={24} alt="" />
                   <span className="picker-name">{skill.nameEn}</span>
                   <span className="muted small">{skill.baseSpCost} SP</span>
-                  {skill.releaseDatePredicted && <span className="muted small">~{skill.releaseDate}</span>}
+                  {skill.releaseDatePredicted && (
+                    <span
+                      className="muted small"
+                      title={
+                        skill.releaseDatePredicted
+                          ? 'Projected Global date (foresight pace) — not announced'
+                          : 'Announced Global release'
+                      }
+                    >
+                      ~{skill.releaseDate}
+                    </span>
+                  )}
+                  <TierChip tier={tierOf(skill)} />
                   {added && <span className="muted small">added</span>}
                 </button>
               </li>

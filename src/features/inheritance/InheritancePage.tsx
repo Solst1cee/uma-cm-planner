@@ -406,7 +406,6 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const wishlistPicker = uma1Plan ? (
     <SkillPicker
       addedSkillIds={new Set(uma1Plan.wishlist.map((i) => i.skillId))}
-      asOfISO={asOfISO}
       onPick={(skillId) =>
         editPlan({
           ...uma1Plan,
