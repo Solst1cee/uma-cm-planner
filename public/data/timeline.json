@@ -795,7 +795,7 @@
       "type": "cm",
       "title": "Virgo Cup",
       "dates": {
-        "finals": "2026-08-26"
+        "finals": "2026-08-10"
       },
       "cm": {
         "cmNumber": 17,
@@ -815,31 +815,11 @@
       "type": "cm",
       "title": "Libra Cup",
       "dates": {
-        "finals": "2026-09-20"
+        "finals": "2026-09-01"
       },
       "cm": {
         "cmNumber": 18,
         "trackSummary": "Hanshin turf 1600m (mile)"
-      },
-      "tier": "prediction",
-      "status": "unconfirmed",
-      "source": {
-        "kind": "umaguide",
-        "url": "https://uma.guide/cm-schedule/"
-      },
-      "server": "global",
-      "dataVersion": "global-76214c82"
-    },
-    {
-      "id": "cm19-scorpio-cup-predicted",
-      "type": "cm",
-      "title": "Scorpio Cup",
-      "dates": {
-        "finals": "2026-10-30"
-      },
-      "cm": {
-        "cmNumber": 19,
-        "trackSummary": "Kyoto turf 2200m (medium)"
       },
       "tier": "prediction",
       "status": "unconfirmed",
