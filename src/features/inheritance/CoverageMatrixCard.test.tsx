@@ -69,8 +69,10 @@ describe('CoverageMatrixCard', () => {
     expect(container.querySelectorAll('.inh-cov-combined')).toHaveLength(1);
     expect(combined.getAttribute('title')).toContain('Mayano Top Gun · parent white spark: ~13%');
     expect(combined.getAttribute('title')).toContain('1 − (1−13%) × (1−13%) ≈ 24%');
-    // Per-chip % moved into the chip hover title, not the visible cell.
+    // Priced parent chips render NO identity chip and no per-chip % — just the number.
     expect(screen.queryByText('~13%')).toBeNull();
+    expect(screen.queryByText('TO')).toBeNull();
+    expect(screen.queryByText('SR')).toBeNull();
   });
 
   it('a single priced spark shows its own % as the cell number (no formula line)', () => {
@@ -88,6 +90,7 @@ describe('CoverageMatrixCard', () => {
     const combined = container.querySelector('.inh-cov-combined')!;
     expect(combined.textContent).toBe('~13%');
     expect(combined.getAttribute('title')).not.toContain('Combined');
+    expect(screen.queryByText('TO')).toBeNull(); // number only, no chip
   });
 
   it('renders the event hint button (not the initials chip) when renderEventHint returns a node', () => {

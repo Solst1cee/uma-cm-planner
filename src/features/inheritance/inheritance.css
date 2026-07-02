@@ -1734,7 +1734,8 @@ main:has(.inh-page) {
 .inh-cov-chip-card.type-power { background: #ec4899; } .inh-cov-chip-card.type-guts { background: #f59e0b; }
 .inh-cov-chip-card.type-wit { background: #10b981; } .inh-cov-chip-card.type-friend, .inh-cov-chip-card.type-group { background: #64748b; }
 .inh-cov-pct { font-size: 0.6rem; font-weight: 700; color: var(--fg-muted); }
-.inh-cov-combined { margin-left: 5px; font-weight: 800; cursor: help; }
+.inh-cov-combined { font-weight: 800; cursor: help; }
+.inh-cov-cell-grid + .inh-cov-combined { margin-left: 5px; }
 /* Event-cell hint popup (content inside the shared cmp-trace-help-pop) */
 .inh-ev-pop { display: flex; flex-direction: column; gap: 0.55rem; max-height: 340px; overflow-y: auto; text-align: left; }
 .inh-ev-name { font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem; }

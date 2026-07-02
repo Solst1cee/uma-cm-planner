@@ -77,15 +77,21 @@ function Cell({ chips, renderCardIcon, renderEventHint }: {
   chips: CoverageChip[]; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
 }) {
   if (chips.length === 0) return <td className="inh-cov-cell muted">·</td>;
+  // Priced parent/gp sources are fully represented by the single combined % —
+  // their identity chips are hidden (the number's hover names each source).
+  // Unpriced chips (gp green) stay visible so an un-numbered source isn't lost.
+  const visible = chips.filter((c) => !((c.kind === 'parent' || c.kind === 'gp') && c.pct !== undefined));
   // Up to 6 chips laid out 2 rows × 3 columns; overflow collapses to "+N".
-  const shown = chips.slice(0, 6);
-  const extra = chips.length - shown.length;
+  const shown = visible.slice(0, 6);
+  const extra = visible.length - shown.length;
   return (
     <td className="inh-cov-cell">
-      <span className="inh-cov-cell-grid">
-        {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
-        {extra > 0 && <span className="inh-cov-more">+{extra}</span>}
-      </span>
+      {shown.length > 0 && (
+        <span className="inh-cov-cell-grid">
+          {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
+          {extra > 0 && <span className="inh-cov-more">+{extra}</span>}
+        </span>
+      )}
       <CombinedPct chips={chips} />
     </td>
   );
