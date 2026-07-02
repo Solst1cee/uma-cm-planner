@@ -11,11 +11,13 @@ import { tierForCardSkill } from '@/core/coverage';
 import { sparkChance } from '@/core/spark';
 import { reconcileGreenSkillId } from '@/core/greenSparkReconcile';
 
-export type CoverageColumn = 'innate' | 'event' | 'parent' | 'gp' | 'hint' | 'chain' | 'random';
-export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'event', 'parent', 'gp', 'hint', 'chain', 'random'];
+export type CoverageColumn = 'innate' | 'event' | 'parent' | 'hint' | 'chain' | 'random';
+export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'event', 'parent', 'hint', 'chain', 'random'];
 
 export interface CoverageChip {
-  kind: CoverageColumn; label: string; title: string;
+  /** `gp` chips live in the merged `parent` cell but keep their own kind so the
+   *  UI can style/label grandparent sources distinctly. */
+  kind: CoverageColumn | 'gp'; label: string; title: string;
   pct?: number; tier?: string; cardType?: CardType;
   /** Support-card id for deck-source chips (hint/chain/random) — lets the UI
    *  render the real card icon instead of name initials. */
@@ -113,7 +115,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const rows: CoverageRow[] = wishlistSkillIds.map((skillId) => {
     const rec = skillById.get(skillId);
     const cells: Record<CoverageColumn, CoverageChip[]> = {
-      innate: [], event: [], parent: [], gp: [], hint: [], chain: [], random: [],
+      innate: [], event: [], parent: [], hint: [], chain: [], random: [],
     };
 
     // Innate (○/◎ family-aware, gold separate). Chip shows the potential level
@@ -199,7 +201,8 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
           parents: [gpOnly], skillId: gpWhiteCover ?? skillId, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct);
-        cells.gp.push({
+        // Merged into the single Parents cell — same roll model as parent whites.
+        cells.parent.push({
           kind: 'gp',
           label: umaLabel(String(ref.umaId), String(ref.umaId)),
           title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,

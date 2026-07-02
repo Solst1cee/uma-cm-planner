@@ -266,10 +266,11 @@ describe('buildCoverageMatrix', () => {
     });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
     const row = res.rows.find((r) => r.skillId === '200033')!;
-    expect(row.cells.parent.length).toBe(1);
-    expect(row.cells.gp.length).toBe(1);
-    expect(row.cells.parent[0]!.pct).toBeGreaterThan(0);
-    expect(row.cells.gp[0]!.pct).toBeGreaterThan(0);
+    // Merged Parents cell: one chip per member, each with its own isolated pct.
+    expect(row.cells.parent.length).toBe(2);
+    const kinds = row.cells.parent.map((c) => c.kind).sort();
+    expect(kinds).toEqual(['gp', 'parent']);
+    for (const chip of row.cells.parent) expect(chip.pct).toBeGreaterThan(0);
   });
 
   it('FIX A — parent green spark is priced (pct > 0, not ~0%)', () => {
@@ -294,8 +295,8 @@ describe('buildCoverageMatrix', () => {
     const p = parent('pb', '100102', { grandparents: [gp, undefined] });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
     const row = res.rows.find((r) => r.skillId === '900011')!;
-    expect(row.cells.gp.length).toBe(1);
-    const chip = row.cells.gp[0]!;
+    expect(row.cells.parent.length).toBe(1);
+    const chip = row.cells.parent[0]!;
     expect(chip.pct).toBeGreaterThan(0);
     expect(chip.pct).toBeLessThan(100);
     expect(chip.title).toContain('grandparent green (unique) spark');
@@ -310,7 +311,7 @@ describe('buildCoverageMatrix', () => {
     const p = parent('pc', '100103', { grandparents: [gp, undefined] });
     const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p, isA: true }] }));
     const row = res.rows.find((r) => r.skillId === '200033')!;
-    expect(row.cells.gp.length).toBe(1);
-    expect(row.cells.gp[0]!.pct).toBeGreaterThan(0);
+    expect(row.cells.parent.length).toBe(1);
+    expect(row.cells.parent[0]!.pct).toBeGreaterThan(0);
   });
 });

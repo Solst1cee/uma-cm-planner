@@ -15,14 +15,13 @@ export type RenderEventHint = (skillId: string) => ReactNode;
 const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'innate', label: 'Innate' },
   { key: 'event', label: 'Event' },
-  { key: 'parent', label: 'Parent', sep: true },
-  { key: 'gp', label: 'G.parent' },
+  { key: 'parent', label: 'Inheritance', sep: true },
   { key: 'hint', label: 'Hint', sep: true },
   { key: 'chain', label: 'Chain' },
   { key: 'random', label: 'Random' },
 ];
 const BAR_LABEL: Record<CoverageColumn | 'uncovered', string> = {
-  innate: 'Innate', event: 'Event', parent: 'Parent', gp: 'G.parent', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
+  innate: 'Innate', event: 'Event', parent: 'Inheritance', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
 };
 
 function Chip({ chip, renderCardIcon, renderEventHint }: {
@@ -58,10 +57,18 @@ function Chip({ chip, renderCardIcon, renderEventHint }: {
 }
 
 /** One combined inherit-% per cell: the chance AT LEAST ONE priced source passes
- *  the spark down, 1 − ∏(1 − pᵢ). Hover explains the per-source breakdown. */
+ *  the spark down, 1 − ∏(1 − pᵢ). A guaranteed source (parent unique, 100%)
+ *  short-circuits — the cell shows 100% and the rolled sources aren't counted.
+ *  Hover explains the per-source breakdown. */
 function CombinedPct({ chips }: { chips: CoverageChip[] }) {
   const priced = chips.filter((c): c is CoverageChip & { pct: number } => c.pct !== undefined);
   if (priced.length === 0) return null;
+  const guaranteed = priced.filter((c) => c.pct >= 100);
+  if (guaranteed.length > 0) {
+    const lines = guaranteed.map((c) => c.title);
+    if (priced.length > guaranteed.length) lines.push('Guaranteed — the other sources are not needed.');
+    return <span className="inh-cov-pct inh-cov-combined" title={lines.join('\n')}>100%</span>;
+  }
   const combined = Math.round((1 - priced.reduce((m, c) => m * (1 - c.pct / 100), 1)) * 100);
   const lines = priced.map((c) => `${c.title}: ~${c.pct}%`);
   if (priced.length > 1) {

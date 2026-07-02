@@ -1754,7 +1754,7 @@ main:has(.inh-page) {
 .inh-cov-bar-fill { display: block; height: 100%; }
 .inh-cov-bar-fill.col-innate { background: var(--tier-spark); } .inh-cov-bar-fill.col-event { background: #8b5cf6; }
 .inh-cov-bar-fill.col-parent { background: #3478f6; }
-.inh-cov-bar-fill.col-gp { background: #0ea5e9; } .inh-cov-bar-fill.col-hint { background: var(--tier-hint_strong); }
+.inh-cov-bar-fill.col-hint { background: var(--tier-hint_strong); }
 .inh-cov-bar-fill.col-chain { background: var(--tier-chain); } .inh-cov-bar-fill.col-random { background: var(--tier-random); }
 .inh-cov-bar-fill.col-uncovered { background: var(--tier-uncovered); }
 .inh-cov-bonus { margin-top: 0.6rem; border-top: 1px solid var(--border); padding-top: 0.5rem; }

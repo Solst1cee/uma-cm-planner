@@ -9,9 +9,9 @@ afterEach(cleanup);
 const result: CoverageResult = {
   rows: [
     { skillId: '200011', name: 'Corner Adept', isGold: false,
-      cells: { innate: [{ kind: 'innate', label: 'TR', title: 'Trainee' }], event: [], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: true },
+      cells: { innate: [{ kind: 'innate', label: 'TR', title: 'Trainee' }], event: [], parent: [], hint: [], chain: [], random: [] }, covered: true },
     { skillId: '200022', name: 'Slick Surge', isGold: true,
-      cells: { innate: [], event: [], parent: [], gp: [], hint: [], chain: [], random: [] }, covered: false },
+      cells: { innate: [], event: [], parent: [], hint: [], chain: [], random: [] }, covered: false },
   ],
   bars: [
     { column: 'innate', count: 1, pct: 50 },
@@ -57,7 +57,7 @@ describe('CoverageMatrixCard', () => {
               { kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent white spark', pct: 13 },
               { kind: 'parent', label: 'SR', title: 'Silence Suzuka · parent white spark', pct: 13 },
             ],
-            gp: [], hint: [], chain: [], random: [] },
+            hint: [], chain: [], random: [] },
           covered: true },
       ],
       bars: [], bonus: [],
@@ -75,13 +75,35 @@ describe('CoverageMatrixCard', () => {
     expect(screen.queryByText('SR')).toBeNull();
   });
 
+  it('a guaranteed source short-circuits: cell shows 100%, rolled sources not counted', () => {
+    const gResult: CoverageResult = {
+      rows: [
+        { skillId: '900011', name: 'Shooting Star', isGold: false,
+          cells: { innate: [], event: [],
+            parent: [
+              { kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent unique spark — guaranteed at career start', pct: 100 },
+              { kind: 'gp', label: 'SR', title: 'Silence Suzuka · grandparent green (unique) spark', pct: 28 },
+            ],
+            hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    const { container } = render(<CoverageMatrixCard result={gResult} hasWishlist hasPlanUma />);
+    const combined = container.querySelector('.inh-cov-combined')!;
+    expect(combined.textContent).toBe('100%');
+    expect(combined.getAttribute('title')).toContain('guaranteed at career start');
+    expect(combined.getAttribute('title')).toContain('other sources are not needed');
+    expect(combined.getAttribute('title')).not.toContain('1 −'); // no formula
+  });
+
   it('a single priced spark shows its own % as the cell number (no formula line)', () => {
     const oneResult: CoverageResult = {
       rows: [
         { skillId: '200033', name: 'Straightaway', isGold: false,
           cells: { innate: [], event: [],
             parent: [{ kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent white spark', pct: 13 }],
-            gp: [], hint: [], chain: [], random: [] },
+            hint: [], chain: [], random: [] },
           covered: true },
       ],
       bars: [], bonus: [],
@@ -98,7 +120,7 @@ describe('CoverageMatrixCard', () => {
       rows: [
         { skillId: '201902', name: 'Head-On', isGold: false,
           cells: { innate: [], event: [{ kind: 'event', label: 'TS', title: 'Taiki — training event', skillId: '201902' }],
-            parent: [], gp: [], hint: [], chain: [], random: [] },
+            parent: [], hint: [], chain: [], random: [] },
           covered: true },
       ],
       bars: [], bonus: [],
@@ -120,7 +142,7 @@ describe('CoverageMatrixCard', () => {
       rows: [
         { skillId: '201902', name: 'Head-On', isGold: false,
           cells: { innate: [], event: [{ kind: 'event', label: 'TS', title: 'Taiki — training event', skillId: '201902' }],
-            parent: [], gp: [], hint: [], chain: [], random: [] },
+            parent: [], hint: [], chain: [], random: [] },
           covered: true },
       ],
       bars: [], bonus: [],
@@ -133,7 +155,7 @@ describe('CoverageMatrixCard', () => {
     const iconResult: CoverageResult = {
       rows: [
         { skillId: '200033', name: 'Straightaway', isGold: false,
-          cells: { innate: [], event: [], parent: [], gp: [], hint: [],
+          cells: { innate: [], event: [], parent: [], hint: [],
             chain: [{ kind: 'chain', label: 'SP', title: 'Speedy', cardType: 'speed', cardId: '30001' }], random: [] },
           covered: true },
       ],
