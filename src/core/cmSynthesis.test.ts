@@ -122,4 +122,36 @@ describe('synthesizeUpcomingCms — foresight pace projection', () => {
     const out = synthesizeUpcomingCms(merged, tracks, { dataVersion: 'x', horizon: 1 });
     expect(out[0]!.dates.finals).toBe('2026-07-24'); // addMonths(2026-06-24, 1)
   });
+
+  // The real-data trap this pins: a hand-authored *prediction* entry (CM16 in
+  // timeline_overrides) carries a finals date but status 'unconfirmed'. It must
+  // not enter the calibration window or anchor the predictions — otherwise the
+  // timeline's clock diverges from build-all's confirmed-only foresight clock.
+  describe('unconfirmed entries stay out of the calibration (one clock)', () => {
+    const cm16Predicted: TimelineEntry = {
+      id: 'cm16-stale', type: 'cm', title: 'Leo Cup', dates: { finals: '2026-07-30' },
+      cm: { cmNumber: 16 }, tier: 'prediction', status: 'unconfirmed',
+      source: { kind: 'umaguide', url: '' }, server: 'global', dataVersion: 'x',
+    };
+    const withStale = [...merged, cm16Predicted];
+    const jp17 = [...jpCms, { cmNumber: 17, cupName: 'Virgo Cup', jpDate: '2022-09-14' }];
+    const track17: CmTrack[] = [
+      { index: 17, cupName: 'Virgo Cup', racetrack: 'Oi', distance: 2000, distanceClass: 'medium', surface: 'dirt' },
+    ];
+
+    it('pace-projects from confirmed CMs only', () => {
+      const out = synthesizeUpcomingCms(withStale, track17, { dataVersion: 'x', horizon: 3, jpCms: jp17 });
+      expect(out.map((e) => e.cm?.cmNumber)).toEqual([17]);
+      // confirmed window CM14→15: pace 30/20 = 1.5, anchor 2022-07-14→2026-06-24;
+      // CM17 JP +62d / 1.5 ≈ +41d = 2026-08-04 (NOT projected off the stale CM16).
+      expect(out[0]!.dates.finals).toBe('2026-08-04');
+    });
+
+    it('anchors the fallback cadence on the latest CONFIRMED finals', () => {
+      const out = synthesizeUpcomingCms(withStale, track17, { dataVersion: 'x', horizon: 3 });
+      expect(out.map((e) => e.cm?.cmNumber)).toEqual([17]);
+      // addMonths from confirmed CM15 (2026-06-24) + 2 steps — not from stale CM16.
+      expect(out[0]!.dates.finals).toBe('2026-08-24');
+    });
+  });
 });

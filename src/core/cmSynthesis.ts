@@ -7,7 +7,7 @@
  */
 import type { CmTrack, JpCmDate, TimelineEntry } from './types';
 import { addMonths } from './timeline';
-import { calibratePace, projectGlobalDate, type SharedCm } from './foresight';
+import { calibrateFromConfirmed, projectGlobalDate, type ConfirmedCm } from './foresight';
 import { slug } from './slug';
 
 export interface SynthesizeOpts {
@@ -33,33 +33,29 @@ export function synthesizeUpcomingCms(
   const horizon = opts.horizon ?? 3;
   const sourceUrl = opts.sourceUrl ?? UMA_GUIDE_URL;
 
-  // Collect every present CM number (so overrides/confirmed CMs are never
-  // duplicated) and the date anchor = highest number that also has a finals date.
+  // Collect every present CM number (so overrides/predicted CMs are never
+  // duplicated) and the CONFIRMED entries with finals dates. The anchor and the
+  // calibration both use confirmed CMs only — a hand-authored prediction entry
+  // (tier 'prediction' with a finals date) must never set the clock, or the
+  // timeline's dates diverge from build-all's confirmed-only record projections.
   const present = new Set<number>();
+  const confirmed: ConfirmedCm[] = [];
   let anchor: { num: number; finals: string } | null = null;
   for (const e of merged) {
     const num = e.cm?.cmNumber;
     if (e.type !== 'cm' || num === undefined) continue;
     present.add(num);
     const finals = e.dates.finals;
-    if (finals !== undefined && (anchor === null || num > anchor.num)) {
-      anchor = { num, finals };
-    }
+    if (finals === undefined || e.status !== 'confirmed') continue;
+    confirmed.push({ cmNumber: num, global: finals });
+    if (anchor === null || num > anchor.num) anchor = { num, finals };
   }
   if (anchor === null) return [];
 
-  // Calibrate a rolling JP→Global pace from CMs present on both servers (confirmed
-  // Global finals ∩ a JP date). null ⇒ too few shared CMs ⇒ +1-month fallback.
+  // Rolling JP→Global pace from confirmed-∩-JP CMs, via the shared foresight
+  // join (one clock). null ⇒ too few shared CMs ⇒ +1-month fallback.
   const jpByNum = new Map((opts.jpCms ?? []).map((c) => [c.cmNumber, c.jpDate]));
-  const shared: SharedCm[] = [];
-  for (const e of merged) {
-    const num = e.cm?.cmNumber;
-    if (e.type !== 'cm' || num === undefined) continue;
-    const global = e.dates.finals;
-    const jp = jpByNum.get(num);
-    if (global !== undefined && jp !== undefined) shared.push({ cmNumber: num, jp, global });
-  }
-  const cal = calibratePace(shared);
+  const cal = calibrateFromConfirmed(opts.jpCms ?? [], confirmed);
 
   // Predict `horizon` CMs beyond the latest confirmed CM (the anchor). The window
   // slides forward as CMs are confirmed, so it always shows the next `horizon`

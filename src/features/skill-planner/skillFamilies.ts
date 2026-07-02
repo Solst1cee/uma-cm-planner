@@ -45,15 +45,20 @@ export function skillVariantOptions(
   skill: SkillRecord,
   skillById: ReadonlyMap<string, SkillRecord>,
 ): SkillRecord[] {
+  // Same-server only: gt-derived variantSkillIds on server:'jp' records can
+  // reference Global ids (and vice versa); a cross-server "family" must never
+  // collapse/hide records of the other server (P4).
   const family = [skill.skillId, ...(skill.variantSkillIds ?? [])]
     .map((id) => skillById.get(id))
-    .filter((candidate): candidate is SkillRecord => candidate !== undefined);
+    .filter((candidate): candidate is SkillRecord =>
+      candidate !== undefined && candidate.server === skill.server);
   family.sort((a, b) => skillVariantRank(b) - skillVariantRank(a) || Number(a.skillId) - Number(b.skillId));
   return family;
 }
 
 export function areSkillVariants(a: SkillRecord, b: SkillRecord): boolean {
   if (a.skillId === b.skillId) return true;
+  if (a.server !== b.server) return false;
   return (a.variantSkillIds ?? []).includes(b.skillId) || (b.variantSkillIds ?? []).includes(a.skillId);
 }
 
