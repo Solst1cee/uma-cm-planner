@@ -5,6 +5,7 @@
  * fixed launch anchors to rolling CM anchors (GameTora's Foresight method).
  * PREDICTION ONLY (P3). Pure (P6).
  */
+import type { JpCmDate } from './types';
 import { predictGlobalDate } from './timeline';
 
 const DAY = 86_400_000;
@@ -14,6 +15,12 @@ export interface SharedCm {
   cmNumber: number;
   jp: string; // YYYY-MM-DD, JP date
   global: string; // YYYY-MM-DD, confirmed Global date
+}
+
+/** A CM with a CONFIRMED Global date, keyed by CM number. */
+export interface ConfirmedCm {
+  cmNumber: number;
+  global: string; // YYYY-MM-DD
 }
 
 export interface Calibration {
@@ -55,4 +62,20 @@ export function calibratePace(shared: SharedCm[], window = 6): Calibration | nul
 /** Project a JP date to Global using the rolling calibration (reuses predictGlobalDate). */
 export function projectGlobalDate(jpISO: string, cal: Calibration): string {
   return predictGlobalDate(jpISO, cal.pace, cal.anchorJp, cal.anchorGlobal);
+}
+
+/**
+ * Join JP CM dates to CONFIRMED Global CM dates by cmNumber, then calibrate.
+ * The single calibration entry point: every foresight consumer (build-time
+ * record dating AND timeline CM synthesis) must derive its clock through this
+ * join so projected release dates and predicted CM dates never diverge.
+ */
+export function calibrateFromConfirmed(jpCms: JpCmDate[], confirmed: ConfirmedCm[]): Calibration | null {
+  const globalByNum = new Map(confirmed.map((c) => [c.cmNumber, c.global]));
+  const shared: SharedCm[] = [];
+  for (const jp of jpCms) {
+    const global = globalByNum.get(jp.cmNumber);
+    if (global !== undefined) shared.push({ cmNumber: jp.cmNumber, jp: jp.jpDate, global });
+  }
+  return calibratePace(shared);
 }

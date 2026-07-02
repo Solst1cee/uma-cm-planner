@@ -359,7 +359,9 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
 /**
  * Map an M4 `CmPlan.wishlist` to editable buyable candidates (1-click seed).
  * Cost is the dataset base (an estimate to confirm against the screen). Dedupes
- * by skillId; skips ids absent from the dataset (e.g. P4-filtered). Pure.
+ * by skillId; skips ids absent from the dataset and `server:'jp'` preview
+ * records — an upcoming skill can be wishlisted for a future CM, but it is not
+ * buyable on a Global training run (P4). Pure.
  */
 export function wishlistToCandidates(
   wishlist: WishlistItem[],
@@ -370,7 +372,7 @@ export function wishlistToCandidates(
   for (const item of wishlist) {
     if (seen.has(item.skillId)) continue;
     const skill = skillById.get(item.skillId);
-    if (!skill) continue;
+    if (!skill || skill.server !== 'global') continue;
     seen.add(item.skillId);
     const bs: BuyableSkill = {
       skillId: skill.skillId,

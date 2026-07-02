@@ -272,4 +272,13 @@ describe('wishlistToCandidates', () => {
     const out = wishlistToCandidates([wl('200332'), wl('200332'), wl('999999')], SKILL_BY_ID);
     expect(out.map((c) => c.skillId)).toEqual(['200332']);
   });
+
+  it('skips server:jp skills — upcoming preview content is not buyable on Global (P4)', () => {
+    const base = SKILL_BY_ID.get('200332');
+    if (!base) throw new Error('fixture skill 200332 missing');
+    const jpSkill = { ...base, skillId: '900001', server: 'jp' as const };
+    const byId = new Map([...SKILL_BY_ID, [jpSkill.skillId, jpSkill]]);
+    const out = wishlistToCandidates([wl('900001'), wl('200332')], byId);
+    expect(out.map((c) => c.skillId)).toEqual(['200332']);
+  });
 });
