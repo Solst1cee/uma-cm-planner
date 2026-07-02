@@ -72,6 +72,8 @@ export interface WishlistItem {
   needsInheriting?: boolean;
   doubleUp?: boolean;
   manualAdd?: boolean;
+  /** User-pinned rebalance version (availability #4); absent = horizon default. */
+  skillVer?: number;
 }
 
 // ---------------------------------------------------------------------------

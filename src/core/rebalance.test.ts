@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { effectiveVersion, versionPatch } from './rebalance';
+import { effectiveVersion, resolveVersion, versionPatch } from './rebalance';
 import type { RebalanceInfo } from './types';
 
 const info: RebalanceInfo = {
@@ -28,6 +28,18 @@ describe('effectiveVersion', () => {
       { ver: 1 }, { ver: 2, globalDate: '2026-06-20', globalArrival: '2026-06-20', modifier: 0.3, sourceUrl: 'https://x' },
     ]};
     expect(effectiveVersion(lag, today, today).ver).toBe(2);
+  });
+});
+
+describe('resolveVersion', () => {
+  it('a pinned valid version is returned even when not horizon-live (sim the imminent patch early)', () => {
+    expect(resolveVersion(info, 3, today, today).ver).toBe(3); // v3 not live at Current; pin wins anyway
+  });
+  it('a pinned unknown version falls back to the horizon default', () => {
+    expect(resolveVersion(info, 99, today, today).ver).toBe(effectiveVersion(info, today, today).ver);
+  });
+  it('an undefined pin defers to effectiveVersion', () => {
+    expect(resolveVersion(info, undefined, '2026-09-01', today).ver).toBe(effectiveVersion(info, '2026-09-01', today).ver);
   });
 });
 

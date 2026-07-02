@@ -1560,6 +1560,26 @@ main:has(.cmp-page) {
   font-size: 0.76rem;
 }
 
+.cmp-rebalance-select {
+  flex: none;
+  min-width: 0;
+  max-width: 9rem;
+  margin-top: 0.1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.2rem 0.35rem;
+  color: var(--fg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  appearance: none;
+}
+
+.cmp-rebalance-select.is-pinned {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .cmp-wishlist-line .cmp-small-btn {
   height: 2.12rem;
   min-width: 1.25rem;

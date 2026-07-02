@@ -22,6 +22,20 @@ export function effectiveVersion(info: RebalanceInfo, cutoffISO: string, todayIS
   return best ?? info.versions[0]!;
 }
 
+/** Version resolution everywhere: the user's pin wins; else the horizon default. */
+export function resolveVersion(
+  info: RebalanceInfo,
+  pinned: number | undefined,
+  cutoffISO: string,
+  todayISO: string,
+): SkillVersion {
+  if (pinned !== undefined) {
+    const v = info.versions.find((x) => x.ver === pinned);
+    if (v) return v;
+  }
+  return effectiveVersion(info, cutoffISO, todayISO);
+}
+
 export function versionPatch(v: SkillVersion): SkillPatch | undefined {
   const patch: SkillPatch = {};
   if (v.conditions !== undefined) patch.conditions = v.conditions;
