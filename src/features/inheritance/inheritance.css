@@ -1709,3 +1709,18 @@ main:has(.inh-page) {
 /* Right area: stack the lineage chip rows (blue/pink/green, then white). */
 .inh-uma-tile-right { display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; min-width: 0; }
 .inh-uma-tile-right .spark-chips { flex-wrap: wrap; }
+
+/* M1.8 — Target spark card. `.spark-chips` display:flex is otherwise scoped to
+   `.inh-parent`/`.inh-uma-modal` (see above); re-scope it for this card. Chip
+   pill styles (`.badge.spark-*`) are global (app.css). */
+.inh-target-spark .spark-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+.inh-target-spark-intro { margin: 0 0 0.5rem; color: var(--fg-muted); font-size: 0.78rem; }
+.inh-target-spark-sub { text-transform: none; letter-spacing: 0; color: var(--fg-muted); font-weight: 400; }
+.inh-target-spark-ok { margin: 0.2rem 0 0; color: var(--tier-chain); font-weight: 700; font-size: 0.78rem; }
+.inh-target-spark-pending { margin: 0.2rem 0 0; }
