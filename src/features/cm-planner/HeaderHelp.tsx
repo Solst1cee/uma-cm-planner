@@ -13,18 +13,31 @@ import { createPortal } from 'react-dom';
 
 const POP_W = 280; // matches .cmp-trace-help-pop width
 
-export function HeaderHelp({ label, children }: { label: string; children: ReactNode }) {
+export function HeaderHelp({ label, children, placement = 'bottom' }: {
+  label: string; children: ReactNode;
+  /** 'bottom' (default) opens below-left; 'right' opens to the button's right,
+   *  top-aligned — used by the compact event-detail popup. */
+  placement?: 'bottom' | 'right';
+}) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
 
-  // Anchor the fixed popup to the button's bottom-left; keep it within the viewport.
+  // Anchor the fixed popup to the button; keep it within the viewport.
   useLayoutEffect(() => {
     if (!open) return;
     const place = () => {
       const r = btnRef.current?.getBoundingClientRect();
       if (!r) return;
+      if (placement === 'right') {
+        // To the right of the button; flip to the left if it would overflow.
+        const w = popRef.current?.offsetWidth ?? POP_W;
+        const right = r.right + 6;
+        const left = right + w + 8 > window.innerWidth ? Math.max(8, r.left - w - 6) : right;
+        setPos({ top: Math.max(8, r.top), left });
+        return;
+      }
       const left = Math.max(8, Math.min(r.left, window.innerWidth - POP_W - 8));
       setPos({ top: r.bottom + 4, left });
     };
@@ -35,7 +48,7 @@ export function HeaderHelp({ label, children }: { label: string; children: React
       window.removeEventListener('resize', place);
       window.removeEventListener('scroll', place, true);
     };
-  }, [open]);
+  }, [open, placement]);
 
   // Dismiss on outside pointerdown / Esc — "inside" = the button OR the portaled popup.
   useEffect(() => {

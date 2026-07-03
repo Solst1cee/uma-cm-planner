@@ -1,0 +1,2312 @@
+{
+  "10071": {
+    "effect": "Slightly increase velocity with a long spurt starting halfway through the race.",
+    "condition": "distance_rate>=50&distance_rate<=60&order_rate>50",
+    "durationMs": 60000
+  },
+  "10081": {
+    "effect": "Become stronger at challenging rivals and moderately increase velocity when positioned toward the front with 200m or less remaining.",
+    "condition": "order>=3&order_rate<=50&remain_distance<=200&bashin_diff_infront<=1@order>=3&order_rate<=50&remain_distance<=200&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "10091": {
+    "effect": "Slightly swell with the determination to be number one when positioned toward the front in the second half of the race.",
+    "condition": "distance_rate>=50&order==1&bashin_diff_behind<=1@distance_rate>=50&order==2&is_overtake==1",
+    "durationMs": 50000
+  },
+  "10111": {
+    "effect": "Moderately increase velocity with a strong turn of foot when passing another runner toward the back on the final straight.",
+    "condition": "is_last_straight==1&change_order_onetime<0&order>=3",
+    "durationMs": 50000
+  },
+  "10141": {
+    "effect": "Slightly hang on to the advantage when positioned toward the front with energy to spare on the final straight.",
+    "condition": "is_last_straight==1&hp_per>=30&order<=2",
+    "durationMs": 50000
+  },
+  "10181": {
+    "effect": "Moderately increase velocity with the stride of an empress when passing another runner from midpack or further back on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&order>=3&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "10241": {
+    "effect": "Slightly increase ability to break out of the pack on the straight after engaging in a challenge toward the front on the final corner or later.",
+    "condition": "is_finalcorner==1&blocked_side_continuetime>=2&order<=3",
+    "durationMs": 50000
+  },
+  "10271": {
+    "effect": "Moderately increase acceleration in an attempt to move up on a corner late-race.",
+    "condition": "phase>=2&corner!=0&order_rate>=65&order_rate<=70",
+    "durationMs": 40000
+  },
+  "10321": {
+    "effect": "Moderately recover endurance and slightly increase velocity for a moderate duration when sitting off the pace on a corner in the second half of the race.",
+    "condition": "distance_rate>=50&corner!=0&order>=3&order_rate<=40",
+    "durationMs": 40000
+  },
+  "10351": {
+    "effect": "Moderately increase velocity with winning ambition when positioned toward the front on the final straight after engaging in a challenge on the final corner or later.",
+    "condition": "is_last_straight==1&order<=5",
+    "durationMs": 50000
+  },
+  "10411": {
+    "effect": "Moderately increase velocity with BAKUSHIN power when engaged in a challenge toward the front in the second half of the race.",
+    "condition": "distance_rate>=50&order<=3&blocked_side_continuetime>=2",
+    "durationMs": 50000
+  },
+  "10451": {
+    "effect": "Recover endurance when well-positioned mid-race.",
+    "condition": "phase_random==1&order>=2&order_rate<=40"
+  },
+  "10521": {
+    "effect": "Moderately recover endurance with a glance at nearby runners when positioned toward the back on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&order_rate>50&near_count>=1"
+  },
+  "10561": {
+    "effect": "Moderately clear a path forward with the power of divination when the way ahead is jammed late-race.",
+    "condition": "phase>=2&order>=3&blocked_front==1",
+    "durationMs": 50000
+  },
+  "10601": {
+    "effect": "Moderately increase velocity with an arousal of fighting spirit when positioned 3rd and about to lose late-race.",
+    "condition": "phase>=2&order==3&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "10611": {
+    "effect": "Increase velocity in a true display of skill with 200m remaining after racing calmly.",
+    "condition": "temptation_count==0&remain_distance<=201&remain_distance>=199&order>=4&order_rate<=70",
+    "durationMs": 50000
+  },
+  "10621": {
+    "effect": "Moderately recover endurance and slightly increase velocity with newfound resolve when in midpack around halfway through the race.",
+    "condition": "distance_rate>=50&phase==1&order>=3&order_rate<=70",
+    "durationMs": 50000
+  },
+  "100011": {
+    "effect": "Ride the momentum to increase velocity and very slightly increase acceleration after passing another runner toward the front late-race.",
+    "condition": "phase>=2&order>=1&order_rate<=70&change_order_onetime<0",
+    "durationMs": 60000
+  },
+  "100021": {
+    "effect": "Increase velocity by drawing on all remaining strength when in the lead by a fair margin in the second half of the race.",
+    "condition": "distance_rate>=50&order==1&bashin_diff_behind>=1",
+    "durationMs": 50000
+  },
+  "100031": {
+    "effect": "Greatly increase velocity with flashy footwork when closing the gap to runners ahead on the final straight.",
+    "condition": "is_last_straight==1&running_style==2&course_distance==2400",
+    "durationMs": 50000
+  },
+  "100041": {
+    "effect": "Increase acceleration by shifting gears when positioned toward the front on the final corner or later.",
+    "condition": "is_finalcorner==1&order<=5&order_rate<=50",
+    "durationMs": 40000
+  },
+  "100051": {
+    "effect": "Greatly increase velocity with a dazzling display when just breaking out of the pack toward the front on the final straight.",
+    "condition": "remain_distance<=300",
+    "durationMs": 50000
+  },
+  "100061": {
+    "effect": "Greatly increase ability to break out of the pack by opening up a path when positioned toward the front with 200m remaining.",
+    "condition": "order>=2&order<=5&order_rate<=50&remain_distance<=201&remain_distance>=199",
+    "durationMs": 50000
+  },
+  "100071": {
+    "effect": "Moderately increase velocity steadily with a long spurt starting halfway through the race.",
+    "condition": "distance_rate>=50&distance_rate<=60&order_rate>50",
+    "durationMs": 60000
+  },
+  "100081": {
+    "effect": "Become stronger at challenging rivals and increase velocity when positioned toward the front with 200m or less remaining.",
+    "condition": "order>=3&order_rate<=50&remain_distance<=200&bashin_diff_infront<=1@order>=3&order_rate<=50&remain_distance<=200&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "100091": {
+    "effect": "Swell with the determination to be number one when positioned toward the front in the second half of the race.",
+    "condition": "distance_rate>=50&order==1&bashin_diff_behind<=1@distance_rate>=50&order==2&is_overtake==1",
+    "durationMs": 50000
+  },
+  "100101": {
+    "effect": "Increase acceleration with a pow, a wow, and a bang when well-positioned upon approaching the final straight.",
+    "condition": "is_finalcorner_laterhalf==1&corner!=0&order>=3&order_rate<=40",
+    "durationMs": 50000
+  },
+  "100111": {
+    "effect": "Increase velocity with a strong turn of foot when passing another runner toward the back on the final straight.",
+    "condition": "is_last_straight==1&change_order_onetime<0&order>=3",
+    "durationMs": 50000
+  },
+  "100121": {
+    "effect": "Increase velocity on the final straight after passing another runner on the outside toward the back on the final corner or later.",
+    "condition": "is_last_straight==1",
+    "durationMs": 50000
+  },
+  "100131": {
+    "effect": "Increase velocity with the determination to not be overtaken when positioned toward the front on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2",
+    "durationMs": 50000
+  },
+  "100141": {
+    "effect": "Hang onto the advantage when positioned toward the front with energy to spare on the final straight.",
+    "condition": "is_last_straight==1&hp_per>=30&order<=2",
+    "durationMs": 50000
+  },
+  "100151": {
+    "effect": "Increase velocity with royal brilliance when positioned toward the front and close to the runner ahead or behind on the final corner or later.",
+    "condition": "is_finalcorner==1&bashin_diff_behind<=1&order<=4@is_finalcorner==1&bashin_diff_infront<=1&order<=4",
+    "durationMs": 50000
+  },
+  "100161": {
+    "effect": "Increase velocity with beastly strength when passing another runner on the outside on the final corner or later. If the skill user engaged in a challenge mid-race, greatly increase velocity instead.",
+    "condition": "is_finalcorner==1&order>=2&order_rate<=75&is_behind_in==1&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "100171": {
+    "effect": "Greatly increase velocity on the final straight after passing another runner 3 times late-race.",
+    "condition": "is_last_straight==1&change_order_up_end_after>=3",
+    "durationMs": 50000
+  },
+  "100181": {
+    "effect": "Increase velocity with the stride of an empress when passing another runner from midpack or further back on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&order>=3&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "100191": {
+    "effect": "Increase velocity and navigation with the pure euphoria of being within breathing distance of precious waifus after passing another runner 2 times late-race.",
+    "condition": "change_order_up_end_after>=2",
+    "durationMs": 50000
+  },
+  "100201": {
+    "effect": "Increase acceleration at an opportune moment when in the lead on a corner late-race.",
+    "condition": "phase>=2&corner!=0&order==1",
+    "durationMs": 40000
+  },
+  "100211": {
+    "effect": "Bolt down the track like lightning when well-positioned or aiming for the front from midpack on a straight in the second half of the race.",
+    "condition": "distance_rate>=50&corner==0&order_rate>=70&order_rate<=75&is_overtake==1@distance_rate>=50&corner==0&order_rate<=30&order_rate>=20",
+    "durationMs": 50000
+  },
+  "100221": {
+    "effect": "Increase velocity with the excitement of running when engaged in a challenge while well-positioned in the second half of the race.",
+    "condition": "distance_rate>=50&order>=2&order_rate<=40&blocked_side_continuetime>=2",
+    "durationMs": 50000
+  },
+  "100231": {
+    "effect": "Increase velocity by deriving the winning equation when passing another runner toward the front on the final corner or later.",
+    "condition": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0",
+    "durationMs": 50000
+  },
+  "100241": {
+    "effect": "Increase ability to break out of the pack on the straight after engaging in a challenge toward the front on the final corner or later.",
+    "condition": "is_finalcorner==1&blocked_side_continuetime>=2&order<=3",
+    "durationMs": 50000
+  },
+  "100251": {
+    "effect": "Chase after an unseen friend when in midpack in the second half of the race, moderately increasing velocity steadily and very slightly intimidating runners ahead.",
+    "condition": "distance_rate>=50&order_rate>=40&order_rate<=70",
+    "durationMs": 60000
+  },
+  "100261": {
+    "effect": "Increase velocity when positioned toward the front after making it to the final straight without faltering.",
+    "condition": "is_badstart==0&order<=3&is_last_straight==1&order_rate_in20_continue==1",
+    "durationMs": 50000
+  },
+  "100271": {
+    "effect": "Increase acceleration in an attempt to move up on a corner late-race.",
+    "condition": "phase>=2&corner!=0&order_rate>=65&order_rate<=70",
+    "durationMs": 40000
+  },
+  "100281": {
+    "effect": "Kick forward hard with renewed vigor when starting to get tired while well-positioned halfway through the race.",
+    "condition": "distance_rate>=45&distance_rate<=60&order>=2&order_rate<=50&is_overtake==1&distance_type==1",
+    "durationMs": 50000
+  },
+  "100301": {
+    "effect": "Increase velocity with strong willpower on the final straight after passing another runner in the front part of the pack on the final corner or later.",
+    "condition": "is_last_straight==1",
+    "durationMs": 50000
+  },
+  "100311": {
+    "effect": "Moderately increase velocity when positioned toward the front with about 300m remaining. If coming out of an uphill, greatly increase velocity instead.",
+    "condition": "remain_distance<=299&remain_distance>=295&order<=2&slope==0@remain_distance<=299&remain_distance>=295&order<=2&slope==2",
+    "durationMs": 50000
+  },
+  "100321": {
+    "effect": "Recover endurance and moderately increase velocity for a moderate duration when sitting off the pace on a corner in the second half of the race.",
+    "condition": "distance_rate>=50&corner!=0&order>=3&order_rate<=40",
+    "durationMs": 40000
+  },
+  "100331": {
+    "effect": "Increase velocity with guidance from the stars when far from the lead on the final straight. If positioned around the very back, greatly increase velocity instead.",
+    "condition": "is_last_straight==1&distance_diff_top>=5&order_rate<80",
+    "durationMs": 50000
+  },
+  "100341": {
+    "effect": "When competing for the lead if positioned in the midpack or further for the first half of the race, show off some Edo spirit and greatly increase velocity.",
+    "condition": "compete_fight_count>0",
+    "durationMs": 50000
+  },
+  "100351": {
+    "effect": "Increase velocity with winning ambition when positioned toward the front on the final straight after engaging in a challenge on the final corner or later.",
+    "condition": "is_last_straight==1&order<=5",
+    "durationMs": 50000
+  },
+  "100361": {
+    "effect": "When near the inner rail midpack on the final corner or later, calculate the path to victory, increasing velocity and ability to navigate smoothly on the final straight.",
+    "condition": "is_last_straight==1",
+    "durationMs": 50000
+  },
+  "100371": {
+    "effect": "Increase velocity in a dash for the lead after running calmly and according to plan up until the final straight.",
+    "condition": "temptation_count==0&order>=3&is_last_straight==1&order_rate_in80_continue==1&order_rate_out40_continue==1",
+    "durationMs": 50000
+  },
+  "100381": {
+    "effect": "Gain momentum and begin to advance when passing another runner while well-positioned around halfway through the race.",
+    "condition": "distance_rate>=50&distance_rate<=65&order>=2&order_rate<=50&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "100391": {
+    "effect": "Increase velocity with pretty princess power when engaged in a challenge on the final straight.",
+    "condition": "is_last_straight==1&blocked_side_continuetime>=2",
+    "durationMs": 50000
+  },
+  "100401": {
+    "effect": "Moderately increase acceleration steadily with a wink when starting to make a move from midpack in the second half of the race.",
+    "condition": "distance_rate>=50&order_rate>=40&order_rate<=80&is_overtake==1",
+    "durationMs": 60000
+  },
+  "100411": {
+    "effect": "Increase velocity with BAKUSHIN power when engaged in a challenge toward the front in the second half of the race.",
+    "condition": "distance_rate>=50&order<=3&blocked_side_continuetime>=2",
+    "durationMs": 50000
+  },
+  "100441": {
+    "effect": "If positioned toward the back and racing calmly until the start of the final corner, when there are 300m remaining, cast a magic spell to increase velocity continuously.",
+    "condition": "remain_distance<=300",
+    "durationMs": 60000
+  },
+  "100451": {
+    "effect": "Greatly recover endurance when well-positioned mid-race.",
+    "condition": "phase_random==1&order>=2&order_rate<=40"
+  },
+  "100461": {
+    "effect": "Become empowered to keep the spotlight when positioned toward the front and close to the runner behind on a straight mid-race.",
+    "condition": "phase==1&corner==0&order<=2&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "100481": {
+    "effect": "Get hyped and increase velocity when pressured by or passing another runner while well-positioned on the final straight.",
+    "condition": "is_last_straight==1&order_rate<=40&overtake_target_time>=1@is_last_straight==1&order_rate<=40&is_overtake==1",
+    "durationMs": 50000
+  },
+  "100501": {
+    "effect": "Increase velocity with smoldering ambition when moving up from midpack on the final corner or later.",
+    "condition": "is_finalcorner==1&order_rate>=40&order_rate<=75&is_overtake==1",
+    "durationMs": 50000
+  },
+  "100511": {
+    "effect": "If the user engaged in a challenge on a mid-race corner, increase acceleration when well-positioned late-race at least halfway through the final corner.",
+    "condition": "phase>=2&is_finalcorner_laterhalf==1&order>=3&order_rate<=40@phase>=2&is_finalcorner==1&corner==0&order>=3&order_rate<=40",
+    "durationMs": 40000
+  },
+  "100521": {
+    "effect": "Recover endurance with a glance at nearby runners when positioned toward the back on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&order_rate>50&near_count>=1"
+  },
+  "100561": {
+    "effect": "Clear a path forward with the power of divination when the way ahead is jammed late-race.",
+    "condition": "phase>=2&order>=3&blocked_front==1",
+    "durationMs": 50000
+  },
+  "100581": {
+    "effect": "Aim for the front with unwavering determination when passing another runner from midpack or further back on a corner late-race.",
+    "condition": "phase>=2&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "100591": {
+    "effect": "Having run the race calmly, increase acceleration with hardened determination when making a move mid-race, or on a crucial corner late-race whilst in midpack.",
+    "condition": "phase>=2&corner!=0&is_finalcorner==0&temptation_count==0&order_rate>=50&order_rate<=70@phase==1&corner!=0&is_finalcorner==1&temptation_count==0&order_rate>=50&order_rate<=70",
+    "durationMs": 40000
+  },
+  "100601": {
+    "effect": "Increase velocity with flaring fighting spirit when positioned 3rd and about to lose late-race.",
+    "condition": "phase>=2&order==3&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "100611": {
+    "effect": "Greatly increase velocity in a true display of skill with 200m remaining after racing calmly.",
+    "condition": "temptation_count==0&remain_distance<=201&remain_distance>=199&order>=4&order_rate<=70",
+    "durationMs": 50000
+  },
+  "100621": {
+    "effect": "Recover endurance and moderately increase velocity with newfound resolve when in midpack around halfway through the race.",
+    "condition": "distance_rate>=50&phase==1&order>=3&order_rate<=70",
+    "durationMs": 50000
+  },
+  "100641": {
+    "effect": "If positioned toward the front from the start of the race until the second half of the race, good vibes recover endurance and moderately increase velocity steadily.",
+    "condition": "distance_rate>=50&order_rate_in20_continue==1",
+    "durationMs": 60000
+  },
+  "100671": {
+    "effect": "If well-positioned at the start of the final straight, her strong willpower to win increases velocity. If positioned near the front, greatly increase velocity instead.",
+    "condition": "is_last_straight_onetime==1&order>=2&order<=5&distance_diff_top<=5",
+    "durationMs": 50000
+  },
+  "100681": {
+    "effect": "Moderately increase velocity when positioned toward the front on the third corner in the second half of the race. Or, kick forward hard when toward the front on the backstretch late-race.",
+    "condition": "phase==2&straight_front_type==2&order<=2",
+    "durationMs": 50000
+  },
+  "100691": {
+    "effect": "Increase velocity with blossoming ambition when well-positioned and close to the runner ahead with 300m or less remaining.",
+    "condition": "remain_distance<=300&order_rate<=40&bashin_diff_infront<=1",
+    "durationMs": 50000
+  },
+  "100711": {
+    "effect": "Seize the moment when close to the runner behind on the final straight, slightly consuming endurance to greatly increase velocity for a moderate duration.",
+    "condition": "is_last_straight==1&bashin_diff_behind<=1",
+    "durationMs": 40000
+  },
+  "100721": {
+    "effect": "If the user passes another runner on the final corner or later, increase velocity with fiery fighting spirit when in the front part of the pack with 300m or less remaining.",
+    "condition": "remain_distance<=300&order_rate<=40",
+    "durationMs": 50000
+  },
+  "100741": {
+    "effect": "From the midpack in the second half of the race, slightly increase velocity steadily for a duration based on remaining endurance.",
+    "condition": "distance_rate>=50&order_rate>=40&order_rate<=80",
+    "durationMs": 50000
+  },
+  "110011": {
+    "effect": "Recover endurance by relaxing after activating 2 skills when positioned midpack mid-race.",
+    "condition": "phase==1&order>=2&order_rate<=80&activate_count_middle>=2",
+    "durationMs": 50000
+  },
+  "110031": {
+    "effect": "Greatly increase velocity with an indomitable fighting spirit on the final straight after being on the heels of another runner toward the front on the final corner or later.",
+    "condition": "is_last_straight==1",
+    "durationMs": 50000
+  },
+  "110041": {
+    "effect": "Increase velocity enthusiastically when positioned toward the front in the second half of the race after recovering endurance with a skill.",
+    "condition": "distance_rate>=50&activate_count_heal>=1&order<=3",
+    "durationMs": 50000
+  },
+  "110051": {
+    "effect": "When passing another racer at the front part of the pack on the final corner or later, perform a dazzling display that greatly increases velocity for a moderate duration.",
+    "condition": "is_finalcorner==1&change_order_onetime<0&order_rate<=40",
+    "durationMs": 40000
+  },
+  "110061": {
+    "effect": "Control breathing and kick forward hard toward victory in the second half of the race after recovering endurance with skills at least 3 times.",
+    "condition": "activate_count_heal>=3&distance_rate>=50",
+    "durationMs": 50000
+  },
+  "110101": {
+    "effect": "If positioned toward the front with 200m remaining, increase velocity. Then, if also positioned near the leading Umamusume, gather strength to move slightly forward.",
+    "condition": "distance_diff_top<=5&order>=2&order_rate<=40&remain_distance<=201&remain_distance>=199",
+    "durationMs": 50000
+  },
+  "110111": {
+    "effect": "Greatly recover endurance with a gentle light when overtaken toward the back mid-race.",
+    "condition": "phase==1&change_order_onetime>0&order_rate>=40"
+  },
+  "110131": {
+    "effect": "Increase velocity continuously when pressured by another runner and running out of energy toward the front on the final corner or later.",
+    "condition": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+    "durationMs": 60000
+  },
+  "110141": {
+    "effect": "Increase acceleration with blazing passion when aiming for the front from midpack on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&is_overtake==1&order>=4&order_rate<=75",
+    "durationMs": 40000
+  },
+  "110151": {
+    "effect": "Increase velocity for a moderate duration when in the front part of the pack with 400m remaining. If at least 7 skills have been activated, greatly increase velocity for a moderate duration instead.",
+    "condition": "remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all>=7",
+    "durationMs": 50000
+  },
+  "110171": {
+    "effect": "Increase velocity with a blazing spirit when pressured by another runner in the front part of the pack on the final corner or later.",
+    "condition": "is_finalcorner==1",
+    "durationMs": 60000
+  },
+  "110181": {
+    "effect": "Increase velocity when starting to make a move from a position toward the front mid-race.",
+    "condition": "phase==1&order>=3&order_rate<=50&is_overtake==1",
+    "durationMs": 50000
+  },
+  "110201": {
+    "effect": "If positioned toward the front on a straight late-race, increase velocity with high spirits. If the straight is on the backstretch, also increase acceleration very slightly.",
+    "condition": "phase>=2&corner==0&order<=2&straight_front_type==2",
+    "durationMs": 50000
+  },
+  "110221": {
+    "effect": "If well-positioned late-race on the final corner or later, increase velocity. If there's a large distance left to the finish, also increase acceleration very slightly with perfect form.",
+    "condition": "remain_distance>=401&phase>=2&is_finalcorner==1&order_rate>=20&order_rate<=40",
+    "durationMs": 50000
+  },
+  "110231": {
+    "effect": "Increase velocity by deriving a path to victory mid-race after staying well-positioned from the start of the race up until the second half.",
+    "condition": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+    "durationMs": 50000
+  },
+  "110241": {
+    "effect": "Increase velocity when passing another runner toward the front on the final corner. If passing toward the back, increase acceleration instead.",
+    "condition": "is_finalcorner==1&order_rate<=40&change_order_onetime<0",
+    "durationMs": 50000
+  },
+  "110261": {
+    "effect": "Take a slight breather and increase velocity when in the front part of the pack and detecting another runner coming from behind on a corner mid-race.",
+    "condition": "order<=4&phase==1&corner!=0&bashin_diff_behind<=3",
+    "durationMs": 50000
+  },
+  "110301": {
+    "effect": "Suck endurance from runners ahead when well-positioned and pressured by another runner mid-race.",
+    "condition": "phase==1&order>=2&order_rate<=50",
+    "durationMs": 50000
+  },
+  "110371": {
+    "effect": "Increase velocity continuously with a patissiere's pride on the final straight after passing another runner 3 times on the final corner or later.",
+    "condition": "change_order_up_finalcorner_after>=2&is_last_straight==1",
+    "durationMs": 60000
+  },
+  "110381": {
+    "effect": "If positioned toward the front with 350m or less remaining and there is another Umamusume close behind, the determination to stay ahead makes it easier to break out of the pack.",
+    "condition": "remain_distance<=350&order_rate<=40&order_rate>=20&bashin_diff_behind<=1",
+    "durationMs": 50000
+  },
+  "110401": {
+    "effect": "Increase ability to break out of the pack when engaged in a challenge in midpack on the final corner.",
+    "condition": "is_finalcorner==1&corner!=0&order_rate>=30&order_rate<=70&blocked_side_continuetime>=2",
+    "durationMs": 50000
+  },
+  "110451": {
+    "effect": "Increase ability to break out of the pack when well-positioned and close to the runner ahead on the final straight.",
+    "condition": "is_last_straight==1&order<=4&bashin_diff_infront<=1",
+    "durationMs": 50000
+  },
+  "110521": {
+    "effect": "Give max effort when far from the lead on the final corner, moderately increasing velocity steadily for a duration proportional to distance from the lead.",
+    "condition": "is_finalcorner==1&corner!=0&distance_diff_top>=7",
+    "durationMs": 50000
+  },
+  "110561": {
+    "effect": "Increase velocity with a surge of great fortune when pressured by another runner toward the back in the second half of the race.",
+    "condition": "distance_rate>=50&order_rate>=40&overtake_target_time>=2",
+    "durationMs": 50000
+  },
+  "110591": {
+    "effect": "If positioned midpack on a downhill just before late-race and there's a large distance left to the finish, enjoy the race to the fullest, increasing velocity.",
+    "condition": "distance_rate>=60&slope==2&phase==1&order_rate>=40&order_rate<=80&remain_distance>=500",
+    "durationMs": 50000
+  },
+  "110601": {
+    "effect": "If the user passes another runner on the final corner or later, increase velocity from the midpack onward on the final straight. If the user isn't one of the top favorites, muster resolve to keep steadily increasing velocity.",
+    "condition": "is_last_straight==1&order_rate>=40&order_rate<=70&popularity>=4",
+    "durationMs": 60000
+  },
+  "110611": {
+    "effect": "If the user stays toward the very back during the first half of the race without being rushed, unleash fighting spirit to increase acceleration on the final straight.",
+    "condition": "is_last_straight==1",
+    "durationMs": 40000
+  },
+  "200011": {
+    "effect": "Increase performance on right-handed tracks.",
+    "condition": "rotation==1"
+  },
+  "200012": {
+    "effect": "Moderately increase performance on right-handed tracks.",
+    "condition": "rotation==1"
+  },
+  "200013": {
+    "effect": "Moderately decrease performance on right-handed tracks.",
+    "condition": "rotation==1"
+  },
+  "200014": {
+    "effect": "Increase proficiency in right-handed tracks, increasing Speed and Power.",
+    "condition": "rotation==1"
+  },
+  "200021": {
+    "effect": "Increase performance on left-handed tracks.",
+    "condition": "rotation==2"
+  },
+  "200022": {
+    "effect": "Moderately increase performance on left-handed tracks.",
+    "condition": "rotation==2"
+  },
+  "200023": {
+    "effect": "Moderately decrease performance on left-handed tracks.",
+    "condition": "rotation==2"
+  },
+  "200031": {
+    "effect": "Increase performance at Tokyo Racecourse.",
+    "condition": "track_id==10006"
+  },
+  "200032": {
+    "effect": "Moderately increase performance at Tokyo Racecourse.",
+    "condition": "track_id==10006"
+  },
+  "200033": {
+    "effect": "Moderately decrease performance at Tokyo Racecourse.",
+    "condition": "track_id==10006"
+  },
+  "200041": {
+    "effect": "Increase performance at Nakayama Racecourse.",
+    "condition": "track_id==10005"
+  },
+  "200042": {
+    "effect": "Moderately increase performance at Nakayama Racecourse.",
+    "condition": "track_id==10005"
+  },
+  "200043": {
+    "effect": "Moderately decrease performance at Nakayama Racecourse.",
+    "condition": "track_id==10005"
+  },
+  "200051": {
+    "effect": "Increase performance at Hanshin Racecourse.",
+    "condition": "track_id==10009"
+  },
+  "200052": {
+    "effect": "Moderately increase performance at Hanshin Racecourse.",
+    "condition": "track_id==10009"
+  },
+  "200053": {
+    "effect": "Moderately decrease performance at Hanshin Racecourse.",
+    "condition": "track_id==10009"
+  },
+  "200061": {
+    "effect": "Increase performance at Kyoto Racecourse.",
+    "condition": "track_id==10008"
+  },
+  "200062": {
+    "effect": "Moderately increase performance at Kyoto Racecourse.",
+    "condition": "track_id==10008"
+  },
+  "200063": {
+    "effect": "Moderately decrease performance at Kyoto Racecourse.",
+    "condition": "track_id==10008"
+  },
+  "200064": {
+    "effect": "Increase performance at Kyoto Racecourse, boosting Stamina and Wit.",
+    "condition": "track_id==10008"
+  },
+  "200071": {
+    "effect": "Increase performance at Chukyo Racecourse.",
+    "condition": "track_id==10007"
+  },
+  "200072": {
+    "effect": "Moderately increase performance at Chukyo Racecourse.",
+    "condition": "track_id==10007"
+  },
+  "200073": {
+    "effect": "Moderately decrease performance at Chukyo Racecourse.",
+    "condition": "track_id==10007"
+  },
+  "200081": {
+    "effect": "Increase performance at Sapporo Racecourse.",
+    "condition": "track_id==10001"
+  },
+  "200082": {
+    "effect": "Moderately increase performance at Sapporo Racecourse.",
+    "condition": "track_id==10001"
+  },
+  "200083": {
+    "effect": "Moderately decrease performance at Sapporo Racecourse.",
+    "condition": "track_id==10001"
+  },
+  "200091": {
+    "effect": "Increase performance at Hakodate Racecourse.",
+    "condition": "track_id==10002"
+  },
+  "200092": {
+    "effect": "Moderately increase performance at Hakodate Racecourse.",
+    "condition": "track_id==10002"
+  },
+  "200093": {
+    "effect": "Moderately decrease performance at Hakodate Racecourse.",
+    "condition": "track_id==10002"
+  },
+  "200101": {
+    "effect": "Increase performance at Fukushima Racecourse.",
+    "condition": "track_id==10004"
+  },
+  "200102": {
+    "effect": "Moderately increase performance at Fukushima Racecourse.",
+    "condition": "track_id==10004"
+  },
+  "200103": {
+    "effect": "Moderately decrease performance at Fukushima Racecourse.",
+    "condition": "track_id==10004"
+  },
+  "200111": {
+    "effect": "Increase performance at Niigata Racecourse.",
+    "condition": "track_id==10003"
+  },
+  "200112": {
+    "effect": "Moderately increase performance at Niigata Racecourse.",
+    "condition": "track_id==10003"
+  },
+  "200113": {
+    "effect": "Moderately decrease performance at Niigata Racecourse.",
+    "condition": "track_id==10003"
+  },
+  "200121": {
+    "effect": "Increase performance at Kokura Racecourse.",
+    "condition": "track_id==10010"
+  },
+  "200122": {
+    "effect": "Moderately increase performance at Kokura Racecourse.",
+    "condition": "track_id==10010"
+  },
+  "200123": {
+    "effect": "Moderately decrease performance at Kokura Racecourse.",
+    "condition": "track_id==10010"
+  },
+  "200131": {
+    "effect": "Increase performance over standard distances (multiples of 400m).",
+    "condition": "is_basis_distance==1"
+  },
+  "200132": {
+    "effect": "Moderately increase performance over standard distances (multiples of 400m).",
+    "condition": "is_basis_distance==1"
+  },
+  "200133": {
+    "effect": "Moderately decrease performance over standard distances (multiples of 400m).",
+    "condition": "is_basis_distance==1"
+  },
+  "200141": {
+    "effect": "Increase performance over non-standard distances (non-multiples of 400m).",
+    "condition": "is_basis_distance==0"
+  },
+  "200142": {
+    "effect": "Moderately increase performance over non-standard distances (non-multiples of 400m).",
+    "condition": "is_basis_distance==0"
+  },
+  "200143": {
+    "effect": "Moderately decrease performance over non-standard distances (non-multiples of 400m).",
+    "condition": "is_basis_distance==0"
+  },
+  "200151": {
+    "effect": "Increase performance on firm ground.",
+    "condition": "ground_condition==1"
+  },
+  "200152": {
+    "effect": "Moderately increase performance on firm ground.",
+    "condition": "ground_condition==1"
+  },
+  "200153": {
+    "effect": "Moderately decrease performance on firm ground.",
+    "condition": "ground_condition==1"
+  },
+  "200154": {
+    "effect": "Increase performance on firm ground, boosting Power and Speed.",
+    "condition": "ground_condition==1"
+  },
+  "200161": {
+    "effect": "Increase performance on good, soft, and heavy ground.",
+    "condition": "ground_condition==2@ground_condition==3@ground_condition==4"
+  },
+  "200162": {
+    "effect": "Moderately increase performance on good, soft, and heavy ground.",
+    "condition": "ground_condition==2@ground_condition==3@ground_condition==4"
+  },
+  "200163": {
+    "effect": "Moderately decrease performance on good, soft, and heavy ground.",
+    "condition": "ground_condition==2@ground_condition==3@ground_condition==4"
+  },
+  "200171": {
+    "effect": "Increase performance in spring.",
+    "condition": "season==1@season==5"
+  },
+  "200172": {
+    "effect": "Moderately increase performance in spring.",
+    "condition": "season==1@season==5"
+  },
+  "200173": {
+    "effect": "Moderately decrease performance in spring.",
+    "condition": "season==1@season==5"
+  },
+  "200174": {
+    "effect": "Increase performance in spring, boosting Speed and Power.",
+    "condition": "season==1@season==5"
+  },
+  "200181": {
+    "effect": "Increase performance in summer.",
+    "condition": "season==2"
+  },
+  "200182": {
+    "effect": "Moderately increase performance in summer.",
+    "condition": "season==2"
+  },
+  "200183": {
+    "effect": "Moderately decrease performance in summer.",
+    "condition": "season==2"
+  },
+  "200191": {
+    "effect": "Increase performance in fall.",
+    "condition": "season==3"
+  },
+  "200192": {
+    "effect": "Moderately increase performance in fall.",
+    "condition": "season==3"
+  },
+  "200193": {
+    "effect": "Moderately decrease performance in fall.",
+    "condition": "season==3"
+  },
+  "200194": {
+    "effect": "Increase performance in fall, boosting Speed and Power.",
+    "condition": "season==3"
+  },
+  "200201": {
+    "effect": "Increase performance in winter.",
+    "condition": "season==4"
+  },
+  "200202": {
+    "effect": "Moderately increase performance in winter.",
+    "condition": "season==4"
+  },
+  "200203": {
+    "effect": "Moderately decrease performance in winter.",
+    "condition": "season==4"
+  },
+  "200211": {
+    "effect": "Increase performance in sunny weather.",
+    "condition": "weather==1"
+  },
+  "200212": {
+    "effect": "Moderately increase performance in sunny weather.",
+    "condition": "weather==1"
+  },
+  "200221": {
+    "effect": "Increase performance in cloudy weather.",
+    "condition": "weather==2"
+  },
+  "200222": {
+    "effect": "Moderately increase performance in cloudy weather.",
+    "condition": "weather==2"
+  },
+  "200231": {
+    "effect": "Increase performance in rainy weather.",
+    "condition": "weather==3"
+  },
+  "200232": {
+    "effect": "Moderately increase performance in rainy weather.",
+    "condition": "weather==3"
+  },
+  "200233": {
+    "effect": "Moderately decrease performance in rainy weather.",
+    "condition": "weather==3"
+  },
+  "200241": {
+    "effect": "Increase performance in snowy weather.",
+    "condition": "weather==4"
+  },
+  "200242": {
+    "effect": "Moderately increase performance in snowy weather.",
+    "condition": "weather==4"
+  },
+  "200251": {
+    "effect": "Increase performance in brackets 1–3.",
+    "condition": "post_number<=3"
+  },
+  "200252": {
+    "effect": "Moderately increase performance in brackets 1–3.",
+    "condition": "post_number<=3"
+  },
+  "200253": {
+    "effect": "Moderately decrease performance in brackets 1–3.",
+    "condition": "post_number<=3"
+  },
+  "200261": {
+    "effect": "Increase performance in brackets 6–8.",
+    "condition": "post_number>=6"
+  },
+  "200262": {
+    "effect": "Moderately increase performance in brackets 6–8.",
+    "condition": "post_number>=6"
+  },
+  "200263": {
+    "effect": "Moderately decrease performance in brackets 6–8.",
+    "condition": "post_number>=6"
+  },
+  "200271": {
+    "effect": "Greatly increase performance when no other runners are using the same strategy.",
+    "condition": "running_style_count_same<=1"
+  },
+  "200272": {
+    "effect": "Increase performance when no other runners are using the same strategy.",
+    "condition": "running_style_count_same<=1"
+  },
+  "200281": {
+    "effect": "Increase performance when many other runners are using the same strategy.",
+    "condition": "running_style_count_same_rate>=40"
+  },
+  "200282": {
+    "effect": "Moderately increase performance when many other runners are using the same strategy.",
+    "condition": "running_style_count_same_rate>=40"
+  },
+  "200283": {
+    "effect": "Moderately decrease performance when many other runners are using the same strategy.",
+    "condition": "running_style_count_same_rate>=40"
+  },
+  "200291": {
+    "effect": "Increase performance when the favorite is using the same strategy.",
+    "condition": "running_style_equal_popularity_one==1"
+  },
+  "200292": {
+    "effect": "Moderately increase performance when the favorite is using the same strategy.",
+    "condition": "running_style_equal_popularity_one==1"
+  },
+  "200301": {
+    "effect": "Increase performance when 4th favorite or below.",
+    "condition": "popularity>=4"
+  },
+  "200302": {
+    "effect": "Moderately increase performance when 4th favorite or below.",
+    "condition": "popularity>=4"
+  },
+  "200311": {
+    "effect": "Moderately decrease performance in G1 or otherwise important races.",
+    "condition": "grade==100"
+  },
+  "200321": {
+    "effect": "Moderately decrease performance when the favorite.",
+    "condition": "popularity==1"
+  },
+  "200331": {
+    "effect": "Increase velocity on a corner with skilled turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 24000
+  },
+  "200332": {
+    "effect": "Slightly increase velocity on a corner with skilled turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 24000
+  },
+  "200333": {
+    "effect": "Moderately decrease velocity on a corner with clumsy turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 24000
+  },
+  "200341": {
+    "effect": "Increase acceleration on a corner with masterful turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 30000
+  },
+  "200342": {
+    "effect": "Slightly increase acceleration on a corner with masterful turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 30000
+  },
+  "200343": {
+    "effect": "Moderately decrease acceleration on a corner with awkward turning.",
+    "condition": "all_corner_random==1",
+    "durationMs": 30000
+  },
+  "200351": {
+    "effect": "Recover endurance on a corner with efficient turning.",
+    "condition": "phase==1&corner!=0"
+  },
+  "200352": {
+    "effect": "Slightly recover endurance on a corner with efficient turning.",
+    "condition": "phase==1&corner!=0"
+  },
+  "200353": {
+    "effect": "Moderately lose endurance on a corner with inefficient turning.",
+    "condition": "phase==1&corner!=0"
+  },
+  "200361": {
+    "effect": "Increase velocity on a straight.",
+    "condition": "straight_random==1",
+    "durationMs": 30000
+  },
+  "200362": {
+    "effect": "Slightly increase velocity on a straight.",
+    "condition": "straight_random==1",
+    "durationMs": 30000
+  },
+  "200371": {
+    "effect": "Increase acceleration on a straight.",
+    "condition": "straight_random==1",
+    "durationMs": 30000
+  },
+  "200372": {
+    "effect": "Slightly increase acceleration on a straight.",
+    "condition": "straight_random==1",
+    "durationMs": 30000
+  },
+  "200381": {
+    "effect": "Recover endurance on a straight.",
+    "condition": "phase==1&corner==0"
+  },
+  "200382": {
+    "effect": "Slightly recover endurance on a straight.",
+    "condition": "phase==1&corner==0"
+  },
+  "200391": {
+    "effect": "Moderately increase fatigue on an uphill.",
+    "condition": "up_slope_random==1"
+  },
+  "200401": {
+    "effect": "Moderately lose endurance when surrounded.",
+    "condition": "accumulatetime>=2&is_surrounded==1"
+  },
+  "200411": {
+    "effect": "Moderately increase urge to give up when positioned around the very back on the final straight.",
+    "condition": "last_straight_random==1&distance_diff_rate>=75",
+    "durationMs": 30000
+  },
+  "200421": {
+    "effect": "Moderately increase carelessness when in the lead with around 200m remaining.",
+    "condition": "remain_distance==200&order==1&bashin_diff_behind>=1",
+    "durationMs": 30000
+  },
+  "200431": {
+    "effect": "Decrease time lost to slow starts.",
+    "condition": "always==1"
+  },
+  "200432": {
+    "effect": "Slightly decrease time lost to slow starts.",
+    "condition": "always==1"
+  },
+  "200433": {
+    "effect": "Moderately increase time lost to slow starts.",
+    "condition": "always==1"
+  },
+  "200441": {
+    "effect": "Recover endurance when the way ahead is jammed early-race or mid-race.",
+    "condition": "phase<=1&accumulatetime>=5&blocked_front_continuetime>=1",
+    "durationMs": 20000
+  },
+  "200442": {
+    "effect": "Slightly recover endurance when the way ahead is jammed early-race or mid-race.",
+    "condition": "phase<=1&accumulatetime>=5&blocked_front_continuetime>=1",
+    "durationMs": 20000
+  },
+  "200451": {
+    "effect": "Greatly increase navigation early-race.",
+    "condition": "phase_random==0",
+    "durationMs": 30000
+  },
+  "200452": {
+    "effect": "Increase navigation early-race.",
+    "condition": "phase_random==0",
+    "durationMs": 30000
+  },
+  "200461": {
+    "effect": "Increase velocity when passing another runner mid-race.",
+    "condition": "phase==1&change_order_onetime<0",
+    "durationMs": 18000
+  },
+  "200462": {
+    "effect": "Slightly increase velocity when passing another runner mid-race.",
+    "condition": "phase==1&change_order_onetime<0",
+    "durationMs": 18000
+  },
+  "200471": {
+    "effect": "Recover endurance when passed by another runner mid-race.",
+    "condition": "phase==1&change_order_onetime>0"
+  },
+  "200472": {
+    "effect": "Slightly recover endurance when passed by another runner mid-race.",
+    "condition": "phase==1&change_order_onetime>0"
+  },
+  "200481": {
+    "effect": "Recover endurance when surrounded mid-race.",
+    "condition": "phase==1&is_surrounded==1"
+  },
+  "200482": {
+    "effect": "Slightly recover endurance when surrounded mid-race.",
+    "condition": "phase==1&is_surrounded==1"
+  },
+  "200491": {
+    "effect": "Increase maneuverability when the way ahead is blocked in the last spurt.",
+    "condition": "infront_near_lane_time>=1&is_lastspurt==1&hp_per>=1",
+    "durationMs": 30000
+  },
+  "200492": {
+    "effect": "Slightly increase maneuverability when the way ahead is blocked in the last spurt.",
+    "condition": "infront_near_lane_time>=1&is_lastspurt==1&hp_per>=1",
+    "durationMs": 30000
+  },
+  "200501": {
+    "effect": "Increase navigation late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 30000
+  },
+  "200502": {
+    "effect": "Moderately increase navigation late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 30000
+  },
+  "200511": {
+    "effect": "Increase velocity in the last spurt.",
+    "condition": "is_lastspurt==1&phase_firsthalf_random==3",
+    "durationMs": 24000
+  },
+  "200512": {
+    "effect": "Slightly increase velocity in the last spurt.",
+    "condition": "is_lastspurt==1&phase_firsthalf_random==3",
+    "durationMs": 24000
+  },
+  "200521": {
+    "effect": "Moderately increase fatigue when in the lead by too large of a margin.",
+    "condition": "accumulatetime>=2&order==1&bashin_diff_behind>=1"
+  },
+  "200531": {
+    "effect": "Increase ability to go to the front early-race. (Front Runner)",
+    "condition": "running_style==1&always==1",
+    "durationMs": 12000
+  },
+  "200532": {
+    "effect": "Slightly increase ability to go to the front early-race. (Front Runner)",
+    "condition": "running_style==1&always==1",
+    "durationMs": 12000
+  },
+  "200541": {
+    "effect": "Increase ability to go to the front mid-race. (Front Runner)",
+    "condition": "running_style==1&phase_random==1&order_rate<=50",
+    "durationMs": 30000
+  },
+  "200542": {
+    "effect": "Slightly increase ability to go to the front mid-race. (Front Runner)",
+    "condition": "running_style==1&phase_random==1&order_rate<=50",
+    "durationMs": 30000
+  },
+  "200551": {
+    "effect": "Increase ability to keep the lead on the final corner. (Front Runner)",
+    "condition": "running_style==1&is_finalcorner_random==1&order==1",
+    "durationMs": 30000
+  },
+  "200552": {
+    "effect": "Slightly increase ability to keep the lead on the final corner. (Front Runner)",
+    "condition": "running_style==1&is_finalcorner_random==1&order==1",
+    "durationMs": 30000
+  },
+  "200561": {
+    "effect": "Decrease fatigue upon approaching mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_laterhalf_random==0&order_rate<=50"
+  },
+  "200562": {
+    "effect": "Slightly decrease fatigue upon approaching mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_laterhalf_random==0&order_rate<=50"
+  },
+  "200571": {
+    "effect": "Decrease fatigue mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1&order_rate<=50"
+  },
+  "200572": {
+    "effect": "Slightly decrease fatigue mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1&order_rate<=50"
+  },
+  "200581": {
+    "effect": "Increase ability to break out of the pack on the final corner. (Pace Chaser)",
+    "condition": "running_style==2&is_finalcorner_random==1&order_rate<=50",
+    "durationMs": 18000
+  },
+  "200582": {
+    "effect": "Slightly increase ability to break out of the pack on the final corner. (Pace Chaser)",
+    "condition": "running_style==2&is_finalcorner_random==1&order_rate<=50",
+    "durationMs": 18000
+  },
+  "200591": {
+    "effect": "Increase velocity mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1&order_rate>=40",
+    "durationMs": 24000
+  },
+  "200592": {
+    "effect": "Slightly increase velocity mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1&order_rate>=40",
+    "durationMs": 24000
+  },
+  "200601": {
+    "effect": "Increase acceleration late-race. (Late Surger)",
+    "condition": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+    "durationMs": 18000
+  },
+  "200602": {
+    "effect": "Slightly increase acceleration late-race. (Late Surger)",
+    "condition": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+    "durationMs": 18000
+  },
+  "200611": {
+    "effect": "Increase velocity when passing another runner on the outside on the final corner. (Late Surger)",
+    "condition": "running_style==3&is_finalcorner==1&corner!=0&is_behind_in==1&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "200612": {
+    "effect": "Slightly increase velocity when passing another runner on the outside on the final corner. (Late Surger)",
+    "condition": "running_style==3&is_finalcorner==1&corner!=0&is_behind_in==1&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "200621": {
+    "effect": "Decrease fatigue mid-race. (End Closer)",
+    "condition": "running_style==4&phase_random==1&distance_diff_rate>=75"
+  },
+  "200622": {
+    "effect": "Slightly decrease fatigue mid-race. (End Closer)",
+    "condition": "running_style==4&phase_random==1&distance_diff_rate>=75"
+  },
+  "200631": {
+    "effect": "Move up in preparation to close the gap when positioned toward the back late-race. (End Closer)",
+    "condition": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
+    "durationMs": 30000
+  },
+  "200632": {
+    "effect": "Slightly move up in preparation to close the gap when positioned toward the back late-race. (End Closer)",
+    "condition": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
+    "durationMs": 30000
+  },
+  "200641": {
+    "effect": "Increase acceleration on a straight in the last spurt. (End Closer)",
+    "condition": "running_style==4&is_lastspurt==1&corner==0",
+    "durationMs": 9000
+  },
+  "200642": {
+    "effect": "Slightly increase acceleration on a straight in the last spurt. (End Closer)",
+    "condition": "running_style==4&is_lastspurt==1&corner==0",
+    "durationMs": 9000
+  },
+  "200651": {
+    "effect": "Increase acceleration on a straight. (Sprint)",
+    "condition": "distance_type==1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200652": {
+    "effect": "Slightly increase acceleration on a straight. (Sprint)",
+    "condition": "distance_type==1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200662": {
+    "effect": "Slightly decrease fatigue and very slightly increase acceleration when positioned toward the back mid-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==1&order_rate>50",
+    "durationMs": 30000
+  },
+  "200671": {
+    "effect": "Increase spurting ability when positioned toward the back late-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "200672": {
+    "effect": "Slightly increase spurting ability when positioned toward the back late-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "200681": {
+    "effect": "Widen the margin when positioned toward the front early-race. (Mile)",
+    "condition": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+    "durationMs": 30000
+  },
+  "200682": {
+    "effect": "Slightly widen the margin when positioned toward the front early-race. (Mile)",
+    "condition": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+    "durationMs": 30000
+  },
+  "200691": {
+    "effect": "Decrease fatigue, then moderately decrease velocity of runners ahead when positioned toward the back upon approaching mid-race. (Mile)",
+    "condition": "distance_type==2&phase_laterhalf_random==0&order_rate>50",
+    "durationMs": 30000
+  },
+  "200692": {
+    "effect": "Slightly decrease fatigue, then very slightly decrease velocity of runners ahead when positioned toward the back upon approaching mid-race. (Mile)",
+    "condition": "distance_type==2&phase_laterhalf_random==0&order_rate>50",
+    "durationMs": 30000
+  },
+  "200701": {
+    "effect": "Increase passing ability when positioned toward the back late-race. (Mile)",
+    "condition": "distance_type==2&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "200702": {
+    "effect": "Slightly increase passing ability when positioned toward the back late-race. (Mile)",
+    "condition": "distance_type==2&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "200711": {
+    "effect": "Decrease fatigue when positioned toward the front mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order<=3"
+  },
+  "200712": {
+    "effect": "Slightly decrease fatigue when positioned toward the front mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order<=3"
+  },
+  "200721": {
+    "effect": "Increase positioning ability when positioned toward the front mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "200722": {
+    "effect": "Slightly increase positioning ability when positioned toward the front mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "200731": {
+    "effect": "Increase ability to fight back when passed by another runner on the final corner. (Medium)",
+    "condition": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+    "durationMs": 30000
+  },
+  "200732": {
+    "effect": "Slightly increase ability to fight back when passed by another runner on the final corner. (Medium)",
+    "condition": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+    "durationMs": 30000
+  },
+  "200741": {
+    "effect": "Decrease fatigue by taking a breather upon entering a straight. (Long)",
+    "condition": "distance_type==4&phase_random==1"
+  },
+  "200742": {
+    "effect": "Slightly decrease fatigue by taking a breather upon entering a straight. (Long)",
+    "condition": "distance_type==4&phase_random==1"
+  },
+  "200751": {
+    "effect": "Increase velocity when near the inner rail on the final corner. (Long)",
+    "condition": "distance_type==4&is_finalcorner==1&corner!=0&lane_type==0",
+    "durationMs": 30000
+  },
+  "200752": {
+    "effect": "Slightly increase velocity when near the inner rail on the final corner. (Long)",
+    "condition": "distance_type==4&is_finalcorner==1&corner!=0&lane_type==0",
+    "durationMs": 30000
+  },
+  "200761": {
+    "effect": "Regain the energy to run when close to exhausting strength. (Long)",
+    "condition": "distance_type==4&hp_per<=30",
+    "durationMs": 18000
+  },
+  "200762": {
+    "effect": "Slightly regain the energy to run when close to exhausting strength. (Long)",
+    "condition": "distance_type==4&hp_per<=30"
+  },
+  "200771": {
+    "effect": "Slightly increase fatigue for rushed runners behind when positioned toward the front mid-race.",
+    "condition": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1"
+  },
+  "200772": {
+    "effect": "Increase fatigue for rushed runners behind when positioned toward the front mid-race.",
+    "condition": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1"
+  },
+  "200781": {
+    "effect": "Slightly increase fatigue for rushed runners ahead when positioned toward the back mid-race.",
+    "condition": "phase==1&order_rate>50&temptation_opponent_count_infront>=1"
+  },
+  "200791": {
+    "effect": "Increase time needed for front runners to calm down when they become rushed.",
+    "condition": "running_style_temptation_opponent_count_nige>=1&is_temptation==0"
+  },
+  "200801": {
+    "effect": "Increase time needed for pace chasers to calm down when they become rushed.",
+    "condition": "running_style_temptation_opponent_count_senko>=1&is_temptation==0"
+  },
+  "200811": {
+    "effect": "Increase time needed for late surgers to calm down when they become rushed.",
+    "condition": "running_style_temptation_opponent_count_sashi>=1&is_temptation==0"
+  },
+  "200821": {
+    "effect": "Increase time needed for end closers to calm down when they become rushed.",
+    "condition": "running_style_temptation_opponent_count_oikomi>=1&is_temptation==0"
+  },
+  "200831": {
+    "effect": "Slightly increase fatigue for front runners early-race.",
+    "condition": "running_style_count_nige_otherself>=1&phase_random==0&accumulatetime>=5"
+  },
+  "200841": {
+    "effect": "Slightly increase fatigue for front runners mid-race.",
+    "condition": "running_style_count_nige_otherself>=1&phase_random==1"
+  },
+  "200851": {
+    "effect": "Slightly decrease velocity of front runners late-race.",
+    "condition": "running_style_count_nige_otherself>=1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200861": {
+    "effect": "Slightly increase fatigue for pace chasers early-race.",
+    "condition": "running_style_count_senko_otherself>=1&phase_random==0&accumulatetime>=5"
+  },
+  "200871": {
+    "effect": "Slightly increase fatigue for pace chasers mid-race.",
+    "condition": "running_style_count_senko_otherself>=1&phase_random==1"
+  },
+  "200881": {
+    "effect": "Slightly decrease velocity of pace chasers late-race.",
+    "condition": "running_style_count_senko_otherself>=1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200891": {
+    "effect": "Slightly increase fatigue for late surgers early-race.",
+    "condition": "running_style_count_sashi_otherself>=1&phase_random==0&accumulatetime>=5"
+  },
+  "200901": {
+    "effect": "Slightly increase fatigue for late surgers mid-race.",
+    "condition": "running_style_count_sashi_otherself>=1&phase_random==1"
+  },
+  "200911": {
+    "effect": "Slightly decrease velocity of late surgers late-race.",
+    "condition": "running_style_count_sashi_otherself>=1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200921": {
+    "effect": "Slightly increase fatigue for end closers early-race.",
+    "condition": "running_style_count_oikomi_otherself>=1&phase_random==0&accumulatetime>=5"
+  },
+  "200931": {
+    "effect": "Slightly increase fatigue for end closers mid-race.",
+    "condition": "running_style_count_oikomi_otherself>=1&phase_random==1"
+  },
+  "200941": {
+    "effect": "Slightly decrease velocity of end closers late-race.",
+    "condition": "running_style_count_oikomi_otherself>=1&phase_random==2",
+    "durationMs": 30000
+  },
+  "200951": {
+    "effect": "Increase performance at Oi Racecourse.",
+    "condition": "track_id==10101"
+  },
+  "200952": {
+    "effect": "Moderately increase performance at Oi Racecourse.",
+    "condition": "track_id==10101"
+  },
+  "200953": {
+    "effect": "Moderately decrease performance at Oi Racecourse.",
+    "condition": "track_id==10101"
+  },
+  "200961": {
+    "effect": "Moderately increase velocity on a straight. (Sprint)",
+    "condition": "distance_type==1&straight_random==1",
+    "durationMs": 30000
+  },
+  "200962": {
+    "effect": "Slightly increase velocity on a straight. (Sprint)",
+    "condition": "distance_type==1&straight_random==1",
+    "durationMs": 30000
+  },
+  "200971": {
+    "effect": "Moderately increase velocity on a corner. (Sprint)",
+    "condition": "distance_type==1&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "200972": {
+    "effect": "Slightly increase velocity on a corner. (Sprint)",
+    "condition": "distance_type==1&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "200981": {
+    "effect": "Increase ability to maintain the lead when leading by a large margin mid-race. (Sprint)",
+    "condition": "distance_type==1&phase==1&bashin_diff_behind>=3&order==1",
+    "durationMs": 30000
+  },
+  "200982": {
+    "effect": "Slightly increase ability to maintain the lead when leading by a large margin mid-race. (Sprint)",
+    "condition": "distance_type==1&phase==1&bashin_diff_behind>=3&order==1",
+    "durationMs": 30000
+  },
+  "200991": {
+    "effect": "Increase passing ability when positioned toward the front upon approaching late-race. (Sprint)",
+    "condition": "distance_type==1&phase_laterhalf_random==1&order>=2&order_rate<=50",
+    "durationMs": 30000
+  },
+  "200992": {
+    "effect": "Slightly increase passing ability when positioned toward the front upon approaching late-race. (Sprint)",
+    "condition": "distance_type==1&phase_laterhalf_random==1&order>=2&order_rate<=50",
+    "durationMs": 30000
+  },
+  "201001": {
+    "effect": "Prepare to make for the finish line for a medium duration mid-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==1",
+    "durationMs": 40000
+  },
+  "201002": {
+    "effect": "Moderately prepare to make for the finish line for a medium duration mid-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==1",
+    "durationMs": 40000
+  },
+  "201011": {
+    "effect": "Intimidate runners behind when positioned toward the front early-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==0&order_rate<=50&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201012": {
+    "effect": "Moderately intimidate runners behind when positioned toward the front early-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==0&order_rate<=50&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201021": {
+    "effect": "Cause panic in and moderately dull movement for runners ahead when positioned toward the back early-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==0&order_rate>50&accumulatetime>=5",
+    "durationMs": 12000
+  },
+  "201022": {
+    "effect": "Slightly cause panic in and very slightly dull movement for runners ahead when positioned toward the back early-race. (Sprint)",
+    "condition": "distance_type==1&phase_random==0&order_rate>50&accumulatetime>=5",
+    "durationMs": 12000
+  },
+  "201031": {
+    "effect": "Moderately increase velocity on a straight. (Mile)",
+    "condition": "distance_type==2&straight_random==1",
+    "durationMs": 30000
+  },
+  "201032": {
+    "effect": "Slightly increase velocity on a straight. (Mile)",
+    "condition": "distance_type==2&straight_random==1",
+    "durationMs": 30000
+  },
+  "201041": {
+    "effect": "Moderately increase velocity on a corner. (Mile)",
+    "condition": "distance_type==2&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201042": {
+    "effect": "Slightly increase velocity on a corner. (Mile)",
+    "condition": "distance_type==2&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201051": {
+    "effect": "Increase passing ability when positioned toward the front mid-race. (Mile)",
+    "condition": "distance_type==2&phase_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "201052": {
+    "effect": "Slightly increase passing ability when positioned toward the front mid-race. (Mile)",
+    "condition": "distance_type==2&phase_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "201061": {
+    "effect": "Increase acceleration when passing another runner mid-race. (Mile)",
+    "condition": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "201062": {
+    "effect": "Slightly increase acceleration when passing another runner mid-race. (Mile)",
+    "condition": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "201071": {
+    "effect": "Increase passing ability. (Mile)",
+    "condition": "distance_type==2&is_overtake==1&accumulatetime>=5",
+    "durationMs": 24000
+  },
+  "201072": {
+    "effect": "Slightly increase passing ability. (Mile)",
+    "condition": "distance_type==2&is_overtake==1&accumulatetime>=5",
+    "durationMs": 24000
+  },
+  "201081": {
+    "effect": "Moderately steal velocity from runners behind when positioned toward the front mid-race. (Mile)",
+    "condition": "distance_type==2&phase_random==1&order<=3",
+    "durationMs": 30000
+  },
+  "201082": {
+    "effect": "Slightly steal velocity from runners behind when positioned toward the front mid-race. (Mile)",
+    "condition": "distance_type==2&phase_random==1&order<=3",
+    "durationMs": 30000
+  },
+  "201091": {
+    "effect": "Dull movement for runners ahead when positioned toward the back early-race. (Mile)",
+    "condition": "distance_type==2&phase_random==0&order_rate>50&accumulatetime>=3",
+    "durationMs": 30000
+  },
+  "201092": {
+    "effect": "Slightly dull movement for runners ahead when positioned toward the back early-race. (Mile)",
+    "condition": "distance_type==2&phase_random==0&order_rate>50&accumulatetime>=3",
+    "durationMs": 30000
+  },
+  "201101": {
+    "effect": "Moderately increase velocity on a straight. (Medium)",
+    "condition": "distance_type==3&straight_random==1",
+    "durationMs": 30000
+  },
+  "201102": {
+    "effect": "Slightly increase velocity on a straight. (Medium)",
+    "condition": "distance_type==3&straight_random==1",
+    "durationMs": 30000
+  },
+  "201103": {
+    "effect": "Increase velocity on a straight. (Medium)",
+    "condition": "distance_type==3&straight_random==1",
+    "durationMs": 30000
+  },
+  "201111": {
+    "effect": "Moderately increase velocity on a corner. (Medium)",
+    "condition": "distance_type==3&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201112": {
+    "effect": "Slightly increase velocity on a corner. (Medium)",
+    "condition": "distance_type==3&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201121": {
+    "effect": "Widen field of view with heightened observation early-race. (Medium)",
+    "condition": "distance_type==3&phase_random==0",
+    "durationMs": 30000
+  },
+  "201122": {
+    "effect": "Moderately widen field of view with heightened observation early-race. (Medium)",
+    "condition": "distance_type==3&phase_random==0",
+    "durationMs": 30000
+  },
+  "201131": {
+    "effect": "Avoid becoming surrounded for a medium duration when positioned toward the back mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1",
+    "durationMs": 40000
+  },
+  "201132": {
+    "effect": "Moderately avoid becoming surrounded for a medium duration when positioned toward the back mid-race. (Medium)",
+    "condition": "distance_type==3&phase_random==1",
+    "durationMs": 40000
+  },
+  "201141": {
+    "effect": "Decrease fatigue when moving sideways. (Medium)",
+    "condition": "distance_type==3&is_move_lane==1&accumulatetime>=10@distance_type==3&is_move_lane==2&accumulatetime>=10"
+  },
+  "201142": {
+    "effect": "Slightly decrease fatigue when moving sideways. (Medium)",
+    "condition": "distance_type==3&is_move_lane==1&accumulatetime>=10@distance_type==3&is_move_lane==2&accumulatetime>=10"
+  },
+  "201151": {
+    "effect": "Decrease velocity of runners ahead when positioned toward the back late-race. (Medium)",
+    "condition": "distance_type==3&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "201152": {
+    "effect": "Slightly decrease velocity of runners ahead when positioned toward the back late-race. (Medium)",
+    "condition": "distance_type==3&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "201161": {
+    "effect": "Disturb runners directly ahead mid-race. (Medium)",
+    "condition": "distance_type==3&phase==1&blocked_front_continuetime>=1"
+  },
+  "201162": {
+    "effect": "Slightly disturb runners directly ahead mid-race. (Medium)",
+    "condition": "distance_type==3&phase==1&blocked_front_continuetime>=1"
+  },
+  "201171": {
+    "effect": "Moderately increase velocity on a straight. (Long)",
+    "condition": "distance_type==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201172": {
+    "effect": "Slightly increase velocity on a straight. (Long)",
+    "condition": "distance_type==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201173": {
+    "effect": "Increase velocity on a straight. (Long)",
+    "condition": "distance_type==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201181": {
+    "effect": "Moderately increase velocity on a corner. (Long)",
+    "condition": "distance_type==4&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201182": {
+    "effect": "Slightly increase velocity on a corner. (Long)",
+    "condition": "distance_type==4&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201191": {
+    "effect": "Increase ability to maintain the lead when leading by a fair margin mid-race. (Long)",
+    "condition": "distance_type==4&phase_random==1&bashin_diff_behind>=1&order==1",
+    "durationMs": 30000
+  },
+  "201192": {
+    "effect": "Slightly increase ability to maintain the lead when leading by a fair margin mid-race. (Long)",
+    "condition": "distance_type==4&phase_random==1&bashin_diff_behind>=1&order==1",
+    "durationMs": 30000
+  },
+  "201201": {
+    "effect": "Decrease fatigue when determined to pass another runner. (Long)",
+    "condition": "distance_type==4&is_overtake==1&accumulatetime>=5"
+  },
+  "201202": {
+    "effect": "Slightly decrease fatigue when determined to pass another runner. (Long)",
+    "condition": "distance_type==4&is_overtake==1&accumulatetime>=5"
+  },
+  "201211": {
+    "effect": "Increase velocity when passing another runner late-race. (Long)",
+    "condition": "distance_type==4&phase==2&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "201212": {
+    "effect": "Slightly increase velocity when passing another runner late-race. (Long)",
+    "condition": "distance_type==4&phase==2&change_order_onetime<0",
+    "durationMs": 30000
+  },
+  "201221": {
+    "effect": "Slightly steal endurance from runners ahead when positioned toward the back mid-race. (Long)",
+    "condition": "distance_type==4&phase_random==1&order>=5"
+  },
+  "201222": {
+    "effect": "Very slightly steal endurance from runners ahead when positioned toward the back mid-race. (Long)",
+    "condition": "distance_type==4&phase_random==1&order>=5"
+  },
+  "201231": {
+    "effect": "Narrow the field of view for runners ahead late-race. (Long)",
+    "condition": "distance_type==4&phase_random==2",
+    "durationMs": 30000
+  },
+  "201232": {
+    "effect": "Moderately narrow the field of view for runners ahead late-race. (Long)",
+    "condition": "distance_type==4&phase_random==2",
+    "durationMs": 30000
+  },
+  "201241": {
+    "effect": "Moderately increase velocity on a straight. (Front Runner)",
+    "condition": "running_style==1&straight_random==1",
+    "durationMs": 30000
+  },
+  "201242": {
+    "effect": "Slightly increase velocity on a straight. (Front Runner)",
+    "condition": "running_style==1&straight_random==1",
+    "durationMs": 30000
+  },
+  "201251": {
+    "effect": "Moderately increase velocity on a corner. (Front Runner)",
+    "condition": "running_style==1&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201252": {
+    "effect": "Slightly increase velocity on a corner. (Front Runner)",
+    "condition": "running_style==1&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201261": {
+    "effect": "Avoid becoming surrounded early-race. (Front Runner)",
+    "condition": "running_style==1&phase==0&blocked_front_continuetime>=1@running_style==1&phase==0&blocked_side_continuetime>=1",
+    "durationMs": 30000
+  },
+  "201262": {
+    "effect": "Moderately avoid becoming surrounded early-race. (Front Runner)",
+    "condition": "running_style==1&phase==0&blocked_front_continuetime>=1@running_style==1&phase==0&blocked_side_continuetime>=1",
+    "durationMs": 30000
+  },
+  "201271": {
+    "effect": "Increase ability to pass or challenge another runner early-race or mid-race. (Front Runner)",
+    "condition": "running_style==1&phase<=1&change_order_onetime>0&accumulatetime>=5@running_style==1&phase<=1&blocked_side_continuetime>=2&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201272": {
+    "effect": "Slightly increase ability to pass or challenge another runner early-race or mid-race. (Front Runner)",
+    "condition": "running_style==1&phase<=1&change_order_onetime>0&accumulatetime>=5@running_style==1&phase<=1&blocked_side_continuetime>=2&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201281": {
+    "effect": "Reduce fatigue on an uphill. (Front Runner)",
+    "condition": "running_style==1&slope==1&accumulatetime>=10"
+  },
+  "201282": {
+    "effect": "Slightly reduce fatigue on an uphill. (Front Runner)",
+    "condition": "running_style==1&slope==1&accumulatetime>=10"
+  },
+  "201291": {
+    "effect": "Increase acceleration when not in the lead mid-race. (Front Runner)",
+    "condition": "running_style==1&phase_random==2",
+    "durationMs": 30000
+  },
+  "201292": {
+    "effect": "Slightly increase acceleration when not in the lead mid-race. (Front Runner)",
+    "condition": "running_style==1&phase_random==2",
+    "durationMs": 30000
+  },
+  "201302": {
+    "effect": "Slightly dull movement for runners ahead when not in the lead early-race. (Front Runner)",
+    "condition": "running_style==1&phase_random==0&order>=2&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201311": {
+    "effect": "Moderately increase velocity on a straight. (Pace Chaser)",
+    "condition": "running_style==2&straight_random==1",
+    "durationMs": 30000
+  },
+  "201312": {
+    "effect": "Slightly increase velocity on a straight. (Pace Chaser)",
+    "condition": "running_style==2&straight_random==1",
+    "durationMs": 30000
+  },
+  "201321": {
+    "effect": "Moderately increase velocity on a corner. (Pace Chaser)",
+    "condition": "running_style==2&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201322": {
+    "effect": "Slightly increase velocity on a corner. (Pace Chaser)",
+    "condition": "running_style==2&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201331": {
+    "effect": "Moderately increase ability to navigate smoothly. (Pace Chaser)",
+    "condition": "running_style==2&is_move_lane==1@running_style==2&is_move_lane==2",
+    "durationMs": 30000
+  },
+  "201332": {
+    "effect": "Slightly increase ability to navigate smoothly. (Pace Chaser)",
+    "condition": "running_style==2&is_move_lane==1@running_style==2&is_move_lane==2",
+    "durationMs": 30000
+  },
+  "201341": {
+    "effect": "Moderately improve running on a downhill. (Pace Chaser)",
+    "condition": "running_style==2&down_slope_random==1",
+    "durationMs": 30000
+  },
+  "201342": {
+    "effect": "Slightly improve running on a downhill. (Pace Chaser)",
+    "condition": "running_style==2&down_slope_random==1",
+    "durationMs": 30000
+  },
+  "201351": {
+    "effect": "Recover endurance mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1"
+  },
+  "201352": {
+    "effect": "Slightly recover endurance mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1"
+  },
+  "201361": {
+    "effect": "Moderately increase acceleration when positioned toward the back mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1&order_rate>40",
+    "durationMs": 30000
+  },
+  "201362": {
+    "effect": "Slightly increase acceleration when positioned toward the back mid-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==1&order_rate>40",
+    "durationMs": 30000
+  },
+  "201371": {
+    "effect": "Moderately narrow the field of view for runners behind when positioned toward the front late-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==2&order_rate<=50",
+    "durationMs": 30000
+  },
+  "201372": {
+    "effect": "Slightly narrow the field of view for runners behind when positioned toward the front late-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_random==2&order_rate<=50",
+    "durationMs": 30000
+  },
+  "201381": {
+    "effect": "Moderately increase velocity on a straight. (Late Surger)",
+    "condition": "running_style==3&straight_random==1",
+    "durationMs": 30000
+  },
+  "201382": {
+    "effect": "Slightly increase velocity on a straight. (Late Surger)",
+    "condition": "running_style==3&straight_random==1",
+    "durationMs": 30000
+  },
+  "201391": {
+    "effect": "Moderately increase velocity on a corner. (Late Surger)",
+    "condition": "running_style==3&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201392": {
+    "effect": "Slightly increase velocity on a corner. (Late Surger)",
+    "condition": "running_style==3&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201401": {
+    "effect": "Moderately increase acceleration for a medium duration when trying to pass another runner. (Late Surger)",
+    "condition": "running_style==3&is_overtake==1&accumulatetime>=5",
+    "durationMs": 40000
+  },
+  "201402": {
+    "effect": "Slightly increase acceleration for a medium duration when trying to pass another runner. (Late Surger)",
+    "condition": "running_style==3&is_overtake==1&accumulatetime>=5",
+    "durationMs": 40000
+  },
+  "201411": {
+    "effect": "Increase velocity on an uphill. (Late Surger)",
+    "condition": "running_style==3&up_slope_random==1",
+    "durationMs": 24000
+  },
+  "201412": {
+    "effect": "Slightly increase velocity on an uphill. (Late Surger)",
+    "condition": "running_style==3&up_slope_random==1",
+    "durationMs": 24000
+  },
+  "201421": {
+    "effect": "Recover endurance late-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1&order_rate>=40"
+  },
+  "201422": {
+    "effect": "Slightly recover endurance late-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1&order_rate>=40"
+  },
+  "201431": {
+    "effect": "Widen field of view with heightened observation mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1",
+    "durationMs": 30000
+  },
+  "201432": {
+    "effect": "Slightly widen field of view with heightened observation mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==1",
+    "durationMs": 30000
+  },
+  "201441": {
+    "effect": "Startle other runners late-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==2&order_rate>50"
+  },
+  "201442": {
+    "effect": "Slightly startle other runners late-race. (Late Surger)",
+    "condition": "running_style==3&phase_random==2&order_rate>50"
+  },
+  "201451": {
+    "effect": "Moderately increase velocity on a straight. (End Closer)",
+    "condition": "running_style==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201452": {
+    "effect": "Slightly increase velocity on a straight. (End Closer)",
+    "condition": "running_style==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201453": {
+    "effect": "Increase velocity on straights. (End Closer)",
+    "condition": "running_style==4&straight_random==1",
+    "durationMs": 30000
+  },
+  "201461": {
+    "effect": "Moderately increase velocity on a corner. (End Closer)",
+    "condition": "running_style==4&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201462": {
+    "effect": "Slightly increase velocity on a corner. (End Closer)",
+    "condition": "running_style==4&all_corner_random==1",
+    "durationMs": 30000
+  },
+  "201471": {
+    "effect": "Moderately widen field of view with situational awareness when moving sideways. (End Closer)",
+    "condition": "running_style==4&is_move_lane==1@running_style==4&is_move_lane==2",
+    "durationMs": 30000
+  },
+  "201472": {
+    "effect": "Slightly widen field of view with situational awareness when moving sideways. (End Closer)",
+    "condition": "running_style==4&is_move_lane==1@running_style==4&is_move_lane==2",
+    "durationMs": 30000
+  },
+  "201481": {
+    "effect": "Reduce fatigue on a downhill. (End Closer)",
+    "condition": "running_style==4&slope==2&accumulatetime>=10"
+  },
+  "201482": {
+    "effect": "Slightly reduce fatigue on a downhill. (End Closer)",
+    "condition": "running_style==4&slope==2&accumulatetime>=10"
+  },
+  "201491": {
+    "effect": "Regain composure by calming down when the way ahead is jammed. (End Closer)",
+    "condition": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10"
+  },
+  "201492": {
+    "effect": "Slightly regain composure by calming down when the way ahead is jammed. (End Closer)",
+    "condition": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10"
+  },
+  "201501": {
+    "effect": "Widen field of view when positioned toward the back late-race. (End Closer)",
+    "condition": "running_style==4&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "201502": {
+    "effect": "Slightly widen field of view when positioned toward the back late-race. (End Closer)",
+    "condition": "running_style==4&phase_random==2&order_rate>50",
+    "durationMs": 30000
+  },
+  "201511": {
+    "effect": "Unnerve runners in focus late-race. (End Closer)",
+    "condition": "running_style==4&phase_random==2&order>=2",
+    "durationMs": 30000
+  },
+  "201512": {
+    "effect": "Slightly unnerve runners in focus late-race. (End Closer)",
+    "condition": "running_style==4&phase_random==2&order>=2",
+    "durationMs": 30000
+  },
+  "201521": {
+    "effect": "Increase ability to get into a good position. (Front Runner)",
+    "condition": "running_style==1"
+  },
+  "201522": {
+    "effect": "Moderately increase ability to get into a good position. (Front Runner)",
+    "condition": "running_style==1"
+  },
+  "201531": {
+    "effect": "Increase ability to get into a good position. (Pace Chaser)",
+    "condition": "running_style==2"
+  },
+  "201532": {
+    "effect": "Moderately increase ability to get into a good position. (Pace Chaser)",
+    "condition": "running_style==2"
+  },
+  "201541": {
+    "effect": "Increase ability to get into a good position. (Late Surger)",
+    "condition": "running_style==3"
+  },
+  "201542": {
+    "effect": "Moderately increase ability to get into a good position. (Late Surger)",
+    "condition": "running_style==3"
+  },
+  "201551": {
+    "effect": "Increase ability to get into a good position. (End Closer)",
+    "condition": "running_style==4"
+  },
+  "201552": {
+    "effect": "Moderately increase ability to get into a good position. (End Closer)",
+    "condition": "running_style==4"
+  },
+  "201561": {
+    "effect": "Good things may happen when in bracket 7.",
+    "condition": "random_lot==50&post_number==7"
+  },
+  "201562": {
+    "effect": "Moderately good things may happen when in bracket 7.",
+    "condition": "random_lot==50&post_number==7"
+  },
+  "201571": {
+    "effect": "Slightly gain energy with 777m remaining.",
+    "condition": "remain_distance<=778&remain_distance>=776"
+  },
+  "201581": {
+    "effect": "Slightly improve running on an uphill.",
+    "condition": "up_slope_random==1",
+    "durationMs": 30000
+  },
+  "201591": {
+    "effect": "Slightly increase velocity when close to many runners.",
+    "condition": "near_count>=3&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201592": {
+    "effect": "Increase velocity when close to many runners.",
+    "condition": "near_count>=3&accumulatetime>=5",
+    "durationMs": 30000
+  },
+  "201601": {
+    "effect": "Slightly increase acceleration after activating many skills early-race.",
+    "condition": "activate_count_start>=3",
+    "durationMs": 30000
+  },
+  "201611": {
+    "effect": "Slightly increase velocity after activating many skills mid-race.",
+    "condition": "activate_count_middle>=3",
+    "durationMs": 30000
+  },
+  "201612": {
+    "effect": "Increase velocity after activating many skills mid-race.",
+    "condition": "activate_count_middle>=3",
+    "durationMs": 30000
+  },
+  "201621": {
+    "effect": "Slightly recover endurance after activating many skills late-race.",
+    "condition": "activate_count_end_after>=3"
+  },
+  "201631": {
+    "effect": "Moderately increase performance when many runners share a sympathetic heart.",
+    "condition": "same_skill_horse_count>=5"
+  },
+  "201641": {
+    "effect": "Moderately increase performance when no other runners have the heart of a lone wolf.",
+    "condition": "same_skill_horse_count==1"
+  },
+  "201651": {
+    "effect": "Slightly decrease wind resistance when following directly behind another runner.",
+    "condition": "infront_near_lane_time>=3&accumulatetime>=10",
+    "durationMs": 30000
+  },
+  "201661": {
+    "effect": "Slightly increase velocity when followed by another runner directly behind for a long time.",
+    "condition": "behind_near_lane_time>=3&accumulatetime>=10",
+    "durationMs": 30000
+  },
+  "201662": {
+    "effect": "Increase velocity when followed by another runner directly behind for a long time.",
+    "condition": "behind_near_lane_time>=3&accumulatetime>=10",
+    "durationMs": 30000
+  },
+  "201671": {
+    "effect": "Increase velocity when engaged in a challenge mid-race. (Dirt)",
+    "condition": "ground_type==2&phase==1&blocked_side_continuetime>=2",
+    "durationMs": 24000
+  },
+  "201672": {
+    "effect": "Slightly increase velocity when engaged in a challenge mid-race. (Dirt)",
+    "condition": "ground_type==2&phase==1&blocked_side_continuetime>=2",
+    "durationMs": 24000
+  },
+  "201681": {
+    "effect": "Prepare to aim for the front late-race. (Dirt)",
+    "condition": "ground_type==2&phase_random==2",
+    "durationMs": 30000
+  },
+  "201682": {
+    "effect": "Moderately prepare to aim for the front late-race. (Dirt)",
+    "condition": "ground_type==2&phase_random==2",
+    "durationMs": 30000
+  },
+  "201691": {
+    "effect": "Recover endurance when positioned toward the back upon approaching mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_laterhalf_random==0&order_rate>=40"
+  },
+  "201692": {
+    "effect": "Slightly recover endurance when positioned toward the back upon approaching mid-race. (Late Surger)",
+    "condition": "running_style==3&phase_laterhalf_random==0&order_rate>=40"
+  },
+  "201701": {
+    "effect": "Increase velocity when well-positioned on a straight in the last spurt. (Medium)",
+    "condition": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
+    "durationMs": 30000
+  },
+  "201702": {
+    "effect": "Slightly increase velocity when well-positioned on a straight in the last spurt. (Medium)",
+    "condition": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
+    "durationMs": 30000
+  },
+  "201801": {
+    "effect": "Moderately decrease performance on firm ground.",
+    "condition": "ground_condition==1"
+  },
+  "201901": {
+    "effect": "Increase acceleration when positioned toward the front late-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+    "durationMs": 18000
+  },
+  "201902": {
+    "effect": "Slightly increase acceleration when positioned toward the front late-race. (Pace Chaser)",
+    "condition": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+    "durationMs": 18000
+  },
+  "202001": {
+    "effect": "Recover endurance and increase velocity when positioned toward the back mid-race. (Dirt)",
+    "condition": "ground_type==2&phase_random==1&order_rate>=50",
+    "durationMs": 18000
+  },
+  "202002": {
+    "effect": "Slightly recover endurance when positioned toward the back mid-race. (Dirt)",
+    "condition": "ground_type==2&phase_random==1&order_rate>=50"
+  },
+  "202011": {
+    "effect": "Increase velocity when positioned toward the front upon approaching late-race. (Long)",
+    "condition": "distance_type==4&phase_laterhalf_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "202012": {
+    "effect": "Slightly increase velocity when positioned toward the front upon approaching late-race. (Long)",
+    "condition": "distance_type==4&phase_laterhalf_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "202021": {
+    "effect": "Moderately increase velocity for a medium duration when positioned toward the back mid-race. (End Closer)",
+    "condition": "running_style==4&phase_random==1&order_rate>=50",
+    "durationMs": 40000
+  },
+  "202022": {
+    "effect": "Very slightly increase velocity for a medium duration when positioned toward the back mid-race. (End Closer)",
+    "condition": "running_style==4&phase_random==1&order_rate>=50",
+    "durationMs": 40000
+  },
+  "202031": {
+    "effect": "Greatly increase velocity in the second half of the race, but also greatly increase fatigue sometimes.",
+    "condition": "distance_rate_after_random==50",
+    "durationMs": 18000
+  },
+  "202032": {
+    "effect": "Moderately increase velocity in the second half of the race, but also greatly increase fatigue sometimes.",
+    "condition": "distance_rate_after_random==50",
+    "durationMs": 18000
+  },
+  "202041": {
+    "effect": "Increase velocity when positioned toward the front upon approaching late-race. (Sprint)",
+    "condition": "distance_type==1&phase_laterhalf_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "202042": {
+    "effect": "Slightly increase velocity when positioned toward the front upon approaching late-race. (Sprint)",
+    "condition": "distance_type==1&phase_laterhalf_random==1&order_rate<=50",
+    "durationMs": 24000
+  },
+  "202051": {
+    "effect": "Attempt to gain an especially large lead and keep it until the finish. (Front Runner)",
+    "condition": "running_style==1"
+  },
+  "202061": {
+    "effect": "Everyone's expectations strongly inspire the user, increasing velocity on the final corner. (Long)",
+    "condition": "distance_type==4&is_finalcorner_random==1",
+    "durationMs": 30000
+  },
+  "202071": {
+    "effect": "If positioned in the midpack around when the mid-race starts, slightly decrease velocity and greatly recover endurance. (Long)",
+    "condition": "distance_type==4&phase_firsthalf_random==1&order_rate>=40&order_rate<=80",
+    "durationMs": 12000
+  },
+  "202072": {
+    "effect": "If positioned in the midpack around when the mid-race starts, slightly decrease velocity and moderately recover endurance. (Long)",
+    "condition": "distance_type==4&phase_firsthalf_random==1&order_rate>=40&order_rate<=80",
+    "durationMs": 12000
+  },
+  "202081": {
+    "effect": "If positioned toward the back late-race, increase acceleration. (Medium)",
+    "condition": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+    "durationMs": 18000
+  },
+  "202082": {
+    "effect": "If positioned toward the back late-race, slightly increase acceleration. (Medium)",
+    "condition": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+    "durationMs": 18000
+  },
+  "202091": {
+    "effect": "When engaged in a challenge midpack mid-race, moderately recover endurance and moderately increase velocity. (Medium)",
+    "condition": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+    "durationMs": 24000
+  },
+  "202092": {
+    "effect": "When engaged in a challenge midpack mid-race, very slightly recover endurance and slightly increase velocity. (Medium)",
+    "condition": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+    "durationMs": 24000
+  },
+  "202101": {
+    "effect": "When positioned toward the back mid-race, increase velocity. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order_rate>=50",
+    "durationMs": 24000
+  },
+  "202102": {
+    "effect": "When positioned toward the back mid-race, slightly increase velocity. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order_rate>=50",
+    "durationMs": 24000
+  },
+  "202111": {
+    "effect": "When positioned toward the back on the final corner, increase velocity. (Mile)",
+    "condition": "distance_type==2&is_finalcorner_random==1&order_rate>=50",
+    "durationMs": 18000
+  },
+  "202112": {
+    "effect": "When positioned toward the back on the final corner, slightly increase velocity. (Mile)",
+    "condition": "distance_type==2&is_finalcorner_random==1&order_rate>=50",
+    "durationMs": 18000
+  },
+  "202121": {
+    "effect": "When positioned in the midpack during the second half of the race, increase velocity and very slightly increase acceleration. (Late Surger)",
+    "condition": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+    "durationMs": 24000
+  },
+  "202122": {
+    "effect": "When positioned in the midpack during the second half of the race, slightly increase velocity and very minimally increase acceleration. (Late Surger)",
+    "condition": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+    "durationMs": 24000
+  },
+  "202131": {
+    "effect": "When positioned toward the front mid-race, increase velocity and slightly decrease the velocity of runners behind the user. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order<=3",
+    "durationMs": 18000
+  },
+  "202132": {
+    "effect": "When positioned toward the front mid-race, slightly increase velocity and minimally decrease the velocity of runners behind the user. (Medium)",
+    "condition": "distance_type==3&phase_random==1&order<=3",
+    "durationMs": 18000
+  },
+  "202141": {
+    "effect": "Increase time lost to slow starts and moderately decrease Wit.",
+    "condition": "always==1"
+  },
+  "202151": {
+    "effect": "Greatly consume endurance mid-race and greatly increase velocity. (Late Surger)",
+    "condition": "running_style==3&phase_random==1",
+    "durationMs": 24000
+  },
+  "202152": {
+    "effect": "Greatly consume endurance mid-race and moderately increase velocity. (Late Surger)",
+    "condition": "running_style==3&phase_random==1",
+    "durationMs": 24000
+  },
+  "202161": {
+    "effect": "Increase Wit and moderately decrease the chance of being Rushed.",
+    "condition": "always==1"
+  },
+  "202172": {
+    "effect": "Slightly increase velocity on downhills.",
+    "condition": "down_slope_random==1",
+    "durationMs": 24000
+  },
+  "202181": {
+    "effect": "Get overwhelmed by powerful opponents, moderately decreasing Guts and Wit.",
+    "condition": "always==1"
+  },
+  "210011": {
+    "effect": "Burn bright with team spirit, increasing velocity in proportion to the total Speed of racing team members mid-race.",
+    "condition": "phase_random==1",
+    "durationMs": 18000
+  },
+  "210012": {
+    "effect": "Burn bright with team spirit, slightly increasing velocity in proportion to the total Speed of racing team members mid-race.",
+    "condition": "phase_random==1",
+    "durationMs": 18000
+  },
+  "210021": {
+    "effect": "Burn bright with team spirit, recovering endurance in proportion to the total Stamina of racing team members mid-race.",
+    "condition": "phase_random==1"
+  },
+  "210022": {
+    "effect": "Burn bright with team spirit, slightly recovering endurance in proportion to the total Stamina of racing team members mid-race.",
+    "condition": "phase_random==1"
+  },
+  "210031": {
+    "effect": "Burn bright with team spirit, increasing acceleration in proportion to the total Power of racing team members late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 12000
+  },
+  "210032": {
+    "effect": "Burn bright with team spirit, slightly increasing acceleration in proportion to the total Power of racing team members late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 12000
+  },
+  "210041": {
+    "effect": "Burn bright with team spirit, increasing vigor in proportion to the total Guts of racing team members late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 18000
+  },
+  "210042": {
+    "effect": "Burn bright with team spirit, very slightly increasing vigor in proportion to the total Guts of racing team members late-race.",
+    "condition": "phase_random==2",
+    "durationMs": 18000
+  },
+  "210051": {
+    "effect": "Burn bright with team spirit, increasing strategic navigation for a medium duration in proportion to the total Wit of racing team members early-race.",
+    "condition": "phase_random==0",
+    "durationMs": 40000
+  },
+  "210052": {
+    "effect": "Burn bright with team spirit, slightly increasing strategic navigation for a medium duration in proportion to the total Wit of racing team members early-race.",
+    "condition": "phase_random==0",
+    "durationMs": 40000
+  },
+  "210061": {
+    "effect": "Control breathing and kick forward in the second half of the race. Effect is increased in proportion to number of career wins.",
+    "condition": "distance_rate_after_random==50",
+    "durationMs": 12000
+  },
+  "210062": {
+    "effect": "Very slightly control breathing and kick forward in the second half of the race. Effect is increased in proportion to number of career wins.",
+    "condition": "distance_rate_after_random==50",
+    "durationMs": 12000
+  },
+  "300111": {
+    "effect": "Feel closer to being Japan's top racer, moderately increasing performance.",
+    "condition": "always==1"
+  },
+  "300121": {
+    "effect": "The whole team feels super determined to win this special race, greatly increasing performance.",
+    "condition": "always==1"
+  },
+  "1000011": {
+    "effect": "Increase attributes by +{0}％ in the Racing Carnival. {1}％ chance to also raise runner's mood to Great. This skill will disappear when the event ends."
+  },
+  "1000012": {
+    "effect": "Increase attributes by +{0}％ in the Racing Carnival. {1}％ chance to also raise runner's mood to Great. This skill will disappear when the event ends."
+  },
+  "1100011": {
+    "effect": "Greatly decrease the racer's proficiency in starting races. Effects include slow starts and reduced starting acceleration. Removed at the end of the Career playthrough.",
+    "condition": "always==1",
+    "durationMs": 20000
+  }
+}

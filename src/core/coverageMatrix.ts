@@ -31,8 +31,8 @@ export interface CoverageRow {
   cells: Record<CoverageColumn, CoverageChip[]>; covered: boolean;
 }
 export interface CoverageBar { column: CoverageColumn | 'uncovered'; count: number; pct: number; }
-export interface BonusEntry { skillId: string; name: string; chips: CoverageChip[]; }
-export interface CoverageResult { rows: CoverageRow[]; bars: CoverageBar[]; bonus: BonusEntry[]; }
+/** Bonus rows share the CoverageRow shape (a second wishlist-style table). */
+export interface CoverageResult { rows: CoverageRow[]; bars: CoverageBar[]; bonus: CoverageRow[]; }
 
 export interface CoverageInput {
   wishlistSkillIds: string[];
@@ -56,6 +56,10 @@ export interface CoverageInput {
   memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
   /** Optional: resolve display names for parent/grandparent chips. Key = umaId string. */
   umaNameById?: Map<string, string>;
+  /** Optional: comparator (by skillId) for BOTH tables (wishlist + bonus). The
+   *  page supplies the icon-spec order (see features/inheritance/skillSort.ts).
+   *  Missing ⇒ keeps input order. */
+  compareSkills?: (aId: string, bId: string) => number;
 }
 
 function initials(name: string): string {
@@ -94,7 +98,7 @@ function coveringId(want: string, have: Iterable<string>, skillById: Map<string,
 export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const {
     wishlistSkillIds, planUma, activeParents, deckCards, deckLbByCardId,
-    skillById, greenMap, sparkRates, memberAffinity, umaNameById,
+    skillById, greenMap, sparkRates, memberAffinity, umaNameById, compareSkills,
   } = input;
   const rarityLookup = (id: string): SkillRarity | undefined => skillById.get(id)?.rarity;
 
@@ -112,7 +116,12 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   // events can grant (source-inverted from daftuyda's `char_e`, see uma_events.json).
   const eventSkills = planUma?.eventSkills ?? [];
 
-  const rows: CoverageRow[] = wishlistSkillIds.map((skillId) => {
+  const coversAnyWishlist = (id: string) =>
+    wishlistSkillIds.some((w) => coverageEquivalent(id, w, skillById));
+
+  // Build the full source cells for ONE skill — used for both the wishlist rows
+  // and the bonus rows (so bonus is a second wishlist-style table).
+  const cellsFor = (skillId: string): CoverageRow => {
     const rec = skillById.get(skillId);
     const cells: Record<CoverageColumn, CoverageChip[]> = {
       innate: [], event: [], parent: [], hint: [], chain: [], random: [],
@@ -228,9 +237,19 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
 
     const covered = COVERAGE_COLUMNS.some((col) => cells[col].length > 0);
     return { skillId, name: rec?.nameEn ?? skillId, isGold: rec?.rarity === 'gold', cells, covered };
-  });
+  };
 
-  // Bars
+  // Sort BOTH tables: rows guaranteed from a direct parent (an inherited-unique
+  // green spark, 100%) lead absolutely; then the page-supplied icon-spec order.
+  const guaranteedRank = (r: CoverageRow): number => (r.cells.parent.some((c) => c.pct === 100) ? 0 : 1);
+  const sortRows = (arr: CoverageRow[]): CoverageRow[] =>
+    compareSkills
+      ? arr.sort((a, b) => guaranteedRank(a) - guaranteedRank(b) || compareSkills(a.skillId, b.skillId))
+      : arr;
+
+  const rows = sortRows(wishlistSkillIds.map(cellsFor));
+
+  // Bars (wishlist coverage)
   const total = rows.length;
   const bars: CoverageBar[] = COVERAGE_COLUMNS.map((col) => {
     const count = rows.filter((r) => r.cells[col].length > 0).length;
@@ -239,65 +258,22 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   const uncoveredCount = rows.filter((r) => !r.covered).length;
   bars.push({ column: 'uncovered', count: uncoveredCount, pct: total ? Math.round((uncoveredCount / total) * 100) : 0 });
 
-  // Bonus: deck + inheritance skills not on the wishlist
-  // FIX 2: no .slice(0, 4) — return ALL chips; capping is a UI concern.
-  // FIX 3: include grandparent sparks in addition to parent sparks.
-  // A source skill is a "bonus" only if it doesn't cover ANY wishlist skill
-  // (○/◎ family-aware — a parent's ○ that fulfils a wishlisted ◎ isn't a bonus).
-  const coversAnyWishlist = (id: string) =>
-    wishlistSkillIds.some((w) => coverageEquivalent(id, w, skillById));
-  const bonusMap = new Map<string, CoverageChip[]>();
-  const addBonus = (id: string, chip: CoverageChip) => {
-    if (coversAnyWishlist(id)) return;
-    const arr = bonusMap.get(id) ?? [];
-    arr.push(chip);
-    bonusMap.set(id, arr);
-  };
+  // Bonus: inheritance (parent/gp sparks) + deck skills NOT on the wishlist —
+  // rendered as a second wishlist-style table (full cells incl. spark %).
+  // ○/◎ family-aware — a parent's ○ that fulfils a wishlisted ◎ isn't a bonus.
+  const bonusIds = new Set<string>();
+  const addBonusId = (id: string) => { if (!coversAnyWishlist(id)) bonusIds.add(id); };
   for (const { parent } of activeParents) {
-    // Parent-self sparks
-    for (const w of parent.whiteSparks) {
-      addBonus(w.skillId, {
-        kind: 'parent',
-        label: umaLabel(String(parent.umaId), String(parent.umaId)),
-        title: umaTitle(String(parent.umaId), 'Parent'),
-      });
-    }
-    if (parent.greenSpark) {
-      addBonus(reconcileGreenSkillId(parent.greenSpark.skillId, greenMap), {
-        kind: 'parent',
-        label: umaLabel(String(parent.umaId), String(parent.umaId)),
-        title: umaTitle(String(parent.umaId), 'Parent'),
-      });
-    }
-    // Grandparent sparks (FIX 3)
+    for (const w of parent.whiteSparks) addBonusId(w.skillId);
+    if (parent.greenSpark) addBonusId(reconcileGreenSkillId(parent.greenSpark.skillId, greenMap));
     for (const gp of parent.grandparents ?? []) {
       if (!gp) continue;
-      for (const w of gp.whiteSparks ?? []) {
-        addBonus(w.skillId, {
-          kind: 'gp',
-          label: umaLabel(String(gp.umaId), String(gp.umaId)),
-          title: umaTitle(String(gp.umaId), 'Grandparent'),
-        });
-      }
-      if (gp.greenSpark) {
-        addBonus(reconcileGreenSkillId(gp.greenSpark.skillId, greenMap), {
-          kind: 'gp',
-          label: umaLabel(String(gp.umaId), String(gp.umaId)),
-          title: umaTitle(String(gp.umaId), 'Grandparent'),
-        });
-      }
+      for (const w of gp.whiteSparks ?? []) addBonusId(w.skillId);
+      if (gp.greenSpark) addBonusId(reconcileGreenSkillId(gp.greenSpark.skillId, greenMap));
     }
   }
-  for (const c of deckCards) {
-    for (const cs of c.skills) {
-      const kind: CoverageColumn = cs.sourceType === 'hint_pool' ? 'hint' : cs.sourceType === 'chain' ? 'chain' : 'random';
-      addBonus(cs.skillId, { kind, label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
-    }
-  }
-  // FIX 2: no .slice(0, 4) — return all chips
-  const bonus: BonusEntry[] = [...bonusMap.entries()].map(([skillId, chips]) => ({
-    skillId, name: skillById.get(skillId)?.nameEn ?? skillId, chips,
-  }));
+  for (const c of deckCards) for (const cs of c.skills) addBonusId(cs.skillId);
+  const bonus = sortRows([...bonusIds].map(cellsFor));
 
   return { rows, bars, bonus };
 }

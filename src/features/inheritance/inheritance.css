@@ -1714,8 +1714,11 @@ main:has(.inh-page) {
 .inh-cov-head { display: flex; align-items: center; gap: 0.5rem; }
 .inh-cov-title { font-weight: 700; }
 .inh-cov-toggle { margin-left: auto; }
-/* Source cells: content centered both ways; chips lay out 2 rows × 3 columns. */
-.inh-cov-matrix td.inh-cov-cell { white-space: nowrap; text-align: center; vertical-align: middle; }
+/* Source cells: content centered both ways; chips lay out 2 rows × 3 columns.
+   line-height:0 removes the inline strut so a single icon row sits dead-center
+   (otherwise the img's baseline gap nudges it low); text bits restore it below. */
+.inh-cov-matrix td.inh-cov-cell { white-space: nowrap; text-align: center; vertical-align: middle; line-height: 0; }
+.inh-cov-innate-text, .inh-cov-combined, .inh-cov-more, .inh-cov-cell.muted { line-height: 1.3; }
 .inh-cov-matrix thead th:not(.skill-col) { text-align: center; vertical-align: middle; }
 .inh-cov-matrix tbody th.skill-col { vertical-align: middle; font-size: 0.72rem; }
 /* Uniform row height: blank cells match one-chip-row cells (td height = min-height). */
@@ -1727,6 +1730,25 @@ main:has(.inh-page) {
 .inh-cov-chip-wrap { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
 .inh-cov-chip-icon { display: inline-flex; align-items: center; }
 .inh-cov-chip-icon img { border-radius: 4px; display: block; }
+/* Fixed skill-name column width so the first separator aligns across the
+   wishlist + bonus tables; wide enough that long names don't overflow. */
+.inh-cov-matrix .skill-col { width: 15.5rem; min-width: 15.5rem; max-width: 15.5rem; white-space: normal; }
+/* Zero the cell padding so the full-width skill button covers the entire cell. */
+.inh-cov-matrix tbody th.skill-col { padding: 0; }
+/* Narrow source columns — the Inheritance column just holds a short % / caret. */
+.inh-cov-matrix .inh-cov-col-parent { width: 4.2rem; }
+.inh-cov-matrix thead .inh-cov-col-parent { white-space: normal; line-height: 1.1; }
+/* Skill-name cell: icon in front (skill icon, or round uma portrait for uniques).
+   The whole cell is the click target for the detail popup. */
+.inh-cov-skill-cell { display: block; }
+.inh-cov-skill-name { overflow-wrap: anywhere; }
+.inh-cov-skill-btn { display: flex; align-items: center; gap: 5px; width: 100%; min-height: 30px; background: none; border: 0; padding: 3px 0.5rem; margin: 0; font: inherit; color: inherit; text-align: left; white-space: normal; cursor: pointer; transition: background 0.12s ease; }
+.inh-cov-skill-btn:hover { background: rgba(90, 160, 255, 0.2); }
+.inh-cov-skill-icon { flex: none; }
+.inh-cov-skill-icon { display: inline-flex; flex: none; }
+.inh-cov-skill-icon img { display: block; border-radius: 4px; }
+.inh-cov-name-uma { border-radius: 999px; }
+.inh-cov-skill-name { min-width: 0; }
 .inh-cov-chip { display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px; padding: 0 4px; font-size: 0.56rem; font-weight: 800; color: #fff; border-radius: 4px; }
 .inh-cov-chip[data-round="1"] { border-radius: 999px; }
 .inh-cov-chip.tier-spark { background: var(--tier-spark); }
@@ -1737,14 +1759,31 @@ main:has(.inh-page) {
 .inh-cov-chip-card.type-power { background: #ec4899; } .inh-cov-chip-card.type-guts { background: #f59e0b; }
 .inh-cov-chip-card.type-wit { background: #10b981; } .inh-cov-chip-card.type-friend, .inh-cov-chip-card.type-group { background: #64748b; }
 .inh-cov-pct { font-size: 0.6rem; font-weight: 700; color: var(--fg-muted); }
+.inh-cov-innate-text { font-weight: 800; font-size: 0.68rem; color: var(--fg-muted); cursor: help; }
 .inh-cov-combined { font-weight: 800; cursor: help; }
 .inh-cov-cell-grid + .inh-cov-combined { margin-left: 5px; }
-/* Event-cell hint popup (content inside the shared cmp-trace-help-pop) */
-.inh-ev-pop { display: flex; flex-direction: column; gap: 0.55rem; max-height: 340px; overflow-y: auto; text-align: left; }
-.inh-ev-name { font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem; }
-.inh-ev-flag { font-size: 0.56rem; font-weight: 800; color: #7c3aed; border: 1px solid #a78bfa; border-radius: 999px; padding: 0 0.3rem; }
-.inh-ev-sub { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: var(--fg-muted); margin-top: 0.25rem; }
-.inh-ev-conds, .inh-ev-rewards { margin: 0.1rem 0 0; padding-left: 1rem; font-size: 0.72rem; }
+/* Inheritance combined-% hover popup: violet "Overall" row + indented white
+   source rows (mirrors the event popup — sharp, flush, soft card shadow). */
+.inh-cov-calc-pop { position: fixed; z-index: 40; width: max-content; max-width: 320px; background: var(--bg-1); border: 1px solid var(--border); box-shadow: var(--ds-card-shadow); font-size: 0.72rem; color: var(--fg); text-align: left; pointer-events: none; overflow: hidden; }
+.inh-cov-calc-overall { background: #efe9fd; border-left: 3px solid #8b5cf6; color: #3b2b66; font-weight: 800; padding: 0.3rem 0.55rem; }
+.inh-cov-calc-overall .formula { font-weight: 500; color: #6b5b8a; margin-left: 0.35rem; }
+.inh-cov-calc-src { background: var(--bg-1); padding: 0.25rem 0.55rem 0.25rem 2rem; }
+.inh-cov-calc-src .role { color: var(--fg-muted); }
+/* Event-cell hint popup (content inside the shared cmp-trace-help-pop) —
+   3 sections per event: violet name headbar / grey conditions / white rewards.
+   Scoped override: shrink-fit to content + sharp border (the shared help-pop is
+   a fixed 280px rounded box; :has keeps that for every OTHER help popup). */
+.cmp-trace-help-pop:has(.inh-ev-pop) { width: max-content; max-width: 340px; padding: 0; border-radius: 0; overflow: hidden; box-shadow: var(--ds-card-shadow); }
+.inh-ev-pop { display: flex; flex-direction: column; gap: 0.7rem; max-height: 340px; overflow-y: auto; text-align: left; }
+.inh-ev-detail { display: flex; flex-direction: column; gap: 0; background: transparent; }
+.inh-ev-name { background: #efe9fd; border-left: 3px solid #8b5cf6; padding: 0.3rem 0.5rem; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem; color: #3b2b66; }
+.inh-ev-flag { font-size: 0.56rem; font-weight: 800; color: #7c3aed; border: 1px solid #a78bfa; border-radius: 999px; padding: 0 0.3rem; background: var(--bg-1); }
+.inh-ev-sec { padding: 0.3rem 0.5rem 0.35rem; }
+.inh-ev-sec-cond { background: var(--bg-2); }
+.inh-ev-sec-reward { background: var(--bg-1); }
+.inh-ev-sub { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; color: var(--fg-muted); margin-bottom: 0.2rem; }
+.inh-ev-conds, .inh-ev-rewards { margin: 0; padding-left: 1.05rem; font-size: 0.72rem; }
+.inh-ev-conds li, .inh-ev-rewards li { padding: 1.5px 0; }
 .inh-ev-conds { color: var(--fg-muted); }
 .inh-ev-rewards li.is-target { font-weight: 800; color: #7c3aed; }
 .inh-cov-more { font-size: 0.6rem; color: var(--fg-muted); }
@@ -1757,7 +1796,24 @@ main:has(.inh-page) {
 .inh-cov-bar-fill.col-hint { background: var(--tier-hint_strong); }
 .inh-cov-bar-fill.col-chain { background: var(--tier-chain); } .inh-cov-bar-fill.col-random { background: var(--tier-random); }
 .inh-cov-bar-fill.col-uncovered { background: var(--tier-uncovered); }
-.inh-cov-bonus { margin-top: 0.6rem; border-top: 1px solid var(--border); padding-top: 0.5rem; }
-.inh-cov-bonus-head { font-size: 0.62rem; font-weight: 800; color: var(--tier-spark); text-transform: uppercase; margin-bottom: 0.3rem; }
+.inh-cov-bonus { margin-top: 1.4rem; border-top: 1px solid var(--border); padding-top: 0.4rem; }
+.inh-cov-bonus-toggle { display: flex; align-items: center; gap: 6px; width: 100%; background: none; border: 0; padding: 4px 0; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--fg-muted); cursor: pointer; }
+.inh-cov-bonus-caret { display: inline-block; transition: transform 0.15s ease; color: var(--fg-muted); }
+.inh-cov-bonus-caret[data-open] { transform: rotate(90deg); }
+/* Skill-detail popup (click a skill cell) — matches the Event-column popup:
+   violet header, full-bleed divided sections, sharp corners. */
+.inh-cov-detail-pop { position: fixed; z-index: 40; width: max-content; max-width: 300px; background: var(--bg-1); border: 1px solid var(--border); border-radius: 0; box-shadow: var(--ds-card-shadow); overflow: hidden; text-align: left; color: var(--fg); }
+.inh-cov-detail-head { background: #efe9fd; color: #3b2b66; font-weight: 700; font-size: 0.8rem; padding: 0.32rem 0.5rem; display: flex; align-items: center; gap: 0.35rem; }
+.inh-cov-detail-rarity { margin-left: auto; font-size: 0.56rem; font-weight: 800; border: 1px solid #a78bfa; border-radius: 999px; padding: 0 0.3rem; color: #7c3aed; background: var(--bg-1); }
+.inh-cov-detail-body { padding: 0; font-size: 0.72rem; }
+/* Full-bleed sections, divided (no outer padding), like the Event popup. */
+.inh-cov-detail-row { line-height: 1.42; padding: 0.3rem 0.5rem 0.35rem; }
+.inh-cov-detail-row + .inh-cov-detail-row { border-top: 1px solid var(--border); }
+.inh-cov-detail-row.is-cond { background: #eef4ff; }
+.inh-cov-detail-label { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 0.2rem; }
+.inh-cov-detail-sp { margin-left: auto; font-size: 0.66rem; font-weight: 800; color: #7c3aed; text-transform: none; letter-spacing: 0; }
+.inh-cov-detail-eff { color: var(--fg); }
+.inh-cov-detail-eff b { font-weight: 800; }
+.inh-cov-detail-cond { display: flex; flex-direction: column; font-family: ui-monospace, monospace; font-size: 0.68rem; background: transparent; padding: 0; word-break: break-word; color: var(--fg-muted); }
 .inh-cov-bonus-row { display: flex; justify-content: space-between; gap: 0.5rem; align-items: center; padding: 0.15rem 0; }
 .inh-cov-bonus-name { font-weight: 600; font-size: 0.78rem; }

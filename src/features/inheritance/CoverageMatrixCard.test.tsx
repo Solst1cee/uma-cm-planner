@@ -17,7 +17,9 @@ const result: CoverageResult = {
     { column: 'innate', count: 1, pct: 50 },
     { column: 'uncovered', count: 1, pct: 50 },
   ],
-  bonus: [{ skillId: '200099', name: 'Bonus Skill', chips: [{ kind: 'chain', label: 'SP', title: 'Speedy', cardType: 'speed' }] }],
+  bonus: [{ skillId: '200099', name: 'Bonus Skill', isGold: false, covered: true,
+    cells: { innate: [], event: [], parent: [],
+      hint: [], chain: [{ kind: 'chain', label: 'SP', title: 'Speedy', cardType: 'speed' }], random: [] } }],
 };
 
 describe('CoverageMatrixCard', () => {
@@ -32,15 +34,12 @@ describe('CoverageMatrixCard', () => {
     expect(container.querySelector('.row-uncovered')).toBeTruthy();
   });
 
-  it('toggles to the Coverage (bars) view', () => {
-    render(<CoverageMatrixCard result={result} hasWishlist hasPlanUma />);
-    fireEvent.click(screen.getByRole('button', { name: /coverage/i }));
-    expect(screen.getByText(/uncovered/i)).toBeTruthy();
-  });
-
-  it('renders the bonus list', () => {
+  it('renders the bonus table, collapsible via its toggle', () => {
     render(<CoverageMatrixCard result={result} hasWishlist hasPlanUma />);
     expect(screen.getByText('Bonus Skill')).toBeTruthy();
+    // Collapse hides the bonus rows; the toggle (with count) stays.
+    fireEvent.click(screen.getByRole('button', { name: /bonus — obtainable/i }));
+    expect(screen.queryByText('Bonus Skill')).toBeNull();
   });
 
   it('shows an empty state when there is no wishlist', () => {
@@ -48,14 +47,14 @@ describe('CoverageMatrixCard', () => {
     expect(screen.getByText(/add skills to your wishlist/i)).toBeTruthy();
   });
 
-  it('combines multiple priced sparks into ONE cell % (1 − ∏(1−p)) with a breakdown title', () => {
+  it('combines multiple priced sparks into ONE cell % (1 − ∏(1−p)) + a hover popup breakdown', () => {
     const multiResult: CoverageResult = {
       rows: [
         { skillId: '200033', name: 'Straightaway', isGold: false,
           cells: { innate: [], event: [],
             parent: [
               { kind: 'parent', label: 'TO', title: 'Mayano Top Gun · parent white spark', pct: 13 },
-              { kind: 'parent', label: 'SR', title: 'Silence Suzuka · parent white spark', pct: 13 },
+              { kind: 'gp', label: 'SR', title: 'Silence Suzuka · grandparent white spark', pct: 13 },
             ],
             hint: [], chain: [], random: [] },
           covered: true },
@@ -67,15 +66,25 @@ describe('CoverageMatrixCard', () => {
     // 1 − (1−0.13)² = 0.2431 → ~24%; exactly ONE number in the cell.
     expect(combined.textContent).toBe('~24%');
     expect(container.querySelectorAll('.inh-cov-combined')).toHaveLength(1);
-    expect(combined.getAttribute('title')).toContain('Mayano Top Gun · parent white spark: ~13%');
-    expect(combined.getAttribute('title')).toContain('1 − (1−13%) × (1−13%) ≈ 24%');
-    // Priced parent chips render NO identity chip and no per-chip % — just the number.
-    expect(screen.queryByText('~13%')).toBeNull();
+    // No popup until hover; priced parent chips render no identity chip.
+    expect(document.body.querySelector('.inh-cov-calc-pop')).toBeNull();
     expect(screen.queryByText('TO')).toBeNull();
     expect(screen.queryByText('SR')).toBeNull();
+    // Hover → styled popup: Overall row + formula + one row per source.
+    fireEvent.mouseEnter(combined);
+    const pop = document.body.querySelector('.inh-cov-calc-pop')!;
+    expect(pop).toBeTruthy();
+    expect(pop.textContent).toContain('~24% Overall');
+    expect(pop.textContent).toContain('(1 − (1−13%) × (1−13%))');
+    expect(pop.textContent).toContain('Mayano Top Gun');
+    expect(pop.textContent).toContain('(P)');
+    expect(pop.textContent).toContain('Silence Suzuka');
+    expect(pop.textContent).toContain('(GP)');
+    fireEvent.mouseLeave(combined);
+    expect(document.body.querySelector('.inh-cov-calc-pop')).toBeNull();
   });
 
-  it('a guaranteed source short-circuits: cell shows 100%, rolled sources not counted', () => {
+  it('a guaranteed source short-circuits: cell shows 100%, popup says guaranteed, no formula', () => {
     const gResult: CoverageResult = {
       rows: [
         { skillId: '900011', name: 'Shooting Star', isGold: false,
@@ -92,12 +101,14 @@ describe('CoverageMatrixCard', () => {
     const { container } = render(<CoverageMatrixCard result={gResult} hasWishlist hasPlanUma />);
     const combined = container.querySelector('.inh-cov-combined')!;
     expect(combined.textContent).toBe('100%');
-    expect(combined.getAttribute('title')).toContain('guaranteed at career start');
-    expect(combined.getAttribute('title')).toContain('other sources are not needed');
-    expect(combined.getAttribute('title')).not.toContain('1 −'); // no formula
+    fireEvent.mouseEnter(combined);
+    const pop = document.body.querySelector('.inh-cov-calc-pop')!;
+    expect(pop.textContent).toContain('100% Overall');
+    expect(pop.textContent).toContain('guaranteed');
+    expect(pop.textContent).not.toContain('(1 −'); // no probability formula
   });
 
-  it('a single priced spark shows its own % as the cell number (no formula line)', () => {
+  it('a single priced spark shows its own % as the cell number (no formula in popup)', () => {
     const oneResult: CoverageResult = {
       rows: [
         { skillId: '200033', name: 'Straightaway', isGold: false,
@@ -111,8 +122,11 @@ describe('CoverageMatrixCard', () => {
     const { container } = render(<CoverageMatrixCard result={oneResult} hasWishlist hasPlanUma />);
     const combined = container.querySelector('.inh-cov-combined')!;
     expect(combined.textContent).toBe('~13%');
-    expect(combined.getAttribute('title')).not.toContain('Combined');
     expect(screen.queryByText('TO')).toBeNull(); // number only, no chip
+    fireEvent.mouseEnter(combined);
+    const pop = document.body.querySelector('.inh-cov-calc-pop')!;
+    expect(pop.textContent).toContain('~13% Overall');
+    expect(pop.textContent).not.toContain('(1 −'); // single source → no formula
   });
 
   it('renders the event hint button (not the initials chip) when renderEventHint returns a node', () => {

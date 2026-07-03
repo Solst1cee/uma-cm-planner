@@ -202,6 +202,33 @@ describe('buildCoverageMatrix', () => {
     expect(row.covered).toBe(true);
   });
 
+  it('sorts BOTH tables with the supplied comparator', () => {
+    // Two parent white sparks not on the wishlist → both are bonus rows.
+    const p = parent('pa', '100101', { whiteSparks: [{ skillId: '200022', stars: 2 }, { skillId: '200033', stars: 2 }] });
+    const rank: Record<string, number> = { '200022': 4, '200033': 1 };
+    const res = buildCoverageMatrix(baseInput({
+      wishlistSkillIds: ['200011'], activeParents: [{ parent: p, isA: true }],
+      compareSkills: (a: string, b: string) => (rank[a] ?? 99) - (rank[b] ?? 99),
+    }));
+    expect(res.bonus.map((b) => b.skillId)).toEqual(['200033', '200022']);
+    // Bonus rows carry full cells (a wishlist-style table): 200033 has a parent %.
+    expect(res.bonus.find((b) => b.skillId === '200033')!.cells.parent[0]!.pct).toBeGreaterThan(0);
+  });
+
+  it('a guaranteed inherited-unique (parent green, 100%) sorts to the very top of the wishlist', () => {
+    // 900011 is guaranteed from the parent green; 200011 is a plain innate white.
+    // A comparator that would otherwise put 200011 first is overridden by the
+    // guaranteed-first rule.
+    const p = parent('pa', '100101', { greenSpark: { skillId: '100011', stars: 2 } });
+    const res = buildCoverageMatrix(baseInput({
+      wishlistSkillIds: ['200011', '900011'],
+      activeParents: [{ parent: p, isA: true }],
+      compareSkills: (a: string, b: string) => a.localeCompare(b), // 200011 < 900011 alphabetically
+    }));
+    expect(res.rows[0]!.skillId).toBe('900011'); // guaranteed wins despite the comparator
+    expect(res.rows[0]!.cells.parent[0]!.pct).toBe(100);
+  });
+
   it('buckets deck cards into hint/chain/random by sourceType', () => {
     const c = card('30001', 'Speedy', [
       { skillId: '200022', sourceType: 'chain' },

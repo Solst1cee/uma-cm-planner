@@ -1,16 +1,23 @@
 // src/features/inheritance/CoverageMatrixCard.tsx
 /** M1.7 — "Obtainable vs. wishlist" coverage card (design handoff panel 6).
  *  Provider-free: the page computes the CoverageResult and passes it in. */
-import { useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import type { CoverageChip, CoverageColumn, CoverageResult, CoverageRow } from '@/core/coverageMatrix';
 import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 
 /** Provider-free renderer for a support-card icon (the page supplies it). */
 export type RenderCardIcon = (cardId: string, size: number) => ReactNode;
+/** Provider-free renderer for the icon in front of a skill name — a skill icon,
+ *  or the uma portrait for an inherited-unique (the page decides). */
+export type RenderSkillIcon = (skillId: string) => ReactNode;
 /** Provider-free renderer for an event-detail hint button + popup (the page
  *  supplies it). Return null when no event details exist for the skill —
  *  the cell then falls back to the plain chip. */
 export type RenderEventHint = (skillId: string) => ReactNode;
+/** Provider-free renderer wrapping the skill name in a click-to-open detail
+ *  popup (the page supplies it). Return the name unchanged when no detail. */
+export type RenderSkillDetail = (skillId: string, name: ReactNode) => ReactNode;
 
 const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'innate', label: 'Innate' },
@@ -20,9 +27,6 @@ const COLS: Array<{ key: CoverageColumn; label: string; sep?: boolean }> = [
   { key: 'chain', label: 'Chain' },
   { key: 'random', label: 'Random' },
 ];
-const BAR_LABEL: Record<CoverageColumn | 'uncovered', string> = {
-  innate: 'Innate', event: 'Event', parent: 'Inheritance', hint: 'Hint', chain: 'Chain', random: 'Random', uncovered: 'Uncovered',
-};
 
 function Chip({ chip, renderCardIcon, renderEventHint }: {
   chip: CoverageChip; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
@@ -33,12 +37,16 @@ function Chip({ chip, renderCardIcon, renderEventHint }: {
     const hint = renderEventHint(chip.skillId);
     if (hint) return <span className="inh-cov-chip-wrap inh-cov-ev-hint" title={chip.title}>{hint}</span>;
   }
-  const round = chip.kind === 'innate' || chip.kind === 'event' || chip.kind === 'parent' || chip.kind === 'gp';
+  // Innate renders as plain text (e.g. "Lv5"), matching the Inheritance column —
+  // no chip. The uma name / unlock level stays in the hover title.
+  if (chip.kind === 'innate') {
+    return <span className="inh-cov-innate-text" title={chip.title}>{chip.label}</span>;
+  }
+  const round = chip.kind === 'event' || chip.kind === 'parent' || chip.kind === 'gp';
   // Deck-source chips (hint/chain/random) render the real support-card icon when
   // the page supplies a renderer; otherwise fall back to the type-colored initials chip.
   const icon = chip.cardId && renderCardIcon ? renderCardIcon(chip.cardId, 20) : null;
   const cls =
-    chip.kind === 'innate' ? 'inh-cov-chip tier-spark' :
     chip.kind === 'event' ? 'inh-cov-chip inh-cov-chip-event' :
     chip.kind === 'parent' ? 'inh-cov-chip inh-cov-chip-parent' :
     chip.kind === 'gp' ? 'inh-cov-chip inh-cov-chip-gp' :
@@ -56,34 +64,85 @@ function Chip({ chip, renderCardIcon, renderEventHint }: {
   );
 }
 
-/** One combined inherit-% per cell: the chance AT LEAST ONE priced source passes
- *  the spark down, 1 − ∏(1 − pᵢ). A guaranteed source (parent unique, 100%)
- *  short-circuits — the cell shows 100% and the rolled sources aren't counted.
- *  Hover explains the per-source breakdown. */
-function CombinedPct({ chips }: { chips: CoverageChip[] }) {
-  const priced = chips.filter((c): c is CoverageChip & { pct: number } => c.pct !== undefined);
-  if (priced.length === 0) return null;
-  const guaranteed = priced.filter((c) => c.pct >= 100);
-  if (guaranteed.length > 0) {
-    const lines = guaranteed.map((c) => c.title);
-    if (priced.length > guaranteed.length) lines.push('Guaranteed — the other sources are not needed.');
-    return <span className="inh-cov-pct inh-cov-combined" title={lines.join('\n')}>100%</span>;
-  }
-  const combined = Math.round((1 - priced.reduce((m, c) => m * (1 - c.pct / 100), 1)) * 100);
-  const lines = priced.map((c) => `${c.title}: ~${c.pct}%`);
-  if (priced.length > 1) {
-    lines.push(
-      `Combined (at least one succeeds): 1 − ${priced.map((c) => `(1−${c.pct}%)`).join(' × ')} ≈ ${combined}%`,
-      'Each source is priced in isolation and assumed to roll independently.',
-    );
-  }
-  return <span className="inh-cov-pct inh-cov-combined" title={lines.join('\n')}>~{combined}%</span>;
+/** Short source label from a chip title: "Mayano Top Gun · parent white spark"
+ *  → { name: "Mayano Top Gun", role: "P" | "GP" }. */
+function chipSource(c: CoverageChip & { pct: number }): { name: string; role: string; guaranteed: boolean } {
+  return {
+    name: c.title.split(' · ')[0] ?? '',
+    role: c.kind === 'gp' ? 'GP' : 'P',
+    guaranteed: c.pct >= 100,
+  };
 }
 
-function Cell({ chips, renderCardIcon, renderEventHint }: {
-  chips: CoverageChip[]; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+/** One combined inherit-% per cell (the chance AT LEAST ONE priced source passes
+ *  the spark down, 1 − ∏(1 − pᵢ); a guaranteed source short-circuits to 100%).
+ *  Hovering the number opens a styled popup: a purple "Overall" row + the
+ *  formula, then one indented white row per source. */
+function CombinedPct({ chips }: { chips: CoverageChip[] }) {
+  const priced = chips.filter((c): c is CoverageChip & { pct: number } => c.pct !== undefined);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    if (!open) { setPos(null); return; }
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    // Pop from the right of the number; flip to the left if it would overflow.
+    const w = 320;
+    const right = r.right + 6;
+    const left = right + w + 8 > window.innerWidth ? Math.max(8, r.left - w - 6) : right;
+    // Nudge up by the overall-row's border+padding so its number lines up with
+    // the cell number (≈1px border + 0.3rem padding ≈ 6px).
+    setPos({ top: Math.max(8, r.top - 6), left });
+  }, [open]);
+
+  if (priced.length === 0) return null;
+  const guaranteed = priced.some((c) => c.pct >= 100);
+  const overall = guaranteed ? 100 : Math.round((1 - priced.reduce((m, c) => m * (1 - c.pct / 100), 1)) * 100);
+  const showFormula = !guaranteed && priced.length > 1;
+  const numberText = guaranteed ? '100%' : `~${overall}%`;
+
+  return (
+    <>
+      <span
+        ref={ref}
+        className="inh-cov-pct inh-cov-combined"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+      >
+        {numberText}
+      </span>
+      {open && pos && createPortal(
+        <div className="inh-cov-calc-pop" style={{ top: pos.top, left: pos.left }}>
+          <div className="inh-cov-calc-overall">
+            {numberText} Overall
+            {showFormula && (
+              <span className="formula">(1 − {priced.map((c) => `(1−${c.pct}%)`).join(' × ')})</span>
+            )}
+            {guaranteed && <span className="formula">— guaranteed</span>}
+          </div>
+          {priced.map((c, i) => {
+            const s = chipSource(c);
+            return (
+              <div key={i} className="inh-cov-calc-src">
+                <b>{c.pct}%</b> {s.name} <span className="role">({s.role})</span>
+                {s.guaranteed ? ' — guaranteed' : ''}
+              </div>
+            );
+          })}
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+}
+
+function Cell({ chips, colKey, renderCardIcon, renderEventHint }: {
+  chips: CoverageChip[]; colKey: CoverageColumn; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
 }) {
-  if (chips.length === 0) return <td className="inh-cov-cell muted">·</td>;
+  const colCls = `inh-cov-cell inh-cov-col-${colKey}`;
+  if (chips.length === 0) return <td className={`${colCls} muted`}>·</td>;
   // Priced parent/gp sources are fully represented by the single combined % —
   // their identity chips are hidden (the number's hover names each source).
   // Unpriced chips (gp green) stay visible so an un-numbered source isn't lost.
@@ -92,7 +151,7 @@ function Cell({ chips, renderCardIcon, renderEventHint }: {
   const shown = visible.slice(0, 6);
   const extra = visible.length - shown.length;
   return (
-    <td className="inh-cov-cell">
+    <td className={colCls}>
       {shown.length > 0 && (
         <span className="inh-cov-cell-grid">
           {shown.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
@@ -104,56 +163,54 @@ function Cell({ chips, renderCardIcon, renderEventHint }: {
   );
 }
 
-function MatrixTable({ rows, renderCardIcon, renderEventHint }: {
-  rows: CoverageRow[]; renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+function MatrixTable({ rows, skillColLabel, renderCardIcon, renderEventHint, renderSkillIcon, renderSkillDetail }: {
+  rows: CoverageRow[]; skillColLabel: string;
+  renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+  renderSkillIcon?: RenderSkillIcon; renderSkillDetail?: RenderSkillDetail;
 }) {
   return (
     <table className="matrix inh-cov-matrix">
       <thead>
         <tr>
-          <th className="skill-col">Wishlist skill</th>
-          {COLS.map((c) => <th key={c.key} className={c.sep ? 'inh-cov-sep' : undefined}>{c.label}</th>)}
+          <th className="skill-col">{skillColLabel}</th>
+          {COLS.map((c) => <th key={c.key} className={`inh-cov-col-${c.key}${c.sep ? ' inh-cov-sep' : ''}`}>{c.label}</th>)}
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => (
-          <tr key={r.skillId} className={r.covered ? undefined : 'row-uncovered'}>
-            <th className="skill-col" style={r.isGold ? { color: '#c27a00' } : undefined}>{r.name}</th>
-            {COLS.map((c) => <Cell key={c.key} chips={r.cells[c.key]} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
-          </tr>
-        ))}
+        {rows.map((r) => {
+          // The whole cell (icon + name) is the click target for the detail popup.
+          const cellContent = (
+            <>
+              {renderSkillIcon && <span className="inh-cov-skill-icon">{renderSkillIcon(r.skillId)}</span>}
+              <span className="inh-cov-skill-name">{r.name}</span>
+            </>
+          );
+          return (
+            <tr key={r.skillId} className={r.covered ? undefined : 'row-uncovered'}>
+              <th className="skill-col" style={r.isGold ? { color: '#c27a00' } : undefined}>
+                <span className="inh-cov-skill-cell">
+                  {renderSkillDetail ? renderSkillDetail(r.skillId, cellContent) : cellContent}
+                </span>
+              </th>
+              {COLS.map((c) => <Cell key={c.key} colKey={c.key} chips={r.cells[c.key]} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />)}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
 }
 
-function Bars({ result }: { result: CoverageResult }) {
-  return (
-    <div className="inh-cov-bars">
-      {result.bars.map((b) => (
-        <div key={b.column} className="inh-cov-bar-row">
-          <span className="inh-cov-bar-label">{BAR_LABEL[b.column]}</span>
-          <span className="inh-cov-bar-track"><span className={`inh-cov-bar-fill col-${b.column}`} style={{ width: `${b.pct}%` }} /></span>
-          <span className="inh-cov-bar-num">{b.count} · {b.pct}%</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCardIcon, renderEventHint }: {
+export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCardIcon, renderEventHint, renderSkillIcon, renderSkillDetail }: {
   result: CoverageResult; hasWishlist: boolean; hasPlanUma: boolean;
   renderCardIcon?: RenderCardIcon; renderEventHint?: RenderEventHint;
+  renderSkillIcon?: RenderSkillIcon; renderSkillDetail?: RenderSkillDetail;
 }) {
-  const [view, setView] = useState<'matrix' | 'bars'>('matrix');
+  const [bonusOpen, setBonusOpen] = useState(true);
   return (
     <div className="cmp-plan-card inh-cov-card">
       <div className="cmp-plan-card-head inh-cov-head">
         <span className="inh-cov-title">Obtainable vs. wishlist</span>
-        <span className="cmp-control-group inh-cov-toggle">
-          <button type="button" className={view === 'matrix' ? 'is-active' : ''} onClick={() => setView('matrix')}>Matrix</button>
-          <button type="button" className={view === 'bars' ? 'is-active' : ''} onClick={() => setView('bars')}>Coverage</button>
-        </span>
         <HeaderHelp label="Obtainability matrix help">
           Crosses each wishlist skill against where you can get it: your uma's
           innate kit, its career training events, parent/grandparent sparks (with
@@ -169,18 +226,20 @@ export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCard
           <p className="muted">Add skills to your wishlist to see coverage.</p>
         ) : (
           <>
-            {view === 'matrix'
-              ? <MatrixTable rows={result.rows} renderCardIcon={renderCardIcon} renderEventHint={renderEventHint} />
-              : <Bars result={result} />}
+            <MatrixTable rows={result.rows} skillColLabel="Wishlist skill"
+              renderCardIcon={renderCardIcon} renderEventHint={renderEventHint}
+              renderSkillIcon={renderSkillIcon} renderSkillDetail={renderSkillDetail} />
             {result.bonus.length > 0 && (
               <div className="inh-cov-bonus">
-                <div className="inh-cov-bonus-head">BONUS — obtainable, not on wishlist</div>
-                {result.bonus.map((b) => (
-                  <div key={b.skillId} className="inh-cov-bonus-row">
-                    <span className="inh-cov-bonus-name">{b.name}</span>
-                    <span className="inh-cov-bonus-chips">{b.chips.map((c, i) => <Chip key={i} chip={c} renderCardIcon={renderCardIcon} />)}</span>
-                  </div>
-                ))}
+                <button type="button" className="inh-cov-bonus-toggle" aria-expanded={bonusOpen} onClick={() => setBonusOpen((o) => !o)}>
+                  <span className="inh-cov-bonus-caret" data-open={bonusOpen ? '1' : undefined}>▸</span>
+                  Bonus — obtainable, not on wishlist ({result.bonus.length})
+                </button>
+                {bonusOpen && (
+                  <MatrixTable rows={result.bonus} skillColLabel="Bonus skill"
+                    renderCardIcon={renderCardIcon} renderEventHint={renderEventHint}
+                    renderSkillIcon={renderSkillIcon} renderSkillDetail={renderSkillDetail} />
+                )}
               </div>
             )}
           </>

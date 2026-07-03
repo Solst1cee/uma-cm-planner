@@ -17,6 +17,7 @@ import { aggregate } from './sparkAggregate';
 import { candidateAffinity } from './candidateAffinity';
 import { AffinityMark } from './AffinityMark';
 import { aff2, charaIdOf } from '@/core/affinity';
+import { toSingleCircle } from '@/core/skillCircle';
 import { useAffinityIndex } from './useAffinityIndex';
 
 type Slot = 'a' | 'b';
@@ -98,7 +99,9 @@ export function InheritanceCard() {
   };
   const portrait = (p: Parent) => umaPortrait(p.umaId, 60);
 
-  const skillName = (id: string) => skillById.get(id)?.nameEn ?? id;
+  // White sparks only grant the single-circle (○) grade — show ○, not a
+  // recorded ◎ (matches the M1.7 coverage tables).
+  const skillName = (id: string) => skillById.get(toSingleCircle(id, skillById))?.nameEn ?? id;
   const gpPortraitsFor = (p: Parent) => {
     const gps = (p.grandparents ?? []).filter((g): g is NonNullable<typeof g> => !!g);
     if (gps.length === 0) return undefined;

@@ -43,3 +43,6 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# dev-only skill-icon reference pages (M1.7 sort tuning)
+public/_skill-icon*.html

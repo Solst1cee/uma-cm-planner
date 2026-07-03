@@ -1,0 +1,2350 @@
+{
+  "10071": {
+    "category": "unique",
+    "group": 1007
+  },
+  "10081": {
+    "category": "unique",
+    "group": 1008
+  },
+  "10091": {
+    "category": "unique",
+    "group": 1009
+  },
+  "10111": {
+    "category": "unique",
+    "group": 1011
+  },
+  "10141": {
+    "category": "unique",
+    "group": 1014
+  },
+  "10181": {
+    "category": "unique",
+    "group": 1018
+  },
+  "10241": {
+    "category": "unique",
+    "group": 1024
+  },
+  "10271": {
+    "category": "unique",
+    "group": 1027
+  },
+  "10321": {
+    "category": "unique",
+    "group": 1032
+  },
+  "10351": {
+    "category": "unique",
+    "group": 1035
+  },
+  "10411": {
+    "category": "unique",
+    "group": 1041
+  },
+  "10451": {
+    "category": "unique",
+    "group": 1045
+  },
+  "10521": {
+    "category": "unique",
+    "group": 1052
+  },
+  "10561": {
+    "category": "unique",
+    "group": 1056
+  },
+  "10601": {
+    "category": "unique",
+    "group": 1060
+  },
+  "10611": {
+    "category": "unique",
+    "group": 1061
+  },
+  "10621": {
+    "category": "unique",
+    "group": 1062
+  },
+  "100011": {
+    "category": "unique",
+    "group": 10001
+  },
+  "100021": {
+    "category": "unique",
+    "group": 10002
+  },
+  "100031": {
+    "category": "unique",
+    "group": 10003
+  },
+  "100041": {
+    "category": "unique",
+    "group": 10004
+  },
+  "100051": {
+    "category": "unique",
+    "group": 10005
+  },
+  "100061": {
+    "category": "unique",
+    "group": 10006
+  },
+  "100071": {
+    "category": "unique",
+    "group": 10007
+  },
+  "100081": {
+    "category": "unique",
+    "group": 10008
+  },
+  "100091": {
+    "category": "unique",
+    "group": 10009
+  },
+  "100101": {
+    "category": "unique",
+    "group": 10010
+  },
+  "100111": {
+    "category": "unique",
+    "group": 10011
+  },
+  "100121": {
+    "category": "unique",
+    "group": 10012
+  },
+  "100131": {
+    "category": "unique",
+    "group": 10013
+  },
+  "100141": {
+    "category": "unique",
+    "group": 10014
+  },
+  "100151": {
+    "category": "unique",
+    "group": 10015
+  },
+  "100161": {
+    "category": "unique",
+    "group": 10016
+  },
+  "100171": {
+    "category": "unique",
+    "group": 10017
+  },
+  "100181": {
+    "category": "unique",
+    "group": 10018
+  },
+  "100191": {
+    "category": "unique",
+    "group": 10019
+  },
+  "100201": {
+    "category": "unique",
+    "group": 10020
+  },
+  "100211": {
+    "category": "unique",
+    "group": 10021
+  },
+  "100221": {
+    "category": "unique",
+    "group": 10022
+  },
+  "100231": {
+    "category": "unique",
+    "group": 10023
+  },
+  "100241": {
+    "category": "unique",
+    "group": 10024
+  },
+  "100251": {
+    "category": "unique",
+    "group": 10025
+  },
+  "100261": {
+    "category": "unique",
+    "group": 10026
+  },
+  "100271": {
+    "category": "unique",
+    "group": 10027
+  },
+  "100281": {
+    "category": "unique",
+    "group": 10028
+  },
+  "100301": {
+    "category": "unique",
+    "group": 10030
+  },
+  "100311": {
+    "category": "unique",
+    "group": 10031
+  },
+  "100321": {
+    "category": "unique",
+    "group": 10032
+  },
+  "100331": {
+    "category": "unique",
+    "group": 10033
+  },
+  "100341": {
+    "category": "unique",
+    "group": 10034
+  },
+  "100351": {
+    "category": "unique",
+    "group": 10035
+  },
+  "100361": {
+    "category": "unique",
+    "group": 0
+  },
+  "100371": {
+    "category": "unique",
+    "group": 10037
+  },
+  "100381": {
+    "category": "unique",
+    "group": 10038
+  },
+  "100391": {
+    "category": "unique",
+    "group": 10039
+  },
+  "100401": {
+    "category": "unique",
+    "group": 10040
+  },
+  "100411": {
+    "category": "unique",
+    "group": 10041
+  },
+  "100441": {
+    "category": "unique",
+    "group": 10044
+  },
+  "100451": {
+    "category": "unique",
+    "group": 10045
+  },
+  "100461": {
+    "category": "unique",
+    "group": 10046
+  },
+  "100481": {
+    "category": "unique",
+    "group": 10048
+  },
+  "100501": {
+    "category": "unique",
+    "group": 10050
+  },
+  "100511": {
+    "category": "unique",
+    "group": 10051
+  },
+  "100521": {
+    "category": "unique",
+    "group": 10052
+  },
+  "100561": {
+    "category": "unique",
+    "group": 10056
+  },
+  "100581": {
+    "category": "unique",
+    "group": 10058
+  },
+  "100591": {
+    "category": "unique",
+    "group": 10059
+  },
+  "100601": {
+    "category": "unique",
+    "group": 10060
+  },
+  "100611": {
+    "category": "unique",
+    "group": 10061
+  },
+  "100621": {
+    "category": "unique",
+    "group": 10062
+  },
+  "100641": {
+    "category": "unique",
+    "group": 10064
+  },
+  "100671": {
+    "category": "unique",
+    "group": 10067
+  },
+  "100681": {
+    "category": "unique",
+    "group": 10068
+  },
+  "100691": {
+    "category": "unique",
+    "group": 10069
+  },
+  "100711": {
+    "category": "unique",
+    "group": 10071
+  },
+  "100721": {
+    "category": "unique",
+    "group": 10072
+  },
+  "100741": {
+    "category": "unique",
+    "group": 10074
+  },
+  "110011": {
+    "category": "unique",
+    "group": 11001
+  },
+  "110031": {
+    "category": "unique",
+    "group": 11003
+  },
+  "110041": {
+    "category": "unique",
+    "group": 11004
+  },
+  "110051": {
+    "category": "unique",
+    "group": 11005
+  },
+  "110061": {
+    "category": "unique",
+    "group": 11006
+  },
+  "110101": {
+    "category": "unique",
+    "group": 11010
+  },
+  "110111": {
+    "category": "unique",
+    "group": 11011
+  },
+  "110131": {
+    "category": "unique",
+    "group": 11013
+  },
+  "110141": {
+    "category": "unique",
+    "group": 11014
+  },
+  "110151": {
+    "category": "unique",
+    "group": 11015
+  },
+  "110171": {
+    "category": "unique",
+    "group": 11017
+  },
+  "110181": {
+    "category": "unique",
+    "group": 11018
+  },
+  "110201": {
+    "category": "unique",
+    "group": 11020
+  },
+  "110221": {
+    "category": "unique",
+    "group": 11022
+  },
+  "110231": {
+    "category": "unique",
+    "group": 11023
+  },
+  "110241": {
+    "category": "unique",
+    "group": 11024
+  },
+  "110261": {
+    "category": "unique",
+    "group": 11026
+  },
+  "110301": {
+    "category": "unique",
+    "group": 11030
+  },
+  "110371": {
+    "category": "unique",
+    "group": 11037
+  },
+  "110381": {
+    "category": "unique",
+    "group": 11038
+  },
+  "110401": {
+    "category": "unique",
+    "group": 11040
+  },
+  "110451": {
+    "category": "unique",
+    "group": 11045
+  },
+  "110521": {
+    "category": "unique",
+    "group": 11052
+  },
+  "110561": {
+    "category": "unique",
+    "group": 11056
+  },
+  "110591": {
+    "category": "unique",
+    "group": 11059
+  },
+  "110601": {
+    "category": "unique",
+    "group": 11060
+  },
+  "110611": {
+    "category": "unique",
+    "group": 11061
+  },
+  "200011": {
+    "category": "green",
+    "group": 20001
+  },
+  "200012": {
+    "category": "green",
+    "group": 20001
+  },
+  "200013": {
+    "category": "green",
+    "group": 20001
+  },
+  "200014": {
+    "category": "green",
+    "group": 20001
+  },
+  "200021": {
+    "category": "green",
+    "group": 20002
+  },
+  "200022": {
+    "category": "green",
+    "group": 20002
+  },
+  "200023": {
+    "category": "green",
+    "group": 20002
+  },
+  "200031": {
+    "category": "green",
+    "group": 20003
+  },
+  "200032": {
+    "category": "green",
+    "group": 20003
+  },
+  "200033": {
+    "category": "green",
+    "group": 20003
+  },
+  "200041": {
+    "category": "green",
+    "group": 20004
+  },
+  "200042": {
+    "category": "green",
+    "group": 20004
+  },
+  "200043": {
+    "category": "green",
+    "group": 20004
+  },
+  "200051": {
+    "category": "green",
+    "group": 20005
+  },
+  "200052": {
+    "category": "green",
+    "group": 20005
+  },
+  "200053": {
+    "category": "green",
+    "group": 20005
+  },
+  "200061": {
+    "category": "green",
+    "group": 20006
+  },
+  "200062": {
+    "category": "green",
+    "group": 20006
+  },
+  "200063": {
+    "category": "green",
+    "group": 20006
+  },
+  "200064": {
+    "category": "green",
+    "group": 20006
+  },
+  "200071": {
+    "category": "green",
+    "group": 20007
+  },
+  "200072": {
+    "category": "green",
+    "group": 20007
+  },
+  "200073": {
+    "category": "green",
+    "group": 20007
+  },
+  "200081": {
+    "category": "green",
+    "group": 20008
+  },
+  "200082": {
+    "category": "green",
+    "group": 20008
+  },
+  "200083": {
+    "category": "green",
+    "group": 20008
+  },
+  "200091": {
+    "category": "green",
+    "group": 20009
+  },
+  "200092": {
+    "category": "green",
+    "group": 20009
+  },
+  "200093": {
+    "category": "green",
+    "group": 20009
+  },
+  "200101": {
+    "category": "green",
+    "group": 20010
+  },
+  "200102": {
+    "category": "green",
+    "group": 20010
+  },
+  "200103": {
+    "category": "green",
+    "group": 20010
+  },
+  "200111": {
+    "category": "green",
+    "group": 20011
+  },
+  "200112": {
+    "category": "green",
+    "group": 20011
+  },
+  "200113": {
+    "category": "green",
+    "group": 20011
+  },
+  "200121": {
+    "category": "green",
+    "group": 20012
+  },
+  "200122": {
+    "category": "green",
+    "group": 20012
+  },
+  "200123": {
+    "category": "green",
+    "group": 20012
+  },
+  "200131": {
+    "category": "green",
+    "group": 20013
+  },
+  "200132": {
+    "category": "green",
+    "group": 20013
+  },
+  "200133": {
+    "category": "green",
+    "group": 20013
+  },
+  "200141": {
+    "category": "green",
+    "group": 20014
+  },
+  "200142": {
+    "category": "green",
+    "group": 20014
+  },
+  "200143": {
+    "category": "green",
+    "group": 20014
+  },
+  "200151": {
+    "category": "green",
+    "group": 20015
+  },
+  "200152": {
+    "category": "green",
+    "group": 20015
+  },
+  "200153": {
+    "category": "green",
+    "group": 20015
+  },
+  "200154": {
+    "category": "green",
+    "group": 20015
+  },
+  "200161": {
+    "category": "green",
+    "group": 20016
+  },
+  "200162": {
+    "category": "green",
+    "group": 20016
+  },
+  "200163": {
+    "category": "green",
+    "group": 20016
+  },
+  "200171": {
+    "category": "green",
+    "group": 20017
+  },
+  "200172": {
+    "category": "green",
+    "group": 20017
+  },
+  "200173": {
+    "category": "green",
+    "group": 20017
+  },
+  "200174": {
+    "category": "green",
+    "group": 20017
+  },
+  "200181": {
+    "category": "green",
+    "group": 20018
+  },
+  "200182": {
+    "category": "green",
+    "group": 20018
+  },
+  "200183": {
+    "category": "green",
+    "group": 20018
+  },
+  "200191": {
+    "category": "green",
+    "group": 20019
+  },
+  "200192": {
+    "category": "green",
+    "group": 20019
+  },
+  "200193": {
+    "category": "green",
+    "group": 20019
+  },
+  "200194": {
+    "category": "green",
+    "group": 20019
+  },
+  "200201": {
+    "category": "green",
+    "group": 20020
+  },
+  "200202": {
+    "category": "green",
+    "group": 20020
+  },
+  "200203": {
+    "category": "green",
+    "group": 20020
+  },
+  "200211": {
+    "category": "green",
+    "group": 20021
+  },
+  "200212": {
+    "category": "green",
+    "group": 20021
+  },
+  "200221": {
+    "category": "green",
+    "group": 20022
+  },
+  "200222": {
+    "category": "green",
+    "group": 20022
+  },
+  "200231": {
+    "category": "green",
+    "group": 20023
+  },
+  "200232": {
+    "category": "green",
+    "group": 20023
+  },
+  "200233": {
+    "category": "green",
+    "group": 20023
+  },
+  "200241": {
+    "category": "green",
+    "group": 20024
+  },
+  "200242": {
+    "category": "green",
+    "group": 20024
+  },
+  "200251": {
+    "category": "green",
+    "group": 20025
+  },
+  "200252": {
+    "category": "green",
+    "group": 20025
+  },
+  "200253": {
+    "category": "green",
+    "group": 20025
+  },
+  "200261": {
+    "category": "green",
+    "group": 20026
+  },
+  "200262": {
+    "category": "green",
+    "group": 20026
+  },
+  "200263": {
+    "category": "green",
+    "group": 20026
+  },
+  "200271": {
+    "category": "green",
+    "group": 20027
+  },
+  "200272": {
+    "category": "green",
+    "group": 20027
+  },
+  "200281": {
+    "category": "green",
+    "group": 20028
+  },
+  "200282": {
+    "category": "green",
+    "group": 20028
+  },
+  "200283": {
+    "category": "green",
+    "group": 20028
+  },
+  "200291": {
+    "category": "green",
+    "group": 20029
+  },
+  "200292": {
+    "category": "green",
+    "group": 20029
+  },
+  "200301": {
+    "category": "green",
+    "group": 20030
+  },
+  "200302": {
+    "category": "green",
+    "group": 20030
+  },
+  "200311": {
+    "category": "green",
+    "group": 20031
+  },
+  "200321": {
+    "category": "green",
+    "group": 20032
+  },
+  "200331": {
+    "category": "normal",
+    "group": 20033
+  },
+  "200332": {
+    "category": "normal",
+    "group": 20033
+  },
+  "200333": {
+    "category": "normal",
+    "group": 20033
+  },
+  "200341": {
+    "category": "normal",
+    "group": 20034
+  },
+  "200342": {
+    "category": "normal",
+    "group": 20034
+  },
+  "200343": {
+    "category": "normal",
+    "group": 20034
+  },
+  "200351": {
+    "category": "recovery",
+    "group": 20035
+  },
+  "200352": {
+    "category": "recovery",
+    "group": 20035
+  },
+  "200353": {
+    "category": "debuff",
+    "group": 20035
+  },
+  "200361": {
+    "category": "normal",
+    "group": 20036
+  },
+  "200362": {
+    "category": "normal",
+    "group": 20036
+  },
+  "200371": {
+    "category": "normal",
+    "group": 20037
+  },
+  "200372": {
+    "category": "normal",
+    "group": 20037
+  },
+  "200381": {
+    "category": "recovery",
+    "group": 20038
+  },
+  "200382": {
+    "category": "recovery",
+    "group": 20038
+  },
+  "200391": {
+    "category": "debuff",
+    "group": 20039
+  },
+  "200401": {
+    "category": "debuff",
+    "group": 20040
+  },
+  "200411": {
+    "category": "normal",
+    "group": 20041
+  },
+  "200421": {
+    "category": "normal",
+    "group": 20042
+  },
+  "200431": {
+    "category": "normal",
+    "group": 20043
+  },
+  "200432": {
+    "category": "normal",
+    "group": 20043
+  },
+  "200433": {
+    "category": "normal",
+    "group": 20043
+  },
+  "200441": {
+    "category": "recovery",
+    "group": 20044
+  },
+  "200442": {
+    "category": "recovery",
+    "group": 20044
+  },
+  "200451": {
+    "category": "normal",
+    "group": 20045
+  },
+  "200452": {
+    "category": "normal",
+    "group": 20045
+  },
+  "200461": {
+    "category": "normal",
+    "group": 20046
+  },
+  "200462": {
+    "category": "normal",
+    "group": 20046
+  },
+  "200471": {
+    "category": "recovery",
+    "group": 20047
+  },
+  "200472": {
+    "category": "recovery",
+    "group": 20047
+  },
+  "200481": {
+    "category": "recovery",
+    "group": 20048
+  },
+  "200482": {
+    "category": "recovery",
+    "group": 20048
+  },
+  "200491": {
+    "category": "normal",
+    "group": 20049
+  },
+  "200492": {
+    "category": "normal",
+    "group": 20049
+  },
+  "200501": {
+    "category": "normal",
+    "group": 20050
+  },
+  "200502": {
+    "category": "normal",
+    "group": 20050
+  },
+  "200511": {
+    "category": "normal",
+    "group": 20051
+  },
+  "200512": {
+    "category": "normal",
+    "group": 20051
+  },
+  "200521": {
+    "category": "debuff",
+    "group": 20052
+  },
+  "200531": {
+    "category": "normal",
+    "group": 20053
+  },
+  "200532": {
+    "category": "normal",
+    "group": 20053
+  },
+  "200541": {
+    "category": "normal",
+    "group": 20054
+  },
+  "200542": {
+    "category": "normal",
+    "group": 20054
+  },
+  "200551": {
+    "category": "normal",
+    "group": 20055
+  },
+  "200552": {
+    "category": "normal",
+    "group": 20055
+  },
+  "200561": {
+    "category": "recovery",
+    "group": 20056
+  },
+  "200562": {
+    "category": "recovery",
+    "group": 20056
+  },
+  "200571": {
+    "category": "recovery",
+    "group": 20057
+  },
+  "200572": {
+    "category": "recovery",
+    "group": 20057
+  },
+  "200581": {
+    "category": "normal",
+    "group": 20058
+  },
+  "200582": {
+    "category": "normal",
+    "group": 20058
+  },
+  "200591": {
+    "category": "normal",
+    "group": 20059
+  },
+  "200592": {
+    "category": "normal",
+    "group": 20059
+  },
+  "200601": {
+    "category": "normal",
+    "group": 20060
+  },
+  "200602": {
+    "category": "normal",
+    "group": 20060
+  },
+  "200611": {
+    "category": "normal",
+    "group": 20061
+  },
+  "200612": {
+    "category": "normal",
+    "group": 20061
+  },
+  "200621": {
+    "category": "recovery",
+    "group": 20062
+  },
+  "200622": {
+    "category": "recovery",
+    "group": 20062
+  },
+  "200631": {
+    "category": "normal",
+    "group": 20063
+  },
+  "200632": {
+    "category": "normal",
+    "group": 20063
+  },
+  "200641": {
+    "category": "normal",
+    "group": 20064
+  },
+  "200642": {
+    "category": "normal",
+    "group": 20064
+  },
+  "200651": {
+    "category": "normal",
+    "group": 20065
+  },
+  "200652": {
+    "category": "normal",
+    "group": 20065
+  },
+  "200662": {
+    "category": "recovery",
+    "group": 20066
+  },
+  "200671": {
+    "category": "normal",
+    "group": 20067
+  },
+  "200672": {
+    "category": "normal",
+    "group": 20067
+  },
+  "200681": {
+    "category": "normal",
+    "group": 20068
+  },
+  "200682": {
+    "category": "normal",
+    "group": 20068
+  },
+  "200691": {
+    "category": "recovery",
+    "group": 20069
+  },
+  "200692": {
+    "category": "recovery",
+    "group": 20069
+  },
+  "200701": {
+    "category": "normal",
+    "group": 20070
+  },
+  "200702": {
+    "category": "normal",
+    "group": 20070
+  },
+  "200711": {
+    "category": "recovery",
+    "group": 20071
+  },
+  "200712": {
+    "category": "recovery",
+    "group": 20071
+  },
+  "200721": {
+    "category": "normal",
+    "group": 20072
+  },
+  "200722": {
+    "category": "normal",
+    "group": 20072
+  },
+  "200731": {
+    "category": "normal",
+    "group": 20073
+  },
+  "200732": {
+    "category": "normal",
+    "group": 20073
+  },
+  "200741": {
+    "category": "recovery",
+    "group": 20074
+  },
+  "200742": {
+    "category": "recovery",
+    "group": 20074
+  },
+  "200751": {
+    "category": "normal",
+    "group": 20075
+  },
+  "200752": {
+    "category": "normal",
+    "group": 20075
+  },
+  "200761": {
+    "category": "recovery",
+    "group": 20076
+  },
+  "200762": {
+    "category": "recovery",
+    "group": 20076
+  },
+  "200771": {
+    "category": "debuff",
+    "group": 20077
+  },
+  "200772": {
+    "category": "debuff",
+    "group": 20077
+  },
+  "200781": {
+    "category": "debuff",
+    "group": 20078
+  },
+  "200791": {
+    "category": "debuff",
+    "group": 20079
+  },
+  "200801": {
+    "category": "debuff",
+    "group": 20080
+  },
+  "200811": {
+    "category": "debuff",
+    "group": 20081
+  },
+  "200821": {
+    "category": "debuff",
+    "group": 20082
+  },
+  "200831": {
+    "category": "debuff",
+    "group": 20083
+  },
+  "200841": {
+    "category": "debuff",
+    "group": 20084
+  },
+  "200851": {
+    "category": "debuff",
+    "group": 20085
+  },
+  "200861": {
+    "category": "debuff",
+    "group": 20086
+  },
+  "200871": {
+    "category": "debuff",
+    "group": 20087
+  },
+  "200881": {
+    "category": "debuff",
+    "group": 20088
+  },
+  "200891": {
+    "category": "debuff",
+    "group": 20089
+  },
+  "200901": {
+    "category": "debuff",
+    "group": 20090
+  },
+  "200911": {
+    "category": "debuff",
+    "group": 20091
+  },
+  "200921": {
+    "category": "debuff",
+    "group": 20092
+  },
+  "200931": {
+    "category": "debuff",
+    "group": 20093
+  },
+  "200941": {
+    "category": "debuff",
+    "group": 20094
+  },
+  "200951": {
+    "category": "green",
+    "group": 20095
+  },
+  "200952": {
+    "category": "green",
+    "group": 20095
+  },
+  "200953": {
+    "category": "green",
+    "group": 20095
+  },
+  "200961": {
+    "category": "normal",
+    "group": 20096
+  },
+  "200962": {
+    "category": "normal",
+    "group": 20096
+  },
+  "200971": {
+    "category": "normal",
+    "group": 20097
+  },
+  "200972": {
+    "category": "normal",
+    "group": 20097
+  },
+  "200981": {
+    "category": "normal",
+    "group": 20098
+  },
+  "200982": {
+    "category": "normal",
+    "group": 20098
+  },
+  "200991": {
+    "category": "normal",
+    "group": 20099
+  },
+  "200992": {
+    "category": "normal",
+    "group": 20099
+  },
+  "201001": {
+    "category": "normal",
+    "group": 20100
+  },
+  "201002": {
+    "category": "normal",
+    "group": 20100
+  },
+  "201011": {
+    "category": "debuff",
+    "group": 20101
+  },
+  "201012": {
+    "category": "debuff",
+    "group": 20101
+  },
+  "201021": {
+    "category": "debuff",
+    "group": 20102
+  },
+  "201022": {
+    "category": "debuff",
+    "group": 20102
+  },
+  "201031": {
+    "category": "normal",
+    "group": 20103
+  },
+  "201032": {
+    "category": "normal",
+    "group": 20103
+  },
+  "201041": {
+    "category": "normal",
+    "group": 20104
+  },
+  "201042": {
+    "category": "normal",
+    "group": 20104
+  },
+  "201051": {
+    "category": "normal",
+    "group": 20105
+  },
+  "201052": {
+    "category": "normal",
+    "group": 20105
+  },
+  "201061": {
+    "category": "normal",
+    "group": 20106
+  },
+  "201062": {
+    "category": "normal",
+    "group": 20106
+  },
+  "201071": {
+    "category": "normal",
+    "group": 20107
+  },
+  "201072": {
+    "category": "normal",
+    "group": 20107
+  },
+  "201081": {
+    "category": "debuff",
+    "group": 20108
+  },
+  "201082": {
+    "category": "debuff",
+    "group": 20108
+  },
+  "201091": {
+    "category": "debuff",
+    "group": 20109
+  },
+  "201092": {
+    "category": "debuff",
+    "group": 20109
+  },
+  "201101": {
+    "category": "normal",
+    "group": 20110
+  },
+  "201102": {
+    "category": "normal",
+    "group": 20110
+  },
+  "201103": {
+    "category": "normal",
+    "group": 20110
+  },
+  "201111": {
+    "category": "normal",
+    "group": 20111
+  },
+  "201112": {
+    "category": "normal",
+    "group": 20111
+  },
+  "201121": {
+    "category": "normal",
+    "group": 20112
+  },
+  "201122": {
+    "category": "normal",
+    "group": 20112
+  },
+  "201131": {
+    "category": "normal",
+    "group": 20113
+  },
+  "201132": {
+    "category": "normal",
+    "group": 20113
+  },
+  "201141": {
+    "category": "recovery",
+    "group": 20114
+  },
+  "201142": {
+    "category": "recovery",
+    "group": 20114
+  },
+  "201151": {
+    "category": "debuff",
+    "group": 20115
+  },
+  "201152": {
+    "category": "debuff",
+    "group": 20115
+  },
+  "201161": {
+    "category": "debuff",
+    "group": 20116
+  },
+  "201162": {
+    "category": "debuff",
+    "group": 20116
+  },
+  "201171": {
+    "category": "normal",
+    "group": 20117
+  },
+  "201172": {
+    "category": "normal",
+    "group": 20117
+  },
+  "201173": {
+    "category": "normal",
+    "group": 20117
+  },
+  "201181": {
+    "category": "normal",
+    "group": 20118
+  },
+  "201182": {
+    "category": "normal",
+    "group": 20118
+  },
+  "201191": {
+    "category": "normal",
+    "group": 20119
+  },
+  "201192": {
+    "category": "normal",
+    "group": 20119
+  },
+  "201201": {
+    "category": "recovery",
+    "group": 20120
+  },
+  "201202": {
+    "category": "recovery",
+    "group": 20120
+  },
+  "201211": {
+    "category": "normal",
+    "group": 20121
+  },
+  "201212": {
+    "category": "normal",
+    "group": 20121
+  },
+  "201221": {
+    "category": "debuff",
+    "group": 20122
+  },
+  "201222": {
+    "category": "debuff",
+    "group": 20122
+  },
+  "201231": {
+    "category": "debuff",
+    "group": 20123
+  },
+  "201232": {
+    "category": "debuff",
+    "group": 20123
+  },
+  "201241": {
+    "category": "normal",
+    "group": 20124
+  },
+  "201242": {
+    "category": "normal",
+    "group": 20124
+  },
+  "201251": {
+    "category": "normal",
+    "group": 20125
+  },
+  "201252": {
+    "category": "normal",
+    "group": 20125
+  },
+  "201261": {
+    "category": "normal",
+    "group": 20126
+  },
+  "201262": {
+    "category": "normal",
+    "group": 20126
+  },
+  "201271": {
+    "category": "normal",
+    "group": 20127
+  },
+  "201272": {
+    "category": "normal",
+    "group": 20127
+  },
+  "201281": {
+    "category": "recovery",
+    "group": 20128
+  },
+  "201282": {
+    "category": "recovery",
+    "group": 20128
+  },
+  "201291": {
+    "category": "normal",
+    "group": 20129
+  },
+  "201292": {
+    "category": "normal",
+    "group": 20129
+  },
+  "201302": {
+    "category": "debuff",
+    "group": 20130
+  },
+  "201311": {
+    "category": "normal",
+    "group": 20131
+  },
+  "201312": {
+    "category": "normal",
+    "group": 20131
+  },
+  "201321": {
+    "category": "normal",
+    "group": 20132
+  },
+  "201322": {
+    "category": "normal",
+    "group": 20132
+  },
+  "201331": {
+    "category": "normal",
+    "group": 20133
+  },
+  "201332": {
+    "category": "normal",
+    "group": 20133
+  },
+  "201341": {
+    "category": "normal",
+    "group": 20134
+  },
+  "201342": {
+    "category": "normal",
+    "group": 20134
+  },
+  "201351": {
+    "category": "recovery",
+    "group": 20135
+  },
+  "201352": {
+    "category": "recovery",
+    "group": 20135
+  },
+  "201361": {
+    "category": "normal",
+    "group": 20136
+  },
+  "201362": {
+    "category": "normal",
+    "group": 20136
+  },
+  "201371": {
+    "category": "debuff",
+    "group": 20137
+  },
+  "201372": {
+    "category": "debuff",
+    "group": 20137
+  },
+  "201381": {
+    "category": "normal",
+    "group": 20138
+  },
+  "201382": {
+    "category": "normal",
+    "group": 20138
+  },
+  "201391": {
+    "category": "normal",
+    "group": 20139
+  },
+  "201392": {
+    "category": "normal",
+    "group": 20139
+  },
+  "201401": {
+    "category": "normal",
+    "group": 20140
+  },
+  "201402": {
+    "category": "normal",
+    "group": 20140
+  },
+  "201411": {
+    "category": "normal",
+    "group": 20141
+  },
+  "201412": {
+    "category": "normal",
+    "group": 20141
+  },
+  "201421": {
+    "category": "recovery",
+    "group": 20142
+  },
+  "201422": {
+    "category": "recovery",
+    "group": 20142
+  },
+  "201431": {
+    "category": "normal",
+    "group": 20143
+  },
+  "201432": {
+    "category": "normal",
+    "group": 20143
+  },
+  "201441": {
+    "category": "debuff",
+    "group": 20144
+  },
+  "201442": {
+    "category": "debuff",
+    "group": 20144
+  },
+  "201451": {
+    "category": "normal",
+    "group": 20145
+  },
+  "201452": {
+    "category": "normal",
+    "group": 20145
+  },
+  "201453": {
+    "category": "normal",
+    "group": 0
+  },
+  "201461": {
+    "category": "normal",
+    "group": 20146
+  },
+  "201462": {
+    "category": "normal",
+    "group": 20146
+  },
+  "201471": {
+    "category": "normal",
+    "group": 20147
+  },
+  "201472": {
+    "category": "normal",
+    "group": 20147
+  },
+  "201481": {
+    "category": "recovery",
+    "group": 20148
+  },
+  "201482": {
+    "category": "recovery",
+    "group": 20148
+  },
+  "201491": {
+    "category": "recovery",
+    "group": 20149
+  },
+  "201492": {
+    "category": "recovery",
+    "group": 20149
+  },
+  "201501": {
+    "category": "normal",
+    "group": 20150
+  },
+  "201502": {
+    "category": "normal",
+    "group": 20150
+  },
+  "201511": {
+    "category": "debuff",
+    "group": 20151
+  },
+  "201512": {
+    "category": "debuff",
+    "group": 20151
+  },
+  "201521": {
+    "category": "green",
+    "group": 20152
+  },
+  "201522": {
+    "category": "green",
+    "group": 20152
+  },
+  "201531": {
+    "category": "green",
+    "group": 20153
+  },
+  "201532": {
+    "category": "green",
+    "group": 20153
+  },
+  "201541": {
+    "category": "green",
+    "group": 20154
+  },
+  "201542": {
+    "category": "green",
+    "group": 20154
+  },
+  "201551": {
+    "category": "green",
+    "group": 20155
+  },
+  "201552": {
+    "category": "green",
+    "group": 20155
+  },
+  "201561": {
+    "category": "green",
+    "group": 20156
+  },
+  "201562": {
+    "category": "green",
+    "group": 20156
+  },
+  "201571": {
+    "category": "recovery",
+    "group": 20157
+  },
+  "201581": {
+    "category": "normal",
+    "group": 20158
+  },
+  "201591": {
+    "category": "normal",
+    "group": 20159
+  },
+  "201592": {
+    "category": "normal",
+    "group": 20159
+  },
+  "201601": {
+    "category": "normal",
+    "group": 20160
+  },
+  "201611": {
+    "category": "normal",
+    "group": 20161
+  },
+  "201612": {
+    "category": "normal",
+    "group": 20161
+  },
+  "201621": {
+    "category": "recovery",
+    "group": 20162
+  },
+  "201631": {
+    "category": "green",
+    "group": 20163
+  },
+  "201641": {
+    "category": "green",
+    "group": 20164
+  },
+  "201651": {
+    "category": "normal",
+    "group": 20165
+  },
+  "201661": {
+    "category": "normal",
+    "group": 20166
+  },
+  "201662": {
+    "category": "normal",
+    "group": 20166
+  },
+  "201671": {
+    "category": "normal",
+    "group": 20167
+  },
+  "201672": {
+    "category": "normal",
+    "group": 20167
+  },
+  "201681": {
+    "category": "normal",
+    "group": 20168
+  },
+  "201682": {
+    "category": "normal",
+    "group": 20168
+  },
+  "201691": {
+    "category": "recovery",
+    "group": 20169
+  },
+  "201692": {
+    "category": "recovery",
+    "group": 20169
+  },
+  "201701": {
+    "category": "normal",
+    "group": 20170
+  },
+  "201702": {
+    "category": "normal",
+    "group": 20170
+  },
+  "201801": {
+    "category": "green",
+    "group": 20180
+  },
+  "201901": {
+    "category": "normal",
+    "group": 20190
+  },
+  "201902": {
+    "category": "normal",
+    "group": 20190
+  },
+  "202001": {
+    "category": "recovery",
+    "group": 20200
+  },
+  "202002": {
+    "category": "recovery",
+    "group": 20200
+  },
+  "202011": {
+    "category": "normal",
+    "group": 20201
+  },
+  "202012": {
+    "category": "normal",
+    "group": 20201
+  },
+  "202021": {
+    "category": "normal",
+    "group": 20202
+  },
+  "202022": {
+    "category": "normal",
+    "group": 20202
+  },
+  "202031": {
+    "category": "normal",
+    "group": 20203
+  },
+  "202032": {
+    "category": "normal",
+    "group": 20203
+  },
+  "202041": {
+    "category": "normal",
+    "group": 20204
+  },
+  "202042": {
+    "category": "normal",
+    "group": 20204
+  },
+  "202051": {
+    "category": "green",
+    "group": 20205
+  },
+  "202061": {
+    "category": "normal",
+    "group": 20206
+  },
+  "202071": {
+    "category": "recovery",
+    "group": 20207
+  },
+  "202072": {
+    "category": "recovery",
+    "group": 20207
+  },
+  "202081": {
+    "category": "normal",
+    "group": 20208
+  },
+  "202082": {
+    "category": "normal",
+    "group": 20208
+  },
+  "202091": {
+    "category": "normal",
+    "group": 20209
+  },
+  "202092": {
+    "category": "normal",
+    "group": 20209
+  },
+  "202101": {
+    "category": "normal",
+    "group": 20210
+  },
+  "202102": {
+    "category": "normal",
+    "group": 20210
+  },
+  "202111": {
+    "category": "normal",
+    "group": 20211
+  },
+  "202112": {
+    "category": "normal",
+    "group": 20211
+  },
+  "202121": {
+    "category": "normal",
+    "group": 20212
+  },
+  "202122": {
+    "category": "normal",
+    "group": 20212
+  },
+  "202131": {
+    "category": "normal",
+    "group": 20213
+  },
+  "202132": {
+    "category": "normal",
+    "group": 20213
+  },
+  "202141": {
+    "category": "green",
+    "group": 20214
+  },
+  "202151": {
+    "category": "normal",
+    "group": 20215
+  },
+  "202152": {
+    "category": "normal",
+    "group": 20215
+  },
+  "202161": {
+    "category": "green",
+    "group": 20216
+  },
+  "202172": {
+    "category": "normal",
+    "group": 20217
+  },
+  "202181": {
+    "category": "normal",
+    "group": 0
+  },
+  "210011": {
+    "category": "normal",
+    "group": 21001
+  },
+  "210012": {
+    "category": "normal",
+    "group": 21001
+  },
+  "210021": {
+    "category": "recovery",
+    "group": 21002
+  },
+  "210022": {
+    "category": "recovery",
+    "group": 21002
+  },
+  "210031": {
+    "category": "normal",
+    "group": 21003
+  },
+  "210032": {
+    "category": "normal",
+    "group": 21003
+  },
+  "210041": {
+    "category": "normal",
+    "group": 21004
+  },
+  "210042": {
+    "category": "normal",
+    "group": 21004
+  },
+  "210051": {
+    "category": "normal",
+    "group": 21005
+  },
+  "210052": {
+    "category": "normal",
+    "group": 21005
+  },
+  "210061": {
+    "category": "normal",
+    "group": 21006
+  },
+  "210062": {
+    "category": "normal",
+    "group": 21006
+  },
+  "300111": {
+    "category": "green",
+    "group": 30011
+  },
+  "300121": {
+    "category": "green",
+    "group": 30012
+  },
+  "900011": {
+    "category": "unique",
+    "group": 90001
+  },
+  "900021": {
+    "category": "unique",
+    "group": 90002
+  },
+  "900031": {
+    "category": "unique",
+    "group": 90003
+  },
+  "900041": {
+    "category": "unique",
+    "group": 90004
+  },
+  "900051": {
+    "category": "unique",
+    "group": 90005
+  },
+  "900061": {
+    "category": "unique",
+    "group": 90006
+  },
+  "900071": {
+    "category": "unique",
+    "group": 90007
+  },
+  "900081": {
+    "category": "unique",
+    "group": 90008
+  },
+  "900091": {
+    "category": "unique",
+    "group": 90009
+  },
+  "900101": {
+    "category": "unique",
+    "group": 90010
+  },
+  "900111": {
+    "category": "unique",
+    "group": 90011
+  },
+  "900121": {
+    "category": "unique",
+    "group": 90012
+  },
+  "900131": {
+    "category": "unique",
+    "group": 90013
+  },
+  "900141": {
+    "category": "unique",
+    "group": 90014
+  },
+  "900151": {
+    "category": "unique",
+    "group": 90015
+  },
+  "900161": {
+    "category": "unique",
+    "group": 90016
+  },
+  "900171": {
+    "category": "unique",
+    "group": 90017
+  },
+  "900181": {
+    "category": "unique",
+    "group": 90018
+  },
+  "900191": {
+    "category": "unique",
+    "group": 90019
+  },
+  "900201": {
+    "category": "unique",
+    "group": 90020
+  },
+  "900211": {
+    "category": "unique",
+    "group": 90021
+  },
+  "900221": {
+    "category": "unique",
+    "group": 90022
+  },
+  "900231": {
+    "category": "unique",
+    "group": 90023
+  },
+  "900241": {
+    "category": "unique",
+    "group": 90024
+  },
+  "900251": {
+    "category": "unique",
+    "group": 90025
+  },
+  "900261": {
+    "category": "unique",
+    "group": 90026
+  },
+  "900271": {
+    "category": "unique",
+    "group": 90027
+  },
+  "900281": {
+    "category": "unique",
+    "group": 90028
+  },
+  "900301": {
+    "category": "unique",
+    "group": 90030
+  },
+  "900311": {
+    "category": "unique",
+    "group": 90031
+  },
+  "900321": {
+    "category": "unique",
+    "group": 90032
+  },
+  "900331": {
+    "category": "unique",
+    "group": 90033
+  },
+  "900341": {
+    "category": "unique",
+    "group": 90034
+  },
+  "900351": {
+    "category": "unique",
+    "group": 90035
+  },
+  "900361": {
+    "category": "unique",
+    "group": 0
+  },
+  "900371": {
+    "category": "unique",
+    "group": 90037
+  },
+  "900381": {
+    "category": "unique",
+    "group": 90038
+  },
+  "900391": {
+    "category": "unique",
+    "group": 90039
+  },
+  "900401": {
+    "category": "unique",
+    "group": 90040
+  },
+  "900411": {
+    "category": "unique",
+    "group": 90041
+  },
+  "900441": {
+    "category": "unique",
+    "group": 90044
+  },
+  "900451": {
+    "category": "unique",
+    "group": 90045
+  },
+  "900461": {
+    "category": "unique",
+    "group": 90046
+  },
+  "900481": {
+    "category": "unique",
+    "group": 90048
+  },
+  "900501": {
+    "category": "unique",
+    "group": 90050
+  },
+  "900511": {
+    "category": "unique",
+    "group": 90051
+  },
+  "900521": {
+    "category": "unique",
+    "group": 90052
+  },
+  "900561": {
+    "category": "unique",
+    "group": 90056
+  },
+  "900581": {
+    "category": "unique",
+    "group": 90058
+  },
+  "900591": {
+    "category": "unique",
+    "group": 90059
+  },
+  "900601": {
+    "category": "unique",
+    "group": 90060
+  },
+  "900611": {
+    "category": "unique",
+    "group": 90061
+  },
+  "900621": {
+    "category": "unique",
+    "group": 90062
+  },
+  "900641": {
+    "category": "unique",
+    "group": 90064
+  },
+  "900671": {
+    "category": "unique",
+    "group": 90067
+  },
+  "900681": {
+    "category": "unique",
+    "group": 90068
+  },
+  "900691": {
+    "category": "unique",
+    "group": 90069
+  },
+  "900711": {
+    "category": "unique",
+    "group": 90071
+  },
+  "900721": {
+    "category": "unique",
+    "group": 90072
+  },
+  "900741": {
+    "category": "unique",
+    "group": 90074
+  },
+  "910011": {
+    "category": "unique",
+    "group": 91001
+  },
+  "910031": {
+    "category": "unique",
+    "group": 91003
+  },
+  "910041": {
+    "category": "unique",
+    "group": 91004
+  },
+  "910051": {
+    "category": "unique",
+    "group": 91005
+  },
+  "910061": {
+    "category": "unique",
+    "group": 91006
+  },
+  "910101": {
+    "category": "unique",
+    "group": 91010
+  },
+  "910111": {
+    "category": "unique",
+    "group": 91011
+  },
+  "910131": {
+    "category": "unique",
+    "group": 91013
+  },
+  "910141": {
+    "category": "unique",
+    "group": 91014
+  },
+  "910151": {
+    "category": "unique",
+    "group": 91015
+  },
+  "910171": {
+    "category": "unique",
+    "group": 91017
+  },
+  "910181": {
+    "category": "unique",
+    "group": 91018
+  },
+  "910201": {
+    "category": "unique",
+    "group": 91020
+  },
+  "910221": {
+    "category": "unique",
+    "group": 91022
+  },
+  "910231": {
+    "category": "unique",
+    "group": 91023
+  },
+  "910241": {
+    "category": "unique",
+    "group": 91024
+  },
+  "910261": {
+    "category": "unique",
+    "group": 91026
+  },
+  "910301": {
+    "category": "unique",
+    "group": 91030
+  },
+  "910371": {
+    "category": "unique",
+    "group": 91037
+  },
+  "910381": {
+    "category": "unique",
+    "group": 91038
+  },
+  "910401": {
+    "category": "unique",
+    "group": 91040
+  },
+  "910451": {
+    "category": "unique",
+    "group": 91045
+  },
+  "910521": {
+    "category": "unique",
+    "group": 91052
+  },
+  "910561": {
+    "category": "unique",
+    "group": 91056
+  },
+  "910591": {
+    "category": "unique",
+    "group": 91059
+  },
+  "910601": {
+    "category": "unique",
+    "group": 91060
+  },
+  "910611": {
+    "category": "unique",
+    "group": 91061
+  },
+  "1000011": {
+    "category": "normal",
+    "group": 100001
+  },
+  "1000012": {
+    "category": "normal",
+    "group": 100001
+  },
+  "1100011": {
+    "category": "normal",
+    "group": 110001
+  }
+}
