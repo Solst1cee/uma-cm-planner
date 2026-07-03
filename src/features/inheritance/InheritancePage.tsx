@@ -126,16 +126,6 @@ interface UmaEventDetail {
   choices: Array<{ option: string; rewards: Array<{ label: string; skillId?: string }> }>;
 }
 
-/** Placeholder for a workbench card not yet built (M1.3–M1.8). */
-function Placeholder({ title, phase }: { title: string; phase: string }) {
-  return (
-    <div className="panel inh-placeholder">
-      <span className="inh-placeholder-title">{title}</span>
-      <span className="inh-placeholder-phase">{phase}</span>
-    </div>
-  );
-}
-
 export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const {
     uma1Plan,
