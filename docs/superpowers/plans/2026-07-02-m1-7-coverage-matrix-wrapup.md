@@ -16,9 +16,20 @@ The center-column **"Obtainable vs. wishlist"** coverage card on `/inheritance`.
 
 A 7th obtainability source landed after the initial wrap — a **career training-event** column right of Innate (`planUma.eventSkills`; Taiki → Head-On/All I've Got). Data: `public/data/uma_events.json` (`{ umaId: skillId[] }`) built by `scripts/build-uma-events.ts` inverting daftuyda `skills_all.json` `char_e`. **Provenance path B** — GameTora-derived, owner-authorized **private-use** relaxation (input localOnly/gitignored, `uma_events.json` **swap before public**; docs/provenance.md §10). Not in `pnpm data:build` (run `pnpm tsx scripts/build-uma-events.ts`, then fetch-gametora-chara-events + build-uma-event-details for the popup data). **1197 tests.**
 
+## Session 2026-07-04 — sort, popup, ○-normalization + **PR #38 OPEN**
+
+A large polish batch landed and **the branch is now a PR** (https://github.com/Solst1cee/uma-cm-planner/pull/38, base `main`). Merged `origin/main` (availability epic #25–#37) into the branch — two conflicts resolved (`InheritancePage.tsx` hooks kept both sides; `docs/roadmap.md` kept both rows). skills.json grew 587→**1719**; re-baked `skill_categories.json` + `skill_details.json`. **1409 tests, typecheck + build green.**
+
+This session's additions (all in [module-1 §"Session 2026-07-04"](../../modules/module-1-inheritance.md)):
+- **Icon-spec sort** (`skillSort.ts` `ICON_SUBCATEGORIES`): uniques/inherited first (A-Z, guaranteed-from-parent 100% leads), then in-game icon categories, gold-above-white within a family. Grouping from `skill_categories.json` (`{category, group}`).
+- **White sparks ◎→○** (`src/core/skillCircle.ts`) in the tables + inheritance-card chips.
+- **Parent unique greens = 100% guaranteed**; gp greens roll (priced). mechanics-notes §1 caveat now VERIFIED.
+- **Bonus = second wishlist-style table** (unified `CoverageRow`), collapsible; Matrix/Coverage toggle + bars **removed**.
+- **Skill icon in front of names** (uma portrait for uniques); **whole cell click → `SkillDetailPopover`** (SP · Description · Condition · Effect · Duration · Cooldown) via shared `skillTechFormat.ts` (extracted from M4) + baked `skill_details.json`.
+
 ## Resume here (next session)
 
-1. **Integration is unfinished.** The user was choosing Push+PR / merge / keep when we wrapped. Use `superpowers:finishing-a-development-branch`. `origin/main` had moved past this branch's base — **rebase onto latest `origin/main` first**. (At wrap time local `origin/main` ref was `dbe6543`; re-fetch.)
+1. **PR #38 is open** against `main` — the work is pushed. Remaining: review/merge the PR. The worktree is preserved for iteration; a dev server may still be on `:5177`.
 2. **M1.8 — "Target spark" card** is the next M1 card (panel 7 of the handoff): the right-rail blue/pink/white-uncovered sparks a parent/rental must still supply + a generated search link. It reads M1.7's `CoverageResult` (uncovered skills → the white section).
 
 ## The one remaining data gate (not a bug — degrades safely)
