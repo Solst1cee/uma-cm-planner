@@ -284,12 +284,15 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   );
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
+  // Only horizon-visible cards get scored + view-modeled — at the default
+  // horizon that skips the ~300 hidden JP-ahead cards on every rebuild.
+  const poolCards = useMemo(() => cards.filter((c) => visible(c)), [cards, visible]);
   const rows = useMemo(
     () =>
-      cards
+      poolCards
         .map((c) => byKey.get(`${c.cardId}:${cardLb[c.cardId] ?? 4}`))
         .filter(Boolean),
-    [cards, cardLb, byKey],
+    [poolCards, cardLb, byKey],
   );
   const scores = useMemo(
     () => scoreCards(scenario, deckObjs, rows as never),
@@ -297,7 +300,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   );
   const items = useMemo(
     () =>
-      cards.map((c) => {
+      poolCards.map((c) => {
         const lb = cardLb[c.cardId] ?? 4;
         return buildPoolItem(c, {
           score: scores.get(c.cardId)?.score,
@@ -306,9 +309,19 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           statsRow: byKey.get(`${c.cardId}:${lb}`),
         });
       }),
-    [cards, scores, wishlist, cardLb, byKey],
+    [poolCards, scores, wishlist, cardLb, byKey],
   );
-  const selectedItem = selectedCardId ? items.find((i) => i.cardId === selectedCardId) ?? null : null;
+  // A deck slot can hold a card that is NOT horizon-visible (added at a wider
+  // lens); clicking it must still open the detail — build its item on demand.
+  const selectedItem = useMemo(() => {
+    if (!selectedCardId) return null;
+    const inPool = items.find((i) => i.cardId === selectedCardId);
+    if (inPool) return inPool;
+    const c = cards.find((x) => x.cardId === selectedCardId);
+    if (!c) return null;
+    const lb = cardLb[selectedCardId] ?? 4;
+    return buildPoolItem(c, { wishlist, lb, statsRow: byKey.get(`${selectedCardId}:${lb}`) });
+  }, [selectedCardId, items, cards, cardLb, wishlist, byKey]);
   const wishlistSkillNames = useMemo(
     () =>
       [...wishlist]
