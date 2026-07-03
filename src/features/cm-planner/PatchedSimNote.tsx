@@ -13,7 +13,8 @@ export function PatchedSimNote({ notes }: { notes: ActivePatchNote[] }) {
   return (
     <div className="cmp-patched-note small" role="note">
       {notes.map((n) => (
-        <span key={n.skillId} className="cmp-patched-chip">{label(n)}</span>
+        // skillId alone can repeat: mergeCompareNotes may emit per-uma chips for one skill.
+        <span key={`${n.skillId}:${n.name}`} className="cmp-patched-chip">{label(n)}</span>
       ))}
     </div>
   );
