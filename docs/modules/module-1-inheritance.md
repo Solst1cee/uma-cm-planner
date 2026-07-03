@@ -231,6 +231,22 @@ A column immediately right of **Innate** crediting skills the plan uma's **caree
 - **Probing the vendored bundle in a script needs the worktree cwd / an absolute import path** — a relative `./src/sim/vendor/umalator.bundle.mjs` resolves against the script's own dir.
 - **Event column data is GameTora-derived (path B).** `uma_events.json` is committed but its input `scripts/borrowed/daftuyda/skills_all.json` is gitignored — a fresh clone can't regenerate it without re-fetching daftuyda. That's intentional (private-use gate). Before public release the file MUST be swapped (docs/provenance.md §10). Event = availability, not a per-run guarantee — don't relabel it as guaranteed.
 
+## M1.8 "Target spark" card (2026-07-04, `feat/m1-8-target-spark`)
+
+Right-column read-off panel (handoff §7) — BLUE (`blueSparkRows`) + PINK
+(`pinkSparkRows`) plan goals verbatim, plus WHITE = the wishlist skills the M1.7
+coverage matrix reports uncovered. Pure `buildTargetSpark(plan, uma, skillById,
+uncoveredSkillIds)` (`targetSpark.ts`) returns `{ blue, pink, white, coverage }`
+(`coverage: 'pending' | 'covered' | 'gaps'`) and is the reusable seeding contract
+for M1.4b's rental "Load from Target spark". `TargetSparkCard` is provider-free
+(not collapsible, `cmp-plan-card` grammar, global `.badge.spark-*` chips + an
+`.inh-target-spark .spark-chips` scope rule). The page feeds WHITE live from
+`coverageResult.rows.filter(r => !r.covered).map(r => r.skillId)`; if that input
+is ever absent (`undefined`), the panel shows a "coverage pending" note rather
+than a false green checkmark. WHITE inherits M1.7's family-aware coverage
+(`○ ≡ ◎`, gold/`×` exact). Spec:
+[2026-07-01-m1-8-target-spark-design](../superpowers/specs/2026-07-01-m1-8-target-spark-design.md).
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).

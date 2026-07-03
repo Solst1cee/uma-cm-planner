@@ -42,6 +42,8 @@ import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
 import { InheritanceCard } from './InheritanceCard';
+import { TargetSparkCard } from './TargetSparkCard';
+import { buildTargetSpark } from './targetSpark';
 import { umaPlanAptChips } from './umaPlanApt';
 import {
   addBlueSpark,
@@ -122,16 +124,6 @@ interface UmaEventDetail {
   jpCurrentDiffers?: boolean;
   conditions?: string[];
   choices: Array<{ option: string; rewards: Array<{ label: string; skillId?: string }> }>;
-}
-
-/** Placeholder for a workbench card not yet built (M1.3–M1.8). */
-function Placeholder({ title, phase }: { title: string; phase: string }) {
-  return (
-    <div className="panel inh-placeholder">
-      <span className="inh-placeholder-title">{title}</span>
-      <span className="inh-placeholder-phase">{phase}</span>
-    </div>
-  );
 }
 
 export function InheritancePage({ deps }: { deps?: Deps } = {}) {
@@ -656,6 +648,13 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     />
   ) : null;
 
+  // M1.8 — Target spark. WHITE = the wishlist skills the M1.7 coverage matrix
+  // reports uncovered (family-aware ○≡◎ coverage inherited from the matrix).
+  const uncoveredSkillIds = coverageResult.rows.filter((r) => !r.covered).map((r) => r.skillId);
+  const targetSpark = uma1Plan
+    ? buildTargetSpark(uma1Plan, uma, skillById, uncoveredSkillIds)
+    : null;
+
   return (
     <div className="inh-page">
       <PlanContextHeader plan={uma1Plan} trackName={track} />
@@ -764,7 +763,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           />
         </div>
         <div className="inh-col inh-col-right">
-          <Placeholder title="Target spark" phase="M1.8" />
+          {targetSpark && <TargetSparkCard spark={targetSpark} />}
           {selectedItem && (
             <CardDetailCard
               item={selectedItem}
