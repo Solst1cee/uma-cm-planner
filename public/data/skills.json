@@ -304,18 +304,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 27 value 3500 + type 31 value 1000 -> type 22 value 3500 + type 31 value 1000) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase>=2&order>=1&order_rate<=70&change_order_onetime<0",
-        "global": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -340,18 +342,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase>=2&order<=3&bashin_diff_infront<=1&is_overtake==1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1\" -> \"is_finalcorner==1&corner==0\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_last_straight==1&running_style==2&course_distance==2400@is_last_straight==1",
-        "global": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1"
-      }
+      ]
     }
   },
   {
@@ -376,18 +380,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=40&behind_near_lane_time_set1>=1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1\" -> \"remain_distance<=300\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "remain_distance<=300",
-        "global": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1"
-      }
+      ]
     }
   },
   {
@@ -506,18 +512,22 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2",
+          "modifier": 0.45,
+          "note": "patch adds a fallback alternative (cond \"is_finalcorner==1&corner!=0&distance_diff_rate<=30\", type 27 value 3500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2@is_finalcorner==1&corner!=0&distance_diff_rate<=30",
-        "global": "is_finalcorner==1&corner!=0&distance_diff_rate<=30"
-      }
+      ]
     }
   },
   {
@@ -658,18 +668,22 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0",
+          "modifier": 0.45,
+          "note": "patch adds a fallback alternative (cond \"phase>=2&is_finalcorner==1&order<=4\", type 27 value 3500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0@phase>=2&is_finalcorner==1&order<=4",
-        "global": "is_finalcorner==1&change_order_onetime<0&order<=4"
-      }
+      ]
     }
   },
   {
@@ -705,18 +719,22 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_badstart==0&order<=3&is_finalcorner==1&corner==0&order_rate_in20_continue==1",
+          "modifier": 0.45,
+          "note": "patch adds a fallback alternative (cond \"is_badstart==0&order<=3&is_finalcorner==1&corner==0\", type 27 value 3500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_badstart==0&order<=3&is_last_straight==1&order_rate_in20_continue==1@is_badstart==0&order<=3&is_last_straight==1",
-        "global": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0"
-      }
+      ]
     }
   },
   {
@@ -779,18 +797,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"is_finalcorner==1&order<=4&change_order_onetime<0\" -> \"phase>=2&order<=4&change_order_onetime<0\") — engine patches cannot express preconditions, conditions left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_last_straight==1",
-        "global": "is_finalcorner==1&corner==0"
-      }
+      ]
     }
   },
   {
@@ -912,18 +932,22 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "temptation_count==0&order>=3&is_finalcorner==1&corner==0&order_rate_in80_continue==1&order_rate_out40_continue==1",
+          "modifier": 0.45,
+          "note": "patch adds a fallback alternative (cond \"temptation_count==0&order>=3&is_finalcorner==1&corner==0\", type 27 value 3500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "temptation_count==0&order>=3&is_last_straight==1&order_rate_in80_continue==1&order_rate_out40_continue==1@temptation_count==0&order>=3&is_last_straight==1",
-        "global": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0"
-      }
+      ]
     }
   },
   {
@@ -1095,18 +1119,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "condition changed (\"is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0\" -> \"is_finalcorner==1&corner==0&order_rate<=40&overtake_target_time>=1@is_finalcorner==1&corner==0&order_rate<=40&is_overtake==1\") — contains an inline '@' OR-alternative, not expressible by the '@'-split patch format",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_last_straight==1&order_rate<=40&overtake_target_time>=1@is_last_straight==1&order_rate<=40&is_overtake==1",
-        "global": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -1229,18 +1255,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase>=2&change_order_onetime<0",
-        "global": "phase>=2&corner!=0&order>=3&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -2365,18 +2393,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
-        "global": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1"
-      }
+      ]
     }
   },
   {
@@ -2399,7 +2429,23 @@
     "iconId": "20013",
     "conditions": "remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all>=7@remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all<=6",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 5,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "110161",
@@ -2425,18 +2471,21 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 6,
+          "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=50&overtake_target_time>=2\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&order_rate<=40&overtake_target_time>=2\" -> \"is_finalcorner==1\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_finalcorner==1",
-        "global": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2"
-      }
+      ]
     }
   },
   {
@@ -2472,7 +2521,23 @@
     "iconId": "20013",
     "conditions": "phase>=2&corner==0&order<=2&straight_front_type==2@phase>=2&corner==0&order<=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect value (type 31, alt 1) 1000 -> 2000 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "110211",
@@ -2509,18 +2574,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
-        "global": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40"
-      }
+      ]
     }
   },
   {
@@ -2534,18 +2601,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
-        "global": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -2622,18 +2691,21 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&order>=2&order_rate<=50",
+          "note": "effect list changed on alt 1 (type 9 value 550 + type 9 value -50 -> type 9 value 550 + type 9 value -50 + type 27 value 2500) — not expressible by the engine patch; duration (alt 1) 0s -> 5s — belongs to the changed effect list, left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&order>=2&order_rate<=50",
-        "global": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1"
-      }
+      ]
     }
   },
   {
@@ -2725,18 +2797,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "change_order_up_finalcorner_after>=2&is_finalcorner==1&corner==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "change_order_up_finalcorner_after>=2&is_last_straight==1",
-        "global": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0"
-      }
+      ]
     }
   },
   {
@@ -4248,7 +4322,23 @@
       "200062",
       "200063"
     ],
-    "prereqSkillId": "200062"
+    "prereqSkillId": "200062",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 2 value 600000 + type 5 value 600000 -> type 2 value 600000 + type 5 value 600000 + type 1 value 600000) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200071",
@@ -5557,7 +5647,23 @@
     "variantSkillIds": [
       "200362"
     ],
-    "prereqSkillId": "200362"
+    "prereqSkillId": "200362",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200362",
@@ -5571,7 +5677,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200361"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200371",
@@ -5586,7 +5708,23 @@
     "variantSkillIds": [
       "200372"
     ],
-    "prereqSkillId": "200372"
+    "prereqSkillId": "200372",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 31 value 4000 -> type 31 value 4000 + type 27 value 1500) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200372",
@@ -5617,18 +5755,20 @@
     ],
     "prereqSkillId": "200382",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&corner==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&corner==0",
-        "global": "straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -5645,18 +5785,20 @@
       "200381"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&corner==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&corner==0",
-        "global": "straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -5762,7 +5904,23 @@
     "variantSkillIds": [
       "200442"
     ],
-    "prereqSkillId": "200442"
+    "prereqSkillId": "200442",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 9 value 550 -> type 9 value 550 + type 28 value 350) — not expressible by the engine patch; duration (alt 1) 0s -> 2s — belongs to the changed effect list, left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200442",
@@ -5776,7 +5934,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "200441"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 9 value 150 -> type 9 value 150 + type 28 value 150) — not expressible by the engine patch; duration (alt 1) 0s -> 2s — belongs to the changed effect list, left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200451",
@@ -5967,18 +6141,20 @@
     ],
     "prereqSkillId": "200512",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_lastspurt==1&phase_firsthalf_random==3",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_lastspurt==1&phase_firsthalf_random==3",
-        "global": "is_lastspurt==1&phase_random==3"
-      }
+      ]
     }
   },
   {
@@ -5995,18 +6171,20 @@
       "200511"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_lastspurt==1&phase_firsthalf_random==3",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "is_lastspurt==1&phase_firsthalf_random==3",
-        "global": "is_lastspurt==1&phase_random==3"
-      }
+      ]
     }
   },
   {
@@ -6237,18 +6415,20 @@
     ],
     "prereqSkillId": "200592",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_random==1&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_random==1&order_rate>=40",
-        "global": "running_style==3&phase_random==1&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -6265,18 +6445,20 @@
       "200591"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_random==1&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_random==1&order_rate>=40",
-        "global": "running_style==3&phase_random==1&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -6294,18 +6476,20 @@
     ],
     "prereqSkillId": "200602",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
-        "global": "running_style==3&phase_random==2&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -6322,18 +6506,20 @@
       "200601"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
-        "global": "running_style==3&phase_random==2&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -6409,18 +6595,20 @@
     ],
     "prereqSkillId": "200632",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase==2&distance_diff_rate>=50\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"running_style==4&phase_random==2&distance_diff_rate>=50\" -> \"running_style==4&phase_firsthalf_random==3&is_lastspurt==1\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
-        "global": "running_style==4&phase_random==2&distance_diff_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -6437,18 +6625,20 @@
       "200631"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase==2&distance_diff_rate>=50\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"running_style==4&phase_random==2&distance_diff_rate>=50\" -> \"running_style==4&phase_firsthalf_random==3&is_lastspurt==1\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==4&phase_firsthalf_random==3&is_lastspurt==1",
-        "global": "running_style==4&phase_random==2&distance_diff_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -6495,18 +6685,20 @@
     ],
     "prereqSkillId": "200652",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==1&phase_random==2",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==1&phase_random==2",
-        "global": "distance_type==1&straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -6523,18 +6715,20 @@
       "200651"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==1&phase_random==2",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==1&phase_random==2",
-        "global": "distance_type==1&straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -6592,18 +6786,20 @@
     ],
     "prereqSkillId": "200682",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
-        "global": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50"
-      }
+      ]
     }
   },
   {
@@ -6620,18 +6816,20 @@
       "200681"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
-        "global": "distance_type==2&phase_random==0&accumulatetime>=5&order_rate<=50"
-      }
+      ]
     }
   },
   {
@@ -6765,18 +6963,20 @@
     ],
     "prereqSkillId": "200732",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
-        "global": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0"
-      }
+      ]
     }
   },
   {
@@ -6793,18 +6993,20 @@
       "200731"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
-        "global": "distance_type==3&is_finalcorner==1&corner!=0&change_order_onetime>0"
-      }
+      ]
     }
   },
   {
@@ -6822,18 +7024,20 @@
     ],
     "prereqSkillId": "200742",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==4&phase_random==1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==4&phase_random==1",
-        "global": "distance_type==4&straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -6850,18 +7054,20 @@
       "200741"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==4&phase_random==1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==4&phase_random==1",
-        "global": "distance_type==4&straight_random==1"
-      }
+      ]
     }
   },
   {
@@ -6906,7 +7112,23 @@
     "variantSkillIds": [
       "200762"
     ],
-    "prereqSkillId": "200762"
+    "prereqSkillId": "200762",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 9 value 550 -> type 9 value 550 + type 27 value 3500) — not expressible by the engine patch; duration (alt 1) 0s -> 1.8s — belongs to the changed effect list, left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "200762",
@@ -6936,18 +7158,20 @@
       "200772"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
-        "global": "phase==1&order_rate<=50&temptation_count_behind>=1"
-      }
+      ]
     }
   },
   {
@@ -6965,18 +7189,20 @@
     ],
     "prereqSkillId": "200771",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
-        "global": "phase==1&order_rate<=50&temptation_count_behind>=1"
-      }
+      ]
     }
   },
   {
@@ -6990,18 +7216,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&order_rate>50&temptation_opponent_count_infront>=1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "phase==1&order_rate>50&temptation_opponent_count_infront>=1",
-        "global": "phase==1&order_rate>50&temptation_count_infront>=1"
-      }
+      ]
     }
   },
   {
@@ -7015,18 +7243,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style_temptation_opponent_count_nige>=1&is_temptation==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style_temptation_opponent_count_nige>=1&is_temptation==0",
-        "global": "running_style_temptation_count_nige>=1&is_temptation==0"
-      }
+      ]
     }
   },
   {
@@ -7040,18 +7270,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style_temptation_opponent_count_senko>=1&is_temptation==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style_temptation_opponent_count_senko>=1&is_temptation==0",
-        "global": "running_style_temptation_count_senko>=1&is_temptation==0"
-      }
+      ]
     }
   },
   {
@@ -7065,18 +7297,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style_temptation_opponent_count_sashi>=1&is_temptation==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style_temptation_opponent_count_sashi>=1&is_temptation==0",
-        "global": "running_style_temptation_count_sashi>=1&is_temptation==0"
-      }
+      ]
     }
   },
   {
@@ -7090,18 +7324,20 @@
     "server": "global",
     "dataVersion": "global-76214c82",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style_temptation_opponent_count_oikomi>=1&is_temptation==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style_temptation_opponent_count_oikomi>=1&is_temptation==0",
-        "global": "running_style_temptation_count_oikomi>=1&is_temptation==0"
-      }
+      ]
     }
   },
   {
@@ -7650,18 +7886,20 @@
     ],
     "prereqSkillId": "201062",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==2&distance_rate>=50&change_order_onetime<0",
-        "global": "distance_type==2&phase==1&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -7678,18 +7916,20 @@
       "201061"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==2&distance_rate>=50&change_order_onetime<0",
-        "global": "distance_type==2&phase==1&change_order_onetime<0"
-      }
+      ]
     }
   },
   {
@@ -7914,18 +8154,20 @@
     ],
     "prereqSkillId": "201132",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase_random==1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase_random==1",
-        "global": "distance_type==3&phase_random==1&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -7942,18 +8184,20 @@
       "201131"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase_random==1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase_random==1",
-        "global": "distance_type==3&phase_random==1&order_rate>50"
-      }
+      ]
     }
   },
   {
@@ -8205,7 +8449,23 @@
     "variantSkillIds": [
       "201212"
     ],
-    "prereqSkillId": "201212"
+    "prereqSkillId": "201212",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 27 value 3500 -> type 27 value 3500 + type 31 value 1000) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "201212",
@@ -8219,7 +8479,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "201211"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 27 value 1500 -> type 27 value 1500 + type 31 value 500) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "201221",
@@ -8471,18 +8747,21 @@
     ],
     "prereqSkillId": "201292",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==1&phase_random==2",
+          "note": "effect list changed on alt 1 (type 31 value 4000 -> type 31 value 4000 + type 9 value -200) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==1&phase_random==2",
-        "global": "running_style==1&phase_random==1&order>=2"
-      }
+      ]
     }
   },
   {
@@ -8499,18 +8778,21 @@
       "201291"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==1&phase_random==2",
+          "note": "effect list changed on alt 1 (type 31 value 2000 -> type 31 value 2000 + type 9 value -200) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==1&phase_random==2",
-        "global": "running_style==1&phase_random==1&order>=2"
-      }
+      ]
     }
   },
   {
@@ -8922,18 +9204,20 @@
     ],
     "prereqSkillId": "201422",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_random==1&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_random==1&order_rate>=40",
-        "global": "running_style==3&phase_random==2"
-      }
+      ]
     }
   },
   {
@@ -8950,18 +9234,20 @@
       "201421"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_random==1&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_random==1&order_rate>=40",
-        "global": "running_style==3&phase_random==2"
-      }
+      ]
     }
   },
   {
@@ -9186,18 +9472,20 @@
     ],
     "prereqSkillId": "201492",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
-        "global": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10"
-      }
+      ]
     }
   },
   {
@@ -9214,18 +9502,20 @@
       "201491"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
-        "global": "running_style==4&blocked_front_continuetime>=1&accumulatetime>=10"
-      }
+      ]
     }
   },
   {
@@ -9728,18 +10018,20 @@
     ],
     "prereqSkillId": "201692",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
-        "global": "running_style==3&phase_laterhalf_random==0&order_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -9756,18 +10048,20 @@
       "201691"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
-        "global": "running_style==3&phase_laterhalf_random==0&order_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -9785,18 +10079,20 @@
     ],
     "prereqSkillId": "201702",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
-        "global": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60"
-      }
+      ]
     }
   },
   {
@@ -9813,18 +10109,20 @@
       "201701"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&is_last_straight==1&order_rate>=20&order_rate<=60&phase>=2",
-        "global": "distance_type==3&is_lastspurt==1&corner==0&order_rate>=20&order_rate<=60"
-      }
+      ]
     }
   },
   {
@@ -9853,18 +10151,20 @@
     ],
     "prereqSkillId": "201902",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
-        "global": "running_style==2&phase_random==2&order_rate<=50"
-      }
+      ]
     }
   },
   {
@@ -9881,18 +10181,20 @@
       "201901"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
-        "global": "running_style==2&phase_random==2&order_rate<=50"
-      }
+      ]
     }
   },
   {
@@ -10104,18 +10406,21 @@
     ],
     "prereqSkillId": "202082",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+          "duration": 1.8,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
-        "global": "distance_type==3&phase_random==2&order_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -10132,18 +10437,21 @@
       "202081"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+          "duration": 1.8,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
-        "global": "distance_type==3&phase_random==2&order_rate>=50"
-      }
+      ]
     }
   },
   {
@@ -10161,18 +10469,22 @@
     ],
     "prereqSkillId": "202092",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+          "duration": 2.4,
+          "note": "effect value (type 27, alt 1) 2500 -> 3500 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
-        "global": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2"
-      }
+      ]
     }
   },
   {
@@ -10189,18 +10501,21 @@
       "202091"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+          "duration": 2.4,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
-        "global": "distance_type==3&phase==1&order_rate<=70&order_rate>=40&blocked_side_continuetime>=2"
-      }
+      ]
     }
   },
   {
@@ -10276,18 +10591,21 @@
     ],
     "prereqSkillId": "202122",
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+          "duration": 2.4,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
-        "global": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70"
-      }
+      ]
     }
   },
   {
@@ -10304,18 +10622,21 @@
       "202121"
     ],
     "rebalance": {
-      "globalVer": 1,
-      "jpVer": 1,
+      "globalVer": 2,
+      "jpVer": 2,
       "versions": [
         {
           "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+          "duration": 2.4,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
         }
-      ],
-      "uncuratedCandidate": true,
-      "candidateConditions": {
-        "jp": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
-        "global": "running_style==3&distance_rate_after_random==50&order_rate>=40&order_rate<=70"
-      }
+      ]
     }
   },
   {
@@ -10370,7 +10691,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "202152"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect value (type 9, alt 1) -400 -> -200 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "202152",
@@ -10384,7 +10721,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "202151"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect value (type 9, alt 1) -400 -> -200 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "202161",
@@ -16626,7 +16979,23 @@
     "iconId": "20011",
     "conditions": "phase>=2&order>=1&order_rate<=50&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 27 value 1500 + type 31 value 500 -> type 22 value 1500 + type 31 value 500) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900021",
@@ -16648,7 +17017,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase>=2&order<=3&bashin_diff_infront<=1&is_overtake==1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1\" -> \"is_finalcorner==1&corner==0\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900041",
@@ -16670,7 +17055,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=40&behind_near_lane_time_set1>=1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1\" -> \"remain_distance<=300\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900061",
@@ -16758,7 +17159,25 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2",
+          "modifier": 0.25,
+          "note": "patch adds a fallback alternative (cond \"is_finalcorner==1&corner!=0&distance_diff_rate<=30\", type 27 value 1500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900141",
@@ -16868,7 +17287,25 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&change_order_onetime<0&order<=4",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0",
+          "modifier": 0.25,
+          "note": "patch adds a fallback alternative (cond \"phase>=2&is_finalcorner==1&order<=4\", type 27 value 1500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900241",
@@ -16901,7 +17338,25 @@
     "iconId": "20011",
     "conditions": "is_badstart==0&temptation_count==0&order<=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_badstart==0&order<=3&is_finalcorner==1&corner==0&order_rate_in20_continue==1",
+          "modifier": 0.25,
+          "note": "patch adds a fallback alternative (cond \"is_badstart==0&order<=3&is_finalcorner==1&corner==0\", type 27 value 1500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900271",
@@ -16947,7 +17402,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "precondition changed (\"is_finalcorner==1&order<=4&change_order_onetime<0\" -> \"phase>=2&order<=4&change_order_onetime<0\") — engine patches cannot express preconditions, conditions left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900311",
@@ -17024,7 +17495,25 @@
     "iconId": "20011",
     "conditions": "is_badstart==0&temptation_count==0&order>=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "temptation_count==0&order>=3&is_finalcorner==1&corner==0&order_rate_in80_continue==1&order_rate_out40_continue==1",
+          "modifier": 0.25,
+          "note": "patch adds a fallback alternative (cond \"temptation_count==0&order>=3&is_finalcorner==1&corner==0\", type 27 value 1500) — engine patches cannot add alternatives",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900381",
@@ -17151,7 +17640,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "condition changed (\"is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0\" -> \"is_finalcorner==1&corner==0&order_rate<=40&overtake_target_time>=1@is_finalcorner==1&corner==0&order_rate<=40&is_overtake==1\") — contains an inline '@' OR-alternative, not expressible by the '@'-split patch format",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900491",
@@ -17271,7 +17776,23 @@
     "iconId": "20011",
     "conditions": "phase>=2&corner!=0&order>=3&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "900591",
@@ -18338,7 +18859,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&hp_per<=45&order<=3&order_rate<=50&bashin_diff_behind<=1&overtake_target_time>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910141",
@@ -18360,7 +18897,23 @@
     "iconId": "20011",
     "conditions": "remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all>=7@remain_distance<=401&remain_distance>=399&order_rate<=40&activate_count_all<=6",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3,
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910161",
@@ -18384,7 +18937,24 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&order_rate<=40&overtake_target_time>=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "duration": 3.6,
+          "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=50&overtake_target_time>=2\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&order_rate<=40&overtake_target_time>=2\" -> \"is_finalcorner==1\") — left unpatched (tied to the precondition change)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910181",
@@ -18419,7 +18989,23 @@
     "iconId": "20011",
     "conditions": "phase>=2&corner==0&order<=2&straight_front_type==2@phase>=2&corner==0&order<=2",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect value (type 31, alt 1) 500 -> 700 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910211",
@@ -18454,7 +19040,23 @@
     "iconId": "20011",
     "conditions": "order_rate_in40_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910241",
@@ -18465,7 +19067,23 @@
     "iconId": "20011",
     "conditions": "is_finalcorner==1&corner!=0&order_rate<=40&change_order_onetime<0@is_finalcorner==1&corner!=0&order_rate>=50&order_rate<=80&change_order_onetime<0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910251",
@@ -18539,7 +19157,24 @@
     "iconId": "20021",
     "conditions": "phase==1&order>=2&order_rate<=50&overtake_target_time>=1",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "phase==1&order>=2&order_rate<=50",
+          "note": "effect list changed on alt 1 (type 9 value 150 + type 9 value -25 -> type 9 value 150 + type 9 value -25 + type 27 value 500) — not expressible by the engine patch; duration (alt 1) 0s -> 3s — belongs to the changed effect list, left unpatched",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910311",
@@ -18628,7 +19263,23 @@
     "iconId": "20011",
     "conditions": "change_order_up_finalcorner_after>=3&is_finalcorner==1&corner==0",
     "server": "global",
-    "dataVersion": "global-76214c82"
+    "dataVersion": "global-76214c82",
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "conditions": "change_order_up_finalcorner_after>=2&is_finalcorner==1&corner==0",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "910381",
@@ -19770,7 +20421,23 @@
     "dataVersion": "global-76214c82",
     "variantSkillIds": [
       "1000012"
-    ]
+    ],
+    "rebalance": {
+      "globalVer": 2,
+      "jpVer": 2,
+      "versions": [
+        {
+          "ver": 1
+        },
+        {
+          "ver": 2,
+          "globalDate": "2026-07-01",
+          "note": "effect list changed on alt 1 (type 502 value 10000 + type 503 value 10000 -> type 501 value 10000) — not expressible by the engine patch",
+          "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd",
+          "globalArrival": "2026-07-01"
+        }
+      ]
+    }
   },
   {
     "skillId": "1000012",
