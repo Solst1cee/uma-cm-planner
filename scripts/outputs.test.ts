@@ -93,15 +93,16 @@ describe('public/data/skills.json', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('bakes rebalance annotations: 88 uncurated auto-candidates, 0 curated (empty rebalances.json)', () => {
-    // Availability #4a: with data-overrides/rebalances.json empty, every
-    // annotated record comes from the AUTO JP-vs-Global condition-diff feed
-    // (detectCandidates) — none are hand-curated yet.
+  it('bakes rebalance annotations: 95 curated (2026-07-01 patch) + 25 uncurated auto-candidates', () => {
+    // Availability #4: data-overrides/rebalances.json carries the 95-skill
+    // 2026-07-01 Global patch (game data 10006800) as hand-curated ver-2 history.
+    // Remaining records still come from the AUTO JP-vs-Global condition-diff feed
+    // (detectCandidates) not covered by a curated entry.
     const annotated = skills.filter((s) => s.rebalance !== undefined);
     const uncurated = annotated.filter((s) => s.rebalance?.uncuratedCandidate === true);
     const curated = annotated.filter((s) => s.rebalance && s.rebalance.versions.length > 1);
-    expect(uncurated).toHaveLength(88);
-    expect(curated).toHaveLength(0);
+    expect(curated).toHaveLength(95);
+    expect(uncurated).toHaveLength(25);
     expect(annotated).toHaveLength(uncurated.length + curated.length);
     for (const s of uncurated) {
       expect(s.rebalance?.candidateConditions?.jp).not.toBe(s.rebalance?.candidateConditions?.global);
@@ -371,12 +372,17 @@ describe('public/data/cm_presets.json', () => {
 });
 
 describe('public/data/timeline.json', () => {
-  it('emits no skill-rebalance patch entries while data-overrides/rebalances.json is empty', () => {
-    // Uncurated auto-candidates never emit a timeline entry (only curated,
-    // dated versions do) — with rebalances.json == [], the patch lane is empty
-    // and timeline.json is otherwise byte-identical to pre-Task-3.
+  it('emits one skill-rebalance patch entry per curated ver-2 (the 2026-07-01 patch, 95 skills)', () => {
+    // Uncurated auto-candidates never emit a timeline entry — only curated,
+    // dated versions do. data-overrides/rebalances.json carries the 95-skill
+    // 2026-07-01 Global patch, so the patch lane has one confirmed 2026-07-01
+    // entry per curated skill.
     const patches = timeline.entries.filter((e) => e.type === 'patch');
-    expect(patches).toHaveLength(0);
+    expect(patches).toHaveLength(95);
+    for (const p of patches) {
+      expect(p.dates.start).toBe('2026-07-01');
+      expect(p.status).toBe('confirmed');
+    }
   });
 });
 
