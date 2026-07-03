@@ -237,6 +237,7 @@ export function InheritanceCard() {
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
       greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />}
+      whiteIcon={(id) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={34} alt="" />}
       uploadButton={<UploadDataButton />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}

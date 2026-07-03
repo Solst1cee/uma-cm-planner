@@ -1517,6 +1517,7 @@ main:has(.inh-page) {
 .spc-card.spark-blue,  .spc-sum-chip.spark-blue  { --tone: #2563eb; --chip: #3b82f6; --chip-ink: color-mix(in srgb, #3b82f6 72%, var(--fg)); --grad: linear-gradient(90deg, #3b82f6, #2563eb); }
 .spc-card.spark-pink,  .spc-sum-chip.spark-pink  { --tone: #db2777; --chip: #ec4899; --chip-ink: color-mix(in srgb, #ec4899 74%, var(--fg)); --grad: linear-gradient(90deg, #ec4899, #db2777); }
 .spc-card.spark-green, .spc-sum-chip.spark-green { --tone: #16a34a; --chip: #22c55e; --chip-ink: color-mix(in srgb, #22c55e 64%, var(--fg)); --grad: linear-gradient(90deg, #22c55e, #16a34a); }
+.spc-card.spark-white, .spc-sum-chip.spark-white { --tone: #64748b; --chip: #94a3b8; --chip-ink: color-mix(in srgb, #64748b 70%, var(--fg)); --grad: linear-gradient(90deg, #94a3b8, #64748b); }
 .spc-card, .spc-sum-chip { --tone-ink: color-mix(in srgb, var(--tone) 60%, var(--fg)); }
 
 /* Summary bar */
@@ -1550,7 +1551,7 @@ main:has(.inh-page) {
 /* Neutralize the dark spark-* border bleeding in from the global `.spark-{blue,
  * pink,green}` chip rules in parents.css (class-name collision, equal specificity
  * → later-loaded wins). Scope back to the theme border. */
-.spc-card.spark-blue, .spc-card.spark-pink, .spc-card.spark-green { border-color: var(--border); }
+.spc-card.spark-blue, .spc-card.spark-pink, .spc-card.spark-green, .spc-card.spark-white { border-color: var(--border); }
 .spc-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; color: #fff; background: var(--grad); }
 .spc-title { font-size: 0.82rem; font-weight: 800; letter-spacing: .04em; }
 .spc-pips { margin-left: auto; display: inline-flex; gap: 0.25rem; }
