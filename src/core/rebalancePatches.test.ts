@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { wishlistPins, skillPatchMap, withSkillPatches, skillPatchesSig, activePatchNotes } from './rebalancePatches';
+import {
+  wishlistPins,
+  skillPatchMap,
+  withSkillPatches,
+  skillPatchesSig,
+  activePatchNotes,
+  mergeCompareNotes,
+} from './rebalancePatches';
+import type { ActivePatchNote } from './rebalancePatches';
 import type { RebalanceInfo, SkillRecord, WishlistItem } from './types';
 import type { SimBuild } from '@/sim/types';
 
@@ -118,5 +126,53 @@ describe('activePatchNotes', () => {
     ]);
     const pinnedNotes = activePatchNotes({ skillById: byId(rec('400', PREDICTED)), cutoffISO: TODAY, todayISO: TODAY, pins: new Map([['400', 2]]) });
     expect(pinnedNotes[0]!.pinned).toBe(true);
+  });
+});
+
+describe('mergeCompareNotes', () => {
+  function note(overrides: Partial<ActivePatchNote> = {}): ActivePatchNote {
+    return {
+      skillId: '300', name: 'Skill 300', ver: 2, pinLag: true, predicted: false, pinned: false,
+      ...overrides,
+    };
+  }
+
+  it('dedupes identical resolutions for a skill both builds sim to one unchanged chip', () => {
+    const n1 = note();
+    const n2 = note();
+    const merged = mergeCompareNotes([n1], [n2], new Set(['300']), new Set(['300']));
+    expect(merged).toEqual([note()]);
+  });
+
+  it('renders two per-uma-annotated chips when the same skill resolves differently', () => {
+    const n1 = note({ ver: 2, pinned: true });
+    const n2 = note({ ver: 3 });
+    const merged = mergeCompareNotes([n1], [n2], new Set(['300']), new Set(['300']));
+    expect(merged).toEqual([
+      { ...n1, name: 'Skill 300 (Uma 1)' },
+      { ...n2, name: 'Skill 300 (Uma 2)' },
+    ]);
+  });
+
+  it('annotates a one-sided note when the other build also sims that skill (pinned to baseline)', () => {
+    // uma1 pins skill 300 back to baseline -> no note of its own, but uma1 still sims it.
+    // uma2 has no pin -> the horizon-default patch note fires.
+    const n2 = note();
+    const merged = mergeCompareNotes([], [n2], new Set(['300']), new Set(['300']));
+    expect(merged).toEqual([{ ...n2, name: 'Skill 300 (Uma 2)' }]);
+  });
+
+  it('leaves a one-sided note unannotated when only that build sims the skill at all', () => {
+    const n1 = note();
+    const merged = mergeCompareNotes([n1], [], new Set(['300']), new Set(['999']));
+    expect(merged).toEqual([n1]);
+  });
+
+  it('sorts by skillId then name', () => {
+    const a1 = note({ skillId: '100', name: 'Skill A' });
+    const a2 = note({ skillId: '100', name: 'Skill A', ver: 3 });
+    const b = note({ skillId: '900', name: 'Skill B' });
+    const merged = mergeCompareNotes([a1], [a2, b], new Set(['100', '900']), new Set(['100', '900']));
+    expect(merged.map((n) => n.skillId)).toEqual(['100', '100', '900']);
   });
 });

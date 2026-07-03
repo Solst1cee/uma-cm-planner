@@ -97,3 +97,57 @@ export function activePatchNotes(ctx: PatchCtx): ActivePatchNote[] {
   notes.sort((a, b) => (a.skillId < b.skillId ? -1 : a.skillId > b.skillId ? 1 : 0));
   return notes;
 }
+
+/** Fields the patch-note chip actually renders — the merge below dedupes on these,
+ *  ignoring `name` (which is always the same skill name from the shared catalog). */
+function sameNote(a: ActivePatchNote, b: ActivePatchNote): boolean {
+  return (
+    a.skillId === b.skillId &&
+    a.ver === b.ver &&
+    a.pinLag === b.pinLag &&
+    a.predicted === b.predicted &&
+    a.arrival === b.arrival &&
+    a.pinned === b.pinned
+  );
+}
+
+function annotate(n: ActivePatchNote, label: 'Uma 1' | 'Uma 2'): ActivePatchNote {
+  return { ...n, name: `${n.name} (${label})` };
+}
+
+/** P3 honesty (mini-sim compare, availability #4b follow-up): merge each build's own
+ *  patch notes for the compare chip row WITHOUT last-write-wins misattribution.
+ *
+ *  - Same skillId, identical resolution on both sides -> one chip, unchanged (the common case).
+ *  - Same skillId, differing resolution (e.g. one plan pins v2, the other defaults to v3) ->
+ *    two chips, each annotated with which build it applies to.
+ *  - A note on only one side, where the OTHER build also sims that skillId (i.e. it resolved
+ *    to baseline there, so it has no note of its own) -> the one chip is annotated, since
+ *    presenting it bare would imply it applies to both builds.
+ *  - A note on only one side where the other build never sims that skillId at all -> the chip
+ *    is unambiguous already; left unannotated. */
+export function mergeCompareNotes(
+  uma1Notes: readonly ActivePatchNote[],
+  uma2Notes: readonly ActivePatchNote[],
+  uma1Skills: ReadonlySet<string>,
+  uma2Skills: ReadonlySet<string>,
+): ActivePatchNote[] {
+  const map1 = new Map(uma1Notes.map((n) => [n.skillId, n]));
+  const map2 = new Map(uma2Notes.map((n) => [n.skillId, n]));
+  const skillIds = new Set([...map1.keys(), ...map2.keys()]);
+  const merged: ActivePatchNote[] = [];
+  for (const skillId of skillIds) {
+    const n1 = map1.get(skillId);
+    const n2 = map2.get(skillId);
+    if (n1 && n2) {
+      if (sameNote(n1, n2)) merged.push(n1);
+      else merged.push(annotate(n1, 'Uma 1'), annotate(n2, 'Uma 2'));
+    } else if (n1) {
+      merged.push(uma2Skills.has(skillId) ? annotate(n1, 'Uma 1') : n1);
+    } else if (n2) {
+      merged.push(uma1Skills.has(skillId) ? annotate(n2, 'Uma 2') : n2);
+    }
+  }
+  merged.sort((a, b) => (a.skillId < b.skillId ? -1 : a.skillId > b.skillId ? 1 : a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  return merged;
+}

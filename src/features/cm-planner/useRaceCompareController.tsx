@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import type { CmPlan } from '@/core/types';
 import { planToOverlayBuild } from '@/core/simBuild';
-import { withSkillPatches, type ActivePatchNote } from '@/core/rebalancePatches';
+import { withSkillPatches, mergeCompareNotes, type ActivePatchNote } from '@/core/rebalancePatches';
 import { useRaceCompare, type RaceCompareCtx, type RaceCompareState } from './useRaceCompare';
 import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 
@@ -21,7 +21,9 @@ export interface RaceCompareController {
   /** True when uma2Plan is null (the slot is empty). */
   uma2Empty: boolean;
   /** P3 post-patch-values markers (availability #4b) for the union of both overlay builds'
-   *  skills — each plan's own wishlist pins resolve its own notes. */
+   *  skills — each plan's own wishlist pins resolve its own notes, merged via
+   *  `mergeCompareNotes` so a skill that resolves differently between the two plans renders
+   *  as two per-uma-annotated chips instead of one misattributed last-write-wins chip. */
   patchNotes: ActivePatchNote[];
 }
 
@@ -56,11 +58,10 @@ export function useRaceCompareController(
   const uma2SkillIds = useMemo(() => new Set(ctx?.uma2.skills ?? []), [uma2SkillsKey]);
   const uma1Notes = usePatchNotes(uma1Plan, uma1SkillIds);
   const uma2Notes = usePatchNotes(uma2Plan, uma2SkillIds);
-  const patchNotes = useMemo(() => {
-    const bySkillId = new Map<string, ActivePatchNote>();
-    for (const n of [...uma1Notes, ...uma2Notes]) bySkillId.set(n.skillId, n);
-    return [...bySkillId.values()].sort((a, b) => (a.skillId < b.skillId ? -1 : a.skillId > b.skillId ? 1 : 0));
-  }, [uma1Notes, uma2Notes]);
+  const patchNotes = useMemo(
+    () => mergeCompareNotes(uma1Notes, uma2Notes, uma1SkillIds, uma2SkillIds),
+    [uma1Notes, uma2Notes, uma1SkillIds, uma2SkillIds],
+  );
 
   return { showHp, setShowHp, state, comparing: !!ctx, uma2Empty: uma2Plan === null, patchNotes };
 }
