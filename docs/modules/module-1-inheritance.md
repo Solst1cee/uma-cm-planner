@@ -254,6 +254,13 @@ than a false green checkmark. WHITE inherits M1.7's family-aware coverage
 (`○ ≡ ◎`, gold/`×` exact). Spec:
 [2026-07-01-m1-8-target-spark-design](../superpowers/specs/2026-07-01-m1-8-target-spark-design.md).
 
+**Known minors (accepted, not fixed):** (1) an **empty wishlist** yields
+`coverage: 'covered'` → the green "✓ All wishlist skills obtainable" reads
+vacuously true (matches the handoff prototype's binary has/no-white; revisit if
+it confuses); (2) the `.inh-placeholder` CSS block in `inheritance.css` is now
+dead — the `Placeholder` component was removed with M1.8 (the last placeholder
+card) — safe to delete on the next CSS pass.
+
 ## Next (Plans 3–5)
 
 3. **Nested `Parent` + roster store migration** — flat→nested `Parent`/`ParentSparks`, `parents` Dexie store → `roster` (`RosterEntry`). **Carries the open grandparent-sourcing design decision** (a parent's grandparents come from the parent-veteran's own parents, not an inline form).
