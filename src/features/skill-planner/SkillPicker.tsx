@@ -9,6 +9,7 @@ import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
 import { useAvailability } from '@/app/useAvailability';
 import { TierChip } from '@/app/TierChip';
+import { RebalanceBadge } from '@/app/RebalanceBadge';
 import { isBlockedBySelectedVariant } from './skillFamilies';
 
 const MAX_RESULTS = 30;
@@ -116,6 +117,7 @@ export function SkillPicker({
                     </span>
                   )}
                   <TierChip tier={tierOf(skill)} />
+                  <RebalanceBadge info={skill.rebalance} />
                   {added && <span className="muted small">added</span>}
                 </button>
               </li>

@@ -15,7 +15,10 @@ const h = vi.hoisted(() => {
   const wA = mk({ skillId: 'wA', nameEn: 'Adept ◎', rarity: 'white', baseSpCost: 90, variantSkillIds: ['wB', 'g1'] });
   const wB = mk({ skillId: 'wB', nameEn: 'Adept ○', rarity: 'white', baseSpCost: 60, variantSkillIds: ['wA', 'g1'] });
   const g1 = mk({ skillId: 'g1', nameEn: 'Adept Demon', rarity: 'gold', baseSpCost: 170, variantSkillIds: ['wA', 'wB'], prereqSkillId: 'wA' });
-  const s1 = mk({ skillId: 's1', nameEn: 'Solo White', rarity: 'white', baseSpCost: 120 });
+  const s1 = mk({
+    skillId: 's1', nameEn: 'Solo White', rarity: 'white', baseSpCost: 120,
+    rebalance: { globalVer: 1, jpVer: 2, versions: [], uncuratedCandidate: true },
+  });
   const i1 = mk({ skillId: 'i1', nameEn: 'Inherited One', rarity: 'inherited_unique', baseSpCost: 0 });
   const skills = [wA, wB, g1, s1, i1];
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
@@ -156,6 +159,14 @@ describe('SkillChartPanel', () => {
     expect(rowTexts().some((t) => t.includes('Adept ○'))).toBe(false);
     // 4 reps simulated (wA white-rep, s1, g1 gold, i1 inherited) — NOT wB
     expect(h.skillDelta).toHaveBeenCalledTimes(4);
+  });
+
+  it('shows a rebalance-candidate badge on a skill with rebalance info, and none on others', async () => {
+    await runFull();
+    const s1Row = within(list()).getByText('Solo White').closest('li')!;
+    expect(within(s1Row).getByText('Δ?')).toBeInTheDocument();
+    const goldRow = within(list()).getByText('Adept Demon').closest('li')!;
+    expect(within(goldRow).queryByText('Δ?')).not.toBeInTheDocument();
   });
 
   it('white filter shows only white skills (no gold, no inherited)', async () => {

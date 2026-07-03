@@ -8,8 +8,9 @@ import {
 } from '@/core/simBuild';
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
+import { effectiveVersion } from '@/core/rebalance';
 import type { TraceContext } from './useSkillTrace';
-import type { AptKey, CmPlan, Grade, Mood, Role, SkillRecord, Stat, Strategy, UmaRecord } from '@/core/types';
+import type { AptKey, CmPlan, Grade, Mood, RebalanceInfo, Role, SkillRecord, SkillVersion, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useAvailability } from '@/app/useAvailability';
 import { TierChip } from '@/app/TierChip';
 import { useGameData } from '@/features/data/gameData';
@@ -96,6 +97,16 @@ function statGrowthLabel(value: number | undefined): string {
   return value === undefined || value === 0 ? '-' : `+${value}%`;
 }
 
+/** Wishlist rebalance-version picker option label: `v{ver}` + Global/predicted/announced
+ *  suffix, plus " — default" for the version the horizon would pick unpinned. */
+function versionOptionLabel(v: SkillVersion, info: RebalanceInfo, defaultVer: number): string {
+  let label = `v${v.ver}`;
+  if (v.ver === info.globalVer) label += ' (Global)';
+  else if (v.globalArrival) label += v.globalDatePredicted ? ` ~${v.globalArrival}` : ` ✓ ${v.globalArrival}`;
+  if (v.ver === defaultVer) label += ' — default';
+  return label;
+}
+
 function baseAptitudeFor(uma: UmaRecord, aptKey: AptKey): Grade | undefined {
   const aptitudes = uma.baseAptitudes;
   if (!aptitudes) return undefined;
@@ -168,7 +179,7 @@ export function PlannerSidebar({
   trackMismatchLabel?: string;
 }) {
   const { skillById, umas, umaById } = useGameData();
-  const { visible, tierOf } = useAvailability();
+  const { visible, tierOf, cutoffISO, todayISO } = useAvailability();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [umaQuery, setUmaQuery] = useState('');
@@ -930,6 +941,11 @@ export function PlannerSidebar({
                 const skill = wishlistSkillRecord(item.skillId, skillById);
                 const summary = skill ? skillRecordToSummary(skill) : null;
                 const variants = skill ? skillVariantOptions(skill, skillById) : [];
+                const rebalance = summary?.rebalance;
+                const showVersionPicker = rebalance !== undefined && rebalance.versions.length > 1;
+                const defaultVer = rebalance ? effectiveVersion(rebalance, cutoffISO, todayISO).ver : undefined;
+                const currentVer = item.skillVer ?? defaultVer;
+                const isPinned = item.skillVer !== undefined && item.skillVer !== defaultVer;
                 return (
                   <div key={item.skillId} className="cmp-wishlist-line">
                     {summary ? (
@@ -973,6 +989,41 @@ export function PlannerSidebar({
                       />
                     ) : (
                       <span className="cmp-missing-skill">{item.skillId}</span>
+                    )}
+                    {showVersionPicker && rebalance !== undefined && (
+                      <select
+                        aria-label={`Rebalance version for ${summary!.nameEn}`}
+                        className={`cmp-rebalance-select${isPinned ? ' is-pinned' : ''}`}
+                        value={currentVer}
+                        title={
+                          isPinned
+                            ? `Pinned — sims will use v${item.skillVer} parameters (arrives with 4b)`
+                            : undefined
+                        }
+                        onChange={(e) => {
+                          const ver = Number(e.target.value);
+                          onChange({
+                            ...plan,
+                            wishlist: plan.wishlist.map((w) => {
+                              if (w.skillId !== item.skillId) return w;
+                              if (ver === defaultVer) {
+                                const { skillVer, ...rest } = w;
+                                return rest;
+                              }
+                              return { ...w, skillVer: ver };
+                            }),
+                          });
+                        }}
+                      >
+                        {rebalance.versions
+                          .slice()
+                          .sort((a, b) => a.ver - b.ver)
+                          .map((v) => (
+                            <option key={v.ver} value={v.ver}>
+                              {versionOptionLabel(v, rebalance, defaultVer!)}
+                            </option>
+                          ))}
+                      </select>
                     )}
                     <button
                       type="button"

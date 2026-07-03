@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, RebalanceInfo } from '@/core/types';
 
 const h = vi.hoisted(() => {
   const skill = (
@@ -14,6 +14,7 @@ const h = vi.hoisted(() => {
     baseSpCost = 0,
     variantSkillIds?: string[],
     prereqSkillId?: string,
+    rebalance?: RebalanceInfo,
   ) => ({
     skillId,
     nameEn,
@@ -23,6 +24,7 @@ const h = vi.hoisted(() => {
     iconId,
     ...(prereqSkillId ? { prereqSkillId } : {}),
     ...(variantSkillIds ? { variantSkillIds } : {}),
+    ...(rebalance ? { rebalance } : {}),
     conditions,
     server: 'global',
     dataVersion: 't',
@@ -42,6 +44,14 @@ const h = vi.hoisted(() => {
     skill('201472', 'I Can See Right Through You', 'white', '20011', 'running_style==4&is_move_lane==1', 110),
     skill('110061', 'Festive Miracle', 'unique', '20013', 'activate_count_heal>=3&distance_rate>=50'),
     skill('910061', 'Festive Miracle', 'inherited_unique', '20011', 'activate_count_heal>=3&distance_rate>=50', 200),
+    skill('reb1', 'Rebalanced Skill', 'white', '20011', 'phase>=2', 100, undefined, undefined, {
+      globalVer: 1,
+      jpVer: 2,
+      versions: [
+        { ver: 1 },
+        { ver: 2, jpDate: '2025-11-20', globalArrival: '2026-08-10', globalDatePredicted: true },
+      ],
+    }),
   ];
   const umas = [
     {
@@ -199,6 +209,7 @@ vi.mock('./skillTechnicalDetails', () => ({
     rarity: 'white' | 'gold' | 'unique' | 'inherited_unique';
     baseSpCost: number;
     conditions: string;
+    rebalance?: import('@/core/types').RebalanceInfo;
   }) => ({
     skillId: skill.skillId,
     nameEn: skill.nameEn,
@@ -206,6 +217,7 @@ vi.mock('./skillTechnicalDetails', () => ({
     rarity: skill.rarity,
     baseSpCost: skill.baseSpCost,
     conditions: skill.conditions,
+    ...(skill.rebalance ? { rebalance: skill.rebalance } : {}),
   }),
 }));
 vi.mock('./useSkillTrace', () => ({
@@ -645,6 +657,61 @@ describe('PlannerSidebar', () => {
     expect(results.queryByRole('button', { name: /Right-Handed ◎/i })).not.toBeInTheDocument();
     expect(results.queryByRole('button', { name: /Right-Handed Demon/i })).not.toBeInTheDocument();
     expect(screen.getByText('No matching skills.')).toBeInTheDocument();
+  });
+
+  it('shows a rebalance version picker for a wishlist skill with 2+ versions, defaulted to the horizon pick', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted' }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill') as HTMLSelectElement;
+    expect(select).toHaveValue('1');
+    expect(within(select).getByRole('option', { name: /v1 \(Global\) — default/ })).toBeInTheDocument();
+    expect(within(select).getByRole('option', { name: /v2 ~2026-08-10/ })).toBeInTheDocument();
+    expect(select).not.toHaveClass('is-pinned');
+  });
+
+  it('picking a non-default rebalance version pins skillVer on that wishlist item', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    renderSidebar(
+      { ...(h.plan as CmPlan), wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted' }] },
+      undefined,
+      true,
+      false,
+      onChange,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Rebalance version for Rebalanced Skill'), '2');
+
+    const next = onChange.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist[0]).toMatchObject({ skillId: 'reb1', skillVer: 2 });
+  });
+
+  it('re-picking the default rebalance version clears the pinned skillVer', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    renderSidebar(
+      { ...(h.plan as CmPlan), wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted', skillVer: 2 }] },
+      undefined,
+      true,
+      false,
+      onChange,
+    );
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    await user.selectOptions(select, '1');
+
+    const next = onChange.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist[0]).not.toHaveProperty('skillVer');
+  });
+
+  it('shows no rebalance picker for a wishlist skill with no rebalance info', () => {
+    renderSidebar(); // default plan wishlist: [{ skillId: 'a' (Escape Artist), ... }]
+
+    expect(screen.queryByLabelText(/Rebalance version for/)).not.toBeInTheDocument();
   });
 
   it('lets wishlist rows switch between skill variants', async () => {

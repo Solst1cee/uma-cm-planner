@@ -72,6 +72,8 @@ export interface WishlistItem {
   needsInheriting?: boolean;
   doubleUp?: boolean;
   manualAdd?: boolean;
+  /** User-pinned rebalance version (availability #4); absent = horizon default. */
+  skillVer?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -97,6 +99,30 @@ export interface LineageAffinity {
 }
 
 export type SkillRarity = 'white' | 'gold' | 'unique' | 'inherited_unique';
+
+export interface SkillVersion {
+  ver: number;
+  jpDate?: string;
+  /** Announced/confirmed Global date; wins over projection. */
+  globalDate?: string;
+  /** true when the arrival below was foresight-projected from jpDate. */
+  globalDatePredicted?: boolean;
+  /** Resolved Global arrival (globalDate ?? projected); absent = undatable. */
+  globalArrival?: string;
+  conditions?: string;
+  modifier?: number;
+  duration?: number;
+  cooldown?: number;
+  note?: string;
+  sourceUrl?: string;
+}
+export interface RebalanceInfo {
+  globalVer: number;
+  jpVer: number;
+  versions: SkillVersion[];
+  uncuratedCandidate?: boolean;
+  candidateConditions?: { jp: string; global: string };
+}
 
 export interface SkillRecord {
   /** master.mdb skill id, as string (e.g. "200012"; inherited uniques are 9xxxxx). */
@@ -130,6 +156,8 @@ export interface SkillRecord {
   /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
   releaseDatePredicted?: boolean;
   dataVersion: string;
+  /** Versioned rebalance history (availability #4); absent = never rebalanced. */
+  rebalance?: RebalanceInfo;
 }
 
 export type SkillSourceType = 'chain' | 'hint_pool' | 'random_event' | 'date_event';

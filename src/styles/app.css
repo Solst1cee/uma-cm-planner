@@ -384,6 +384,20 @@ button:disabled {
   color: color-mix(in srgb, var(--violet) 72%, var(--fg));
 }
 
+/* ---- Rebalance Δ badge (Availability #4a) ---- */
+
+.rebalance-badge {
+  display: inline-block;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.08rem 0.5rem;
+  white-space: nowrap;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-fg);
+}
+
 .badge,
 .chip,
 .chip-sm {
