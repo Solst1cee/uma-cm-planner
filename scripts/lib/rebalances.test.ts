@@ -222,4 +222,19 @@ describe('bakeRebalances', () => {
       candidateConditions: { jp: 'jp-cond', global: 'global-cond' },
     });
   });
+
+  it('throws on a curated skillId that matches no skill record (fail-loud, P5)', () => {
+    const curated = [{ skillId: '999999', globalVer: 1, versions: [{ ver: 1 }] }];
+    expect(() =>
+      bakeRebalances({ candidates: new Map(), curated, cal, knownSkillIds: new Set(['200012']) }),
+    ).toThrowError(/999999/);
+  });
+
+  it('does not throw when knownSkillIds is omitted (back-compat) or the id exists', () => {
+    const curated = [{ skillId: '200012', globalVer: 1, versions: [{ ver: 1 }] }];
+    expect(() => bakeRebalances({ candidates: new Map(), curated, cal })).not.toThrow();
+    expect(() =>
+      bakeRebalances({ candidates: new Map(), curated, cal, knownSkillIds: new Set(['200012']) }),
+    ).not.toThrow();
+  });
 });

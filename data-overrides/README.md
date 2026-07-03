@@ -102,6 +102,25 @@ Validation rules (`loadRebalances` throws on any violation, naming the entry/fie
 
 A skill flagged by the AUTO condition-diff detector (`detectCandidates`) that has **no** matching curated entry here still surfaces in the baked data as a minimal placeholder `RebalanceInfo` (`globalVer:1, jpVer:1, uncuratedCandidate:true, candidateConditions:{jp, global}`) — a review queue, not a silent gap. Adding a curated entry for that `skillId` absorbs the candidate.
 
+### 4b sim semantics (engine `skillPatches`)
+
+As of slice 4b the sims USE the effective version's parameters:
+
+- `conditions` is the `'@'`-joined per-alternative format (the same
+  serialization as `candidateConditions`): part *i* replaces the *i*-th
+  non-empty-condition alternative; omitted parts leave later alternatives
+  unchanged; preconditions are never patched.
+- `modifier` is the human/engine effect unit (e.g. `0.25`) and replaces the
+  base value of **every** effect of the alternative — per-effect overrides are
+  not supported, so **leave `modifier` unset for multi-effect skills**.
+- `duration` is seconds. `cooldown` is the base-cooldown unit
+  (`cooldownTime/10000` — the value the multifire gate scales by distance).
+- Version selection: `effectiveVersion` per horizon (predicted arrivals never
+  activate at Current); a plan's `WishlistItem.skillVer` pin overrides it.
+  Confirmed `globalVer ≥ 2` parameters apply even at Current ("engine pin
+  pending" — the pin-lag path).
+- A curated `skillId` that matches no skill record **fails the build**.
+
 ## Maintenance checklist (on every upstream data refresh)
 
 1. Run `pnpm data:fetch && pnpm data:build`. Unknown-id errors here mean a

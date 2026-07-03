@@ -374,10 +374,13 @@ itself changed.
   off the baked `rebalance` field — no separate UI wiring needed once the
   data is baked.
 
-The engine (sim) does **not** yet apply rebalanced modifier/duration/cooldown
-values when running skill comparisons — that's component 4b (sim effects),
-tracked separately. This section only covers the curated data + timeline/UI
-surface.
+As of slice 4b, the engine (sim) **does** apply the effective version's
+rebalanced modifier/duration/cooldown values when running skill comparisons
+(`skillPatches`, data-driven from the baked `rebalance` field — no engine
+rebuild needed). After the confirmation rebuild above, sims at Current
+immediately use the confirmed version's parameters (the pin-lag path: a
+confirmed `globalVer ≥ 2` applies even though the in-game engine hasn't
+shipped it yet).
 
 ---
 
