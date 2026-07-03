@@ -59,6 +59,8 @@ export interface RankUmaChartDeps {
   nsamples?: number;
   seed?: number;
   uniqueLevel?: number;
+  /** Rebalance overrides attached to every reference build (availability #4b). */
+  skillPatches?: Record<string, import('./rebalance').SkillPatch>;
 }
 
 export function referenceBuild(outfitId: string, strategy: Strategy): SimBuild {
@@ -94,6 +96,7 @@ async function rowFor(
       const build = {
         ...referenceBuild(c.outfitId, strategy),
         skillLevels: { [c.uniqueSkillId]: level },
+        ...(deps.skillPatches ? { skillPatches: deps.skillPatches } : {}),
       };
       s = await deps.skillDelta(build, race, c.uniqueSkillId, n, deps.seed);
     } catch {

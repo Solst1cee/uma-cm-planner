@@ -18,6 +18,10 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { requiredStaminaForSpurt, hpStats, histogram } from '@/core/staminaSpurt';
 import { buildInjectedDebuffs, STAMINA_DEBUFF_ICON } from './staminaDebuffs';
 import { HeaderHelp } from './HeaderHelp';
+import { PatchedSimNote } from './PatchedSimNote';
+import type { SkillPatch } from '@/core/rebalance';
+import type { ActivePatchNote } from '@/core/rebalancePatches';
+import { withSkillPatches, skillPatchesSig } from '@/core/rebalancePatches';
 
 export interface StaminaSpurtDeps {
   vacuum: (
@@ -152,6 +156,8 @@ export function StaminaSpurtTab({
   onSpurtTargetChange,
   survivalTarget: survivalTargetProp,
   onSurvivalTargetChange,
+  skillPatches,
+  patchNotes = [],
 }: {
   plan: CmPlan;
   deps?: StaminaSpurtDeps;
@@ -163,6 +169,12 @@ export function StaminaSpurtTab({
    *  Skill/Accel stamina-out warning. Both fall back to local state when standalone (tests). */
   survivalTarget?: number;
   onSurvivalTargetChange?: (pct: number) => void;
+  /** Rebalance overrides for this plan's reference build (availability #4b). Stays provider-free —
+   *  the page computes this via useSkillPatches and passes it in. */
+  skillPatches?: Record<string, SkillPatch>;
+  /** P3 post-patch-values markers for the skills this build sims (availability #4b). Stays
+   *  provider-free — the page computes this via usePatchNotes and passes it in. */
+  patchNotes?: ActivePatchNote[];
 }) {
   const [open, setOpen] = useState(true);
   const [spurtLocal, setSpurtLocal] = useState(95);
@@ -181,7 +193,7 @@ export function StaminaSpurtTab({
   const aptitudeSig = JSON.stringify(plan.sparkGoals.pink);
   // Mirror StaminaCheckerTab's dep list so wishlist edits re-run cleanly.
   const baseBuild = useMemo(
-    () => planToOverlayBuild(plan),
+    () => withSkillPatches(planToOverlayBuild(plan), skillPatches),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       plan.cmRef.courseId,
@@ -196,6 +208,7 @@ export function StaminaSpurtTab({
       plan.uniqueSkillId,
       aptitudeSig,
       JSON.stringify(plan.wishlist),
+      skillPatchesSig(skillPatches),
     ],
   );
 
@@ -221,8 +234,9 @@ export function StaminaSpurtTab({
         survivalTarget,
         whiteDebuffs,
         goldDebuffs,
+        skillPatches ?? null,
       ]),
-    [baseBuild, race.courseId, spurtTarget, survivalTarget, whiteDebuffs, goldDebuffs],
+    [baseBuild, race.courseId, spurtTarget, survivalTarget, whiteDebuffs, goldDebuffs, skillPatches],
   );
   const isStale = runSig !== null && sig !== runSig;
 
@@ -369,6 +383,7 @@ export function StaminaSpurtTab({
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && (
         <div className="cmp-stamina-tab">

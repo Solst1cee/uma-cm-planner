@@ -185,6 +185,7 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
     candidates: detectCandidates(gametoraSkills, releasedSkillIds),
     curated: loadRebalances(join(OVERRIDES_DIR, 'rebalances.json')),
     cal,
+    knownSkillIds: new Set(skills.map((s) => s.skillId)),
   });
   skills = skills.map((s) => {
     const info = rebalanceMap.get(s.skillId);

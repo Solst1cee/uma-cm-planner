@@ -129,8 +129,24 @@ export function bakeRebalances(inputs: {
   candidates: Map<string, { jp: string; global: string }>;
   curated: CuratedRebalance[];
   cal: Calibration | null;
+  /** Full merged skillId set (global + jp) in scope at build time. When
+   *  provided, a curated entry whose skillId matches no skill record fails
+   *  the build (P5: fail loudly — a typo here would silently drop the badge
+   *  and sim patch). Optional for back-compat with existing callers/tests. */
+  knownSkillIds?: ReadonlySet<string>;
 }): Map<string, RebalanceInfo> {
-  const { candidates, curated, cal } = inputs;
+  const { candidates, curated, cal, knownSkillIds } = inputs;
+
+  if (knownSkillIds) {
+    const orphans = curated.filter((e) => !knownSkillIds.has(e.skillId)).map((e) => e.skillId);
+    if (orphans.length > 0) {
+      throw new Error(
+        `rebalances.json: curated skillId(s) match no skill record: ${orphans.join(', ')} — ` +
+        'a typo here would silently drop the badge and sim patch (P5: fail loudly).',
+      );
+    }
+  }
+
   const out = new Map<string, RebalanceInfo>();
 
   for (const entry of curated) {

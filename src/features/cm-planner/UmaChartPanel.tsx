@@ -21,8 +21,12 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
+import { PatchedSimNote } from './PatchedSimNote';
 import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
+import type { SkillPatch } from '@/core/rebalance';
+import { withSkillPatches } from '@/core/rebalancePatches';
 
 const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
 
@@ -59,7 +63,7 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>, rankStyle: 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate, tier }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate, tier, skillPatches }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
@@ -74,9 +78,12 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
   race: SimRaceParams;
   predictedDate?: string;
   tier?: AvailabilityTier;
+  skillPatches?: Record<string, SkillPatch>;
 }) {
   const traceCtx: TraceContext | undefined =
-    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race, buildLabel: 'the reference' } : undefined;
+    unique && eff
+      ? { build: withSkillPatches(referenceBuild(row.outfitId, eff.strategy), skillPatches), race, buildLabel: 'the reference' }
+      : undefined;
   const hover = row.perStyle.length
     ? row.perStyle
         .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)
@@ -183,7 +190,18 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     [globalUmas, uniqueByUmaId],
   );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
-  const chartDeps = { uniqueLevel: plan.uniqueSkillLevel ?? 5, ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}) };
+  // Pin-free by design: the uma chart is the plan-independent reference chart; wishlist pins are plan what-ifs.
+  const skillPatches = useSkillPatches(null);
+  const relevantSkillIds = useMemo(
+    () => new Set(candidates.map((c) => c.uniqueSkillId).filter((id): id is string => id != null)),
+    [candidates],
+  );
+  const patchNotes = usePatchNotes(null, relevantSkillIds);
+  const chartDeps = {
+    uniqueLevel: plan.uniqueSkillLevel ?? 5,
+    ...(skillPatches ? { skillPatches } : {}),
+    ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}),
+  };
   const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
 
   // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
@@ -265,6 +283,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && status !== 'idle' && (
         <div className="cmp-uma-body">
@@ -337,6 +356,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                     onOpenChange={(o) => setOpenOutfitId(o ? row.outfitId : null)}
                     predictedDate={rowUma?.releaseDatePredicted ? rowUma.releaseDate : undefined}
                     tier={rowUma ? tierOf(rowUma) : undefined}
+                    skillPatches={skillPatches}
                   />
                   );
                 })}

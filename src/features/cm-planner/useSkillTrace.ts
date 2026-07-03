@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RunChoice, SimBuild, SimRaceParams, SkillImpact, SkillTrace, SkillTraceRun } from '@/sim';
 import { SimClient } from '@/sim/client';
+import { skillPatchesSig } from '@/core/rebalancePatches';
 
 export const TRACE_SAMPLES = 20;
 export const IMPACT_SAMPLES = 400;
@@ -80,7 +81,7 @@ export function useSkillTrace(
 
   // Auto-run when enabled + a context is present. Re-run on skill/course/build change.
   // Include sorted skills so wishlist edits bust the cache (mirrors useRaceCompare's buildSig).
-  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}|${[...ctx.build.skills].sort().join(',')}` : null;
+  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}|${[...ctx.build.skills].sort().join(',')}|${skillPatchesSig(ctx.build.skillPatches)}` : null;
   useEffect(() => {
     if (!enabled || !ctx || sig === null) return;
     const merged = depsRef.current ?? realDeps();

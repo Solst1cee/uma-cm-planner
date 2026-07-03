@@ -1580,6 +1580,22 @@ main:has(.cmp-page) {
   outline-offset: 1px;
 }
 
+/* ---- Post-patch values marker (availability #4b P3) — same amber family as
+   the §4a Δ badge (.rebalance-badge in app.css): --warn-bg/border/fg. ---- */
+.cmp-patched-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+.cmp-patched-chip {
+  border: 1px solid var(--warn-border);
+  border-radius: 999px;
+  background: var(--warn-bg);
+  padding: 0.05rem 0.5rem;
+  color: var(--warn-fg);
+}
+
 .cmp-wishlist-line .cmp-small-btn {
   height: 2.12rem;
   min-width: 1.25rem;

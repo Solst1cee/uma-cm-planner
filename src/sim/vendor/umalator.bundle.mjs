@@ -115579,14 +115579,15 @@ function skillLevelCoef(abilityType, level) {
 }
 
 // src/lib/sunday-tools/runner/runner.utils.ts
-function buildSkillEffects(skill, level) {
+function buildSkillEffects(skill, level, patch) {
   const effects = [];
   for (const effect of skill.effects) {
     const coef = skillLevelCoef(effect.type, level);
+    const baseModifier = patch?.modifier !== void 0 ? patch.modifier * 1e4 : effect.modifier;
     effects.push({
       type: effect.type,
-      baseDuration: skill.baseDuration / 1e4,
-      modifier: effect.modifier * coef / 1e4,
+      baseDuration: patch?.duration !== void 0 ? patch.duration : skill.baseDuration / 1e4,
+      modifier: baseModifier * coef / 1e4,
       target: effect.target,
       valueUsage: effect.valueUsage,
       valueLevelUsage: effect.valueLevelUsage
@@ -115623,13 +115624,18 @@ function buildSkillData(params) {
   }
   const extra = Object.assign({ skillId }, raceParams);
   const level = runner.skillLevels?.[baseSkillId];
+  const patch = runner.skillPatches?.[baseSkillId];
+  const patchedConditions = patch?.conditions !== void 0 ? patch.conditions.split("@") : void 0;
   const alternatives = skill.alternatives;
   const triggers = [];
+  let condIdx = -1;
   for (let i = 0; i < alternatives.length; ++i) {
     const skillAlternative = alternatives[i];
     if (skillAlternative.condition === "") {
       continue;
     }
+    condIdx += 1;
+    const condition = patchedConditions?.[condIdx] ?? skillAlternative.condition;
     let full = new RegionList();
     wholeCourse.forEach((r) => full.push(r));
     if (skillAlternative.precondition) {
@@ -115646,7 +115652,7 @@ function buildSkillData(params) {
       const bounds = new Region(preRegions[0].start, wholeCourse[wholeCourse.length - 1].end);
       full = full.rmap((r) => r.intersect(bounds));
     }
-    const parsedOperator = parser.parse(skillAlternative.condition);
+    const parsedOperator = parser.parse(condition);
     const [regions, extraCondition] = parsedOperator.apply({
       regions: full,
       course,
@@ -115656,10 +115662,10 @@ function buildSkillData(params) {
     if (regions.length === 0) {
       continue;
     }
-    if (triggers.length > 0 && !/is_activate_other_skill_detail|is_used_skill_id/.test(skillAlternative.condition)) {
+    if (triggers.length > 0 && !/is_activate_other_skill_detail|is_used_skill_id/.test(condition)) {
       continue;
     }
-    const effects2 = buildSkillEffects(skillAlternative, level);
+    const effects2 = buildSkillEffects(skillAlternative, level, patch);
     if (effects2.length > 0 || ignoreNullEffects) {
       const rarity2 = skill.rarity;
       triggers.push({
@@ -115670,14 +115676,14 @@ function buildSkillData(params) {
         regions,
         extraCondition,
         effects: effects2,
-        cooldownTime: skillAlternative.cooldownTime ?? 5e6
+        cooldownTime: patch?.cooldown !== void 0 ? patch.cooldown * 1e4 : skillAlternative.cooldownTime ?? 5e6
       });
     }
   }
   if (triggers.length > 0) {
     return triggers;
   }
-  const effects = buildSkillEffects(alternatives[0], level);
+  const effects = buildSkillEffects(alternatives[0], level, patch);
   if (effects.length == 0 && !ignoreNullEffects) {
     return [];
   }
@@ -116500,6 +116506,8 @@ var Runner = class _Runner {
   skillIds;
   /** Per-skill level (1–6), keyed by base skill id, for effect-value scaling. Absent => Lv1. */
   skillLevels;
+  /** Per-skill parameter overrides (rebalance versions), keyed by base skill id. Absent => upstream values. */
+  skillPatches;
   forcedPositions;
   injectedDebuffs;
   forcedRushedRegions;
@@ -116684,6 +116692,7 @@ var Runner = class _Runner {
     );
     this.skillIds = props.skillIds;
     this.skillLevels = props.skillLevels;
+    this.skillPatches = props.skillPatches;
     this.forcedPositions = props.forcedPositions ?? {};
     this.injectedDebuffs = props.injectedDebuffs ?? [];
     this.forcedRushedRegions = props.forcedRushedRegions ?? [];
@@ -117593,6 +117602,7 @@ var Runner = class _Runner {
       stats: props.stats,
       skillIds: props.skills,
       skillLevels: props.skillLevels,
+      skillPatches: props.skillPatches,
       forcedPositions: props.forcedPositions,
       injectedDebuffs: props.injectedDebuffs,
       forcedRushedRegions: props.forcedRushedRegions,
@@ -118574,6 +118584,7 @@ function toCreateRunner(runner, sortedSkills, forcedPositions, injectedDebuffs, 
     },
     skills: sortedSkills,
     skillLevels: runner.skillLevels,
+    skillPatches: runner.skillPatches,
     forcedPositions,
     injectedDebuffs: injectedDebuffs?.map(({ skillId, position }) => ({ skillId, position })),
     forcedRushedRegions: scenarioOverrides?.forcedRushed ? [scenarioOverrides.forcedRushed] : void 0,

@@ -98,4 +98,19 @@ describe('useSkillTrace', () => {
     rerender({ sta: 1000 });
     await waitFor(() => expect(skillTrace.mock.calls.length).toBe(calls + 1));
   });
+
+  it('busts cache when only build.skillPatches differs (availability #4b)', async () => {
+    const skillTrace = vi.fn(async () => trace);
+    const skillImpact = vi.fn(async () => impact);
+    const ctxA = { ...ctx, build: { ...ctx.build, skillPatches: { '100': { modifier: 2000 } } } };
+    const ctxB = { ...ctx, build: { ...ctx.build, skillPatches: { '100': { modifier: 3000 } } } };
+    const { result, rerender } = renderHook(
+      ({ c }) => useSkillTrace('200332', c, true, { skillTrace, skillImpact }),
+      { initialProps: { c: ctxA } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    expect(skillTrace).toHaveBeenCalledTimes(1);
+    rerender({ c: ctxB });
+    await waitFor(() => expect(skillTrace.mock.calls.length).toBe(2));
+  });
 });

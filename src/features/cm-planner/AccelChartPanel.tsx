@@ -19,6 +19,7 @@ import { nullsLast } from '@/core/compare';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { purchaseSpCost } from '@/core/cost';
 import { chartBaselineBuild } from '@/core/simBuild';
+import { withSkillPatches } from '@/core/rebalancePatches';
 import {
   addOrReplaceWishlistSkill,
   areSkillVariants,
@@ -39,7 +40,9 @@ import {
 } from './skillTechnicalDetails';
 import { describePositioning, requiresWitCheck, witCheckPassChance } from '@/core/skillConditions';
 import { useSkillRank } from './useSkillRank';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 import { useStaminaProbe } from './useStaminaProbe';
+import { PatchedSimNote } from './PatchedSimNote';
 import type { SkillChartPanelDeps } from './SkillChartPanel';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
@@ -171,8 +174,15 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     () => (hasSpeed ? accelReps.filter((s) => !isTargeted(s)).map((s) => s.skillId) : []),
     [accelReps, hasSpeed, plan.wishlist, skillById],
   );
-  const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
+  const skillPatches = useSkillPatches(plan);
+  const build = useMemo(
+    () => withSkillPatches(chartBaselineBuild(plan, skillById), skillPatches),
+    [plan, skillById, skillPatches],
+  );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
+  // Every skill this chart could sim: the ranked candidates plus whatever's already in the build.
+  const relevantSkillIds = useMemo(() => new Set([...ids, ...build.skills]), [ids, build]);
+  const patchNotes = usePatchNotes(plan, relevantSkillIds);
 
   const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
   const { survival, probe } = useStaminaProbe(build, race, probeDeps);
@@ -300,6 +310,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && (!hasSpeed || status !== 'idle') && (
         <div className="cmp-skill-body">
