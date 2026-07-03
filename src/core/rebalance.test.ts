@@ -29,6 +29,11 @@ describe('effectiveVersion', () => {
     ]};
     expect(effectiveVersion(lag, today, today).ver).toBe(2);
   });
+  it('a bare uncurated candidate with no versions at all falls back to a patch-free synthetic baseline', () => {
+    const bare: RebalanceInfo = { globalVer: 1, jpVer: 1, versions: [], uncuratedCandidate: true };
+    expect(effectiveVersion(bare, today, today)).toEqual({ ver: 1 });
+    expect(versionPatch(effectiveVersion(bare, today, today))).toBeUndefined();
+  });
 });
 
 describe('resolveVersion', () => {

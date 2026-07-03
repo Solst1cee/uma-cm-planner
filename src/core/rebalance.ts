@@ -19,7 +19,9 @@ export function effectiveVersion(info: RebalanceInfo, cutoffISO: string, todayIS
       if (best === undefined || v.ver > best.ver) best = v;
     }
   }
-  return best ?? info.versions[0]!;
+  // An uncurated candidate may carry no versions at all (bare `{ candidateConditions }` shape) —
+  // fall back to a patch-free synthetic baseline rather than crashing on versions[0].
+  return best ?? info.versions[0] ?? { ver: info.globalVer };
 }
 
 /** Version resolution everywhere: the user's pin wins; else the horizon default. */

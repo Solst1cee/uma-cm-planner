@@ -134,4 +134,29 @@ describe('rankUmaChart', () => {
     await rankUmaChart([{ outfitId: '100101', uniqueSkillId: '100011' }], race, deps);
     expect(seen.every((b) => b.skillLevels?.['100011'] === 5)).toBe(true);
   });
+
+  it('injects deps.skillPatches into every reference build when set, and attaches none when unset', async () => {
+    const seen: SimBuild[] = [];
+    const patches = { '100011': { modifier: 0.5 } };
+    const deps = {
+      nsamples: 1,
+      skillPatches: patches,
+      skillDelta: async (build: SimBuild) => {
+        seen.push(build);
+        return { mean: 1, median: 1, min: 1, max: 1, nsamples: 1, results: [1], activated: true };
+      },
+    };
+    const race = { courseId: '10906' };
+    await rankUmaChart([{ outfitId: '100101', uniqueSkillId: '100011' }], race, deps);
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((b) => b.skillPatches === patches)).toBe(true);
+
+    const seenNoPatch: SimBuild[] = [];
+    await rankUmaChart(
+      [{ outfitId: '100101', uniqueSkillId: '100011' }],
+      race,
+      { nsamples: 1, skillDelta: async (build: SimBuild) => { seenNoPatch.push(build); return { mean: 1, median: 1, min: 1, max: 1, nsamples: 1, results: [1], activated: true }; } },
+    );
+    expect(seenNoPatch.every((b) => b.skillPatches === undefined)).toBe(true);
+  });
 });

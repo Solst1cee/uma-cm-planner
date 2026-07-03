@@ -16,6 +16,7 @@ import { nullsLast } from '@/core/compare';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { purchaseSpCost } from '@/core/cost';
 import { chartBaselineBuild } from '@/core/simBuild';
+import { withSkillPatches } from '@/core/rebalancePatches';
 import {
   addOrReplaceWishlistSkill,
   areSkillVariants,
@@ -31,6 +32,7 @@ import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { HeaderHelp } from './HeaderHelp';
 import { skillRecordToSummary } from './skillTechnicalDetails';
 import { useSkillRank } from './useSkillRank';
+import { useSkillPatches } from './useSkillPatches';
 import { useStaminaProbe, type UseStaminaProbeDeps } from './useStaminaProbe';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
@@ -127,7 +129,11 @@ export function SkillChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     () => (hasSpeed ? reps.filter((s) => !isTargeted(s)).map((s) => s.skillId) : []),
     [reps, hasSpeed, plan.wishlist, skillById],
   );
-  const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
+  const skillPatches = useSkillPatches(plan);
+  const build = useMemo(
+    () => withSkillPatches(chartBaselineBuild(plan, skillById), skillPatches),
+    [plan, skillById, skillPatches],
+  );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
 
   const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;

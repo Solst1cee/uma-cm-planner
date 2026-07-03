@@ -21,6 +21,7 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
+import { useSkillPatches } from './useSkillPatches';
 import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
 
@@ -183,7 +184,13 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     [globalUmas, uniqueByUmaId],
   );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
-  const chartDeps = { uniqueLevel: plan.uniqueSkillLevel ?? 5, ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}) };
+  // Pin-free by design: the uma chart is the plan-independent reference chart; wishlist pins are plan what-ifs.
+  const skillPatches = useSkillPatches(null);
+  const chartDeps = {
+    uniqueLevel: plan.uniqueSkillLevel ?? 5,
+    ...(skillPatches ? { skillPatches } : {}),
+    ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}),
+  };
   const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
 
   // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
