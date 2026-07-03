@@ -9,7 +9,10 @@ function aptHash(build: SimBuild): string {
   return `${build.aptitudes.distance}${build.aptitudes.surface}${build.aptitudes.strategy}`;
 }
 
-/** Shared L-cache key: (courseId, strategy, bucketedStats, aptitudes, skillId, dataVersion). */
+/** Shared L-cache key: (courseId, strategy, bucketedStats, aptitudes, skillId, dataVersion).
+ *  `skillPatches` is intentionally NOT keyed: this cache serves only M2's rankBaskets,
+ *  which never attaches patches. If a patched (M4/horizon) build is ever routed through
+ *  makeDeltaCache, add skillPatchesSig to the key first or stale collisions will result. */
 export function simCacheKey(build: SimBuild, race: SimRaceParams, skillId: string, dataVersion: string): string {
   return [race.courseId, build.strategy, bucketStats(build), aptHash(build), skillId, dataVersion].join('|');
 }
