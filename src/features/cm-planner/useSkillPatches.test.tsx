@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { CmPlan, RebalanceInfo, SkillRecord } from '@/core/types';
-import { useSkillPatches } from './useSkillPatches';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 
 // v2 announced + elapsed (live at Current), carries a modifier — same shape as
 // rebalancePatches.test.ts's CONFIRMED fixture.
@@ -53,5 +53,27 @@ describe('useSkillPatches', () => {
     } as unknown as CmPlan;
     const { result } = renderHook(() => useSkillPatches(plan));
     expect(result.current).toBeUndefined();
+  });
+});
+
+describe('usePatchNotes', () => {
+  it('returns a note for a relevant patched skill', () => {
+    const { result } = renderHook(() => usePatchNotes(null, new Set(['300'])));
+    expect(result.current).toEqual([
+      expect.objectContaining({ skillId: '300', ver: 2, pinLag: true, pinned: false }),
+    ]);
+  });
+
+  it('filters out a patched skill that is not in relevantIds', () => {
+    const { result } = renderHook(() => usePatchNotes(null, new Set(['999'])));
+    expect(result.current).toEqual([]);
+  });
+
+  it('reflects a wishlist pin back to baseline (no active patch, no note)', () => {
+    const plan = {
+      wishlist: [{ skillId: '300', priority: 1, source: 'targeted', skillVer: 1 }],
+    } as unknown as CmPlan;
+    const { result } = renderHook(() => usePatchNotes(plan, new Set(['300'])));
+    expect(result.current).toEqual([]);
   });
 });

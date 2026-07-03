@@ -9,7 +9,7 @@ import { getSetting, setSetting } from '@/db';
 import { copyPlanInto } from '@/core/cmPlanCopy';
 import { generatePlanName } from '@/core/planName';
 import { nextPlanNumberForContent } from '@/core/planIdentity';
-import { distanceClass } from '@/core/simBuild';
+import { distanceClass, planToOverlayBuild } from '@/core/simBuild';
 import { cmRaceOptions } from '@/core/cmRace';
 import type { CmPlan, CmRefV2 } from '@/core/types';
 import { useGameData } from '@/features/data/gameData';
@@ -32,7 +32,7 @@ import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
 import { useStaminaWarnThreshold, useStaminaSpurtTarget } from './useStaminaWarnThreshold';
-import { useSkillPatches } from './useSkillPatches';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 import { trackChangeNeedsConfirm, tracksDiffer } from './trackChange';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
@@ -85,7 +85,16 @@ export function CmPlannerPage() {
   const spurtThresholdPct = Math.round(spurtTarget01 * 100);
   // Rebalance overrides for the tab's working plan (availability #4b) — matches the plan
   // object handed to StaminaSpurtTab below (focusedPlan when set, else the uma1 plan).
-  const workingPatches = useSkillPatches(focusedPlan ?? plan);
+  const workingPlan = focusedPlan ?? plan;
+  const workingPatches = useSkillPatches(workingPlan);
+  // P3 post-patch-values markers (availability #4b), filtered to the skills the Stamina tab's
+  // own reference build sims. `.skills` doesn't change with patch values, so a patch-free
+  // build here still gives the right relevant-id set (avoids a circular dependency on workingPatches).
+  const workingBuildSkillIds = useMemo(
+    () => new Set(workingPlan ? planToOverlayBuild(workingPlan).skills : []),
+    [workingPlan],
+  );
+  const workingPatchNotes = usePatchNotes(workingPlan, workingBuildSkillIds);
   const [trackOverrideRef, setTrackOverrideRef] = useState<CmRefV2 | null>(null);
   const [trackConfirmOpen, setTrackConfirmOpen] = useState(false);
   const [trackChanged, setTrackChanged] = useState(false);
@@ -446,6 +455,7 @@ export function CmPlannerPage() {
                     key={selection.courseId}
                     plan={focusedPlan ?? plan}
                     skillPatches={workingPatches}
+                    patchNotes={workingPatchNotes}
                     spurtTarget={spurtThresholdPct}
                     onSpurtTargetChange={(pct) => setSpurtTarget01(pct / 100)}
                     survivalTarget={survivalThresholdPct}

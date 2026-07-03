@@ -21,7 +21,8 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
-import { useSkillPatches } from './useSkillPatches';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
+import { PatchedSimNote } from './PatchedSimNote';
 import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
 import type { SkillPatch } from '@/core/rebalance';
@@ -191,6 +192,11 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
   // Pin-free by design: the uma chart is the plan-independent reference chart; wishlist pins are plan what-ifs.
   const skillPatches = useSkillPatches(null);
+  const relevantSkillIds = useMemo(
+    () => new Set(candidates.map((c) => c.uniqueSkillId).filter((id): id is string => id != null)),
+    [candidates],
+  );
+  const patchNotes = usePatchNotes(null, relevantSkillIds);
   const chartDeps = {
     uniqueLevel: plan.uniqueSkillLevel ?? 5,
     ...(skillPatches ? { skillPatches } : {}),
@@ -277,6 +283,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && status !== 'idle' && (
         <div className="cmp-uma-body">

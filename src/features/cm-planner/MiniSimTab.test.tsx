@@ -17,7 +17,7 @@ const doneState = (meanBashin: number): RaceCompareState => ({
 });
 
 const ctl = (over: Partial<RaceCompareController> = {}): RaceCompareController => ({
-  showHp: true, setShowHp: vi.fn(), state: idleState, comparing: false, uma2Empty: false, ...over,
+  showHp: true, setShowHp: vi.fn(), state: idleState, comparing: false, uma2Empty: false, patchNotes: [], ...over,
 });
 
 describe('MiniSimTab', () => {
@@ -92,5 +92,25 @@ describe('MiniSimTab', () => {
   it('does not show the caveat when not comparing', () => {
     render(<MiniSimTab ctl={ctl({ comparing: false, uma2Empty: false })} />);
     expect(screen.queryByText(/vacuum run/i)).toBeNull();
+  });
+
+  it('shows a patched-sim note beside the compare summary when notes are present', () => {
+    render(
+      <MiniSimTab
+        ctl={ctl({
+          comparing: true,
+          uma2Empty: false,
+          patchNotes: [
+            { skillId: '300', name: 'Test Skill', ver: 2, pinLag: false, predicted: false, pinned: true },
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByRole('note')).toHaveTextContent('Test Skill');
+  });
+
+  it('renders no patched-sim note when there are none', () => {
+    render(<MiniSimTab ctl={ctl({ comparing: true, uma2Empty: false, patchNotes: [] })} />);
+    expect(screen.queryByRole('note')).toBeNull();
   });
 });

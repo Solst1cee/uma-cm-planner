@@ -18,7 +18,9 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { requiredStaminaForSpurt, hpStats, histogram } from '@/core/staminaSpurt';
 import { buildInjectedDebuffs, STAMINA_DEBUFF_ICON } from './staminaDebuffs';
 import { HeaderHelp } from './HeaderHelp';
+import { PatchedSimNote } from './PatchedSimNote';
 import type { SkillPatch } from '@/core/rebalance';
+import type { ActivePatchNote } from '@/core/rebalancePatches';
 import { withSkillPatches, skillPatchesSig } from '@/core/rebalancePatches';
 
 export interface StaminaSpurtDeps {
@@ -155,6 +157,7 @@ export function StaminaSpurtTab({
   survivalTarget: survivalTargetProp,
   onSurvivalTargetChange,
   skillPatches,
+  patchNotes = [],
 }: {
   plan: CmPlan;
   deps?: StaminaSpurtDeps;
@@ -169,6 +172,9 @@ export function StaminaSpurtTab({
   /** Rebalance overrides for this plan's reference build (availability #4b). Stays provider-free —
    *  the page computes this via useSkillPatches and passes it in. */
   skillPatches?: Record<string, SkillPatch>;
+  /** P3 post-patch-values markers for the skills this build sims (availability #4b). Stays
+   *  provider-free — the page computes this via usePatchNotes and passes it in. */
+  patchNotes?: ActivePatchNote[];
 }) {
   const [open, setOpen] = useState(true);
   const [spurtLocal, setSpurtLocal] = useState(95);
@@ -377,6 +383,7 @@ export function StaminaSpurtTab({
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && (
         <div className="cmp-stamina-tab">

@@ -1001,7 +1001,7 @@ export function PlannerSidebar({
                         value={currentVer}
                         title={
                           isPinned
-                            ? `Pinned — sims will use v${item.skillVer} parameters (arrives with 4b)`
+                            ? `Pinned — sims use v${item.skillVer} parameters`
                             : undefined
                         }
                         onChange={(e) => {

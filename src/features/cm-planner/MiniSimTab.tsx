@@ -4,10 +4,11 @@
  *  rendered on the §0 racetrack (main column) via useRaceCompareController. */
 import './race-compare.css';
 import { RunChoiceToggle } from './skill-trace/SkillTraceCharts';
+import { PatchedSimNote } from './PatchedSimNote';
 import type { RaceCompareController } from './useRaceCompareController';
 
 export function MiniSimTab({ ctl }: { ctl: RaceCompareController }) {
-  const { showHp, setShowHp, state, comparing, uma2Empty } = ctl;
+  const { showHp, setShowHp, state, comparing, uma2Empty, patchNotes } = ctl;
   return (
     <div className="cmp-minisim-tab">
       {uma2Empty ? (
@@ -22,6 +23,7 @@ export function MiniSimTab({ ctl }: { ctl: RaceCompareController }) {
               {state.meanBashin.toFixed(2)} バ身
             </div>
           )}
+          <PatchedSimNote notes={patchNotes} />
           <label className="cmp-rc-hp">
             <input type="checkbox" checked={showHp} onChange={(e) => setShowHp(e.target.checked)} /> Show HP
           </label>
