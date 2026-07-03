@@ -52,6 +52,7 @@ const h = vi.hoisted(() => {
         { ver: 2, jpDate: '2025-11-20', globalArrival: '2026-08-10', globalDatePredicted: true },
       ],
     }),
+    { ...skill('jpw1', 'JP Upcoming White', 'white', '20011', 'phase>=1', 120), server: 'jp', releaseDate: '2026-09-01', releaseDatePredicted: true },
   ];
   const umas = [
     {
@@ -859,5 +860,21 @@ describe('PlannerSidebar', () => {
     expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
     const row = screen.getByText('JP Preview Uma').closest('li')!;
     expect(within(row).getByText('upcoming')).toBeInTheDocument();
+  });
+
+  it('marks a wishlisted JP-ahead skill plate with its availability tier chip (P3)', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'jpw1', priority: 1, source: 'targeted' }],
+    });
+    const plate = screen.getByText('JP Upcoming White').closest<HTMLElement>('.cmp-wishlist-line')!;
+    expect(within(plate).getByText('upcoming')).toBeInTheDocument();
+  });
+
+  it('renders no tier chip on a Global wishlist plate (unchanged default)', () => {
+    renderSidebar(); // wishlist: [{ skillId: 'a' }] — Escape Artist, server:'global'
+    const plate = screen.getByText('Escape Artist').closest<HTMLElement>('.cmp-wishlist-line')!;
+    expect(within(plate).queryByText('upcoming')).not.toBeInTheDocument();
+    expect(plate.querySelector('.tier-chip')).toBeNull();
   });
 });

@@ -27,7 +27,21 @@ describe('RebalanceBadge', () => {
     expect(badge).toHaveAttribute('title', 'JP conditions differ — not yet curated');
   });
 
-  it('shows "Δv{jpVer} ~{arrival}" for a curated skill with a dated latest version', () => {
+  it('shows "Δv{jpVer} ~{arrival}" for a PREDICTED latest-version arrival', () => {
+    const info: RebalanceInfo = {
+      globalVer: 1,
+      jpVer: 2,
+      versions: [
+        { ver: 2, globalArrival: '2026-08-10', globalDatePredicted: true, note: 'reduced cooldown' },
+      ],
+    };
+    render(<RebalanceBadge info={info} />);
+    const badge = screen.getByText('Δv2 ~2026-08-10');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveAttribute('title', 'v2: reduced cooldown');
+  });
+
+  it('shows "Δv{jpVer} ✓ {arrival}" for an ANNOUNCED latest-version arrival (P3: no ~ hedge on confirmed dates)', () => {
     const info: RebalanceInfo = {
       globalVer: 1,
       jpVer: 2,
@@ -36,9 +50,7 @@ describe('RebalanceBadge', () => {
       ],
     };
     render(<RebalanceBadge info={info} />);
-    const badge = screen.getByText('Δv2 ~2026-08-10');
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveAttribute('title', 'v2: reduced cooldown');
+    expect(screen.getByText('Δv2 ✓ 2026-08-10')).toBeInTheDocument();
   });
 
   it('shows "Δv{jpVer}" (no arrival) for a curated skill with an undated latest version', () => {

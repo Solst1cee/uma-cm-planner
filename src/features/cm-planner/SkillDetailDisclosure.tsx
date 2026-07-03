@@ -6,6 +6,7 @@ import { SkillTraceSection } from './SkillTraceSection';
 import { SourcingSection } from './SourcingSection';
 import type { TraceContext } from './useSkillTrace';
 import type { RebalanceInfo, SkillVersion } from '@/core/types';
+import { arrivalLabel } from '@/core/rebalance';
 
 type DetailStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error';
 
@@ -306,8 +307,7 @@ function ConditionLines({ value }: { value: string | undefined }) {
 
 function versionArrivalLabel(v: SkillVersion): string | null {
   if (v.ver === 1) return null; // baseline: no arrival date
-  if (v.globalArrival === undefined) return 'date unknown';
-  return v.globalDatePredicted === true ? `~${v.globalArrival}` : `✓ ${v.globalArrival}`;
+  return arrivalLabel(v) ?? 'date unknown';
 }
 
 function RebalanceVersionRow({ v, isLive }: { v: SkillVersion; isLive: boolean }) {

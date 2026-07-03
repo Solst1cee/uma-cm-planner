@@ -38,6 +38,13 @@ export function resolveVersion(
   return effectiveVersion(info, cutoffISO, todayISO);
 }
 
+/** One arrival-label convention for every surface (P3): `~date` = foresight-projected
+ *  guess, `✓ date` = officially announced. Undefined when the version has no date. */
+export function arrivalLabel(v: SkillVersion): string | undefined {
+  if (v.globalArrival === undefined) return undefined;
+  return v.globalDatePredicted === true ? `~${v.globalArrival}` : `✓ ${v.globalArrival}`;
+}
+
 export function versionPatch(v: SkillVersion): SkillPatch | undefined {
   const patch: SkillPatch = {};
   if (v.conditions !== undefined) patch.conditions = v.conditions;

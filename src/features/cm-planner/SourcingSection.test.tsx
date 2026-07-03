@@ -27,8 +27,12 @@ vi.mock('@/features/data/gameData', () => ({ useGameData: () => gameData }));
 // The reverse card-hint index reads the shared app-wide planning horizon; default
 // mirrors "current" (global only). Tests can swap `availabilityFixture` for a
 // cm-like predicate that also admits released-by-cutoff JP-ahead cards.
-let availabilityFixture: { visible: (r: { server: string; releaseDate?: string }) => boolean } = {
+let availabilityFixture: {
+  visible: (r: { server: string; releaseDate?: string }) => boolean;
+  tierOf: (r: { server: string; releaseDate?: string }) => 'now' | 'upcoming' | 'future';
+} = {
   visible: (r) => r.server === 'global',
+  tierOf: () => 'now',
 };
 vi.mock('@/app/useAvailability', () => ({
   useAvailability: () => availabilityFixture,
@@ -83,10 +87,33 @@ describe('SourcingSection', () => {
       ],
     };
     // A cm-like predicate: released by the plan's CM cutoff, regardless of server.
-    availabilityFixture = { visible: () => true };
+    availabilityFixture = { visible: () => true, tierOf: () => 'now' };
     const { container } = render(<SourcingSection skillId="S3" rarity="white" />);
     expect(container.textContent).toContain('GlobalCard');
     expect(container.textContent).toContain('JpUpcoming');
+    gameData = prevData;
+    availabilityFixture = prevAvailability;
+  });
+
+  it('marks a JP-ahead source row with its availability tier chip (P3: never an unmarked source)', () => {
+    const prevData = gameData;
+    const prevAvailability = availabilityFixture;
+    const jp = card('40003', 'JpUpcoming', [{ skillId: 'S3', sourceType: 'chain' }], 'jp');
+    jp.releaseDate = '2026-09-01';
+    jp.releaseDatePredicted = true;
+    gameData = {
+      cards: [card('40001', 'GlobalCard', [{ skillId: 'S3', sourceType: 'chain' }], 'global'), jp],
+    };
+    availabilityFixture = {
+      visible: () => true,
+      tierOf: (r) => (r.server === 'jp' ? 'upcoming' : 'now'),
+    };
+    const { container } = render(<SourcingSection skillId="S3" rarity="white" />);
+    const chips = Array.from(container.querySelectorAll('.tier-chip'));
+    expect(chips).toHaveLength(1); // only the JP row is chipped; 'now' renders nothing
+    expect(chips[0]?.textContent).toBe('upcoming');
+    // and the projected date is shown, labeled as a projection
+    expect(container.textContent).toContain('~2026-09-01');
     gameData = prevData;
     availabilityFixture = prevAvailability;
   });
