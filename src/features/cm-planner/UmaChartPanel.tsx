@@ -12,14 +12,21 @@ import type { CmPlan } from '@/core/types';
 import type { BashinStats, SimBuild, SimRaceParams, Strategy } from '@/sim';
 import type { UmaChartRow, UmaChartCandidate, UmaStyleL } from '@/core/rankUmaChart';
 import { referenceBuild } from '@/core/rankUmaChart';
+import type { AvailabilityTier } from '@/core/availability';
 import { nullsLast } from '@/core/compare';
 import { useGameData } from '@/features/data/gameData';
+import { useAvailability } from '@/app/useAvailability';
+import { TierChip } from '@/app/TierChip';
 import { GameIcon } from '@/features/data/GameIcon';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { loadUniqueSkillByUmaId, type SkillSummary } from './skillTechnicalDetails';
 import { useUmaChart } from './useUmaChart';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
+import { PatchedSimNote } from './PatchedSimNote';
 import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
+import type { SkillPatch } from '@/core/rebalance';
+import { withSkillPatches } from '@/core/rebalancePatches';
 
 const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
 
@@ -56,7 +63,7 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>, rankStyle: 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate, tier, skillPatches }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
@@ -69,9 +76,14 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   race: SimRaceParams;
+  predictedDate?: string;
+  tier?: AvailabilityTier;
+  skillPatches?: Record<string, SkillPatch>;
 }) {
   const traceCtx: TraceContext | undefined =
-    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race, buildLabel: 'the reference' } : undefined;
+    unique && eff
+      ? { build: withSkillPatches(referenceBuild(row.outfitId, eff.strategy), skillPatches), race, buildLabel: 'the reference' }
+      : undefined;
   const hover = row.perStyle.length
     ? row.perStyle
         .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)
@@ -79,7 +91,18 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
     : 'No simulatable unique on this track';
   return (
     <li className={`cmp-uma-row ${row.status === 'inactive' ? 'is-dim' : ''}`.trim()} title={hover}>
-      <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
+      <span className="cmp-uma-portrait-wrap">
+        <GameIcon kind="uma" id={row.outfitId} size={30} alt={umaName} className="cmp-uma-portrait" />
+        {predictedDate && (
+          <span
+            className="cmp-upcoming-badge"
+            title="Projected Global date (foresight pace) — not announced"
+          >
+            ~{predictedDate}
+          </span>
+        )}
+        {tier && <TierChip tier={tier} />}
+      </span>
       {unique ? (
         <SkillDetailDisclosure
           skill={unique}
@@ -137,6 +160,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
   deps?: UmaChartPanelDeps;
 }) {
   const { umas, umaById } = useGameData();
+  const { visible: isVisible, tierOf } = useAvailability();
   const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
@@ -157,13 +181,27 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     return () => { cancelled = true; };
   }, [loadUnique]);
 
-  const globalUmas = useMemo(() => (umas ?? []).filter((u) => u.server === plan.server), [umas, plan.server]);
+  const globalUmas = useMemo(
+    () => (umas ?? []).filter((u) => isVisible(u)),
+    [umas, isVisible],
+  );
   const candidates: UmaChartCandidate[] = useMemo(
     () => globalUmas.map((u) => ({ outfitId: u.umaId, uniqueSkillId: uniqueByUmaId?.get(u.umaId)?.skillId ?? null })),
     [globalUmas, uniqueByUmaId],
   );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
-  const chartDeps = { uniqueLevel: plan.uniqueSkillLevel ?? 5, ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}) };
+  // Pin-free by design: the uma chart is the plan-independent reference chart; wishlist pins are plan what-ifs.
+  const skillPatches = useSkillPatches(null);
+  const relevantSkillIds = useMemo(
+    () => new Set(candidates.map((c) => c.uniqueSkillId).filter((id): id is string => id != null)),
+    [candidates],
+  );
+  const patchNotes = usePatchNotes(null, relevantSkillIds);
+  const chartDeps = {
+    uniqueLevel: plan.uniqueSkillLevel ?? 5,
+    ...(skillPatches ? { skillPatches } : {}),
+    ...(deps?.skillDelta ? { skillDelta: deps.skillDelta, nsamples: deps.nsamples } : {}),
+  };
   const { rows, status, done, total, isStale, run, stop } = useUmaChart(candidates, race, chartDeps);
 
   // Report stale state up so the tabstrip can flag this tab (fires only when it flips).
@@ -184,7 +222,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
     else { setSortMetric(m); setSortDir('desc'); }
   };
   const sortKey = (eff: UmaStyleL | null): number | null => (eff ? metricOf(eff, sortMetric) : null);
-  const visible = rows
+  const visibleRows = rows
     .map((row) => ({ row, eff: effStyle(row, styleOverride, rankStyle) }))
     .filter(({ row }) => {
       if (!showAll && row.status === 'inactive') return false; // hide only never-proc uniques
@@ -245,6 +283,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && status !== 'idle' && (
         <div className="cmp-uma-body">
@@ -298,12 +337,14 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
               </div>
 
               <ul className="cmp-uma-rows" aria-label="Uma unique-skill ranking">
-                {visible.map(({ row, eff }) => (
+                {visibleRows.map(({ row, eff }) => {
+                  const rowUma = umaById?.get(row.outfitId);
+                  return (
                   <UmaRow
                     key={row.outfitId}
                     row={row}
                     eff={eff}
-                    umaName={umaById?.get(row.outfitId)?.nameEn ?? `Uma ${row.outfitId}`}
+                    umaName={rowUma?.nameEn ?? `Uma ${row.outfitId}`}
                     unique={uniqueByUmaId?.get(row.outfitId) ?? null}
                     isRunner={plan.umaId === row.outfitId}
                     sortMetric={sortMetric}
@@ -313,9 +354,13 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                     race={race}
                     isOpen={openOutfitId === row.outfitId}
                     onOpenChange={(o) => setOpenOutfitId(o ? row.outfitId : null)}
+                    predictedDate={rowUma?.releaseDatePredicted ? rowUma.releaseDate : undefined}
+                    tier={rowUma ? tierOf(rowUma) : undefined}
+                    skillPatches={skillPatches}
                   />
-                ))}
-                {visible.length === 0 && (
+                  );
+                })}
+                {visibleRows.length === 0 && (
                   <li className="muted small">No umas to show{!showAll ? ' (try “show all”)' : ''}.</li>
                 )}
               </ul>

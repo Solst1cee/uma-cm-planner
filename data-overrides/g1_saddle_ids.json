@@ -1,0 +1,4 @@
+{
+  "_comment": "G1 race saddle ids (UmaExtractor win_saddle_id_array space). Empty until the authoritative list is supplied; win-bonus stays 0 (safe). See docs/superpowers/specs/2026-07-01-m1-7-coverage-matrix-design.md §8.",
+  "g1SaddleIds": []
+}

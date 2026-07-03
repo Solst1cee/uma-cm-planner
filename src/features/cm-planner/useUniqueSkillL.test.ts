@@ -32,4 +32,27 @@ describe('useUniqueSkillL', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.L).toBeNull();
   });
+
+  it('passes skillPatches into the reference build and re-runs when they differ (availability #4b)', async () => {
+    const calls: SimBuild[] = [];
+    const skillDelta = async (build: SimBuild) => {
+      calls.push(build);
+      return { mean: 2.5, median: 2.5, min: 2, max: 3, nsamples: 4, results: [2, 2, 3, 3], activated: true };
+    };
+    const { result, rerender } = renderHook(
+      ({ skillPatches }) =>
+        useUniqueSkillL({
+          outfitId: '100101', uniqueSkillId: '100011', strategy: 'pace', level: 6, race,
+          skillPatches,
+          deps: { skillDelta, nsamples: 4 },
+        }),
+      { initialProps: { skillPatches: { '100011': { modifier: 2000 } } } },
+    );
+    await waitFor(() => expect(result.current.L).toBe(2.5));
+    expect(calls[0]?.skillPatches).toEqual({ '100011': { modifier: 2000 } });
+
+    rerender({ skillPatches: { '100011': { modifier: 3000 } } });
+    await waitFor(() => expect(calls.length).toBe(2));
+    expect(calls[1]?.skillPatches).toEqual({ '100011': { modifier: 3000 } });
+  });
 });

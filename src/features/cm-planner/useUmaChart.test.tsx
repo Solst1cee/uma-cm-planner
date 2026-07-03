@@ -38,6 +38,25 @@ describe('useUmaChart', () => {
     expect(skillDelta.mock.calls.length).toBe(callsAfterRun); // no auto recompute
   });
 
+  it('flips isStale when skillPatches changes after a run, and threads them into the sim build', async () => {
+    const seen: SimBuild[] = [];
+    const skillDelta = vi.fn(async (b: SimBuild) => { seen.push(b); return bs(1); });
+    const { result, rerender } = renderHook(
+      ({ skillPatches }) => useUmaChart(cands, { courseId: '10906' }, { skillDelta, skillPatches }),
+      { initialProps: { skillPatches: undefined as Record<string, { modifier: number }> | undefined } },
+    );
+    act(() => result.current.run());
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    expect(seen.every((b) => b.skillPatches === undefined)).toBe(true);
+    const callsAfterRun = skillDelta.mock.calls.length;
+    rerender({ skillPatches: { uA: { modifier: 0.5 } } });
+    expect(result.current.isStale).toBe(true);
+    expect(skillDelta.mock.calls.length).toBe(callsAfterRun); // no auto recompute
+    act(() => result.current.run());
+    await waitFor(() => expect(result.current.status).toBe('done'));
+    expect(seen.some((b) => b.skillPatches === undefined ? false : b.skillPatches!['uA']?.modifier === 0.5)).toBe(true);
+  });
+
   it('stop() cancels an in-flight run, settles to done, and ignores later-resolving sims', async () => {
     const resolvers: Array<(v: BashinStats) => void> = [];
     const skillDelta = vi.fn(() => new Promise<BashinStats>((res) => { resolvers.push(res); }));

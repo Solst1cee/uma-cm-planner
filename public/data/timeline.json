@@ -765,6 +765,1526 @@
       "dataVersion": "global-76214c82"
     },
     {
+      "id": "patch-1000011-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Carnival Bonus v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100011-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Shooting Star v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100031-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Sky-High Teio Step v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100051-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Lights of Vaudeville v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100131-v2",
+      "type": "patch",
+      "title": "Skill rebalance: The Duty of Dignity Calls v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100231-v2",
+      "type": "patch",
+      "title": "Skill rebalance: ∴win Q.E.D. v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100261-v2",
+      "type": "patch",
+      "title": "Skill rebalance: G00 1st. F∞; v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100301-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Blue Rose Closer v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100371-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Schwarzes Schwert v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100481-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Pop & Polish v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-100581-v2",
+      "type": "patch",
+      "title": "Skill rebalance: I Never Goof Up! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110131-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Legacy of the Strong v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110151-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Barcarole of Blessings v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110171-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Arrows Whistle, Shadows Disperse v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110201-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Break It Down! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110231-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Presents from X v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110241-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Flowery☆Maneuver v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110301-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Every Rose Has Its Fangs v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-110371-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Guten Appetit ♪ v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200064-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Yodo Invicta v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200361-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Beeline Burst v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200362-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Straightaway Adept v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200371-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Rushing Gale! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200381-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Breath of Fresh Air v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200382-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Straightaway Recovery v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200441-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Iron Will v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200442-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Lay Low v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200511-v2",
+      "type": "patch",
+      "title": "Skill rebalance: In Body and Mind v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200512-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Homestretch Haste v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200591-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Fast & Furious v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200592-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Position Pilfer v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200601-v2",
+      "type": "patch",
+      "title": "Skill rebalance: On Your Left! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200602-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Slick Surge v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200631-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Sturm und Drang v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200632-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Masterful Gambit v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200651-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Turbo Sprint v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200652-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Sprinting Gear v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200681-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Mile Maven v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200682-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Productive Plan v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200731-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Unyielding v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200732-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Steadfast v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200741-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Cooldown v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200742-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Deep Breaths v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200761-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Adrenaline Rush v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200771-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Trick (Front) v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200772-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Tantalizing Trick v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200781-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Trick (Rear) v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200791-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Frenzied Front Runners v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200801-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Frenzied Pace Chasers v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200811-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Frenzied Late Surgers v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-200821-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Frenzied End Closers v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201061-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Step on the Gas! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201062-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Acceleration v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201131-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Lightning Step v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201132-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Thunderbolt Step v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201211-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Overwhelming Pressure v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201212-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Pressure v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201291-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Reignition v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201292-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Second Wind v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201421-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Relax v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201422-v2",
+      "type": "patch",
+      "title": "Skill rebalance: A Small Breather v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201491-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Serenity v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201492-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Levelheaded v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201691-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Lie in Wait v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201692-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Be Still v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201701-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Come What May v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201702-v2",
+      "type": "patch",
+      "title": "Skill rebalance: All I've Got v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201901-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Neck and Neck v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-201902-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Head-On v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202081-v2",
+      "type": "patch",
+      "title": "Skill rebalance: From the Brink v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202082-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Take the Chance v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202091-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Burning Soul v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202092-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Fighting Spirit v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202121-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Dauntless v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202122-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Fearless v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202151-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Keep Going! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-202152-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Full Throttle v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900011-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Shooting Star v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900031-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Sky-High Teio Step v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900051-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Lights of Vaudeville v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900131-v2",
+      "type": "patch",
+      "title": "Skill rebalance: The Duty of Dignity Calls v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900231-v2",
+      "type": "patch",
+      "title": "Skill rebalance: ∴win Q.E.D. v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900261-v2",
+      "type": "patch",
+      "title": "Skill rebalance: G00 1st. F∞; v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900301-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Blue Rose Closer v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900371-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Schwarzes Schwert v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900481-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Pop & Polish v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-900581-v2",
+      "type": "patch",
+      "title": "Skill rebalance: I Never Goof Up! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910131-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Legacy of the Strong v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910151-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Barcarole of Blessings v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910171-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Arrows Whistle, Shadows Disperse v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910201-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Break It Down! v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910231-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Presents from X v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910241-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Flowery☆Maneuver v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910301-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Every Rose Has Its Fangs v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
+      "id": "patch-910371-v2",
+      "type": "patch",
+      "title": "Skill rebalance: Guten Appetit ♪ v2",
+      "dates": {
+        "start": "2026-07-01"
+      },
+      "tier": "official",
+      "status": "confirmed",
+      "source": {
+        "kind": "manual",
+        "url": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      },
+      "server": "global",
+      "dataVersion": "global-76214c82"
+    },
+    {
       "id": "cm16-leo-cup",
       "type": "cm",
       "title": "Leo Cup",
@@ -795,7 +2315,7 @@
       "type": "cm",
       "title": "Virgo Cup",
       "dates": {
-        "finals": "2026-08-30"
+        "finals": "2026-08-10"
       },
       "cm": {
         "cmNumber": 17,
@@ -815,31 +2335,11 @@
       "type": "cm",
       "title": "Libra Cup",
       "dates": {
-        "finals": "2026-09-30"
+        "finals": "2026-09-01"
       },
       "cm": {
         "cmNumber": 18,
         "trackSummary": "Hanshin turf 1600m (mile)"
-      },
-      "tier": "prediction",
-      "status": "unconfirmed",
-      "source": {
-        "kind": "umaguide",
-        "url": "https://uma.guide/cm-schedule/"
-      },
-      "server": "global",
-      "dataVersion": "global-76214c82"
-    },
-    {
-      "id": "cm19-scorpio-cup-predicted",
-      "type": "cm",
-      "title": "Scorpio Cup",
-      "dates": {
-        "finals": "2026-10-30"
-      },
-      "cm": {
-        "cmNumber": 19,
-        "trackSummary": "Kyoto turf 2200m (medium)"
       },
       "tier": "prediction",
       "status": "unconfirmed",

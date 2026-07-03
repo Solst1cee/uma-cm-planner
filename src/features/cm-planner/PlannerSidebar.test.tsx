@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, RebalanceInfo } from '@/core/types';
 
 const h = vi.hoisted(() => {
   const skill = (
@@ -14,6 +14,7 @@ const h = vi.hoisted(() => {
     baseSpCost = 0,
     variantSkillIds?: string[],
     prereqSkillId?: string,
+    rebalance?: RebalanceInfo,
   ) => ({
     skillId,
     nameEn,
@@ -23,10 +24,12 @@ const h = vi.hoisted(() => {
     iconId,
     ...(prereqSkillId ? { prereqSkillId } : {}),
     ...(variantSkillIds ? { variantSkillIds } : {}),
+    ...(rebalance ? { rebalance } : {}),
     conditions,
     server: 'global',
     dataVersion: 't',
   });
+  const timeline = [{ type: 'cm', dates: { start: '2026-06-01' }, cm: { cmNumber: 15 } }];
   const skills = [
     skill('u', 'Victory Cheer!', 'unique', '20013', 'phase>=2&order>=1'),
     skill('v', 'Silent Speedline', 'unique', '20013', 'corner!=0'),
@@ -41,6 +44,15 @@ const h = vi.hoisted(() => {
     skill('201472', 'I Can See Right Through You', 'white', '20011', 'running_style==4&is_move_lane==1', 110),
     skill('110061', 'Festive Miracle', 'unique', '20013', 'activate_count_heal>=3&distance_rate>=50'),
     skill('910061', 'Festive Miracle', 'inherited_unique', '20011', 'activate_count_heal>=3&distance_rate>=50', 200),
+    skill('reb1', 'Rebalanced Skill', 'white', '20011', 'phase>=2', 100, undefined, undefined, {
+      globalVer: 1,
+      jpVer: 2,
+      versions: [
+        { ver: 1 },
+        { ver: 2, jpDate: '2025-11-20', globalArrival: '2026-08-10', globalDatePredicted: true },
+      ],
+    }),
+    { ...skill('jpw1', 'JP Upcoming White', 'white', '20011', 'phase>=1', 120), server: 'jp', releaseDate: '2026-09-01', releaseDatePredicted: true },
   ];
   const umas = [
     {
@@ -71,12 +83,23 @@ const h = vi.hoisted(() => {
       server: 'global',
       dataVersion: 't',
     },
+    {
+      umaId: '109901',
+      charaId: '1099',
+      nameEn: 'JP Preview Uma',
+      epithet: 'Preview',
+      server: 'jp',
+      releaseDate: '2026-01-01',
+      releaseDatePredicted: true,
+      dataVersion: 't',
+    },
   ];
   const skillById = new Map(skills.map((s) => [s.skillId, s]));
   const umaById = new Map(umas.map((u) => [u.umaId, u]));
   const uniqueByUmaId = new Map([
     ['100101', { skillId: 'u', nameEn: 'Victory Cheer!', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=2&order>=1' }],
     ['100201', { skillId: 'v', nameEn: 'Silent Speedline', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'corner!=0' }],
+    ['109901', { skillId: 'jp1', nameEn: 'JP Preview Skill ☆', iconId: '20013', rarity: 'unique', baseSpCost: 0, conditions: 'phase>=1' }],
   ]);
   const plan = {
     id: 'p',
@@ -101,6 +124,7 @@ const h = vi.hoisted(() => {
     umas,
     umaById,
     uniqueByUmaId,
+    timeline,
     plan,
     setPlan: vi.fn(),
     save: vi.fn(async () => undefined),
@@ -150,7 +174,29 @@ vi.mock('@/features/data/gameData', () => ({
     skillById: h.skillById,
     umas: h.umas,
     umaById: h.umaById,
+    timeline: h.timeline,
     iconManifest: null,
+  }),
+}));
+
+// The shared app-wide horizon lens — mocked with a mutable fixture so individual
+// tests can simulate 'current' (default) and 'cm' horizon behavior without a full
+// ActivePlanContext/gameData provider stack.
+const avail = vi.hoisted(() => ({
+  visible: (r: { server: string; releaseDate?: string }) => r.server === 'global',
+  tierOf: (r: { server: string; releaseDate?: string }): 'now' | 'upcoming' | 'future' =>
+    r.server === 'global' ? 'now' : 'upcoming',
+}));
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: avail.visible,
+    tierOf: avail.tierOf,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
   }),
 }));
 
@@ -164,6 +210,7 @@ vi.mock('./skillTechnicalDetails', () => ({
     rarity: 'white' | 'gold' | 'unique' | 'inherited_unique';
     baseSpCost: number;
     conditions: string;
+    rebalance?: import('@/core/types').RebalanceInfo;
   }) => ({
     skillId: skill.skillId,
     nameEn: skill.nameEn,
@@ -171,6 +218,7 @@ vi.mock('./skillTechnicalDetails', () => ({
     rarity: skill.rarity,
     baseSpCost: skill.baseSpCost,
     conditions: skill.conditions,
+    ...(skill.rebalance ? { rebalance: skill.rebalance } : {}),
   }),
 }));
 vi.mock('./useSkillTrace', () => ({
@@ -192,6 +240,8 @@ import { PlannerSidebar } from './PlannerSidebar';
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  avail.visible = (r) => r.server === 'global';
+  avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
 });
 
 function renderSidebar(
@@ -610,6 +660,61 @@ describe('PlannerSidebar', () => {
     expect(screen.getByText('No matching skills.')).toBeInTheDocument();
   });
 
+  it('shows a rebalance version picker for a wishlist skill with 2+ versions, defaulted to the horizon pick', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted' }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill') as HTMLSelectElement;
+    expect(select).toHaveValue('1');
+    expect(within(select).getByRole('option', { name: /v1 \(Global\) — default/ })).toBeInTheDocument();
+    expect(within(select).getByRole('option', { name: /v2 ~2026-08-10/ })).toBeInTheDocument();
+    expect(select).not.toHaveClass('is-pinned');
+  });
+
+  it('picking a non-default rebalance version pins skillVer on that wishlist item', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    renderSidebar(
+      { ...(h.plan as CmPlan), wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted' }] },
+      undefined,
+      true,
+      false,
+      onChange,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Rebalance version for Rebalanced Skill'), '2');
+
+    const next = onChange.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist[0]).toMatchObject({ skillId: 'reb1', skillVer: 2 });
+  });
+
+  it('re-picking the default rebalance version clears the pinned skillVer', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    renderSidebar(
+      { ...(h.plan as CmPlan), wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted', skillVer: 2 }] },
+      undefined,
+      true,
+      false,
+      onChange,
+    );
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    await user.selectOptions(select, '1');
+
+    const next = onChange.mock.lastCall![0] as CmPlan;
+    expect(next.wishlist[0]).not.toHaveProperty('skillVer');
+  });
+
+  it('shows no rebalance picker for a wishlist skill with no rebalance info', () => {
+    renderSidebar(); // default plan wishlist: [{ skillId: 'a' (Escape Artist), ... }]
+
+    expect(screen.queryByLabelText(/Rebalance version for/)).not.toBeInTheDocument();
+  });
+
   it('lets wishlist rows switch between skill variants', async () => {
     const user = userEvent.setup();
     renderSidebar({
@@ -723,5 +828,53 @@ describe('PlannerSidebar', () => {
 
     expect(await screen.findByText('No runtime technical detail was found for this skill.')).toBeInTheDocument();
     expect(screen.queryByText('Loading technical detail...')).not.toBeInTheDocument();
+  });
+
+  it('current horizon: JP uma absent from runner search (behavior preservation)', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+    await waitForUniqueMap();
+
+    const searchInput = screen.getByLabelText('Search uma or unique skill');
+    await user.click(searchInput);
+    await user.clear(searchInput);
+    await waitFor(() => expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument());
+
+    expect(screen.queryByText('JP Preview Uma')).not.toBeInTheDocument();
+  });
+
+  it('cm horizon reveals the JP uma in runner search with a tier chip', async () => {
+    avail.visible = (r) => r.server === 'global' || r.server === 'jp';
+    avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
+    const user = userEvent.setup();
+    renderSidebar();
+    await waitForUniqueMap();
+
+    const searchInput = screen.getByLabelText('Search uma or unique skill');
+    await user.click(searchInput);
+    await user.clear(searchInput);
+    await waitFor(() => expect(screen.getByRole('list', { name: 'Uma search results' })).toBeInTheDocument());
+
+    expect(screen.getByText('JP Preview Uma')).toBeInTheDocument();
+    // Badge for predicted release date is rendered
+    expect(screen.getByText('~2026-01-01')).toBeInTheDocument();
+    const row = screen.getByText('JP Preview Uma').closest('li')!;
+    expect(within(row).getByText('upcoming')).toBeInTheDocument();
+  });
+
+  it('marks a wishlisted JP-ahead skill plate with its availability tier chip (P3)', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'jpw1', priority: 1, source: 'targeted' }],
+    });
+    const plate = screen.getByText('JP Upcoming White').closest<HTMLElement>('.cmp-wishlist-line')!;
+    expect(within(plate).getByText('upcoming')).toBeInTheDocument();
+  });
+
+  it('renders no tier chip on a Global wishlist plate (unchanged default)', () => {
+    renderSidebar(); // wishlist: [{ skillId: 'a' }] — Escape Artist, server:'global'
+    const plate = screen.getByText('Escape Artist').closest<HTMLElement>('.cmp-wishlist-line')!;
+    expect(within(plate).queryByText('upcoming')).not.toBeInTheDocument();
+    expect(plate.querySelector('.tier-chip')).toBeNull();
   });
 });

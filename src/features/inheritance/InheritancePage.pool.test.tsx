@@ -23,6 +23,19 @@ vi.mock('@/app/ActivePlanContext', () => ({
   }),
 }));
 vi.mock('@/features/parents/useUmas', () => ({ useUmas: () => ({ umas: [], umaById: new Map() }), umaName: (_: unknown, id: string) => id }));
+// The page's pool card reads the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 // Heavy M1.3 components need providers — stub them; this test exercises the center-column pool.
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({ PlanInventoryCard: () => <div data-testid="inventory" /> }));
 vi.mock('@/features/skill-planner/SkillPicker', () => ({ SkillPicker: () => <div data-testid="skill-picker" /> }));
@@ -32,7 +45,7 @@ vi.mock('@/features/data/gameData', () => ({
     cardById: new Map(),
     skillById: new Map(),
     skills: [],
-    cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [] }],
+    cards: [{ cardId: '30028', nameEn: 'Kitasan', charName: 'Kitasan', rarity: 'SSR', type: 'speed', skills: [], server: 'global' }],
     // GameIcon resolves a card image only when the id is in the manifest.
     iconManifest: {
       dataVersion: 'test',

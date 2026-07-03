@@ -55,6 +55,27 @@ vi.mock('@/core/simBuild', () => ({
   chartBaselineBuild: () => ({ stats: { spd: 1200 }, strategy: 'end', skills: [] }),
 }));
 
+// The shared app-wide horizon lens — mocked with a mutable fixture so individual
+// tests can simulate 'current' (default), 'cm', and 'allJp' horizon behavior
+// without a full ActivePlanContext/gameData provider stack.
+const avail = vi.hoisted(() => ({
+  visible: (r: { server: string; releaseDate?: string }) => r.server === 'global',
+  tierOf: (r: { server: string; releaseDate?: string }): 'now' | 'upcoming' | 'future' =>
+    r.server === 'global' ? 'now' : 'upcoming',
+}));
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: avail.visible,
+    tierOf: avail.tierOf,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
+
 import { AccelChartPanel } from './AccelChartPanel';
 
 const basePlan = {
@@ -99,6 +120,8 @@ afterEach(() => {
   h.useGameData.mockReturnValue(h.defaultGameData);
   h.loadAccelSkillIds.mockResolvedValue(h.defaultAccelIds);
   h.loadSkillEffectValues.mockResolvedValue(h.defaultEffectValues);
+  avail.visible = (r) => r.server === 'global';
+  avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'upcoming');
 });
 
 describe('AccelChartPanel', () => {
@@ -164,5 +187,82 @@ describe('AccelChartPanel', () => {
     expect(within(row).getByText('Accel A')).toBeInTheDocument();
     // The chip lives in the skill plate now; the stamped L renders in the L column of the same row.
     expect(row.querySelector('.cmp-uma-num')).toHaveTextContent(/\+1\.23/);
+  });
+
+  it('current horizon: JP skills absent (behavior preservation)', async () => {
+    // default mock: visible = server === 'global' (the pre-horizon "current" behavior)
+    const up = { skillId: 'up1', nameEn: 'Upcoming Accel', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-06-01', releaseDatePredicted: true } as unknown as SkillRecord;
+    const skills = [...h.skills, up];
+    h.useGameData.mockReturnValue({
+      status: 'ready', skills, skillById: new Map(skills.map((s) => [s.skillId, s])),
+      sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null, timeline: [],
+    });
+    h.loadAccelSkillIds.mockResolvedValueOnce(new Set([...h.defaultAccelIds, 'up1']));
+    await runFull();
+    expect(rowTexts().some((t) => t.includes('Upcoming Accel'))).toBe(false);
+  });
+
+  it('cm horizon reveals upcoming with a tier chip; future stays hidden', async () => {
+    // Simulate a 'cm' horizon: visible reveals JP records dated on/before the cutoff;
+    // records past the cutoff stay hidden entirely (not just un-tiered).
+    const CUTOFF = '2026-06-21';
+    avail.visible = (r) => r.server === 'global' || (r.releaseDate ?? '9999-99-99') <= CUTOFF;
+    avail.tierOf = (r) =>
+      r.server === 'global' ? 'now' : (r.releaseDate ?? '9999-99-99') <= CUTOFF ? 'upcoming' : 'future';
+    const near = { skillId: 'up1', nameEn: 'Upcoming Accel', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-06-01', releaseDatePredicted: true } as unknown as SkillRecord;
+    const far = { skillId: 'up2', nameEn: 'Future Accel', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-08-01', releaseDatePredicted: true } as unknown as SkillRecord;
+    const skills = [...h.skills, near, far];
+    h.useGameData.mockReturnValue({
+      status: 'ready', skills, skillById: new Map(skills.map((s) => [s.skillId, s])),
+      sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null, timeline: [],
+    });
+    h.loadAccelSkillIds.mockResolvedValueOnce(new Set([...h.defaultAccelIds, 'up1', 'up2']));
+    render(
+      <AccelChartPanel
+        courseId="10906"
+        plan={basePlan}
+        onChange={vi.fn()}
+        deps={{ skillDelta: h.skillDelta, loadAccelSkillIds: h.loadAccelSkillIds, loadSkillEffectValues: h.loadSkillEffectValues }}
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(rowTexts().some((t) => t.includes('Upcoming Accel'))).toBe(true));
+    const row = within(list()).getByText('Upcoming Accel').closest('li')!;
+    expect(within(row).getByText('upcoming')).toBeInTheDocument();
+    expect(rowTexts().some((t) => t.includes('Future Accel'))).toBe(false); // past the cutoff, stays hidden
+  });
+
+  it('allJp reveals future rows tagged future', async () => {
+    avail.visible = () => true;
+    avail.tierOf = (r) => (r.server === 'global' ? 'now' : 'future');
+    const far = { skillId: 'up2', nameEn: 'Future Accel', nameJp: '', baseSpCost: 170,
+      rarity: 'gold', iconId: '1', conditions: '', server: 'jp', dataVersion: 't',
+      releaseDate: '2026-08-01', releaseDatePredicted: true } as unknown as SkillRecord;
+    const skills = [...h.skills, far];
+    h.useGameData.mockReturnValue({
+      status: 'ready', skills, skillById: new Map(skills.map((s) => [s.skillId, s])),
+      sparkRates: {}, umas: [], umaById: new Map(), iconManifest: null, timeline: [],
+    });
+    h.loadAccelSkillIds.mockResolvedValueOnce(new Set([...h.defaultAccelIds, 'up2']));
+    render(
+      <AccelChartPanel
+        courseId="10906"
+        plan={basePlan}
+        onChange={vi.fn()}
+        deps={{ skillDelta: h.skillDelta, loadAccelSkillIds: h.loadAccelSkillIds, loadSkillEffectValues: h.loadSkillEffectValues }}
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(rowTexts().some((t) => t.includes('Future Accel'))).toBe(true));
+    const row = within(list()).getByText('Future Accel').closest('li')!;
+    expect(within(row).getByText('future')).toBeInTheDocument();
   });
 });

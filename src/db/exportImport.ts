@@ -359,6 +359,10 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
     const p = ts['priority'];
     if (p !== 1 && p !== 2 && p !== 3) fail(`${path}.wishlist[${i}].priority`, '1 | 2 | 3', p);
     reqOneOf(ts, 'source', ['targeted'] as const, `${path}.wishlist[${i}]`);
+    const skillVer = ts['skillVer'];
+    if (skillVer !== undefined && (typeof skillVer !== 'number' || !Number.isFinite(skillVer))) {
+      fail(`${path}.wishlist[${i}].skillVer`, 'a finite number or absent', skillVer);
+    }
   });
 
   const parents = asRecord(row['parents'], `${path}.parents`);

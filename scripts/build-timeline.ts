@@ -1,7 +1,7 @@
 import { mergeTimeline, sortTimeline } from '@/core/timeline';
 import { synthesizeUpcomingCms } from '@/core/cmSynthesis';
 import { slug } from '@/core/slug';
-import type { CmPreset, CmTrack, TimelineEntry } from '@/core/types';
+import type { CmPreset, CmTrack, JpCmDate, TimelineEntry } from '@/core/types';
 
 /**
  * Each cm_preset → a `cm` TimelineEntry (real data; tier/status by server, P4),
@@ -14,6 +14,10 @@ export function buildTimeline(inputs: {
   tracks?: CmTrack[];
   dataVersion: string;
   horizon?: number;
+  jpCms?: JpCmDate[];
+  /** Extra fully-formed entries (e.g. skill-rebalance `patch` entries) merged
+   *  in before the final sort — bypasses the cm_preset/override pipeline. */
+  extraEntries?: TimelineEntry[];
 }): { dataVersion: string; entries: TimelineEntry[] } {
   const base: TimelineEntry[] = inputs.presets.map((p) => ({
     id: `cm-${slug(p.name)}-${p.date}`,
@@ -31,6 +35,7 @@ export function buildTimeline(inputs: {
   const predicted = synthesizeUpcomingCms(merged, inputs.tracks ?? [], {
     dataVersion: inputs.dataVersion,
     horizon: inputs.horizon,
+    jpCms: inputs.jpCms,
   });
-  return { dataVersion: inputs.dataVersion, entries: sortTimeline([...merged, ...predicted]) };
+  return { dataVersion: inputs.dataVersion, entries: sortTimeline([...merged, ...predicted, ...(inputs.extraEntries ?? [])]) };
 }

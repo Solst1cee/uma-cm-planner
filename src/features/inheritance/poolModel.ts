@@ -1,6 +1,6 @@
 // src/features/inheritance/poolModel.ts
 /** M1.6 — pool view-model: build, filter, sort. Pure helpers. */
-import type { CardType, LimitBreak, SupportCardRecord } from '@/core/types';
+import type { CardType, LimitBreak, Server, SupportCardRecord } from '@/core/types';
 import { matchedSkillIds } from '@/core/cardMatches';
 import { TYPE_COLORS, TYPE_LABEL } from './deckOps';
 
@@ -73,6 +73,9 @@ export interface PoolItem {
   hint: string[];
   /** Effect stat lines (Training/Friendship/… ) at the selected LB; [] if no row. */
   stats: StatLine[];
+  server: Server;
+  releaseDate?: string;
+  releaseDatePredicted?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,6 +123,9 @@ export function buildPoolItem(card: SupportCardRecord, opts: BuildPoolItemOpts):
     random,
     hint,
     stats: cardStatLines(opts.statsRow),
+    server: card.server,
+    releaseDate: card.releaseDate,
+    releaseDatePredicted: card.releaseDatePredicted,
   };
 }
 
@@ -127,9 +133,17 @@ export function buildPoolItem(card: SupportCardRecord, opts: BuildPoolItemOpts):
 // Filter
 // ---------------------------------------------------------------------------
 
-export function filterPool(items: PoolItem[], filters: PoolFilters): PoolItem[] {
+export function filterPool(
+  items: PoolItem[],
+  filters: PoolFilters,
+  visible: (it: PoolItem) => boolean,
+): PoolItem[] {
   const { rarity, type, skill, search } = filters;
   const lowerSearch = search.toLowerCase();
+
+  // Availability gate: the shared app-wide planning-horizon lens decides which
+  // server/releaseDate combinations are visible at the current horizon.
+  items = items.filter(visible);
 
   return items.filter((item) => {
     // Rarity filter

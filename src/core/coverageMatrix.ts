@@ -1,0 +1,279 @@
+// src/core/coverageMatrix.ts
+/**
+ * M1.7 — "Obtainable vs. wishlist" coverage. Pure: crosses each wishlist skill
+ * against innate / parent / grandparent / deck (hint·chain·random) sources with
+ * real inherit-% (spark.ts). Real-data port of the design handoff's detailFor.
+ */
+import type {
+  CardType, LimitBreak, Parent, ParentRef, SkillRarity, SkillRecord, SparkRates, SupportCardRecord,
+} from '@/core/types';
+import { tierForCardSkill } from '@/core/coverage';
+import { sparkChance } from '@/core/spark';
+import { reconcileGreenSkillId } from '@/core/greenSparkReconcile';
+
+export type CoverageColumn = 'innate' | 'event' | 'parent' | 'hint' | 'chain' | 'random';
+export const COVERAGE_COLUMNS: CoverageColumn[] = ['innate', 'event', 'parent', 'hint', 'chain', 'random'];
+
+export interface CoverageChip {
+  /** `gp` chips live in the merged `parent` cell but keep their own kind so the
+   *  UI can style/label grandparent sources distinctly. */
+  kind: CoverageColumn | 'gp'; label: string; title: string;
+  pct?: number; tier?: string; cardType?: CardType;
+  /** Support-card id for deck-source chips (hint/chain/random) — lets the UI
+   *  render the real card icon instead of name initials. */
+  cardId?: string;
+  /** For event chips: the uma's event-pool skill id that covers this row
+   *  (family-resolved) — lets the UI look up the granting event's details. */
+  skillId?: string;
+}
+export interface CoverageRow {
+  skillId: string; name: string; isGold: boolean;
+  cells: Record<CoverageColumn, CoverageChip[]>; covered: boolean;
+}
+export interface CoverageBar { column: CoverageColumn | 'uncovered'; count: number; pct: number; }
+/** Bonus rows share the CoverageRow shape (a second wishlist-style table). */
+export interface CoverageResult { rows: CoverageRow[]; bars: CoverageBar[]; bonus: CoverageRow[]; }
+
+export interface CoverageInput {
+  wishlistSkillIds: string[];
+  /** `innateSkills` = the uma's built-in NON-unique kit (white + gold). The
+   *  unique and inherited-unique are deliberately excluded — they aren't
+   *  "innate" in the coverage sense (the unique you always have; the
+   *  inherited-unique is what a parent passes down). */
+  planUma: {
+    umaId: string; nameEn: string; innateSkills?: string[]; eventSkills?: string[];
+    /** skillId → potential (awakening) level that unlocks it (1–5). When present,
+     *  the innate chip shows "LvN" instead of the uma's initials. */
+    innateRankBySkillId?: Record<string, number>;
+  } | null;
+  activeParents: Array<{ parent: Parent; isA: boolean }>;
+  deckCards: SupportCardRecord[];
+  deckLbByCardId: Map<string, LimitBreak>;
+  skillById: Map<string, SkillRecord>;
+  cardById: Map<string, SupportCardRecord>;
+  greenMap: Map<string, string>;
+  sparkRates: SparkRates;
+  memberAffinity?: (ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined;
+  /** Optional: resolve display names for parent/grandparent chips. Key = umaId string. */
+  umaNameById?: Map<string, string>;
+  /** Optional: comparator (by skillId) for BOTH tables (wishlist + bonus). The
+   *  page supplies the icon-spec order (see features/inheritance/skillSort.ts).
+   *  Missing ⇒ keeps input order. */
+  compareSkills?: (aId: string, bId: string) => number;
+}
+
+function initials(name: string): string {
+  const parts = name.split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?';
+}
+
+const CROSS = '×'; // "×" negative-variant glyph (e.g. "Right-Handed ×")
+
+/** A white "positive-circle" variant (○ or ◎) — not the "×" and not the gold. */
+function isWhiteCircle(s: SkillRecord): boolean {
+  return s.rarity === 'white' && !s.nameEn.includes(CROSS);
+}
+
+/**
+ * Are two skills interchangeable for coverage? ○ and ◎ are the same white skill
+ * at different grades, so they cover each other. The gold version (e.g.
+ * "Right-Handed Demon") and the "×" negative variant are SEPARATE — they match
+ * only their exact id. Identical ids always match.
+ */
+function coverageEquivalent(aId: string, bId: string, skillById: Map<string, SkillRecord>): boolean {
+  if (aId === bId) return true;
+  const a = skillById.get(aId);
+  const b = skillById.get(bId);
+  if (!a || !b) return false;
+  if (!isWhiteCircle(a) || !isWhiteCircle(b)) return false; // only ○/◎ collapse
+  return (a.variantSkillIds ?? []).includes(bId) || (b.variantSkillIds ?? []).includes(aId);
+}
+
+/** The first `have` id that covers `want` (○/◎ family or exact), else null. */
+function coveringId(want: string, have: Iterable<string>, skillById: Map<string, SkillRecord>): string | null {
+  for (const h of have) if (coverageEquivalent(h, want, skillById)) return h;
+  return null;
+}
+
+export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
+  const {
+    wishlistSkillIds, planUma, activeParents, deckCards, deckLbByCardId,
+    skillById, greenMap, sparkRates, memberAffinity, umaNameById, compareSkills,
+  } = input;
+  const rarityLookup = (id: string): SkillRarity | undefined => skillById.get(id)?.rarity;
+
+  /** Resolve a display name for a umaId, falling back to the raw id. */
+  const umaLabel = (umaId: string, fallback: string) =>
+    initials(umaNameById?.get(umaId) ?? fallback);
+  const umaTitle = (umaId: string, prefix: string) =>
+    umaNameById?.get(umaId) ?? `${prefix} ${umaId}`;
+
+  // Innate = the uma's built-in NON-unique kit (white + gold). Matched by variant
+  // family + coverage tier, so an innate "Right-Handed ○" covers a wishlisted
+  // "Right-Handed ◎" (same skill, higher grade) but not the gold "Demon".
+  const innateSkills = planUma?.innateSkills ?? [];
+  // Career training-event availability: the skill ids this uma's story/training
+  // events can grant (source-inverted from daftuyda's `char_e`, see uma_events.json).
+  const eventSkills = planUma?.eventSkills ?? [];
+
+  const coversAnyWishlist = (id: string) =>
+    wishlistSkillIds.some((w) => coverageEquivalent(id, w, skillById));
+
+  // Build the full source cells for ONE skill — used for both the wishlist rows
+  // and the bonus rows (so bonus is a second wishlist-style table).
+  const cellsFor = (skillId: string): CoverageRow => {
+    const rec = skillById.get(skillId);
+    const cells: Record<CoverageColumn, CoverageChip[]> = {
+      innate: [], event: [], parent: [], hint: [], chain: [], random: [],
+    };
+
+    // Innate (○/◎ family-aware, gold separate). Chip shows the potential level
+    // ("Lv5") that unlocks the covering skill when known, else uma initials.
+    const innateCover = coveringId(skillId, innateSkills, skillById);
+    if (innateCover) {
+      const rank = planUma?.innateRankBySkillId?.[innateCover];
+      cells.innate.push({
+        kind: 'innate',
+        label: rank !== undefined ? `Lv${rank}` : initials(planUma?.nameEn ?? '?'),
+        title: rank !== undefined
+          ? `${planUma?.nameEn ?? 'Innate'} — unlocks at potential Lv${rank}`
+          : planUma?.nameEn ?? 'Innate',
+      });
+    }
+
+    // Career training-event (○/◎ family-aware, gold separate). Availability —
+    // whether this uma's events *can* grant it — not a per-run guarantee.
+    const eventCover = coveringId(skillId, eventSkills, skillById);
+    if (eventCover) {
+      cells.event.push({
+        kind: 'event',
+        label: initials(planUma?.nameEn ?? '?'),
+        title: `${planUma?.nameEn ?? 'Uma'} — training event`,
+        skillId: eventCover,
+      });
+    }
+
+    // Parent + grandparent (isolated per-member pct, priced off the held spark)
+    for (const { parent } of activeParents) {
+      // The parent's own white spark that covers this wishlist skill (○/◎), if any.
+      const pWhiteCover = coveringId(skillId, parent.whiteSparks.map((w) => w.skillId), skillById);
+      const pGreenCovers = !!(parent.greenSpark && reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) === skillId);
+      if (pGreenCovers && !pWhiteCover) {
+        // A DIRECT parent's unique (green) spark is GUARANTEED at career start —
+        // it never rolls (mechanics-notes §1; gp greens are the ones that roll).
+        cells.parent.push({
+          kind: 'parent',
+          label: umaLabel(String(parent.umaId), String(parent.umaId)),
+          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent unique spark — guaranteed at career start`,
+          pct: 100,
+        });
+      } else if (pWhiteCover) {
+        // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
+        const parentSelf: Parent = {
+          ...parent,
+          greenSpark: undefined,
+          grandparents: undefined,
+        };
+        // Price the spark the parent actually holds (its ○), not the wishlisted ◎.
+        const parentPct = sparkChance({
+          parents: [parentSelf], skillId: pWhiteCover, rates: sparkRates,
+          opts: { memberAffinity, skillRarity: rarityLookup },
+        }).pct;
+        cells.parent.push({
+          kind: 'parent',
+          label: umaLabel(String(parent.umaId), String(parent.umaId)),
+          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent white spark`,
+          pct: Math.round(parentPct),
+        });
+      }
+      (parent.grandparents ?? []).forEach((ref, gpIndex) => {
+        if (!ref) return;
+        const gpWhiteCover = coveringId(skillId, ref.whiteSparks?.map((w) => w.skillId) ?? [], skillById);
+        const gpGreenCovers = !!(ref.greenSpark && reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) === skillId);
+        if (!gpWhiteCover && !gpGreenCovers) return;
+        // Grandparent greens ROLL at the inspiration events (unlike the direct
+        // parents' career-start-guaranteed greens) — priced by sparkChance's
+        // green path. Reconcile the held green id so the match works.
+        const refPriced: ParentRef = gpGreenCovers && ref.greenSpark
+          ? { ...ref, greenSpark: { ...ref.greenSpark, skillId: reconcileGreenSkillId(ref.greenSpark.skillId, greenMap) } }
+          : ref;
+        // Isolated gp pct: no parent-self sparks; only that grandparent at its original index.
+        const gpOnly: Parent = {
+          ...parent,
+          whiteSparks: [],
+          greenSpark: undefined,
+          grandparents: (gpIndex === 0
+            ? [refPriced, undefined]
+            : [undefined, refPriced]) as [ParentRef?, ParentRef?],
+        };
+        const gpPct = Math.round(sparkChance({
+          parents: [gpOnly], skillId: gpWhiteCover ?? skillId, rates: sparkRates,
+          opts: { memberAffinity, skillRarity: rarityLookup },
+        }).pct);
+        // Merged into the single Parents cell — same roll model as parent whites.
+        cells.parent.push({
+          kind: 'gp',
+          label: umaLabel(String(ref.umaId), String(ref.umaId)),
+          title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,
+          pct: gpPct,
+        });
+      });
+    }
+
+    // Deck: hint / chain / random (○/◎ family-aware, gold separate)
+    for (const c of deckCards) {
+      const lb = deckLbByCardId.get(c.cardId) ?? 4;
+      for (const cs of c.skills) {
+        if (!coverageEquivalent(cs.skillId, skillId, skillById)) continue;
+        if (cs.sourceType === 'hint_pool') {
+          cells.hint.push({ kind: 'hint', label: initials(c.nameEn), title: c.nameEn, tier: tierForCardSkill(c, lb, 'hint_pool'), cardType: c.type, cardId: c.cardId });
+        } else if (cs.sourceType === 'chain') {
+          cells.chain.push({ kind: 'chain', label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
+        } else {
+          cells.random.push({ kind: 'random', label: initials(c.nameEn), title: c.nameEn, cardType: c.type, cardId: c.cardId });
+        }
+      }
+    }
+
+    const covered = COVERAGE_COLUMNS.some((col) => cells[col].length > 0);
+    return { skillId, name: rec?.nameEn ?? skillId, isGold: rec?.rarity === 'gold', cells, covered };
+  };
+
+  // Sort BOTH tables: rows guaranteed from a direct parent (an inherited-unique
+  // green spark, 100%) lead absolutely; then the page-supplied icon-spec order.
+  const guaranteedRank = (r: CoverageRow): number => (r.cells.parent.some((c) => c.pct === 100) ? 0 : 1);
+  const sortRows = (arr: CoverageRow[]): CoverageRow[] =>
+    compareSkills
+      ? arr.sort((a, b) => guaranteedRank(a) - guaranteedRank(b) || compareSkills(a.skillId, b.skillId))
+      : arr;
+
+  const rows = sortRows(wishlistSkillIds.map(cellsFor));
+
+  // Bars (wishlist coverage)
+  const total = rows.length;
+  const bars: CoverageBar[] = COVERAGE_COLUMNS.map((col) => {
+    const count = rows.filter((r) => r.cells[col].length > 0).length;
+    return { column: col, count, pct: total ? Math.round((count / total) * 100) : 0 };
+  });
+  const uncoveredCount = rows.filter((r) => !r.covered).length;
+  bars.push({ column: 'uncovered', count: uncoveredCount, pct: total ? Math.round((uncoveredCount / total) * 100) : 0 });
+
+  // Bonus: inheritance (parent/gp sparks) + deck skills NOT on the wishlist —
+  // rendered as a second wishlist-style table (full cells incl. spark %).
+  // ○/◎ family-aware — a parent's ○ that fulfils a wishlisted ◎ isn't a bonus.
+  const bonusIds = new Set<string>();
+  const addBonusId = (id: string) => { if (!coversAnyWishlist(id)) bonusIds.add(id); };
+  for (const { parent } of activeParents) {
+    for (const w of parent.whiteSparks) addBonusId(w.skillId);
+    if (parent.greenSpark) addBonusId(reconcileGreenSkillId(parent.greenSpark.skillId, greenMap));
+    for (const gp of parent.grandparents ?? []) {
+      if (!gp) continue;
+      for (const w of gp.whiteSparks ?? []) addBonusId(w.skillId);
+      if (gp.greenSpark) addBonusId(reconcileGreenSkillId(gp.greenSpark.skillId, greenMap));
+    }
+  }
+  for (const c of deckCards) for (const cs of c.skills) addBonusId(cs.skillId);
+  const bonus = sortRows([...bonusIds].map(cellsFor));
+
+  return { rows, bars, bonus };
+}

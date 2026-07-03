@@ -1,4 +1,4 @@
-import type { SkillRarity, SkillRecord } from '@/core/types';
+import type { RebalanceInfo, SkillRarity, SkillRecord } from '@/core/types';
 
 export interface SkillSummary {
   skillId: string;
@@ -7,6 +7,7 @@ export interface SkillSummary {
   rarity: SkillRarity;
   baseSpCost: number;
   conditions: string;
+  rebalance?: RebalanceInfo;
 }
 
 export interface RawSkillEffect {
@@ -28,6 +29,8 @@ export interface RawSkillAlternative {
 
 export interface RawSkillSource {
   outfitId?: number | string;
+  /** Potential (awakening) level that unlocks this skill on that outfit; 0 = base kit (level 1). */
+  needRank?: number;
   name?: string;
   outfit?: string;
 }
@@ -65,6 +68,7 @@ export function skillRecordToSummary(skill: SkillRecord): SkillSummary {
     rarity: skill.rarity,
     baseSpCost: skill.baseSpCost,
     conditions: skill.conditions,
+    ...(skill.rebalance ? { rebalance: skill.rebalance } : {}),
   };
 }
 
@@ -177,5 +181,35 @@ export async function loadUniqueSkillByUmaId(): Promise<Map<string, SkillSummary
     });
   }
   return uniqueByUmaPromise;
+}
+
+let innateByUmaPromise: Promise<Map<string, Map<string, number>>> | null = null;
+/**
+ * Uma outfit id → every skill id the outfit carries innately (the skill's
+ * `sources[].outfitId` associations in the engine's skill collection — the same
+ * data that powers loadUniqueSkillByUmaId, extended to all rarities). Callers
+ * filter to the rarities they want (M1.7's Innate column keeps white + gold and
+ * drops unique / inherited_unique via the app's own SkillRecord rarity).
+ */
+/** Uma → (skillId → potential level that unlocks it). Skill ids = the map keys.
+ *  `needRank` 0 in the bundle means the skill is in the base kit — normalized
+ *  to level 1 here (in-game potential runs 1–5). */
+export async function loadInnateSkillsByUmaId(): Promise<Map<string, Map<string, number>>> {
+  if (innateByUmaPromise === null) {
+    innateByUmaPromise = loadSkillCollection().then((skills) => {
+      const byUma = new Map<string, Map<string, number>>();
+      for (const raw of Object.values(skills)) {
+        for (const source of raw.sources ?? []) {
+          if (source.outfitId === undefined) continue;
+          const key = String(source.outfitId);
+          let ranks = byUma.get(key);
+          if (!ranks) { ranks = new Map<string, number>(); byUma.set(key, ranks); }
+          ranks.set(String(raw.id), Math.max(source.needRank ?? 0, 1));
+        }
+      }
+      return byUma;
+    });
+  }
+  return innateByUmaPromise;
 }
 

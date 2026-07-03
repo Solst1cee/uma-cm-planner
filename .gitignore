@@ -26,8 +26,10 @@ docs/superpowers/specs/*.pdf
 # tesseract OCR training data (large fetched blob, not project source)
 eng.traineddata
 
-# Claude Code local state (git worktrees live under .claude/worktrees/)
-.claude/
+# Claude Code local state (git worktrees live under .claude/worktrees/) —
+# but project skills (.claude/skills/) are tracked, shared project surface.
+.claude/*
+!.claude/skills/
 
 # Local Windows dev-server launcher (reads gitignored .env.local)
 dev.bat
@@ -43,3 +45,6 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# dev-only skill-icon reference pages (M1.7 sort tuning)
+public/_skill-icon*.html

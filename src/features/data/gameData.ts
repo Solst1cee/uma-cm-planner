@@ -16,7 +16,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { CmPreset, CmScheduleRow, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
+import type { CmPreset, CmScheduleRow, ForesightInfo, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
 import type { IconManifest } from '@/core/icons';
 import { currentCm as selectCurrentCm, projectCmSchedule } from '@/core/timeline';
 import {
@@ -77,6 +77,14 @@ export interface GameData {
    * literals keep compiling — consumers should treat undefined as null.
    */
   currentCm?: TimelineEntry | null;
+  /**
+   * Build-time rolling foresight calibration (Availability #3). `null` when
+   * fewer than 2 shared CMs were available at build time, or the fetch
+   * failed/is missing on an older deploy. Optional so pre-existing GameData
+   * literals (test fixtures) keep compiling — consumers should treat
+   * `undefined` the same as `null` (no calibration to show).
+   */
+  foresight?: ForesightInfo | null;
   skillById: Map<string, SkillRecord>;
   cardById: Map<string, SupportCardRecord>;
   umaById?: Map<string, UmaRecord>;
@@ -103,6 +111,7 @@ interface Datasets {
   umas: UmaRecord[];
   iconManifest: IconManifest | null;
   timeline: TimelineEntry[];
+  foresight: ForesightInfo | null;
 }
 
 const FIXTURE_DATASETS: Datasets = {
@@ -117,6 +126,8 @@ const FIXTURE_DATASETS: Datasets = {
   iconManifest: null,
   // No timeline in fixture mode — M3 views degrade to empty.
   timeline: [],
+  // No foresight calibration in fixture mode — the planning-horizon tooltip degrades to no numbers.
+  foresight: null,
 };
 
 async function fetchJson<T>(file: string): Promise<T> {
@@ -126,7 +137,11 @@ async function fetchJson<T>(file: string): Promise<T> {
 }
 
 async function loadDatasets(): Promise<Datasets> {
-  const [skills, cards, sparkRates, cmPresets] = await Promise.all([
+  // ALL datasets fetch in parallel — the optional four used to be serial awaits
+  // after the core set, stacking four extra RTTs onto first paint for no reason.
+  // Only the four CORE datasets may throw into the whole-set fixture fallback;
+  // each optional fetch carries its own catch and degrades independently.
+  const corePromise = Promise.all([
     fetchJson<SkillRecord[]>('skills.json'),
     fetchJson<SupportCardRecord[]>('support_cards.json'),
     fetchJson<SparkRates>('spark_rates.json'),
@@ -134,33 +149,42 @@ async function loadDatasets(): Promise<Datasets> {
   ]);
   // umas.json ships with Phase 2 (parents entry) and may lag the other four
   // datasets on older deploys. Its failure degrades to an empty uma list with
-  // a console warning — it must NOT throw into the whole-set fixture fallback
-  // below: the four core datasets are still real, so the fixture banner (P3)
-  // must stay off and real numbers must keep flowing.
-  const umas: UmaRecord[] = await fetchJson<UmaRecord[]>('umas.json').catch((err: unknown) => {
+  // a console warning — the fixture banner (P3) must stay off and real numbers
+  // must keep flowing.
+  const umasPromise: Promise<UmaRecord[]> = fetchJson<UmaRecord[]>('umas.json').catch((err: unknown) => {
     console.warn('[gameData] umas.json unavailable — parent pickers fall back to raw ids.', err);
     return [];
   });
-  // icon-manifest.json is an optional augmentation (plan §4). Like umas.json it
-  // must NOT throw into the whole-set fixture fallback: a missing/broken
+  // icon-manifest.json is an optional augmentation (plan §4): a missing/broken
   // manifest only means GameIcon renders its placeholder. `data/icons/...` not
   // `data/...`, so fetch the nested path directly rather than via fetchJson.
-  const iconManifest: IconManifest | null = await fetchJson<IconManifest>(
+  const iconManifestPromise: Promise<IconManifest | null> = fetchJson<IconManifest>(
     'icons/icon-manifest.json',
   ).catch((err: unknown) => {
     console.warn('[gameData] icon-manifest.json unavailable — icons fall back to text.', err);
     return null;
   });
-  // timeline.json ships with M3. Like umas.json, its failure must NOT flip the
-  // whole provider to fixture mode — M3 views simply degrade to an empty timeline.
-  const timelineJson = await fetchJson<{ entries: TimelineEntry[] }>('timeline.json').catch(
+  // timeline.json ships with M3 — on failure M3 views degrade to an empty timeline.
+  const timelinePromise = fetchJson<{ entries: TimelineEntry[] }>('timeline.json').catch(
     (err: unknown) => {
       console.warn('[gameData] timeline.json unavailable — M3 timeline degrades to empty.', err);
       return { entries: [] as TimelineEntry[] };
     },
   );
-  const timeline = timelineJson.entries;
-  return { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline };
+  // foresight.json ships with Availability #3 — on failure/absence the
+  // planning-horizon tooltip simply has no calibration to show. A `{ cal: null }`
+  // payload (< 2 shared CMs at build time) also normalizes to null here.
+  const foresightPromise: Promise<ForesightInfo | null> = fetchJson<ForesightInfo & { cal?: null }>('foresight.json')
+    .then((f) => ('cal' in f && f.cal === null ? null : f))
+    .catch((err: unknown) => {
+      console.warn('[gameData] foresight.json unavailable — planning-horizon tooltip degrades to no numbers.', err);
+      return null;
+    });
+  const [skills, cards, sparkRates, cmPresets] = await corePromise;
+  const [umas, iconManifest, timelineJson, foresight] = await Promise.all([
+    umasPromise, iconManifestPromise, timelinePromise, foresightPromise,
+  ]);
+  return { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline: timelineJson.entries, foresight };
 }
 
 const GameDataContext = createContext<GameData | null>(null);
@@ -188,7 +212,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<GameData>(() => {
-    const { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline } = state.data;
+    const { skills, cards, sparkRates, cmPresets, umas, iconManifest, timeline, foresight } = state.data;
     return {
       status: state.status,
       skills,
@@ -198,6 +222,7 @@ export function GameDataProvider({ children }: { children: ReactNode }) {
       umas,
       iconManifest,
       timeline,
+      foresight,
       cmSchedule: projectCmSchedule(timeline),
       currentCm: selectCurrentCm(
         timeline.filter((e) => e.type === 'cm'),

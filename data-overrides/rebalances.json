@@ -1,0 +1,1456 @@
+[
+  {
+    "skillId": "1000011",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 502 value 10000 + type 503 value 10000 -> type 501 value 10000) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100011",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 27 value 3500 + type 31 value 1000 -> type 22 value 3500 + type 31 value 1000) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100031",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase>=2&order<=3&bashin_diff_infront<=1&is_overtake==1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1\" -> \"is_finalcorner==1&corner==0\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100051",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=40&behind_near_lane_time_set1>=1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1\" -> \"remain_distance<=300\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100131",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2",
+        "modifier": 0.45,
+        "note": "patch adds a fallback alternative (cond \"is_finalcorner==1&corner!=0&distance_diff_rate<=30\", type 27 value 3500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100231",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0",
+        "modifier": 0.45,
+        "note": "patch adds a fallback alternative (cond \"phase>=2&is_finalcorner==1&order<=4\", type 27 value 3500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100261",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_badstart==0&order<=3&is_finalcorner==1&corner==0&order_rate_in20_continue==1",
+        "modifier": 0.45,
+        "note": "patch adds a fallback alternative (cond \"is_badstart==0&order<=3&is_finalcorner==1&corner==0\", type 27 value 3500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100301",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"is_finalcorner==1&order<=4&change_order_onetime<0\" -> \"phase>=2&order<=4&change_order_onetime<0\") — engine patches cannot express preconditions, conditions left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100371",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "temptation_count==0&order>=3&is_finalcorner==1&corner==0&order_rate_in80_continue==1&order_rate_out40_continue==1",
+        "modifier": 0.45,
+        "note": "patch adds a fallback alternative (cond \"temptation_count==0&order>=3&is_finalcorner==1&corner==0\", type 27 value 3500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100481",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "condition changed (\"is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0\" -> \"is_finalcorner==1&corner==0&order_rate<=40&overtake_target_time>=1@is_finalcorner==1&corner==0&order_rate<=40&is_overtake==1\") — contains an inline '@' OR-alternative, not expressible by the '@'-split patch format",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "100581",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110131",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110151",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 5,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110171",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 6,
+        "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=50&overtake_target_time>=2\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&order_rate<=40&overtake_target_time>=2\" -> \"is_finalcorner==1\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110201",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect value (type 31, alt 1) 1000 -> 2000 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110231",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110241",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110301",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&order>=2&order_rate<=50",
+        "note": "effect list changed on alt 1 (type 9 value 550 + type 9 value -50 -> type 9 value 550 + type 9 value -50 + type 27 value 2500) — not expressible by the engine patch; duration (alt 1) 0s -> 5s — belongs to the changed effect list, left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "110371",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "change_order_up_finalcorner_after>=2&is_finalcorner==1&corner==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200064",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 2 value 600000 + type 5 value 600000 -> type 2 value 600000 + type 5 value 600000 + type 1 value 600000) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200361",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200362",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200371",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 31 value 4000 -> type 31 value 4000 + type 27 value 1500) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200381",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&corner==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200382",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&corner==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200441",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 9 value 550 -> type 9 value 550 + type 28 value 350) — not expressible by the engine patch; duration (alt 1) 0s -> 2s — belongs to the changed effect list, left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200442",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 9 value 150 -> type 9 value 150 + type 28 value 150) — not expressible by the engine patch; duration (alt 1) 0s -> 2s — belongs to the changed effect list, left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200511",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_lastspurt==1&phase_firsthalf_random==3",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200512",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_lastspurt==1&phase_firsthalf_random==3",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200591",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_random==1&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200592",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_random==1&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200601",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200602",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_firsthalf_random==2&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200631",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase==2&distance_diff_rate>=50\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"running_style==4&phase_random==2&distance_diff_rate>=50\" -> \"running_style==4&phase_firsthalf_random==3&is_lastspurt==1\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200632",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase==2&distance_diff_rate>=50\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"running_style==4&phase_random==2&distance_diff_rate>=50\" -> \"running_style==4&phase_firsthalf_random==3&is_lastspurt==1\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200651",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==1&phase_random==2",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200652",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==1&phase_random==2",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200681",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200682",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==2&phase_laterhalf_random==0&order_rate<=50",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200731",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200732",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&is_finalcorner==1&overtake_target_time>=2",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200741",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==4&phase_random==1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200742",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==4&phase_random==1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200761",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 9 value 550 -> type 9 value 550 + type 27 value 3500) — not expressible by the engine patch; duration (alt 1) 0s -> 1.8s — belongs to the changed effect list, left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200771",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200772",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&order_rate<=50&temptation_opponent_count_behind>=1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200781",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&order_rate>50&temptation_opponent_count_infront>=1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200791",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style_temptation_opponent_count_nige>=1&is_temptation==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200801",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style_temptation_opponent_count_senko>=1&is_temptation==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200811",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style_temptation_opponent_count_sashi>=1&is_temptation==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "200821",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style_temptation_opponent_count_oikomi>=1&is_temptation==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201061",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201062",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==2&distance_rate>=50&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201131",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase_random==1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201132",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase_random==1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201211",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 27 value 3500 -> type 27 value 3500 + type 31 value 1000) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201212",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 27 value 1500 -> type 27 value 1500 + type 31 value 500) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201291",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==1&phase_random==2",
+        "note": "effect list changed on alt 1 (type 31 value 4000 -> type 31 value 4000 + type 9 value -200) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201292",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==1&phase_random==2",
+        "note": "effect list changed on alt 1 (type 31 value 2000 -> type 31 value 2000 + type 9 value -200) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201421",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_random==1&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201422",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_random==1&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201491",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201492",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==4&infront_near_lane_time>=1&accumulatetime>=10",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201691",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201692",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&phase_laterhalf_random==0&order_rate>=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201701",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201702",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201901",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "201902",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202081",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+        "duration": 1.8,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202082",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase_firsthalf_random==2&order_rate>=40",
+        "duration": 1.8,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202091",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+        "duration": 2.4,
+        "note": "effect value (type 27, alt 1) 2500 -> 3500 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202092",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "distance_type==3&phase==1&order_rate<=80&order_rate>=30&blocked_side_continuetime>=2",
+        "duration": 2.4,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202121",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+        "duration": 2.4,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202122",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "running_style==3&distance_rate_after_random==50&order_rate>=30&order_rate<=80",
+        "duration": 2.4,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202151",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect value (type 9, alt 1) -400 -> -200 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "202152",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect value (type 9, alt 1) -400 -> -200 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900011",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect list changed on alt 1 (type 27 value 1500 + type 31 value 500 -> type 22 value 1500 + type 31 value 500) — not expressible by the engine patch",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900031",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase>=2&order<=3&bashin_diff_infront<=1&is_overtake==1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order<=3&bashin_diff_infront<=1&is_overtake==1\" -> \"is_finalcorner==1&corner==0\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900051",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=40&behind_near_lane_time_set1>=1\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&corner==0&order_rate<=30&behind_near_lane_time_set1>=1\" -> \"remain_distance<=300\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900131",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_finalcorner==1&corner!=0&distance_diff_rate<=30&distance_type==4&lastspurt==2",
+        "modifier": 0.25,
+        "note": "patch adds a fallback alternative (cond \"is_finalcorner==1&corner!=0&distance_diff_rate<=30\", type 27 value 1500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900231",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&is_finalcorner==1&order<=4&temptation_count==0",
+        "modifier": 0.25,
+        "note": "patch adds a fallback alternative (cond \"phase>=2&is_finalcorner==1&order<=4\", type 27 value 1500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900261",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_badstart==0&order<=3&is_finalcorner==1&corner==0&order_rate_in20_continue==1",
+        "modifier": 0.25,
+        "note": "patch adds a fallback alternative (cond \"is_badstart==0&order<=3&is_finalcorner==1&corner==0\", type 27 value 1500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900301",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "precondition changed (\"is_finalcorner==1&order<=4&change_order_onetime<0\" -> \"phase>=2&order<=4&change_order_onetime<0\") — engine patches cannot express preconditions, conditions left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900371",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "temptation_count==0&order>=3&is_finalcorner==1&corner==0&order_rate_in80_continue==1&order_rate_out40_continue==1",
+        "modifier": 0.25,
+        "note": "patch adds a fallback alternative (cond \"temptation_count==0&order>=3&is_finalcorner==1&corner==0\", type 27 value 1500) — engine patches cannot add alternatives",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900481",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "condition changed (\"is_finalcorner==1&corner==0&order>=2&order_rate<=30&overtake_target_time>=2@is_finalcorner==1&corner==0&order_rate<=20&change_order_onetime<0\" -> \"is_finalcorner==1&corner==0&order_rate<=40&overtake_target_time>=1@is_finalcorner==1&corner==0&order_rate<=40&is_overtake==1\") — contains an inline '@' OR-alternative, not expressible by the '@'-split patch format",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "900581",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910131",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase>=2&is_finalcorner==1&order<=4&overtake_target_time>=1",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910151",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3,
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910171",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "duration": 3.6,
+        "note": "precondition changed (\"\" -> \"phase>=2&order_rate<=50&overtake_target_time>=2\") — engine patches cannot express preconditions, conditions left unpatched; condition changed (\"is_finalcorner==1&order_rate<=40&overtake_target_time>=2\" -> \"is_finalcorner==1\") — left unpatched (tied to the precondition change)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910201",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "note": "effect value (type 31, alt 1) 500 -> 700 — multi-effect/multi-value skill, modifier patch would overwrite every effect (left unpatched)",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910231",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "order_rate_in50_continue==1&phase==1&distance_rate>=50&order>=2&order_rate<=40",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910241",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "is_finalcorner==1&order_rate<=40&change_order_onetime<0@is_finalcorner==1&order_rate>=50&order_rate<=80&change_order_onetime<0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910301",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "phase==1&order>=2&order_rate<=50",
+        "note": "effect list changed on alt 1 (type 9 value 150 + type 9 value -25 -> type 9 value 150 + type 9 value -25 + type 27 value 500) — not expressible by the engine patch; duration (alt 1) 0s -> 3s — belongs to the changed effect list, left unpatched",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  },
+  {
+    "skillId": "910371",
+    "globalVer": 2,
+    "versions": [
+      {
+        "ver": 1
+      },
+      {
+        "ver": 2,
+        "globalDate": "2026-07-01",
+        "conditions": "change_order_up_finalcorner_after>=2&is_finalcorner==1&corner==0",
+        "sourceUrl": "https://github.com/jalbarrang/umalator-global/commit/0a79f4b774077a9bfb1e685b0f073a393a75b8bd"
+      }
+    ]
+  }
+]

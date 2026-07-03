@@ -66,6 +66,41 @@
     "epithet": "Hopp'n♪Happy Heart"
   },
   {
+    "umaId": "100103",
+    "charaId": "1001",
+    "nameEn": "Special Week",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Ruler of Japan",
+    "releaseDate": "2026-06-28",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "100201",
     "charaId": "1002",
     "nameEn": "Silence Suzuka",
@@ -97,6 +132,41 @@
       }
     },
     "epithet": "Innocent Silence"
+  },
+  {
+    "umaId": "100202",
+    "charaId": "1002",
+    "nameEn": "Silence Suzuka",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Emerald Among the Waves",
+    "releaseDate": "2027-04-07",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "100301",
@@ -165,6 +235,41 @@
     "epithet": "Beyond the Horizon"
   },
   {
+    "umaId": "100303",
+    "charaId": "1003",
+    "nameEn": "Tokai Teio",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
+    "epithet": "Dream Butterfly of Purple Clouds",
+    "releaseDate": "2027-06-15",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "100401",
     "charaId": "1004",
     "nameEn": "Maruzensky",
@@ -229,6 +334,41 @@
       }
     },
     "epithet": "Hot☆Summer Night"
+  },
+  {
+    "umaId": "100403",
+    "charaId": "1004",
+    "nameEn": "Maruzensky",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Auspicious Maiden of Divine Speed",
+    "releaseDate": "2028-05-10",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "100501",
@@ -297,6 +437,41 @@
     "epithet": "Succès Étoilé"
   },
   {
+    "umaId": "100503",
+    "charaId": "1005",
+    "nameEn": "Fuji Kiseki",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 13,
+      "wit": 7
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Blanche Étoile",
+    "releaseDate": "2029-05-03",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "100601",
     "charaId": "1006",
     "nameEn": "Oguri Cap",
@@ -363,6 +538,41 @@
     "epithet": "Ashen Miracle"
   },
   {
+    "umaId": "100603",
+    "charaId": "1006",
+    "nameEn": "Oguri Cap",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 8,
+      "gut": 14,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Cinderella Gray",
+    "releaseDate": "2029-01-17",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "100701",
     "charaId": "1007",
     "nameEn": "Gold Ship",
@@ -394,6 +604,76 @@
       }
     },
     "epithet": "Red Strife"
+  },
+  {
+    "umaId": "100702",
+    "charaId": "1007",
+    "nameEn": "Gold Ship",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "Run! Fun! Watergun!",
+    "releaseDate": "2026-07-05",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "100703",
+    "charaId": "1007",
+    "nameEn": "Gold Ship",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 14,
+      "pow": 8,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "La Mode 564",
+    "releaseDate": "2027-05-01",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "100801",
@@ -429,6 +709,41 @@
     "epithet": "Wild Top Gear"
   },
   {
+    "umaId": "100802",
+    "charaId": "1008",
+    "nameEn": "Vodka",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "B",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Unfreezable Firewater",
+    "releaseDate": "2026-10-05",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "100901",
     "charaId": "1009",
     "nameEn": "Daiwa Scarlet",
@@ -460,6 +775,41 @@
       }
     },
     "epithet": "Peak Blue"
+  },
+  {
+    "umaId": "100902",
+    "charaId": "1009",
+    "nameEn": "Daiwa Scarlet",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Scarlet Nuit Étoilée",
+    "releaseDate": "2026-10-05",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "101001",
@@ -528,6 +878,41 @@
     "epithet": "Bubblegum☆Memories"
   },
   {
+    "umaId": "101003",
+    "charaId": "1010",
+    "nameEn": "Taiki Shuttle",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Baa Baa Patisserie",
+    "releaseDate": "2029-02-24",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "101101",
     "charaId": "1011",
     "nameEn": "Grass Wonder",
@@ -594,6 +979,41 @@
     "epithet": "Saintly Jade Cleric"
   },
   {
+    "umaId": "101103",
+    "charaId": "1011",
+    "nameEn": "Grass Wonder",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Honor of the Azure Flame",
+    "releaseDate": "2028-04-23",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "101201",
     "charaId": "1012",
     "nameEn": "Hishi Amazon",
@@ -625,6 +1045,41 @@
       }
     },
     "epithet": "Azure Amazon"
+  },
+  {
+    "umaId": "101202",
+    "charaId": "1012",
+    "nameEn": "Hishi Amazon",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "C",
+        "end": "A"
+      }
+    },
+    "epithet": "Hungry Veil",
+    "releaseDate": "2027-02-19",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "101301",
@@ -691,6 +1146,41 @@
       }
     },
     "epithet": "End of the Skies"
+  },
+  {
+    "umaId": "101303",
+    "charaId": "1013",
+    "nameEn": "Mejiro McQueen",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 8,
+      "pow": 0,
+      "gut": 0,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "D",
+        "end": "F"
+      }
+    },
+    "epithet": "Fair Lady of the Waves",
+    "releaseDate": "2026-07-05",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "101401",
@@ -858,6 +1348,41 @@
     "epithet": "Maverick"
   },
   {
+    "umaId": "101602",
+    "charaId": "1016",
+    "nameEn": "Narita Brian",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Hungry Wolf",
+    "releaseDate": "2026-10-21",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "101701",
     "charaId": "1017",
     "nameEn": "Symboli Rudolf",
@@ -1023,6 +1548,41 @@
     "epithet": "Full-Color Fangirling"
   },
   {
+    "umaId": "101902",
+    "charaId": "1019",
+    "nameEn": "Agnes Digital",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 7,
+      "sta": 7,
+      "pow": 8,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Agnes♡Jiangshi",
+    "releaseDate": "2026-08-21",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "102001",
     "charaId": "1020",
     "nameEn": "Seiun Sky",
@@ -1120,6 +1680,41 @@
       }
     },
     "epithet": "Fast as Lightning"
+  },
+  {
+    "umaId": "102102",
+    "charaId": "1021",
+    "nameEn": "Tamamo Cross",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 8,
+      "pow": 0,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Ferocious Thunder",
+    "releaseDate": "2026-09-11",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "102201",
@@ -1254,6 +1849,41 @@
     "epithet": "Rouge Caroler"
   },
   {
+    "umaId": "102303",
+    "charaId": "1023",
+    "nameEn": "Biwa Hayahide",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
+    "epithet": "Engineered Victory",
+    "releaseDate": "2028-03-16",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "102401",
     "charaId": "1024",
     "nameEn": "Mayano Top Gun",
@@ -1320,6 +1950,41 @@
     "epithet": "Sunlight Bouquet"
   },
   {
+    "umaId": "102403",
+    "charaId": "1024",
+    "nameEn": "Mayano Top Gun",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 7
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "B",
+        "end": "B"
+      }
+    },
+    "epithet": "Rocking☆MewMeow",
+    "releaseDate": "2028-02-23",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "102501",
     "charaId": "1025",
     "nameEn": "Manhattan Cafe",
@@ -1351,6 +2016,75 @@
       }
     },
     "epithet": "Creeping Shadow"
+  },
+  {
+    "umaId": "102502",
+    "charaId": "1025",
+    "nameEn": "Manhattan Cafe",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Willow-Green Evening",
+    "releaseDate": "2027-08-24",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "102503",
+    "charaId": "1025",
+    "nameEn": "Manhattan Cafe",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 5,
+      "pow": 10,
+      "gut": 5,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "B",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "releaseDate": "2029-05-25",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "102601",
@@ -1452,6 +2186,41 @@
     "epithet": "Down the Line"
   },
   {
+    "umaId": "102702",
+    "charaId": "1027",
+    "nameEn": "Mejiro Ryan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Marguerite・Latte",
+    "releaseDate": "2026-11-21",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "102801",
     "charaId": "1028",
     "nameEn": "Hishi Akebono",
@@ -1483,6 +2252,111 @@
       }
     },
     "epithet": "Buono ☆ Alla Moda"
+  },
+  {
+    "umaId": "102802",
+    "charaId": "1028",
+    "nameEn": "Hishi Akebono",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 30,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "F",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Magic Night Garland",
+    "releaseDate": "2028-11-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "102901",
+    "charaId": "1029",
+    "nameEn": "Yukino Bijin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Cute Sweet Flower of Mutsu",
+    "releaseDate": "2026-08-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "102902",
+    "charaId": "1029",
+    "nameEn": "Yukino Bijin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 8,
+      "gut": 14,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Snowy Girl of Tea and Cake",
+    "releaseDate": "2027-08-24",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "103001",
@@ -1551,6 +2425,41 @@
     "epithet": "Vampire Makeover!"
   },
   {
+    "umaId": "103003",
+    "charaId": "1030",
+    "nameEn": "Rice Shower",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Yummy Dreamy Fairy",
+    "releaseDate": "2027-12-22",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "103101",
     "charaId": "1031",
     "nameEn": "Ines Fujin",
@@ -1582,6 +2491,76 @@
       }
     },
     "epithet": "Always Electrifying"
+  },
+  {
+    "umaId": "103102",
+    "charaId": "1031",
+    "nameEn": "Ines Fujin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 0,
+      "gut": 8,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "MELTY GIFT",
+    "releaseDate": "2026-11-21",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "103103",
+    "charaId": "1031",
+    "nameEn": "Ines Fujin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 12,
+      "sta": 0,
+      "pow": 10,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Hello Hello Island",
+    "releaseDate": "2028-09-24",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "103201",
@@ -1617,6 +2596,76 @@
     "epithet": "Tach-nology"
   },
   {
+    "umaId": "103202",
+    "charaId": "1032",
+    "nameEn": "Agnes Tachyon",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "D",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Lunatic Lab",
+    "releaseDate": "2027-04-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "103203",
+    "charaId": "1032",
+    "nameEn": "Agnes Tachyon",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "D",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Σ Experiment",
+    "releaseDate": "2027-11-07",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "103301",
     "charaId": "1033",
     "nameEn": "Admire Vega",
@@ -1648,6 +2697,41 @@
       }
     },
     "epithet": "Starry Nocturne"
+  },
+  {
+    "umaId": "103302",
+    "charaId": "1033",
+    "nameEn": "Admire Vega",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "Glacialis Vega",
+    "releaseDate": "2028-04-07",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "103401",
@@ -1683,6 +2767,41 @@
     "epithet": "Edomurasaki"
   },
   {
+    "umaId": "103402",
+    "charaId": "1034",
+    "nameEn": "Inari One",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "Fields of Gold",
+    "releaseDate": "2026-09-11",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "103501",
     "charaId": "1035",
     "nameEn": "Winning Ticket",
@@ -1716,6 +2835,76 @@
     "epithet": "Get to Winning!"
   },
   {
+    "umaId": "103502",
+    "charaId": "1035",
+    "nameEn": "Winning Ticket",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 14,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Dream Deliverer",
+    "releaseDate": "2026-07-28",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "103503",
+    "charaId": "1035",
+    "nameEn": "Winning Ticket",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Glorious Coat",
+    "releaseDate": "2027-10-15",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "103601",
     "charaId": "1036",
     "nameEn": "Air Shakur",
@@ -1747,6 +2936,41 @@
       }
     },
     "epithet": "unsigned"
+  },
+  {
+    "umaId": "103602",
+    "charaId": "1036",
+    "nameEn": "Air Shakur",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 14,
+      "pow": 8,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Belphegor's Prime",
+    "releaseDate": "2027-05-23",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "103701",
@@ -1813,6 +3037,41 @@
       }
     },
     "epithet": "Precise Chocolatier"
+  },
+  {
+    "umaId": "103703",
+    "charaId": "1037",
+    "nameEn": "Eishin Flash",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Reines Plätschern",
+    "releaseDate": "2028-01-07",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "103801",
@@ -1914,6 +3173,41 @@
     "epithet": "Princess of Pink"
   },
   {
+    "umaId": "103902",
+    "charaId": "1039",
+    "nameEn": "Kawakami Princess",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 8,
+      "pow": 8,
+      "gut": 14,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "B",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Suikan Beauty",
+    "releaseDate": "2027-06-15",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "104001",
     "charaId": "1040",
     "nameEn": "Gold City",
@@ -1980,6 +3274,41 @@
     "epithet": "Autumn Cosmos"
   },
   {
+    "umaId": "104003",
+    "charaId": "1040",
+    "nameEn": "Gold City",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 15,
+      "wit": 5
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Boho Flare",
+    "releaseDate": "2028-09-13",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "104101",
     "charaId": "1041",
     "nameEn": "Sakura Bakushin O",
@@ -2013,6 +3342,181 @@
     "epithet": "Blossom in Learning"
   },
   {
+    "umaId": "104102",
+    "charaId": "1041",
+    "nameEn": "Sakura Bakushin O",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Red-Hot Leader",
+    "releaseDate": "2027-01-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104103",
+    "charaId": "1041",
+    "nameEn": "Sakura Bakushin O",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 5
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "雷の韋駄天",
+    "releaseDate": "2029-04-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104201",
+    "charaId": "1042",
+    "nameEn": "Seeking the Pearl",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Rocket ☆ Star",
+    "releaseDate": "2026-08-14",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104202",
+    "charaId": "1042",
+    "nameEn": "Seeking the Pearl",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 13,
+      "gut": 0,
+      "wit": 7
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Be♪Witched",
+    "releaseDate": "2028-02-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104301",
+    "charaId": "1043",
+    "nameEn": "Shinko Windy",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "F",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "B",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Wicked Punk",
+    "releaseDate": "2026-12-02",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "104401",
     "charaId": "1044",
     "nameEn": "Sweep Tosho",
@@ -2044,6 +3548,41 @@
       }
     },
     "epithet": "Platanus Witch"
+  },
+  {
+    "umaId": "104402",
+    "charaId": "1044",
+    "nameEn": "Sweep Tosho",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Realize・Rune",
+    "releaseDate": "2027-11-22",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "104501",
@@ -2112,6 +3651,41 @@
     "epithet": "Chiffon-Wrapped Mummy"
   },
   {
+    "umaId": "104503",
+    "charaId": "1045",
+    "nameEn": "Super Creek",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 13,
+      "pow": 0,
+      "gut": 0,
+      "wit": 7
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
+    "epithet": "Flowery Shadow Amongst the Gentle Rain",
+    "releaseDate": "2027-10-31",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "104601",
     "charaId": "1046",
     "nameEn": "Smart Falcon",
@@ -2143,6 +3717,146 @@
       }
     },
     "epithet": "LOVE☆4EVER"
+  },
+  {
+    "umaId": "104602",
+    "charaId": "1046",
+    "nameEn": "Smart Falcon",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "E",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "D",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Twilight Triumph",
+    "releaseDate": "2026-07-24",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104603",
+    "charaId": "1046",
+    "nameEn": "Smart Falcon",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "E",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "D",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Luminous ☆ Twirler",
+    "releaseDate": "2028-08-01",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104701",
+    "charaId": "1047",
+    "nameEn": "Zenno Rob Roy",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Heroic Author",
+    "releaseDate": "2026-10-15",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104702",
+    "charaId": "1047",
+    "nameEn": "Zenno Rob Roy",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Inlaid Stories",
+    "releaseDate": "2028-01-31",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "104801",
@@ -2178,6 +3892,146 @@
     "epithet": "Jokester ☆ Vibes"
   },
   {
+    "umaId": "104802",
+    "charaId": "1048",
+    "nameEn": "Tosen Jordan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 8,
+      "pow": 14,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Aurore☆Vacances",
+    "releaseDate": "2027-03-14",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104803",
+    "charaId": "1048",
+    "nameEn": "Tosen Jordan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Highkey ☆ Hallowed",
+    "releaseDate": "2028-12-02",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104901",
+    "charaId": "1049",
+    "nameEn": "Nakayama Festa",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Dramatic Turnabout",
+    "releaseDate": "2026-09-20",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "104902",
+    "charaId": "1049",
+    "nameEn": "Nakayama Festa",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Festive Play",
+    "releaseDate": "2029-01-07",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "105001",
     "charaId": "1050",
     "nameEn": "Narita Taishin",
@@ -2211,6 +4065,76 @@
     "epithet": "Nevertheless"
   },
   {
+    "umaId": "105002",
+    "charaId": "1050",
+    "nameEn": "Narita Taishin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 8,
+      "pow": 0,
+      "gut": 8,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "F",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "Difference Engineer",
+    "releaseDate": "2026-07-28",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105003",
+    "charaId": "1050",
+    "nameEn": "Narita Taishin",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "F",
+        "late": "B",
+        "end": "A"
+      }
+    },
+    "epithet": "Stray Light Override",
+    "releaseDate": "2028-03-23",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "105101",
     "charaId": "1051",
     "nameEn": "Nishino Flower",
@@ -2242,6 +4166,41 @@
       }
     },
     "epithet": "Layered Petals"
+  },
+  {
+    "umaId": "105102",
+    "charaId": "1051",
+    "nameEn": "Nishino Flower",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Sweet Juneberry",
+    "releaseDate": "2027-02-19",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "105201",
@@ -2310,6 +4269,181 @@
     "epithet": "New Year ♪ New Urara!"
   },
   {
+    "umaId": "105301",
+    "charaId": "1053",
+    "nameEn": "Bamboo Memory",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "C",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Ambition of the Black Iron",
+    "releaseDate": "2026-07-14",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105302",
+    "charaId": "1053",
+    "nameEn": "Bamboo Memory",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 8,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "C",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Ultra☆Marine",
+    "releaseDate": "2027-03-14",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105401",
+    "charaId": "1054",
+    "nameEn": "Biko Pegasus",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Gale Pegasus Type Zero",
+    "releaseDate": "2027-09-03",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105501",
+    "charaId": "1055",
+    "nameEn": "Marvelous Sunday",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "☆Sparkling★Dazzling☆Exciting∞Marvelous∞",
+    "releaseDate": "2027-03-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105502",
+    "charaId": "1055",
+    "nameEn": "Marvelous Sunday",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 16,
+      "pow": 7,
+      "gut": 7,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Trick ☆ Ribonetta",
+    "releaseDate": "2028-11-23",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "105601",
     "charaId": "1056",
     "nameEn": "Matikanefukukitaru",
@@ -2376,6 +4510,76 @@
     "epithet": "Lucky Tidings"
   },
   {
+    "umaId": "105701",
+    "charaId": "1057",
+    "nameEn": "Mr. C.B.",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Clear Bliss",
+    "releaseDate": "2026-12-10",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "105702",
+    "charaId": "1057",
+    "nameEn": "Mr. C.B.",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Dazzling Kabuki Flower",
+    "releaseDate": "2028-04-29",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "105801",
     "charaId": "1058",
     "nameEn": "Meisho Doto",
@@ -2407,6 +4611,41 @@
       }
     },
     "epithet": "Turbulent Blue"
+  },
+  {
+    "umaId": "105802",
+    "charaId": "1058",
+    "nameEn": "Meisho Doto",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
+    "epithet": "Dot-o'-Lantern",
+    "releaseDate": "2026-08-21",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "105901",
@@ -2541,6 +4780,41 @@
     "epithet": "Run & Win"
   },
   {
+    "umaId": "106003",
+    "charaId": "1060",
+    "nameEn": "Nice Nature",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 14,
+      "sta": 0,
+      "pow": 8,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Converging Wishes",
+    "releaseDate": "2027-08-07",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "106101",
     "charaId": "1061",
     "nameEn": "King Halo",
@@ -2607,6 +4881,41 @@
     "epithet": "Cheerleader in Noble White"
   },
   {
+    "umaId": "106103",
+    "charaId": "1061",
+    "nameEn": "King Halo",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "B",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Evergreen Identity",
+    "releaseDate": "2027-11-22",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "106201",
     "charaId": "1062",
     "nameEn": "Matikanetannhauser",
@@ -2638,6 +4947,111 @@
       }
     },
     "epithet": "Clippety-Tippety-Clop"
+  },
+  {
+    "umaId": "106202",
+    "charaId": "1062",
+    "nameEn": "Matikanetannhauser",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "D",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Blue Turbulence",
+    "releaseDate": "2027-01-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106301",
+    "charaId": "1063",
+    "nameEn": "Ikuno Dictus",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Mantle of Steel",
+    "releaseDate": "2027-09-11",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106302",
+    "charaId": "1063",
+    "nameEn": "Ikuno Dictus",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Strolling an Orderly Path",
+    "releaseDate": "2029-01-29",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "106401",
@@ -2673,6 +5087,146 @@
     "epithet": "Line Breakthrough"
   },
   {
+    "umaId": "106402",
+    "charaId": "1064",
+    "nameEn": "Mejiro Palmer",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "E",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Warm-Hearted Reindeer",
+    "releaseDate": "2027-07-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106501",
+    "charaId": "1065",
+    "nameEn": "Daitaku Helios",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Fun ☆ Fun ☆ Party Night",
+    "releaseDate": "2026-11-14",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106502",
+    "charaId": "1065",
+    "nameEn": "Daitaku Helios",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 14,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "B",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Joyful Jamboree!",
+    "releaseDate": "2027-10-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106601",
+    "charaId": "1066",
+    "nameEn": "Twin Turbo",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 30,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "G",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Blast Mode! Turbo Engine",
+    "releaseDate": "2026-12-10",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "106701",
     "charaId": "1067",
     "nameEn": "Satono Diamond",
@@ -2704,6 +5258,76 @@
       }
     },
     "epithet": "Natural Brilliance"
+  },
+  {
+    "umaId": "106702",
+    "charaId": "1067",
+    "nameEn": "Satono Diamond",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 15,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Floral Star・Prosperous Green",
+    "releaseDate": "2026-10-28",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106703",
+    "charaId": "1067",
+    "nameEn": "Satono Diamond",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 14,
+      "pow": 0,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Chevalier Bleu",
+    "releaseDate": "2027-05-09",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "106801",
@@ -2739,6 +5363,76 @@
     "epithet": "Gilded Shrine to Glory"
   },
   {
+    "umaId": "106802",
+    "charaId": "1068",
+    "nameEn": "Kitasan Black",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Jubilant Star・Auspicious Crane",
+    "releaseDate": "2026-10-28",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "106803",
+    "charaId": "1068",
+    "nameEn": "Kitasan Black",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Final Bloom",
+    "releaseDate": "2027-07-29",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "106901",
     "charaId": "1069",
     "nameEn": "Sakura Chiyono O",
@@ -2770,6 +5464,111 @@
       }
     },
     "epithet": "Strength in Full Bloom"
+  },
+  {
+    "umaId": "106902",
+    "charaId": "1069",
+    "nameEn": "Sakura Chiyono O",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 0,
+      "pow": 14,
+      "gut": 0,
+      "wit": 8
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Fleur Enneigée",
+    "releaseDate": "2027-01-04",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107001",
+    "charaId": "1070",
+    "nameEn": "Sirius Symboli",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
+    "epithet": "Féroce",
+    "releaseDate": "2027-03-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107002",
+    "charaId": "1070",
+    "nameEn": "Sirius Symboli",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Louve Stellaire",
+    "releaseDate": "2028-07-17",
+    "releaseDatePredicted": true
   },
   {
     "umaId": "107101",
@@ -2805,6 +5604,41 @@
     "epithet": "Crystalline"
   },
   {
+    "umaId": "107102",
+    "charaId": "1071",
+    "nameEn": "Mejiro Ardan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 8,
+      "sta": 8,
+      "pow": 0,
+      "gut": 0,
+      "wit": 14
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "B",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "D",
+        "end": "G"
+      }
+    },
+    "epithet": "Neige Émeraude",
+    "releaseDate": "2027-01-04",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "107201",
     "charaId": "1072",
     "nameEn": "Yaeno Muteki",
@@ -2838,6 +5672,76 @@
     "epithet": "Blazed Head, Covered Fists"
   },
   {
+    "umaId": "107202",
+    "charaId": "1072",
+    "nameEn": "Yaeno Muteki",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 6,
+      "pow": 12,
+      "gut": 12,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Black General, Zen",
+    "releaseDate": "2027-10-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107301",
+    "charaId": "1073",
+    "nameEn": "Tsurumaru Tsuyoshi",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "D",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Dream Bold, Stand Tall, Tsuyoshi!",
+    "releaseDate": "2028-06-05",
+    "releaseDatePredicted": true
+  },
+  {
     "umaId": "107401",
     "charaId": "1074",
     "nameEn": "Mejiro Bright",
@@ -2869,5 +5773,3049 @@
       }
     },
     "epithet": "Brunissage Line"
+  },
+  {
+    "umaId": "107402",
+    "charaId": "1074",
+    "nameEn": "Mejiro Bright",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Starry Snow Lolita",
+    "releaseDate": "2027-07-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107601",
+    "charaId": "1076",
+    "nameEn": "Sakura Laurel",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Saisir le Rêve",
+    "releaseDate": "2027-01-13",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107602",
+    "charaId": "1076",
+    "nameEn": "Sakura Laurel",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Nouvelle Pousse",
+    "releaseDate": "2029-01-29",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107701",
+    "charaId": "1077",
+    "nameEn": "Narita Top Road",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "B",
+        "end": "D"
+      }
+    },
+    "epithet": "The Proud Road",
+    "releaseDate": "2027-04-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107702",
+    "charaId": "1077",
+    "nameEn": "Narita Top Road",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 20,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "B",
+        "end": "D"
+      }
+    },
+    "epithet": "Celestial Road",
+    "releaseDate": "2028-04-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107801",
+    "charaId": "1078",
+    "nameEn": "Yamanin Zephyr",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Fluttertail Spirit",
+    "releaseDate": "2026-09-05",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107802",
+    "charaId": "1078",
+    "nameEn": "Yamanin Zephyr",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Sugary Wind",
+    "releaseDate": "2028-05-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "107901",
+    "charaId": "1079",
+    "nameEn": "Furioso",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Triumphant Return of the Auspicious Star",
+    "releaseDate": "2028-05-17",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108001",
+    "charaId": "1080",
+    "nameEn": "Transcend",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "F",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "ZOKU-ZOKU GIZMO",
+    "releaseDate": "2027-09-24",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108002",
+    "charaId": "1080",
+    "nameEn": "Transcend",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "F",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Twilit Neo-Kagura",
+    "releaseDate": "2028-12-16",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108101",
+    "charaId": "1081",
+    "nameEn": "Espoir City",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "E",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "B",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Red Devil Gear",
+    "releaseDate": "2028-11-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108201",
+    "charaId": "1082",
+    "nameEn": "North Flight",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "B",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "D",
+        "end": "C"
+      }
+    },
+    "epithet": "Looking Fly!",
+    "releaseDate": "2027-11-15",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108202",
+    "charaId": "1082",
+    "nameEn": "North Flight",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "B",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "D",
+        "end": "A"
+      }
+    },
+    "epithet": "水縹の一閃",
+    "releaseDate": "2029-04-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108301",
+    "charaId": "1083",
+    "nameEn": "Symboli Kris S",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 15,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Onyx Soldier",
+    "releaseDate": "2026-12-28",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108302",
+    "charaId": "1083",
+    "nameEn": "Symboli Kris S",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Jetblack Automaton",
+    "releaseDate": "2027-05-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108401",
+    "charaId": "1084",
+    "nameEn": "Tanino Gimlet",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 30,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Embodiment of Keravnos",
+    "releaseDate": "2027-02-11",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108402",
+    "charaId": "1084",
+    "nameEn": "Tanino Gimlet",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "With a Twist",
+    "releaseDate": "2028-07-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108501",
+    "charaId": "1085",
+    "nameEn": "Daiichi Ruby",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 20,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "C",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "B",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Brilliant Red Gemstone",
+    "releaseDate": "2026-12-21",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108502",
+    "charaId": "1085",
+    "nameEn": "Daiichi Ruby",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 6,
+      "sta": 0,
+      "pow": 12,
+      "gut": 0,
+      "wit": 12
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "C",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "B",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Flowing Blue",
+    "releaseDate": "2027-10-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108601",
+    "charaId": "1086",
+    "nameEn": "Mejiro Ramonu",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Onyx Line",
+    "releaseDate": "2027-06-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108602",
+    "charaId": "1086",
+    "nameEn": "Mejiro Ramonu",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 5,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Untouchable Eden",
+    "releaseDate": "2028-08-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108701",
+    "charaId": "1087",
+    "nameEn": "Aston Machan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Flare",
+    "releaseDate": "2026-08-30",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108702",
+    "charaId": "1087",
+    "nameEn": "Aston Machan",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Everlasting Sweet Treat",
+    "releaseDate": "2028-05-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108801",
+    "charaId": "1088",
+    "nameEn": "Satono Crown",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Emerald Journey",
+    "releaseDate": "2027-07-17",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108802",
+    "charaId": "1088",
+    "nameEn": "Satono Crown",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 6,
+      "gut": 14,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Sunny Island Floral Beauty",
+    "releaseDate": "2028-10-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108901",
+    "charaId": "1089",
+    "nameEn": "Cheval Grand",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Grand Itinéraire",
+    "releaseDate": "2027-07-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "108902",
+    "charaId": "1089",
+    "nameEn": "Cheval Grand",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Summer Lull Navy Drop",
+    "releaseDate": "2028-10-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109001",
+    "charaId": "1090",
+    "nameEn": "Verxina",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Le Beau Sommet",
+    "releaseDate": "2028-08-10",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109101",
+    "charaId": "1091",
+    "nameEn": "Vivlos",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Voyage Étincelant",
+    "releaseDate": "2027-08-15",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109102",
+    "charaId": "1091",
+    "nameEn": "Vivlos",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Éclat d'été",
+    "releaseDate": "2028-10-20",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109201",
+    "charaId": "1092",
+    "nameEn": "Dantsu Flame",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "B",
+        "medium": "A",
+        "long": "D"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "B",
+        "end": "D"
+      }
+    },
+    "epithet": "Center ◎ Spotlight",
+    "releaseDate": "2028-12-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109301",
+    "charaId": "1093",
+    "nameEn": "K.S.Miracle",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 0,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "C"
+      }
+    },
+    "epithet": "Prism",
+    "releaseDate": "2027-05-16",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109302",
+    "charaId": "1093",
+    "nameEn": "K.S.Miracle",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "B",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "C"
+      }
+    },
+    "epithet": "Andante in Autumn Hues",
+    "releaseDate": "2028-10-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109401",
+    "charaId": "1094",
+    "nameEn": "Jungle Pocket",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Ruler's Battle Cry",
+    "releaseDate": "2027-12-03",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109402",
+    "charaId": "1094",
+    "nameEn": "Jungle Pocket",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 7,
+      "pow": 10,
+      "gut": 13,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Vermilion Head",
+    "releaseDate": "2029-05-03",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109501",
+    "charaId": "1095",
+    "nameEn": "Believe",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "D",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "D",
+        "end": "G"
+      }
+    },
+    "epithet": "Purity",
+    "releaseDate": "2028-11-16",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109601",
+    "charaId": "1096",
+    "nameEn": "No Reason",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 20,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "D",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Swift Crimson Armor",
+    "releaseDate": "2028-07-02",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109701",
+    "charaId": "1097",
+    "nameEn": "Still in Love",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Scarlet Vow Raiment",
+    "releaseDate": "2028-10-27",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109801",
+    "charaId": "1098",
+    "nameEn": "Copano Rickey",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "F",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Yin-yang Bagua ☆ Lucky Costume",
+    "releaseDate": "2026-07-21",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109802",
+    "charaId": "1098",
+    "nameEn": "Copano Rickey",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 5,
+      "gut": 10,
+      "wit": 5
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "F",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Dazzling ☆ Lucky Wear",
+    "releaseDate": "2028-08-01",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109901",
+    "charaId": "1099",
+    "nameEn": "Hokko Tarumae",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Star・Light・Ship",
+    "releaseDate": "2026-11-06",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "109902",
+    "charaId": "1099",
+    "nameEn": "Hokko Tarumae",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 5
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "B",
+        "pace": "A",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "Pastel Marine Locodol",
+    "releaseDate": "2028-01-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110001",
+    "charaId": "1100",
+    "nameEn": "Wonder Acute",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 15,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
+    "epithet": "Butterfly Sting",
+    "releaseDate": "2026-09-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110002",
+    "charaId": "1100",
+    "nameEn": "Wonder Acute",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "G",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "D",
+        "mile": "A",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "B",
+        "end": "E"
+      }
+    },
+    "epithet": "Soft Light・Hot Spring Scent",
+    "releaseDate": "2028-12-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110201",
+    "charaId": "1102",
+    "nameEn": "Sounds of Earth",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Ritmo Della Terra",
+    "releaseDate": "2027-10-22",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110202",
+    "charaId": "1102",
+    "nameEn": "Sounds of Earth",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 14,
+      "pow": 8,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "F",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Sonata alla Menta",
+    "releaseDate": "2029-02-24",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110301",
+    "charaId": "1103",
+    "nameEn": "Royce and Royce",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 20
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "E"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Inspiring Genius",
+    "releaseDate": "2029-03-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110401",
+    "charaId": "1104",
+    "nameEn": "Katsuragi Ace",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Dragon Rising to the Top",
+    "releaseDate": "2027-03-22",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110402",
+    "charaId": "1104",
+    "nameEn": "Katsuragi Ace",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 5,
+      "sta": 0,
+      "pow": 10,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "E",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Pen Name: Ink Dragon",
+    "releaseDate": "2028-04-29",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110501",
+    "charaId": "1105",
+    "nameEn": "Neo Universe",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 0,
+      "wit": 30
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Universe-Naut",
+    "releaseDate": "2027-01-20",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110502",
+    "charaId": "1105",
+    "nameEn": "Neo Universe",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 7,
+      "gut": 10,
+      "wit": 13
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Like “ZEER”",
+    "releaseDate": "2028-01-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110601",
+    "charaId": "1106",
+    "nameEn": "Hishi Miracle",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 7,
+      "sta": 8,
+      "pow": 7,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Miracle Make-up!",
+    "releaseDate": "2027-02-05",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110602",
+    "charaId": "1106",
+    "nameEn": "Hishi Miracle",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 14,
+      "pow": 8,
+      "gut": 8,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "Happy Little Notes",
+    "releaseDate": "2028-10-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110701",
+    "charaId": "1107",
+    "nameEn": "Tap Dance City",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "GLITTER!",
+    "releaseDate": "2027-07-01",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110702",
+    "charaId": "1107",
+    "nameEn": "Tap Dance City",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Tap! Tap! Tap!",
+    "releaseDate": "2028-07-09",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110801",
+    "charaId": "1108",
+    "nameEn": "Duramente",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "C",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Red in Black",
+    "releaseDate": "2027-09-11",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110901",
+    "charaId": "1109",
+    "nameEn": "Rhein Kraft",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 15,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "B",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Dream Successor",
+    "releaseDate": "2027-10-01",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "110902",
+    "charaId": "1109",
+    "nameEn": "Rhein Kraft",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 5,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "C",
+        "end": "G"
+      }
+    },
+    "epithet": "Eternal Fairytale",
+    "releaseDate": "2028-10-02",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111001",
+    "charaId": "1110",
+    "nameEn": "Cesario",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Future Weaver",
+    "releaseDate": "2028-02-08",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111002",
+    "charaId": "1110",
+    "nameEn": "Cesario",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Twinbell Queen",
+    "releaseDate": "2028-08-23",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111101",
+    "charaId": "1111",
+    "nameEn": "Air Messiah",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 15
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "C",
+        "mile": "B",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Inherited Hope",
+    "releaseDate": "2028-03-31",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111201",
+    "charaId": "1112",
+    "nameEn": "Daring Heart",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 0,
+      "gut": 20,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "B",
+        "mile": "A",
+        "medium": "E",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "D",
+        "pace": "A",
+        "late": "F",
+        "end": "G"
+      }
+    },
+    "epithet": "Daring Darling!",
+    "releaseDate": "2029-05-11",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111301",
+    "charaId": "1113",
+    "nameEn": "Fusaichi Pandora",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "E"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "B",
+        "end": "F"
+      }
+    },
+    "epithet": "Assorted Cuteness♡",
+    "releaseDate": "2028-10-02",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111401",
+    "charaId": "1114",
+    "nameEn": "Buena Vista",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "F"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Heroína Inocente",
+    "releaseDate": "2029-01-01",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111501",
+    "charaId": "1115",
+    "nameEn": "Orfevre",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "D"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "F",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Total Dominion",
+    "releaseDate": "2028-06-13",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111601",
+    "charaId": "1116",
+    "nameEn": "Gentildonna",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "Regina dei Fiori",
+    "releaseDate": "2028-01-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111602",
+    "charaId": "1116",
+    "nameEn": "Gentildonna",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "La dama perfetta",
+    "releaseDate": "2029-05-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111701",
+    "charaId": "1117",
+    "nameEn": "Win Variation",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "E",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "E",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Dramatic Tutu",
+    "releaseDate": "2028-04-17",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111801",
+    "charaId": "1118",
+    "nameEn": "Admire Groove",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Glacial Queen",
+    "releaseDate": "2029-04-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111901",
+    "charaId": "1119",
+    "nameEn": "Dream Journey",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Dreamland Memento",
+    "releaseDate": "2027-12-13",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "111902",
+    "charaId": "1119",
+    "nameEn": "Dream Journey",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 10,
+      "pow": 0,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "F",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "A",
+        "end": "A"
+      }
+    },
+    "epithet": "Snow-White Dream Road",
+    "releaseDate": "2029-01-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112001",
+    "charaId": "1120",
+    "nameEn": "Calstone Light O",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 15,
+      "sta": 0,
+      "pow": 15,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "D",
+        "medium": "G",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "C",
+        "late": "G",
+        "end": "G"
+      }
+    },
+    "epithet": "One True Path",
+    "releaseDate": "2027-12-30",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112101",
+    "charaId": "1121",
+    "nameEn": "Durandal",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "F",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "G",
+        "late": "C",
+        "end": "A"
+      }
+    },
+    "epithet": "Chevalier Fidèle",
+    "releaseDate": "2028-02-15",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112401",
+    "charaId": "1124",
+    "nameEn": "Bubble Gum Fellow",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 20,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
+    "epithet": "POPPING!",
+    "releaseDate": "2028-03-02",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112402",
+    "charaId": "1124",
+    "nameEn": "Bubble Gum Fellow",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
+    "epithet": "Dawn Light",
+    "releaseDate": "2029-02-07",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112701",
+    "charaId": "1127",
+    "nameEn": "Fenomeno",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "C",
+        "pace": "A",
+        "late": "E",
+        "end": "G"
+      }
+    },
+    "epithet": "Black Flame of Righteousness",
+    "releaseDate": "2028-07-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "112901",
+    "charaId": "1129",
+    "nameEn": "Almond Eye",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 10,
+      "gut": 0,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "D"
+      }
+    },
+    "epithet": "The Changer",
+    "releaseDate": "2029-03-15",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113001",
+    "charaId": "1130",
+    "nameEn": "Lucky Lilac",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "C"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Standard of Unyielding Resolve",
+    "releaseDate": "2029-04-18",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113101",
+    "charaId": "1131",
+    "nameEn": "Gran Alegria",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 0,
+      "pow": 10,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "A",
+        "mile": "A",
+        "medium": "C",
+        "long": "G"
+      },
+      "strategy": {
+        "front": "F",
+        "pace": "A",
+        "late": "A",
+        "end": "B"
+      }
+    },
+    "epithet": "sMile My Way!",
+    "releaseDate": "2028-06-24",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113201",
+    "charaId": "1132",
+    "nameEn": "Loves Only You",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "9927 Wishes",
+    "releaseDate": "2028-08-17",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113202",
+    "charaId": "1132",
+    "nameEn": "Loves Only You",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "G"
+      }
+    },
+    "epithet": "Love-Linked Aster",
+    "releaseDate": "2029-03-26",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113301",
+    "charaId": "1133",
+    "nameEn": "Chrono Genesis",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "C",
+        "end": "E"
+      }
+    },
+    "epithet": "Prismatic Curator",
+    "releaseDate": "2028-09-03",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113401",
+    "charaId": "1134",
+    "nameEn": "Curren Bouquetd'or",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "E",
+        "pace": "A",
+        "late": "B",
+        "end": "G"
+      }
+    },
+    "releaseDate": "2029-06-06",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113501",
+    "charaId": "1135",
+    "nameEn": "Stay Gold",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 20,
+      "wit": 0
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "G",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "C"
+      }
+    },
+    "epithet": "Sunlit Outsider",
+    "releaseDate": "2029-01-25",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113601",
+    "charaId": "1136",
+    "nameEn": "Red Desire",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "B"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "A",
+        "medium": "A",
+        "long": "F"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "B",
+        "late": "A",
+        "end": "F"
+      }
+    },
+    "epithet": "Divine Raiment",
+    "releaseDate": "2029-05-18",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "113701",
+    "charaId": "1137",
+    "nameEn": "Kiseki",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 10,
+      "sta": 0,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "G"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "C",
+        "medium": "A",
+        "long": "A"
+      },
+      "strategy": {
+        "front": "A",
+        "pace": "B",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Miracle Author",
+    "releaseDate": "2029-02-16",
+    "releaseDatePredicted": true
+  },
+  {
+    "umaId": "114301",
+    "charaId": "1143",
+    "nameEn": "Victoire Pisa",
+    "server": "jp",
+    "dataVersion": "global-76214c82",
+    "statGrowth": {
+      "spd": 0,
+      "sta": 10,
+      "pow": 0,
+      "gut": 10,
+      "wit": 10
+    },
+    "baseAptitudes": {
+      "surface": {
+        "turf": "A",
+        "dirt": "A"
+      },
+      "distance": {
+        "short": "G",
+        "mile": "B",
+        "medium": "A",
+        "long": "B"
+      },
+      "strategy": {
+        "front": "G",
+        "pace": "A",
+        "late": "A",
+        "end": "E"
+      }
+    },
+    "epithet": "Lueur Angélique",
+    "releaseDate": "2029-04-01",
+    "releaseDatePredicted": true
   }
 ]

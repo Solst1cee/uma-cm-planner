@@ -1194,6 +1194,13 @@ main:has(.cmp-page) {
   font-size: 0.7rem;
 }
 
+.cmp-runner-picker .cmp-upcoming-badge {
+  font-size: 0.6rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .cmp-mini-label {
   margin: 0.4rem 0 0.25rem;
   color: var(--fg-muted);
@@ -1551,6 +1558,42 @@ main:has(.cmp-page) {
   padding: 0.25rem 0.45rem;
   border-radius: 6px;
   font-size: 0.76rem;
+}
+
+.cmp-rebalance-select {
+  flex: none;
+  min-width: 0;
+  max-width: 9rem;
+  margin-top: 0.1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0.2rem 0.35rem;
+  color: var(--fg);
+  font-size: 0.72rem;
+  font-weight: 700;
+  appearance: none;
+}
+
+.cmp-rebalance-select.is-pinned {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Post-patch values marker (availability #4b P3) — same amber family as
+   the §4a Δ badge (.rebalance-badge in app.css): --warn-bg/border/fg. ---- */
+.cmp-patched-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+.cmp-patched-chip {
+  border: 1px solid var(--warn-border);
+  border-radius: 999px;
+  background: var(--warn-bg);
+  padding: 0.05rem 0.5rem;
+  color: var(--warn-fg);
 }
 
 .cmp-wishlist-line .cmp-small-btn {
@@ -1974,6 +2017,88 @@ main:has(.cmp-page) {
   color: #c27a00;
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
+}
+
+.cmp-rebalance {
+  border-top: 1px solid var(--border);
+  margin-top: 0.55rem;
+  padding-top: 0.5rem;
+}
+
+.cmp-rebalance h4 {
+  margin: 0 0 0.35rem;
+  color: var(--fg-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cmp-rebalance-versions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cmp-rebalance-version {
+  border-top: 1px solid var(--border);
+  padding-top: 0.4rem;
+}
+
+.cmp-rebalance-version:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cmp-rebalance-version-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--fg);
+  font-size: 0.78rem;
+}
+
+.cmp-rebalance-live {
+  border-radius: 5px;
+  background: #eef4ff;
+  padding: 0.08rem 0.3rem;
+  color: #25416d;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cmp-rebalance-arrival {
+  color: var(--fg-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-rebalance-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin-top: 0.25rem;
+  color: var(--fg-muted);
+  font-size: 0.72rem;
+}
+
+.cmp-rebalance-note {
+  margin: 0.25rem 0 0;
+}
+
+.cmp-rebalance-source {
+  display: inline-block;
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+}
+
+.cmp-rebalance-candidate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
 }
 
 .cmp-sidebar .picker-row {
