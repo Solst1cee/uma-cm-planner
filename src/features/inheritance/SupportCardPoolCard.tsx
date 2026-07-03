@@ -1,7 +1,7 @@
 // src/features/inheritance/SupportCardPoolCard.tsx
 /** M1.6 — "Support cards" pool panel: shell + header + filters + Icon view.
  *  Provider-free — all data comes via props. */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CardBaseEffect, CardEffect, CardType, LimitBreak } from '@/core/types';
 import type { AvailabilityTier } from '@/core/availability';
 import { TierChip } from '@/app/TierChip';
@@ -87,7 +87,12 @@ export function SupportCardPoolCard({
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
 
-  const filtered = sortPool(filterPool(items, filters, visible), sort);
+  // Memoized: two full passes + a sort over ~540 pool items — without this it
+  // re-ran on every keystroke and every unrelated parent re-render.
+  const filtered = useMemo(
+    () => sortPool(filterPool(items, filters, visible), sort),
+    [items, filters, visible, sort],
+  );
 
   function setRarity(rarity: PoolFilters['rarity']) {
     setFilters((f) => ({ ...f, rarity }));

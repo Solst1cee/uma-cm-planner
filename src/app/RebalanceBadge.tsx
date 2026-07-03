@@ -1,5 +1,6 @@
-/** Compact Δ marker for rebalanced skills: Δ? = uncurated JP drift; Δv{N} [~arrival] = curated. */
+/** Compact Δ marker for rebalanced skills: Δ? = uncurated JP drift; Δv{N} [~arrival | ✓ arrival] = curated. */
 import type { RebalanceInfo } from '@/core/types';
+import { arrivalLabel } from '@/core/rebalance';
 
 export function RebalanceBadge({ info }: { info?: RebalanceInfo }) {
   if (!info) return null;
@@ -11,8 +12,8 @@ export function RebalanceBadge({ info }: { info?: RebalanceInfo }) {
     );
   }
   const latest = info.versions[info.versions.length - 1];
-  const arrival = latest?.globalArrival;
-  const label = arrival ? `Δv${info.jpVer} ~${arrival}` : `Δv${info.jpVer}`;
+  const arrival = latest ? arrivalLabel(latest) : undefined;
+  const label = arrival ? `Δv${info.jpVer} ${arrival}` : `Δv${info.jpVer}`;
   const title = latest?.note
     ? `v${info.jpVer}: ${latest.note}`
     : `Rebalanced on JP (v${info.jpVer}); Global: v${info.globalVer}`;

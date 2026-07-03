@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { referenceBuild } from '@/core/rankUmaChart';
 import type { SimBuild, SimRaceParams } from '@/sim/types';
 import type { BashinStats } from '@/sim/types';
@@ -29,7 +29,9 @@ export function useUniqueSkillL(args: UseUniqueSkillLArgs): { L: number | null; 
   const { outfitId, uniqueSkillId, strategy, level, race, skillPatches, deps } = args;
   const [state, setState] = useState<{ L: number | null; loading: boolean }>({ L: null, loading: false });
   // Recompute key: only these inputs change the result (matches the chart's reference build).
-  const key = `${outfitId}|${uniqueSkillId}|${strategy}|${level}|${race.courseId}|${skillPatchesSig(skillPatches)}`;
+  // Patch sig memoized on the (stable) map identity — no re-stringify per parent render.
+  const patchesSig = useMemo(() => skillPatchesSig(skillPatches), [skillPatches]);
+  const key = `${outfitId}|${uniqueSkillId}|${strategy}|${level}|${race.courseId}|${patchesSig}`;
   const depsRef = useRef(deps);
   depsRef.current = deps;
 

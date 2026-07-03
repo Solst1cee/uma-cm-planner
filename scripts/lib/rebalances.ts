@@ -106,6 +106,15 @@ export function validateRebalances(entries: CuratedRebalance[]): void {
           `rebalances.json[${skillId}] ver ${v.ver}: a value change (modifier/duration/cooldown) requires sourceUrl`,
         );
       }
+      // The engine '@'-splits conditions and maps parts positionally; an explicit
+      // empty part blanks an originally-non-empty alternative and reaches
+      // parser.parse('') (a sim-time ParseError). Reject at author time.
+      if (v.conditions !== undefined && v.conditions.split('@').some((part) => part.trim() === '')) {
+        throw new Error(
+          `rebalances.json[${skillId}] ver ${v.ver}: conditions has an empty '@'-part ` +
+          `(${JSON.stringify(v.conditions)}) — to leave a later alternative unchanged, omit trailing parts entirely`,
+        );
+      }
     }
   }
 }
@@ -125,6 +134,14 @@ export function loadRebalances(path: string): CuratedRebalance[] {
  * same skill — no `uncuratedCandidate` flag); remaining un-curated auto
  * candidates yield a minimal placeholder `RebalanceInfo` flagged for review.
  */
+/** Per-skill shape facts from the master extract, for author-time guards. */
+export interface SkillShape {
+  /** Max `effects.length` across the skill's alternatives. */
+  maxEffectsPerAlternative: number;
+  /** Count of non-empty-condition alternatives — the '@'-parts the engine can map onto. */
+  patchableAlternatives: number;
+}
+
 export function bakeRebalances(inputs: {
   candidates: Map<string, { jp: string; global: string }>;
   curated: CuratedRebalance[];
@@ -134,8 +151,15 @@ export function bakeRebalances(inputs: {
    *  the build (P5: fail loudly — a typo here would silently drop the badge
    *  and sim patch). Optional for back-compat with existing callers/tests. */
   knownSkillIds?: ReadonlySet<string>;
+  /** Per-skill shapes from the master extract. When provided, guards two
+   *  engine foot-guns (P5: fail loudly): `modifier` on a multi-effect skill
+   *  (the engine overwrites EVERY effect's base value) and a `conditions`
+   *  string with more '@'-parts than the skill has patchable alternatives
+   *  (positional mapping would silently drift on a data refresh). Skills
+   *  absent from the map (JP-only, no master data) are not checked. */
+  skillShapes?: ReadonlyMap<string, SkillShape>;
 }): Map<string, RebalanceInfo> {
-  const { candidates, curated, cal, knownSkillIds } = inputs;
+  const { candidates, curated, cal, knownSkillIds, skillShapes } = inputs;
 
   if (knownSkillIds) {
     const orphans = curated.filter((e) => !knownSkillIds.has(e.skillId)).map((e) => e.skillId);
@@ -144,6 +168,32 @@ export function bakeRebalances(inputs: {
         `rebalances.json: curated skillId(s) match no skill record: ${orphans.join(', ')} — ` +
         'a typo here would silently drop the badge and sim patch (P5: fail loudly).',
       );
+    }
+  }
+
+  if (skillShapes) {
+    for (const entry of curated) {
+      const shape = skillShapes.get(entry.skillId);
+      if (!shape) continue; // JP-only skill: no master shape data to check against
+      for (const v of entry.versions) {
+        if (v.modifier !== undefined && shape.maxEffectsPerAlternative > 1) {
+          throw new Error(
+            `rebalances.json[${entry.skillId}] ver ${v.ver}: modifier is not allowed on a multi-effect skill ` +
+            `(${shape.maxEffectsPerAlternative} effects on one alternative) — the engine would overwrite every ` +
+            'effect\'s base value with it. Leave modifier unset (documented limitation).',
+          );
+        }
+        if (v.conditions !== undefined) {
+          const parts = v.conditions.split('@').length;
+          if (parts > shape.patchableAlternatives) {
+            throw new Error(
+              `rebalances.json[${entry.skillId}] ver ${v.ver}: conditions has ${parts} '@'-parts but the skill ` +
+              `has only ${shape.patchableAlternatives} patchable alternative(s) — parts map positionally, so ` +
+              'extra parts indicate a stale/wrong authoring against this skill\'s alternatives.',
+            );
+          }
+        }
+      }
     }
   }
 

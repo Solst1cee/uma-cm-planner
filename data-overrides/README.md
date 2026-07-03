@@ -97,6 +97,13 @@ Validation rules (`loadRebalances` throws on any violation, naming the entry/fie
 - Version `1` is required and is the baseline: it must not set `modifier`/`duration`/`cooldown`.
 - `globalVer` must be one of the entry's `versions`.
 - Any version `>= 2` that sets `modifier`/`duration`/`cooldown` requires `sourceUrl`.
+- `conditions` must not contain an empty `'@'`-part (`a@@c`, trailing `@`) — to leave a
+  later alternative unchanged, omit trailing parts entirely (an empty part would blank a
+  live alternative and crash the sim's condition parser).
+- Build-time shape guards (vs the master extract): `modifier` on a **multi-effect** skill
+  fails the build (the engine would overwrite every effect's value), and a `conditions`
+  string with more `'@'`-parts than the skill has non-empty-condition alternatives fails
+  the build (parts map positionally — extra parts mean stale/wrong authoring).
 
 `globalArrival`/`globalDatePredicted` are **not** hand-authored — `bakeRebalances` resolves them per-version from `jpDate`/`globalDate` through the shared foresight calibration (`projectReleaseDate`, `scripts/lib/foresight-build.ts`), the same clock used for record dating and `cmSynthesis` (one calibration join, no drift).
 
@@ -115,6 +122,10 @@ As of slice 4b the sims USE the effective version's parameters:
   not supported, so **leave `modifier` unset for multi-effect skills**.
 - `duration` is seconds. `cooldown` is the base-cooldown unit
   (`cooldownTime/10000` — the value the multifire gate scales by distance).
+  ⚠️ **Cooldown flips multi-fire eligibility**: a corner/straight-random skill with
+  no upstream cooldown carries the `5,000,000` single-fire sentinel; patching ANY
+  `cooldown < 500` onto it doesn't shorten a wait — it **newly enables re-fire**
+  (the skill fires MORE, not less). Pinned by `src/sim/skillPatches.test.ts`.
 - Version selection: `effectiveVersion` per horizon (predicted arrivals never
   activate at Current); a plan's `WishlistItem.skillVer` pin overrides it.
   Confirmed `globalVer ≥ 2` parameters apply even at Current ("engine pin

@@ -181,11 +181,18 @@ export async function buildAll(opts: { fromSpikes: boolean }): Promise<void> {
 
   // Skill rebalances (Availability #4a slice 4a): bake auto-detected (JP-vs-Global
   // condition diff) + hand-curated version history onto the final skills array.
+  // skillShapes guards two curation foot-guns against the master extract:
+  // modifier-on-multi-effect and conditions '@'-arity (see bakeRebalances).
+  const skillShapes = new Map(Object.values(masterSkills).map((m) => [String(m.id), {
+    maxEffectsPerAlternative: m.alternatives.reduce((max, a) => Math.max(max, a.effects.length), 0),
+    patchableAlternatives: m.alternatives.filter((a) => a.condition !== '').length,
+  }]));
   const rebalanceMap = bakeRebalances({
     candidates: detectCandidates(gametoraSkills, releasedSkillIds),
     curated: loadRebalances(join(OVERRIDES_DIR, 'rebalances.json')),
     cal,
     knownSkillIds: new Set(skills.map((s) => s.skillId)),
+    skillShapes,
   });
   skills = skills.map((s) => {
     const info = rebalanceMap.get(s.skillId);

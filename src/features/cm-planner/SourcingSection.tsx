@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { useGameData } from '@/features/data/gameData';
 import { useAvailability } from '@/app/useAvailability';
 import { GameIcon } from '@/features/data/GameIcon';
+import { TierChip } from '@/app/TierChip';
 import { buildCardHintIndex, sourcingForSkill } from '@/core/sourcing';
 import type { SkillRarity, Tier } from '@/core/types';
 
@@ -38,6 +39,7 @@ export function useCardHintIndex() {
 
 export function SourcingSection({ skillId, rarity }: { skillId: string; rarity: SkillRarity }) {
   const { index, cardById } = useCardHintIndex();
+  const { tierOf } = useAvailability();
   const acquirable = rarity === 'white' || rarity === 'gold';
   const row = useMemo(
     () => (acquirable ? sourcingForSkill(skillId, index, cardById, SOURCING_LB) : null),
@@ -55,13 +57,22 @@ export function SourcingSection({ skillId, rarity }: { skillId: string; rarity: 
         <p className="cmp-sourcing-gap">⚠ No support card hints this skill — inherit it from a parent, or run a card that grants it.</p>
       ) : (
         <ul className="cmp-sourcing-cards">
-          {shown.map((c) => (
-            <li key={c.cardId} className="cmp-sourcing-card">
-              <GameIcon kind="card" id={c.cardId} size={28} alt="" />
-              <span className="cmp-sourcing-card-name">{c.cardName}</span>
-              <span className={`cmp-tier-badge is-tier-${c.tier}`}>{TIER_LABEL[c.tier] ?? c.tier}</span>
-            </li>
-          ))}
+          {shown.map((c) => {
+            const rec = cardById.get(c.cardId);
+            return (
+              <li key={c.cardId} className="cmp-sourcing-card">
+                <GameIcon kind="card" id={c.cardId} size={28} alt="" />
+                <span className="cmp-sourcing-card-name">{c.cardName}</span>
+                <span className={`cmp-tier-badge is-tier-${c.tier}`}>{TIER_LABEL[c.tier] ?? c.tier}</span>
+                {rec && <TierChip tier={tierOf(rec)} />}
+                {rec?.releaseDatePredicted && (
+                  <span className="cmp-upcoming-badge" title="Projected Global date (foresight pace) — not announced">
+                    ~{rec.releaseDate}
+                  </span>
+                )}
+              </li>
+            );
+          })}
           {extra > 0 && <li className="cmp-sourcing-more muted small">+{extra} more card{extra === 1 ? '' : 's'}</li>}
         </ul>
       )}

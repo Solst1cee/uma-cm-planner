@@ -8,7 +8,7 @@
  *  switches between the four representative trace runs returned in one sim — no re-sim.
  *  Module-shared SimClient imported from '@/sim/client' (NOT the '@/sim' barrel) so the
  *  engine bundle stays out of this module's import graph. */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { RunChoice, SimBuild, SimRaceParams, SkillImpact, SkillTrace, SkillTraceRun } from '@/sim';
 import { SimClient } from '@/sim/client';
 import { skillPatchesSig } from '@/core/rebalancePatches';
@@ -81,7 +81,11 @@ export function useSkillTrace(
 
   // Auto-run when enabled + a context is present. Re-run on skill/course/build change.
   // Include sorted skills so wishlist edits bust the cache (mirrors useRaceCompare's buildSig).
-  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}|${[...ctx.build.skills].sort().join(',')}|${skillPatchesSig(ctx.build.skillPatches)}` : null;
+  // The two stringify-heavy parts are memoized on their (stable) object identities so a
+  // parent re-render (hover/sort/unrelated state) doesn't re-serialize per open disclosure.
+  const patchesSig = useMemo(() => skillPatchesSig(ctx?.build.skillPatches), [ctx?.build.skillPatches]);
+  const skillsSig = useMemo(() => (ctx ? [...ctx.build.skills].sort().join(',') : ''), [ctx?.build.skills]);
+  const sig = ctx ? `${skillId}|${ctx.race.courseId}|${ctx.build.umaId}|${ctx.build.strategy}|${ctx.build.stats.spd}/${ctx.build.stats.sta}/${ctx.build.stats.pow}/${ctx.build.stats.gut}/${ctx.build.stats.wit}|${skillsSig}|${patchesSig}` : null;
   useEffect(() => {
     if (!enabled || !ctx || sig === null) return;
     const merged = depsRef.current ?? realDeps();

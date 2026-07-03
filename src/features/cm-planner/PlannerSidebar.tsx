@@ -8,7 +8,7 @@ import {
 } from '@/core/simBuild';
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
-import { effectiveVersion } from '@/core/rebalance';
+import { arrivalLabel, effectiveVersion } from '@/core/rebalance';
 import { withSkillPatches } from '@/core/rebalancePatches';
 import type { TraceContext } from './useSkillTrace';
 import { useSkillPatches } from './useSkillPatches';
@@ -104,7 +104,7 @@ function statGrowthLabel(value: number | undefined): string {
 function versionOptionLabel(v: SkillVersion, info: RebalanceInfo, defaultVer: number): string {
   let label = `v${v.ver}`;
   if (v.ver === info.globalVer) label += ' (Global)';
-  else if (v.globalArrival) label += v.globalDatePredicted ? ` ~${v.globalArrival}` : ` ✓ ${v.globalArrival}`;
+  else if (v.globalArrival) label += ` ${arrivalLabel(v)}`;
   if (v.ver === defaultVer) label += ' — default';
   return label;
 }
@@ -958,8 +958,13 @@ export function PlannerSidebar({
                         traceContext={traceCtx}
                         collapseSignal={collapseSkillSignal}
                         side={
-                          item.projectedL !== undefined ? (
-                            <span className="L">+{item.projectedL.toFixed(2)}</span>
+                          (skill !== null && skill.server !== 'global') || item.projectedL !== undefined ? (
+                            <>
+                              {skill !== null && skill.server !== 'global' && <TierChip tier={tierOf(skill)} />}
+                              {item.projectedL !== undefined && (
+                                <span className="L">+{item.projectedL.toFixed(2)}</span>
+                              )}
+                            </>
                           ) : undefined
                         }
                         technicalHeaderSide={

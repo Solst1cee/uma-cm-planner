@@ -32,13 +32,15 @@ export function SkillPicker({
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q === '') return [];
+    // Cheap predicates first: the name filter kills >99% of the 1700+ skills per
+    // keystroke, so tier classification + variant-blocking only run on the survivors.
     return skills
       .filter((s) => (
-        visible(s)
-        && s.rarity !== 'unique'
-        && !hiddenSkillIds.has(s.skillId)
-        && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
+        s.rarity !== 'unique'
         && s.nameEn.toLowerCase().includes(q)
+        && !hiddenSkillIds.has(s.skillId)
+        && visible(s)
+        && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
       ))
       .slice(0, MAX_RESULTS);
   }, [addedSkillIds, hiddenSkillIds, query, skillById, skills, visible]);

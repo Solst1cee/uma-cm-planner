@@ -12,7 +12,11 @@ function aptHash(build: SimBuild): string {
 /** Shared L-cache key: (courseId, strategy, bucketedStats, aptitudes, skillId, dataVersion).
  *  `skillPatches` is intentionally NOT keyed: this cache serves only M2's rankBaskets,
  *  which never attaches patches. If a patched (M4/horizon) build is ever routed through
- *  makeDeltaCache, add skillPatchesSig to the key first or stale collisions will result. */
+ *  makeDeltaCache, add skillPatchesSig to the key first or stale collisions will result.
+ *  NOTE (2026-07-03 decision): M2 also knowingly skips PIN-LAG rebalances (confirmed
+ *  live on Global, engine pin lagging) — see the exceptions block on
+ *  `wishlistToCandidates` (src/core/spOptimizer.ts) for the full rationale and the
+ *  shape of the eventual fix. Building that fix REQUIRES keying skillPatches here. */
 export function simCacheKey(build: SimBuild, race: SimRaceParams, skillId: string, dataVersion: string): string {
   return [race.courseId, build.strategy, bucketStats(build), aptHash(build), skillId, dataVersion].join('|');
 }
