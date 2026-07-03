@@ -24,7 +24,7 @@ Key sources:
 
 All proc-chance math uses **n = 2** events: `P(career) = 1 − (1 − p_event)²` — exact formula in Ice's sheet (`non_zero_career`, Full Custom Calculation **CB18**; matches precomputed tables to float precision).
 
-> ⚠ Kamigame claims grandparent **green** sparks can only proc in-run, not at career start (parents only at start). Unencoded — verify before modeling green career-start eligibility.
+> ✅ **VERIFIED + ENCODED (2026-07-03, maintainer in-game on Global):** the DIRECT parents' **green** sparks are **guaranteed at career start** (never roll); **grandparent** greens have NO career-start grant and only **roll at the two inspiration events** with the green base table (§2) × member affinity (matches the Kamigame claim). Encoded: `sparkChance` prices gp greens via the green path; the M1.7 coverage matrix shows parent greens as 100% guaranteed and never prices them through `sparkChance`.
 
 ## 2. Base proc table (per inspiration event, before affinity, % by 1★/2★/3★)
 

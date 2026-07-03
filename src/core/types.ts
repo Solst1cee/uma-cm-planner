@@ -299,6 +299,10 @@ export interface UmaRecord {
   nameEn: string;
   /** Outfit epithet, e.g. "Special Dreamer". */
   epithet?: string;
+  /** The uma's built-in skill kit (unique + innate white skills, e.g. Mayano
+   *  Top Gun's "No Stopping Me!"). From GameTora character-cards.json via
+   *  build-umas. Absent until umas.json is regenerated (M1.7). */
+  innateSkills?: string[];
   /** Training growth bonuses by stat, as percentages (e.g. 20 = +20%). */
   statGrowth?: Record<Stat, number>;
   /** Base aptitude letters from GameTora's character-card catalog. */

@@ -4,11 +4,21 @@
  *  plan's uma and an inventory-icon button that pops the shared PlanInventoryCard
  *  (dismiss-on-outside); picking a row there switches the current plan. M1.5 adds the
  *  "Deck" card (6-slot support deck + autosave templates) in the center column. */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { useAvailability } from '@/app/useAvailability';
 import type { CardBaseEffects, CardType, CardUniqueEffects, CmPlan, LimitBreak } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
+import { buildUniqueToInheritedMap, reconcileGreenSkillId } from '@/core/greenSparkReconcile';
+import { toSingleCircle } from '@/core/skillCircle';
+import { buildCoverageMatrix } from '@/core/coverageMatrix';
+import { type SkillSortMeta } from '@/core/skillCategory';
+import { buildIconRank, buildSkillComparator } from './skillSort';
+import { planLineageAffinity } from '@/core/lineageAffinity';
+import { useRoster } from './useRoster';
+import { useAffinityIndex } from './useAffinityIndex';
+import { useG1SaddleSet } from './useG1SaddleSet';
+import { CoverageMatrixCard } from './CoverageMatrixCard';
 import { trackName } from '@/features/planner/race-setup/trackCatalog';
 import { GameIcon } from '@/features/data/GameIcon';
 import { BASE_URL, useGameData } from '@/features/data/gameData';
@@ -18,11 +28,16 @@ import { useScoreWeights } from './useScoreWeights';
 import { ScoreWeightsPanel } from './ScoreWeightsPanel';
 import { SupportCardPoolCard, CardDetailCard } from './SupportCardPoolCard';
 import { useUmas } from '@/features/parents/useUmas';
+import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { SkillDetailDisclosure } from '@/features/cm-planner/SkillDetailDisclosure';
-import { skillRecordToSummary } from '@/features/cm-planner/skillTechnicalDetails';
+import { loadInnateSkillsByUmaId, loadUniqueSkillByUmaId, skillRecordToSummary, type SkillSummary } from '@/features/cm-planner/skillTechnicalDetails';
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
 import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
+import { SkillDetailPopover } from './SkillDetailPopover';
+
+/** Baked skill_details.json value (build-skill-details.ts). */
+interface BakedSkillDetail { effect?: string; condition?: string; durationMs?: number }
 import { PlanContextHeader } from './PlanContextHeaderView';
 import { UmaPlanCard } from './UmaPlanCard';
 import { PlanTargetsCard } from './PlanTargetsCard';
@@ -96,6 +111,18 @@ interface Deps {
   loadCatalog?: () => Promise<CourseCatalogEntry[]>;
 }
 const defaultLoadCatalog = () => import('@/sim/courseCatalog').then((m) => m.courseCatalog());
+/** Icon-spec sort rank (features/inheritance/skillSort.ts) — computed once. */
+const ICON_RANK = buildIconRank();
+
+/** One rendered training-event entry from public/data/uma_event_details.json
+ *  (baked by scripts/build-uma-event-details.ts — mirror of its UmaEventDetail). */
+interface UmaEventDetail {
+  name: string;
+  category: string;
+  jpCurrentDiffers?: boolean;
+  conditions?: string[];
+  choices: Array<{ option: string; rewards: Array<{ label: string; skillId?: string }> }>;
+}
 
 /** Placeholder for a workbench card not yet built (M1.3–M1.8). */
 function Placeholder({ title, phase }: { title: string; phase: string }) {
@@ -120,8 +147,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     deleteAllSavedPlans,
   } = useActivePlan();
   const { umaById } = useUmas();
-  const { skillById, cardById, cards } = useGameData();
+  const { skillById, cardById, cards, skills, sparkRates } = useGameData();
   const { visible, tierOf } = useAvailability();
+  const { roster } = useRoster();
+  const affinityIdx = useAffinityIndex();
+  const g1Set = useG1SaddleSet();
   const [track, setTrack] = useState<string | null>(null);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [targetsCollapsed, setTargetsCollapsed] = useState(false);
@@ -156,6 +186,15 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   // Per-card "Unique Effect" lines (public/data/card_unique_effects.json), lazy-loaded.
   const [uniqueEffects, setUniqueEffects] = useState<CardUniqueEffects>({});
   const [baseEffects, setBaseEffects] = useState<CardBaseEffects>({});
+  // Uma → skill ids obtainable via its career training events (public/data/uma_events.json).
+  const [umaEventsByUmaId, setUmaEventsByUmaId] = useState<Record<string, string[]>>({});
+  // Uma → rendered training-event details for the Event-cell popup
+  // (public/data/uma_event_details.json — see scripts/build-uma-event-details.ts).
+  const [umaEventDetails, setUmaEventDetails] = useState<Record<string, UmaEventDetail[]>>({});
+  // skillId → { category, group } for sorting BOTH coverage tables.
+  const [skillCategories, setSkillCategories] = useState<Record<string, SkillSortMeta>>({});
+  // skillId → baked readable description for the M1.7 skill-detail popup.
+  const [skillDetails, setSkillDetails] = useState<Record<string, BakedSkillDetail>>({});
   useEffect(() => {
     let cancelled = false;
     const load = <T,>(file: string, set: (v: T) => void) =>
@@ -165,6 +204,26 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         .catch(() => { /* optional dataset — degrade to none */ });
     void load<CardUniqueEffects>('card_unique_effects.json', setUniqueEffects);
     void load<CardBaseEffects>('card_effects.json', setBaseEffects);
+    void load<Record<string, string[]>>('uma_events.json', setUmaEventsByUmaId);
+    void load<Record<string, UmaEventDetail[]>>('uma_event_details.json', setUmaEventDetails);
+    void load<Record<string, SkillSortMeta>>('skill_categories.json', setSkillCategories);
+    void load<Record<string, BakedSkillDetail>>('skill_details.json', setSkillDetails);
+    return () => { cancelled = true; };
+  }, []);
+  // Uma → its innate skill kit (skillId → unlocking potential level, from the
+  // engine's skill collection `sources[].needRank`). The coverage matrix's
+  // Innate column keeps only the non-unique (white + gold) ones.
+  const [innateByUmaId, setInnateByUmaId] = useState<Map<string, Map<string, number>> | null>(null);
+  // Uma (outfit) → its unique skill, for the inherited-unique name-icon portrait.
+  const [uniqueByUmaId, setUniqueByUmaId] = useState<Map<string, SkillSummary> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void loadInnateSkillsByUmaId()
+      .then((m) => { if (!cancelled) setInnateByUmaId(m); })
+      .catch(() => { /* degrade: Innate column stays empty */ });
+    void loadUniqueSkillByUmaId()
+      .then((m) => { if (!cancelled) setUniqueByUmaId(m); })
+      .catch(() => { /* degrade: unique name-icon falls back to skill icon */ });
     return () => { cancelled = true; };
   }, []);
   const { templates, save, remove, get } = useDeckTemplates();
@@ -282,6 +341,159 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
     [uma1Plan],
   );
+
+  // Coverage matrix (M1.7)
+  const umaNameById = useMemo(
+    () => new Map([...umaById].map(([id, u]) => [id, u.nameEn])),
+    [umaById],
+  );
+  const greenMap = useMemo(() => buildUniqueToInheritedMap(skills).map, [skills]);
+  // group_id → its white base skill name, so a gold sorts just above its white twin.
+  const groupWhiteName = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const [id, rec] of skillById) {
+      if (rec.rarity !== 'white') continue;
+      const g = skillCategories[id]?.group;
+      if (g === undefined) continue;
+      const prev = m.get(g);
+      if (prev === undefined || rec.nameEn < prev) m.set(g, rec.nameEn);
+    }
+    return m;
+  }, [skillById, skillCategories]);
+  // Comparator honouring the user's icon-spec order (uniques top, then icons).
+  const compareSkills = useMemo(() => buildSkillComparator(
+    (id) => {
+      const rec = skillById.get(id);
+      return rec ? { iconId: rec.iconId, rarity: rec.rarity, group: skillCategories[id]?.group ?? 0, name: rec.nameEn } : undefined;
+    },
+    ICON_RANK,
+    (g) => groupWhiteName.get(g),
+  ), [skillById, skillCategories, groupWhiteName]);
+  // Inherited-unique / unique skillId → a uma (outfit) id, so the skill-name
+  // icon can show the character portrait for uniques instead of a skill icon.
+  const uniqueSkillToUma = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const [umaId, summary] of uniqueByUmaId ?? []) {
+      m.set(summary.skillId, umaId); // native unique id
+      m.set(reconcileGreenSkillId(summary.skillId, greenMap), umaId); // inherited (9xxxxx) twin
+    }
+    return m;
+  }, [uniqueByUmaId, greenMap]);
+  const coverageResult = useMemo(() => {
+    const wishlistSkillIds = (uma1Plan?.wishlist ?? []).map((w) => w.skillId);
+    const rosterById = new Map(roster.map((p) => [p.id, p]));
+    const pA = uma1Plan?.parents.a ? rosterById.get(uma1Plan.parents.a) : undefined;
+    const pB = uma1Plan?.parents.b ? rosterById.get(uma1Plan.parents.b) : undefined;
+    // A white spark only ever grants the single-circle (○) grade — normalise a
+    // recorded ◎ id to its ○ family member so coverage/bonus display "…○".
+    const normSparks = <T extends { skillId: string }>(sparks: T[]): T[] =>
+      sparks.map((s) => ({ ...s, skillId: toSingleCircle(s.skillId, skillById) }));
+    const normParent = (p: typeof pA): typeof pA => p && ({
+      ...p,
+      whiteSparks: normSparks(p.whiteSparks),
+      grandparents: p.grandparents?.map((gp) => gp && { ...gp, whiteSparks: normSparks(gp.whiteSparks ?? []) }) as typeof p.grandparents,
+    });
+    const nA = normParent(pA);
+    const nB = normParent(pB);
+    const activeParents = [
+      ...(nA ? [{ parent: nA, isA: true as const }] : []),
+      ...(nB ? [{ parent: nB, isA: false as const }] : []),
+    ];
+
+    let memberAffinity: ((ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined) | undefined;
+    if (affinityIdx && uma1Plan && pA && pB) {
+      const la = planLineageAffinity(affinityIdx, uma1Plan.umaId, pA, pB, g1Set);
+      memberAffinity = ({ parentId, grandparent, gpIndex }) => {
+        if (!grandparent) return parentId === pA.id ? la.memberScores.parentA : parentId === pB.id ? la.memberScores.parentB : undefined;
+        if (parentId === pA.id) return gpIndex === 0 ? la.memberScores.gA1 : la.memberScores.gA2;
+        if (parentId === pB.id) return gpIndex === 0 ? la.memberScores.gB1 : la.memberScores.gB2;
+        return undefined;
+      };
+    }
+
+    const deckCards = deck.slots.filter((id): id is string => !!id).map((id) => cardById.get(id)).filter((c): c is NonNullable<typeof c> => !!c);
+    const deckLbByCardId = new Map<string, LimitBreak>();
+    deck.slots.forEach((id, i) => { if (id) deckLbByCardId.set(id, deck.slotLb[i] ?? 4); });
+
+    const planUmaRec = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
+    // The uma's innate kit = its outfitId-associated skills, kept to white + gold
+    // (drop unique / inherited-unique — not "innate" for coverage). Prefer the
+    // baked UmaRecord.innateSkills if the data pipeline ever populates it.
+    const innateRanks = uma1Plan ? innateByUmaId?.get(uma1Plan.umaId) : undefined;
+    const innateSkills =
+      planUmaRec?.innateSkills ??
+      (innateRanks
+        ? [...innateRanks.keys()].filter((id) => {
+            const r = skillById.get(id)?.rarity;
+            return r === 'white' || r === 'gold';
+          })
+        : []);
+    const innateRankBySkillId = innateRanks ? Object.fromEntries(innateRanks) : undefined;
+    // Skills this uma's career training events can grant (availability, not per-run).
+    const eventSkills = uma1Plan ? (umaEventsByUmaId[uma1Plan.umaId] ?? []) : [];
+
+    return buildCoverageMatrix({
+      wishlistSkillIds,
+      planUma: planUmaRec
+        ? { umaId: planUmaRec.umaId, nameEn: planUmaRec.nameEn, innateSkills, eventSkills, innateRankBySkillId }
+        : null,
+      activeParents,
+      deckCards,
+      deckLbByCardId,
+      skillById,
+      cardById,
+      greenMap,
+      sparkRates,
+      memberAffinity,
+      umaNameById,
+      compareSkills,
+    });
+  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId, compareSkills]);
+
+  // Event-cell hint button + popup: the training events of the plan uma that can
+  // grant the (family-resolved) skill. Returns null when no details exist — the
+  // cell then falls back to the plain chip.
+  const renderEventHint = (skillId: string): ReactNode => {
+    if (!uma1Plan) return null;
+    const events = (umaEventDetails[uma1Plan.umaId] ?? []).filter((e) =>
+      e.choices.some((ch) => ch.rewards.some((r) => r.skillId === skillId)));
+    if (events.length === 0) return null;
+    return (
+      <HeaderHelp label="Training-event details" placement="right">
+        <div className="inh-ev-pop">
+          {events.map((e) => (
+            <div key={e.name} className="inh-ev-detail">
+              {/* Section 1 — event name headbar (violet lightbar) */}
+              <div className="inh-ev-name">
+                {e.name}
+                {e.jpCurrentDiffers && (
+                  <span className="inh-ev-flag" title="JP-current rewards differ — showing Global-period data">Global</span>
+                )}
+              </div>
+              {/* Section 2 — conditions (grey) */}
+              {e.conditions && e.conditions.length > 0 && (
+                <div className="inh-ev-sec inh-ev-sec-cond">
+                  <div className="inh-ev-sub">Conditions</div>
+                  <ul className="inh-ev-conds">{e.conditions.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                </div>
+              )}
+              {/* Section 3 — rewards (white) */}
+              {e.choices.map((ch, i) => (
+                <div key={i} className="inh-ev-sec inh-ev-sec-reward">
+                  <div className="inh-ev-sub">{ch.option || 'Reward'}</div>
+                  <ul className="inh-ev-rewards">
+                    {ch.rewards.map((r, j) => (
+                      <li key={j} className={r.skillId === skillId ? 'is-target' : undefined}>{r.label}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </HeaderHelp>
+    );
+  };
   const byKey = useMemo(cardRowsByKey, []);
   const deckObjs = useMemo(() => resolveDeckObjects(deck, byKey), [deck, byKey]);
   // Only horizon-visible cards get scored + view-modeled — at the default
@@ -520,7 +732,36 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
             visible={visible}
             tierOf={tierOf}
           />
-          <Placeholder title="Obtainable vs. wishlist" phase="M1.7" />
+          <CoverageMatrixCard
+            result={coverageResult}
+            hasWishlist={(uma1Plan?.wishlist?.length ?? 0) > 0}
+            hasPlanUma={!!uma1Plan}
+            renderCardIcon={(cardId, size) => (
+              <GameIcon kind="card" id={cardId} size={size} alt="" className="inh-pool-card-img" />
+            )}
+            renderSkillIcon={(skillId) => {
+              const rec = skillById.get(skillId);
+              // Inherited-unique / unique → the character portrait; else the skill icon.
+              if (rec && (rec.rarity === 'inherited_unique' || rec.rarity === 'unique')) {
+                const umaId = uniqueSkillToUma.get(skillId);
+                if (umaId) return <GameIcon kind="uma" id={umaId} size={18} alt="" className="inh-cov-name-uma" />;
+              }
+              return rec?.iconId
+                ? <GameIcon kind="skill" id={rec.iconId} size={18} alt="" className="inh-cov-name-skill" />
+                : null;
+            }}
+            renderSkillDetail={(skillId, name) => {
+              const rec = skillById.get(skillId);
+              if (!rec) return name;
+              return (
+                <SkillDetailPopover
+                  name={name}
+                  skill={{ skillId, name: rec.nameEn, rarity: rec.rarity, spCost: rec.baseSpCost, description: skillDetails[skillId]?.effect }}
+                />
+              );
+            }}
+            renderEventHint={renderEventHint}
+          />
         </div>
         <div className="inh-col inh-col-right">
           <Placeholder title="Target spark" phase="M1.8" />
@@ -548,7 +789,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
               })()}
               uniqueEffects={uniqueEffects[selectedItem.cardId] ?? []}
               baseEffects={baseEffects[selectedItem.cardId] ?? []}
-              skillName={(id) => skillById.get(id)?.nameEn ?? id}
+              skillName={(id) => skillById.get(toSingleCircle(id, skillById))?.nameEn ?? id}
             />
           )}
         </div>

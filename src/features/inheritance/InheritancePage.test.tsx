@@ -13,19 +13,28 @@ const plan: CmPlan = {
   patch: { version: 'x' }, server: 'global', dataVersion: 'x',
 } as CmPlan;
 
+const planWithWishlist: CmPlan = {
+  ...plan,
+  id: 'p2', planNumber: 2,
+  wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
+};
+
 // Stub the ActivePlan context so the page test needs no Dexie provider.
+// useActivePlan is a vi.fn() so individual tests can override with mockReturnValueOnce.
+const mockUseActivePlan = vi.fn(() => ({
+  uma1Plan: plan,
+  plan,
+  uma2Plan: null,
+  savedPlans: [plan],
+  setPlan: vi.fn(),
+  loadPlanIntoSlot: vi.fn(),
+  deleteSavedPlan: vi.fn(),
+  importSavedPlans: vi.fn(),
+  deleteAllSavedPlans: vi.fn(),
+  saveCurrentPlan: vi.fn(),
+}));
 vi.mock('@/app/ActivePlanContext', () => ({
-  useActivePlan: () => ({
-    uma1Plan: plan,
-    plan,
-    uma2Plan: null,
-    savedPlans: [plan],
-    setPlan: vi.fn(),
-    loadPlanIntoSlot: vi.fn(),
-    deleteSavedPlan: vi.fn(),
-    importSavedPlans: vi.fn(),
-    deleteAllSavedPlans: vi.fn(),
-  }),
+  useActivePlan: () => mockUseActivePlan(),
 }));
 // Empty roster → the card resolves no uma (placeholder portrait, no GameIcon → no provider needed).
 vi.mock('@/features/parents/useUmas', () => ({
@@ -33,9 +42,30 @@ vi.mock('@/features/parents/useUmas', () => ({
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
 // The page resolves wishlist skills (skillById) + the M1.5 Deck card art (cardById)
-// via useGameData; stub both (empty maps → no wishlist rows / placeholder deck art).
+// via useGameData; stub both. sparkRates is needed for buildCoverageMatrix.
+const STUB_SPARK_RATES = {
+  baseProcPctByStars: {
+    blue: [70, 80, 90] as [number, number, number],
+    pink: [1, 3, 5] as [number, number, number],
+    green: [5, 10, 15] as [number, number, number],
+    whiteSkill: [3, 6, 9] as [number, number, number],
+    whiteRace: [1, 2, 3] as [number, number, number],
+    whiteScenario: [3, 6, 9] as [number, number, number],
+  },
+  inspirationEvents: 2 as const,
+  affinityScaling: 'per_member_multiplicative_pct' as const,
+};
+const STUB_SKILL_BY_ID = new Map([
+  ['200011', { skillId: '200011', nameEn: 'Corner Adept', rarity: 'white', iconId: '10001', baseSpCost: 90, variantSkillIds: [], conditions: '', server: 'global', dataVersion: 'fixture' }],
+]);
 vi.mock('@/features/data/gameData', () => ({
-  useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }),
+  useGameData: () => ({
+    skills: [...STUB_SKILL_BY_ID.values()],
+    skillById: STUB_SKILL_BY_ID,
+    cardById: new Map(),
+    cards: [],
+    sparkRates: STUB_SPARK_RATES,
+  }),
   BASE_URL: '',
 }));
 // The page's pickers read the app-wide planning horizon; default = current.
@@ -64,6 +94,7 @@ vi.mock('./useRoster', () => ({
   makeWhiteResolver: () => () => undefined,
 }));
 vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
+vi.mock('./useG1SaddleSet', () => ({ useG1SaddleSet: () => new Set<string>() }));
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 
@@ -110,5 +141,23 @@ describe('InheritancePage', () => {
     // After render, the M1.4 placeholder is gone and the card header shows.
     expect(await screen.findByText('Inheritance')).toBeInTheDocument();
     expect(screen.queryByText('M1.4')).not.toBeInTheDocument();
+  });
+
+  it('renders the M1.7 coverage matrix (no placeholder) for a plan with a wishlist', async () => {
+    mockUseActivePlan.mockReturnValueOnce({
+      uma1Plan: planWithWishlist,
+      plan: planWithWishlist,
+      uma2Plan: null,
+      savedPlans: [planWithWishlist],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    expect(await screen.findByText('Obtainable vs. wishlist')).toBeTruthy();
+    expect(screen.queryByText('M1.7')).toBeNull(); // placeholder gone
   });
 });
