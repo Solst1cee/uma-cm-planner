@@ -287,6 +287,14 @@ from the AUTO condition-diff detector (`detectCandidates`) that flags JP-vs-Glob
 skill drift on every rebuild — a curated entry here absorbs that flagged
 candidate into a full versioned record instead of leaving it a placeholder.
 
+**Global patches are datamined, not read from patch notes** (the official notes
+lack the exact condition/value changes). For a Global patch, don't hand-author
+the entries — use the standing feed at [`scripts/rebalance-datamine/`](../scripts/rebalance-datamine/):
+diff the umalator-global git-history master.mdb extracts (engine-pin vs
+post-patch) and let `gen-rebalances.mjs` emit the entries, which respect the
+build-time guards so they bake clean. Full workflow in that directory's README;
+the first adoption (the 2026-07-01 patch, 95 skills) came from it.
+
 ### JP patch notes land
 
 Open `data-overrides/rebalances.json` and add a new entry (new skill) or append
