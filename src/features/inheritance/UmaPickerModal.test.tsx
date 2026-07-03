@@ -95,6 +95,25 @@ describe('UmaPickerModal', () => {
     expect(screen.getByRole('button', { name: 'Vitesse own 1' })).toBeInTheDocument();
   });
 
+  it('white (SKILL) search adds a skill row with parent + total meters — same as green', () => {
+    const whiteSkillOptions = [{ id: '200011', name: 'Corner Recovery' }, { id: '200021', name: 'Other Skill' }];
+    render(<UmaPickerModal {...base} open whiteSkillOptions={whiteSkillOptions} skillName={(id) => (id === '200011' ? 'Corner Recovery' : id)} />);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Search skill' }), { target: { value: 'corner' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Corner Recovery' }));
+    expect(screen.getByRole('button', { name: 'Corner Recovery own 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Corner Recovery lineage 1' })).toBeInTheDocument();
+  });
+
+  it('white search supports keyboard nav (↓ then Enter), independent of the green search', () => {
+    const whiteSkillOptions = [{ id: '200011', name: 'Concentration' }, { id: '200021', name: 'Confidence' }];
+    render(<UmaPickerModal {...base} open whiteSkillOptions={whiteSkillOptions} skillName={(id) => (id === '200021' ? 'Confidence' : 'Concentration')} />);
+    const box = screen.getByRole('combobox', { name: 'Search skill' });
+    fireEvent.change(box, { target: { value: 'con' } });
+    fireEvent.keyDown(box, { key: 'ArrowDown' }); // highlight index 1 (Confidence)
+    fireEvent.keyDown(box, { key: 'Enter' });
+    expect(screen.getByRole('button', { name: 'Confidence own 1' })).toBeInTheDocument();
+  });
+
   it('filters tiles by the name search', () => {
     render(<UmaPickerModal {...base} open />);
     fireEvent.change(screen.getByRole('searchbox', { name: /search by name/i }), { target: { value: 'alph' } });
