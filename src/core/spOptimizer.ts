@@ -362,6 +362,21 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
  * by skillId; skips ids absent from the dataset and `server:'jp'` preview
  * records — an upcoming skill can be wishlisted for a future CM, but it is not
  * buyable on a Global training run (P4). Pure.
+ *
+ * DELIBERATE EXCEPTIONS to the app-wide availability/rebalance model (decided
+ * 2026-07-03, M2 not ready to adopt them yet — do not "unify" this without a
+ * decision):
+ * - The `server !== 'global'` drop is a hard gate, NOT the planning horizon.
+ *   If M2 ever honors the horizon, route through `useAvailability()`/its
+ *   predicate rather than deleting this guard (removing it re-opens the P4
+ *   leak PR #29 fixed).
+ * - `WishlistItem.skillVer` pins are dropped, and M2 sims (rankBaskets)
+ *   attach NO `skillPatches` — including PIN-LAG rebalances (`globalVer >= 2`,
+ *   confirmed live on Global while the engine pin lags). Until that's built,
+ *   M2 ranks such skills with stale pre-rebalance values while M4 charts show
+ *   patched ones. Pin-lag support needs no horizon plumbing (it's a pure data
+ *   fact): `confirmedPatchMap` in rankBaskets.toSimBuild + `skillPatchesSig`
+ *   in `simCacheKey` + a PatchedSimNote on M2 results.
  */
 export function wishlistToCandidates(
   wishlist: WishlistItem[],
