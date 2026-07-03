@@ -152,16 +152,23 @@ saddle→G1 `wonRaces` reconciliation (M1.7).
 ## M1.4 finalization — "Star Tracks" filter + affinity marks + parent guards (2026-07-01, this PR)
 
 The picker's spark filter was **redesigned to "Star Tracks"** (from a claude.ai/design
-handoff, `docs/handoff/design_handoff_spark_filter/`): three category cards **STAT
-(blue) · APTITUDE (pink) · UNIQUE (green)** with a light tinted header + lineage-member
-pips; each active factor row has **Parent (gold legacy) + Total star meters** (member
-boxes shrink as the ≤9★/≤3-member budget is consumed — `SparkMeter`), add-chips
-(pink laid out as the in-game surface/distance/style rows), and a **unique-skill search**
-for green (smaller box + **keyboard nav** ↑/↓/Enter/Esc, combobox a11y). A sticky
+handoff, `docs/handoff/design_handoff_spark_filter/`): four category cards **STAT
+(blue) · APTITUDE (pink) · UNIQUE (green) · SKILL (white)** with a light tinted header +
+lineage-member pips; each active factor row has **Parent (gold legacy) + Total star meters**
+(member boxes shrink as the ≤9★/≤3-member budget is consumed — `SparkMeter`), add-chips
+(pink laid out as the in-game surface/distance/style rows), and a **keyboard-navigable skill
+search** (↑/↓/Enter/Esc, combobox a11y) for the green (unique) + white (skill) cards. A sticky
 **summary bar** (`SparkSummary`) shows the live match count, Reset-all, an **upload-data
 button**, and active-filter chips. Two-column modal (filter column `fit-content` + results).
-Files: `SparkFilterCards` / `SparkMeter` / `SparkSummary` (+ `sparkBudget`, `green` clause
-in `sparkFilter`, `greens` in `sparkAggregate`).
+Files: `SparkFilterCards` / `SparkMeter` / `SparkSummary` (+ `sparkBudget`, `green`/`white`
+clauses in `sparkFilter`, `greens`/`whites` in `sparkAggregate`).
+
+- **SKILL (white) card (2026-07-03, PR #39)** — the 4th category, added after the initial
+  M1.4 merge, **mirrors the UNIQUE (green) card exactly**: same keyboard-nav skill search
+  → factor row with Parent/Total meters, ≤3 per-member budget, single-legacy. The green
+  search box was extracted into a stateful **`SkillSearch`** sub-component so the green +
+  white searches keep **independent** query/highlight state. `whiteIcon` = a `kind="skill"`
+  GameIcon (via `skillById → iconId`); grey `--tone` for `.spc-card.spark-white`.
 
 - **Affinity compatibility marks** — `AffinityMark` renders the in-game **◎/○/△** symbol
   (core `affinityTier`; neutral grey) next to each picker uma's affinity number **and**
