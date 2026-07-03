@@ -109,6 +109,27 @@ describe('validateRebalances', () => {
     e.skillId = '';
     expect(() => validateRebalances([e])).toThrow(/skillId/);
   });
+
+  // The engine '@'-splits conditions positionally; an explicit empty part would
+  // blank an originally-non-empty alternative and reach parser.parse('') (throws
+  // at sim time). Reject it at author time instead.
+  it('rejects a conditions string with an empty @-part (a@@c)', () => {
+    const e = valid();
+    e.versions = [{ ver: 1 }, { ver: 2, conditions: 'corner==2@@order>=3' }];
+    expect(() => validateRebalances([e])).toThrow(/empty/);
+  });
+
+  it('rejects a conditions string with a trailing @', () => {
+    const e = valid();
+    e.versions = [{ ver: 1 }, { ver: 2, conditions: 'corner==2@' }];
+    expect(() => validateRebalances([e])).toThrow(/empty/);
+  });
+
+  it('rejects an entirely empty conditions string', () => {
+    const e = valid();
+    e.versions = [{ ver: 1 }, { ver: 2, conditions: '' }];
+    expect(() => validateRebalances([e])).toThrow(/empty/);
+  });
 });
 
 describe('loadRebalances', () => {
@@ -236,5 +257,50 @@ describe('bakeRebalances', () => {
     expect(() =>
       bakeRebalances({ candidates: new Map(), curated, cal, knownSkillIds: new Set(['200012']) }),
     ).not.toThrow();
+  });
+
+  // Shape guards: the engine applies `modifier` to EVERY effect of an alternative
+  // and maps '@'-parts positionally onto the non-empty-condition alternatives —
+  // both are silent-corruption foot-guns unless rejected at build time.
+  describe('skill-shape guards', () => {
+    const shapes = new Map([
+      ['200012', { maxEffectsPerAlternative: 2, patchableAlternatives: 1 }], // multi-effect gold
+      ['200013', { maxEffectsPerAlternative: 1, patchableAlternatives: 2 }], // 2-alternative white
+    ]);
+    const entry = (skillId: string, v2: Record<string, unknown>): CuratedRebalance[] => [{
+      skillId,
+      globalVer: 1,
+      versions: [{ ver: 1 }, { ver: 2, sourceUrl: 'https://x', ...v2 }],
+    }];
+
+    it('rejects modifier on a multi-effect skill (would overwrite every effect)', () => {
+      expect(() =>
+        bakeRebalances({ candidates: new Map(), curated: entry('200012', { modifier: 0.25 }), cal, skillShapes: shapes }),
+      ).toThrow(/multi-effect|every effect/);
+    });
+
+    it('accepts modifier on a single-effect skill', () => {
+      expect(() =>
+        bakeRebalances({ candidates: new Map(), curated: entry('200013', { modifier: 0.25 }), cal, skillShapes: shapes }),
+      ).not.toThrow();
+    });
+
+    it('rejects conditions with more @-parts than the skill has patchable alternatives', () => {
+      expect(() =>
+        bakeRebalances({ candidates: new Map(), curated: entry('200013', { conditions: 'a==1@b==2@c==3' }), cal, skillShapes: shapes }),
+      ).toThrow(/alternativ/);
+    });
+
+    it('accepts conditions with parts <= the patchable-alternative count', () => {
+      expect(() =>
+        bakeRebalances({ candidates: new Map(), curated: entry('200013', { conditions: 'a==1@b==2' }), cal, skillShapes: shapes }),
+      ).not.toThrow();
+    });
+
+    it('skips shape guards for skills absent from the shape map (JP-only, no master data)', () => {
+      expect(() =>
+        bakeRebalances({ candidates: new Map(), curated: entry('900001', { modifier: 0.25 }), cal, skillShapes: shapes }),
+      ).not.toThrow();
+    });
   });
 });
