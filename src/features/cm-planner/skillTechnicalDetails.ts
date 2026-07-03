@@ -1,4 +1,4 @@
-import type { SkillRarity, SkillRecord } from '@/core/types';
+import type { RebalanceInfo, SkillRarity, SkillRecord } from '@/core/types';
 
 export interface SkillSummary {
   skillId: string;
@@ -7,6 +7,7 @@ export interface SkillSummary {
   rarity: SkillRarity;
   baseSpCost: number;
   conditions: string;
+  rebalance?: RebalanceInfo;
 }
 
 export interface RawSkillEffect {
@@ -67,6 +68,7 @@ export function skillRecordToSummary(skill: SkillRecord): SkillSummary {
     rarity: skill.rarity,
     baseSpCost: skill.baseSpCost,
     conditions: skill.conditions,
+    ...(skill.rebalance ? { rebalance: skill.rebalance } : {}),
   };
 }
 

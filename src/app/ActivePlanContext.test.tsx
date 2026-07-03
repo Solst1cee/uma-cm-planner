@@ -11,7 +11,7 @@ import {
   makeDefaultPlan,
   useActivePlan,
 } from '@/app/ActivePlanContext';
-import { deletePlan, getPlan, listPlans, savePlan, setSetting } from '@/db';
+import { deletePlan, getPlan, getSetting, listPlans, savePlan, setSetting } from '@/db';
 
 vi.mock('@/features/data/gameData', async () => {
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
@@ -351,6 +351,36 @@ describe('ActivePlanProvider flushPendingSave', () => {
     expect(ctx.savedPlans).toEqual([]);
     expect(ctx.plan?.id).not.toBe(first.id);
     expect(savePlan).not.toHaveBeenCalled();
+  });
+});
+
+describe('ActivePlanProvider horizon', () => {
+  it('defaults horizon to current', async () => {
+    await renderProvider();
+    expect(ctx.horizon).toEqual({ kind: 'current' });
+  });
+
+  it('persists setHorizon via setSetting', async () => {
+    await renderProvider();
+    act(() => ctx.setHorizon({ kind: 'cm', cmNumber: 17 }));
+    expect(ctx.horizon).toEqual({ kind: 'cm', cmNumber: 17 });
+    expect(setSetting).toHaveBeenCalledWith('planningHorizon', { kind: 'cm', cmNumber: 17 });
+  });
+
+  it('falls back to current when the stored horizon shape is invalid', async () => {
+    vi.mocked(getSetting).mockImplementation(async (key: string) => {
+      if (key === 'planningHorizon') return { kind: 'nope' } as unknown;
+      return undefined;
+    });
+
+    render(
+      <ActivePlanProvider>
+        <Grab />
+      </ActivePlanProvider>,
+    );
+
+    await waitFor(() => expect(ctx.plan).not.toBeNull());
+    expect(ctx.horizon).toEqual({ kind: 'current' });
   });
 });
 

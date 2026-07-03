@@ -120,6 +120,21 @@ describe('export → clear → import (replace)', () => {
     expect(await db.settings.count()).toBe(0);
     expect(await db.cmPlans.count()).toBe(1);
   });
+
+  it('a wishlist item pinned to a rebalance version survives export → import', async () => {
+    const pinnedPlan = {
+      ...FIXTURE_PLAN,
+      wishlist: [{ skillId: '200331', priority: 1 as const, source: 'targeted' as const, skillVer: 2 }],
+    };
+    await db.cmPlans.put(pinnedPlan);
+    const blob = await exportBlob();
+    const wire: unknown = JSON.parse(JSON.stringify(blob));
+    await clearAll();
+
+    await importBlob(wire, 'replace');
+    const plan = await db.cmPlans.get(FIXTURE_PLAN.id);
+    expect(plan?.wishlist).toEqual([{ skillId: '200331', priority: 1, source: 'targeted', skillVer: 2 }]);
+  });
 });
 
 describe('import (merge)', () => {
@@ -246,6 +261,13 @@ describe('malformed input', () => {
         cmPlans: [{ ...FIXTURE_PLAN, wishlist: [{ skillId: '200331', priority: 0, source: 'targeted' }] }],
       },
       /blob\.cmPlans\[0\]\.wishlist\[0\]\.priority must be 1 \| 2 \| 3/,
+    ],
+    [
+      {
+        ...emptyBlob(),
+        cmPlans: [{ ...FIXTURE_PLAN, wishlist: [{ skillId: '200331', priority: 1, source: 'targeted', skillVer: 'x' }] }],
+      },
+      /blob\.cmPlans\[0\]\.wishlist\[0\]\.skillVer must be a finite number or absent/,
     ],
     [
       { ...emptyBlob(), matchLogs: [{ cmPlanId: 'p', date: 20260730 }] },

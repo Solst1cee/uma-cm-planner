@@ -17,6 +17,8 @@ export interface IRunnerState {
   skills: string[];
   /** Per-skill level (1–6) scaling the effect modifier; absent ⇒ Lv1. */
   skillLevels?: Record<string, number>;
+  /** Per-skill parameter overrides (rebalance versions), keyed by base skill id. */
+  skillPatches?: Record<string, { conditions?: string; modifier?: number; duration?: number; cooldown?: number }>;
   randomMobId?: number;
   linkedRunnerId?: string;
 }

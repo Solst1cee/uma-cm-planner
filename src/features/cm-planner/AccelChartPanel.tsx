@@ -12,14 +12,14 @@
  */
 import './skill-chart.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CmPlan, SkillRecord, TimelineEntry } from '@/core/types';
+import type { CmPlan, SkillRecord } from '@/core/types';
 import type { SimRaceParams } from '@/sim';
 import type { SkillChartRow } from '@/core/rankSkillChart';
-import { isReleasedBy } from '@/core/availability';
 import { nullsLast } from '@/core/compare';
 import { acquirableSkills } from '@/core/skillCatalog';
 import { purchaseSpCost } from '@/core/cost';
 import { chartBaselineBuild } from '@/core/simBuild';
+import { withSkillPatches } from '@/core/rebalancePatches';
 import {
   addOrReplaceWishlistSkill,
   areSkillVariants,
@@ -28,6 +28,9 @@ import {
   wishlistSkillRecord,
 } from '@/features/skill-planner/skillFamilies';
 import { useGameData } from '@/features/data/gameData';
+import { useAvailability } from '@/app/useAvailability';
+import { TierChip } from '@/app/TierChip';
+import { RebalanceBadge } from '@/app/RebalanceBadge';
 import { SkillDetailDisclosure } from './SkillDetailDisclosure';
 import { HeaderHelp } from './HeaderHelp';
 import {
@@ -37,7 +40,9 @@ import {
 } from './skillTechnicalDetails';
 import { describePositioning, requiresWitCheck, witCheckPassChance } from '@/core/skillConditions';
 import { useSkillRank } from './useSkillRank';
+import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 import { useStaminaProbe } from './useStaminaProbe';
+import { PatchedSimNote } from './PatchedSimNote';
 import type { SkillChartPanelDeps } from './SkillChartPanel';
 
 type SkillFilter = 'all' | 'non-unique' | 'inherited' | 'white' | 'gold';
@@ -100,12 +105,12 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
   warnThresholdPct?: number;
   deps?: AccelChartPanelDeps;
 }) {
-  const { skills, skillById, sparkRates, timeline } = useGameData();
+  const { skills, skillById, sparkRates } = useGameData();
+  const { visible, tierOf } = useAvailability();
   const [open, setOpen] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<SkillFilter>('all');
   const [showAll, setShowAll] = useState(false);
-  const [showUpcoming, setShowUpcoming] = useState(false);
   const [sortMetric, setSortMetric] = useState<SortMetric>('L');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -135,11 +140,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const hasSpeed = plan.statProfile.stats.spd > 0;
 
-  const cmNumber = plan.cmRef.kind === 'cm' ? plan.cmRef.cmNumber : undefined;
-  const cmEntry = (timeline as TimelineEntry[] | undefined)
-    ?.find((e) => e.type === 'cm' && e.cm?.cmNumber === cmNumber);
-  const asOfISO = cmEntry?.dates.start ?? cmEntry?.dates.finals ?? new Date().toISOString().slice(0, 10);
-
   // All acquirable skill reps (same derivation as SkillChartPanel)
   const reps = useMemo(() => {
     const catalog = acquirableSkills(skills ?? [], plan.server);
@@ -150,15 +150,13 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
       plan.server === 'global'
         ? (['white', 'gold', 'inherited_unique'] as const).flatMap((r) =>
             familyRepresentatives(
-              (skills ?? []).filter(
-                (s) => s.server === 'jp' && s.rarity === r && isReleasedBy(s, asOfISO),
-              ),
+              (skills ?? []).filter((s) => s.server === 'jp' && s.rarity === r && visible(s)),
               skillById,
             ),
           )
         : [];
     return [...baseReps, ...upcoming];
-  }, [skills, skillById, plan.server, asOfISO]);
+  }, [skills, skillById, plan.server, visible]);
 
   // Filter reps to accel skills only (while accelIds is null → empty, no sim yet)
   const accelReps = useMemo(
@@ -176,8 +174,15 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
     () => (hasSpeed ? accelReps.filter((s) => !isTargeted(s)).map((s) => s.skillId) : []),
     [accelReps, hasSpeed, plan.wishlist, skillById],
   );
-  const build = useMemo(() => chartBaselineBuild(plan, skillById), [plan, skillById]);
+  const skillPatches = useSkillPatches(plan);
+  const build = useMemo(
+    () => withSkillPatches(chartBaselineBuild(plan, skillById), skillPatches),
+    [plan, skillById, skillPatches],
+  );
   const race = useMemo<SimRaceParams>(() => ({ courseId }), [courseId]);
+  // Every skill this chart could sim: the ranked candidates plus whatever's already in the build.
+  const relevantSkillIds = useMemo(() => new Set([...ids, ...build.skills]), [ids, build]);
+  const patchNotes = usePatchNotes(plan, relevantSkillIds);
 
   const probeDeps = deps?.vacuum ? { vacuum: deps.vacuum, nsamples: deps.nsamples } : undefined;
   const { survival, probe } = useStaminaProbe(build, race, probeDeps);
@@ -243,7 +248,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
 
   const views: RowView[] = [...inBuildViews, ...rankedViews]
     .filter((v) => {
-      if (!showUpcoming && v.skill.server === 'jp') return false;
       if (!showAll && v.row.status === 'inactive') return false;
       if (!matchesFilter(v.skill.rarity, filter)) return false;
       if (q && !v.skill.nameEn.toLowerCase().includes(q)) return false;
@@ -306,6 +310,7 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
         {isStale && <span className="cmp-stale small">Changed detected!, please re-run</span>}
         <span className="cmp-collapse-caret" data-open={open || undefined} aria-hidden="true" />
       </header>
+      {open && <PatchedSimNote notes={patchNotes} />}
 
       {open && (!hasSpeed || status !== 'idle') && (
         <div className="cmp-skill-body">
@@ -341,12 +346,6 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                       title="Skills whose conditions can never trigger on this track (they never proc). Recovery and other 0-length skills that DO proc stay visible."
                     >
                       <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> show not-activatable
-                    </label>
-                    <label
-                      className="cmp-showall small"
-                      title="Upcoming skills from cards/banners that release on or before this CM's start date (not available yet)."
-                    >
-                      <input type="checkbox" checked={showUpcoming} onChange={(e) => setShowUpcoming(e.target.checked)} /> show upcoming
                     </label>
                   </div>
 
@@ -393,6 +392,16 @@ export function AccelChartPanel({ courseId, plan, onChange, collapseSkillSignal,
                                   : undefined
                               }
                             />
+                            {v.skill.releaseDatePredicted && (
+                              <span
+                                className="cmp-upcoming-badge"
+                                title="Projected Global date (foresight pace) — not announced"
+                              >
+                                ~{v.skill.releaseDate}
+                              </span>
+                            )}
+                            <TierChip tier={tierOf(v.skill)} />
+                            <RebalanceBadge info={v.skill.rebalance} />
                             <span className={`cmp-uma-num ${sortMetric === 'L' ? 'is-sort' : ''}`.trim()}>
                               {v.row.status === 'na' ? 'n/a' : v.row.status === 'inactive' ? '—' : v.row.L == null ? '—' : signed(v.row.L)}
                             </span>

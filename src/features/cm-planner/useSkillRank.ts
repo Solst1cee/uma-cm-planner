@@ -9,8 +9,8 @@ export type SkillRankState = StreamingRankState<SkillChartRow>;
 
 function sigOf(build: SimBuild, courseId: string, skillIds: string[], nsamples: number | undefined): string {
   // Includes build.skills so a baseline change (e.g. targeting a wishlist skill that isn't a
-  // ranked candidate) still flips isStale and prompts a re-run — the candidate ids alone miss it.
-  return JSON.stringify([courseId, build.strategy, build.stats, build.aptitudes, build.mood ?? null, build.skills, skillIds, nsamples ?? null]);
+  // ranked candidate) still flips isStale — and build.skillPatches so a horizon/pin change does too.
+  return JSON.stringify([courseId, build.strategy, build.stats, build.aptitudes, build.mood ?? null, build.skills, build.skillPatches ?? null, skillIds, nsamples ?? null]);
 }
 
 export function useSkillRank(

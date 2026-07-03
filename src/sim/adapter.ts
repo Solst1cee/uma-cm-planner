@@ -25,6 +25,9 @@ export function toRunnerState(build: SimBuild): IRunnerState {
     mood: build.mood ?? 2,
     skills: [...build.skills],
     ...(build.skillLevels ? { skillLevels: { ...build.skillLevels } } : {}),
+    ...(build.skillPatches && Object.keys(build.skillPatches).length > 0
+      ? { skillPatches: { ...build.skillPatches } }
+      : {}),
   };
 }
 

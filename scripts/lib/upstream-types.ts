@@ -82,6 +82,8 @@ export interface GtLocEn {
   sup_e?: number[][] | number[];
   char?: number[];
   char_e?: number[];
+  /** Global-localized display name (present once the skill localizes). */
+  name?: string;
 }
 
 export interface GtSkill {
@@ -97,6 +99,18 @@ export interface GtSkill {
   sup_e?: number[][] | number[];
   char?: number[];
   char_e?: number[];
+  /** gametora rarity: 1=white, 2=gold, 3/4/5=unique, 6=evolution (→unique). */
+  rarity?: number;
+  /** SP shop cost; absent for uniques/evolution skills (→ 0). */
+  cost?: number;
+  /** Shared skill-icon id. */
+  iconid?: number;
+  /** English display name (fan/official). */
+  name_en?: string;
+  /** Fallback English name field seen on some records. */
+  enname?: string;
+  /** Same-family variant skill ids. */
+  versions?: number[];
 }
 
 export interface GtCard {
@@ -107,6 +121,16 @@ export interface GtCard {
    * support_card_effect_table (docs/mechanics-notes.md §9).
    */
   effects?: number[][];
+  rarity: number; // 1=R 2=SR 3=SSR
+  type: string; // speed|stamina|power|guts|intelligence|friend|group
+  char_name: string;
+  title_en?: string; // fan/EN card title; absent for JP-only
+  title_ja?: string;
+  hints?: { hint_skills?: number[]; hint_others?: unknown[] };
+  event_skills?: number[];
+  release?: string; // JP release date (ISO)
+  title_en_gl?: string;
+  release_en?: string; // Global release date, absent if unreleased
 }
 
 /** gametora/character-cards.json — full JP+Global catalog (254 playable outfits). */
@@ -126,6 +150,8 @@ export interface GtCharacterCard {
   title_en_gl?: string;
   /** Global release date (ISO), absent if unreleased on Global. */
   release_en?: string;
+  /** JP release date (ISO), present across the whole catalog incl. JP-only. */
+  release?: string;
 }
 
 export type EventSkillSourcesJson = Record<

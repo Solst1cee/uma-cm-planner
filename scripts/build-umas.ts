@@ -16,7 +16,9 @@
  * UmaExtractor importer maps `card_id` onto `Parent.umaId`.
  */
 import type { Grade, UmaRecord } from '@/core/types';
+import type { Calibration } from '@/core/foresight';
 import type { GtCharacterCard, UmalatorUmasJson } from './lib/upstream-types';
+import { projectReleaseDate } from './lib/foresight-build';
 
 const GRADE_SET = new Set(['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S']);
 
@@ -124,6 +126,40 @@ export function buildUmas(inputs: {
     }
   }
 
+  records.sort((a, b) => Number(a.umaId) - Number(b.umaId));
+  return records;
+}
+
+/** JP-ahead umas: gametora chars absent from the Global master extract (server:'jp'). */
+export function buildJpUmas(inputs: {
+  gametoraChars: GtCharacterCard[];
+  masterUmaIds: ReadonlySet<string>;
+  cal: Calibration | null;
+  dataVersion: string;
+}): UmaRecord[] {
+  const { gametoraChars, masterUmaIds, cal, dataVersion } = inputs;
+  const records: UmaRecord[] = [];
+  for (const gt of gametoraChars) {
+    const umaId = String(gt.card_id);
+    if (masterUmaIds.has(umaId)) continue; // Global uma
+    const charaId = String(Math.floor(gt.card_id / 100));
+    const { releaseDate, predicted } = projectReleaseDate(gt.release, gt.release_en, cal);
+    const epithet = stripTitleBrackets(gt.title_en_gl ?? gt.title ?? '');
+    const rec: UmaRecord = {
+      umaId,
+      charaId,
+      nameEn: gt.name_en ?? `Uma ${umaId}`,
+      server: 'jp',
+      dataVersion,
+      ...(gt.aptitude && gt.stat_bonus
+        ? { statGrowth: statGrowthFromGt(gt, umaId), baseAptitudes: baseAptitudesFromGt(gt, umaId) }
+        : {}),
+    };
+    if (epithet !== '') rec.epithet = epithet;
+    if (releaseDate !== undefined) rec.releaseDate = releaseDate;
+    if (predicted) rec.releaseDatePredicted = true;
+    records.push(rec);
+  }
   records.sort((a, b) => Number(a.umaId) - Number(b.umaId));
   return records;
 }

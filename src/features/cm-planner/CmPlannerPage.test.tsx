@@ -187,6 +187,19 @@ const h = vi.hoisted(() => {
 
 // The track + race-setup lazy-import the engine; mock them so the page test stays in jsdom.
 vi.mock('@/sim/courseData', () => ({ courseDataFor: () => h.courseData }));
+// The page's charts/pickers read the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 // An open SkillDetailDisclosure with a traceContext would construct a real SimClient Worker
 // (jsdom has none). Mock the hook to an idle state — see the jsdom gotcha in the module-4 doc.
 vi.mock('./useSkillTrace', () => ({

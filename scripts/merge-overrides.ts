@@ -101,7 +101,7 @@ export function applyOverrides<T extends object>(
  * loop). Excluded from `loadOverrideFiles` to avoid the "_target"+"records"
  * shape check. Add any future non-standard override files here.
  */
-const DIRECT_OVERRIDE_FILES = new Set(['timeline_overrides.json']);
+const DIRECT_OVERRIDE_FILES = new Set(['timeline_overrides.json', 'unique_effect_text_overrides.json']);
 
 /** Read all data-overrides/*_overrides.json, sorted by filename for determinism. */
 export function loadOverrideFiles(overridesDir: string): LoadedOverrideFile[] {

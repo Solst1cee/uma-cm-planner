@@ -6,6 +6,8 @@ import { GameIcon } from '@/features/data/GameIcon';
 import { SkillTraceSection } from './SkillTraceSection';
 import { SourcingSection } from './SourcingSection';
 import type { TraceContext } from './useSkillTrace';
+import type { RebalanceInfo, SkillVersion } from '@/core/types';
+import { arrivalLabel } from '@/core/rebalance';
 
 type DetailStatus = 'idle' | 'loading' | 'ready' | 'missing' | 'error';
 
@@ -29,6 +31,68 @@ function ConditionLines({ value }: { value: string | undefined }) {
         <span key={`${line}-${index}`}>{line}</span>
       ))}
     </span>
+  );
+}
+
+function versionArrivalLabel(v: SkillVersion): string | null {
+  if (v.ver === 1) return null; // baseline: no arrival date
+  return arrivalLabel(v) ?? 'date unknown';
+}
+
+function RebalanceVersionRow({ v, isLive }: { v: SkillVersion; isLive: boolean }) {
+  const arrival = versionArrivalLabel(v);
+  const hasParams = v.conditions !== undefined || v.modifier !== undefined
+    || v.duration !== undefined || v.cooldown !== undefined;
+  return (
+    <div className="cmp-rebalance-version">
+      <div className="cmp-rebalance-version-head">
+        <b>v{v.ver}</b>
+        {isLive && <span className="cmp-rebalance-live">Global (live)</span>}
+        {arrival !== null && <span className="cmp-rebalance-arrival">{arrival}</span>}
+      </div>
+      {hasParams && (
+        <div className="cmp-rebalance-params">
+          {v.conditions !== undefined && <span className="mono">{v.conditions}</span>}
+          {v.modifier !== undefined && <span>modifier {v.modifier}</span>}
+          {v.duration !== undefined && <span>duration {v.duration}s</span>}
+          {v.cooldown !== undefined && <span>cooldown {v.cooldown}</span>}
+        </div>
+      )}
+      {v.note !== undefined && <p className="cmp-rebalance-note muted small">{v.note}</p>}
+      {v.sourceUrl !== undefined && (
+        <a className="cmp-rebalance-source" href={v.sourceUrl} target="_blank" rel="noreferrer">
+          source
+        </a>
+      )}
+    </div>
+  );
+}
+
+function RebalanceSection({ info }: { info: RebalanceInfo }) {
+  if (info.uncuratedCandidate) {
+    return (
+      <section className="cmp-rebalance">
+        <h4>Rebalance history</h4>
+        <p className="muted small">JP conditions differ — not yet curated</p>
+        {info.candidateConditions !== undefined && (
+          <div className="cmp-rebalance-candidate mono">
+            <span>JP: {info.candidateConditions.jp}</span>
+            <span>Global: {info.candidateConditions.global}</span>
+          </div>
+        )}
+      </section>
+    );
+  }
+  const sorted = [...info.versions].sort((a, b) => a.ver - b.ver);
+  return (
+    <section className="cmp-rebalance">
+      <h4>Rebalance history</h4>
+      <div className="cmp-rebalance-versions">
+        {sorted.map((v) => (
+          <RebalanceVersionRow key={v.ver} v={v} isLive={v.ver === info.globalVer} />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -183,6 +247,8 @@ export function SkillDetailDisclosure({
         )}
 
         {showSourcing && open && <SourcingSection skillId={skill.skillId} rarity={skill.rarity} />}
+
+        {skill.rebalance !== undefined && <RebalanceSection info={skill.rebalance} />}
 
         {traceContext !== undefined && (
           <SkillTraceSection skillId={skill.skillId} ctx={traceContext} enabled={open} />

@@ -20,7 +20,9 @@
  * build instead of shipping silently.
  */
 import type { CardSkill, CardType, SkillSourceType, SupportCardRecord } from '@/core/types';
+import type { Calibration } from '@/core/foresight';
 import { buildPerLevel } from './lib/lerp';
+import { projectReleaseDate } from './lib/foresight-build';
 import { extractTachyonsEventSkills, extractTachyonsHintLevels, indexTachyonsById } from './lib/tachyons';
 import type { EventSkillSourcesJson, GtCard, MasterCardsJson, TachyonsDataJson } from './lib/upstream-types';
 
@@ -150,6 +152,63 @@ export function recomputeHintPoolSizes(cards: SupportCardRecord[]): void {
   }
 }
 
+const GT_RARITY: Record<number, 'R' | 'SR' | 'SSR'> = { 1: 'R', 2: 'SR', 3: 'SSR' };
+const GT_TYPE: Record<string, CardType> = {
+  speed: 'speed', stamina: 'stamina', power: 'power', guts: 'guts',
+  intelligence: 'wit', friend: 'friend', group: 'group',
+};
+
+/** JP-ahead cards: gametora rows absent from the Global master extract (server:'jp'). */
+export function buildJpCards(inputs: {
+  gametoraCards: GtCard[];
+  masterIds: ReadonlySet<number>;
+  eventSources: EventSkillSourcesJson;
+  releasedSkillIds: ReadonlySet<string>;
+  cal: Calibration | null;
+  dataVersion: string;
+}): SupportCardRecord[] {
+  const { gametoraCards, masterIds, eventSources, releasedSkillIds, cal, dataVersion } = inputs;
+  const records: SupportCardRecord[] = [];
+  let skipped = 0;
+  for (const gt of gametoraCards) {
+    if (masterIds.has(gt.support_id)) continue; // Global card → handled by buildCards
+    const rarity = GT_RARITY[gt.rarity];
+    const type = GT_TYPE[gt.type];
+    if (rarity === undefined || type === undefined || !gt.effects) { skipped++; continue; }
+
+    const skills: CardSkill[] = [];
+    for (const id of [...(gt.hints?.hint_skills ?? [])].sort((a, b) => a - b)) {
+      if (releasedSkillIds.has(String(id))) skills.push({ skillId: String(id), sourceType: 'hint_pool', hintLevels: 1 });
+    }
+    const src = eventSources[String(gt.support_id)];
+    const chain = new Set<number>(src?.chain_event_skills ?? []);
+    const eventIds = new Set<number>([...chain, ...(src?.random_event_skills ?? []), ...(gt.event_skills ?? [])]);
+    for (const id of [...eventIds].sort((a, b) => a - b)) {
+      if (!releasedSkillIds.has(String(id))) continue;
+      skills.push({ skillId: String(id), sourceType: chain.has(id) ? 'chain' : 'random_event' });
+    }
+
+    const { releaseDate, predicted } = projectReleaseDate(gt.release, gt.release_en, cal);
+    const rec: SupportCardRecord = {
+      cardId: String(gt.support_id),
+      nameEn: gt.title_en ?? gt.title_ja ?? gt.char_name,
+      charName: gt.char_name,
+      rarity, type,
+      perLevel: buildPerLevel(gt.effects, rarity),
+      skills,
+      hintPoolSize: skills.filter((s) => s.sourceType === 'hint_pool').length,
+      server: 'jp',
+      dataVersion,
+    };
+    if (releaseDate !== undefined) rec.releaseDate = releaseDate;
+    if (predicted) rec.releaseDatePredicted = true;
+    records.push(rec);
+  }
+  if (skipped > 0) console.warn(`build-cards: skipped ${skipped} JP card(s) missing effects/rarity/type`);
+  records.sort((a, b) => Number(a.cardId) - Number(b.cardId));
+  return records;
+}
+
 const EVENT_SOURCE_TYPES: ReadonlySet<SkillSourceType> = new Set(['chain', 'date_event', 'random_event']);
 
 /**
@@ -180,6 +239,7 @@ export function assertTachyonsParity(
       problems.push(`card ${tachyonsCard.id}: in Tachyons-lab but missing from emitted data`);
       continue;
     }
+    if (record.server !== 'global') continue;
     // A skill can legitimately appear twice on a card — once in the hint pool
     // and once as an event source (e.g. a chain event granting a hint for a
     // pool skill) — so group entries by skillId rather than assuming one each.

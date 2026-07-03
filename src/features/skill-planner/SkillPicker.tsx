@@ -1,11 +1,15 @@
 /**
  * Searchable skill picker: filters by EN name (case-insensitive), shows SP
- * cost + rarity badge. Global-server records only (P4 — JP-ahead content is
- * never silently offered for a Global plan).
+ * cost + rarity badge. JP-ahead records are gated by the shared app-wide
+ * planning horizon (P4 — JP-ahead content is never silently offered outside
+ * the chosen horizon).
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useGameData } from '@/features/data/gameData';
 import { GameIcon } from '@/features/data/GameIcon';
+import { useAvailability } from '@/app/useAvailability';
+import { TierChip } from '@/app/TierChip';
+import { RebalanceBadge } from '@/app/RebalanceBadge';
 import { isBlockedBySelectedVariant } from './skillFamilies';
 
 const MAX_RESULTS = 30;
@@ -21,22 +25,25 @@ export function SkillPicker({
   onPick: (skillId: string) => void;
 }) {
   const { skills, skillById } = useGameData();
+  const { visible, tierOf } = useAvailability();
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q === '') return [];
+    // Cheap predicates first: the name filter kills >99% of the 1700+ skills per
+    // keystroke, so tier classification + variant-blocking only run on the survivors.
     return skills
       .filter((s) => (
-        s.server === 'global'
-        && s.rarity !== 'unique'
-        && !hiddenSkillIds.has(s.skillId)
-        && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
+        s.rarity !== 'unique'
         && s.nameEn.toLowerCase().includes(q)
+        && !hiddenSkillIds.has(s.skillId)
+        && visible(s)
+        && !isBlockedBySelectedVariant(s, addedSkillIds, skillById)
       ))
       .slice(0, MAX_RESULTS);
-  }, [addedSkillIds, hiddenSkillIds, query, skillById, skills]);
+  }, [addedSkillIds, hiddenSkillIds, query, skillById, skills, visible]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -103,6 +110,16 @@ export function SkillPicker({
                   <GameIcon kind="skill" id={skill.iconId} size={24} alt="" />
                   <span className="picker-name">{skill.nameEn}</span>
                   <span className="muted small">{skill.baseSpCost} SP</span>
+                  {skill.releaseDatePredicted && (
+                    <span
+                      className="muted small"
+                      title="Projected Global date (foresight pace) — not announced"
+                    >
+                      ~{skill.releaseDate}
+                    </span>
+                  )}
+                  <TierChip tier={tierOf(skill)} />
+                  <RebalanceBadge info={skill.rebalance} />
                   {added && <span className="muted small">added</span>}
                 </button>
               </li>

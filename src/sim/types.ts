@@ -20,6 +20,10 @@ export interface SimBuild {
   skillLevels?: Record<string, number>;
   /** -2..2; defaults to 2 (Great) at the adapter. */
   mood?: -2 | -1 | 0 | 1 | 2;
+  /** Per-skill rebalance parameter overrides (availability #4b), keyed by master.mdb
+   *  skill id. Absent/empty => the engine path is byte-identical to the unpatched
+   *  upstream behavior (identity backstop). */
+  skillPatches?: Record<string, import('@/core/rebalance').SkillPatch>;
 }
 
 /** Race conditions in OUR terms; the adapter maps to the engine's numeric racedef. */

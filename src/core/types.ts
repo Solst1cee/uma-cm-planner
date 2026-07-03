@@ -72,6 +72,8 @@ export interface WishlistItem {
   needsInheriting?: boolean;
   doubleUp?: boolean;
   manualAdd?: boolean;
+  /** User-pinned rebalance version (availability #4); absent = horizon default. */
+  skillVer?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -97,6 +99,30 @@ export interface LineageAffinity {
 }
 
 export type SkillRarity = 'white' | 'gold' | 'unique' | 'inherited_unique';
+
+export interface SkillVersion {
+  ver: number;
+  jpDate?: string;
+  /** Announced/confirmed Global date; wins over projection. */
+  globalDate?: string;
+  /** true when the arrival below was foresight-projected from jpDate. */
+  globalDatePredicted?: boolean;
+  /** Resolved Global arrival (globalDate ?? projected); absent = undatable. */
+  globalArrival?: string;
+  conditions?: string;
+  modifier?: number;
+  duration?: number;
+  cooldown?: number;
+  note?: string;
+  sourceUrl?: string;
+}
+export interface RebalanceInfo {
+  globalVer: number;
+  jpVer: number;
+  versions: SkillVersion[];
+  uncuratedCandidate?: boolean;
+  candidateConditions?: { jp: string; global: string };
+}
 
 export interface SkillRecord {
   /** master.mdb skill id, as string (e.g. "200012"; inherited uniques are 9xxxxx). */
@@ -130,6 +156,8 @@ export interface SkillRecord {
   /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
   releaseDatePredicted?: boolean;
   dataVersion: string;
+  /** Versioned rebalance history (availability #4); absent = never rebalanced. */
+  rebalance?: RebalanceInfo;
 }
 
 export type SkillSourceType = 'chain' | 'hint_pool' | 'random_event' | 'date_event';
@@ -283,6 +311,10 @@ export interface UmaRecord {
     distance: { short: Grade; mile: Grade; medium: Grade; long: Grade };
     strategy: Record<Strategy, Grade>;
   };
+  /** ISO Global release date; absent = released/unknown. Set on upcoming (server:'jp') records. */
+  releaseDate?: string;
+  /** true when releaseDate is a JP→Global projection, not an official announcement (P3). */
+  releaseDatePredicted?: boolean;
   server: Server;
   dataVersion: string;
 }
@@ -318,6 +350,33 @@ export interface CmTrack {
   surface: 'turf' | 'dirt';
 }
 
+/**
+ * Hand-curated JP schedule (data-overrides/jp-schedule.json). Global CM number N
+ * mirrors JP CM number N, so `cmNumber` is the shared index. `jpDate` = JP-server
+ * date (CM: finals-adjacent start; banner/scenario: release/start). Dates are
+ * public facts; seeded by cross-checking Moomoolator + trackers. PREDICTION input
+ * only (P3). uma.guide carries no dates, so this is not imported.
+ */
+export interface JpCmDate {
+  cmNumber: number;
+  cupName: string;
+  jpDate: string; // YYYY-MM-DD
+}
+export interface JpBanner {
+  name: string;
+  jpDate: string; // YYYY-MM-DD
+  kind: 'support' | 'uma';
+}
+export interface JpScenario {
+  name: string;
+  jpDate: string; // YYYY-MM-DD
+}
+export interface JpSchedule {
+  cms: JpCmDate[];
+  banners: JpBanner[];
+  scenarios: JpScenario[];
+}
+
 export type TimelineTier = 'official' | 'datamined' | 'prediction';
 export type TimelineStatus = 'confirmed' | 'unconfirmed';
 export type TimelineSourceKind =
@@ -337,6 +396,24 @@ export interface TimelineEntry {
   status: TimelineStatus;
   source: { kind: TimelineSourceKind; url: string };
   server: Server;
+  dataVersion: string;
+}
+
+/**
+ * Build-time rolling foresight calibration (Availability #3, src/core/foresight.ts
+ * `Calibration`), baked to public/data/foresight.json for app-wide planning-horizon
+ * math (e.g. the M4 tooltip). `null` calibration (< 2 shared CMs) bakes to
+ * `{ cal: null }` instead — see gameData's loader.
+ */
+export interface ForesightInfo {
+  /** JP days per Global day over the window (>1 ⇒ Global compresses JP). */
+  pace: number;
+  /** global[last] − jp[last]: how far behind JP the latest shared CM is. */
+  gapDays: number;
+  /** CM-to-CM steps used (window length − 1). */
+  windowSteps: number;
+  anchorJp: string;
+  anchorGlobal: string;
   dataVersion: string;
 }
 

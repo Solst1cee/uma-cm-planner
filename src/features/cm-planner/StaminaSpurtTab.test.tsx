@@ -245,6 +245,33 @@ describe('StaminaSpurtTab', () => {
     expect(captured.firstOpts?.injectedDebuffs?.uma1).toHaveLength(3);
   });
 
+  it('passes skillPatches into the sim build and re-runs when they differ (availability #4b)', async () => {
+    // Mirror makeDepsWithCapture's "first call only" pattern (binary search makes many calls).
+    let firstPatches: Record<string, unknown> | undefined;
+    let callCount = 0;
+    const deps: StaminaSpurtDeps = {
+      vacuum: (build, _b, _race, _n, _seed, opts) => {
+        callCount++;
+        if (callCount === 1) firstPatches = build.skillPatches;
+        return Promise.resolve(makeFakeResult(build.stats.sta, opts));
+      },
+      nsamples: 2,
+    };
+    const { rerender } = render(
+      <StaminaSpurtTab plan={plan} deps={deps} skillPatches={{ '100': { modifier: 2000 } }} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await waitFor(() => expect(screen.getByText('Spurt rate')).toBeInTheDocument(), { timeout: 5000 });
+    expect(firstPatches).toEqual({ '100': { modifier: 2000 } });
+
+    // Changing only skillPatches (same plan) should flag the result stale.
+    rerender(<StaminaSpurtTab plan={plan} deps={deps} skillPatches={{ '100': { modifier: 3000 } }} />);
+    expect(screen.getByText(/Changed detected/i)).toBeInTheDocument();
+    callCount = 0;
+    fireEvent.click(screen.getByRole('button', { name: 'Re-run' }));
+    await waitFor(() => expect(firstPatches).toEqual({ '100': { modifier: 3000 } }));
+  });
+
   it('shows speed guard when plan speed is 0', () => {
     const zeroPlan = {
       ...plan,

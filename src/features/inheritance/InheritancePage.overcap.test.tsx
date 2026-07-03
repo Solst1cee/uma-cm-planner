@@ -44,6 +44,19 @@ vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: [uma], umaById: new Map([[uma.umaId, uma]]) }),
   umaName: (_m: unknown, id: string) => `Uma ${id}`,
 }));
+// The page's pickers read the app-wide planning horizon; default = current.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
 vi.mock('@/features/data/gameData', () => ({ useGameData: () => ({ skills: [], skillById: new Map(), cardById: new Map(), cards: [] }), BASE_URL: '' }));
 vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({ PlanInventoryCard: () => <div /> }));
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => <span data-testid="icon" /> }));

@@ -17,6 +17,22 @@ vi.mock('@/features/data/gameData', async () => {
   return { useGameData: () => parentsTestGameData() };
 });
 
+// ParentForm reads the shared app-wide horizon lens (planning-horizon); at the
+// default/current horizon this degenerates to the old Global-only gate, so this
+// static mock preserves this file's pre-existing P4 assertions unchanged.
+vi.mock('@/app/useAvailability', () => ({
+  useAvailability: () => ({
+    visible: (r: { server: string }) => r.server === 'global',
+    tierOf: () => 'now' as const,
+    horizon: { kind: 'current' },
+    setHorizon: vi.fn(),
+    cutoffISO: '2026-07-02',
+    todayISO: '2026-07-02',
+    planCmISO: '2026-07-02',
+    futureCms: [],
+  }),
+}));
+
 vi.mock('@/db', () => ({
   listParents: vi.fn(async (): Promise<Parent[]> => []),
   saveParent: vi.fn(

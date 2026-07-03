@@ -3,18 +3,21 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { SupportCardPoolCard } from './SupportCardPoolCard';
-import { buildPoolItem } from './poolModel';
+import { buildPoolItem, type PoolItem } from './poolModel';
 import type { SupportCardRecord } from '@/core/types';
 
 const mk = (id: string, type: SupportCardRecord['type'], rarity: SupportCardRecord['rarity'], name: string) =>
-  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills: [] } as unknown as SupportCardRecord);
+  ({ cardId: id, nameEn: name, charName: name, rarity, type, skills: [], server: 'global' } as unknown as SupportCardRecord);
 const items = [
   buildPoolItem(mk('1', 'speed', 'SSR', 'Alpha'), { score: 10, wishlist: new Set(), lb: 4 }),
   buildPoolItem(mk('2', 'stamina', 'SR', 'Beta'), { score: 20, wishlist: new Set(), lb: 4 }),
 ];
+const visibleCurrent = (it: PoolItem) => it.server === 'global';
+const visibleUpcoming = () => true;
 const base = {
   items, wishlistSkillNames: [], statsShown: [], cardLb: {}, onCardLb: vi.fn(),
   deckCardIds: new Set<string>(), onAdd: vi.fn(), renderIcon: () => <i />,
+  visible: visibleCurrent, tierOf: () => 'now' as const,
 };
 afterEach(cleanup);
 
@@ -77,5 +80,41 @@ describe('SupportCardPoolCard', () => {
     // Order is read from the icon buttons' labels ("<name> details"), in grid order.
     const order = screen.getAllByRole('button', { name: /details$/i }).map((b) => b.getAttribute('aria-label'));
     expect(order[0]).toBe('Beta details');
+  });
+
+  it('hides JP cards under the current-horizon predicate; no "show upcoming" checkbox remains', () => {
+    const mkJp = (id: string, name: string) =>
+      ({ cardId: id, nameEn: name, charName: name, rarity: 'SSR', type: 'speed', skills: [],
+         server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true } as unknown as SupportCardRecord);
+    const jpItem = buildPoolItem(mkJp('j', 'Fuji'), { score: 15, wishlist: new Set(), lb: 4 });
+    const mixedItems = [...items, jpItem];
+
+    render(<SupportCardPoolCard {...base} items={mixedItems} />);
+    expect(screen.queryByRole('button', { name: /fuji details/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /alpha details/i })).toBeInTheDocument();
+    // The app-wide horizon control owns "show upcoming" now — no local checkbox.
+    expect(screen.queryByLabelText(/show upcoming/i)).not.toBeInTheDocument();
+  });
+
+  it('shows a JP card + its predicted badge and an upcoming tier chip under an upcoming-horizon predicate', () => {
+    const mkJp = (id: string, name: string) =>
+      ({ cardId: id, nameEn: name, charName: name, rarity: 'SSR', type: 'speed', skills: [],
+         server: 'jp', releaseDate: '2026-07-01', releaseDatePredicted: true } as unknown as SupportCardRecord);
+    const jpItem = buildPoolItem(mkJp('j', 'Fuji'), { score: 15, wishlist: new Set(), lb: 4 });
+    const mixedItems = [...items, jpItem];
+
+    render(
+      <SupportCardPoolCard
+        {...base}
+        items={mixedItems}
+        visible={visibleUpcoming}
+        tierOf={(it) => (it.server === 'jp' ? 'upcoming' : 'now')}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /fuji details/i })).toBeInTheDocument();
+    // The predicted date badge renders.
+    expect(screen.getByText(/~2026-07-01/)).toBeInTheDocument();
+    // The tier chip renders "upcoming" for the JP card.
+    expect(screen.getByText('upcoming')).toBeInTheDocument();
   });
 });

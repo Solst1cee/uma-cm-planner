@@ -48,3 +48,21 @@ it('na when a build has 0 speed', async () => {
   await waitFor(() => expect(result.current.status).toBe('na'));
   expect(raceCompare).not.toHaveBeenCalled();
 });
+
+it('does NOT memoize across differing skillPatches (availability #4b)', async () => {
+  const raceCompare = vi.fn(async () => fake(1));
+  const ctxA: RaceCompareCtx = {
+    uma1: { ...b(1150), skillPatches: { '100': { modifier: 2000 } } },
+    uma2: b(1100),
+    race: { courseId: '10101' },
+  };
+  const a = renderHook(() => useRaceCompare(ctxA, true, { raceCompare }));
+  await waitFor(() => expect(a.result.current.status).toBe('done'));
+  const ctxB: RaceCompareCtx = {
+    uma1: { ...b(1150), skillPatches: { '100': { modifier: 3000 } } },
+    uma2: b(1100),
+    race: { courseId: '10101' },
+  };
+  renderHook(() => useRaceCompare(ctxB, true, { raceCompare }));
+  await waitFor(() => expect(raceCompare).toHaveBeenCalledTimes(2));
+});
