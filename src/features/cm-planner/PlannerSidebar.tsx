@@ -9,7 +9,9 @@ import {
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
 import { effectiveVersion } from '@/core/rebalance';
+import { withSkillPatches } from '@/core/rebalancePatches';
 import type { TraceContext } from './useSkillTrace';
+import { useSkillPatches } from './useSkillPatches';
 import type { AptKey, CmPlan, Grade, Mood, RebalanceInfo, Role, SkillRecord, SkillVersion, Stat, Strategy, UmaRecord } from '@/core/types';
 import { useAvailability } from '@/app/useAvailability';
 import { TierChip } from '@/app/TierChip';
@@ -317,9 +319,10 @@ export function PlannerSidebar({
     const skill = wishlistSkillRecord(item.skillId, skillById);
     return sum + (skill?.baseSpCost ?? 0);
   }, 0);
+  const skillPatches = useSkillPatches(plan);
   const traceCtx = useMemo<TraceContext>(
-    () => ({ build: planToSimBuild(plan), race: { courseId: plan.cmRef.courseId }, buildLabel: 'your build' }),
-    [plan],
+    () => ({ build: withSkillPatches(planToSimBuild(plan), skillPatches), race: { courseId: plan.cmRef.courseId }, buildLabel: 'your build' }),
+    [plan, skillPatches],
   );
   const uniqueLevel = plan.uniqueSkillLevel ?? 5;
   const uniqueSkillDeps = useMemo<UniqueSkillLDeps>(
@@ -332,6 +335,7 @@ export function PlannerSidebar({
     strategy: plan.strategy,
     level: uniqueLevel,
     race: { courseId: plan.cmRef.courseId },
+    skillPatches,
     deps: uniqueSkillDeps,
   });
 

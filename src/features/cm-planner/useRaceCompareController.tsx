@@ -4,7 +4,9 @@
 import { useState } from 'react';
 import type { CmPlan } from '@/core/types';
 import { planToOverlayBuild } from '@/core/simBuild';
+import { withSkillPatches } from '@/core/rebalancePatches';
 import { useRaceCompare, type RaceCompareCtx, type RaceCompareState } from './useRaceCompare';
+import { useSkillPatches } from './useSkillPatches';
 
 export interface RaceCompareControllerDeps {
   useRaceCompare?: (ctx: RaceCompareCtx | undefined, enabled: boolean) => RaceCompareState;
@@ -28,11 +30,15 @@ export function useRaceCompareController(
 ): RaceCompareController {
   const [showHp, setShowHp] = useState(true);
 
+  // Both plans' pins are independent — resolve each build's patches from its own wishlist.
+  const uma1Patches = useSkillPatches(uma1Plan);
+  const uma2Patches = useSkillPatches(uma2Plan);
+
   // Called before the page's loading guards, so `uma1Plan` may be null on the first render.
-  const uma2 = uma2Plan ? planToOverlayBuild(uma2Plan) : null;
+  const uma2 = uma2Plan ? withSkillPatches(planToOverlayBuild(uma2Plan), uma2Patches) : null;
   const ctx: RaceCompareCtx | undefined =
     uma1Plan && uma2
-      ? { uma1: planToOverlayBuild(uma1Plan), uma2, race: { courseId } }
+      ? { uma1: withSkillPatches(planToOverlayBuild(uma1Plan), uma1Patches), uma2, race: { courseId } }
       : undefined;
   const useHook = deps?.useRaceCompare ?? useRaceCompare;
   const state = useHook(ctx, !!ctx);

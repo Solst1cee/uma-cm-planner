@@ -24,6 +24,8 @@ import { useUmaChart } from './useUmaChart';
 import { useSkillPatches } from './useSkillPatches';
 import { HeaderHelp } from './HeaderHelp';
 import type { TraceContext } from './useSkillTrace';
+import type { SkillPatch } from '@/core/rebalance';
+import { withSkillPatches } from '@/core/rebalancePatches';
 
 const STRATEGY_LABEL: Record<Strategy, string> = { front: 'Front', pace: 'Pace', late: 'Late', end: 'End' };
 
@@ -60,7 +62,7 @@ function effStyle(row: UmaChartRow, override: Map<string, Strategy>, rankStyle: 
   return row.perStyle.find((p) => p.strategy === want) ?? row.perStyle[0] ?? null;
 }
 
-function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate, tier }: {
+function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkillSignal, onStyle, onSelect, isOpen, onOpenChange, race, predictedDate, tier, skillPatches }: {
   row: UmaChartRow;
   eff: UmaStyleL | null;
   umaName: string;
@@ -75,9 +77,12 @@ function UmaRow({ row, eff, umaName, unique, isRunner, sortMetric, collapseSkill
   race: SimRaceParams;
   predictedDate?: string;
   tier?: AvailabilityTier;
+  skillPatches?: Record<string, SkillPatch>;
 }) {
   const traceCtx: TraceContext | undefined =
-    unique && eff ? { build: referenceBuild(row.outfitId, eff.strategy), race, buildLabel: 'the reference' } : undefined;
+    unique && eff
+      ? { build: withSkillPatches(referenceBuild(row.outfitId, eff.strategy), skillPatches), race, buildLabel: 'the reference' }
+      : undefined;
   const hover = row.perStyle.length
     ? row.perStyle
         .map((p) => `${STRATEGY_LABEL[p.strategy]} — mean ${signed(p.L)} · min ${p.min.toFixed(2)} · max ${p.max.toFixed(2)} · med ${p.median.toFixed(2)}`)
@@ -344,6 +349,7 @@ export function UmaChartPanel({ courseId, plan, onSelectRunner, collapseSkillSig
                     onOpenChange={(o) => setOpenOutfitId(o ? row.outfitId : null)}
                     predictedDate={rowUma?.releaseDatePredicted ? rowUma.releaseDate : undefined}
                     tier={rowUma ? tierOf(rowUma) : undefined}
+                    skillPatches={skillPatches}
                   />
                   );
                 })}

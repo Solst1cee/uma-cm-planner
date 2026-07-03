@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RaceCompare, RaceCompareRun, RunChoice, SimBuild, SimRaceParams } from '@/sim';
 import { SimClient } from '@/sim/client';
+import { skillPatchesSig } from '@/core/rebalancePatches';
 
 export const RACE_COMPARE_SAMPLES = 30;
 const CACHE_MAX = 20;
@@ -41,7 +42,7 @@ function buildSig(b: SimBuild): string {
   const s = b.stats;
   // mood (?? 2 = the adapter's default) is a stat multiplier the engine applies, so two plans
   // differing only in mood must NOT share a cache entry — same lesson as aptitudes.
-  return `${b.umaId}/${b.strategy}/${s.spd}-${s.sta}-${s.pow}-${s.gut}-${s.wit}/${[...b.skills].sort().join(',')}/${b.aptitudes.distance}${b.aptitudes.surface}${b.aptitudes.strategy}/${b.mood ?? 2}`;
+  return `${b.umaId}/${b.strategy}/${s.spd}-${s.sta}-${s.pow}-${s.gut}-${s.wit}/${[...b.skills].sort().join(',')}/${b.aptitudes.distance}${b.aptitudes.surface}${b.aptitudes.strategy}/${b.mood ?? 2}/${skillPatchesSig(b.skillPatches)}`;
 }
 
 export function useRaceCompare(ctx: RaceCompareCtx | undefined, enabled: boolean, deps?: UseRaceCompareDeps): RaceCompareState {

@@ -32,6 +32,7 @@ import { PlanInventoryCard } from './PlanInventoryCard';
 import { StaminaSpurtTab } from './StaminaSpurtTab';
 import { AccelChartPanel } from './AccelChartPanel';
 import { useStaminaWarnThreshold, useStaminaSpurtTarget } from './useStaminaWarnThreshold';
+import { useSkillPatches } from './useSkillPatches';
 import { trackChangeNeedsConfirm, tracksDiffer } from './trackChange';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
@@ -82,6 +83,9 @@ export function CmPlannerPage() {
   const [spurtTarget01, setSpurtTarget01] = useStaminaSpurtTarget();
   const survivalThresholdPct = Math.round(survivalTarget01 * 100);
   const spurtThresholdPct = Math.round(spurtTarget01 * 100);
+  // Rebalance overrides for the tab's working plan (availability #4b) — matches the plan
+  // object handed to StaminaSpurtTab below (focusedPlan when set, else the uma1 plan).
+  const workingPatches = useSkillPatches(focusedPlan ?? plan);
   const [trackOverrideRef, setTrackOverrideRef] = useState<CmRefV2 | null>(null);
   const [trackConfirmOpen, setTrackConfirmOpen] = useState(false);
   const [trackChanged, setTrackChanged] = useState(false);
@@ -441,6 +445,7 @@ export function CmPlannerPage() {
                   <StaminaSpurtTab
                     key={selection.courseId}
                     plan={focusedPlan ?? plan}
+                    skillPatches={workingPatches}
                     spurtTarget={spurtThresholdPct}
                     onSpurtTargetChange={(pct) => setSpurtTarget01(pct / 100)}
                     survivalTarget={survivalThresholdPct}
