@@ -268,6 +268,18 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   const trainedExists = (relPath: string): boolean => existsSync(join(ICON_DUMP_DIR, relPath));
   const srcAbs = (relPath: string): string => join(ICON_DUMP_DIR, relPath);
 
+  // JP-ahead content (server:'jp') references icons the Global-scoped uma-tools
+  // dump does not carry. Those are EXPECTED-missing → warn + skip (GameIcon falls
+  // back to its placeholder, and the icon lands when the dump next refreshes).
+  // A missing GLOBAL icon is a real regression → still throws. Skipped ids are
+  // dropped from the manifest so it never claims an icon that isn't on disk.
+  const globalSkillIconIds = new Set(
+    skills.filter((s) => s.server === 'global').map((s) => s.iconId),
+  );
+  const skippedSkillIcons = new Set<string>();
+  const skippedCards = new Set<string>();
+  const skippedUmas = new Set<string>();
+
   // --- skill icons (dedup by iconId; ~56 distinct, not 578) -----------------
   const skillIconIds = [...new Set(skills.map((s) => s.iconId))].sort(
     (a, b) => Number(a) - Number(b),
@@ -277,18 +289,27 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   for (const iconId of skillIconIds) {
     const src = srcAbs(skillSourceFile(iconId));
     if (!existsSync(src)) {
-      throw new Error(`build-icons: missing skill icon source ${src} (iconId ${iconId}).`);
+      if (globalSkillIconIds.has(iconId)) {
+        throw new Error(`build-icons: missing skill icon source ${src} (iconId ${iconId}).`);
+      }
+      skippedSkillIcons.add(iconId); // JP-only icon absent from the Global dump — skip
+      continue;
     }
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'skill', `${iconId}.webp`));
   }
 
   // --- support card chips (keyed by cardId; lowercase the 2 case-variants) --
+  const serverByCardId = new Map(cards.map((c) => [c.cardId, c.server]));
   const cardIds = [...new Set(cards.map((c) => c.cardId))].sort((a, b) => Number(a) - Number(b));
   mkdirSync(join(ICONS_STAGING_DIR, 'support'), { recursive: true });
   for (const cardId of cardIds) {
     const src = srcAbs(supportSourceFile(cardId));
     if (!existsSync(src)) {
-      throw new Error(`build-icons: missing support card source ${src} (cardId ${cardId}).`);
+      if (serverByCardId.get(cardId) === 'global') {
+        throw new Error(`build-icons: missing support card source ${src} (cardId ${cardId}).`);
+      }
+      skippedCards.add(cardId); // JP-ahead card absent from the Global dump — skip
+      continue;
     }
     // Output is always lowercase <cardId>.webp regardless of source case.
     await convertToWebp(src, join(ICONS_STAGING_DIR, 'support', `${cardId}.webp`));
@@ -297,6 +318,7 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
   // --- uma portraits (trained _02 → base chr_icon fallback) -----------------
   const umaIds = [...new Set(umas.map((u) => u.umaId))].sort((a, b) => Number(a) - Number(b));
   const charaByUmaId = new Map(umas.map((u) => [u.umaId, u.charaId]));
+  const serverByUmaId = new Map(umas.map((u) => [u.umaId, u.server]));
   const fallbackUmas: string[] = [];
   mkdirSync(join(ICONS_STAGING_DIR, 'uma'), { recursive: true });
   for (const umaId of umaIds) {
@@ -314,7 +336,11 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
       const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
       src = srcAbs(source);
       if (!existsSync(src)) {
-        throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+        if (serverByUmaId.get(umaId) === 'global') {
+          throw new Error(`build-icons: missing uma portrait source ${src} (umaId ${umaId}).`);
+        }
+        skippedUmas.add(umaId); // JP-ahead uma absent from the Global dump — skip
+        continue;
       }
       if (fallback) fallbackUmas.push(umaId);
     }
@@ -359,12 +385,26 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
         .sort((a, b) => Number(a) - Number(b))
     : [];
 
+  // Manifest lists only icons actually on disk — drop the skipped JP-ahead ids
+  // so GameIcon never requests a webp that was never written.
+  const manifestSkill = skillIconIds.filter((id) => !skippedSkillIcons.has(id));
+  const manifestCards = cardIds.filter((id) => !skippedCards.has(id));
+  const manifestUmas = umaIds.filter((id) => !skippedUmas.has(id));
+  const totalSkipped = skippedSkillIcons.size + skippedCards.size + skippedUmas.size;
+  if (totalSkipped > 0) {
+    console.warn(
+      `build-icons: skipped ${totalSkipped} JP-ahead icon(s) absent from the Global dump ` +
+        `(${skippedSkillIcons.size} skill, ${skippedCards.size} card, ${skippedUmas.size} uma) — ` +
+        'GameIcon falls back to its placeholder until the dump refreshes.',
+    );
+  }
+
   const manifest: IconManifest = {
     dataVersion: opts.dataVersion,
     format: 'webp',
-    skill: skillIconIds,
-    card: cardIds,
-    uma: umaIds,
+    skill: manifestSkill,
+    card: manifestCards,
+    uma: manifestUmas,
     ui: uiIconIds,
     rank: rankLabels,
     cardArt: cardArtIds,
@@ -378,8 +418,8 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
 
   const onDiskBytes = dirBytes(ICONS_OUT_DIR);
   console.log(
-    `public/data/icons written: ${skillIconIds.length} skill, ${cardIds.length} support, ` +
-      `${umaIds.length} uma (${fallbackUmas.length} chr_icon fallbacks), ${rankLabels.length} rank, ` +
+    `public/data/icons written: ${manifestSkill.length} skill, ${manifestCards.length} support, ` +
+      `${manifestUmas.length} uma (${fallbackUmas.length} chr_icon fallbacks), ${rankLabels.length} rank, ` +
       `${cardArtIds.length} card-art, ` +
       `${(onDiskBytes / 1024 / 1024).toFixed(2)} MB total.`,
   );
