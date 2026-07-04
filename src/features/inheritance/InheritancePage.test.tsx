@@ -99,8 +99,14 @@ vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
 
 import { InheritancePage } from './InheritancePage';
+import { __clearJsonCacheForTests } from './dataCache';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  // The page's lazy datasets go through a module-level promise cache — reset it
+  // so tests with different fetch behaviour stay isolated.
+  __clearJsonCacheForTests();
+});
 
 const CATALOG: CourseCatalogEntry[] = [
   { courseId: '10906', raceTrackId: 10006, surface: 'turf', distance: 2400, distanceClass: 'long', course: 2, turn: 2 },

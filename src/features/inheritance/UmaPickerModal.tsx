@@ -14,8 +14,7 @@ import { AffinityMark } from './AffinityMark';
 import { maxTotalForKey } from './sparkBudget';
 
 /** Green (unique) + white (skill) totals cap at 3★ (one member's spark). */
-const GREEN_TOTAL_CAP = 3;
-const WHITE_TOTAL_CAP = 3;
+const SEARCH_TOTAL_CAP = 3;
 const STAT_ORDER = ['spd', 'sta', 'pow', 'gut', 'wit'];
 const APT_ORDER = ['turf', 'dirt', 'sprint', 'mile', 'medium', 'long', 'front', 'pace', 'late', 'end'];
 type BpKind = 'blue' | 'pink';
@@ -105,33 +104,30 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
     });
   };
 
-  // --- green (unique) spark state (single-legacy, total capped at 3) ---
-  type GreenF = Extract<SparkFilter, { kind: 'green' }>;
-  const greenClauses = filters.filter((f): f is GreenF => f.kind === 'green');
-  const greenLegacyLocked = (skillId: string): boolean =>
-    greenClauses.some((c) => c.legacyMin > 0 && c.skillId !== skillId);
-  const setGreen = (skillId: string, legacy: number, total: number) => {
-    setFilters((xs) => {
-      let others = xs.filter((f) => !(f.kind === 'green' && f.skillId === skillId));
-      if (legacy > 0) others = others.map((f) => (f.kind === 'green' ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
-      if (legacy === 0 && total === 0) return others;
-      return [...others, { id: newId(), kind: 'green', skillId, legacyMin: legacy, totalMin: total }];
-    });
+  // --- green (unique) + white (skill) search-clause state ---
+  // Green mirrors the singular greenSpark slot → single-legacy invariant (setting
+  // own-stars on one unique zeroes the others). White sparks are PLURAL
+  // (whiteSparks[]), so multiple white clauses may hold legacyMin simultaneously.
+  type SearchF = Extract<SparkFilter, { kind: 'green' | 'white' }>;
+  const makeSearchClauseState = (kind: 'green' | 'white', opts: { singleLegacy: boolean }) => {
+    const isKind = (f: SparkFilter): f is SearchF => f.kind === kind;
+    const clauses = filters.filter(isKind);
+    const legacyLocked = (skillId: string): boolean =>
+      opts.singleLegacy && clauses.some((c) => c.legacyMin > 0 && c.skillId !== skillId);
+    const set = (skillId: string, legacy: number, total: number) => {
+      setFilters((xs) => {
+        let others = xs.filter((f) => !(isKind(f) && f.skillId === skillId));
+        if (opts.singleLegacy && legacy > 0) others = others.map((f) => (isKind(f) ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
+        if (legacy === 0 && total === 0) return others;
+        return [...others, { id: newId(), kind, skillId, legacyMin: legacy, totalMin: total }];
+      });
+    };
+    return { clauses, legacyLocked, set };
   };
-
-  // --- white (skill) spark state — mirrors green (single-legacy, total capped at 3) ---
-  type WhiteF = Extract<SparkFilter, { kind: 'white' }>;
-  const whiteClauses = filters.filter((f): f is WhiteF => f.kind === 'white');
-  const whiteLegacyLocked = (skillId: string): boolean =>
-    whiteClauses.some((c) => c.legacyMin > 0 && c.skillId !== skillId);
-  const setWhite = (skillId: string, legacy: number, total: number) => {
-    setFilters((xs) => {
-      let others = xs.filter((f) => !(f.kind === 'white' && f.skillId === skillId));
-      if (legacy > 0) others = others.map((f) => (f.kind === 'white' ? ({ ...f, legacyMin: 0 } as SparkFilter) : f));
-      if (legacy === 0 && total === 0) return others;
-      return [...others, { id: newId(), kind: 'white', skillId, legacyMin: legacy, totalMin: total }];
-    });
-  };
+  const green = makeSearchClauseState('green', { singleLegacy: true });
+  const white = makeSearchClauseState('white', { singleLegacy: false });
+  const greenClauses = green.clauses;
+  const whiteClauses = white.clauses;
 
   // --- unified spark API for the cards ---
   const searchClause = (cat: 'green' | 'white', key: string) =>
@@ -141,14 +137,14 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
     return bpValue(cat, key);
   };
   const setSpark = (cat: SparkCat, key: string, legacy: number, total: number) => {
-    if (cat === 'green') setGreen(key, legacy, total);
-    else if (cat === 'white') setWhite(key, legacy, total);
+    if (cat === 'green') green.set(key, legacy, total);
+    else if (cat === 'white') white.set(key, legacy, total);
     else setBp(cat, key, legacy, total);
   };
   const sparkMaxTotal = (cat: SparkCat, key: string): number =>
-    cat === 'green' ? GREEN_TOTAL_CAP : cat === 'white' ? WHITE_TOTAL_CAP : bpMaxTotal(cat, key);
+    cat === 'green' || cat === 'white' ? SEARCH_TOTAL_CAP : bpMaxTotal(cat, key);
   const sparkLegacyLocked = (cat: SparkCat, key: string): boolean =>
-    cat === 'green' ? greenLegacyLocked(key) : cat === 'white' ? whiteLegacyLocked(key) : bpLegacyLocked(cat, key);
+    cat === 'green' ? green.legacyLocked(key) : cat === 'white' ? white.legacyLocked(key) : bpLegacyLocked(cat, key);
   const membersUsed = (cat: SparkCat): number => {
     if (cat === 'green') return greenClauses.length;
     if (cat === 'white') return whiteClauses.length;
@@ -162,18 +158,26 @@ export function UmaPickerModal({ open, items, skillName, isWishlisted, uniqueSki
   const whiteOptions = whiteSkillOptions.filter((o) => !whiteClauses.some((c) => c.skillId === o.id));
 
   // summary chips (canonical order) + spark-only match count
+  const optionIndex = (opts: Array<{ id: string }>): Map<string, number> => {
+    const m = new Map<string, number>();
+    opts.forEach((o, i) => { if (!m.has(o.id)) m.set(o.id, i); });
+    return m;
+  };
+  const greenOptionRank = useMemo(() => optionIndex(uniqueSkillOptions), [uniqueSkillOptions]);
+  const whiteOptionRank = useMemo(() => optionIndex(whiteSkillOptions), [whiteSkillOptions]);
   const chipRank = (f: SparkFilter): number => {
     if (f.kind === 'blue') return STAT_ORDER.indexOf(f.stat);
     if (f.kind === 'pink') return 100 + APT_ORDER.indexOf(f.aptitude);
-    if (f.kind === 'green') { const i = uniqueSkillOptions.findIndex((o) => o.id === f.skillId); return 200 + (i < 0 ? 99 : i); }
-    if (f.kind === 'white') { const i = whiteSkillOptions.findIndex((o) => o.id === f.skillId); return 300 + (i < 0 ? 99 : i); }
+    if (f.kind === 'green') return 200 + (greenOptionRank.get(f.skillId) ?? 99);
+    if (f.kind === 'white') return 300 + (whiteOptionRank.get(f.skillId) ?? 99);
     return 999;
   };
   const summaryChips: SummaryChip[] = filters
     .filter((f): f is Extract<SparkFilter, { kind: 'blue' | 'pink' | 'green' | 'white' }> =>
       (f.kind === 'blue' || f.kind === 'pink' || f.kind === 'green' || f.kind === 'white') && (f.legacyMin > 0 || f.totalMin > 0))
-    .sort((a, b) => chipRank(a) - chipRank(b))
-    .map((f) => {
+    .map((f) => ({ f, rank: chipRank(f) }))
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ f }) => {
       const cat = f.kind as SparkCat;
       const key = f.kind === 'blue' ? f.stat : f.kind === 'pink' ? f.aptitude : f.skillId;
       const name = (f.kind === 'green' || f.kind === 'white') ? skillName(f.skillId) : (SPARK_NAMES[key] ?? key);

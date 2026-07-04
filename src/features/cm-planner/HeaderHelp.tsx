@@ -10,6 +10,7 @@
 import './skill-trace/skill-trace.css';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { placeRightOf } from './anchoredPopover';
 
 const POP_W = 280; // matches .cmp-trace-help-pop width
 
@@ -25,21 +26,27 @@ export function HeaderHelp({ label, children, placement = 'bottom' }: {
   const popRef = useRef<HTMLDivElement>(null);
 
   // Anchor the fixed popup to the button; keep it within the viewport.
+  // `mounted` re-runs the effect once the portal exists: on the FIRST open
+  // pos===null gates the portal, so `popRef.current?.offsetWidth` can only be
+  // measured (and the flip decision corrected — e.g. the wider .inh-ev-pop
+  // override) on this second pass. place() only commits a changed position,
+  // so the re-run cannot loop.
+  const mounted = pos !== null;
   useLayoutEffect(() => {
     if (!open) return;
     const place = () => {
       const r = btnRef.current?.getBoundingClientRect();
       if (!r) return;
+      let next: { top: number; left: number };
       if (placement === 'right') {
         // To the right of the button; flip to the left if it would overflow.
         const w = popRef.current?.offsetWidth ?? POP_W;
-        const right = r.right + 6;
-        const left = right + w + 8 > window.innerWidth ? Math.max(8, r.left - w - 6) : right;
-        setPos({ top: Math.max(8, r.top), left });
-        return;
+        next = placeRightOf(r, w, { w: window.innerWidth, h: window.innerHeight });
+      } else {
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - POP_W - 8));
+        next = { top: r.bottom + 4, left };
       }
-      const left = Math.max(8, Math.min(r.left, window.innerWidth - POP_W - 8));
-      setPos({ top: r.bottom + 4, left });
+      setPos((prev) => (prev && prev.top === next.top && prev.left === next.left ? prev : next));
     };
     place();
     window.addEventListener('resize', place);
@@ -48,7 +55,7 @@ export function HeaderHelp({ label, children, placement = 'bottom' }: {
       window.removeEventListener('resize', place);
       window.removeEventListener('scroll', place, true);
     };
-  }, [open, placement]);
+  }, [open, placement, mounted]);
 
   // Dismiss on outside pointerdown / Esc — "inside" = the button OR the portaled popup.
   useEffect(() => {

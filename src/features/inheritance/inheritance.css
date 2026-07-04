@@ -51,19 +51,6 @@ main:has(.inh-page) {
   .inh-grid { grid-template-columns: 1fr; }
 }
 
-/* Placeholder cards (replaced by M1.2–M1.8) */
-.inh-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-height: 3.4rem;
-  border-style: dashed;
-  color: var(--fg-muted);
-}
-.inh-placeholder-title { font-weight: 600; }
-.inh-placeholder-phase { font-size: 0.7rem; opacity: 0.8; }
-
 /* "Uma plan" card (M1.2) — uses the cmp-plan-card grammar (header + body).
    overflow:visible so the icon-anchored popover isn't clipped; re-round the
    header top corners that the card's overflow:hidden normally provides. */
@@ -1757,14 +1744,12 @@ main:has(.inh-page) {
 /* Skill-name cell: icon in front (skill icon, or round uma portrait for uniques).
    The whole cell is the click target for the detail popup. */
 .inh-cov-skill-cell { display: block; }
-.inh-cov-skill-name { overflow-wrap: anywhere; }
+.inh-cov-skill-name { overflow-wrap: anywhere; min-width: 0; }
 .inh-cov-skill-btn { display: flex; align-items: center; gap: 5px; width: 100%; min-height: 30px; background: none; border: 0; padding: 3px 0.5rem; margin: 0; font: inherit; color: inherit; text-align: left; white-space: normal; cursor: pointer; transition: background 0.12s ease; }
 .inh-cov-skill-btn:hover { background: rgba(90, 160, 255, 0.2); }
-.inh-cov-skill-icon { flex: none; }
 .inh-cov-skill-icon { display: inline-flex; flex: none; }
 .inh-cov-skill-icon img { display: block; border-radius: 4px; }
 .inh-cov-name-uma { border-radius: 999px; }
-.inh-cov-skill-name { min-width: 0; }
 .inh-cov-chip { display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px; padding: 0 4px; font-size: 0.56rem; font-weight: 800; color: #fff; border-radius: 4px; }
 .inh-cov-chip[data-round="1"] { border-radius: 999px; }
 .inh-cov-chip.tier-spark { background: var(--tier-spark); }

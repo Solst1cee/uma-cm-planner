@@ -28,6 +28,37 @@ describe('buildUniqueToInheritedMap', () => {
     expect(map.has('100999')).toBe(false);
     expect(unresolved).toEqual(['100999']);
   });
+
+  it('falls back to a same-server name match when the prefix swap misses', () => {
+    // 5-digit legacy id → no prefix-swap candidate; resolved by name instead.
+    const skills = [
+      s('12345', 'Legacy Star', 'unique'),
+      s('905555', 'Legacy Star', 'inherited_unique'),
+    ];
+    const { map, unresolved } = buildUniqueToInheritedMap(skills);
+    expect(map.get('12345')).toBe('905555');
+    expect(unresolved).toEqual([]);
+  });
+
+  it('name fallback is first-wins on duplicate names (deterministic)', () => {
+    const skills = [
+      s('12345', 'Twin Star', 'unique'),
+      s('905555', 'Twin Star', 'inherited_unique'),
+      s('905556', 'Twin Star', 'inherited_unique'),
+    ];
+    const { map } = buildUniqueToInheritedMap(skills);
+    expect(map.get('12345')).toBe('905555');
+  });
+
+  it('name fallback never matches an inherited-unique on the OTHER server (P4)', () => {
+    const skills = [
+      s('12345', 'Cross Star', 'unique'), // global
+      { ...s('905555', 'Cross Star', 'inherited_unique'), server: 'jp' as const },
+    ];
+    const { map, unresolved } = buildUniqueToInheritedMap(skills);
+    expect(map.has('12345')).toBe(false);
+    expect(unresolved).toEqual(['12345']);
+  });
 });
 
 describe('reconcileGreenSkillId', () => {

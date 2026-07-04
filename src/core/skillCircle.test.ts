@@ -12,6 +12,10 @@ const byId = new Map<string, SkillRecord>([
   ['200013', s('200013', 'Right-Handed ×', 'white', ['200011', '200012', '200014'])],
   ['200014', s('200014', 'Right-Handed Demon', 'gold', ['200011', '200012', '200013'])],
   ['200099', s('200099', 'No Circles Here', 'white', [])],
+  // JP ◎ whose only ○ variant reference points at a Global record (gt-derived
+  // cross-server variantSkillIds) — must NOT normalise across servers.
+  ['300011', { ...s('300011', 'Left-Handed ◎', 'white', ['300012']), server: 'jp' as const }],
+  ['300012', s('300012', 'Left-Handed ○', 'white', ['300011'])],
 ]);
 
 describe('toSingleCircle', () => {
@@ -28,5 +32,8 @@ describe('toSingleCircle', () => {
   it('leaves a non-circle white / unknown id unchanged', () => {
     expect(toSingleCircle('200099', byId)).toBe('200099');
     expect(toSingleCircle('999999', byId)).toBe('999999');
+  });
+  it('never maps a ◎ onto a cross-server ○ variant (P4)', () => {
+    expect(toSingleCircle('300011', byId)).toBe('300011');
   });
 });

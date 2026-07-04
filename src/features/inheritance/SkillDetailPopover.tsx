@@ -7,6 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { createPortal } from 'react-dom';
 import { loadSkillTechnicalDetail, type SkillTechnicalDetail } from '@/features/cm-planner/skillTechnicalDetails';
 import { conditionLines, describeEffect, formatDuration } from '@/features/cm-planner/skillTechFormat';
+import { placeRightOf } from '@/features/cm-planner/anchoredPopover';
 
 export interface SkillDetailInfo {
   skillId: string;
@@ -45,10 +46,7 @@ export function SkillDetailPopover({ name, skill }: { name: ReactNode; skill: Sk
     const place = () => {
       const r = btnRef.current?.getBoundingClientRect();
       if (!r) return;
-      const w = 320;
-      const right = r.right + 6;
-      const left = right + w + 8 > window.innerWidth ? Math.max(8, r.left - w - 6) : right;
-      setPos({ top: Math.max(8, r.top), left });
+      setPos(placeRightOf(r, 320, { w: window.innerWidth, h: window.innerHeight }));
     };
     place();
     window.addEventListener('resize', place);

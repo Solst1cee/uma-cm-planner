@@ -25,11 +25,38 @@ describe('candidateAffinity', () => {
     expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: mk('100700'), other: mk('100800') })).toBe(8);
   });
 
-  it('adds the G1 win bonus from shared wins', () => {
+  it('adds the G1 win bonus from shared G1 wins (raw ids filtered via g1Set)', () => {
     // candidate + other both won G1 race "7001" → +3 to parentA
     const cand = mk('100700', { wonRaces: ['7001'] });
     const other = mk('100800', { wonRaces: ['7001'] });
-    expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: cand, other })).toBe(8 + 3);
+    const g1Set = new Set(['7001']);
+    expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: cand, other, g1Set })).toBe(8 + 3);
+  });
+
+  it('a shared non-G1 win contributes 0 (wonRaces arrive raw, all grades)', () => {
+    // "8002" is shared but NOT in the G1 set (e.g. a G2) → no bonus.
+    const cand = mk('100700', { wonRaces: ['8002', '7001'] });
+    const other = mk('100800', { wonRaces: ['8002'] });
+    expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: cand, other, g1Set: new Set(['7001']) })).toBe(8);
+  });
+
+  it('defaults to an empty G1 set → 0 win bonus even for shared wins', () => {
+    const cand = mk('100700', { wonRaces: ['7001'] });
+    const other = mk('100800', { wonRaces: ['7001'] });
+    expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: cand, other })).toBe(8);
+  });
+
+  it('filters grandparent wonRaces too', () => {
+    // candidate shares G1 "7001" with its gp and non-G1 "8002" with the other's gp
+    // → only the gp-side G1 term (+3) lands on parentA.
+    const cand = mk('100700', {
+      wonRaces: ['7001', '8002'],
+      grandparents: [{ umaId: '100600', blueSpark: { stat: 'spd', stars: 1 }, pinkSpark: { aptitude: 'turf', stars: 1 }, whiteSparks: [], wonRaces: ['7001'] }],
+    });
+    const other = mk('100800', {
+      grandparents: [{ umaId: '100900', blueSpark: { stat: 'spd', stars: 1 }, pinkSpark: { aptitude: 'turf', stars: 1 }, whiteSparks: [], wonRaces: ['8002'] }],
+    });
+    expect(candidateAffinity({ idx, traineeUmaId: '100000', candidate: cand, other, g1Set: new Set(['7001']) })).toBe(8 + 3);
   });
 
   it('returns 0 for unknown charas without crashing', () => {

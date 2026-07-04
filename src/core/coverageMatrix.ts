@@ -18,6 +18,9 @@ export interface CoverageChip {
   /** `gp` chips live in the merged `parent` cell but keep their own kind so the
    *  UI can style/label grandparent sources distinctly. */
   kind: CoverageColumn | 'gp'; label: string; title: string;
+  /** Display name of the providing parent/grandparent (set on parent/gp chips)
+   *  — structured source identity, so the UI never parses it out of `title`. */
+  sourceName?: string;
   pct?: number; tier?: string; cardType?: CardType;
   /** Support-card id for deck-source chips (hint/chain/random) — lets the UI
    *  render the real card icon instead of name initials. */
@@ -85,8 +88,25 @@ function coverageEquivalent(aId: string, bId: string, skillById: Map<string, Ski
   const a = skillById.get(aId);
   const b = skillById.get(bId);
   if (!a || !b) return false;
+  // Same-server only: gt-derived variantSkillIds on server:'jp' records can
+  // reference Global ids (and vice versa) — cross-server records must never
+  // count as coverage-equivalent (P4; mirrors skillFamilies.areSkillVariants).
+  if (a.server !== b.server) return false;
   if (!isWhiteCircle(a) || !isWhiteCircle(b)) return false; // only ○/◎ collapse
   return (a.variantSkillIds ?? []).includes(bId) || (b.variantSkillIds ?? []).includes(aId);
+}
+
+/**
+ * Combined inherit-% across independent priced sources: the chance AT LEAST ONE
+ * passes the spark down, 1 − ∏(1 − pᵢ). Any guaranteed source (≥100) short-
+ * circuits to exactly 100. Empty input → 0, not guaranteed.
+ */
+export function combinedInheritPct(pcts: number[]): { pct: number; guaranteed: boolean } {
+  const guaranteed = pcts.some((p) => p >= 100);
+  const pct = guaranteed
+    ? 100
+    : Math.round((1 - pcts.reduce((m, p) => m * (1 - p / 100), 1)) * 100);
+  return { pct, guaranteed };
 }
 
 /** The first `have` id that covers `want` (○/◎ family or exact), else null. */
@@ -165,6 +185,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
           kind: 'parent',
           label: umaLabel(String(parent.umaId), String(parent.umaId)),
           title: `${umaTitle(String(parent.umaId), 'Parent')} · parent unique spark — guaranteed at career start`,
+          sourceName: umaTitle(String(parent.umaId), 'Parent'),
           pct: 100,
         });
       } else if (pWhiteCover) {
@@ -183,6 +204,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
           kind: 'parent',
           label: umaLabel(String(parent.umaId), String(parent.umaId)),
           title: `${umaTitle(String(parent.umaId), 'Parent')} · parent white spark`,
+          sourceName: umaTitle(String(parent.umaId), 'Parent'),
           pct: Math.round(parentPct),
         });
       }
@@ -215,6 +237,7 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
           kind: 'gp',
           label: umaLabel(String(ref.umaId), String(ref.umaId)),
           title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,
+          sourceName: umaTitle(String(ref.umaId), 'Grandparent'),
           pct: gpPct,
         });
       });

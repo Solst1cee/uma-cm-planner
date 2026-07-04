@@ -1,6 +1,6 @@
 // src/core/coverageMatrix.test.ts
 import { describe, expect, it } from 'vitest';
-import { buildCoverageMatrix, type CoverageInput } from './coverageMatrix';
+import { buildCoverageMatrix, combinedInheritPct, type CoverageInput } from './coverageMatrix';
 import type { CardSkill, Parent, SkillRecord, SupportCardRecord, SparkRates } from './types';
 import { FIXTURE_SPARK_RATES } from './fixtures';
 
@@ -181,6 +181,20 @@ describe('buildCoverageMatrix', () => {
       const res = buildCoverageMatrix(famInput('500011', { deckCards: [c], deckLbByCardId: new Map([['30001', 4]]) }));
       expect(res.rows[0]!.cells.hint.length).toBe(1);
     });
+
+    // Cross-server: gt-derived variantSkillIds can reference the other server's
+    // ids — a JP ○ must never count as coverage for a Global ◎ (P4).
+    it('a cross-server ○ variant does NOT cover the wishlisted ◎', () => {
+      const crossById = new Map([
+        ['500011', { ...skill('500011', 'Right-Handed ◎', 'white'), variantSkillIds: ['500012'] }],
+        ['500012', { ...skill('500012', 'Right-Handed ○', 'white'), server: 'jp' as const, variantSkillIds: ['500011'] }],
+      ]);
+      const res = buildCoverageMatrix(famInput('500011', {
+        skillById: crossById,
+        planUma: { umaId: '100301', nameEn: 'T', innateSkills: ['500012'] },
+      }));
+      expect(res.rows[0]!.cells.innate.length).toBe(0);
+    });
   });
 
   it('covers a white wishlist skill via a parent white spark with an inherit %', () => {
@@ -329,6 +343,27 @@ describe('buildCoverageMatrix', () => {
     expect(chip.title).toContain('grandparent green (unique) spark');
   });
 
+  it('parent/gp chips carry a structured sourceName matching the title prefix', () => {
+    const gp: import('./types').ParentRef = { umaId: '200201', whiteSparks: [{ skillId: '200033', stars: 2 }] };
+    const p = parent('pa', '100101', {
+      whiteSparks: [{ skillId: '200033', stars: 3 }],
+      greenSpark: { skillId: '100011', stars: 2 },
+      grandparents: [gp, undefined],
+    });
+    const res = buildCoverageMatrix(baseInput({
+      activeParents: [{ parent: p, isA: true }],
+      umaNameById: new Map([['100101', 'Mayano Top Gun'], ['200201', 'Silence Suzuka']]),
+    }));
+    const whiteRow = res.rows.find((r) => r.skillId === '200033')!;
+    const pChip = whiteRow.cells.parent.find((c) => c.kind === 'parent')!;
+    const gpChip = whiteRow.cells.parent.find((c) => c.kind === 'gp')!;
+    expect(pChip.sourceName).toBe('Mayano Top Gun');
+    expect(gpChip.sourceName).toBe('Silence Suzuka');
+    // The guaranteed parent-unique chip carries it too.
+    const greenRow = res.rows.find((r) => r.skillId === '900011')!;
+    expect(greenRow.cells.parent[0]!.sourceName).toBe('Mayano Top Gun');
+  });
+
   it('FIX B — grandparent white spark is still priced (pct > 0)', () => {
     // A GP with a matching white spark should still get a numeric pct.
     const gp: import('./types').ParentRef = {
@@ -340,5 +375,24 @@ describe('buildCoverageMatrix', () => {
     const row = res.rows.find((r) => r.skillId === '200033')!;
     expect(row.cells.parent.length).toBe(1);
     expect(row.cells.parent[0]!.pct).toBeGreaterThan(0);
+  });
+});
+
+describe('combinedInheritPct', () => {
+  it('empty input → 0, not guaranteed', () => {
+    expect(combinedInheritPct([])).toEqual({ pct: 0, guaranteed: false });
+  });
+  it('a single source is its own %', () => {
+    expect(combinedInheritPct([13])).toEqual({ pct: 13, guaranteed: false });
+  });
+  it('two 50s combine to 75 (1 − ∏(1−p))', () => {
+    expect(combinedInheritPct([50, 50])).toEqual({ pct: 75, guaranteed: false });
+  });
+  it('rounds the combined % (13 + 13 → 24)', () => {
+    expect(combinedInheritPct([13, 13])).toEqual({ pct: 24, guaranteed: false });
+  });
+  it('any ≥100 source short-circuits to guaranteed 100', () => {
+    expect(combinedInheritPct([100, 28])).toEqual({ pct: 100, guaranteed: true });
+    expect(combinedInheritPct([28, 100])).toEqual({ pct: 100, guaranteed: true });
   });
 });

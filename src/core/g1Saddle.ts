@@ -11,5 +11,5 @@ export function isG1Saddle(saddleId: string, g1Set: ReadonlySet<string>): boolea
 
 export function filterG1(wonRaces: string[] | undefined, g1Set: ReadonlySet<string>): string[] {
   if (!wonRaces) return [];
-  return wonRaces.filter((id) => g1Set.has(id));
+  return wonRaces.filter((id) => isG1Saddle(id, g1Set));
 }

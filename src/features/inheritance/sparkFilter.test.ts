@@ -1,6 +1,7 @@
 // src/features/inheritance/sparkFilter.test.ts
 import { describe, expect, it } from 'vitest';
-import type { SparkAgg } from './sparkAggregate';
+import type { Parent } from '@/core/types';
+import { aggregate, type SparkAgg } from './sparkAggregate';
 import { clauseMatches, matchesFilters, type SparkFilter } from './sparkFilter';
 
 // veteran: pow legacy 3 / total 8; medium legacy 3 / total 6; whites groundwork(total3,legacy2), corner(total1,legacy0)
@@ -57,5 +58,18 @@ describe('matchesFilters', () => {
       { id: '1', kind: 'pink', aptitude: 'medium', legacyMin: 3, totalMin: 6 },
       { id: '2', kind: 'anyBlue', totalMin: 8 },
     ])).toBe(true);
+  });
+
+  it('a ◎-variant recorded spark matches an ○-id white clause when the agg is family-normalised', () => {
+    // '200362' (◎) normalises to '200361' (○) — same map the picker gets when
+    // the container passes `id => toSingleCircle(id, skillById)` to aggregate().
+    const vet: Parent = {
+      id: 'v', umaId: '101501', source: 'mine',
+      blueSpark: { stat: 'pow', stars: 3 }, pinkSpark: { aptitude: 'medium', stars: 3 },
+      whiteSparks: [{ skillId: '200362', stars: 2 }],
+    };
+    const normAgg = aggregate(vet, (id) => (id === '200362' ? '200361' : id));
+    expect(clauseMatches(normAgg, { id: '1', kind: 'white', skillId: '200361', legacyMin: 2, totalMin: 2 })).toBe(true);
+    expect(clauseMatches(normAgg, { id: '2', kind: 'white', skillId: '200362', legacyMin: 0, totalMin: 1 })).toBe(false); // raw ◎ id no longer keyed
   });
 });

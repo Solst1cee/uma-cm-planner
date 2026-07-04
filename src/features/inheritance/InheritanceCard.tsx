@@ -20,6 +20,7 @@ import { AffinityMark } from './AffinityMark';
 import { aff2, charaIdOf } from '@/core/affinity';
 import { toSingleCircle } from '@/core/skillCircle';
 import { useAffinityIndex } from './useAffinityIndex';
+import { useG1SaddleSet } from './useG1SaddleSet';
 
 type Slot = 'a' | 'b';
 type Mode = null | 'find' | 'change';
@@ -41,6 +42,7 @@ export function InheritanceCard() {
   const { umas, umaById } = useUmas();
   const { skills, skillById } = useGameData();
   const idx = useAffinityIndex();
+  const g1Set = useG1SaddleSet();
   const [open, setOpen] = useState(true);
   const [p2rental, setP2rental] = useState(false);
   const [mode, setMode] = useState<Record<Slot, Mode>>({ a: null, b: null });
@@ -48,9 +50,14 @@ export function InheritanceCard() {
   const pool = useMemo(() => roster.filter((p) => p.source === 'mine'), [roster]);
   // All hooks must run before the early return below — keep this useMemo above the guard.
   // Planning horizon: availability follows the app-wide lens (current ≡ Global-only).
+  // Family-canonical whites only: a white spark always grants the ○ grade, so a
+  // ◎ variant with an ○ family member is dropped (its recorded sparks aggregate
+  // under the ○ id via toSingleCircle); standalone whites pass through as-is.
   const whiteSkillOptions = useMemo(
-    () => skills.filter((s) => visible(s) && s.rarity === 'white').map((s) => ({ id: s.skillId, name: s.nameEn })),
-    [skills, visible],
+    () => skills
+      .filter((s) => visible(s) && s.rarity === 'white' && toSingleCircle(s.skillId, skillById) === s.skillId)
+      .map((s) => ({ id: s.skillId, name: s.nameEn })),
+    [skills, skillById, visible],
   );
   // Green sparks decode to the 6-digit 100xxx/110xxx unique ids; only those can
   // appear as inherited-unique sparks, so offer just them as green-search options.
@@ -93,8 +100,8 @@ export function InheritanceCard() {
     const pb = uma1Plan.parents.b ? byId.get(uma1Plan.parents.b) : undefined;
     if (!pa && !pb) return null;
     let total = 0;
-    if (pa) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pa, other: pb });
-    if (pb) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pb, other: pa });
+    if (pa) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pa, other: pb, g1Set });
+    if (pb) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pb, other: pa, g1Set });
     if (pa && pb) total -= aff2(idx, charaIdOf(pa.umaId), charaIdOf(pb.umaId));
     return total;
   })();
@@ -154,8 +161,8 @@ export function InheritanceCard() {
         gpPortraits: gpPortraitsFor(p),
         statRow: statRowFor(p),
         parent: p,
-        agg: aggregate(p),
-        affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other }) : null,
+        agg: aggregate(p, (id) => toSingleCircle(id, skillById)),
+        affinity: idx ? candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: p, other, g1Set }) : null,
         disabled: inSlot !== undefined || sameCharAsOther,
         selectedLabel,
         unavailableReason,
