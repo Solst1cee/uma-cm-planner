@@ -13,8 +13,9 @@
  * any public release. Not in `pnpm data:build` — run
  * `pnpm tsx scripts/build-skill-details.ts`.
  */
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
+import { OVERRIDES_DIR, PUBLIC_DATA_DIR, readBorrowedJson, readJson, writeJsonDeterministic } from './lib/io';
 
 interface DaftuydaConditionGroup { base_time?: number | null; condition?: string | null }
 interface DaftuydaSkill { id: number; desc_en?: string | null; condition_groups?: DaftuydaConditionGroup[] | null }
@@ -42,11 +43,32 @@ export function buildSkillDetails(daftuyda: DaftuydaSkill[], ourIds: Set<string>
   return out;
 }
 
+/** Hand-patch overrides (P5) — per-skill record replacement, applied LAST. */
+export interface SkillDetailsOverrides {
+  /** skillId → full SkillDetail replacement (overrides win). */
+  setBySkill?: Record<string, SkillDetail>;
+  /** skillIds dropped from the emitted map entirely. */
+  removeSkillIds?: string[];
+}
+
+export function applySkillDetailsOverrides(
+  base: Record<string, SkillDetail>,
+  ov: SkillDetailsOverrides,
+): Record<string, SkillDetail> {
+  const out: Record<string, SkillDetail> = { ...base };
+  for (const [id, detail] of Object.entries(ov.setBySkill ?? {})) out[id] = detail;
+  for (const id of ov.removeSkillIds ?? []) delete out[id];
+  return out;
+}
+
 function main(): void {
   const daftuyda = readBorrowedJson<DaftuydaSkill[]>('daftuyda/skills_all.json');
   const skills = readJson<Array<{ skillId: string }>>(join(PUBLIC_DATA_DIR, 'skills.json'));
   const ourIds = new Set(skills.map((s) => s.skillId));
-  const out = buildSkillDetails(daftuyda, ourIds);
+  // P5: merge the hand-patch overrides LAST (data-overrides/skill_details_overrides.json).
+  const ovPath = join(OVERRIDES_DIR, 'skill_details_overrides.json');
+  const ov = existsSync(ovPath) ? readJson<SkillDetailsOverrides>(ovPath) : {};
+  const out = applySkillDetailsOverrides(buildSkillDetails(daftuyda, ourIds), ov);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'skill_details.json'), out);
   console.log(`skill_details.json: ${Object.keys(out).length}/${ourIds.size} skills detailed`);
 }

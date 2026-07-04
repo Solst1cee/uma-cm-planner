@@ -3,8 +3,9 @@
  *  Provider-free: the page computes the CoverageResult and passes it in. */
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import type { CoverageChip, CoverageColumn, CoverageResult, CoverageRow } from '@/core/coverageMatrix';
+import { combinedInheritPct, type CoverageChip, type CoverageColumn, type CoverageResult, type CoverageRow } from '@/core/coverageMatrix';
 import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
+import { placeRightOf } from '@/features/cm-planner/anchoredPopover';
 
 /** Provider-free renderer for a support-card icon (the page supplies it). */
 export type RenderCardIcon = (cardId: string, size: number) => ReactNode;
@@ -64,11 +65,12 @@ function Chip({ chip, renderCardIcon, renderEventHint }: {
   );
 }
 
-/** Short source label from a chip title: "Mayano Top Gun · parent white spark"
- *  → { name: "Mayano Top Gun", role: "P" | "GP" }. */
+/** Source label for a priced chip. `sourceName` is the structured field set on
+ *  parent/gp chips; the title-prefix parse remains only as a fallback for
+ *  pre-sourceName data (e.g. old fixtures). */
 function chipSource(c: CoverageChip & { pct: number }): { name: string; role: string; guaranteed: boolean } {
   return {
-    name: c.title.split(' · ')[0] ?? '',
+    name: c.sourceName ?? c.title.split(' · ')[0] ?? '',
     role: c.kind === 'gp' ? 'GP' : 'P',
     guaranteed: c.pct >= 100,
   };
@@ -86,20 +88,26 @@ function CombinedPct({ chips }: { chips: CoverageChip[] }) {
 
   useLayoutEffect(() => {
     if (!open) { setPos(null); return; }
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    // Pop from the right of the number; flip to the left if it would overflow.
-    const w = 320;
-    const right = r.right + 6;
-    const left = right + w + 8 > window.innerWidth ? Math.max(8, r.left - w - 6) : right;
-    // Nudge up by the overall-row's border+padding so its number lines up with
-    // the cell number (≈1px border + 0.3rem padding ≈ 6px).
-    setPos({ top: Math.max(8, r.top - 6), left });
+    const place = () => {
+      const r = ref.current?.getBoundingClientRect();
+      if (!r) return;
+      // Pop from the right of the number; flip to the left if it would overflow.
+      const p = placeRightOf(r, 320, { w: window.innerWidth, h: window.innerHeight });
+      // Nudge up by the overall-row's border+padding so its number lines up with
+      // the cell number (≈1px border + 0.3rem padding ≈ 6px).
+      setPos({ top: Math.max(8, r.top - 6), left: p.left });
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
   }, [open]);
 
   if (priced.length === 0) return null;
-  const guaranteed = priced.some((c) => c.pct >= 100);
-  const overall = guaranteed ? 100 : Math.round((1 - priced.reduce((m, c) => m * (1 - c.pct / 100), 1)) * 100);
+  const { pct: overall, guaranteed } = combinedInheritPct(priced.map((c) => c.pct));
   const showFormula = !guaranteed && priced.length > 1;
   const numberText = guaranteed ? '100%' : `~${overall}%`;
 

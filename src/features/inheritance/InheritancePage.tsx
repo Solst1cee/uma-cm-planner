@@ -35,6 +35,7 @@ import { loadInnateSkillsByUmaId, loadUniqueSkillByUmaId, skillRecordToSummary, 
 import { SkillPicker } from '@/features/skill-planner/SkillPicker';
 import { addOrReplaceWishlistSkill, wishlistSkillRecord } from '@/features/skill-planner/skillFamilies';
 import { SkillDetailPopover } from './SkillDetailPopover';
+import { fetchJsonCached } from './dataCache';
 
 /** Baked skill_details.json value (build-skill-details.ts). */
 interface BakedSkillDetail { effect?: string; condition?: string; durationMs?: number }
@@ -189,10 +190,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const [skillDetails, setSkillDetails] = useState<Record<string, BakedSkillDetail>>({});
   useEffect(() => {
     let cancelled = false;
+    // Cached per-URL promise (dataCache.ts) — route remounts don't refetch.
     const load = <T,>(file: string, set: (v: T) => void) =>
-      fetch(`${BASE_URL}data/${file}`)
-        .then((r) => (r.ok ? r.json() : {}))
-        .then((d) => { if (!cancelled) set(d as T); })
+      fetchJsonCached<T>(`${BASE_URL}data/${file}`)
+        .then((d) => { if (!cancelled) set(d); })
         .catch(() => { /* optional dataset — degrade to none */ });
     void load<CardUniqueEffects>('card_unique_effects.json', setUniqueEffects);
     void load<CardBaseEffects>('card_effects.json', setBaseEffects);
@@ -328,10 +329,19 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     setDeck(addCard(deck, id, cardLb[id] ?? 4));
   };
 
+  // Narrow plan fields for the memos below — every plan edit (stat input, note,
+  // spark stepper) is a fresh object spread, but nested references survive for
+  // untouched fields, so depping on these (not the whole plan) skips rebuilding
+  // the wishlist set / coverage matrix on unrelated keystrokes.
+  const planWishlist = uma1Plan?.wishlist;
+  const parentARef = uma1Plan?.parents.a;
+  const parentBRef = uma1Plan?.parents.b;
+  const planUmaId = uma1Plan?.umaId;
+
   // Pool scoring memos
   const wishlist = useMemo(
-    () => new Set((uma1Plan?.wishlist ?? []).map((w) => w.skillId)),
-    [uma1Plan],
+    () => new Set((planWishlist ?? []).map((w) => w.skillId)),
+    [planWishlist],
   );
 
   // Coverage matrix (M1.7)
@@ -372,10 +382,10 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     return m;
   }, [uniqueByUmaId, greenMap]);
   const coverageResult = useMemo(() => {
-    const wishlistSkillIds = (uma1Plan?.wishlist ?? []).map((w) => w.skillId);
+    const wishlistSkillIds = (planWishlist ?? []).map((w) => w.skillId);
     const rosterById = new Map(roster.map((p) => [p.id, p]));
-    const pA = uma1Plan?.parents.a ? rosterById.get(uma1Plan.parents.a) : undefined;
-    const pB = uma1Plan?.parents.b ? rosterById.get(uma1Plan.parents.b) : undefined;
+    const pA = parentARef ? rosterById.get(parentARef) : undefined;
+    const pB = parentBRef ? rosterById.get(parentBRef) : undefined;
     // A white spark only ever grants the single-circle (○) grade — normalise a
     // recorded ◎ id to its ○ family member so coverage/bonus display "…○".
     const normSparks = <T extends { skillId: string }>(sparks: T[]): T[] =>
@@ -393,8 +403,8 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     ];
 
     let memberAffinity: ((ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined) | undefined;
-    if (affinityIdx && uma1Plan && pA && pB) {
-      const la = planLineageAffinity(affinityIdx, uma1Plan.umaId, pA, pB, g1Set);
+    if (affinityIdx && planUmaId && pA && pB) {
+      const la = planLineageAffinity(affinityIdx, planUmaId, pA, pB, g1Set);
       memberAffinity = ({ parentId, grandparent, gpIndex }) => {
         if (!grandparent) return parentId === pA.id ? la.memberScores.parentA : parentId === pB.id ? la.memberScores.parentB : undefined;
         if (parentId === pA.id) return gpIndex === 0 ? la.memberScores.gA1 : la.memberScores.gA2;
@@ -407,11 +417,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     const deckLbByCardId = new Map<string, LimitBreak>();
     deck.slots.forEach((id, i) => { if (id) deckLbByCardId.set(id, deck.slotLb[i] ?? 4); });
 
-    const planUmaRec = uma1Plan ? umaById.get(uma1Plan.umaId) ?? null : null;
+    const planUmaRec = planUmaId ? umaById.get(planUmaId) ?? null : null;
     // The uma's innate kit = its outfitId-associated skills, kept to white + gold
     // (drop unique / inherited-unique — not "innate" for coverage). Prefer the
     // baked UmaRecord.innateSkills if the data pipeline ever populates it.
-    const innateRanks = uma1Plan ? innateByUmaId?.get(uma1Plan.umaId) : undefined;
+    const innateRanks = planUmaId ? innateByUmaId?.get(planUmaId) : undefined;
     const innateSkills =
       planUmaRec?.innateSkills ??
       (innateRanks
@@ -422,7 +432,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
         : []);
     const innateRankBySkillId = innateRanks ? Object.fromEntries(innateRanks) : undefined;
     // Skills this uma's career training events can grant (availability, not per-run).
-    const eventSkills = uma1Plan ? (umaEventsByUmaId[uma1Plan.umaId] ?? []) : [];
+    const eventSkills = planUmaId ? (umaEventsByUmaId[planUmaId] ?? []) : [];
 
     return buildCoverageMatrix({
       wishlistSkillIds,
@@ -440,7 +450,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
       umaNameById,
       compareSkills,
     });
-  }, [uma1Plan, roster, affinityIdx, g1Set, skills, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId, compareSkills]);
+  }, [planWishlist, parentARef, parentBRef, planUmaId, roster, affinityIdx, g1Set, greenMap, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId, compareSkills]);
 
   // Event-cell hint button + popup: the training events of the plan uma that can
   // grant the (family-resolved) skill. Returns null when no details exist — the

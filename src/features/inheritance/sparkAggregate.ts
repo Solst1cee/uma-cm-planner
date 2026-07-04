@@ -17,7 +17,15 @@ export interface SparkAgg {
   greens: Map<string, { total: number; legacy: number }>;
 }
 
-export function aggregate(veteran: Parent): SparkAgg {
+/**
+ * @param normalizeWhite Optional white-spark id normaliser (e.g.
+ *   `id => toSingleCircle(id, skillById)`) applied when keying `whites`, so a
+ *   recorded ◎-variant spark aggregates under its ○ family id (matching the
+ *   ○-normalised names the tiles display and the ○ filter options). Stars SUM
+ *   when two recorded sparks normalise to the same key (○ on one member, ◎ on
+ *   another). Gold/× and greens are never normalised.
+ */
+export function aggregate(veteran: Parent, normalizeWhite: (id: string) => string = (id) => id): SparkAgg {
   const members: Array<Parent | ParentRef> = [veteran, ...(veteran.grandparents ?? []).filter((g): g is ParentRef => !!g)];
 
   const blueTotals: Partial<Record<Stat, number>> = {};
@@ -29,8 +37,9 @@ export function aggregate(veteran: Parent): SparkAgg {
     if (m.blueSpark) blueTotals[m.blueSpark.stat] = (blueTotals[m.blueSpark.stat] ?? 0) + m.blueSpark.stars;
     if (m.pinkSpark) pinkTotals[m.pinkSpark.aptitude] = (pinkTotals[m.pinkSpark.aptitude] ?? 0) + m.pinkSpark.stars;
     for (const w of m.whiteSparks ?? []) {
-      const prev = whites.get(w.skillId) ?? { total: 0, legacy: 0 };
-      whites.set(w.skillId, { total: prev.total + w.stars, legacy: prev.legacy });
+      const key = normalizeWhite(w.skillId);
+      const prev = whites.get(key) ?? { total: 0, legacy: 0 };
+      whites.set(key, { total: prev.total + w.stars, legacy: prev.legacy });
     }
     if (m.greenSpark) {
       const prev = greens.get(m.greenSpark.skillId) ?? { total: 0, legacy: 0 };
@@ -39,8 +48,9 @@ export function aggregate(veteran: Parent): SparkAgg {
   }
   // legacy = the veteran's own sparks only
   for (const w of veteran.whiteSparks ?? []) {
-    const prev = whites.get(w.skillId) ?? { total: 0, legacy: 0 };
-    whites.set(w.skillId, { total: prev.total, legacy: prev.legacy + w.stars });
+    const key = normalizeWhite(w.skillId);
+    const prev = whites.get(key) ?? { total: 0, legacy: 0 };
+    whites.set(key, { total: prev.total, legacy: prev.legacy + w.stars });
   }
   if (veteran.greenSpark) {
     const prev = greens.get(veteran.greenSpark.skillId) ?? { total: 0, legacy: 0 };

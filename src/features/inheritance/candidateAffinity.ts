@@ -4,8 +4,14 @@
  * candidate-branch lineage affinity (trainee↔candidate + grandparent triples,
  * plus the cross term to the other chosen slot when set) + the G1 win bonus
  * (computeWinBonus parentA). Pair-independent when `other` is absent.
+ *
+ * `wonRaces` arrive RAW from the importer (all grades), so every member's list
+ * is filtered to G1-only via `g1Set` before the win bonus — same as
+ * planLineageAffinity (src/core/lineageAffinity.ts). An empty set ⇒ 0 bonus
+ * (the safe under-count).
  */
 import { aff2, aff3, charaIdOf, type AffinityIndex } from '@/core/affinity';
+import { filterG1 } from '@/core/g1Saddle';
 import { computeWinBonus } from '@/core/winBonus';
 import type { Parent } from '@/core/types';
 
@@ -14,8 +20,9 @@ export function candidateAffinity(args: {
   traineeUmaId: string;
   candidate: Parent;
   other?: Parent;
+  g1Set?: ReadonlySet<string>;
 }): number {
-  const { idx, traineeUmaId, candidate, other } = args;
+  const { idx, traineeUmaId, candidate, other, g1Set = new Set<string>() } = args;
   const T = charaIdOf(traineeUmaId);
   const A = charaIdOf(candidate.umaId);
   const gps = candidate.grandparents ?? [];
@@ -29,12 +36,12 @@ export function candidateAffinity(args: {
 
   const oGps = other?.grandparents ?? [];
   const win = computeWinBonus({
-    parentA: { wonRaces: candidate.wonRaces },
-    parentB: { wonRaces: other?.wonRaces },
-    gA1: { wonRaces: gps[0]?.wonRaces },
-    gA2: { wonRaces: gps[1]?.wonRaces },
-    gB1: { wonRaces: oGps[0]?.wonRaces },
-    gB2: { wonRaces: oGps[1]?.wonRaces },
+    parentA: { wonRaces: filterG1(candidate.wonRaces, g1Set) },
+    parentB: { wonRaces: filterG1(other?.wonRaces, g1Set) },
+    gA1: { wonRaces: filterG1(gps[0]?.wonRaces, g1Set) },
+    gA2: { wonRaces: filterG1(gps[1]?.wonRaces, g1Set) },
+    gB1: { wonRaces: filterG1(oGps[0]?.wonRaces, g1Set) },
+    gB2: { wonRaces: filterG1(oGps[1]?.wonRaces, g1Set) },
   }).parentA;
 
   return base + win;

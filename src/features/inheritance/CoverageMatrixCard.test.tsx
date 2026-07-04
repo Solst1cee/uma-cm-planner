@@ -108,6 +108,28 @@ describe('CoverageMatrixCard', () => {
     expect(pop.textContent).not.toContain('(1 −'); // no probability formula
   });
 
+  it('the popup names sources from the structured sourceName field (not a title parse)', () => {
+    const srcResult: CoverageResult = {
+      rows: [
+        { skillId: '200033', name: 'Straightaway', isGold: false,
+          cells: { innate: [], event: [],
+            parent: [
+              // Title deliberately does NOT lead with the name — sourceName must win.
+              { kind: 'parent', label: 'TO', title: 'parent white spark', sourceName: 'Mayano Top Gun', pct: 13 },
+              { kind: 'gp', label: 'SR', title: 'grandparent white spark', sourceName: 'Silence Suzuka', pct: 13 },
+            ],
+            hint: [], chain: [], random: [] },
+          covered: true },
+      ],
+      bars: [], bonus: [],
+    };
+    const { container } = render(<CoverageMatrixCard result={srcResult} hasWishlist hasPlanUma />);
+    fireEvent.mouseEnter(container.querySelector('.inh-cov-combined')!);
+    const pop = document.body.querySelector('.inh-cov-calc-pop')!;
+    expect(pop.textContent).toContain('Mayano Top Gun');
+    expect(pop.textContent).toContain('Silence Suzuka');
+  });
+
   it('a single priced spark shows its own % as the cell number (no formula in popup)', () => {
     const oneResult: CoverageResult = {
       rows: [

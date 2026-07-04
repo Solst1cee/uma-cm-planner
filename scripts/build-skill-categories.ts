@@ -13,9 +13,27 @@
 import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { PUBLIC_DATA_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR, readJson, writeJsonDeterministic } from './lib/io';
+import { OVERRIDES_DIR, PUBLIC_DATA_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR, readJson, writeJsonDeterministic } from './lib/io';
 import type { SkillRarity } from '@/core/types';
 import { CATEGORY_ORDER, classifySkill, type SkillAbility, type SkillSortMeta } from '@/core/skillCategory';
+
+/** Hand-patch overrides (P5) — per-skill record replacement, applied LAST. */
+export interface SkillCategoriesOverrides {
+  /** skillId → full SkillSortMeta replacement (overrides win). */
+  setBySkill?: Record<string, SkillSortMeta>;
+  /** skillIds dropped from the emitted map entirely. */
+  removeSkillIds?: string[];
+}
+
+export function applySkillCategoriesOverrides(
+  base: Record<string, SkillSortMeta>,
+  ov: SkillCategoriesOverrides,
+): Record<string, SkillSortMeta> {
+  const out: Record<string, SkillSortMeta> = { ...base };
+  for (const [id, meta] of Object.entries(ov.setBySkill ?? {})) out[id] = meta;
+  for (const id of ov.removeSkillIds ?? []) delete out[id];
+  return out;
+}
 
 function mdbPath(): string | null {
   const candidates = [
@@ -46,10 +64,14 @@ function main(): void {
     console.warn('master.mdb not found — every non-unique skill falls back to "normal"');
   }
 
-  const out: Record<string, SkillSortMeta> = {};
+  const base: Record<string, SkillSortMeta> = {};
   for (const s of skills) {
-    out[s.skillId] = { category: classifySkill(s.rarity, abilityById.get(s.skillId)), group: groupById.get(s.skillId) ?? 0 };
+    base[s.skillId] = { category: classifySkill(s.rarity, abilityById.get(s.skillId)), group: groupById.get(s.skillId) ?? 0 };
   }
+  // P5: merge the hand-patch overrides LAST (data-overrides/skill_categories_overrides.json).
+  const ovPath = join(OVERRIDES_DIR, 'skill_categories_overrides.json');
+  const ov = existsSync(ovPath) ? readJson<SkillCategoriesOverrides>(ovPath) : {};
+  const out = applySkillCategoriesOverrides(base, ov);
   writeJsonDeterministic(join(PUBLIC_DATA_DIR, 'skill_categories.json'), out);
 
   const counts = CATEGORY_ORDER.map((c) => `${c}:${Object.values(out).filter((x) => x.category === c).length}`).join(' ');

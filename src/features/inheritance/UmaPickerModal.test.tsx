@@ -104,6 +104,40 @@ describe('UmaPickerModal', () => {
     expect(screen.getByRole('button', { name: 'Corner Recovery lineage 1' })).toBeInTheDocument();
   });
 
+  it('white clauses have NO single-legacy lock — two whites can hold own-stars simultaneously', () => {
+    // Own-white sparks are plural (whiteSparks[]), unlike the singular green —
+    // setting own on a second white must not zero/lock the first.
+    const whiteSkillOptions = [{ id: '200011', name: 'Corner Recovery' }, { id: '200021', name: 'Groundwork' }];
+    const names: Record<string, string> = { '200011': 'Corner Recovery', '200021': 'Groundwork' };
+    render(<UmaPickerModal {...base} open whiteSkillOptions={whiteSkillOptions} skillName={(id) => names[id] ?? id} />);
+    const box = screen.getByRole('combobox', { name: 'Search skill' });
+    fireEvent.change(box, { target: { value: 'corner' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Corner Recovery' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Corner Recovery own 1' }));
+    fireEvent.change(box, { target: { value: 'ground' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Groundwork' }));
+    // Second white's own-meter is NOT locked by the first's legacy...
+    const gwOwn = screen.getByRole('button', { name: 'Groundwork own 1' });
+    expect(gwOwn).not.toBeDisabled();
+    fireEvent.click(gwOwn);
+    // ...and both hold legacyMin ≥ 1 at once (old copy-paste lock zeroed the first).
+    expect(screen.getByRole('button', { name: 'Corner Recovery own 1' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Groundwork own 1' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('green KEEPS the single-legacy lock — own-stars on a second unique are disabled', () => {
+    const uniqueSkillOptions = [{ id: '100151', name: 'Vittoria' }, { id: '100201', name: 'Vitesse' }];
+    const names: Record<string, string> = { '100151': 'Vittoria', '100201': 'Vitesse' };
+    render(<UmaPickerModal {...base} open uniqueSkillOptions={uniqueSkillOptions} skillName={(id) => names[id] ?? id} />);
+    const box = screen.getByRole('combobox', { name: /search unique skill/i });
+    fireEvent.change(box, { target: { value: 'vittoria' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Vittoria' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Vittoria own 1' }));
+    fireEvent.change(box, { target: { value: 'vitesse' } });
+    fireEvent.click(screen.getByRole('option', { name: 'Vitesse' }));
+    expect(screen.getByRole('button', { name: 'Vitesse own 1' })).toBeDisabled();
+  });
+
   it('white search supports keyboard nav (↓ then Enter), independent of the green search', () => {
     const whiteSkillOptions = [{ id: '200011', name: 'Concentration' }, { id: '200021', name: 'Confidence' }];
     render(<UmaPickerModal {...base} open whiteSkillOptions={whiteSkillOptions} skillName={(id) => (id === '200021' ? 'Confidence' : 'Concentration')} />);

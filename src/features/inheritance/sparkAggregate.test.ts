@@ -39,4 +39,37 @@ describe('aggregate', () => {
     expect(a.blueTotals).toEqual({ pow: 3 });
     expect(a.whites.get('200361')).toEqual({ total: 2, legacy: 2 });
   });
+
+  describe('normalizeWhite (◎ → ○ family id)', () => {
+    // '200362' is the ◎ variant of '200361' (○); everything else is standalone.
+    const toCircle = (id: string) => (id === '200362' ? '200361' : id);
+
+    it('keys a ◎-variant recorded spark under the ○ family id', () => {
+      const vet: Parent = { ...veteran, whiteSparks: [{ skillId: '200362', stars: 2 }], grandparents: undefined };
+      const a = aggregate(vet, toCircle);
+      expect(a.whites.get('200362')).toBeUndefined();
+      expect(a.whites.get('200361')).toEqual({ total: 2, legacy: 2 });
+    });
+
+    it('sums stars when ○ and ◎ co-occur across the lineage', () => {
+      // veteran holds the ◎ (2★), gp1 holds the ○ (1★) → merged under ○: total 3, legacy 2.
+      const vet: Parent = { ...veteran, whiteSparks: [{ skillId: '200362', stars: 2 }] };
+      const a = aggregate(vet, toCircle);
+      expect(a.whites.get('200361')).toEqual({ total: 3, legacy: 2 });
+      expect(a.whites.get('200362')).toBeUndefined();
+      expect(a.whites.get('200999')).toEqual({ total: 1, legacy: 0 }); // untouched standalone
+    });
+
+    it('leaves greens un-normalised', () => {
+      const vet: Parent = { ...veteran, greenSpark: { skillId: '200362', stars: 1 }, grandparents: undefined };
+      const a = aggregate(vet, toCircle);
+      expect(a.greens.get('200362')).toEqual({ total: 1, legacy: 1 });
+    });
+
+    it('defaults to identity when no normaliser is passed', () => {
+      const vet: Parent = { ...veteran, whiteSparks: [{ skillId: '200362', stars: 2 }], grandparents: undefined };
+      const a = aggregate(vet);
+      expect(a.whites.get('200362')).toEqual({ total: 2, legacy: 2 });
+    });
+  });
 });

@@ -24,9 +24,16 @@ export function buildUniqueToInheritedMap(skills: SkillRecord[]): {
   const inheritedIds = new Set(
     skills.filter((s) => s.rarity === 'inherited_unique').map((s) => s.skillId),
   );
-  const nameByInheritedId = new Map(
-    skills.filter((s) => s.rarity === 'inherited_unique').map((s) => [s.skillId, s.nameEn]),
-  );
+  // Inverted once (not .find() per unique): `${server} ${nameEn}` → inherited-
+  // unique id. First-wins on duplicate names keeps the old insertion-order
+  // .find() semantics deterministic; the server key means the fallback only
+  // matches an inherited-unique on the SAME server as the unique (P4).
+  const inheritedIdByServerName = new Map<string, string>();
+  for (const s of skills) {
+    if (s.rarity !== 'inherited_unique') continue;
+    const key = `${s.server} ${s.nameEn}`;
+    if (!inheritedIdByServerName.has(key)) inheritedIdByServerName.set(key, s.skillId);
+  }
   const map = new Map<string, string>();
   const unresolved: string[] = [];
   for (const s of skills) {
@@ -36,9 +43,9 @@ export function buildUniqueToInheritedMap(skills: SkillRecord[]): {
       map.set(s.skillId, candidate);
       continue;
     }
-    // Fallback: name-match against an inherited-unique.
-    const byName = [...nameByInheritedId.entries()].find(([, n]) => n === s.nameEn);
-    if (byName) map.set(s.skillId, byName[0]);
+    // Fallback: name-match against a same-server inherited-unique.
+    const byName = inheritedIdByServerName.get(`${s.server} ${s.nameEn}`);
+    if (byName) map.set(s.skillId, byName);
     else unresolved.push(s.skillId);
   }
   return { map, unresolved };

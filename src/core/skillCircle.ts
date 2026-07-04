@@ -19,7 +19,9 @@ export function toSingleCircle(skillId: string, skillById: Map<string, SkillReco
   if (!rec || rec.rarity !== 'white' || !rec.nameEn.includes(DOUBLE)) return skillId;
   for (const vid of rec.variantSkillIds ?? []) {
     const v = skillById.get(vid);
-    if (v && v.rarity === 'white' && v.nameEn.includes(SINGLE)) return vid;
+    // Same-server only: gt-derived variantSkillIds can reference the other
+    // server's ids — never normalise onto a cross-server variant (P4).
+    if (v && v.server === rec.server && v.rarity === 'white' && v.nameEn.includes(SINGLE)) return vid;
   }
   return skillId;
 }
