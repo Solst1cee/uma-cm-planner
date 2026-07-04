@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+/* Lazy-route Suspense fallback. */
+.route-loading {
+  padding: 2rem 1rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
 body {
   margin: 0;
   background: linear-gradient(180deg, var(--bg-1) 0, var(--bg-0) 11rem);

@@ -2,17 +2,26 @@
  * App shell: header (name, module nav, settings), fixture-data banner,
  * routes, and the persistent P3 honesty footer.
  */
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { HorizonBanner, HorizonControl } from '@/app/HorizonControl';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
-import { CmPlannerPage } from '@/features/cm-planner/CmPlannerPage';
-import { InheritancePage } from '@/features/inheritance/InheritancePage';
-import { ParentsPage } from '@/features/parents/ParentsPage';
-import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
-import { TimelinePage } from '@/features/meta-intel/TimelinePage';
-import { StyleguidePage } from '@/features/styleguide/StyleguidePage';
+
+// Routes are lazy so each page splits into its own chunk. This keeps the
+// ~5.4 MB main-thread engine bundle OUT of the eager entry chunk: the sole
+// eager puller is SpOptimizerPage (rankBaskets runs evalSkillDelta/
+// runPlannerCompare on the main thread), so a static import of it dragged the
+// whole engine into `index`, downloaded on every route. Now it loads only when
+// /sp-optimizer is visited. (The planner/inheritance reach course + skill data
+// via their own lazy `import('@/sim/…')` calls, unaffected.)
+const CmPlannerPage = lazy(() => import('@/features/cm-planner/CmPlannerPage').then((m) => ({ default: m.CmPlannerPage })));
+const InheritancePage = lazy(() => import('@/features/inheritance/InheritancePage').then((m) => ({ default: m.InheritancePage })));
+const ParentsPage = lazy(() => import('@/features/parents/ParentsPage').then((m) => ({ default: m.ParentsPage })));
+const SpOptimizerPage = lazy(() => import('@/features/sp-optimizer/SpOptimizerPage').then((m) => ({ default: m.SpOptimizerPage })));
+const TimelinePage = lazy(() => import('@/features/meta-intel/TimelinePage').then((m) => ({ default: m.TimelinePage })));
+const StyleguidePage = lazy(() => import('@/features/styleguide/StyleguidePage').then((m) => ({ default: m.StyleguidePage })));
 
 // Module stubs (nav shows them disabled). Inheritance un-stubbed in M1.1.
 const STUB_MODULES: readonly string[] = [];
@@ -76,15 +85,17 @@ function Shell() {
       <FixtureBanner />
       <HorizonBanner />
       <main>
-        <Routes>
-          <Route path="/" element={<CmPlannerPage />} />
-          <Route path="/parents" element={<ParentsPage />} />
-          <Route path="/inheritance" element={<InheritancePage />} />
-          <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
-          <Route path="/meta-intel" element={<TimelinePage />} />
-          <Route path="/styleguide" element={<StyleguidePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="route-loading" role="status">Loading…</div>}>
+          <Routes>
+            <Route path="/" element={<CmPlannerPage />} />
+            <Route path="/parents" element={<ParentsPage />} />
+            <Route path="/inheritance" element={<InheritancePage />} />
+            <Route path="/sp-optimizer" element={<SpOptimizerPage />} />
+            <Route path="/meta-intel" element={<TimelinePage />} />
+            <Route path="/styleguide" element={<StyleguidePage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </main>
       <footer className="app-footer">
         Coverage tiers are reliability estimates from community-verified
