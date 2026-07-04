@@ -1,6878 +1,5159 @@
 {
   "10071": {
-    "category": "unique",
     "group": 1007
   },
   "10081": {
-    "category": "unique",
     "group": 1008
   },
   "10091": {
-    "category": "unique",
     "group": 1009
   },
   "10111": {
-    "category": "unique",
     "group": 1011
   },
   "10141": {
-    "category": "unique",
     "group": 1014
   },
   "10181": {
-    "category": "unique",
     "group": 1018
   },
   "10241": {
-    "category": "unique",
     "group": 1024
   },
   "10271": {
-    "category": "unique",
     "group": 1027
   },
   "10321": {
-    "category": "unique",
     "group": 1032
   },
   "10351": {
-    "category": "unique",
     "group": 1035
   },
   "10411": {
-    "category": "unique",
     "group": 1041
   },
   "10451": {
-    "category": "unique",
     "group": 1045
   },
   "10521": {
-    "category": "unique",
     "group": 1052
   },
   "10541": {
-    "category": "unique",
     "group": 0
   },
   "10561": {
-    "category": "unique",
     "group": 1056
   },
   "10601": {
-    "category": "unique",
     "group": 1060
   },
   "10611": {
-    "category": "unique",
     "group": 1061
   },
   "10621": {
-    "category": "unique",
     "group": 1062
   },
   "10631": {
-    "category": "unique",
     "group": 0
   },
   "10661": {
-    "category": "unique",
     "group": 0
   },
   "10731": {
-    "category": "unique",
     "group": 0
   },
   "11031": {
-    "category": "unique",
     "group": 0
   },
   "100011": {
-    "category": "unique",
     "group": 10001
   },
   "100021": {
-    "category": "unique",
     "group": 10002
   },
   "100031": {
-    "category": "unique",
     "group": 10003
   },
   "100041": {
-    "category": "unique",
     "group": 10004
   },
   "100051": {
-    "category": "unique",
     "group": 10005
   },
   "100061": {
-    "category": "unique",
     "group": 10006
   },
   "100071": {
-    "category": "unique",
     "group": 10007
   },
   "100081": {
-    "category": "unique",
     "group": 10008
   },
   "100091": {
-    "category": "unique",
     "group": 10009
   },
   "100101": {
-    "category": "unique",
     "group": 10010
   },
   "100111": {
-    "category": "unique",
     "group": 10011
   },
   "100121": {
-    "category": "unique",
     "group": 10012
   },
   "100131": {
-    "category": "unique",
     "group": 10013
   },
   "100141": {
-    "category": "unique",
     "group": 10014
   },
   "100151": {
-    "category": "unique",
     "group": 10015
   },
   "100161": {
-    "category": "unique",
     "group": 10016
   },
   "100171": {
-    "category": "unique",
     "group": 10017
   },
   "100181": {
-    "category": "unique",
     "group": 10018
   },
   "100191": {
-    "category": "unique",
     "group": 10019
   },
   "100201": {
-    "category": "unique",
     "group": 10020
   },
   "100211": {
-    "category": "unique",
     "group": 10021
   },
   "100221": {
-    "category": "unique",
     "group": 10022
   },
   "100231": {
-    "category": "unique",
     "group": 10023
   },
   "100241": {
-    "category": "unique",
     "group": 10024
   },
   "100251": {
-    "category": "unique",
     "group": 10025
   },
   "100261": {
-    "category": "unique",
     "group": 10026
   },
   "100271": {
-    "category": "unique",
     "group": 10027
   },
   "100281": {
-    "category": "unique",
     "group": 10028
   },
   "100291": {
-    "category": "unique",
     "group": 0
   },
   "100301": {
-    "category": "unique",
     "group": 10030
   },
   "100311": {
-    "category": "unique",
     "group": 10031
   },
   "100321": {
-    "category": "unique",
     "group": 10032
   },
   "100331": {
-    "category": "unique",
     "group": 10033
   },
   "100341": {
-    "category": "unique",
     "group": 10034
   },
   "100351": {
-    "category": "unique",
     "group": 10035
   },
   "100361": {
-    "category": "unique",
     "group": 0
   },
   "100371": {
-    "category": "unique",
     "group": 10037
   },
   "100381": {
-    "category": "unique",
     "group": 10038
   },
   "100391": {
-    "category": "unique",
     "group": 10039
   },
   "100401": {
-    "category": "unique",
     "group": 10040
   },
   "100411": {
-    "category": "unique",
     "group": 10041
   },
   "100421": {
-    "category": "unique",
     "group": 0
   },
   "100431": {
-    "category": "unique",
     "group": 0
   },
   "100441": {
-    "category": "unique",
     "group": 10044
   },
   "100451": {
-    "category": "unique",
     "group": 10045
   },
   "100461": {
-    "category": "unique",
     "group": 10046
   },
   "100471": {
-    "category": "unique",
     "group": 0
   },
   "100481": {
-    "category": "unique",
     "group": 10048
   },
   "100491": {
-    "category": "unique",
     "group": 0
   },
   "100501": {
-    "category": "unique",
     "group": 10050
   },
   "100511": {
-    "category": "unique",
     "group": 10051
   },
   "100521": {
-    "category": "unique",
     "group": 10052
   },
   "100531": {
-    "category": "unique",
     "group": 0
   },
   "100541": {
-    "category": "unique",
     "group": 0
   },
   "100551": {
-    "category": "unique",
     "group": 0
   },
   "100561": {
-    "category": "unique",
     "group": 10056
   },
   "100571": {
-    "category": "unique",
     "group": 0
   },
   "100581": {
-    "category": "unique",
     "group": 10058
   },
   "100591": {
-    "category": "unique",
     "group": 10059
   },
   "100601": {
-    "category": "unique",
     "group": 10060
   },
   "100611": {
-    "category": "unique",
     "group": 10061
   },
   "100621": {
-    "category": "unique",
     "group": 10062
   },
   "100631": {
-    "category": "unique",
     "group": 0
   },
   "100641": {
-    "category": "unique",
     "group": 10064
   },
   "100651": {
-    "category": "unique",
     "group": 0
   },
   "100661": {
-    "category": "unique",
     "group": 0
   },
   "100671": {
-    "category": "unique",
     "group": 10067
   },
   "100681": {
-    "category": "unique",
     "group": 10068
   },
   "100691": {
-    "category": "unique",
     "group": 10069
   },
   "100701": {
-    "category": "unique",
     "group": 0
   },
   "100711": {
-    "category": "unique",
     "group": 10071
   },
   "100721": {
-    "category": "unique",
     "group": 10072
   },
   "100731": {
-    "category": "unique",
     "group": 0
   },
   "100741": {
-    "category": "unique",
     "group": 10074
   },
   "100761": {
-    "category": "unique",
     "group": 0
   },
   "100771": {
-    "category": "unique",
     "group": 0
   },
   "100781": {
-    "category": "unique",
     "group": 0
   },
   "100791": {
-    "category": "unique",
     "group": 0
   },
   "100801": {
-    "category": "unique",
     "group": 0
   },
   "100811": {
-    "category": "unique",
     "group": 0
   },
   "100821": {
-    "category": "unique",
     "group": 0
   },
   "100831": {
-    "category": "unique",
     "group": 0
   },
   "100841": {
-    "category": "unique",
     "group": 0
   },
   "100851": {
-    "category": "unique",
     "group": 0
   },
   "100861": {
-    "category": "unique",
     "group": 0
   },
   "100871": {
-    "category": "unique",
     "group": 0
   },
   "100881": {
-    "category": "unique",
     "group": 0
   },
   "100891": {
-    "category": "unique",
     "group": 0
   },
   "100901": {
-    "category": "unique",
     "group": 0
   },
   "100911": {
-    "category": "unique",
     "group": 0
   },
   "100921": {
-    "category": "unique",
     "group": 0
   },
   "100931": {
-    "category": "unique",
     "group": 0
   },
   "100941": {
-    "category": "unique",
     "group": 0
   },
   "100951": {
-    "category": "unique",
     "group": 0
   },
   "100961": {
-    "category": "unique",
     "group": 0
   },
   "100971": {
-    "category": "unique",
     "group": 0
   },
   "100981": {
-    "category": "unique",
     "group": 0
   },
   "100991": {
-    "category": "unique",
     "group": 0
   },
   "101001": {
-    "category": "unique",
     "group": 0
   },
   "101021": {
-    "category": "unique",
     "group": 0
   },
   "101031": {
-    "category": "unique",
     "group": 0
   },
   "101041": {
-    "category": "unique",
     "group": 0
   },
   "101051": {
-    "category": "unique",
     "group": 0
   },
   "101061": {
-    "category": "unique",
     "group": 0
   },
   "101071": {
-    "category": "unique",
     "group": 0
   },
   "101081": {
-    "category": "unique",
     "group": 0
   },
   "101091": {
-    "category": "unique",
     "group": 0
   },
   "101101": {
-    "category": "unique",
     "group": 0
   },
   "101111": {
-    "category": "unique",
     "group": 0
   },
   "101121": {
-    "category": "unique",
     "group": 0
   },
   "101131": {
-    "category": "unique",
     "group": 0
   },
   "101141": {
-    "category": "unique",
     "group": 0
   },
   "101151": {
-    "category": "unique",
     "group": 0
   },
   "101161": {
-    "category": "unique",
     "group": 0
   },
   "101171": {
-    "category": "unique",
     "group": 0
   },
   "101181": {
-    "category": "unique",
     "group": 0
   },
   "101191": {
-    "category": "unique",
     "group": 0
   },
   "101201": {
-    "category": "unique",
     "group": 0
   },
   "101211": {
-    "category": "unique",
     "group": 0
   },
   "101241": {
-    "category": "unique",
     "group": 0
   },
   "101271": {
-    "category": "unique",
     "group": 0
   },
   "101291": {
-    "category": "unique",
     "group": 0
   },
   "101301": {
-    "category": "unique",
     "group": 0
   },
   "101311": {
-    "category": "unique",
     "group": 0
   },
   "101321": {
-    "category": "unique",
     "group": 0
   },
   "101331": {
-    "category": "unique",
     "group": 0
   },
   "101341": {
-    "category": "unique",
     "group": 0
   },
   "101351": {
-    "category": "unique",
     "group": 0
   },
   "101361": {
-    "category": "unique",
     "group": 0
   },
   "101371": {
-    "category": "unique",
     "group": 0
   },
   "101431": {
-    "category": "unique",
     "group": 0
   },
   "110011": {
-    "category": "unique",
     "group": 11001
   },
   "110021": {
-    "category": "unique",
     "group": 0
   },
   "110031": {
-    "category": "unique",
     "group": 11003
   },
   "110041": {
-    "category": "unique",
     "group": 11004
   },
   "110051": {
-    "category": "unique",
     "group": 11005
   },
   "110061": {
-    "category": "unique",
     "group": 11006
   },
   "110071": {
-    "category": "unique",
     "group": 0
   },
   "110081": {
-    "category": "unique",
     "group": 0
   },
   "110091": {
-    "category": "unique",
     "group": 0
   },
   "110101": {
-    "category": "unique",
     "group": 11010
   },
   "110111": {
-    "category": "unique",
     "group": 11011
   },
   "110121": {
-    "category": "unique",
     "group": 0
   },
   "110131": {
-    "category": "unique",
     "group": 11013
   },
   "110141": {
-    "category": "unique",
     "group": 11014
   },
   "110151": {
-    "category": "unique",
     "group": 11015
   },
   "110161": {
-    "category": "unique",
     "group": 0
   },
   "110171": {
-    "category": "unique",
     "group": 11017
   },
   "110181": {
-    "category": "unique",
     "group": 11018
   },
   "110191": {
-    "category": "unique",
     "group": 0
   },
   "110201": {
-    "category": "unique",
     "group": 11020
   },
   "110211": {
-    "category": "unique",
     "group": 0
   },
   "110221": {
-    "category": "unique",
     "group": 11022
   },
   "110231": {
-    "category": "unique",
     "group": 11023
   },
   "110241": {
-    "category": "unique",
     "group": 11024
   },
   "110251": {
-    "category": "unique",
     "group": 0
   },
   "110261": {
-    "category": "unique",
     "group": 11026
   },
   "110271": {
-    "category": "unique",
     "group": 0
   },
   "110281": {
-    "category": "unique",
     "group": 0
   },
   "110291": {
-    "category": "unique",
     "group": 0
   },
   "110301": {
-    "category": "unique",
     "group": 11030
   },
   "110311": {
-    "category": "unique",
     "group": 0
   },
   "110321": {
-    "category": "unique",
     "group": 0
   },
   "110331": {
-    "category": "unique",
     "group": 0
   },
   "110341": {
-    "category": "unique",
     "group": 0
   },
   "110351": {
-    "category": "unique",
     "group": 0
   },
   "110361": {
-    "category": "unique",
     "group": 0
   },
   "110371": {
-    "category": "unique",
     "group": 11037
   },
   "110381": {
-    "category": "unique",
     "group": 11038
   },
   "110391": {
-    "category": "unique",
     "group": 0
   },
   "110401": {
-    "category": "unique",
     "group": 11040
   },
   "110411": {
-    "category": "unique",
     "group": 0
   },
   "110421": {
-    "category": "unique",
     "group": 0
   },
   "110441": {
-    "category": "unique",
     "group": 0
   },
   "110451": {
-    "category": "unique",
     "group": 11045
   },
   "110461": {
-    "category": "unique",
     "group": 0
   },
   "110471": {
-    "category": "unique",
     "group": 0
   },
   "110481": {
-    "category": "unique",
     "group": 0
   },
   "110491": {
-    "category": "unique",
     "group": 0
   },
   "110501": {
-    "category": "unique",
     "group": 0
   },
   "110511": {
-    "category": "unique",
     "group": 0
   },
   "110521": {
-    "category": "unique",
     "group": 11052
   },
   "110531": {
-    "category": "unique",
     "group": 0
   },
   "110551": {
-    "category": "unique",
     "group": 0
   },
   "110561": {
-    "category": "unique",
     "group": 11056
   },
   "110571": {
-    "category": "unique",
     "group": 0
   },
   "110581": {
-    "category": "unique",
     "group": 0
   },
   "110591": {
-    "category": "unique",
     "group": 11059
   },
   "110601": {
-    "category": "unique",
     "group": 11060
   },
   "110611": {
-    "category": "unique",
     "group": 11061
   },
   "110621": {
-    "category": "unique",
     "group": 0
   },
   "110631": {
-    "category": "unique",
     "group": 0
   },
   "110641": {
-    "category": "unique",
     "group": 0
   },
   "110651": {
-    "category": "unique",
     "group": 0
   },
   "110671": {
-    "category": "unique",
     "group": 0
   },
   "110681": {
-    "category": "unique",
     "group": 0
   },
   "110691": {
-    "category": "unique",
     "group": 0
   },
   "110701": {
-    "category": "unique",
     "group": 0
   },
   "110711": {
-    "category": "unique",
     "group": 0
   },
   "110721": {
-    "category": "unique",
     "group": 0
   },
   "110741": {
-    "category": "unique",
     "group": 0
   },
   "110761": {
-    "category": "unique",
     "group": 0
   },
   "110771": {
-    "category": "unique",
     "group": 0
   },
   "110781": {
-    "category": "unique",
     "group": 0
   },
   "110801": {
-    "category": "unique",
     "group": 0
   },
   "110821": {
-    "category": "unique",
     "group": 0
   },
   "110831": {
-    "category": "unique",
     "group": 0
   },
   "110841": {
-    "category": "unique",
     "group": 0
   },
   "110851": {
-    "category": "unique",
     "group": 0
   },
   "110861": {
-    "category": "unique",
     "group": 0
   },
   "110871": {
-    "category": "unique",
     "group": 0
   },
   "110881": {
-    "category": "unique",
     "group": 0
   },
   "110891": {
-    "category": "unique",
     "group": 0
   },
   "110911": {
-    "category": "unique",
     "group": 0
   },
   "110931": {
-    "category": "unique",
     "group": 0
   },
   "110941": {
-    "category": "unique",
     "group": 0
   },
   "110981": {
-    "category": "unique",
     "group": 0
   },
   "110991": {
-    "category": "unique",
     "group": 0
   },
   "111001": {
-    "category": "unique",
     "group": 0
   },
   "111021": {
-    "category": "unique",
     "group": 0
   },
   "111041": {
-    "category": "unique",
     "group": 0
   },
   "111051": {
-    "category": "unique",
     "group": 0
   },
   "111061": {
-    "category": "unique",
     "group": 0
   },
   "111071": {
-    "category": "unique",
     "group": 0
   },
   "111091": {
-    "category": "unique",
     "group": 0
   },
   "111101": {
-    "category": "unique",
     "group": 0
   },
   "111161": {
-    "category": "unique",
     "group": 0
   },
   "111191": {
-    "category": "unique",
     "group": 0
   },
   "111241": {
-    "category": "unique",
     "group": 0
   },
   "111321": {
-    "category": "unique",
     "group": 0
   },
   "120011": {
-    "category": "unique",
     "group": 0
   },
   "120031": {
-    "category": "unique",
     "group": 0
   },
   "120041": {
-    "category": "unique",
     "group": 0
   },
   "120051": {
-    "category": "unique",
     "group": 0
   },
   "120061": {
-    "category": "unique",
     "group": 0
   },
   "120071": {
-    "category": "unique",
     "group": 0
   },
   "120101": {
-    "category": "unique",
     "group": 0
   },
   "120111": {
-    "category": "unique",
     "group": 0
   },
   "120131": {
-    "category": "unique",
     "group": 0
   },
   "120231": {
-    "category": "unique",
     "group": 0
   },
   "120241": {
-    "category": "unique",
     "group": 0
   },
   "120251": {
-    "category": "unique",
     "group": 0
   },
   "120301": {
-    "category": "unique",
     "group": 0
   },
   "120311": {
-    "category": "unique",
     "group": 0
   },
   "120321": {
-    "category": "unique",
     "group": 0
   },
   "120351": {
-    "category": "unique",
     "group": 0
   },
   "120371": {
-    "category": "unique",
     "group": 0
   },
   "120401": {
-    "category": "unique",
     "group": 0
   },
   "120411": {
-    "category": "unique",
     "group": 0
   },
   "120451": {
-    "category": "unique",
     "group": 0
   },
   "120461": {
-    "category": "unique",
     "group": 0
   },
   "120481": {
-    "category": "unique",
     "group": 0
   },
   "120501": {
-    "category": "unique",
     "group": 0
   },
   "120601": {
-    "category": "unique",
     "group": 0
   },
   "120611": {
-    "category": "unique",
     "group": 0
   },
   "120671": {
-    "category": "unique",
     "group": 0
   },
   "120681": {
-    "category": "unique",
     "group": 0
   },
   "200011": {
-    "category": "green",
     "group": 20001
   },
   "200012": {
-    "category": "green",
     "group": 20001
   },
   "200013": {
-    "category": "green",
     "group": 20001
   },
   "200014": {
-    "category": "green",
     "group": 20001
   },
   "200021": {
-    "category": "green",
     "group": 20002
   },
   "200022": {
-    "category": "green",
     "group": 20002
   },
   "200023": {
-    "category": "green",
     "group": 20002
   },
   "200031": {
-    "category": "green",
     "group": 20003
   },
   "200032": {
-    "category": "green",
     "group": 20003
   },
   "200033": {
-    "category": "green",
     "group": 20003
   },
   "200034": {
-    "category": "normal",
     "group": 0
   },
   "200041": {
-    "category": "green",
     "group": 20004
   },
   "200042": {
-    "category": "green",
     "group": 20004
   },
   "200043": {
-    "category": "green",
     "group": 20004
   },
   "200051": {
-    "category": "green",
     "group": 20005
   },
   "200052": {
-    "category": "green",
     "group": 20005
   },
   "200053": {
-    "category": "green",
     "group": 20005
   },
   "200061": {
-    "category": "green",
     "group": 20006
   },
   "200062": {
-    "category": "green",
     "group": 20006
   },
   "200063": {
-    "category": "green",
     "group": 20006
   },
   "200064": {
-    "category": "green",
     "group": 20006
   },
   "200071": {
-    "category": "green",
     "group": 20007
   },
   "200072": {
-    "category": "green",
     "group": 20007
   },
   "200073": {
-    "category": "green",
     "group": 20007
   },
   "200081": {
-    "category": "green",
     "group": 20008
   },
   "200082": {
-    "category": "green",
     "group": 20008
   },
   "200083": {
-    "category": "green",
     "group": 20008
   },
   "200091": {
-    "category": "green",
     "group": 20009
   },
   "200092": {
-    "category": "green",
     "group": 20009
   },
   "200093": {
-    "category": "green",
     "group": 20009
   },
   "200101": {
-    "category": "green",
     "group": 20010
   },
   "200102": {
-    "category": "green",
     "group": 20010
   },
   "200103": {
-    "category": "green",
     "group": 20010
   },
   "200111": {
-    "category": "green",
     "group": 20011
   },
   "200112": {
-    "category": "green",
     "group": 20011
   },
   "200113": {
-    "category": "green",
     "group": 20011
   },
   "200121": {
-    "category": "green",
     "group": 20012
   },
   "200122": {
-    "category": "green",
     "group": 20012
   },
   "200123": {
-    "category": "green",
     "group": 20012
   },
   "200131": {
-    "category": "green",
     "group": 20013
   },
   "200132": {
-    "category": "green",
     "group": 20013
   },
   "200133": {
-    "category": "green",
     "group": 20013
   },
   "200141": {
-    "category": "green",
     "group": 20014
   },
   "200142": {
-    "category": "green",
     "group": 20014
   },
   "200143": {
-    "category": "green",
     "group": 20014
   },
   "200151": {
-    "category": "green",
     "group": 20015
   },
   "200152": {
-    "category": "green",
     "group": 20015
   },
   "200153": {
-    "category": "green",
     "group": 20015
   },
   "200154": {
-    "category": "green",
     "group": 20015
   },
   "200161": {
-    "category": "green",
     "group": 20016
   },
   "200162": {
-    "category": "green",
     "group": 20016
   },
   "200163": {
-    "category": "green",
     "group": 20016
   },
   "200164": {
-    "category": "normal",
     "group": 0
   },
   "200171": {
-    "category": "green",
     "group": 20017
   },
   "200172": {
-    "category": "green",
     "group": 20017
   },
   "200173": {
-    "category": "green",
     "group": 20017
   },
   "200174": {
-    "category": "green",
     "group": 20017
   },
   "200181": {
-    "category": "green",
     "group": 20018
   },
   "200182": {
-    "category": "green",
     "group": 20018
   },
   "200183": {
-    "category": "green",
     "group": 20018
   },
   "200184": {
-    "category": "normal",
     "group": 0
   },
   "200191": {
-    "category": "green",
     "group": 20019
   },
   "200192": {
-    "category": "green",
     "group": 20019
   },
   "200193": {
-    "category": "green",
     "group": 20019
   },
   "200194": {
-    "category": "green",
     "group": 20019
   },
   "200201": {
-    "category": "green",
     "group": 20020
   },
   "200202": {
-    "category": "green",
     "group": 20020
   },
   "200203": {
-    "category": "green",
     "group": 20020
   },
   "200204": {
-    "category": "normal",
     "group": 0
   },
   "200211": {
-    "category": "green",
     "group": 20021
   },
   "200212": {
-    "category": "green",
     "group": 20021
   },
   "200221": {
-    "category": "green",
     "group": 20022
   },
   "200222": {
-    "category": "green",
     "group": 20022
   },
   "200231": {
-    "category": "green",
     "group": 20023
   },
   "200232": {
-    "category": "green",
     "group": 20023
   },
   "200233": {
-    "category": "green",
     "group": 20023
   },
   "200241": {
-    "category": "green",
     "group": 20024
   },
   "200242": {
-    "category": "green",
     "group": 20024
   },
   "200251": {
-    "category": "green",
     "group": 20025
   },
   "200252": {
-    "category": "green",
     "group": 20025
   },
   "200253": {
-    "category": "green",
     "group": 20025
   },
   "200261": {
-    "category": "green",
     "group": 20026
   },
   "200262": {
-    "category": "green",
     "group": 20026
   },
   "200263": {
-    "category": "green",
     "group": 20026
   },
   "200271": {
-    "category": "green",
     "group": 20027
   },
   "200272": {
-    "category": "green",
     "group": 20027
   },
   "200281": {
-    "category": "green",
     "group": 20028
   },
   "200282": {
-    "category": "green",
     "group": 20028
   },
   "200283": {
-    "category": "green",
     "group": 20028
   },
   "200291": {
-    "category": "green",
     "group": 20029
   },
   "200292": {
-    "category": "green",
     "group": 20029
   },
   "200301": {
-    "category": "green",
     "group": 20030
   },
   "200302": {
-    "category": "green",
     "group": 20030
   },
   "200311": {
-    "category": "green",
     "group": 20031
   },
   "200321": {
-    "category": "green",
     "group": 20032
   },
   "200331": {
-    "category": "normal",
     "group": 20033
   },
   "200332": {
-    "category": "normal",
     "group": 20033
   },
   "200333": {
-    "category": "normal",
     "group": 20033
   },
   "200341": {
-    "category": "normal",
     "group": 20034
   },
   "200342": {
-    "category": "normal",
     "group": 20034
   },
   "200343": {
-    "category": "normal",
     "group": 20034
   },
   "200351": {
-    "category": "recovery",
     "group": 20035
   },
   "200352": {
-    "category": "recovery",
     "group": 20035
   },
   "200353": {
-    "category": "debuff",
     "group": 20035
   },
   "200361": {
-    "category": "normal",
     "group": 20036
   },
   "200362": {
-    "category": "normal",
     "group": 20036
   },
   "200371": {
-    "category": "normal",
     "group": 20037
   },
   "200372": {
-    "category": "normal",
     "group": 20037
   },
   "200381": {
-    "category": "recovery",
     "group": 20038
   },
   "200382": {
-    "category": "recovery",
     "group": 20038
   },
   "200391": {
-    "category": "debuff",
     "group": 20039
   },
   "200401": {
-    "category": "debuff",
     "group": 20040
   },
   "200411": {
-    "category": "normal",
     "group": 20041
   },
   "200421": {
-    "category": "normal",
     "group": 20042
   },
   "200431": {
-    "category": "normal",
     "group": 20043
   },
   "200432": {
-    "category": "normal",
     "group": 20043
   },
   "200433": {
-    "category": "normal",
     "group": 20043
   },
   "200441": {
-    "category": "recovery",
     "group": 20044
   },
   "200442": {
-    "category": "recovery",
     "group": 20044
   },
   "200451": {
-    "category": "normal",
     "group": 20045
   },
   "200452": {
-    "category": "normal",
     "group": 20045
   },
   "200461": {
-    "category": "normal",
     "group": 20046
   },
   "200462": {
-    "category": "normal",
     "group": 20046
   },
   "200471": {
-    "category": "recovery",
     "group": 20047
   },
   "200472": {
-    "category": "recovery",
     "group": 20047
   },
   "200481": {
-    "category": "recovery",
     "group": 20048
   },
   "200482": {
-    "category": "recovery",
     "group": 20048
   },
   "200491": {
-    "category": "normal",
     "group": 20049
   },
   "200492": {
-    "category": "normal",
     "group": 20049
   },
   "200501": {
-    "category": "normal",
     "group": 20050
   },
   "200502": {
-    "category": "normal",
     "group": 20050
   },
   "200511": {
-    "category": "normal",
     "group": 20051
   },
   "200512": {
-    "category": "normal",
     "group": 20051
   },
   "200521": {
-    "category": "debuff",
     "group": 20052
   },
   "200531": {
-    "category": "normal",
     "group": 20053
   },
   "200532": {
-    "category": "normal",
     "group": 20053
   },
   "200541": {
-    "category": "normal",
     "group": 20054
   },
   "200542": {
-    "category": "normal",
     "group": 20054
   },
   "200551": {
-    "category": "normal",
     "group": 20055
   },
   "200552": {
-    "category": "normal",
     "group": 20055
   },
   "200561": {
-    "category": "recovery",
     "group": 20056
   },
   "200562": {
-    "category": "recovery",
     "group": 20056
   },
   "200571": {
-    "category": "recovery",
     "group": 20057
   },
   "200572": {
-    "category": "recovery",
     "group": 20057
   },
   "200581": {
-    "category": "normal",
     "group": 20058
   },
   "200582": {
-    "category": "normal",
     "group": 20058
   },
   "200591": {
-    "category": "normal",
     "group": 20059
   },
   "200592": {
-    "category": "normal",
     "group": 20059
   },
   "200601": {
-    "category": "normal",
     "group": 20060
   },
   "200602": {
-    "category": "normal",
     "group": 20060
   },
   "200611": {
-    "category": "normal",
     "group": 20061
   },
   "200612": {
-    "category": "normal",
     "group": 20061
   },
   "200621": {
-    "category": "recovery",
     "group": 20062
   },
   "200622": {
-    "category": "recovery",
     "group": 20062
   },
   "200631": {
-    "category": "normal",
     "group": 20063
   },
   "200632": {
-    "category": "normal",
     "group": 20063
   },
   "200641": {
-    "category": "normal",
     "group": 20064
   },
   "200642": {
-    "category": "normal",
     "group": 20064
   },
   "200651": {
-    "category": "normal",
     "group": 20065
   },
   "200652": {
-    "category": "normal",
     "group": 20065
   },
   "200662": {
-    "category": "recovery",
     "group": 20066
   },
   "200671": {
-    "category": "normal",
     "group": 20067
   },
   "200672": {
-    "category": "normal",
     "group": 20067
   },
   "200681": {
-    "category": "normal",
     "group": 20068
   },
   "200682": {
-    "category": "normal",
     "group": 20068
   },
   "200691": {
-    "category": "recovery",
     "group": 20069
   },
   "200692": {
-    "category": "recovery",
     "group": 20069
   },
   "200701": {
-    "category": "normal",
     "group": 20070
   },
   "200702": {
-    "category": "normal",
     "group": 20070
   },
   "200711": {
-    "category": "recovery",
     "group": 20071
   },
   "200712": {
-    "category": "recovery",
     "group": 20071
   },
   "200721": {
-    "category": "normal",
     "group": 20072
   },
   "200722": {
-    "category": "normal",
     "group": 20072
   },
   "200731": {
-    "category": "normal",
     "group": 20073
   },
   "200732": {
-    "category": "normal",
     "group": 20073
   },
   "200741": {
-    "category": "recovery",
     "group": 20074
   },
   "200742": {
-    "category": "recovery",
     "group": 20074
   },
   "200751": {
-    "category": "normal",
     "group": 20075
   },
   "200752": {
-    "category": "normal",
     "group": 20075
   },
   "200761": {
-    "category": "recovery",
     "group": 20076
   },
   "200762": {
-    "category": "recovery",
     "group": 20076
   },
   "200771": {
-    "category": "debuff",
     "group": 20077
   },
   "200772": {
-    "category": "debuff",
     "group": 20077
   },
   "200781": {
-    "category": "debuff",
     "group": 20078
   },
   "200791": {
-    "category": "debuff",
     "group": 20079
   },
   "200801": {
-    "category": "debuff",
     "group": 20080
   },
   "200811": {
-    "category": "debuff",
     "group": 20081
   },
   "200821": {
-    "category": "debuff",
     "group": 20082
   },
   "200831": {
-    "category": "debuff",
     "group": 20083
   },
   "200841": {
-    "category": "debuff",
     "group": 20084
   },
   "200851": {
-    "category": "debuff",
     "group": 20085
   },
   "200861": {
-    "category": "debuff",
     "group": 20086
   },
   "200871": {
-    "category": "debuff",
     "group": 20087
   },
   "200881": {
-    "category": "debuff",
     "group": 20088
   },
   "200891": {
-    "category": "debuff",
     "group": 20089
   },
   "200901": {
-    "category": "debuff",
     "group": 20090
   },
   "200911": {
-    "category": "debuff",
     "group": 20091
   },
   "200921": {
-    "category": "debuff",
     "group": 20092
   },
   "200931": {
-    "category": "debuff",
     "group": 20093
   },
   "200941": {
-    "category": "debuff",
     "group": 20094
   },
   "200951": {
-    "category": "green",
     "group": 20095
   },
   "200952": {
-    "category": "green",
     "group": 20095
   },
   "200953": {
-    "category": "green",
     "group": 20095
   },
   "200961": {
-    "category": "normal",
     "group": 20096
   },
   "200962": {
-    "category": "normal",
     "group": 20096
   },
   "200963": {
-    "category": "normal",
     "group": 0
   },
   "200971": {
-    "category": "normal",
     "group": 20097
   },
   "200972": {
-    "category": "normal",
     "group": 20097
   },
   "200973": {
-    "category": "normal",
     "group": 0
   },
   "200981": {
-    "category": "normal",
     "group": 20098
   },
   "200982": {
-    "category": "normal",
     "group": 20098
   },
   "200991": {
-    "category": "normal",
     "group": 20099
   },
   "200992": {
-    "category": "normal",
     "group": 20099
   },
   "201001": {
-    "category": "normal",
     "group": 20100
   },
   "201002": {
-    "category": "normal",
     "group": 20100
   },
   "201011": {
-    "category": "debuff",
     "group": 20101
   },
   "201012": {
-    "category": "debuff",
     "group": 20101
   },
   "201021": {
-    "category": "debuff",
     "group": 20102
   },
   "201022": {
-    "category": "debuff",
     "group": 20102
   },
   "201031": {
-    "category": "normal",
     "group": 20103
   },
   "201032": {
-    "category": "normal",
     "group": 20103
   },
   "201033": {
-    "category": "normal",
     "group": 0
   },
   "201041": {
-    "category": "normal",
     "group": 20104
   },
   "201042": {
-    "category": "normal",
     "group": 20104
   },
   "201043": {
-    "category": "normal",
     "group": 0
   },
   "201051": {
-    "category": "normal",
     "group": 20105
   },
   "201052": {
-    "category": "normal",
     "group": 20105
   },
   "201061": {
-    "category": "normal",
     "group": 20106
   },
   "201062": {
-    "category": "normal",
     "group": 20106
   },
   "201071": {
-    "category": "normal",
     "group": 20107
   },
   "201072": {
-    "category": "normal",
     "group": 20107
   },
   "201081": {
-    "category": "debuff",
     "group": 20108
   },
   "201082": {
-    "category": "debuff",
     "group": 20108
   },
   "201091": {
-    "category": "debuff",
     "group": 20109
   },
   "201092": {
-    "category": "debuff",
     "group": 20109
   },
   "201101": {
-    "category": "normal",
     "group": 20110
   },
   "201102": {
-    "category": "normal",
     "group": 20110
   },
   "201103": {
-    "category": "normal",
     "group": 20110
   },
   "201111": {
-    "category": "normal",
     "group": 20111
   },
   "201112": {
-    "category": "normal",
     "group": 20111
   },
   "201113": {
-    "category": "normal",
     "group": 0
   },
   "201121": {
-    "category": "normal",
     "group": 20112
   },
   "201122": {
-    "category": "normal",
     "group": 20112
   },
   "201131": {
-    "category": "normal",
     "group": 20113
   },
   "201132": {
-    "category": "normal",
     "group": 20113
   },
   "201141": {
-    "category": "recovery",
     "group": 20114
   },
   "201142": {
-    "category": "recovery",
     "group": 20114
   },
   "201151": {
-    "category": "debuff",
     "group": 20115
   },
   "201152": {
-    "category": "debuff",
     "group": 20115
   },
   "201161": {
-    "category": "debuff",
     "group": 20116
   },
   "201162": {
-    "category": "debuff",
     "group": 20116
   },
   "201171": {
-    "category": "normal",
     "group": 20117
   },
   "201172": {
-    "category": "normal",
     "group": 20117
   },
   "201173": {
-    "category": "normal",
     "group": 20117
   },
   "201181": {
-    "category": "normal",
     "group": 20118
   },
   "201182": {
-    "category": "normal",
     "group": 20118
   },
   "201183": {
-    "category": "normal",
     "group": 0
   },
   "201191": {
-    "category": "normal",
     "group": 20119
   },
   "201192": {
-    "category": "normal",
     "group": 20119
   },
   "201201": {
-    "category": "recovery",
     "group": 20120
   },
   "201202": {
-    "category": "recovery",
     "group": 20120
   },
   "201211": {
-    "category": "normal",
     "group": 20121
   },
   "201212": {
-    "category": "normal",
     "group": 20121
   },
   "201221": {
-    "category": "debuff",
     "group": 20122
   },
   "201222": {
-    "category": "debuff",
     "group": 20122
   },
   "201231": {
-    "category": "debuff",
     "group": 20123
   },
   "201232": {
-    "category": "debuff",
     "group": 20123
   },
   "201241": {
-    "category": "normal",
     "group": 20124
   },
   "201242": {
-    "category": "normal",
     "group": 20124
   },
   "201243": {
-    "category": "normal",
     "group": 0
   },
   "201251": {
-    "category": "normal",
     "group": 20125
   },
   "201252": {
-    "category": "normal",
     "group": 20125
   },
   "201253": {
-    "category": "normal",
     "group": 0
   },
   "201261": {
-    "category": "normal",
     "group": 20126
   },
   "201262": {
-    "category": "normal",
     "group": 20126
   },
   "201271": {
-    "category": "normal",
     "group": 20127
   },
   "201272": {
-    "category": "normal",
     "group": 20127
   },
   "201281": {
-    "category": "recovery",
     "group": 20128
   },
   "201282": {
-    "category": "recovery",
     "group": 20128
   },
   "201291": {
-    "category": "normal",
     "group": 20129
   },
   "201292": {
-    "category": "normal",
     "group": 20129
   },
   "201302": {
-    "category": "debuff",
     "group": 20130
   },
   "201311": {
-    "category": "normal",
     "group": 20131
   },
   "201312": {
-    "category": "normal",
     "group": 20131
   },
   "201313": {
-    "category": "normal",
     "group": 0
   },
   "201321": {
-    "category": "normal",
     "group": 20132
   },
   "201322": {
-    "category": "normal",
     "group": 20132
   },
   "201323": {
-    "category": "normal",
     "group": 0
   },
   "201331": {
-    "category": "normal",
     "group": 20133
   },
   "201332": {
-    "category": "normal",
     "group": 20133
   },
   "201341": {
-    "category": "normal",
     "group": 20134
   },
   "201342": {
-    "category": "normal",
     "group": 20134
   },
   "201351": {
-    "category": "recovery",
     "group": 20135
   },
   "201352": {
-    "category": "recovery",
     "group": 20135
   },
   "201361": {
-    "category": "normal",
     "group": 20136
   },
   "201362": {
-    "category": "normal",
     "group": 20136
   },
   "201371": {
-    "category": "debuff",
     "group": 20137
   },
   "201372": {
-    "category": "debuff",
     "group": 20137
   },
   "201381": {
-    "category": "normal",
     "group": 20138
   },
   "201382": {
-    "category": "normal",
     "group": 20138
   },
   "201383": {
-    "category": "normal",
     "group": 0
   },
   "201391": {
-    "category": "normal",
     "group": 20139
   },
   "201392": {
-    "category": "normal",
     "group": 20139
   },
   "201393": {
-    "category": "normal",
     "group": 0
   },
   "201401": {
-    "category": "normal",
     "group": 20140
   },
   "201402": {
-    "category": "normal",
     "group": 20140
   },
   "201411": {
-    "category": "normal",
     "group": 20141
   },
   "201412": {
-    "category": "normal",
     "group": 20141
   },
   "201421": {
-    "category": "recovery",
     "group": 20142
   },
   "201422": {
-    "category": "recovery",
     "group": 20142
   },
   "201431": {
-    "category": "normal",
     "group": 20143
   },
   "201432": {
-    "category": "normal",
     "group": 20143
   },
   "201441": {
-    "category": "debuff",
     "group": 20144
   },
   "201442": {
-    "category": "debuff",
     "group": 20144
   },
   "201451": {
-    "category": "normal",
     "group": 20145
   },
   "201452": {
-    "category": "normal",
     "group": 20145
   },
   "201453": {
-    "category": "normal",
     "group": 0
   },
   "201461": {
-    "category": "normal",
     "group": 20146
   },
   "201462": {
-    "category": "normal",
     "group": 20146
   },
   "201463": {
-    "category": "normal",
     "group": 0
   },
   "201471": {
-    "category": "normal",
     "group": 20147
   },
   "201472": {
-    "category": "normal",
     "group": 20147
   },
   "201481": {
-    "category": "recovery",
     "group": 20148
   },
   "201482": {
-    "category": "recovery",
     "group": 20148
   },
   "201491": {
-    "category": "recovery",
     "group": 20149
   },
   "201492": {
-    "category": "recovery",
     "group": 20149
   },
   "201501": {
-    "category": "normal",
     "group": 20150
   },
   "201502": {
-    "category": "normal",
     "group": 20150
   },
   "201511": {
-    "category": "debuff",
     "group": 20151
   },
   "201512": {
-    "category": "debuff",
     "group": 20151
   },
   "201521": {
-    "category": "green",
     "group": 20152
   },
   "201522": {
-    "category": "green",
     "group": 20152
   },
   "201531": {
-    "category": "green",
     "group": 20153
   },
   "201532": {
-    "category": "green",
     "group": 20153
   },
   "201541": {
-    "category": "green",
     "group": 20154
   },
   "201542": {
-    "category": "green",
     "group": 20154
   },
   "201551": {
-    "category": "green",
     "group": 20155
   },
   "201552": {
-    "category": "green",
     "group": 20155
   },
   "201561": {
-    "category": "green",
     "group": 20156
   },
   "201562": {
-    "category": "green",
     "group": 20156
   },
   "201571": {
-    "category": "recovery",
     "group": 20157
   },
   "201581": {
-    "category": "normal",
     "group": 20158
   },
   "201582": {
-    "category": "normal",
     "group": 0
   },
   "201591": {
-    "category": "normal",
     "group": 20159
   },
   "201592": {
-    "category": "normal",
     "group": 20159
   },
   "201601": {
-    "category": "normal",
     "group": 20160
   },
   "201602": {
-    "category": "normal",
     "group": 0
   },
   "201611": {
-    "category": "normal",
     "group": 20161
   },
   "201612": {
-    "category": "normal",
     "group": 20161
   },
   "201621": {
-    "category": "recovery",
     "group": 20162
   },
   "201631": {
-    "category": "green",
     "group": 20163
   },
   "201632": {
-    "category": "normal",
     "group": 0
   },
   "201641": {
-    "category": "green",
     "group": 20164
   },
   "201651": {
-    "category": "normal",
     "group": 20165
   },
   "201652": {
-    "category": "normal",
     "group": 0
   },
   "201661": {
-    "category": "normal",
     "group": 20166
   },
   "201662": {
-    "category": "normal",
     "group": 20166
   },
   "201671": {
-    "category": "normal",
     "group": 20167
   },
   "201672": {
-    "category": "normal",
     "group": 20167
   },
   "201681": {
-    "category": "normal",
     "group": 20168
   },
   "201682": {
-    "category": "normal",
     "group": 20168
   },
   "201691": {
-    "category": "recovery",
     "group": 20169
   },
   "201692": {
-    "category": "recovery",
     "group": 20169
   },
   "201701": {
-    "category": "normal",
     "group": 20170
   },
   "201702": {
-    "category": "normal",
     "group": 20170
   },
   "201801": {
-    "category": "green",
     "group": 20180
   },
   "201901": {
-    "category": "normal",
     "group": 20190
   },
   "201902": {
-    "category": "normal",
     "group": 20190
   },
   "202001": {
-    "category": "recovery",
     "group": 20200
   },
   "202002": {
-    "category": "recovery",
     "group": 20200
   },
   "202011": {
-    "category": "normal",
     "group": 20201
   },
   "202012": {
-    "category": "normal",
     "group": 20201
   },
   "202021": {
-    "category": "normal",
     "group": 20202
   },
   "202022": {
-    "category": "normal",
     "group": 20202
   },
   "202031": {
-    "category": "normal",
     "group": 20203
   },
   "202032": {
-    "category": "normal",
     "group": 20203
   },
   "202041": {
-    "category": "normal",
     "group": 20204
   },
   "202042": {
-    "category": "normal",
     "group": 20204
   },
   "202051": {
-    "category": "green",
     "group": 20205
   },
   "202061": {
-    "category": "normal",
     "group": 20206
   },
   "202071": {
-    "category": "recovery",
     "group": 20207
   },
   "202072": {
-    "category": "recovery",
     "group": 20207
   },
   "202081": {
-    "category": "normal",
     "group": 20208
   },
   "202082": {
-    "category": "normal",
     "group": 20208
   },
   "202091": {
-    "category": "normal",
     "group": 20209
   },
   "202092": {
-    "category": "normal",
     "group": 20209
   },
   "202101": {
-    "category": "normal",
     "group": 20210
   },
   "202102": {
-    "category": "normal",
     "group": 20210
   },
   "202111": {
-    "category": "normal",
     "group": 20211
   },
   "202112": {
-    "category": "normal",
     "group": 20211
   },
   "202121": {
-    "category": "normal",
     "group": 20212
   },
   "202122": {
-    "category": "normal",
     "group": 20212
   },
   "202131": {
-    "category": "normal",
     "group": 20213
   },
   "202132": {
-    "category": "normal",
     "group": 20213
   },
   "202141": {
-    "category": "green",
     "group": 20214
   },
   "202151": {
-    "category": "normal",
     "group": 20215
   },
   "202152": {
-    "category": "normal",
     "group": 20215
   },
   "202161": {
-    "category": "green",
     "group": 20216
   },
   "202171": {
-    "category": "normal",
     "group": 0
   },
   "202172": {
-    "category": "normal",
     "group": 20217
   },
   "202181": {
-    "category": "normal",
     "group": 0
   },
   "202191": {
-    "category": "normal",
     "group": 0
   },
   "202192": {
-    "category": "normal",
     "group": 0
   },
   "202202": {
-    "category": "normal",
     "group": 0
   },
   "202212": {
-    "category": "normal",
     "group": 0
   },
   "202222": {
-    "category": "normal",
     "group": 0
   },
   "202232": {
-    "category": "normal",
     "group": 0
   },
   "202242": {
-    "category": "normal",
     "group": 0
   },
   "202252": {
-    "category": "normal",
     "group": 0
   },
   "202254": {
-    "category": "normal",
     "group": 0
   },
   "202261": {
-    "category": "normal",
     "group": 0
   },
   "202262": {
-    "category": "normal",
     "group": 0
   },
   "202271": {
-    "category": "normal",
     "group": 0
   },
   "202272": {
-    "category": "normal",
     "group": 0
   },
   "202281": {
-    "category": "normal",
     "group": 0
   },
   "202282": {
-    "category": "normal",
     "group": 0
   },
   "202301": {
-    "category": "normal",
     "group": 0
   },
   "202302": {
-    "category": "normal",
     "group": 0
   },
   "202311": {
-    "category": "normal",
     "group": 0
   },
   "202312": {
-    "category": "normal",
     "group": 0
   },
   "202322": {
-    "category": "normal",
     "group": 0
   },
   "202331": {
-    "category": "normal",
     "group": 0
   },
   "202332": {
-    "category": "normal",
     "group": 0
   },
   "202341": {
-    "category": "normal",
     "group": 0
   },
   "202343": {
-    "category": "normal",
     "group": 0
   },
   "202352": {
-    "category": "normal",
     "group": 0
   },
   "202362": {
-    "category": "normal",
     "group": 0
   },
   "202371": {
-    "category": "normal",
     "group": 0
   },
   "202372": {
-    "category": "normal",
     "group": 0
   },
   "202381": {
-    "category": "normal",
     "group": 0
   },
   "202382": {
-    "category": "normal",
     "group": 0
   },
   "202391": {
-    "category": "normal",
     "group": 0
   },
   "202392": {
-    "category": "normal",
     "group": 0
   },
   "202401": {
-    "category": "normal",
     "group": 0
   },
   "202402": {
-    "category": "normal",
     "group": 0
   },
   "202411": {
-    "category": "normal",
     "group": 0
   },
   "202412": {
-    "category": "normal",
     "group": 0
   },
   "202421": {
-    "category": "normal",
     "group": 0
   },
   "202422": {
-    "category": "normal",
     "group": 0
   },
   "202431": {
-    "category": "normal",
     "group": 0
   },
   "202432": {
-    "category": "normal",
     "group": 0
   },
   "202441": {
-    "category": "normal",
     "group": 0
   },
   "202442": {
-    "category": "normal",
     "group": 0
   },
   "202451": {
-    "category": "normal",
     "group": 0
   },
   "202452": {
-    "category": "normal",
     "group": 0
   },
   "202461": {
-    "category": "normal",
     "group": 0
   },
   "202462": {
-    "category": "normal",
     "group": 0
   },
   "202471": {
-    "category": "normal",
     "group": 0
   },
   "202472": {
-    "category": "normal",
     "group": 0
   },
   "202481": {
-    "category": "normal",
     "group": 0
   },
   "202482": {
-    "category": "normal",
     "group": 0
   },
   "202491": {
-    "category": "normal",
     "group": 0
   },
   "202492": {
-    "category": "normal",
     "group": 0
   },
   "202501": {
-    "category": "normal",
     "group": 0
   },
   "202502": {
-    "category": "normal",
     "group": 0
   },
   "202511": {
-    "category": "normal",
     "group": 0
   },
   "202521": {
-    "category": "normal",
     "group": 0
   },
   "202522": {
-    "category": "normal",
     "group": 0
   },
   "202531": {
-    "category": "normal",
     "group": 0
   },
   "202532": {
-    "category": "normal",
     "group": 0
   },
   "202541": {
-    "category": "normal",
     "group": 0
   },
   "202542": {
-    "category": "normal",
     "group": 0
   },
   "202551": {
-    "category": "normal",
     "group": 0
   },
   "202552": {
-    "category": "normal",
     "group": 0
   },
   "202561": {
-    "category": "normal",
     "group": 0
   },
   "202562": {
-    "category": "normal",
     "group": 0
   },
   "202581": {
-    "category": "normal",
     "group": 0
   },
   "202582": {
-    "category": "normal",
     "group": 0
   },
   "202591": {
-    "category": "normal",
     "group": 0
   },
   "202592": {
-    "category": "normal",
     "group": 0
   },
   "202601": {
-    "category": "normal",
     "group": 0
   },
   "202602": {
-    "category": "normal",
     "group": 0
   },
   "202611": {
-    "category": "normal",
     "group": 0
   },
   "202612": {
-    "category": "normal",
     "group": 0
   },
   "202621": {
-    "category": "normal",
     "group": 0
   },
   "202622": {
-    "category": "normal",
     "group": 0
   },
   "202641": {
-    "category": "normal",
     "group": 0
   },
   "202642": {
-    "category": "normal",
     "group": 0
   },
   "202651": {
-    "category": "normal",
     "group": 0
   },
   "202652": {
-    "category": "normal",
     "group": 0
   },
   "202661": {
-    "category": "normal",
     "group": 0
   },
   "202662": {
-    "category": "normal",
     "group": 0
   },
   "202671": {
-    "category": "normal",
     "group": 0
   },
   "202672": {
-    "category": "normal",
     "group": 0
   },
   "202681": {
-    "category": "normal",
     "group": 0
   },
   "202682": {
-    "category": "normal",
     "group": 0
   },
   "202691": {
-    "category": "normal",
     "group": 0
   },
   "202692": {
-    "category": "normal",
     "group": 0
   },
   "202701": {
-    "category": "normal",
     "group": 0
   },
   "202702": {
-    "category": "normal",
     "group": 0
   },
   "202711": {
-    "category": "normal",
     "group": 0
   },
   "202712": {
-    "category": "normal",
     "group": 0
   },
   "202721": {
-    "category": "normal",
     "group": 0
   },
   "202722": {
-    "category": "normal",
     "group": 0
   },
   "202732": {
-    "category": "normal",
     "group": 0
   },
   "202741": {
-    "category": "normal",
     "group": 0
   },
   "202742": {
-    "category": "normal",
     "group": 0
   },
   "202751": {
-    "category": "normal",
     "group": 0
   },
   "202752": {
-    "category": "normal",
     "group": 0
   },
   "202761": {
-    "category": "normal",
     "group": 0
   },
   "202762": {
-    "category": "normal",
     "group": 0
   },
   "202771": {
-    "category": "normal",
     "group": 0
   },
   "202772": {
-    "category": "normal",
     "group": 0
   },
   "202792": {
-    "category": "normal",
     "group": 0
   },
   "202801": {
-    "category": "normal",
     "group": 0
   },
   "202802": {
-    "category": "normal",
     "group": 0
   },
   "202811": {
-    "category": "normal",
     "group": 0
   },
   "202812": {
-    "category": "normal",
     "group": 0
   },
   "202821": {
-    "category": "normal",
     "group": 0
   },
   "202822": {
-    "category": "normal",
     "group": 0
   },
   "202831": {
-    "category": "normal",
     "group": 0
   },
   "202832": {
-    "category": "normal",
     "group": 0
   },
   "202841": {
-    "category": "normal",
     "group": 0
   },
   "202842": {
-    "category": "normal",
     "group": 0
   },
   "202851": {
-    "category": "normal",
     "group": 0
   },
   "202852": {
-    "category": "normal",
     "group": 0
   },
   "202861": {
-    "category": "normal",
     "group": 0
   },
   "202862": {
-    "category": "normal",
     "group": 0
   },
   "202871": {
-    "category": "normal",
     "group": 0
   },
   "202872": {
-    "category": "normal",
     "group": 0
   },
   "202881": {
-    "category": "normal",
     "group": 0
   },
   "202882": {
-    "category": "normal",
     "group": 0
   },
   "202891": {
-    "category": "normal",
     "group": 0
   },
   "202892": {
-    "category": "normal",
     "group": 0
   },
   "202901": {
-    "category": "normal",
     "group": 0
   },
   "202902": {
-    "category": "normal",
     "group": 0
   },
   "202912": {
-    "category": "normal",
     "group": 0
   },
   "202921": {
-    "category": "normal",
     "group": 0
   },
   "202922": {
-    "category": "normal",
     "group": 0
   },
   "202931": {
-    "category": "normal",
     "group": 0
   },
   "202932": {
-    "category": "normal",
     "group": 0
   },
   "202942": {
-    "category": "normal",
     "group": 0
   },
   "202951": {
-    "category": "normal",
     "group": 0
   },
   "202952": {
-    "category": "normal",
     "group": 0
   },
   "202961": {
-    "category": "normal",
     "group": 0
   },
   "202962": {
-    "category": "normal",
     "group": 0
   },
   "202971": {
-    "category": "normal",
     "group": 0
   },
   "202972": {
-    "category": "normal",
     "group": 0
   },
   "202981": {
-    "category": "normal",
     "group": 0
   },
   "202982": {
-    "category": "normal",
     "group": 0
   },
   "202992": {
-    "category": "normal",
     "group": 0
   },
   "203001": {
-    "category": "normal",
     "group": 0
   },
   "203002": {
-    "category": "normal",
     "group": 0
   },
   "203012": {
-    "category": "normal",
     "group": 0
   },
   "203022": {
-    "category": "normal",
     "group": 0
   },
   "203031": {
-    "category": "normal",
     "group": 0
   },
   "203032": {
-    "category": "normal",
     "group": 0
   },
   "203041": {
-    "category": "normal",
     "group": 0
   },
   "203042": {
-    "category": "normal",
     "group": 0
   },
   "203051": {
-    "category": "normal",
     "group": 0
   },
   "203052": {
-    "category": "normal",
     "group": 0
   },
   "203061": {
-    "category": "normal",
     "group": 0
   },
   "203071": {
-    "category": "normal",
     "group": 0
   },
   "203081": {
-    "category": "normal",
     "group": 0
   },
   "203082": {
-    "category": "normal",
     "group": 0
   },
   "203091": {
-    "category": "normal",
     "group": 0
   },
   "203093": {
-    "category": "normal",
     "group": 0
   },
   "203103": {
-    "category": "normal",
     "group": 0
   },
   "203111": {
-    "category": "normal",
     "group": 0
   },
   "203112": {
-    "category": "normal",
     "group": 0
   },
   "203121": {
-    "category": "normal",
     "group": 0
   },
   "203122": {
-    "category": "normal",
     "group": 0
   },
   "203131": {
-    "category": "normal",
     "group": 0
   },
   "203132": {
-    "category": "normal",
     "group": 0
   },
   "203141": {
-    "category": "normal",
     "group": 0
   },
   "203142": {
-    "category": "normal",
     "group": 0
   },
   "203151": {
-    "category": "normal",
     "group": 0
   },
   "203152": {
-    "category": "normal",
     "group": 0
   },
   "203161": {
-    "category": "normal",
     "group": 0
   },
   "203162": {
-    "category": "normal",
     "group": 0
   },
   "203171": {
-    "category": "normal",
     "group": 0
   },
   "203172": {
-    "category": "normal",
     "group": 0
   },
   "203181": {
-    "category": "normal",
     "group": 0
   },
   "203182": {
-    "category": "normal",
     "group": 0
   },
   "203201": {
-    "category": "normal",
     "group": 0
   },
   "203202": {
-    "category": "normal",
     "group": 0
   },
   "203212": {
-    "category": "normal",
     "group": 0
   },
   "203221": {
-    "category": "normal",
     "group": 0
   },
   "203222": {
-    "category": "normal",
     "group": 0
   },
   "203231": {
-    "category": "normal",
     "group": 0
   },
   "203232": {
-    "category": "normal",
     "group": 0
   },
   "203241": {
-    "category": "normal",
     "group": 0
   },
   "203242": {
-    "category": "normal",
     "group": 0
   },
   "203251": {
-    "category": "normal",
     "group": 0
   },
   "203252": {
-    "category": "normal",
     "group": 0
   },
   "203262": {
-    "category": "normal",
     "group": 0
   },
   "203272": {
-    "category": "normal",
     "group": 0
   },
   "203301": {
-    "category": "normal",
     "group": 0
   },
   "203302": {
-    "category": "normal",
     "group": 0
   },
   "203312": {
-    "category": "normal",
     "group": 0
   },
   "203321": {
-    "category": "normal",
     "group": 0
   },
   "203322": {
-    "category": "normal",
     "group": 0
   },
   "203331": {
-    "category": "normal",
     "group": 0
   },
   "203332": {
-    "category": "normal",
     "group": 0
   },
   "203341": {
-    "category": "normal",
     "group": 0
   },
   "203342": {
-    "category": "normal",
     "group": 0
   },
   "203351": {
-    "category": "normal",
     "group": 0
   },
   "203352": {
-    "category": "normal",
     "group": 0
   },
   "203361": {
-    "category": "normal",
     "group": 0
   },
   "203362": {
-    "category": "normal",
     "group": 0
   },
   "203371": {
-    "category": "normal",
     "group": 0
   },
   "203372": {
-    "category": "normal",
     "group": 0
   },
   "203381": {
-    "category": "normal",
     "group": 0
   },
   "203382": {
-    "category": "normal",
     "group": 0
   },
   "203391": {
-    "category": "normal",
     "group": 0
   },
   "203392": {
-    "category": "normal",
     "group": 0
   },
   "203401": {
-    "category": "normal",
     "group": 0
   },
   "203402": {
-    "category": "normal",
     "group": 0
   },
   "203411": {
-    "category": "normal",
     "group": 0
   },
   "203412": {
-    "category": "normal",
     "group": 0
   },
   "203421": {
-    "category": "normal",
     "group": 0
   },
   "203422": {
-    "category": "normal",
     "group": 0
   },
   "203431": {
-    "category": "normal",
     "group": 0
   },
   "203432": {
-    "category": "normal",
     "group": 0
   },
   "203441": {
-    "category": "normal",
     "group": 0
   },
   "203442": {
-    "category": "normal",
     "group": 0
   },
   "203452": {
-    "category": "normal",
     "group": 0
   },
   "203461": {
-    "category": "normal",
     "group": 0
   },
   "203462": {
-    "category": "normal",
     "group": 0
   },
   "203471": {
-    "category": "normal",
     "group": 0
   },
   "203472": {
-    "category": "normal",
     "group": 0
   },
   "203481": {
-    "category": "normal",
     "group": 0
   },
   "203482": {
-    "category": "normal",
     "group": 0
   },
   "203491": {
-    "category": "normal",
     "group": 0
   },
   "203492": {
-    "category": "normal",
     "group": 0
   },
   "203501": {
-    "category": "normal",
     "group": 0
   },
   "203502": {
-    "category": "normal",
     "group": 0
   },
   "203511": {
-    "category": "normal",
     "group": 0
   },
   "203512": {
-    "category": "normal",
     "group": 0
   },
   "203522": {
-    "category": "normal",
     "group": 0
   },
   "203532": {
-    "category": "normal",
     "group": 0
   },
   "203541": {
-    "category": "normal",
     "group": 0
   },
   "203542": {
-    "category": "normal",
     "group": 0
   },
   "203552": {
-    "category": "normal",
     "group": 0
   },
   "203561": {
-    "category": "normal",
     "group": 0
   },
   "203562": {
-    "category": "normal",
     "group": 0
   },
   "203571": {
-    "category": "normal",
     "group": 0
   },
   "203572": {
-    "category": "normal",
     "group": 0
   },
   "203582": {
-    "category": "normal",
     "group": 0
   },
   "203591": {
-    "category": "normal",
     "group": 0
   },
   "203592": {
-    "category": "normal",
     "group": 0
   },
   "203601": {
-    "category": "normal",
     "group": 0
   },
   "203602": {
-    "category": "normal",
     "group": 0
   },
   "203611": {
-    "category": "normal",
     "group": 0
   },
   "203612": {
-    "category": "normal",
     "group": 0
   },
   "203621": {
-    "category": "normal",
     "group": 0
   },
   "203622": {
-    "category": "normal",
     "group": 0
   },
   "203631": {
-    "category": "normal",
     "group": 0
   },
   "203632": {
-    "category": "normal",
     "group": 0
   },
   "203642": {
-    "category": "normal",
     "group": 0
   },
   "203651": {
-    "category": "normal",
     "group": 0
   },
   "203652": {
-    "category": "normal",
     "group": 0
   },
   "203661": {
-    "category": "normal",
     "group": 0
   },
   "203662": {
-    "category": "normal",
     "group": 0
   },
   "203671": {
-    "category": "normal",
     "group": 0
   },
   "203672": {
-    "category": "normal",
     "group": 0
   },
   "203681": {
-    "category": "normal",
     "group": 0
   },
   "203682": {
-    "category": "normal",
     "group": 0
   },
   "203701": {
-    "category": "normal",
     "group": 0
   },
   "203702": {
-    "category": "normal",
     "group": 0
   },
   "203711": {
-    "category": "normal",
     "group": 0
   },
   "203712": {
-    "category": "normal",
     "group": 0
   },
   "203721": {
-    "category": "normal",
     "group": 0
   },
   "203731": {
-    "category": "normal",
     "group": 0
   },
   "203732": {
-    "category": "normal",
     "group": 0
   },
   "203741": {
-    "category": "normal",
     "group": 0
   },
   "203742": {
-    "category": "normal",
     "group": 0
   },
   "203751": {
-    "category": "normal",
     "group": 0
   },
   "203752": {
-    "category": "normal",
     "group": 0
   },
   "203761": {
-    "category": "normal",
     "group": 0
   },
   "203762": {
-    "category": "normal",
     "group": 0
   },
   "203772": {
-    "category": "normal",
     "group": 0
   },
   "203781": {
-    "category": "normal",
     "group": 0
   },
   "203791": {
-    "category": "normal",
     "group": 0
   },
   "203792": {
-    "category": "normal",
     "group": 0
   },
   "203801": {
-    "category": "normal",
     "group": 0
   },
   "203802": {
-    "category": "normal",
     "group": 0
   },
   "203812": {
-    "category": "normal",
     "group": 0
   },
   "203822": {
-    "category": "normal",
     "group": 0
   },
   "203831": {
-    "category": "normal",
     "group": 0
   },
   "203832": {
-    "category": "normal",
     "group": 0
   },
   "203841": {
-    "category": "normal",
     "group": 0
   },
   "203842": {
-    "category": "normal",
     "group": 0
   },
   "203851": {
-    "category": "normal",
     "group": 0
   },
   "203852": {
-    "category": "normal",
     "group": 0
   },
   "203861": {
-    "category": "normal",
     "group": 0
   },
   "203862": {
-    "category": "normal",
     "group": 0
   },
   "203871": {
-    "category": "normal",
     "group": 0
   },
   "203872": {
-    "category": "normal",
     "group": 0
   },
   "203881": {
-    "category": "normal",
     "group": 0
   },
   "203882": {
-    "category": "normal",
     "group": 0
   },
   "203892": {
-    "category": "normal",
     "group": 0
   },
   "203902": {
-    "category": "normal",
     "group": 0
   },
   "203911": {
-    "category": "normal",
     "group": 0
   },
   "203912": {
-    "category": "normal",
     "group": 0
   },
   "203922": {
-    "category": "normal",
     "group": 0
   },
   "203931": {
-    "category": "normal",
     "group": 0
   },
   "203932": {
-    "category": "normal",
     "group": 0
   },
   "203941": {
-    "category": "normal",
     "group": 0
   },
   "203942": {
-    "category": "normal",
     "group": 0
   },
   "203951": {
-    "category": "normal",
     "group": 0
   },
   "203952": {
-    "category": "normal",
     "group": 0
   },
   "203961": {
-    "category": "normal",
     "group": 0
   },
   "203962": {
-    "category": "normal",
     "group": 0
   },
   "203972": {
-    "category": "normal",
     "group": 0
   },
   "203981": {
-    "category": "normal",
     "group": 0
   },
   "203982": {
-    "category": "normal",
     "group": 0
   },
   "203991": {
-    "category": "normal",
     "group": 0
   },
   "203992": {
-    "category": "normal",
     "group": 0
   },
   "204001": {
-    "category": "normal",
     "group": 0
   },
   "204002": {
-    "category": "normal",
     "group": 0
   },
   "204012": {
-    "category": "normal",
     "group": 0
   },
   "204021": {
-    "category": "normal",
     "group": 0
   },
   "204022": {
-    "category": "normal",
     "group": 0
   },
   "204031": {
-    "category": "normal",
     "group": 0
   },
   "204032": {
-    "category": "normal",
     "group": 0
   },
   "204041": {
-    "category": "normal",
     "group": 0
   },
   "204042": {
-    "category": "normal",
     "group": 0
   },
   "204051": {
-    "category": "normal",
     "group": 0
   },
   "204052": {
-    "category": "normal",
     "group": 0
   },
   "204061": {
-    "category": "normal",
     "group": 0
   },
   "204062": {
-    "category": "normal",
     "group": 0
   },
   "204071": {
-    "category": "normal",
     "group": 0
   },
   "204072": {
-    "category": "normal",
     "group": 0
   },
   "204081": {
-    "category": "normal",
     "group": 0
   },
   "204082": {
-    "category": "normal",
     "group": 0
   },
   "204092": {
-    "category": "normal",
     "group": 0
   },
   "204101": {
-    "category": "normal",
     "group": 0
   },
   "204102": {
-    "category": "normal",
     "group": 0
   },
   "204112": {
-    "category": "normal",
     "group": 0
   },
   "204121": {
-    "category": "normal",
     "group": 0
   },
   "204122": {
-    "category": "normal",
     "group": 0
   },
   "204131": {
-    "category": "normal",
     "group": 0
   },
   "204132": {
-    "category": "normal",
     "group": 0
   },
   "204141": {
-    "category": "normal",
     "group": 0
   },
   "204142": {
-    "category": "normal",
     "group": 0
   },
   "204151": {
-    "category": "normal",
     "group": 0
   },
   "204152": {
-    "category": "normal",
     "group": 0
   },
   "204161": {
-    "category": "normal",
     "group": 0
   },
   "204162": {
-    "category": "normal",
     "group": 0
   },
   "204171": {
-    "category": "normal",
     "group": 0
   },
   "204172": {
-    "category": "normal",
     "group": 0
   },
   "204181": {
-    "category": "normal",
     "group": 0
   },
   "204182": {
-    "category": "normal",
     "group": 0
   },
   "204191": {
-    "category": "normal",
     "group": 0
   },
   "204192": {
-    "category": "normal",
     "group": 0
   },
   "204202": {
-    "category": "normal",
     "group": 0
   },
   "204211": {
-    "category": "normal",
     "group": 0
   },
   "204212": {
-    "category": "normal",
     "group": 0
   },
   "204222": {
-    "category": "normal",
     "group": 0
   },
   "204271": {
-    "category": "normal",
     "group": 0
   },
   "204272": {
-    "category": "normal",
     "group": 0
   },
   "204282": {
-    "category": "normal",
     "group": 0
   },
   "204293": {
-    "category": "normal",
     "group": 0
   },
   "204301": {
-    "category": "normal",
     "group": 0
   },
   "204302": {
-    "category": "normal",
     "group": 0
   },
   "204311": {
-    "category": "normal",
     "group": 0
   },
   "204312": {
-    "category": "normal",
     "group": 0
   },
   "204322": {
-    "category": "normal",
     "group": 0
   },
   "204331": {
-    "category": "normal",
     "group": 0
   },
   "204332": {
-    "category": "normal",
     "group": 0
   },
   "204342": {
-    "category": "normal",
     "group": 0
   },
   "204351": {
-    "category": "normal",
     "group": 0
   },
   "204352": {
-    "category": "normal",
     "group": 0
   },
   "204362": {
-    "category": "normal",
     "group": 0
   },
   "204372": {
-    "category": "normal",
     "group": 0
   },
   "204381": {
-    "category": "normal",
     "group": 0
   },
   "204382": {
-    "category": "normal",
     "group": 0
   },
   "204412": {
-    "category": "normal",
     "group": 0
   },
   "204431": {
-    "category": "normal",
     "group": 0
   },
   "204432": {
-    "category": "normal",
     "group": 0
   },
   "204442": {
-    "category": "normal",
     "group": 0
   },
   "204453": {
-    "category": "normal",
     "group": 0
   },
   "204462": {
-    "category": "normal",
     "group": 0
   },
   "210011": {
-    "category": "normal",
     "group": 21001
   },
   "210012": {
-    "category": "normal",
     "group": 21001
   },
   "210021": {
-    "category": "recovery",
     "group": 21002
   },
   "210022": {
-    "category": "recovery",
     "group": 21002
   },
   "210031": {
-    "category": "normal",
     "group": 21003
   },
   "210032": {
-    "category": "normal",
     "group": 21003
   },
   "210041": {
-    "category": "normal",
     "group": 21004
   },
   "210042": {
-    "category": "normal",
     "group": 21004
   },
   "210051": {
-    "category": "normal",
     "group": 21005
   },
   "210052": {
-    "category": "normal",
     "group": 21005
   },
   "210061": {
-    "category": "normal",
     "group": 21006
   },
   "210062": {
-    "category": "normal",
     "group": 21006
   },
   "210082": {
-    "category": "normal",
     "group": 0
   },
   "210091": {
-    "category": "normal",
     "group": 0
   },
   "210101": {
-    "category": "normal",
     "group": 0
   },
   "210262": {
-    "category": "normal",
     "group": 0
   },
   "210272": {
-    "category": "normal",
     "group": 0
   },
   "210322": {
-    "category": "normal",
     "group": 0
   },
   "300111": {
-    "category": "green",
     "group": 30011
   },
   "300121": {
-    "category": "green",
     "group": 30012
   },
   "900011": {
-    "category": "unique",
     "group": 90001
   },
   "900021": {
-    "category": "unique",
     "group": 90002
   },
   "900031": {
-    "category": "unique",
     "group": 90003
   },
   "900041": {
-    "category": "unique",
     "group": 90004
   },
   "900051": {
-    "category": "unique",
     "group": 90005
   },
   "900061": {
-    "category": "unique",
     "group": 90006
   },
   "900071": {
-    "category": "unique",
     "group": 90007
   },
   "900081": {
-    "category": "unique",
     "group": 90008
   },
   "900091": {
-    "category": "unique",
     "group": 90009
   },
   "900101": {
-    "category": "unique",
     "group": 90010
   },
   "900111": {
-    "category": "unique",
     "group": 90011
   },
   "900121": {
-    "category": "unique",
     "group": 90012
   },
   "900131": {
-    "category": "unique",
     "group": 90013
   },
   "900141": {
-    "category": "unique",
     "group": 90014
   },
   "900151": {
-    "category": "unique",
     "group": 90015
   },
   "900161": {
-    "category": "unique",
     "group": 90016
   },
   "900171": {
-    "category": "unique",
     "group": 90017
   },
   "900181": {
-    "category": "unique",
     "group": 90018
   },
   "900191": {
-    "category": "unique",
     "group": 90019
   },
   "900201": {
-    "category": "unique",
     "group": 90020
   },
   "900211": {
-    "category": "unique",
     "group": 90021
   },
   "900221": {
-    "category": "unique",
     "group": 90022
   },
   "900231": {
-    "category": "unique",
     "group": 90023
   },
   "900241": {
-    "category": "unique",
     "group": 90024
   },
   "900251": {
-    "category": "unique",
     "group": 90025
   },
   "900261": {
-    "category": "unique",
     "group": 90026
   },
   "900271": {
-    "category": "unique",
     "group": 90027
   },
   "900281": {
-    "category": "unique",
     "group": 90028
   },
   "900291": {
-    "category": "unique",
     "group": 0
   },
   "900301": {
-    "category": "unique",
     "group": 90030
   },
   "900311": {
-    "category": "unique",
     "group": 90031
   },
   "900321": {
-    "category": "unique",
     "group": 90032
   },
   "900331": {
-    "category": "unique",
     "group": 90033
   },
   "900341": {
-    "category": "unique",
     "group": 90034
   },
   "900351": {
-    "category": "unique",
     "group": 90035
   },
   "900361": {
-    "category": "unique",
     "group": 0
   },
   "900371": {
-    "category": "unique",
     "group": 90037
   },
   "900381": {
-    "category": "unique",
     "group": 90038
   },
   "900391": {
-    "category": "unique",
     "group": 90039
   },
   "900401": {
-    "category": "unique",
     "group": 90040
   },
   "900411": {
-    "category": "unique",
     "group": 90041
   },
   "900421": {
-    "category": "unique",
     "group": 0
   },
   "900431": {
-    "category": "unique",
     "group": 0
   },
   "900441": {
-    "category": "unique",
     "group": 90044
   },
   "900451": {
-    "category": "unique",
     "group": 90045
   },
   "900461": {
-    "category": "unique",
     "group": 90046
   },
   "900471": {
-    "category": "unique",
     "group": 0
   },
   "900481": {
-    "category": "unique",
     "group": 90048
   },
   "900491": {
-    "category": "unique",
     "group": 0
   },
   "900501": {
-    "category": "unique",
     "group": 90050
   },
   "900511": {
-    "category": "unique",
     "group": 90051
   },
   "900521": {
-    "category": "unique",
     "group": 90052
   },
   "900531": {
-    "category": "unique",
     "group": 0
   },
   "900541": {
-    "category": "unique",
     "group": 0
   },
   "900551": {
-    "category": "unique",
     "group": 0
   },
   "900561": {
-    "category": "unique",
     "group": 90056
   },
   "900571": {
-    "category": "unique",
     "group": 0
   },
   "900581": {
-    "category": "unique",
     "group": 90058
   },
   "900591": {
-    "category": "unique",
     "group": 90059
   },
   "900601": {
-    "category": "unique",
     "group": 90060
   },
   "900611": {
-    "category": "unique",
     "group": 90061
   },
   "900621": {
-    "category": "unique",
     "group": 90062
   },
   "900631": {
-    "category": "unique",
     "group": 0
   },
   "900641": {
-    "category": "unique",
     "group": 90064
   },
   "900651": {
-    "category": "unique",
     "group": 0
   },
   "900661": {
-    "category": "unique",
     "group": 0
   },
   "900671": {
-    "category": "unique",
     "group": 90067
   },
   "900681": {
-    "category": "unique",
     "group": 90068
   },
   "900691": {
-    "category": "unique",
     "group": 90069
   },
   "900701": {
-    "category": "unique",
     "group": 0
   },
   "900711": {
-    "category": "unique",
     "group": 90071
   },
   "900721": {
-    "category": "unique",
     "group": 90072
   },
   "900731": {
-    "category": "unique",
     "group": 0
   },
   "900741": {
-    "category": "unique",
     "group": 90074
   },
   "900761": {
-    "category": "unique",
     "group": 0
   },
   "900771": {
-    "category": "unique",
     "group": 0
   },
   "900781": {
-    "category": "unique",
     "group": 0
   },
   "900791": {
-    "category": "unique",
     "group": 0
   },
   "900801": {
-    "category": "unique",
     "group": 0
   },
   "900811": {
-    "category": "unique",
     "group": 0
   },
   "900821": {
-    "category": "unique",
     "group": 0
   },
   "900831": {
-    "category": "unique",
     "group": 0
   },
   "900841": {
-    "category": "unique",
     "group": 0
   },
   "900851": {
-    "category": "unique",
     "group": 0
   },
   "900861": {
-    "category": "unique",
     "group": 0
   },
   "900871": {
-    "category": "unique",
     "group": 0
   },
   "900881": {
-    "category": "unique",
     "group": 0
   },
   "900891": {
-    "category": "unique",
     "group": 0
   },
   "900901": {
-    "category": "unique",
     "group": 0
   },
   "900911": {
-    "category": "unique",
     "group": 0
   },
   "900921": {
-    "category": "unique",
     "group": 0
   },
   "900931": {
-    "category": "unique",
     "group": 0
   },
   "900941": {
-    "category": "unique",
     "group": 0
   },
   "900951": {
-    "category": "unique",
     "group": 0
   },
   "900961": {
-    "category": "unique",
     "group": 0
   },
   "900971": {
-    "category": "unique",
     "group": 0
   },
   "900981": {
-    "category": "unique",
     "group": 0
   },
   "900991": {
-    "category": "unique",
     "group": 0
   },
   "901001": {
-    "category": "unique",
     "group": 0
   },
   "901021": {
-    "category": "unique",
     "group": 0
   },
   "901031": {
-    "category": "unique",
     "group": 0
   },
   "901041": {
-    "category": "unique",
     "group": 0
   },
   "901051": {
-    "category": "unique",
     "group": 0
   },
   "901061": {
-    "category": "unique",
     "group": 0
   },
   "901071": {
-    "category": "unique",
     "group": 0
   },
   "901081": {
-    "category": "unique",
     "group": 0
   },
   "901091": {
-    "category": "unique",
     "group": 0
   },
   "901101": {
-    "category": "unique",
     "group": 0
   },
   "901111": {
-    "category": "unique",
     "group": 0
   },
   "901121": {
-    "category": "unique",
     "group": 0
   },
   "901131": {
-    "category": "unique",
     "group": 0
   },
   "901141": {
-    "category": "unique",
     "group": 0
   },
   "901151": {
-    "category": "unique",
     "group": 0
   },
   "901161": {
-    "category": "unique",
     "group": 0
   },
   "901171": {
-    "category": "unique",
     "group": 0
   },
   "901181": {
-    "category": "unique",
     "group": 0
   },
   "901191": {
-    "category": "unique",
     "group": 0
   },
   "901201": {
-    "category": "unique",
     "group": 0
   },
   "901211": {
-    "category": "unique",
     "group": 0
   },
   "901241": {
-    "category": "unique",
     "group": 0
   },
   "901271": {
-    "category": "unique",
     "group": 0
   },
   "901291": {
-    "category": "unique",
     "group": 0
   },
   "901301": {
-    "category": "unique",
     "group": 0
   },
   "901311": {
-    "category": "unique",
     "group": 0
   },
   "901321": {
-    "category": "unique",
     "group": 0
   },
   "901331": {
-    "category": "unique",
     "group": 0
   },
   "901341": {
-    "category": "unique",
     "group": 0
   },
   "901361": {
-    "category": "unique",
     "group": 0
   },
   "901371": {
-    "category": "unique",
     "group": 0
   },
   "901431": {
-    "category": "unique",
     "group": 0
   },
   "910011": {
-    "category": "unique",
     "group": 91001
   },
   "910021": {
-    "category": "unique",
     "group": 0
   },
   "910031": {
-    "category": "unique",
     "group": 91003
   },
   "910041": {
-    "category": "unique",
     "group": 91004
   },
   "910051": {
-    "category": "unique",
     "group": 91005
   },
   "910061": {
-    "category": "unique",
     "group": 91006
   },
   "910071": {
-    "category": "unique",
     "group": 0
   },
   "910081": {
-    "category": "unique",
     "group": 0
   },
   "910091": {
-    "category": "unique",
     "group": 0
   },
   "910101": {
-    "category": "unique",
     "group": 91010
   },
   "910111": {
-    "category": "unique",
     "group": 91011
   },
   "910121": {
-    "category": "unique",
     "group": 0
   },
   "910131": {
-    "category": "unique",
     "group": 91013
   },
   "910141": {
-    "category": "unique",
     "group": 91014
   },
   "910151": {
-    "category": "unique",
     "group": 91015
   },
   "910161": {
-    "category": "unique",
     "group": 0
   },
   "910171": {
-    "category": "unique",
     "group": 91017
   },
   "910181": {
-    "category": "unique",
     "group": 91018
   },
   "910191": {
-    "category": "unique",
     "group": 0
   },
   "910201": {
-    "category": "unique",
     "group": 91020
   },
   "910211": {
-    "category": "unique",
     "group": 0
   },
   "910221": {
-    "category": "unique",
     "group": 91022
   },
   "910231": {
-    "category": "unique",
     "group": 91023
   },
   "910241": {
-    "category": "unique",
     "group": 91024
   },
   "910251": {
-    "category": "unique",
     "group": 0
   },
   "910261": {
-    "category": "unique",
     "group": 91026
   },
   "910271": {
-    "category": "unique",
     "group": 0
   },
   "910281": {
-    "category": "unique",
     "group": 0
   },
   "910291": {
-    "category": "unique",
     "group": 0
   },
   "910301": {
-    "category": "unique",
     "group": 91030
   },
   "910311": {
-    "category": "unique",
     "group": 0
   },
   "910321": {
-    "category": "unique",
     "group": 0
   },
   "910331": {
-    "category": "unique",
     "group": 0
   },
   "910341": {
-    "category": "unique",
     "group": 0
   },
   "910351": {
-    "category": "unique",
     "group": 0
   },
   "910361": {
-    "category": "unique",
     "group": 0
   },
   "910371": {
-    "category": "unique",
     "group": 91037
   },
   "910381": {
-    "category": "unique",
     "group": 91038
   },
   "910391": {
-    "category": "unique",
     "group": 0
   },
   "910401": {
-    "category": "unique",
     "group": 91040
   },
   "910411": {
-    "category": "unique",
     "group": 0
   },
   "910421": {
-    "category": "unique",
     "group": 0
   },
   "910441": {
-    "category": "unique",
     "group": 0
   },
   "910451": {
-    "category": "unique",
     "group": 91045
   },
   "910461": {
-    "category": "unique",
     "group": 0
   },
   "910471": {
-    "category": "unique",
     "group": 0
   },
   "910481": {
-    "category": "unique",
     "group": 0
   },
   "910491": {
-    "category": "unique",
     "group": 0
   },
   "910501": {
-    "category": "unique",
     "group": 0
   },
   "910511": {
-    "category": "unique",
     "group": 0
   },
   "910521": {
-    "category": "unique",
     "group": 91052
   },
   "910531": {
-    "category": "unique",
     "group": 0
   },
   "910551": {
-    "category": "unique",
     "group": 0
   },
   "910561": {
-    "category": "unique",
     "group": 91056
   },
   "910571": {
-    "category": "unique",
     "group": 0
   },
   "910581": {
-    "category": "unique",
     "group": 0
   },
   "910591": {
-    "category": "unique",
     "group": 91059
   },
   "910601": {
-    "category": "unique",
     "group": 91060
   },
   "910611": {
-    "category": "unique",
     "group": 91061
   },
   "910621": {
-    "category": "unique",
     "group": 0
   },
   "910631": {
-    "category": "unique",
     "group": 0
   },
   "910641": {
-    "category": "unique",
     "group": 0
   },
   "910651": {
-    "category": "unique",
     "group": 0
   },
   "910671": {
-    "category": "unique",
     "group": 0
   },
   "910681": {
-    "category": "unique",
     "group": 0
   },
   "910691": {
-    "category": "unique",
     "group": 0
   },
   "910701": {
-    "category": "unique",
     "group": 0
   },
   "910711": {
-    "category": "unique",
     "group": 0
   },
   "910721": {
-    "category": "unique",
     "group": 0
   },
   "910741": {
-    "category": "unique",
     "group": 0
   },
   "910761": {
-    "category": "unique",
     "group": 0
   },
   "910771": {
-    "category": "unique",
     "group": 0
   },
   "910781": {
-    "category": "unique",
     "group": 0
   },
   "910801": {
-    "category": "unique",
     "group": 0
   },
   "910821": {
-    "category": "unique",
     "group": 0
   },
   "910831": {
-    "category": "unique",
     "group": 0
   },
   "910841": {
-    "category": "unique",
     "group": 0
   },
   "910851": {
-    "category": "unique",
     "group": 0
   },
   "910861": {
-    "category": "unique",
     "group": 0
   },
   "910871": {
-    "category": "unique",
     "group": 0
   },
   "910881": {
-    "category": "unique",
     "group": 0
   },
   "910891": {
-    "category": "unique",
     "group": 0
   },
   "910911": {
-    "category": "unique",
     "group": 0
   },
   "910931": {
-    "category": "unique",
     "group": 0
   },
   "910941": {
-    "category": "unique",
     "group": 0
   },
   "910981": {
-    "category": "unique",
     "group": 0
   },
   "910991": {
-    "category": "unique",
     "group": 0
   },
   "911001": {
-    "category": "unique",
     "group": 0
   },
   "911021": {
-    "category": "unique",
     "group": 0
   },
   "911041": {
-    "category": "unique",
     "group": 0
   },
   "911051": {
-    "category": "unique",
     "group": 0
   },
   "911061": {
-    "category": "unique",
     "group": 0
   },
   "911071": {
-    "category": "unique",
     "group": 0
   },
   "911101": {
-    "category": "unique",
     "group": 0
   },
   "911161": {
-    "category": "unique",
     "group": 0
   },
   "911191": {
-    "category": "unique",
     "group": 0
   },
   "911241": {
-    "category": "unique",
     "group": 0
   },
   "911321": {
-    "category": "unique",
     "group": 0
   },
   "920011": {
-    "category": "unique",
     "group": 0
   },
   "920031": {
-    "category": "unique",
     "group": 0
   },
   "920041": {
-    "category": "unique",
     "group": 0
   },
   "920051": {
-    "category": "unique",
     "group": 0
   },
   "920061": {
-    "category": "unique",
     "group": 0
   },
   "920071": {
-    "category": "unique",
     "group": 0
   },
   "920101": {
-    "category": "unique",
     "group": 0
   },
   "920111": {
-    "category": "unique",
     "group": 0
   },
   "920131": {
-    "category": "unique",
     "group": 0
   },
   "920231": {
-    "category": "unique",
     "group": 0
   },
   "920241": {
-    "category": "unique",
     "group": 0
   },
   "920251": {
-    "category": "unique",
     "group": 0
   },
   "920301": {
-    "category": "unique",
     "group": 0
   },
   "920311": {
-    "category": "unique",
     "group": 0
   },
   "920321": {
-    "category": "unique",
     "group": 0
   },
   "920351": {
-    "category": "unique",
     "group": 0
   },
   "920371": {
-    "category": "unique",
     "group": 0
   },
   "920401": {
-    "category": "unique",
     "group": 0
   },
   "920411": {
-    "category": "unique",
     "group": 0
   },
   "920451": {
-    "category": "unique",
     "group": 0
   },
   "920461": {
-    "category": "unique",
     "group": 0
   },
   "920481": {
-    "category": "unique",
     "group": 0
   },
   "920501": {
-    "category": "unique",
     "group": 0
   },
   "920601": {
-    "category": "unique",
     "group": 0
   },
   "920611": {
-    "category": "unique",
     "group": 0
   },
   "920671": {
-    "category": "unique",
     "group": 0
   },
   "920681": {
-    "category": "unique",
     "group": 0
   },
   "1000011": {
-    "category": "normal",
     "group": 100001
   },
   "1000012": {
-    "category": "normal",
     "group": 100001
   },
   "1100011": {
-    "category": "normal",
     "group": 110001
   },
   "91101351": {
-    "category": "unique",
     "group": 0
   },
   "92111091": {
-    "category": "unique",
     "group": 0
   },
   "100103111": {
-    "category": "unique",
     "group": 0
   },
   "100103211": {
-    "category": "unique",
     "group": 0
   },
   "100202111": {
-    "category": "unique",
     "group": 0
   },
   "100202121": {
-    "category": "unique",
     "group": 0
   },
   "100202211": {
-    "category": "unique",
     "group": 0
   },
   "100303111": {
-    "category": "unique",
     "group": 0
   },
   "100303211": {
-    "category": "unique",
     "group": 0
   },
   "100303221": {
-    "category": "unique",
     "group": 0
   },
   "100403111": {
-    "category": "unique",
     "group": 0
   },
   "100403211": {
-    "category": "unique",
     "group": 0
   },
   "100503111": {
-    "category": "unique",
     "group": 0
   },
   "100503211": {
-    "category": "unique",
     "group": 0
   },
   "100603111": {
-    "category": "unique",
     "group": 0
   },
   "100603211": {
-    "category": "unique",
     "group": 0
   },
   "100603221": {
-    "category": "unique",
     "group": 0
   },
   "100702111": {
-    "category": "unique",
     "group": 0
   },
   "100702211": {
-    "category": "unique",
     "group": 0
   },
   "100702221": {
-    "category": "unique",
     "group": 0
   },
   "100703111": {
-    "category": "unique",
     "group": 0
   },
   "100703211": {
-    "category": "unique",
     "group": 0
   },
   "100802111": {
-    "category": "unique",
     "group": 0
   },
   "100802211": {
-    "category": "unique",
     "group": 0
   },
   "100902111": {
-    "category": "unique",
     "group": 0
   },
   "100902121": {
-    "category": "unique",
     "group": 0
   },
   "100902211": {
-    "category": "unique",
     "group": 0
   },
   "101003111": {
-    "category": "unique",
     "group": 0
   },
   "101003211": {
-    "category": "unique",
     "group": 0
   },
   "101103111": {
-    "category": "unique",
     "group": 0
   },
   "101103211": {
-    "category": "unique",
     "group": 0
   },
   "101202111": {
-    "category": "unique",
     "group": 0
   },
   "101202211": {
-    "category": "unique",
     "group": 0
   },
   "101202221": {
-    "category": "unique",
     "group": 0
   },
   "101303111": {
-    "category": "unique",
     "group": 0
   },
   "101303211": {
-    "category": "unique",
     "group": 0
   },
   "101602111": {
-    "category": "unique",
     "group": 0
   },
   "101602211": {
-    "category": "unique",
     "group": 0
   },
   "101902111": {
-    "category": "unique",
     "group": 0
   },
   "101902121": {
-    "category": "unique",
     "group": 0
   },
   "101902211": {
-    "category": "unique",
     "group": 0
   },
   "102102111": {
-    "category": "unique",
     "group": 0
   },
   "102102211": {
-    "category": "unique",
     "group": 0
   },
   "102102221": {
-    "category": "unique",
     "group": 0
   },
   "102303111": {
-    "category": "unique",
     "group": 0
   },
   "102303211": {
-    "category": "unique",
     "group": 0
   },
   "102403111": {
-    "category": "unique",
     "group": 0
   },
   "102403211": {
-    "category": "unique",
     "group": 0
   },
   "102502111": {
-    "category": "unique",
     "group": 0
   },
   "102502211": {
-    "category": "unique",
     "group": 0
   },
   "102503111": {
-    "category": "unique",
     "group": 0
   },
   "102503211": {
-    "category": "unique",
     "group": 0
   },
   "102702111": {
-    "category": "unique",
     "group": 0
   },
   "102702211": {
-    "category": "unique",
     "group": 0
   },
   "102702221": {
-    "category": "unique",
     "group": 0
   },
   "102802111": {
-    "category": "unique",
     "group": 0
   },
   "102802211": {
-    "category": "unique",
     "group": 0
   },
   "102901111": {
-    "category": "unique",
     "group": 0
   },
   "102901211": {
-    "category": "unique",
     "group": 0
   },
   "102901221": {
-    "category": "unique",
     "group": 0
   },
   "102902111": {
-    "category": "unique",
     "group": 0
   },
   "102902211": {
-    "category": "unique",
     "group": 0
   },
   "102902221": {
-    "category": "unique",
     "group": 0
   },
   "103003111": {
-    "category": "unique",
     "group": 0
   },
   "103003211": {
-    "category": "unique",
     "group": 0
   },
   "103102111": {
-    "category": "unique",
     "group": 0
   },
   "103102211": {
-    "category": "unique",
     "group": 0
   },
   "103103111": {
-    "category": "unique",
     "group": 0
   },
   "103103211": {
-    "category": "unique",
     "group": 0
   },
   "103202111": {
-    "category": "unique",
     "group": 0
   },
   "103202211": {
-    "category": "unique",
     "group": 0
   },
   "103203111": {
-    "category": "unique",
     "group": 0
   },
   "103203211": {
-    "category": "unique",
     "group": 0
   },
   "103302111": {
-    "category": "unique",
     "group": 0
   },
   "103302211": {
-    "category": "unique",
     "group": 0
   },
   "103402111": {
-    "category": "unique",
     "group": 0
   },
   "103402211": {
-    "category": "unique",
     "group": 0
   },
   "103402221": {
-    "category": "unique",
     "group": 0
   },
   "103502111": {
-    "category": "unique",
     "group": 0
   },
   "103502211": {
-    "category": "unique",
     "group": 0
   },
   "103503111": {
-    "category": "unique",
     "group": 0
   },
   "103503211": {
-    "category": "unique",
     "group": 0
   },
   "103602111": {
-    "category": "unique",
     "group": 0
   },
   "103602121": {
-    "category": "unique",
     "group": 0
   },
   "103602211": {
-    "category": "unique",
     "group": 0
   },
   "103703111": {
-    "category": "unique",
     "group": 0
   },
   "103703211": {
-    "category": "unique",
     "group": 0
   },
   "103902111": {
-    "category": "unique",
     "group": 0
   },
   "103902121": {
-    "category": "unique",
     "group": 0
   },
   "103902211": {
-    "category": "unique",
     "group": 0
   },
   "104003111": {
-    "category": "unique",
     "group": 0
   },
   "104003211": {
-    "category": "unique",
     "group": 0
   },
   "104102111": {
-    "category": "unique",
     "group": 0
   },
   "104102211": {
-    "category": "unique",
     "group": 0
   },
   "104103111": {
-    "category": "unique",
     "group": 0
   },
   "104103211": {
-    "category": "unique",
     "group": 0
   },
   "104201111": {
-    "category": "unique",
     "group": 0
   },
   "104201211": {
-    "category": "unique",
     "group": 0
   },
   "104202111": {
-    "category": "unique",
     "group": 0
   },
   "104202211": {
-    "category": "unique",
     "group": 0
   },
   "104301111": {
-    "category": "unique",
     "group": 0
   },
   "104301211": {
-    "category": "unique",
     "group": 0
   },
   "104301221": {
-    "category": "unique",
     "group": 0
   },
   "104402111": {
-    "category": "unique",
     "group": 0
   },
   "104402121": {
-    "category": "unique",
     "group": 0
   },
   "104402211": {
-    "category": "unique",
     "group": 0
   },
   "104503111": {
-    "category": "unique",
     "group": 0
   },
   "104503211": {
-    "category": "unique",
     "group": 0
   },
   "104602111": {
-    "category": "unique",
     "group": 0
   },
   "104602121": {
-    "category": "unique",
     "group": 0
   },
   "104602211": {
-    "category": "unique",
     "group": 0
   },
   "104603111": {
-    "category": "unique",
     "group": 0
   },
   "104603211": {
-    "category": "unique",
     "group": 0
   },
   "104701111": {
-    "category": "unique",
     "group": 0
   },
   "104701121": {
-    "category": "unique",
     "group": 0
   },
   "104701211": {
-    "category": "unique",
     "group": 0
   },
   "104702111": {
-    "category": "unique",
     "group": 0
   },
   "104702211": {
-    "category": "unique",
     "group": 0
   },
   "104802111": {
-    "category": "unique",
     "group": 0
   },
   "104802211": {
-    "category": "unique",
     "group": 0
   },
   "104802221": {
-    "category": "unique",
     "group": 0
   },
   "104803111": {
-    "category": "unique",
     "group": 0
   },
   "104803211": {
-    "category": "unique",
     "group": 0
   },
   "104901111": {
-    "category": "unique",
     "group": 0
   },
   "104901211": {
-    "category": "unique",
     "group": 0
   },
   "104902111": {
-    "category": "unique",
     "group": 0
   },
   "104902211": {
-    "category": "unique",
     "group": 0
   },
   "105002111": {
-    "category": "unique",
     "group": 0
   },
   "105002211": {
-    "category": "unique",
     "group": 0
   },
   "105003111": {
-    "category": "unique",
     "group": 0
   },
   "105003211": {
-    "category": "unique",
     "group": 0
   },
   "105102111": {
-    "category": "unique",
     "group": 0
   },
   "105102211": {
-    "category": "unique",
     "group": 0
   },
   "105102221": {
-    "category": "unique",
     "group": 0
   },
   "105301111": {
-    "category": "unique",
     "group": 0
   },
   "105301121": {
-    "category": "unique",
     "group": 0
   },
   "105301211": {
-    "category": "unique",
     "group": 0
   },
   "105302111": {
-    "category": "unique",
     "group": 0
   },
   "105302211": {
-    "category": "unique",
     "group": 0
   },
   "105401111": {
-    "category": "unique",
     "group": 0
   },
   "105401211": {
-    "category": "unique",
     "group": 0
   },
   "105501111": {
-    "category": "unique",
     "group": 0
   },
   "105501121": {
-    "category": "unique",
     "group": 0
   },
   "105501211": {
-    "category": "unique",
     "group": 0
   },
   "105502111": {
-    "category": "unique",
     "group": 0
   },
   "105502211": {
-    "category": "unique",
     "group": 0
   },
   "105701111": {
-    "category": "unique",
     "group": 0
   },
   "105701211": {
-    "category": "unique",
     "group": 0
   },
   "105701221": {
-    "category": "unique",
     "group": 0
   },
   "105702111": {
-    "category": "unique",
     "group": 0
   },
   "105702211": {
-    "category": "unique",
     "group": 0
   },
   "105802111": {
-    "category": "unique",
     "group": 0
   },
   "105802121": {
-    "category": "unique",
     "group": 0
   },
   "105802211": {
-    "category": "unique",
     "group": 0
   },
   "106003111": {
-    "category": "unique",
     "group": 0
   },
   "106003211": {
-    "category": "unique",
     "group": 0
   },
   "106003221": {
-    "category": "unique",
     "group": 0
   },
   "106103111": {
-    "category": "unique",
     "group": 0
   },
   "106103211": {
-    "category": "unique",
     "group": 0
   },
   "106103221": {
-    "category": "unique",
     "group": 0
   },
   "106202111": {
-    "category": "unique",
     "group": 0
   },
   "106202211": {
-    "category": "unique",
     "group": 0
   },
   "106202221": {
-    "category": "unique",
     "group": 0
   },
   "106301111": {
-    "category": "unique",
     "group": 0
   },
   "106301211": {
-    "category": "unique",
     "group": 0
   },
   "106302111": {
-    "category": "unique",
     "group": 0
   },
   "106302211": {
-    "category": "unique",
     "group": 0
   },
   "106402111": {
-    "category": "unique",
     "group": 0
   },
   "106402211": {
-    "category": "unique",
     "group": 0
   },
   "106501111": {
-    "category": "unique",
     "group": 0
   },
   "106501211": {
-    "category": "unique",
     "group": 0
   },
   "106502111": {
-    "category": "unique",
     "group": 0
   },
   "106502211": {
-    "category": "unique",
     "group": 0
   },
   "106601111": {
-    "category": "unique",
     "group": 0
   },
   "106601211": {
-    "category": "unique",
     "group": 0
   },
   "106702111": {
-    "category": "unique",
     "group": 0
   },
   "106702211": {
-    "category": "unique",
     "group": 0
   },
   "106703111": {
-    "category": "unique",
     "group": 0
   },
   "106703211": {
-    "category": "unique",
     "group": 0
   },
   "106802111": {
-    "category": "unique",
     "group": 0
   },
   "106802211": {
-    "category": "unique",
     "group": 0
   },
   "106803111": {
-    "category": "unique",
     "group": 0
   },
   "106803211": {
-    "category": "unique",
     "group": 0
   },
   "106902111": {
-    "category": "unique",
     "group": 0
   },
   "106902211": {
-    "category": "unique",
     "group": 0
   },
   "107001111": {
-    "category": "unique",
     "group": 0
   },
   "107001211": {
-    "category": "unique",
     "group": 0
   },
   "107001221": {
-    "category": "unique",
     "group": 0
   },
   "107002111": {
-    "category": "unique",
     "group": 0
   },
   "107002121": {
-    "category": "unique",
     "group": 0
   },
   "107002211": {
-    "category": "unique",
     "group": 0
   },
   "107102111": {
-    "category": "unique",
     "group": 0
   },
   "107102121": {
-    "category": "unique",
     "group": 0
   },
   "107102211": {
-    "category": "unique",
     "group": 0
   },
   "107202111": {
-    "category": "unique",
     "group": 0
   },
   "107202211": {
-    "category": "unique",
     "group": 0
   },
   "107301111": {
-    "category": "unique",
     "group": 0
   },
   "107301211": {
-    "category": "unique",
     "group": 0
   },
   "107402111": {
-    "category": "unique",
     "group": 0
   },
   "107402211": {
-    "category": "unique",
     "group": 0
   },
   "107601111": {
-    "category": "unique",
     "group": 0
   },
   "107601211": {
-    "category": "unique",
     "group": 0
   },
   "107602111": {
-    "category": "unique",
     "group": 0
   },
   "107602211": {
-    "category": "unique",
     "group": 0
   },
   "107701111": {
-    "category": "unique",
     "group": 0
   },
   "107701211": {
-    "category": "unique",
     "group": 0
   },
   "107702111": {
-    "category": "unique",
     "group": 0
   },
   "107702211": {
-    "category": "unique",
     "group": 0
   },
   "107801111": {
-    "category": "unique",
     "group": 0
   },
   "107801211": {
-    "category": "unique",
     "group": 0
   },
   "107801221": {
-    "category": "unique",
     "group": 0
   },
   "107802111": {
-    "category": "unique",
     "group": 0
   },
   "107802211": {
-    "category": "unique",
     "group": 0
   },
   "107901111": {
-    "category": "unique",
     "group": 0
   },
   "107901211": {
-    "category": "unique",
     "group": 0
   },
   "108001111": {
-    "category": "unique",
     "group": 0
   },
   "108001211": {
-    "category": "unique",
     "group": 0
   },
   "108002111": {
-    "category": "unique",
     "group": 0
   },
   "108002211": {
-    "category": "unique",
     "group": 0
   },
   "108101111": {
-    "category": "unique",
     "group": 0
   },
   "108101211": {
-    "category": "unique",
     "group": 0
   },
   "108201111": {
-    "category": "unique",
     "group": 0
   },
   "108201211": {
-    "category": "unique",
     "group": 0
   },
   "108202111": {
-    "category": "unique",
     "group": 0
   },
   "108202211": {
-    "category": "unique",
     "group": 0
   },
   "108301111": {
-    "category": "unique",
     "group": 0
   },
   "108301211": {
-    "category": "unique",
     "group": 0
   },
   "108302111": {
-    "category": "unique",
     "group": 0
   },
   "108302211": {
-    "category": "unique",
     "group": 0
   },
   "108401111": {
-    "category": "unique",
     "group": 0
   },
   "108401211": {
-    "category": "unique",
     "group": 0
   },
   "108402111": {
-    "category": "unique",
     "group": 0
   },
   "108402211": {
-    "category": "unique",
     "group": 0
   },
   "108501111": {
-    "category": "unique",
     "group": 0
   },
   "108501121": {
-    "category": "unique",
     "group": 0
   },
   "108501211": {
-    "category": "unique",
     "group": 0
   },
   "108502111": {
-    "category": "unique",
     "group": 0
   },
   "108502211": {
-    "category": "unique",
     "group": 0
   },
   "108601111": {
-    "category": "unique",
     "group": 0
   },
   "108601211": {
-    "category": "unique",
     "group": 0
   },
   "108602111": {
-    "category": "unique",
     "group": 0
   },
   "108602211": {
-    "category": "unique",
     "group": 0
   },
   "108701111": {
-    "category": "unique",
     "group": 0
   },
   "108701211": {
-    "category": "unique",
     "group": 0
   },
   "108702111": {
-    "category": "unique",
     "group": 0
   },
   "108702211": {
-    "category": "unique",
     "group": 0
   },
   "108801111": {
-    "category": "unique",
     "group": 0
   },
   "108801211": {
-    "category": "unique",
     "group": 0
   },
   "108802111": {
-    "category": "unique",
     "group": 0
   },
   "108802211": {
-    "category": "unique",
     "group": 0
   },
   "108901111": {
-    "category": "unique",
     "group": 0
   },
   "108901211": {
-    "category": "unique",
     "group": 0
   },
   "108902111": {
-    "category": "unique",
     "group": 0
   },
   "108902211": {
-    "category": "unique",
     "group": 0
   },
   "109001111": {
-    "category": "unique",
     "group": 0
   },
   "109001211": {
-    "category": "unique",
     "group": 0
   },
   "109101111": {
-    "category": "unique",
     "group": 0
   },
   "109101211": {
-    "category": "unique",
     "group": 0
   },
   "109102111": {
-    "category": "unique",
     "group": 0
   },
   "109102211": {
-    "category": "unique",
     "group": 0
   },
   "109201111": {
-    "category": "unique",
     "group": 0
   },
   "109201211": {
-    "category": "unique",
     "group": 0
   },
   "109301111": {
-    "category": "unique",
     "group": 0
   },
   "109301121": {
-    "category": "unique",
     "group": 0
   },
   "109301211": {
-    "category": "unique",
     "group": 0
   },
   "109302111": {
-    "category": "unique",
     "group": 0
   },
   "109302211": {
-    "category": "unique",
     "group": 0
   },
   "109401111": {
-    "category": "unique",
     "group": 0
   },
   "109401211": {
-    "category": "unique",
     "group": 0
   },
   "109401221": {
-    "category": "unique",
     "group": 0
   },
   "109402111": {
-    "category": "unique",
     "group": 0
   },
   "109402211": {
-    "category": "unique",
     "group": 0
   },
   "109501111": {
-    "category": "unique",
     "group": 0
   },
   "109501211": {
-    "category": "unique",
     "group": 0
   },
   "109601111": {
-    "category": "unique",
     "group": 0
   },
   "109601211": {
-    "category": "unique",
     "group": 0
   },
   "109701111": {
-    "category": "unique",
     "group": 0
   },
   "109701211": {
-    "category": "unique",
     "group": 0
   },
   "109701221": {
-    "category": "unique",
     "group": 0
   },
   "109801111": {
-    "category": "unique",
     "group": 0
   },
   "109801211": {
-    "category": "unique",
     "group": 0
   },
   "109802111": {
-    "category": "unique",
     "group": 0
   },
   "109802211": {
-    "category": "unique",
     "group": 0
   },
   "109802221": {
-    "category": "unique",
     "group": 0
   },
   "109901111": {
-    "category": "unique",
     "group": 0
   },
   "109901211": {
-    "category": "unique",
     "group": 0
   },
   "109901221": {
-    "category": "unique",
     "group": 0
   },
   "109902111": {
-    "category": "unique",
     "group": 0
   },
   "109902211": {
-    "category": "unique",
     "group": 0
   },
   "110001111": {
-    "category": "unique",
     "group": 0
   },
   "110001121": {
-    "category": "unique",
     "group": 0
   },
   "110001211": {
-    "category": "unique",
     "group": 0
   },
   "110002111": {
-    "category": "unique",
     "group": 0
   },
   "110002211": {
-    "category": "unique",
     "group": 0
   },
   "110201111": {
-    "category": "unique",
     "group": 0
   },
   "110201211": {
-    "category": "unique",
     "group": 0
   },
   "110201221": {
-    "category": "unique",
     "group": 0
   },
   "110202111": {
-    "category": "unique",
     "group": 0
   },
   "110202211": {
-    "category": "unique",
     "group": 0
   },
   "110301111": {
-    "category": "unique",
     "group": 0
   },
   "110301211": {
-    "category": "unique",
     "group": 0
   },
   "110401111": {
-    "category": "unique",
     "group": 0
   },
   "110401211": {
-    "category": "unique",
     "group": 0
   },
   "110402111": {
-    "category": "unique",
     "group": 0
   },
   "110402211": {
-    "category": "unique",
     "group": 0
   },
   "110501111": {
-    "category": "unique",
     "group": 0
   },
   "110501211": {
-    "category": "unique",
     "group": 0
   },
   "110502111": {
-    "category": "unique",
     "group": 0
   },
   "110502211": {
-    "category": "unique",
     "group": 0
   },
   "110601111": {
-    "category": "unique",
     "group": 0
   },
   "110601121": {
-    "category": "unique",
     "group": 0
   },
   "110601211": {
-    "category": "unique",
     "group": 0
   },
   "110602111": {
-    "category": "unique",
     "group": 0
   },
   "110602211": {
-    "category": "unique",
     "group": 0
   },
   "110701111": {
-    "category": "unique",
     "group": 0
   },
   "110701211": {
-    "category": "unique",
     "group": 0
   },
   "110702111": {
-    "category": "unique",
     "group": 0
   },
   "110702211": {
-    "category": "unique",
     "group": 0
   },
   "110801111": {
-    "category": "unique",
     "group": 0
   },
   "110801211": {
-    "category": "unique",
     "group": 0
   },
   "110901111": {
-    "category": "unique",
     "group": 0
   },
   "110901121": {
-    "category": "unique",
     "group": 0
   },
   "110901211": {
-    "category": "unique",
     "group": 0
   },
   "110902111": {
-    "category": "unique",
     "group": 0
   },
   "110902211": {
-    "category": "unique",
     "group": 0
   },
   "111001111": {
-    "category": "unique",
     "group": 0
   },
   "111001211": {
-    "category": "unique",
     "group": 0
   },
   "111002111": {
-    "category": "unique",
     "group": 0
   },
   "111002211": {
-    "category": "unique",
     "group": 0
   },
   "111101111": {
-    "category": "unique",
     "group": 0
   },
   "111101211": {
-    "category": "unique",
     "group": 0
   },
   "111201111": {
-    "category": "unique",
     "group": 0
   },
   "111201211": {
-    "category": "unique",
     "group": 0
   },
   "111301111": {
-    "category": "unique",
     "group": 0
   },
   "111301211": {
-    "category": "unique",
     "group": 0
   },
   "111401111": {
-    "category": "unique",
     "group": 0
   },
   "111401211": {
-    "category": "unique",
     "group": 0
   },
   "111501111": {
-    "category": "unique",
     "group": 0
   },
   "111501211": {
-    "category": "unique",
     "group": 0
   },
   "111501221": {
-    "category": "unique",
     "group": 0
   },
   "111601111": {
-    "category": "unique",
     "group": 0
   },
   "111601211": {
-    "category": "unique",
     "group": 0
   },
   "111601221": {
-    "category": "unique",
     "group": 0
   },
   "111602111": {
-    "category": "unique",
     "group": 0
   },
   "111602211": {
-    "category": "unique",
     "group": 0
   },
   "111701111": {
-    "category": "unique",
     "group": 0
   },
   "111701211": {
-    "category": "unique",
     "group": 0
   },
   "111801111": {
-    "category": "unique",
     "group": 0
   },
   "111801211": {
-    "category": "unique",
     "group": 0
   },
   "111901111": {
-    "category": "unique",
     "group": 0
   },
   "111901211": {
-    "category": "unique",
     "group": 0
   },
   "111902111": {
-    "category": "unique",
     "group": 0
   },
   "111902211": {
-    "category": "unique",
     "group": 0
   },
   "112001111": {
-    "category": "unique",
     "group": 0
   },
   "112001121": {
-    "category": "unique",
     "group": 0
   },
   "112001211": {
-    "category": "unique",
     "group": 0
   },
   "112101111": {
-    "category": "unique",
     "group": 0
   },
   "112101211": {
-    "category": "unique",
     "group": 0
   },
   "112401111": {
-    "category": "unique",
     "group": 0
   },
   "112401211": {
-    "category": "unique",
     "group": 0
   },
   "112402111": {
-    "category": "unique",
     "group": 0
   },
   "112402211": {
-    "category": "unique",
     "group": 0
   },
   "112701111": {
-    "category": "unique",
     "group": 0
   },
   "112701211": {
-    "category": "unique",
     "group": 0
   },
   "112901111": {
-    "category": "unique",
     "group": 0
   },
   "112901211": {
-    "category": "unique",
     "group": 0
   },
   "112901221": {
-    "category": "unique",
     "group": 0
   },
   "113001111": {
-    "category": "unique",
     "group": 0
   },
   "113001211": {
-    "category": "unique",
     "group": 0
   },
   "113101111": {
-    "category": "unique",
     "group": 0
   },
   "113101211": {
-    "category": "unique",
     "group": 0
   },
   "113201111": {
-    "category": "unique",
     "group": 0
   },
   "113201211": {
-    "category": "unique",
     "group": 0
   },
   "113202111": {
-    "category": "unique",
     "group": 0
   },
   "113202211": {
-    "category": "unique",
     "group": 0
   },
   "113301111": {
-    "category": "unique",
     "group": 0
   },
   "113301211": {
-    "category": "unique",
     "group": 0
   },
   "113401111": {
-    "category": "unique",
     "group": 0
   },
   "113401211": {
-    "category": "unique",
     "group": 0
   },
   "113501111": {
-    "category": "unique",
     "group": 0
   },
   "113501211": {
-    "category": "unique",
     "group": 0
   },
   "113501221": {
-    "category": "unique",
     "group": 0
   },
   "113601111": {
-    "category": "unique",
     "group": 0
   },
   "113601211": {
-    "category": "unique",
     "group": 0
   },
   "113701111": {
-    "category": "unique",
     "group": 0
   },
   "113701211": {
-    "category": "unique",
     "group": 0
   },
   "114301111": {
-    "category": "unique",
     "group": 0
   },
   "114301211": {
-    "category": "unique",
     "group": 0
   }
 }
