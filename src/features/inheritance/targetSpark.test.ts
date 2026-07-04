@@ -19,37 +19,41 @@ function skillMap(entries: Array<[string, string]>): Map<string, SkillRecord> {
   return m;
 }
 
-const withBlue = plan({ sparkGoals: { pink: [], blue: { pow: 3, sta: 6 } } });
+const withBlue = plan({
+  wishlist: [{ skillId: 's1' }] as CmPlan['wishlist'],
+  sparkGoals: { pink: [], blue: { pow: 3, sta: 6 } },
+});
 
 describe('buildTargetSpark', () => {
   it('passes blue goals through from blueSparkRows (verbatim, canonical order)', () => {
-    const out = buildTargetSpark(withBlue, null, skillMap([]), undefined);
+    const out = buildTargetSpark(withBlue, null, skillMap([]), []);
     expect(out.blue).toEqual([
       { stat: 'sta', label: 'Stamina', stars: 6 },
       { stat: 'pow', label: 'Power', stars: 3 },
     ]);
   });
 
-  it('coverage is "pending" when uncoveredSkillIds is undefined', () => {
-    const out = buildTargetSpark(plan(), null, skillMap([]), undefined);
-    expect(out.coverage).toBe('pending');
+  it('coverage is "empty" when the plan has no wishlist skills (nothing to cover)', () => {
+    // An empty wishlist must NOT read as a vacuous "all covered" green check.
+    const out = buildTargetSpark(plan({ wishlist: [] }), null, skillMap([]), []);
+    expect(out.coverage).toBe('empty');
     expect(out.white).toEqual([]);
   });
 
-  it('coverage is "covered" when uncoveredSkillIds is empty', () => {
-    const out = buildTargetSpark(plan(), null, skillMap([]), []);
+  it('coverage is "covered" when the wishlist is non-empty but nothing is uncovered', () => {
+    const out = buildTargetSpark(withBlue, null, skillMap([]), []);
     expect(out.coverage).toBe('covered');
     expect(out.white).toEqual([]);
   });
 
   it('coverage is "gaps" with resolved white rows; unknown ids are skipped', () => {
-    const out = buildTargetSpark(plan(), null, skillMap([['s1', 'Slick Surge']]), ['s1', 'unknown-id']);
+    const out = buildTargetSpark(withBlue, null, skillMap([['s1', 'Slick Surge']]), ['s1', 'unknown-id']);
     expect(out.coverage).toBe('gaps');
     expect(out.white).toEqual([{ id: 's1', name: 'Slick Surge' }]);
   });
 
   it('pink is empty when no uma resolves', () => {
-    const out = buildTargetSpark(plan(), null, skillMap([]), undefined);
+    const out = buildTargetSpark(plan(), null, skillMap([]), []);
     expect(out.pink).toEqual([]);
   });
 });

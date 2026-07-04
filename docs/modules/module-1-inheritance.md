@@ -257,22 +257,23 @@ Right-column read-off panel (handoff §7) — BLUE (`blueSparkRows`) + PINK
 (`pinkSparkRows`) plan goals verbatim, plus WHITE = the wishlist skills the M1.7
 coverage matrix reports uncovered. Pure `buildTargetSpark(plan, uma, skillById,
 uncoveredSkillIds)` (`targetSpark.ts`) returns `{ blue, pink, white, coverage }`
-(`coverage: 'pending' | 'covered' | 'gaps'`) and is the reusable seeding contract
+(`coverage: 'empty' | 'covered' | 'gaps'`) and is the reusable seeding contract
 for M1.4b's rental "Load from Target spark". `TargetSparkCard` is provider-free
 (not collapsible, `cmp-plan-card` grammar, global `.badge.spark-*` chips + an
 `.inh-target-spark .spark-chips` scope rule). The page feeds WHITE live from
-`coverageResult.rows.filter(r => !r.covered).map(r => r.skillId)`; if that input
-is ever absent (`undefined`), the panel shows a "coverage pending" note rather
-than a false green checkmark. WHITE inherits M1.7's family-aware coverage
-(`○ ≡ ◎`, gold/`×` exact). Spec:
+`coverageResult.rows.filter(r => !r.covered).map(r => r.skillId)`. An **empty
+wishlist** yields `coverage: 'empty'` → a neutral "No wishlist skills yet — add
+some to the plan to see uncovered targets" note (keyed on `plan.wishlist.length`,
+NOT a vacuous green check); a non-empty wishlist with nothing uncovered stays
+`'covered'` (the green "✓ All wishlist skills obtainable"). WHITE inherits M1.7's
+family-aware coverage (`○ ≡ ◎`, gold/`×` exact). Spec:
 [2026-07-01-m1-8-target-spark-design](../superpowers/specs/2026-07-01-m1-8-target-spark-design.md).
 
-**Known minors (accepted, not fixed):** (1) an **empty wishlist** yields
-`coverage: 'covered'` → the green "✓ All wishlist skills obtainable" reads
-vacuously true (matches the handoff prototype's binary has/no-white; revisit if
-it confuses); (2) the `.inh-placeholder` CSS block in `inheritance.css` is now
-dead — the `Placeholder` component was removed with M1.8 (the last placeholder
-card) — safe to delete on the next CSS pass.
+**Fixed 2026-07-04** (was an accepted minor): the empty-wishlist vacuous
+"covered" green check now renders the neutral `'empty'` state above, and the dead
+`'pending'` coverage arm (unreachable once M1.7 shipped — the page always passes
+a real array) was removed from `buildTargetSpark`/`TargetSparkCard`. The dead
+`.inh-placeholder` CSS was removed in the PR #34–43 review-fix pass.
 
 ## Next (Plans 3–5)
 

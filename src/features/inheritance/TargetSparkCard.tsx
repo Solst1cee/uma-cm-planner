@@ -46,9 +46,9 @@ export function TargetSparkCard({ spark }: { spark: TargetSpark }) {
         {spark.coverage === 'covered' && (
           <p className="inh-target-spark-ok">✓ All wishlist skills obtainable from your setup.</p>
         )}
-        {spark.coverage === 'pending' && (
-          <p className="inh-target-spark-pending muted small">
-            Coverage pending — needs the obtainable-vs-wishlist matrix (M1.7).
+        {spark.coverage === 'empty' && (
+          <p className="inh-target-spark-empty muted small">
+            No wishlist skills yet — add some to the plan to see uncovered targets.
           </p>
         )}
       </div>
