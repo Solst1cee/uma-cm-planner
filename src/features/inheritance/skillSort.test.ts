@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildIconRank, buildSkillComparator, ICON_SUBCATEGORIES, type SortSkillMeta } from './skillSort';
 
@@ -50,5 +52,27 @@ describe('icon-spec skill sort', () => {
   it('every subcategory icon is unique across the spec (no double-listed icon)', () => {
     const all = ICON_SUBCATEGORIES.flat();
     expect(all.length).toBe(new Set(all).size);
+  });
+
+  // Future-proofing guard: when a data refresh adds a new skill icon, this fails
+  // and names it, so it gets placed in ICON_SUBCATEGORIES instead of silently
+  // sorting last. Unique/inherited-unique icons are exempt — they sort by the
+  // top group (rarity), never by icon. Workflow: docs/skill-icon-sort-workflow.md.
+  it('every non-unique skill icon in the baked data is placed in the scheme', () => {
+    const skills = JSON.parse(
+      readFileSync(join(process.cwd(), 'public/data/skills.json'), 'utf8'),
+    ) as Array<{ iconId?: string; rarity: string; nameEn: string }>;
+    const placed = new Set(ICON_SUBCATEGORIES.flat());
+    const unplaced = new Map<string, string>(); // iconId -> example skill name
+    for (const s of skills) {
+      if (!s.iconId) continue;
+      if (s.rarity === 'unique' || s.rarity === 'inherited_unique') continue; // top group, icon-independent
+      if (!placed.has(s.iconId) && !unplaced.has(s.iconId)) unplaced.set(s.iconId, s.nameEn);
+    }
+    const detail = [...unplaced].map(([ic, n]) => `${ic} (e.g. "${n}")`).join(', ');
+    expect(
+      unplaced.size,
+      `New non-unique skill icon(s) not in ICON_SUBCATEGORIES — place them (docs/skill-icon-sort-workflow.md): ${detail}`,
+    ).toBe(0);
   });
 });
