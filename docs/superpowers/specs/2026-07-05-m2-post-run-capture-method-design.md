@@ -126,3 +126,53 @@ parseCaptureBundle (validate) → editable form (confirm-on-entry) → rankBaske
 Run the §5 spike (start with step 1 desk research — no game needed). The spike's decode result
 either opens a "build the memory-reader companion" spec (go) or promotes Option B to the sole
 automated producer (no-go). Either way, Option B is specced-committed.
+
+---
+
+## Appendix A — Spike step 1 findings: msgpack field map (2026-07-05)
+
+Desk research against the JP ecosystem (no game). Source: Hakuraku
+`src/data/TrainedCharaData.ts` (SSHZ-ORG/hakuraku) — it decodes the shared chara structure the
+game's msgpack uses everywhere (Veteran List + race + in-career), with raw master.mdb-aligned field
+names. **Confidence** = VERIFIED (seen in Hakuraku decoder) / EXPECTED (well-known career-mode
+field, to confirm against Sun's real dump in spike step 3).
+
+**Chara block — VERIFIED field names** (same block UmaExtractor already reads for the roster):
+
+| CaptureBundle field | msgpack path | Confidence |
+|---|---|---|
+| `stats.spd` | `speed` | VERIFIED |
+| `stats.sta` | `stamina` | VERIFIED |
+| `stats.pow` | `pow` (in-career) / `power` (trained_chara) — accept both | VERIFIED |
+| `stats.gut` | `guts` | VERIFIED |
+| `stats.wit` | `wiz` | VERIFIED |
+| `aptitudes.distance` | `proper_distance_{short,mile,middle,long}` (int rank 1–8 → S…G) | VERIFIED |
+| `aptitudes.surface` | `proper_ground_{turf,dirt}` | VERIFIED |
+| `strategy` + apt | `proper_running_style_{nige,senko,sashi,oikomi}` (1=nige/front … 4=oikomi/end) | VERIFIED |
+| `ownedSkills[]` | `skill_array[] → { skill_id, level }` | VERIFIED |
+
+**Skill-purchase-screen fields — EXPECTED, confirm in step 3** (Hakuraku is race-replay focused and
+does not decode the in-career acquisition screen, so these are from community knowledge, not the
+Hakuraku decoder):
+
+| CaptureBundle field | expected msgpack path | note |
+|---|---|---|
+| `spBudget` | `chara_info.skill_point` | the available-SP number the screen spends |
+| `candidates[]` | `chara_info.skill_tips_array[]` (skill/group id + level) | the learnable "tips" the screen offers |
+| `candidates[].screenSpCost` | **not in packet** | per-skill cost is looked up from master.mdb → **use our dataset `baseSpCost`** (F1's accepted fallback), not a packet field |
+| `courseId` | not reliably on this screen | **prefer the active `CmPlan.cmRef`**; packet is optional |
+
+**Implications for the method decision:**
+- The stats/aptitude/strategy fields are VERIFIED-decodable and co-resident in the chara block →
+  **if** `chara_info` (with `skill_tips_array` + `skill_point`) is resident on the skill screen,
+  Option A captures full sim-context and **F3 becomes unnecessary** for this flow (§5.2 bonus).
+- Per-skill SP cost is **never** a packet field on either method — it comes from our dataset. So
+  memory-read and OCR both rely on `baseSpCost`; this is not an A-vs-B differentiator.
+- The one true unknown left for the go/no-go gate: **is `skill_tips_array` + `skill_point` present
+  and anchorable in the Global client's memory while on the post-run acquisition screen?** That is
+  exactly what spike step 2 (Sun's capture) + step 3 (offline decode) answer.
+
+**Step 2 handoff — what Sun's capture needs to contain:** navigate to the post-run skill-acquisition
+screen, then dump. In step 3 we grep the dump for the byte patterns of `skill_tips_array`,
+`skill_point`, and `skill_array` (msgpack string keys) to locate the chara block and confirm the
+offered-skill ids + SP are decodable, plus test anchor stability across two dumps.
