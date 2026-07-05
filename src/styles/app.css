@@ -91,6 +91,13 @@ nav[aria-label='Modules'] {
   overflow-x: auto;
 }
 
+/* NavLink renders an anchor — reset the default link underline. This must
+   live in the always-loaded shell CSS, not a feature file: it used to sit in
+   parents.css and stopped applying app-wide when routes went lazy. */
+a.nav-item {
+  text-decoration: none;
+}
+
 .nav-item {
   flex: none;
   font-size: 0.8rem;
