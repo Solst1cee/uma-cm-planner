@@ -1711,7 +1711,7 @@ main:has(.inh-page) {
 .inh-target-spark-intro { margin: 0 0 0.5rem; color: var(--fg-muted); font-size: 0.78rem; }
 .inh-target-spark-sub { text-transform: none; letter-spacing: 0; color: var(--fg-muted); font-weight: 400; }
 .inh-target-spark-ok { margin: 0.2rem 0 0; color: var(--tier-chain); font-weight: 700; font-size: 0.78rem; }
-.inh-target-spark-pending { margin: 0.2rem 0 0; }
+.inh-target-spark-empty { margin: 0.2rem 0 0; }
 
 /* M1.7 coverage matrix */
 .inh-cov-head { display: flex; align-items: center; gap: 0.5rem; }

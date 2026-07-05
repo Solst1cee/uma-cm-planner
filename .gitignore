@@ -48,3 +48,6 @@ ds-bundle/
 
 # dev-only skill-icon reference pages (M1.7 sort tuning)
 public/_skill-icon*.html
+
+# dev-only icon sort sheet output (scripts/build-icon-sort-sheet.mjs)
+tmp-tools/

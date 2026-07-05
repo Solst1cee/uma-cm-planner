@@ -10,7 +10,7 @@ const base: TargetSpark = {
   blue: [{ stat: 'sta', label: 'Stamina', stars: 6 }],
   pink: [{ label: 'Long', stars: 5 }],
   white: [],
-  coverage: 'pending',
+  coverage: 'empty',
 };
 
 describe('TargetSparkCard', () => {
@@ -21,9 +21,10 @@ describe('TargetSparkCard', () => {
     expect(screen.getByText(/Long 5/)).toBeInTheDocument();
   });
 
-  it('shows the coverage-pending note for coverage "pending"', () => {
+  it('shows the empty-wishlist note (not a green check) for coverage "empty"', () => {
     render(<TargetSparkCard spark={base} />);
-    expect(screen.getByText(/Coverage pending/i)).toBeInTheDocument();
+    expect(screen.getByText(/No wishlist skills yet/i)).toBeInTheDocument();
+    expect(screen.queryByText(/All wishlist skills obtainable/i)).not.toBeInTheDocument();
   });
 
   it('shows the all-obtainable note for coverage "covered"', () => {
