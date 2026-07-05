@@ -176,3 +176,38 @@ Hakuraku decoder):
 screen, then dump. In step 3 we grep the dump for the byte patterns of `skill_tips_array`,
 `skill_point`, and `skill_array` (msgpack string keys) to locate the chara block and confirm the
 offered-skill ids + SP are decodable, plus test anchor stability across two dumps.
+
+## Appendix B — Spike outcome: existing tool already solves most of it (2026-07-05)
+
+Refreshing UmaExtractor (xancia/UmaExtractor `34248ef`) surfaced a **pre-existing skill-screen
+extractor** we hadn't accounted for: `py/skills/skill_extract.py`. It **replaces the raw-msgpack
+approach in §5.1/Appendix A with a cleaner technique** and answers the go/no-go gate before any
+memory dump:
+
+- **Technique upgrade — IL2CPP method hooking, not msgpack byte-scanning.** It Frida-`Interceptor`-
+  hooks the game's own C# methods (`Gallop.SingleModeSkillLearningViewController.BeginView`,
+  `MasterAvailableSkillSet.GetList…`, `PartsSingleModeSkillLearningListItem.UpdateItem`,
+  `MasterSkillData.Get` for names). Reading the game's decoded structures gives **more** than a packet
+  would: real **on-screen discounted cost** + **discount %** + **hint level** + acquired flags, plus
+  resolved names/rarity.
+- **Output** `skill_tree.json`: `acquired_skills[] {skillId,name,currentLevel}` +
+  `buyable_skills[] {skillId,name,baseCost,discountedCost,hintLevel,discountPercent,rarity}`.
+- **CaptureBundle coverage:** `candidates[]` (ids + `screenSpCost=discountedCost` + rarity + hint) and
+  `ownedSkills[]` are **fully covered, exactly** (matchTier `exact`, no OCR fuzzing). The per-skill
+  cost that "isn't in the packet" (Appendix A) **is** captured here because it's read from the UI
+  structure, discount included.
+
+**Revised gate result:** Option A is effectively **GO by reuse**, pending only Sun's confirmation
+run on the Global client (the tool is Global-compatible; IL2CPP class names/offsets just need to
+match — the README notes they can shift on a game update). The from-scratch memory-reader in §5.1 is
+**not needed**.
+
+**Remaining Option-A work (small):**
+1. Sun runs `skill_extract.py` on Global → confirm attach + capture (spike step 2, unchanged goal,
+   easier method). Share `skill_tree.json` + `--debug` `skill_extract.log`.
+2. **Add SP-budget capture** — the one true gap; `skill_extract.py` captures the tree, not the SP
+   wallet. Needs one more IL2CPP hook for available SP (`spBudget` is the optimizer's entire budget).
+3. **Mapper** `skill_tree.json` (+ SP + `CmPlan` context) → `CaptureBundle` → existing F1 import.
+
+Stats/aptitudes/strategy/course stay sourced from the active `CmPlan` (M4 already holds them), so F3
+is unnecessary for this flow. Workspace + run instructions: gitignored `spikes/m2-capture/README.md`.
