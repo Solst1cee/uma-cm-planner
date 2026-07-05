@@ -1,8 +1,10 @@
 # Handoff — review follow-ups after PRs #29–#36 (2026-07-04)
 
 Cold-session resume note for the tail of the availability epic. Multi-angle reviews of
-PRs #25–#32 produced findings; most are now fixed (below), three remain. Read this + the
-prior [2026-07-02 availability-review followups](2026-07-02-availability-review-followups-handoff.md)
+PRs #25–#32 produced findings; most are now fixed (below). The **E architecture slice was
+re-assessed on 2026-07-05 and deliberately deferred** (see §3) — the two genuinely-open items
+are icon-dump-wait and M2 pin-lag. Read this + the prior
+[2026-07-02 availability-review followups](2026-07-02-availability-review-followups-handoff.md)
 (its **latent data-build findings** are still open and NOT repeated here).
 
 ## Done this session (PRs #33 / #35 / #36)
@@ -17,6 +19,11 @@ prior [2026-07-02 availability-review followups](2026-07-02-availability-review-
 - **PR #36** — regenerated the icon set (492 new JP-ahead icons; the committed set was stale).
 - **F (provenance)** — `docs/provenance.md` §3.5 (availability epic: JP-ahead content,
   jp-schedule, foresight, rebalance feeds) + the §2.1 JP-ahead icon-scope note. **Done.**
+- **3c dedup (2026-07-05)** — the one concrete item salvaged from the deferred E slice:
+  `.cmp-upcoming-badge` was duplicated across `cm-planner.css` (scoped) + `uma-chart.css` (bare).
+  Canonicalized to one bare rule in the always-loaded `cm-planner.css` (the bare rule had lived in
+  the *lazy* Uma-tab chunk despite being used by SkillChart/AccelChart/Sourcing/PlannerSidebar).
+  **Done** (`chore/dedupe-upcoming-badge`).
 
 ## Still open
 
@@ -37,32 +44,33 @@ Fix shape (no horizon plumbing needed — pin-lag is a pure data fact): a `confi
 `rankBaskets.toSimBuild` + `skillPatchesSig` into `simCacheKey` + a `PatchedSimNote` on M2 results.
 Do NOT delete the `server !== 'global'` gate to "unify" — that re-opens PR #29's P4 leak.
 
-### 3. E — the architecture slice (the main open work)
-Three related refactors the reviews kept surfacing. Best as one branch/PR (or three commits).
+### 3. E — the architecture slice (DEFERRED — re-assessed 2026-07-05, do NOT start without a trigger)
+Three preventive/ergonomic refactors the earlier reviews surfaced. Re-scored against the state of
+`origin/main` on 2026-07-05: **all three triggers have not fired**, so building now is speculative
+(YAGNI). The known bugs these would have caught are **already fixed** (#29/#33); the availability
+epic is **closed and has not grown** (all post-#33 momentum is M1 inheritance); the perf concern is
+**already memoized**. Keeping the design here so it can be picked up when a *concrete* trigger lands.
 
-**3a. Data-layer gating in `useGameData`** — *highest value; do before availability grows again.*
-Today `useGameData` exposes mixed-server arrays AND ungated id-maps (`skillById`/`cardById`/
-`umaById`); every consumer must remember `server === 'global'`, and three "safe-exclude" audit
-passes still left leaks (the M2 leak PR #29 fixed came through a map). **Invert the default:**
-expose `globalSkills/globalUmas/globalCards` (+ Global-only default maps) as the path of least
-resistance, with an explicit `upcoming(asOfISO)` / JP opt-in selector. This closes the whole
-per-consumer-tax bug class instead of re-auditing it per slice. Watch: the horizon predicate
-(`useAvailability`) currently is the opt-in seam — reconcile, don't duplicate.
-
-**3b. `usePatchedBuild` single seam + patch-map scoping.** The rebalance `skillPatches` injection
-is a 7-surface tax (`useSkillPatches` → `withSkillPatches` → `skillPatchesSig` → `usePatchNotes`,
-copy-pasted per surface). A future 8th sim surface that forgets a step runs **silently unpatched
-with no PatchedSimNote**. Extract one `usePatchedBuild(plan, build, relevantIds)` returning
-`{ build, patchNotes }`; longer-term push injection into `planToOverlayBuild`/the SimClient seam.
-Fold in the **deferred efficiency fix**: `skillPatchMap`/`activePatchNotes` scan all ~1719 catalog
-records per surface per render — restrict to the build's relevant ids (the caller already has
-`relevantSkillIds`), which also bounds every `skillPatchesSig` in the sim cache keys.
-
-**3c. Chip-primitive consolidation.** The pill has forked five ways: `.chip` → `.tier-chip` →
-`.rebalance-badge` → `.cmp-patched-chip` + the hand-rolled `~date` spans (6 copies, 3 class names,
-duplicate `.cmp-upcoming-badge` CSS in `uma-chart.css` + `cm-planner.css`). Consolidate to one
-`.chip` base + variant modifiers and one `AvailabilityBadges`/`ProjectedDateBadge` component.
-`arrivalLabel` (core, done in PR #33) already unified the *text*; this unifies the *markup/CSS*.
+**Re-triggers (build the matching piece only when one of these happens):**
+- **3a** ← availability/JP work resumes (a new JP-content surface, or the "All JP" lens gains real
+  consumers). Then: additive `globalSkills`/`globalCards`/`globalUmas` (server-gated arrays) as the
+  default for enumerate-to-offer surfaces; keep full arrays as the JP-opt-in path; **keep id-maps
+  full** (imported JP plans must `.get(id)`-resolve — the leak is `.values()`-enumeration, not
+  lookup); migrate raw-array offer-surfaces to `globalX` / `useAvailability().visible`. Reconcile
+  with the horizon seam (`useAvailability`), don't duplicate it. *(Chosen strategy 2026-07-05:
+  additive, not a hard invert of `skills`.)*
+- **3b** ← a *new* sim surface is added (the "8th surface forgets a patch step → silent unpatched
+  run" risk becomes real). Then extract `usePatchedBuild(plan, build, relevantIds) → { build,
+  patchNotes }` collapsing the `useSkillPatches` + `withSkillPatches` + `usePatchNotes` triple
+  (UmaChartPanel keeps `useSkillPatches` — per-row map in a render callback). The bundled efficiency
+  "fix" (scope `skillPatchMap`/`activePatchNotes` to `relevantIds` vs the ~1719-record scan) is
+  **marginal** — those hooks are already memoized on `[skillById, cutoffISO, todayISO, wishlist]`,
+  so they recompute on wishlist/horizon change, not per render. Do it only if profiling flags it.
+- **3c** ← already partly done: the `.cmp-upcoming-badge` duplicate is resolved (see Done above).
+  The remaining fork (`.chip`/`.tier-chip`/`.rebalance-badge`/`.cmp-patched-chip` + `~date` spans →
+  one `.chip` base + variants + an `AvailabilityBadges`/`ProjectedDateBadge` component) is cosmetic,
+  visual-regression-prone, and low-value — fold it into the *next* deliberate design-system pass,
+  not a standalone branch.
 
 ## Pointers
 - In-code M2 rationale: `src/core/spOptimizer.ts` `wishlistToCandidates` + `src/sim/cache.ts`.
