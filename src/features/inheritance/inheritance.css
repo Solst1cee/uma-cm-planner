@@ -1840,3 +1840,20 @@ main:has(.inh-page) {
 .inh-rental-link-row { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
 .inh-rental-dropped { font-style: italic; }
 .inh-rental-caveat { line-height: 1.4; }
+
+/* ── RentalParentEditor (M1.4b, real-rental manual entry) ──────────────── */
+.inh-rental-editor { display: flex; flex-direction: column; gap: 0.6rem; }
+.inh-rental-editor select { font-size: 0.78rem; }
+.inh-rental-field { display: flex; flex-direction: column; gap: 0.2rem; }
+.inh-rental-row { display: flex; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+.inh-rental-row .inh-rental-field { flex: 1 1 auto; min-width: 8rem; }
+.inh-rental-white { display: flex; flex-direction: column; gap: 0.3rem; }
+.inh-rental-white-row { display: flex; align-items: center; gap: 0.4rem; }
+.inh-rental-white-name { flex: 1 1 auto; font-size: 0.78rem; }
+.inh-rental-x { border: 0; background: none; color: var(--fg-muted); cursor: pointer; padding: 0 0.2rem; }
+.inh-rental-white-add { display: flex; align-items: center; gap: 0.4rem; }
+.inh-rental-gps { display: flex; flex-direction: column; gap: 0.4rem; }
+.inh-rental-gp { border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.5rem; background: var(--bg-1); }
+.inh-rental-gp summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.inh-rental-gp-body { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+.inh-rental-actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
