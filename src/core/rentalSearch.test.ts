@@ -7,6 +7,10 @@ const pinkLong3: SparkFilter = { id: 'p', kind: 'pink', aptitude: 'long', legacy
 const greenU: SparkFilter = { id: 'g', kind: 'green', skillId: '100011', legacyMin: 1, totalMin: 1 };
 const whiteW: SparkFilter = { id: 'w', kind: 'white', skillId: '200011', legacyMin: 1, totalMin: 1 };
 const anyBlue6: SparkFilter = { id: 'a', kind: 'anyBlue', totalMin: 6 };
+// 'short' is a real AptKey distance bucket (src/core/types.ts) that isn't in the
+// PINK_FACTOR_ID/PINK_GROUP maps — an unrecognized-but-legal aptitude string.
+const pinkUnknownApt: SparkFilter = { id: 'u', kind: 'pink', aptitude: 'short', legacyMin: 0, totalMin: 3 };
+const pinkOver9: SparkFilter = { id: 'o', kind: 'pink', aptitude: 'long', legacyMin: 0, totalMin: 12 };
 
 describe('umaMoeUrl', () => {
   it('encodes blue/pink triplets + trainer id into the filters param', () => {
@@ -27,6 +31,19 @@ describe('umaMoeUrl', () => {
     expect(json.w).toBeUndefined();
     expect(dropped).toEqual([greenU, whiteW, anyBlue6]);
   });
+
+  it('drops a pink clause whose aptitude has no known factorId, instead of encoding factorId 0', () => {
+    const { url, dropped } = umaMoeUrl({ filters: [pinkUnknownApt], traineeCardId: '100101' });
+    const json = JSON.parse(atob(decodeURIComponent(new URL(url).searchParams.get('filters')!)));
+    expect(json.p).toBeUndefined();
+    expect(dropped).toEqual([pinkUnknownApt]);
+  });
+
+  it('clamps a totalMin above 9 down to 9 in the triplet', () => {
+    const { url } = umaMoeUrl({ filters: [pinkOver9], traineeCardId: '100101' });
+    const json = JSON.parse(atob(decodeURIComponent(new URL(url).searchParams.get('filters')!)));
+    expect(json.p).toContainEqual([340, 9, 9]); // Long, min clamped 12→9, max 9
+  });
 });
 
 describe('pureDbUrl', () => {
@@ -44,6 +61,13 @@ describe('pureDbUrl', () => {
   it('drops green/white/anyBlue clauses (no key documented in provenance)', () => {
     const { dropped } = pureDbUrl({ filters: [greenU, whiteW, anyBlue6], traineeCardId: '100101' });
     expect(dropped).toEqual([greenU, whiteW, anyBlue6]);
+  });
+
+  it('drops a pink clause whose aptitude has no known groupId, instead of encoding groupId 0', () => {
+    const { url, dropped } = pureDbUrl({ filters: [pinkUnknownApt], traineeCardId: '100101' });
+    const json = JSON.parse(atob(decodeURIComponent(new URL(url).searchParams.get('searchInfo')!)));
+    expect(json.redFactors ?? []).toEqual([]);
+    expect(dropped).toEqual([pinkUnknownApt]);
   });
 });
 
@@ -74,5 +98,13 @@ describe('chronoGenesisUrl', () => {
   it('drops green/white clauses (opaque factorId space shared w/ uma.moe, unconfirmed)', () => {
     const { dropped } = chronoGenesisUrl({ filters: [greenU, whiteW], traineeCardId: '100101' });
     expect(dropped).toEqual([greenU, whiteW]);
+  });
+
+  it('drops a pink clause whose aptitude has no known factorId, instead of encoding factorId 0', () => {
+    const { url, dropped } = chronoGenesisUrl({ filters: [pinkUnknownApt], traineeCardId: '100101' });
+    const inner = new URLSearchParams(atob(decodeURIComponent(new URL(url).searchParams.get('query')!)));
+    expect(inner.getAll('leg_All')).toEqual([]);
+    expect(inner.getAll('tot_All')).toEqual([]);
+    expect(dropped).toEqual([pinkUnknownApt]);
   });
 });

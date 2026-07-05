@@ -2,10 +2,10 @@
  *  spark display, selection persisted to plan.parents. Parent 2 additionally
  *  supports two rental modes (M1.4b): Draft (a forced-tier search spec,
  *  `RentalDraftPanel`) and Rental (a recorded veteran, `RentalParentEditor`). */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { useAvailability } from '@/app/useAvailability';
-import type { Parent } from '@/core/types';
+import type { CmPlan, Parent } from '@/core/types';
 import { forcedTierScore } from '@/core/rentalDraft';
 import { resolveParent2 } from '@/core/resolveParent2';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -52,7 +52,7 @@ export interface InheritanceCardProps {
 }
 
 export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}) {
-  const { uma1Plan, setPlan } = useActivePlan();
+  const { uma1Plan, setPlan, saveCurrentPlan } = useActivePlan();
   const { visible } = useAvailability();
   const { roster, importedAt } = useRoster();
   const { umas, umaById } = useUmas();
@@ -62,6 +62,20 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
   const [open, setOpen] = useState(true);
   const [mode, setMode] = useState<Record<Slot, Mode>>({ a: null, b: null });
   const [rentalEditing, setRentalEditing] = useState(false);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+
+  // M1 edits persist to the plan's JSON immediately — independent of the planner's
+  // auto-save toggle (CLAUDE.md M1 gotcha #3; matches InheritancePage's editPlan).
+  // setPlan keeps the UI instant; saveCurrentPlan (queued, `commit: 'if-current'`)
+  // does the actual write so a mode switch / draft edit / rental save/clear can't
+  // live only in React state and vanish on reload.
+  const editPlan = (next: CmPlan) => {
+    setPlan(next);
+    saveQueue.current = saveQueue.current
+      .catch(() => undefined)
+      .then(() => saveCurrentPlan(next, { commit: 'if-current' }));
+    void saveQueue.current;
+  };
 
   const pool = useMemo(() => roster.filter((p) => p.source === 'mine'), [roster]);
   // All hooks must run before the early return below — keep this useMemo above the guard.
@@ -127,7 +141,7 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
   })();
   const draftAssumedScore = resolvedP2.kind === 'draft' ? forcedTierScore(uma1Plan.rentalDraft!.forcedTier) : null;
   const select = (slot: Slot, parentId: string | undefined) => {
-    setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
+    editPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
     setMode((m) => ({ ...m, [slot]: null }));
   };
   const portrait = (p: Parent) => umaPortrait(p.umaId, 60);
@@ -248,9 +262,9 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
 
   const setParent2Mode = (next: Parent2Mode) => {
     if (next === 'draft' && !uma1Plan.rentalDraft) {
-      setPlan({ ...uma1Plan, parent2Mode: next, rentalDraft: { filters: [], forcedTier: 'double' } });
+      editPlan({ ...uma1Plan, parent2Mode: next, rentalDraft: { filters: [], forcedTier: 'double' } });
     } else {
-      setPlan({ ...uma1Plan, parent2Mode: next });
+      editPlan({ ...uma1Plan, parent2Mode: next });
     }
     setRentalEditing(false);
   };
@@ -274,6 +288,9 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
   // Parent 1's uma (when picked) is the Draft panel's "partner" for the rental
   // search deep-links (spec §4.3) — omitted when Parent 1 isn't set yet.
   const parentA = uma1Plan.parents.a ? byId.get(uma1Plan.parents.a) : undefined;
+  // Parent 1's character — used to exclude same-character umas from the Rental
+  // editor's search options (spec §6, same-character guard).
+  const parentAChara = parentA ? charaIdOf(parentA.umaId) : undefined;
 
   const greenIcon = (id: string) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />;
   const whiteIcon = (id: string) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={34} alt="" />;
@@ -292,7 +309,7 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
             draft ? (
               <RentalDraftPanel
                 draft={draft}
-                onChange={(d) => setPlan({ ...uma1Plan, rentalDraft: d })}
+                onChange={(d) => editPlan({ ...uma1Plan, rentalDraft: d })}
                 seed={{
                   blue: blueSparkRows(uma1Plan).map((r) => ({ stat: r.stat, stars: r.stars })),
                   white: (uncoveredWhiteIds ?? []).map((id) => ({ id })),
@@ -327,7 +344,7 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
           portrait={portrait(recorded)}
           rentalToggle={p2ModeControl}
           onChange={() => setRentalEditing(true)}
-          onClear={() => setPlan({ ...uma1Plan, rentalRecorded: undefined })}
+          onClear={() => editPlan({ ...uma1Plan, rentalRecorded: undefined })}
         />
       );
     }
@@ -342,11 +359,17 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
             value={recorded}
             seedFilters={uma1Plan.rentalDraft?.filters}
             onSave={(p) => {
-              setPlan({ ...uma1Plan, rentalRecorded: p });
+              editPlan({ ...uma1Plan, rentalRecorded: p });
               setRentalEditing(false);
             }}
             onCancel={() => setRentalEditing(false)}
-            umaOptions={(umas ?? []).filter((u) => visible(u)).map((u) => ({ id: u.umaId, name: umaName(umaById, u.umaId) }))}
+            umaOptions={(umas ?? [])
+              .filter((u) => visible(u))
+              // Same-character guard (spec §6): a rental Parent 2 can't be the same
+              // character as Parent 1 (any outfit/copy of it) — matches the owned-mode
+              // guard in itemsFor()/UmaPickerModal.
+              .filter((u) => parentAChara === undefined || charaIdOf(u.umaId) !== parentAChara)
+              .map((u) => ({ id: u.umaId, name: umaName(umaById, u.umaId) }))}
             greenOptions={uniqueSkillOptions}
             whiteOptions={whiteSkillOptions}
           />

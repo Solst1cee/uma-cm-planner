@@ -130,8 +130,12 @@ export function umaMoeUrl({ filters, traineeCardId }: SearchArgs): { url: string
   const dropped: SparkFilter[] = [];
 
   for (const f of filters) {
-    if (f.kind === 'blue') b.push([BLUE_FACTOR_ID[f.stat], f.totalMin || 1, 9]);
-    else if (f.kind === 'pink') p.push([PINK_FACTOR_ID[f.aptitude] ?? 0, f.totalMin || 1, 9]);
+    if (f.kind === 'blue') b.push([BLUE_FACTOR_ID[f.stat], clampStar(f.totalMin), 9]);
+    else if (f.kind === 'pink') {
+      const factorId = PINK_FACTOR_ID[f.aptitude];
+      if (factorId === undefined) dropped.push(f);
+      else p.push([factorId, clampStar(f.totalMin), 9]);
+    }
     else dropped.push(f);
   }
 
@@ -167,7 +171,11 @@ export function pureDbUrl({ filters, traineeCardId, partnerCardId }: SearchArgs)
 
   for (const f of filters) {
     if (f.kind === 'blue') blueFactors.push(pureDbEntry(BLUE_GROUP[f.stat], f.totalMin));
-    else if (f.kind === 'pink') redFactors.push(pureDbEntry(PINK_GROUP[f.aptitude] ?? 0, f.totalMin));
+    else if (f.kind === 'pink') {
+      const groupId = PINK_GROUP[f.aptitude];
+      if (groupId === undefined) dropped.push(f);
+      else redFactors.push(pureDbEntry(groupId, f.totalMin));
+    }
     else dropped.push(f);
   }
 
@@ -199,7 +207,11 @@ export function chronoGenesisUrl({ filters, traineeCardId }: SearchArgs): { url:
 
   for (const f of filters) {
     if (f.kind === 'blue') addBucket(BLUE_FACTOR_ID[f.stat], f.legacyMin, f.totalMin);
-    else if (f.kind === 'pink') addBucket(PINK_FACTOR_ID[f.aptitude] ?? 0, f.legacyMin, f.totalMin);
+    else if (f.kind === 'pink') {
+      const factorId = PINK_FACTOR_ID[f.aptitude];
+      if (factorId === undefined) dropped.push(f);
+      else addBucket(factorId, f.legacyMin, f.totalMin);
+    }
     else if (f.kind === 'anyBlue') inner.set('blue_count', String(f.totalMin));
     else dropped.push(f);
   }
