@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
@@ -18,6 +18,37 @@ const planWithWishlist: CmPlan = {
   id: 'p2', planNumber: 2,
   wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
 };
+
+// M1.4b Task 9 — Parent 2 DRAFT mode: a green clause targeting the same skill
+// id as the wishlist (the stubbed skillById/greenMap has no unique-rarity
+// entries, so reconcileGreenSkillId passes '200011' through unchanged — the
+// draft's synthetic parent's greenSpark then matches the wishlist row directly).
+const planDraftGreen: CmPlan = {
+  ...plan,
+  id: 'p3', planNumber: 3,
+  wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
+  parent2Mode: 'draft',
+  rentalDraft: {
+    filters: [{ id: 'g1', kind: 'green', skillId: '200011', legacyMin: 0, totalMin: 1 }],
+    forcedTier: 'double',
+  },
+} as CmPlan;
+
+// M1.4b Task 9 — Parent 2 RENTAL mode: a recorded veteran whose white spark
+// covers the wishlist skill directly.
+const planRentalWhite: CmPlan = {
+  ...plan,
+  id: 'p4', planNumber: 4,
+  wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
+  parent2Mode: 'rental',
+  rentalRecorded: {
+    id: '__rental__', umaId: '999',
+    blueSpark: { stat: 'spd', stars: 3 },
+    pinkSpark: { aptitude: 'turf', stars: 3 },
+    whiteSparks: [{ skillId: '200011', stars: 3 }],
+    source: 'friend_rental',
+  },
+} as CmPlan;
 
 // Stub the ActivePlan context so the page test needs no Dexie provider.
 // useActivePlan is a vi.fn() so individual tests can override with mockReturnValueOnce.
@@ -165,5 +196,48 @@ describe('InheritancePage', () => {
     render(<InheritancePage deps={deps} />);
     expect(await screen.findByText('Obtainable vs. wishlist')).toBeTruthy();
     expect(screen.queryByText('M1.7')).toBeNull(); // placeholder gone
+  });
+
+  it('M1.4b: a draft Parent 2 (green clause) covers a matching wishlist skill via the synthetic parent, without throwing', async () => {
+    // mockReturnValue (not -Once): async effects (e.g. the track-catalog load)
+    // trigger a re-render mid-test, and a spent -Once queue would fall back to
+    // the describe-level default plan (empty wishlist) before our assertion runs.
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planDraftGreen,
+      plan: planDraftGreen,
+      uma2Plan: null,
+      savedPlans: [planDraftGreen],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    const matrix = document.querySelector('.inh-cov-matrix') as HTMLElement;
+    const row = within(matrix).getByText('Corner Adept').closest('tr');
+    expect(row).not.toHaveClass('row-uncovered');
+  });
+
+  it('M1.4b: a rental Parent 2 (recorded white spark) covers a matching wishlist skill', async () => {
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planRentalWhite,
+      plan: planRentalWhite,
+      uma2Plan: null,
+      savedPlans: [planRentalWhite],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    const matrix = document.querySelector('.inh-cov-matrix') as HTMLElement;
+    const row = within(matrix).getByText('Corner Adept').closest('tr');
+    expect(row).not.toHaveClass('row-uncovered');
   });
 });
