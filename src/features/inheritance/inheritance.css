@@ -1818,3 +1818,25 @@ main:has(.inh-page) {
 .inh-cov-detail-cond { display: flex; flex-direction: column; font-family: ui-monospace, monospace; font-size: 0.68rem; background: transparent; padding: 0; word-break: break-word; color: var(--fg-muted); }
 .inh-cov-bonus-row { display: flex; justify-content: space-between; gap: 0.5rem; align-items: center; padding: 0.15rem 0; }
 .inh-cov-bonus-name { font-weight: 600; font-size: 0.78rem; }
+
+/* ── Rental Draft panel (M1.4b, Parent-2 "Draft" mode) ─────────────────── */
+.inh-rental-draft { display: flex; flex-direction: column; gap: 0.6rem; }
+/* Forced-tier radiogroup (◎/○/△) — same pill-button look as the p2-mode
+   segmented selector, scoped under .inh-forced-tier so it can't collide with
+   any other radio-styled control on the page. */
+.inh-forced-tier { display: inline-flex; gap: 0.3rem; }
+.inh-forced-tier [role='radio'] {
+  cursor: pointer; font-size: 1rem; line-height: 1; width: 2rem; height: 2rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1); color: var(--fg-muted);
+}
+.inh-forced-tier [role='radio'].is-on { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-1)); }
+.inh-rental-seed {
+  align-self: flex-start; cursor: pointer; font-size: 0.78rem; font-weight: 700;
+  padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px dashed var(--border);
+  color: var(--accent); background: var(--bg-1);
+}
+.inh-rental-links { display: flex; flex-direction: column; gap: 0.3rem; }
+.inh-rental-link-row { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.inh-rental-dropped { font-style: italic; }
+.inh-rental-caveat { line-height: 1.4; }
