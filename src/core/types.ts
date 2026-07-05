@@ -484,6 +484,13 @@ export interface Parent {
 
 export type Priority = 1 | 2 | 3; // 1 = core target
 
+export type ForcedTier = 'double' | 'single' | 'triangle'; // ◎ / ○ / △
+
+export interface RentalDraft {
+  filters: import('@/core/sparkFilter').SparkFilter[];
+  forcedTier: ForcedTier;
+}
+
 export interface CmPlan {
   id: string;
   name: string;
@@ -506,6 +513,12 @@ export interface CmPlan {
   };
   wishlist: WishlistItem[];
   parents: { a?: string; b?: string };
+  /** Parent-2 slot mode (M1.4b). Absent ⇒ 'owned' (back-compat). */
+  parent2Mode?: 'owned' | 'draft' | 'rental';
+  /** Rental search draft (mode 'draft'): forced-tier spark spec. */
+  rentalDraft?: RentalDraft;
+  /** Recorded real rental (mode 'rental'): a full veteran-shape Parent. */
+  rentalRecorded?: Parent;
   patch: { version: string; source?: string };
   server: Server;
   dataVersion: string;

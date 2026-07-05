@@ -369,6 +369,19 @@ function parseCmPlan(v: unknown, path: string): CmPlan {
   optString(parents, 'a', `${path}.parents`);
   optString(parents, 'b', `${path}.parents`);
 
+  const p2m = row['parent2Mode'];
+  if (p2m !== undefined && p2m !== 'owned' && p2m !== 'draft' && p2m !== 'rental') {
+    fail(`${path}.parent2Mode`, "'owned' | 'draft' | 'rental' | absent", p2m);
+  }
+  if (row['rentalDraft'] !== undefined) {
+    const rd = asRecord(row['rentalDraft'], `${path}.rentalDraft`);
+    reqOneOf(rd, 'forcedTier', ['double', 'single', 'triangle'] as const, `${path}.rentalDraft`);
+    asArray(rd['filters'], `${path}.rentalDraft.filters`); // clause shape trusted (produced by our UI)
+  }
+  if (row['rentalRecorded'] !== undefined) {
+    parseParent(row['rentalRecorded'], `${path}.rentalRecorded`);
+  }
+
   const patch = asRecord(row['patch'], `${path}.patch`);
   reqString(patch, 'version', `${path}.patch`);
   reqOneOf(row, 'server', ['global', 'jp'] as const, path);
