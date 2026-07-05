@@ -1,9 +1,13 @@
 /** M1.4 — the "Inheritance" card: owned Parent 1 & 2 picker, Find-candidates,
- *  spark display, selection persisted to plan.parents. Rental → M1.4b stub. */
+ *  spark display, selection persisted to plan.parents. Parent 2 additionally
+ *  supports two rental modes (M1.4b): Draft (a forced-tier search spec,
+ *  `RentalDraftPanel`) and Rental (a recorded veteran, `RentalParentEditor`). */
 import { useMemo, useState } from 'react';
 import { useActivePlan } from '@/app/ActivePlanContext';
 import { useAvailability } from '@/app/useAvailability';
 import type { Parent } from '@/core/types';
+import { forcedTierScore } from '@/core/rentalDraft';
+import { resolveParent2 } from '@/core/resolveParent2';
 import { GameIcon } from '@/features/data/GameIcon';
 import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import { useGameData } from '@/features/data/gameData';
@@ -21,9 +25,13 @@ import { aff2, charaIdOf } from '@/core/affinity';
 import { toSingleCircle } from '@/core/skillCircle';
 import { useAffinityIndex } from './useAffinityIndex';
 import { useG1SaddleSet } from './useG1SaddleSet';
+import { blueSparkRows } from './planTargets';
+import { RentalDraftPanel } from './RentalDraftPanel';
+import { RentalParentEditor } from './RentalParentEditor';
 
 type Slot = 'a' | 'b';
 type Mode = null | 'find' | 'change';
+type Parent2Mode = 'owned' | 'draft' | 'rental';
 
 /** Stat order for the picker tile's stat row (matches the in-game tile order). */
 const STAT_KEYS = ['spd', 'sta', 'pow', 'gut', 'wit'] as const;
@@ -35,7 +43,15 @@ const umaPortrait = (umaId: string, height: number, key?: number) => (
   <GameIcon key={key} kind="uma" id={umaId} height={height} width={Math.round(height * UMA_ASPECT)} alt="" />
 );
 
-export function InheritanceCard() {
+const P2_MODE_LABEL: Record<Parent2Mode, string> = { owned: 'Owned', draft: 'Draft', rental: 'Rental' };
+
+export interface InheritanceCardProps {
+  /** M1.7's uncovered-wishlist white-skill ids — seeds the Draft panel's
+   *  "Load from Target spark" white filters (page-wired, Task 9). */
+  uncoveredWhiteIds?: string[];
+}
+
+export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}) {
   const { uma1Plan, setPlan } = useActivePlan();
   const { visible } = useAvailability();
   const { roster, importedAt } = useRoster();
@@ -44,8 +60,8 @@ export function InheritanceCard() {
   const idx = useAffinityIndex();
   const g1Set = useG1SaddleSet();
   const [open, setOpen] = useState(true);
-  const [p2rental, setP2rental] = useState(false);
   const [mode, setMode] = useState<Record<Slot, Mode>>({ a: null, b: null });
+  const [rentalEditing, setRentalEditing] = useState(false);
 
   const pool = useMemo(() => roster.filter((p) => p.source === 'mine'), [roster]);
   // All hooks must run before the early return below — keep this useMemo above the guard.
@@ -91,13 +107,17 @@ export function InheritanceCard() {
 
   const isWishlisted = (skillId: string) => wishlistIds.has(skillId);
   const byId = new Map(pool.map((p) => [p.id, p]));
+  const parent2Mode: Parent2Mode = uma1Plan.parent2Mode ?? 'owned';
+  const resolvedP2 = resolveParent2(uma1Plan, byId);
   // Current-selection compatibility for the header mark. Sum both chosen parents'
   // candidate affinity (each incl. its G1 win bonus + the parent↔parent cross),
-  // subtracting the doubly-counted A↔B term. Null when no parent is picked / no idx.
+  // subtracting the doubly-counted A↔B term. A draft Parent 2 is a search SPEC,
+  // not a real veteran — it's excluded from the numeric sum entirely (never
+  // inflates the real number) and shown as a separate "assumed" mark instead.
   const selectionAffinity = ((): number | null => {
     if (!idx) return null;
     const pa = uma1Plan.parents.a ? byId.get(uma1Plan.parents.a) : undefined;
-    const pb = uma1Plan.parents.b ? byId.get(uma1Plan.parents.b) : undefined;
+    const pb = resolvedP2.kind === 'owned' || resolvedP2.kind === 'rental' ? resolvedP2.parent : undefined;
     if (!pa && !pb) return null;
     let total = 0;
     if (pa) total += candidateAffinity({ idx, traineeUmaId: uma1Plan.umaId, candidate: pa, other: pb, g1Set });
@@ -105,6 +125,7 @@ export function InheritanceCard() {
     if (pa && pb) total -= aff2(idx, charaIdOf(pa.umaId), charaIdOf(pb.umaId));
     return total;
   })();
+  const draftAssumedScore = resolvedP2.kind === 'draft' ? forcedTierScore(uma1Plan.rentalDraft!.forcedTier) : null;
   const select = (slot: Slot, parentId: string | undefined) => {
     setPlan({ ...uma1Plan, parents: { ...uma1Plan.parents, [slot]: parentId } });
     setMode((m) => ({ ...m, [slot]: null }));
@@ -199,7 +220,7 @@ export function InheritanceCard() {
     return null;
   };
 
-  const card = (slot: Slot, label: string, rentalToggle?: React.ReactNode, rentalStub?: boolean) => {
+  const card = (slot: Slot, label: string, rentalToggle?: React.ReactNode) => {
     const parentId = uma1Plan.parents[slot];
     const parent = parentId ? (byId.get(parentId) ?? null) : null;
     return (
@@ -214,7 +235,6 @@ export function InheritanceCard() {
         gpPortraits={parent ? gpPortraitsFor(parent) : undefined}
         portrait={parent ? portrait(parent) : undefined}
         rentalToggle={rentalToggle}
-        rentalStub={rentalStub}
         onFindCandidates={() => setMode((m) => ({ ...m, [slot]: m[slot] === 'find' ? null : 'find' }))}
         findOpen={mode[slot] === 'find'}
         onCloseFind={() => setMode((m) => ({ ...m, [slot]: null }))}
@@ -226,13 +246,114 @@ export function InheritanceCard() {
     );
   };
 
-  const p2toggle = (
-    <button type="button" className={`inh-rental-toggle${p2rental ? ' is-on' : ''}`}
-      role="switch" aria-checked={p2rental} onClick={() => setP2rental((v) => !v)}>
-      <span className="inh-rental-switch" aria-hidden><span className="inh-rental-knob" /></span>
-      Rental
-    </button>
+  const setParent2Mode = (next: Parent2Mode) => {
+    if (next === 'draft' && !uma1Plan.rentalDraft) {
+      setPlan({ ...uma1Plan, parent2Mode: next, rentalDraft: { filters: [], forcedTier: 'double' } });
+    } else {
+      setPlan({ ...uma1Plan, parent2Mode: next });
+    }
+    setRentalEditing(false);
+  };
+
+  const p2ModeControl = (
+    <div className="inh-p2-mode" role="group" aria-label="Parent 2 source">
+      {(['owned', 'draft', 'rental'] as const).map((m) => (
+        <button
+          key={m}
+          type="button"
+          className={`inh-p2-mode-btn${parent2Mode === m ? ' is-active' : ''}`}
+          aria-pressed={parent2Mode === m}
+          onClick={() => setParent2Mode(m)}
+        >
+          {P2_MODE_LABEL[m]}
+        </button>
+      ))}
+    </div>
   );
+
+  // Parent 1's uma (when picked) is the Draft panel's "partner" for the rental
+  // search deep-links (spec §4.3) — omitted when Parent 1 isn't set yet.
+  const parentA = uma1Plan.parents.a ? byId.get(uma1Plan.parents.a) : undefined;
+
+  const greenIcon = (id: string) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />;
+  const whiteIcon = (id: string) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={34} alt="" />;
+
+  const parent2Card = () => {
+    if (parent2Mode === 'owned') return card('b', 'Parent 2', p2ModeControl);
+
+    if (parent2Mode === 'draft') {
+      const draft = uma1Plan.rentalDraft;
+      return (
+        <ParentCardView
+          label="Parent 2"
+          parent={null}
+          rentalToggle={p2ModeControl}
+          overrideBody={
+            draft ? (
+              <RentalDraftPanel
+                draft={draft}
+                onChange={(d) => setPlan({ ...uma1Plan, rentalDraft: d })}
+                seed={{
+                  blue: blueSparkRows(uma1Plan).map((r) => ({ stat: r.stat, stars: r.stars })),
+                  white: (uncoveredWhiteIds ?? []).map((id) => ({ id })),
+                }}
+                traineeCardId={uma1Plan.umaId}
+                partnerCardId={parentA?.umaId}
+                skillName={skillName}
+                greenOptions={uniqueSkillOptions}
+                whiteOptions={whiteSkillOptions}
+                greenIcon={greenIcon}
+                whiteIcon={whiteIcon}
+              />
+            ) : null
+          }
+        />
+      );
+    }
+
+    // parent2Mode === 'rental'
+    const recorded = uma1Plan.rentalRecorded;
+    if (recorded && !rentalEditing) {
+      return (
+        <ParentCardView
+          label="Parent 2"
+          parent={recorded}
+          name={umaName(umaById, recorded.umaId)}
+          skillName={skillName}
+          isWishlisted={isWishlisted}
+          rankBadge={<RankBadge rating={recorded.rating} size={42} />}
+          rankScore={recorded.rankScore}
+          gpPortraits={gpPortraitsFor(recorded)}
+          portrait={portrait(recorded)}
+          rentalToggle={p2ModeControl}
+          onChange={() => setRentalEditing(true)}
+          onClear={() => setPlan({ ...uma1Plan, rentalRecorded: undefined })}
+        />
+      );
+    }
+
+    return (
+      <ParentCardView
+        label="Parent 2"
+        parent={null}
+        rentalToggle={p2ModeControl}
+        overrideBody={
+          <RentalParentEditor
+            value={recorded}
+            seedFilters={uma1Plan.rentalDraft?.filters}
+            onSave={(p) => {
+              setPlan({ ...uma1Plan, rentalRecorded: p });
+              setRentalEditing(false);
+            }}
+            onCancel={() => setRentalEditing(false)}
+            umaOptions={(umas ?? []).filter((u) => visible(u)).map((u) => ({ id: u.umaId, name: umaName(umaById, u.umaId) }))}
+            greenOptions={uniqueSkillOptions}
+            whiteOptions={whiteSkillOptions}
+          />
+        }
+      />
+    );
+  };
 
   const modals = (['a', 'b'] as const).map((slot) => (
     <UmaPickerModal
@@ -243,8 +364,8 @@ export function InheritanceCard() {
       isWishlisted={isWishlisted}
       whiteSkillOptions={whiteSkillOptions}
       uniqueSkillOptions={uniqueSkillOptions}
-      greenIcon={(id) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />}
-      whiteIcon={(id) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={34} alt="" />}
+      greenIcon={greenIcon}
+      whiteIcon={whiteIcon}
       uploadButton={<UploadDataButton />}
       onPick={(id) => select(slot, id)}
       onClose={() => setMode((m) => ({ ...m, [slot]: null }))}
@@ -271,6 +392,10 @@ export function InheritanceCard() {
           {selectionAffinity != null && (
             <AffinityMark score={selectionAffinity} size={18}
               title={`Lineage compatibility — affinity ${selectionAffinity}`} />
+          )}
+          {draftAssumedScore != null && (
+            <AffinityMark score={draftAssumedScore} size={18}
+              title={`Assumed (draft) affinity ${draftAssumedScore}`} />
           )}
         </span>
         <span className="inh-inherit-tools" onClick={(e) => e.stopPropagation()}>
@@ -299,7 +424,7 @@ export function InheritanceCard() {
       {open && (
         <div className="cmp-plan-card-body inh-parent-grid">
           {card('a', 'Parent 1')}
-          {card('b', 'Parent 2', p2toggle, p2rental)}
+          {parent2Card()}
         </div>
       )}
       {modals}

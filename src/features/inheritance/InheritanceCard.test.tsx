@@ -108,10 +108,41 @@ describe('InheritanceCard', () => {
     expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parents: { a: 'a' } }));
   });
 
-  it('switches Parent 2 to a rental stub', () => {
+  it('switching Parent 2 to Draft persists parent2Mode + seeds a default rentalDraft', () => {
     render(<InheritanceCard />);
-    fireEvent.click(screen.getByRole('switch', { name: /rental/i }));
-    expect(screen.getByText(/coming in m1\.4b/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Draft' }));
+    expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({
+      parent2Mode: 'draft',
+      rentalDraft: { filters: [], forcedTier: 'double' },
+    }));
+  });
+
+  it('renders the RentalDraftPanel + the assumed-affinity mark when parent2Mode is draft', () => {
+    activePlan = { ...plan, parent2Mode: 'draft', rentalDraft: { filters: [], forcedTier: 'double' } } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    expect(screen.getByText('Load from Target spark')).toBeInTheDocument();
+    // A draft never inflates the real numeric affinity — it's a separate "assumed" mark.
+    expect(screen.getByTitle(/assumed \(draft\)/i)).toBeInTheDocument();
+  });
+
+  it('switching Parent 2 to Rental shows the manual editor when nothing is recorded yet', () => {
+    activePlan = { ...plan, parent2Mode: 'rental' } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  });
+
+  it('switching back to Owned persists parent2Mode: owned and (once applied) shows the roster picker UI again', () => {
+    activePlan = { ...plan, parent2Mode: 'draft', rentalDraft: { filters: [], forcedTier: 'double' } } as unknown as CmPlan;
+    const { rerender } = render(<InheritanceCard />);
+    expect(screen.getByText('Load from Target spark')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Owned' }));
+    expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parent2Mode: 'owned' }));
+    // Simulate the persisted plan flowing back down through the (mocked) context.
+    activePlan = { ...activePlan, parent2Mode: 'owned' } as unknown as CmPlan;
+    rerender(<InheritanceCard />);
+    expect(screen.queryByText('Load from Target spark')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /find candidates/i }).length).toBeGreaterThan(0);
   });
 
   it('opens the picker modal on Change and persists the pick', () => {

@@ -1429,8 +1429,30 @@ main:has(.inh-page) {
 .inh-rental-stub { padding: 0.3rem 0; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
-.inh-p2-mode { margin-left: 0.2rem; }
-/* Parent 2 "Rental" on/off toggle switch. */
+/* Parent 2 source: 3-way segmented control (Owned/Draft/Rental, M1.4b). */
+.inh-p2-mode {
+  margin-left: 0.2rem;
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.inh-p2-mode-btn {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--fg-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.inh-p2-mode-btn:last-child { border-right: 0; }
+.inh-p2-mode-btn:hover { background: var(--bg-1); color: var(--fg); }
+.inh-p2-mode-btn.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* Parent 2 "Rental" on/off toggle switch (superseded by .inh-p2-mode above;
+   kept for ParentCardView's standalone rentalStub tests). */
 .inh-rental-toggle {
   display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
   border: 0; background: none; padding: 0; margin-left: 0.2rem;
