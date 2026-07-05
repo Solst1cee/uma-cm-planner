@@ -226,6 +226,20 @@ The **availability epic** (PRs #25–#34, 2026-07-01→03) reverses the earlier 
 - **Factor→skillId join (lookup table needed):** master.mdb `succession_factor.factor_group_id` → `succession_factor_effect` rows with `target_type=41`, `value_1` = granted skill id (white: ≈ group×10+2, the ○ variant; green: the **9xxxxx inherited-unique** id — store that + sourceCardId). Race sparks grant stats AND a lv1 skill; scenario sparks stats only. Table dumps: Apolexian/clairvoyance `masterdb_readable` (local: `spikes/repos/clairvoyance-masterdb/`); schemas: SimpleSandman/UmaMusumeAPI C# models.
 - **Format drift:** 2021 sample uses `factor_id_array` (flat ints) on parents; current Global export gives parents `factor_info_array` (objects) — importer must accept both (reference consumer: TheCing/uma-parent-viewer `enrich_data.py`).
 
+### `win_saddle_id_array` → G1 whitelist (M1 win-bonus, populated 2026-07-05)
+`win_saddle_id_array` holds race-win **saddle** ids in the `master.mdb.single_mode_wins_saddle.id` space (1–155; the `text_data` category-111 name map is `spikes/repos/uma-parent-viewer/data/racetitles_global.json`). The importer stores them raw as `Parent.wonRaces`; `g1Saddle.ts`/`filterG1` then filters to G1-only before the 2.0 win-bonus (mechanics-notes §3). The G1 whitelist (`data-overrides/g1_saddle_ids.json` + in-src copy) is derived authoritatively from `master.mdb`:
+```js
+// node --experimental-sqlite; over spikes/repos/umalator-global/db/master.mdb
+const {DatabaseSync}=require('node:sqlite');
+const db=new DatabaseSync('master.mdb',{readOnly:true});
+const g=new Map(db.prepare('SELECT ri.id inst, r.grade g FROM race_instance ri JOIN race r ON r.id=ri.race_id').all().map(x=>[x.inst,x.g]));
+const g1=db.prepare('SELECT * FROM single_mode_wins_saddle').all()
+  .filter(s=>s.win_saddle_type===3)               // 3 = single G1-race saddle (2=G2, 1=G3, 0=compound title)
+  .filter(s=>g.get(s.race_instance_id_1)===100)   // race.grade 100 = G1 (cross-checks clean: type3 ⇔ grade100)
+  .map(s=>String(s.id)).sort((a,b)=>+a-+b);        // → ["10".."39","147","148","153","155"] (34 ids)
+```
+Type-0 compound titles (Triple Crown/Tiara/Grand Prix) are excluded (mechanics §3: titles → 0); type 1/2 (G3/G2) excluded. Re-run on any `master.mdb` refresh and diff. **Caveat:** a few G1s have alternate-scenario saddle ids (147≡14, 148≡16, 153≡13, 155≡18) that exact-string `sharedG1` won't cross-match — a safe under-count (mechanics-notes §10 item 9).
+
 ### Mapping → our `Parent` record
 `id ← trained_chara_id` (synthesize for legacy-tree nodes) · `umaId ← card_id` · `blueSpark/pinkSpark/greenSpark/whiteSparks ←` decoded factors per above · `grandparents ←` succession positions 10/20 (11/12/21/22 available if model ever extends) · `stats ← {spd:speed,…,wit:wiz}` · `rating ←` letter via single_mode_rank ladder (12=B+, 13=A …), keep `rank_score` · `source ← 'mine'` (export is always the player's own list) · `importSource ← 'umaextractor'`.
 

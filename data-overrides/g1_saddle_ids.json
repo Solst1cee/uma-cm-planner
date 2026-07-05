@@ -1,4 +1,9 @@
 {
-  "_comment": "G1 race saddle ids (UmaExtractor win_saddle_id_array space). Empty until the authoritative list is supplied; win-bonus stays 0 (safe). See docs/superpowers/specs/2026-07-01-m1-7-coverage-matrix-design.md §8.",
-  "g1SaddleIds": []
+  "_comment": "G1 race saddle ids (UmaExtractor win_saddle_id_array space = master.mdb single_mode_wins_saddle.id). Derived authoritatively: single_mode_wins_saddle rows with win_saddle_type==3 are exactly the single G1-race saddles (each maps to one race_instance whose race.grade==100); type 0 = compound TITLES (Triple Crown/Tiara/Grand Prix — mechanics-notes §8: title→0), type 2 = G2, type 1 = G3, all correctly excluded. ids 147/148/153/155 are alternate-scenario saddles for Takarazuka Kinen/Kikka Sho/Tenno Sho (Spring)/Satsuki Sho (all G1). Re-derive on a data refresh via the node:sqlite snippet in docs/provenance.md §5. P5 hand-patchable; keep src/features/inheritance/g1_saddle_ids.json in sync (g1SaddleIdsSync.test.ts).",
+  "g1SaddleIds": [
+    "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+    "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+    "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+    "147", "148", "153", "155"
+  ]
 }
