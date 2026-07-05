@@ -188,12 +188,8 @@
 .cmp-uma-portrait {
   border-radius: 6px;
 }
-.cmp-upcoming-badge {
-  font-size: 0.6rem;
-  color: var(--fg-muted);
-  white-space: nowrap;
-  line-height: 1;
-}
+/* .cmp-upcoming-badge canonicalized in cm-planner.css (always-loaded) — was
+   duplicated here in the lazy Uma-tab chunk. */
 .cmp-uma-plate {
   min-width: 0; /* fills the fixed 13rem column */
 }

@@ -1194,7 +1194,10 @@ main:has(.cmp-page) {
   font-size: 0.7rem;
 }
 
-.cmp-runner-picker .cmp-upcoming-badge {
+/* Canonical projected-date badge. Lives here (always-loaded on CmPlannerPage)
+   rather than uma-chart.css (lazy Uma-tab chunk) — used by SkillChart/AccelChart/
+   Sourcing/PlannerSidebar/UmaChart, all under the CmPlannerPage subtree. */
+.cmp-upcoming-badge {
   font-size: 0.6rem;
   color: var(--fg-muted);
   white-space: nowrap;
