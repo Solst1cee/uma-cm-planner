@@ -2,11 +2,6 @@
    chip-sm, owned-* rows) live in src/styles/app.css — only feature-specific
    additions belong here. Imported by ParentsPage / ChosenParentsPicker. */
 
-/* NavLink anchors reuse .nav-item; anchors need the link styling reset. */
-a.nav-item {
-  text-decoration: none;
-}
-
 textarea {
   background: var(--bg-2);
   border: 1px solid var(--border);

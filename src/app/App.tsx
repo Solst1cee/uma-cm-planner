@@ -6,6 +6,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { ActivePlanProvider } from '@/app/ActivePlanContext';
 import { HorizonBanner, HorizonControl } from '@/app/HorizonControl';
+import { RouteErrorBoundary } from '@/app/RouteErrorBoundary';
 import { SettingsMenu } from '@/app/SettingsMenu';
 import { GameDataProvider, useGameData } from '@/features/data/gameData';
 
@@ -85,6 +86,7 @@ function Shell() {
       <FixtureBanner />
       <HorizonBanner />
       <main>
+        <RouteErrorBoundary>
         <Suspense fallback={<div className="route-loading" role="status">Loading…</div>}>
           <Routes>
             <Route path="/" element={<CmPlannerPage />} />
@@ -96,6 +98,7 @@ function Shell() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        </RouteErrorBoundary>
       </main>
       <footer className="app-footer">
         Coverage tiers are reliability estimates from community-verified
