@@ -63,6 +63,13 @@ import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
 import { canAddCard, isTraineeConflict } from './deckConflicts';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
+// The Inheritance workbench REUSES the M4 card grammar (`.cmp-plan-card`, skill
+// plates) + the `:root --cmp-*` design tokens, which live in cm-planner.css.
+// That file is otherwise imported only by the lazy CmPlannerPage (`/`), so a cold
+// load of `/inheritance` (deep link / refresh) would render these unstyled. Import
+// it here so this page carries its own style dependency (matches the per-page CSS
+// pattern; the lazy-route split, PR #45, is what stranded it — same class as #47).
+import '@/features/cm-planner/cm-planner.css';
 import './inheritance.css';
 
 /** Support-card type → the bundled in-game UI type-tile id (kind="ui"). */
