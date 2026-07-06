@@ -122,9 +122,6 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
   } = input;
   const rarityLookup = (id: string): SkillRarity | undefined => skillById.get(id)?.rarity;
 
-  /** Resolve a display name for a umaId, falling back to the raw id. */
-  const umaLabel = (umaId: string, fallback: string) =>
-    initials(umaNameById?.get(umaId) ?? fallback);
   const umaTitle = (umaId: string, prefix: string) =>
     umaNameById?.get(umaId) ?? `${prefix} ${umaId}`;
 
@@ -173,40 +170,31 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
       });
     }
 
-    // Parent + grandparent (isolated per-member pct, priced off the held spark)
-    for (const { parent } of activeParents) {
+    // Parent + grandparent (isolated per-member pct, priced off the held spark).
+    // Parent-SELF chips are labelled by member — P1 / P2 / "Draft parent (P2)" —
+    // and when BOTH parents supply this spark they merge into one "P1+P2" chip.
+    const selfChips: Array<{ label: string; title: string; sourceName: string; pct: number }> = [];
+    const gpChips: CoverageChip[] = [];
+    for (const { parent, isA } of activeParents) {
+      const isDraft = parent.id === '__rental_draft__';
+      const memberLabel = isA ? 'P1' : 'P2';
+      const memberSource = isA ? 'Parent 1 (P1)' : isDraft ? 'Draft parent (P2)' : 'Parent 2 (P2)';
       // The parent's own white spark that covers this wishlist skill (○/◎), if any.
       const pWhiteCover = coveringId(skillId, parent.whiteSparks.map((w) => w.skillId), skillById);
       const pGreenCovers = !!(parent.greenSpark && reconcileGreenSkillId(parent.greenSpark.skillId, greenMap) === skillId);
       if (pGreenCovers && !pWhiteCover) {
         // A DIRECT parent's unique (green) spark is GUARANTEED at career start —
         // it never rolls (mechanics-notes §1; gp greens are the ones that roll).
-        cells.parent.push({
-          kind: 'parent',
-          label: umaLabel(String(parent.umaId), String(parent.umaId)),
-          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent unique spark — guaranteed at career start`,
-          sourceName: umaTitle(String(parent.umaId), 'Parent'),
-          pct: 100,
-        });
+        selfChips.push({ label: memberLabel, title: `${memberSource} · parent unique spark — guaranteed at career start`, sourceName: memberSource, pct: 100 });
       } else if (pWhiteCover) {
         // Isolated parent-self pct: strip grandparents so only parent-self sparks contribute.
-        const parentSelf: Parent = {
-          ...parent,
-          greenSpark: undefined,
-          grandparents: undefined,
-        };
+        const parentSelf: Parent = { ...parent, greenSpark: undefined, grandparents: undefined };
         // Price the spark the parent actually holds (its ○), not the wishlisted ◎.
         const parentPct = sparkChance({
           parents: [parentSelf], skillId: pWhiteCover, rates: sparkRates,
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct;
-        cells.parent.push({
-          kind: 'parent',
-          label: umaLabel(String(parent.umaId), String(parent.umaId)),
-          title: `${umaTitle(String(parent.umaId), 'Parent')} · parent white spark`,
-          sourceName: umaTitle(String(parent.umaId), 'Parent'),
-          pct: Math.round(parentPct),
-        });
+        selfChips.push({ label: memberLabel, title: `${memberSource} · parent white spark`, sourceName: memberSource, pct: Math.round(parentPct) });
       }
       (parent.grandparents ?? []).forEach((ref, gpIndex) => {
         if (!ref) return;
@@ -233,15 +221,23 @@ export function buildCoverageMatrix(input: CoverageInput): CoverageResult {
           opts: { memberAffinity, skillRarity: rarityLookup },
         }).pct);
         // Merged into the single Parents cell — same roll model as parent whites.
-        cells.parent.push({
+        gpChips.push({
           kind: 'gp',
-          label: umaLabel(String(ref.umaId), String(ref.umaId)),
-          title: `${umaTitle(String(ref.umaId), 'Grandparent')} · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,
-          sourceName: umaTitle(String(ref.umaId), 'Grandparent'),
+          label: `${isA ? 'P1' : 'P2'}·GP`,
+          title: `${umaTitle(String(ref.umaId), 'Grandparent')} (${isA ? 'P1' : 'P2'} side) · grandparent ${gpWhiteCover ? 'white' : 'green (unique)'} spark`,
+          sourceName: `${umaTitle(String(ref.umaId), 'Grandparent')} (${isA ? 'P1' : 'P2'})`,
           pct: gpPct,
         });
       });
     }
+    // Both parents supply this spark → one merged "P1+P2" chip (either-provides chance).
+    if (selfChips.length === 2) {
+      const combined = combinedInheritPct(selfChips.map((c) => c.pct));
+      cells.parent.push({ kind: 'parent', label: 'P1+P2', title: 'Parent 1 + Parent 2 (P1+P2) · both supply this spark', sourceName: 'P1 + P2', pct: Math.round(combined.pct) });
+    } else {
+      for (const c of selfChips) cells.parent.push({ kind: 'parent', label: c.label, title: c.title, sourceName: c.sourceName, pct: c.pct });
+    }
+    for (const gp of gpChips) cells.parent.push(gp);
 
     // Deck: hint / chain / random (○/◎ family-aware, gold separate)
     for (const c of deckCards) {

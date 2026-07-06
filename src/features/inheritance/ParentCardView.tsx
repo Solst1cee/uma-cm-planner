@@ -37,6 +37,10 @@ export interface ParentCardViewProps {
   gpPortraits?: ReactNode[];
   rentalToggle?: ReactNode;
   rentalStub?: boolean;
+  /** M1.4b — render this instead of the parent/no-parent body (e.g. a
+   *  RentalDraftPanel/RentalParentEditor). When set, the Find/Change action
+   *  buttons are suppressed too (those pickers don't apply in this state). */
+  overrideBody?: ReactNode;
   onFindCandidates?: () => void;
   /** Whether the Find-candidates popover is open (anchored to the Find button). */
   findOpen?: boolean;
@@ -50,7 +54,7 @@ export interface ParentCardViewProps {
 
 export function ParentCardView({
   label, parent, name, skillName, isWishlisted, rankBadge, rankScore, portrait, gpPortraits, rentalToggle, rentalStub,
-  onFindCandidates, findOpen, onCloseFind, onChange, onClear, children,
+  overrideBody, onFindCandidates, findOpen, onCloseFind, onChange, onClear, children,
 }: ParentCardViewProps) {
   const findRef = useRef<HTMLSpanElement>(null);
   useDismissOnOutside(findRef, !!findOpen, onCloseFind ?? (() => {}), { esc: true });
@@ -60,7 +64,7 @@ export function ParentCardView({
         <span className="inh-parent-title">{label}</span>
         {rentalToggle}
         <span className="inh-parent-actions">
-          {!rentalStub && onFindCandidates && (
+          {!rentalStub && !overrideBody && onFindCandidates && (
             <span className="inh-find-anchor" ref={findRef}>
               <button type="button" className="cmp-inventory-icon-btn"
                 aria-label="Find candidates" aria-expanded={!!findOpen} title="Find candidates" onClick={onFindCandidates}>
@@ -69,7 +73,7 @@ export function ParentCardView({
               {findOpen && <div className="inh-find-popover">{children}</div>}
             </span>
           )}
-          {!rentalStub && onChange && (
+          {!rentalStub && !overrideBody && onChange && (
             <button type="button" className="cmp-inventory-icon-btn"
               aria-label={parent ? 'Change' : 'Pick'} title={parent ? 'Change' : 'Pick'} onClick={onChange}>
               <FolderOpenIcon />
@@ -86,6 +90,8 @@ export function ParentCardView({
       <div className="inh-parent-content">
         {rentalStub ? (
           <p className="inh-rental-stub muted small">Rental mode coming in M1.4b.</p>
+        ) : overrideBody ? (
+          overrideBody
         ) : parent ? (
           <div className="inh-parent-body">
             {/* Pedigree row: uma icon ──┤ stacked grandparents, rank badge + score alongside. */}

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { Parent } from '@/core/types';
 import { FIXTURE_PLAN } from '@/core/fixtures';
 import { db } from './db';
-import { exportBlob, importBlob, parsePlanFile, type ExportBlobV2 } from './exportImport';
+import { exportBlob, importBlob, parseExportBlobV2, parsePlanFile, type ExportBlobV2 } from './exportImport';
 import type { MatchLog } from './types';
 import type { CaptureBundle } from '@/core/spOptimizer';
 import { saveCapture } from '@/db';
@@ -329,6 +329,23 @@ describe('parseCmPlan cmRef normalization', () => {
   it('non-object cmRef fails with a descriptive path error', () => {
     const bad = { ...FIXTURE_PLAN, cmRef: 'not-an-object' };
     expect(() => parsePlanFile([bad])).toThrow(/plans\[0\]\.cmRef must be an object/);
+  });
+});
+
+describe('M1.4b Parent-2 rental fields', () => {
+  it('round-trips parent2Mode/rentalDraft/rentalRecorded', () => {
+    const plan = {
+      ...FIXTURE_PLAN,
+      parent2Mode: 'draft' as const,
+      rentalDraft: {
+        forcedTier: 'double' as const,
+        filters: [{ id: 'g1', kind: 'green' as const, skillId: '100011', legacyMin: 1, totalMin: 1 }],
+      },
+      rentalRecorded: { ...PARENT, source: 'friend_rental' as const },
+    };
+    const blob = { ...emptyBlob(), cmPlans: [plan] };
+    expect(() => parseExportBlobV2(blob)).not.toThrow();
+    expect(parseExportBlobV2(blob).cmPlans[0]).toEqual(plan);
   });
 });
 

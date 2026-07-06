@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import type { CmPlan } from '@/core/types';
+import type { CmPlan, LineageAffinity, Parent } from '@/core/types';
 import type { CourseCatalogEntry } from '@/sim/courseCatalog';
 
 const plan: CmPlan = {
@@ -18,6 +18,75 @@ const planWithWishlist: CmPlan = {
   id: 'p2', planNumber: 2,
   wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
 };
+
+// M1.4b Task 9 — Parent 2 DRAFT mode: a green clause targeting the same skill
+// id as the wishlist (the stubbed skillById/greenMap has no unique-rarity
+// entries, so reconcileGreenSkillId passes '200011' through unchanged — the
+// draft's synthetic parent's greenSpark then matches the wishlist row directly).
+const planDraftGreen: CmPlan = {
+  ...plan,
+  id: 'p3', planNumber: 3,
+  wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
+  parent2Mode: 'draft',
+  rentalDraft: {
+    filters: [{ id: 'g1', kind: 'green', skillId: '200011', legacyMin: 0, totalMin: 1 }],
+    forcedTier: 'double',
+  },
+} as CmPlan;
+
+// M1.4b Task 9 — Parent 2 RENTAL mode: a recorded veteran whose white spark
+// covers the wishlist skill directly.
+const planRentalWhite: CmPlan = {
+  ...plan,
+  id: 'p4', planNumber: 4,
+  wishlist: [{ skillId: '200011', priority: 1, source: 'targeted' }],
+  parent2Mode: 'rental',
+  rentalRecorded: {
+    id: '__rental__', umaId: '999',
+    blueSpark: { stat: 'spd', stars: 3 },
+    pinkSpark: { aptitude: 'turf', stars: 3 },
+    whiteSparks: [{ skillId: '200011', stars: 3 }],
+    source: 'friend_rental',
+  },
+} as CmPlan;
+
+// M1.4b Task 9 (review-fix) — fixtures for making the `p2IsReal` coverage gate
+// load-bearing (InheritancePage.tsx's `affinityIdx && planUmaId && pA && pB &&
+// p2IsReal`). Parent 1 lives on the roster; the two plans below differ ONLY in
+// parent2Mode/rentalDraft-vs-rentalRecorded, so the sole variable under test is
+// whether Parent 2 resolves to a REAL veteran (owned/rental) vs a draft's
+// synthetic stand-in.
+const parentA: Parent = {
+  id: 'parentA1', umaId: '100101',
+  blueSpark: { stat: 'spd', stars: 3 },
+  pinkSpark: { aptitude: 'turf', stars: 3 },
+  whiteSparks: [],
+  source: 'mine',
+};
+const parentBRental: Parent = {
+  id: 'parentB1', umaId: '100201',
+  blueSpark: { stat: 'spd', stars: 3 },
+  pinkSpark: { aptitude: 'turf', stars: 3 },
+  whiteSparks: [],
+  source: 'friend_rental',
+};
+const planDraftForGate: CmPlan = {
+  ...plan,
+  id: 'p6', planNumber: 6,
+  parents: { a: 'parentA1' },
+  parent2Mode: 'draft',
+  rentalDraft: {
+    filters: [{ id: 'g1', kind: 'green', skillId: '200011', legacyMin: 0, totalMin: 1 }],
+    forcedTier: 'double',
+  },
+} as CmPlan;
+const planRentalForGate: CmPlan = {
+  ...plan,
+  id: 'p7', planNumber: 7,
+  parents: { a: 'parentA1' },
+  parent2Mode: 'rental',
+  rentalRecorded: parentBRental,
+} as CmPlan;
 
 // Stub the ActivePlan context so the page test needs no Dexie provider.
 // useActivePlan is a vi.fn() so individual tests can override with mockReturnValueOnce.
@@ -88,15 +157,44 @@ vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
   ),
 }));
 // InheritanceCard (M1.4) deps: useRoster (Dexie), useAffinityIndex (fetch), GameIcon, UploadDataButton.
+// Both wrapped in a vi.fn() (mockUseActivePlan pattern) so the p2IsReal-gate
+// tests below can override them per-test (default stays empty roster / no
+// affinity index, matching every pre-existing test's expectations).
+const mockUseRoster = vi.fn(() => ({ roster: [] as Parent[], importedAt: null as string | null, importFromFile: vi.fn() }));
 vi.mock('./useRoster', () => ({
-  useRoster: () => ({ roster: [], importedAt: null, importFromFile: vi.fn() }),
+  useRoster: () => mockUseRoster(),
   ROSTER_IMPORTED_AT_KEY: 'umaExtractorImportedAt',
   makeWhiteResolver: () => () => undefined,
 }));
-vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => null }));
+const mockUseAffinityIndex = vi.fn(() => null as { byChara: Map<number, Map<number, number>>; aff2Cache: Map<string, number>; aff3Cache: Map<string, number> } | null);
+vi.mock('./useAffinityIndex', () => ({ useAffinityIndex: () => mockUseAffinityIndex() }));
 vi.mock('./useG1SaddleSet', () => ({ useG1SaddleSet: () => new Set<string>() }));
 vi.mock('@/features/data/GameIcon', () => ({ GameIcon: () => null }));
 vi.mock('./UploadDataButton', () => ({ UploadDataButton: () => null }));
+// M1.4b Task 9 (review-fix) — spy on planLineageAffinity so the p2IsReal gate
+// (InheritancePage.tsx's coverage useMemo) is load-bearing in this test file:
+// mutation-testing this gate away previously left the whole suite green
+// because no existing test exercised the affinityIdx/pA/pB-all-truthy branch.
+const planLineageAffinitySpy = vi.fn(
+  (
+    _idx: unknown,
+    _traineeUmaId: string,
+    _parentA: Parent,
+    _parentB: Parent,
+    _g1Set?: ReadonlySet<string>,
+  ): LineageAffinity => ({
+    aff2: { tA: 0, tB: 0, aB: 0 },
+    aff3: { tA_gA1: 0, tA_gA2: 0, tB_gB1: 0, tB_gB2: 0 },
+    lineageTotal: 0,
+    memberScores: { parentA: 0, parentB: 0, gA1: 0, gA2: 0, gB1: 0, gB2: 0 },
+    tiers: { parentA: '△', parentB: '△', gA1: '△', gA2: '△', gB1: '△', gB2: '△' },
+    displayTotal: 0,
+    staticOnly: true,
+  }),
+);
+vi.mock('@/core/lineageAffinity', () => ({
+  planLineageAffinity: (...args: Parameters<typeof planLineageAffinitySpy>) => planLineageAffinitySpy(...args),
+}));
 
 import { InheritancePage } from './InheritancePage';
 import { __clearJsonCacheForTests } from './dataCache';
@@ -165,5 +263,96 @@ describe('InheritancePage', () => {
     render(<InheritancePage deps={deps} />);
     expect(await screen.findByText('Obtainable vs. wishlist')).toBeTruthy();
     expect(screen.queryByText('M1.7')).toBeNull(); // placeholder gone
+  });
+
+  it('M1.4b: a draft Parent 2 (green clause) covers a matching wishlist skill via the synthetic parent, without throwing', async () => {
+    // mockReturnValue (not -Once): async effects (e.g. the track-catalog load)
+    // trigger a re-render mid-test, and a spent -Once queue would fall back to
+    // the describe-level default plan (empty wishlist) before our assertion runs.
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planDraftGreen,
+      plan: planDraftGreen,
+      uma2Plan: null,
+      savedPlans: [planDraftGreen],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    const matrix = document.querySelector('.inh-cov-matrix') as HTMLElement;
+    const row = within(matrix).getByText('Corner Adept').closest('tr');
+    expect(row).not.toHaveClass('row-uncovered');
+  });
+
+  it('M1.4b: a rental Parent 2 (recorded white spark) covers a matching wishlist skill', async () => {
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planRentalWhite,
+      plan: planRentalWhite,
+      uma2Plan: null,
+      savedPlans: [planRentalWhite],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    const matrix = document.querySelector('.inh-cov-matrix') as HTMLElement;
+    const row = within(matrix).getByText('Corner Adept').closest('tr');
+    expect(row).not.toHaveClass('row-uncovered');
+  });
+
+  // M1.4b Task 9 (review-fix) — make the coverage useMemo's `p2IsReal` gate
+  // load-bearing. Both plans below share the same affinityIdx-truthy /
+  // planUmaId-truthy / pA-truthy setup (Parent 1 resolved from the roster);
+  // the ONLY thing that differs is whether Parent 2 resolves to a real
+  // veteran (rental) or a draft's synthetic stand-in — so a failure here can
+  // only be explained by the `&& p2IsReal` clause.
+  it('M1.4b: a DRAFT Parent 2 never reaches planLineageAffinity, even with every other gate input present', async () => {
+    mockUseRoster.mockReturnValueOnce({ roster: [parentA], importedAt: null, importFromFile: vi.fn() });
+    mockUseAffinityIndex.mockReturnValueOnce({ byChara: new Map(), aff2Cache: new Map(), aff3Cache: new Map() });
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planDraftForGate,
+      plan: planDraftForGate,
+      uma2Plan: null,
+      savedPlans: [planDraftForGate],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    expect(planLineageAffinitySpy).not.toHaveBeenCalled();
+  });
+
+  it('M1.4b: a RENTAL Parent 2 (real veteran) DOES reach planLineageAffinity, keyed on the recorded parent', async () => {
+    mockUseRoster.mockReturnValueOnce({ roster: [parentA], importedAt: null, importFromFile: vi.fn() });
+    mockUseAffinityIndex.mockReturnValueOnce({ byChara: new Map(), aff2Cache: new Map(), aff3Cache: new Map() });
+    mockUseActivePlan.mockReturnValue({
+      uma1Plan: planRentalForGate,
+      plan: planRentalForGate,
+      uma2Plan: null,
+      savedPlans: [planRentalForGate],
+      setPlan: vi.fn(),
+      loadPlanIntoSlot: vi.fn(),
+      deleteSavedPlan: vi.fn(),
+      importSavedPlans: vi.fn(),
+      deleteAllSavedPlans: vi.fn(),
+      saveCurrentPlan: vi.fn(),
+    });
+    render(<InheritancePage deps={deps} />);
+    await screen.findByText('Obtainable vs. wishlist');
+    expect(planLineageAffinitySpy).toHaveBeenCalledTimes(1);
+    const [, , , pB] = planLineageAffinitySpy.mock.calls[0]!;
+    expect(pB).toEqual(parentBRental);
   });
 });

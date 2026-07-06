@@ -15,6 +15,7 @@ import { buildCoverageMatrix } from '@/core/coverageMatrix';
 import { type SkillSortMeta } from '@/core/skillCategory';
 import { buildIconRank, buildSkillComparator } from './skillSort';
 import { planLineageAffinity } from '@/core/lineageAffinity';
+import { resolveParent2 } from '@/core/resolveParent2';
 import { useRoster } from './useRoster';
 import { useAffinityIndex } from './useAffinityIndex';
 import { useG1SaddleSet } from './useG1SaddleSet';
@@ -62,6 +63,13 @@ import { YourDeckCard, type DeckCardInfo } from './YourDeckCard';
 import { canAddCard, isTraineeConflict } from './deckConflicts';
 import { useActiveTemplateName, useDeckState, useDeckTemplates } from './useDeckState';
 import { addCard, emptyDeck, isDeckEmpty, TYPE_COLORS, TYPE_LABEL } from './deckOps';
+// The Inheritance workbench REUSES the M4 card grammar (`.cmp-plan-card`, skill
+// plates) + the `:root --cmp-*` design tokens, which live in cm-planner.css.
+// That file is otherwise imported only by the lazy CmPlannerPage (`/`), so a cold
+// load of `/inheritance` (deep link / refresh) would render these unstyled. Import
+// it here so this page carries its own style dependency (matches the per-page CSS
+// pattern; the lazy-route split, PR #45, is what stranded it — same class as #47).
+import '@/features/cm-planner/cm-planner.css';
 import './inheritance.css';
 
 /** Support-card type → the bundled in-game UI type-tile id (kind="ui"). */
@@ -337,6 +345,11 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
   const parentARef = uma1Plan?.parents.a;
   const parentBRef = uma1Plan?.parents.b;
   const planUmaId = uma1Plan?.umaId;
+  // Parent-2 slot mode (M1.4b) — narrow deps for resolveParent2, same discipline
+  // as parentARef/parentBRef above (skips rebuilding coverage on unrelated edits).
+  const parent2Mode = uma1Plan?.parent2Mode;
+  const rentalDraft = uma1Plan?.rentalDraft;
+  const rentalRecorded = uma1Plan?.rentalRecorded;
 
   // Pool scoring memos
   const wishlist = useMemo(
@@ -385,7 +398,22 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     const wishlistSkillIds = (planWishlist ?? []).map((w) => w.skillId);
     const rosterById = new Map(roster.map((p) => [p.id, p]));
     const pA = parentARef ? rosterById.get(parentARef) : undefined;
-    const pB = parentBRef ? rosterById.get(parentBRef) : undefined;
+    // Resolve Parent 2 through the M1.4b slot (owned roster pick / rental draft
+    // search-spec / recorded rental) — a minimal synthesized plan carrying only
+    // the fields resolveParent2 reads, matching the narrow-deps discipline above.
+    const synthPlanForP2 = {
+      parent2Mode, rentalDraft, rentalRecorded,
+      parents: { a: parentARef, b: parentBRef },
+    } as unknown as CmPlan;
+    const p2 = resolveParent2(synthPlanForP2, rosterById);
+    const pB =
+      p2.kind === 'owned' ? p2.parent
+      : p2.kind === 'rental' ? p2.parent
+      : p2.kind === 'draft' ? p2.synthetic
+      : undefined;
+    // Only an owned/rental Parent 2 is a REAL veteran — a draft's synthetic parent
+    // has umaId:'' and must never reach planLineageAffinity/charaIdOf.
+    const p2IsReal = p2.kind === 'owned' || p2.kind === 'rental';
     // A white spark only ever grants the single-circle (○) grade — normalise a
     // recorded ◎ id to its ○ family member so coverage/bonus display "…○".
     const normSparks = <T extends { skillId: string }>(sparks: T[]): T[] =>
@@ -403,7 +431,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
     ];
 
     let memberAffinity: ((ctx: { parentId: string; grandparent: boolean; gpIndex: number }) => number | undefined) | undefined;
-    if (affinityIdx && planUmaId && pA && pB) {
+    if (affinityIdx && planUmaId && pA && pB && p2IsReal) {
       const la = planLineageAffinity(affinityIdx, planUmaId, pA, pB, g1Set);
       memberAffinity = ({ parentId, grandparent, gpIndex }) => {
         if (!grandparent) return parentId === pA.id ? la.memberScores.parentA : parentId === pB.id ? la.memberScores.parentB : undefined;
@@ -450,7 +478,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
       umaNameById,
       compareSkills,
     });
-  }, [planWishlist, parentARef, parentBRef, planUmaId, roster, affinityIdx, g1Set, greenMap, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId, compareSkills]);
+  }, [planWishlist, parentARef, parentBRef, parent2Mode, rentalDraft, rentalRecorded, planUmaId, roster, affinityIdx, g1Set, greenMap, deck, cardById, skillById, sparkRates, umaById, umaNameById, innateByUmaId, umaEventsByUmaId, compareSkills]);
 
   // Event-cell hint button + popup: the training events of the plan uma that can
   // grant the (family-resolved) skill. Returns null when no details exist — the
@@ -705,7 +733,7 @@ export function InheritancePage({ deps }: { deps?: Deps } = {}) {
           )}
         </div>
         <div className="inh-col inh-col-center">
-          <InheritanceCard />
+          <InheritanceCard uncoveredWhiteIds={uncoveredSkillIds} />
           <YourDeckCard
             state={deck}
             onChange={setDeck}

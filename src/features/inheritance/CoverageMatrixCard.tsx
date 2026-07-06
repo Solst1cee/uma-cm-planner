@@ -215,18 +215,30 @@ export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCard
   renderSkillIcon?: RenderSkillIcon; renderSkillDetail?: RenderSkillDetail;
 }) {
   const [bonusOpen, setBonusOpen] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   return (
     <div className="cmp-plan-card inh-cov-card">
-      <div className="cmp-plan-card-head inh-cov-head">
+      <div
+        className="cmp-plan-card-head cmp-collapse-head inh-cov-head"
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed((c) => !c)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCollapsed((c) => !c); } }}
+      >
         <span className="inh-cov-title">Obtainable vs. wishlist</span>
-        <HeaderHelp label="Obtainability matrix help">
-          Crosses each wishlist skill against where you can get it: your uma's
-          innate kit, its career training events, parent/grandparent sparks (with
-          real inherit-%), and your deck's hint / chain-event / random-event
-          skills. "Event" is availability — whether the uma's events can grant the
-          skill — not a per-run guarantee. Red-striped rows are uncovered.
-        </HeaderHelp>
+        <span className="inh-cov-head-help" onClick={(e) => e.stopPropagation()}>
+          <HeaderHelp label="Obtainability matrix help">
+            Crosses each wishlist skill against where you can get it: your uma's
+            innate kit, its career training events, parent/grandparent sparks (with
+            real inherit-%), and your deck's hint / chain-event / random-event
+            skills. "Event" is availability — whether the uma's events can grant the
+            skill — not a per-run guarantee. Red-striped rows are uncovered.
+          </HeaderHelp>
+        </span>
+        <span className="cmp-collapse-caret" data-open={!collapsed ? '' : undefined} />
       </div>
+      {!collapsed && (
       <div className="cmp-plan-card-body inh-cov-body">
         {!hasPlanUma ? (
           <p className="muted">Pick a plan uma to see coverage.</p>
@@ -253,6 +265,7 @@ export function CoverageMatrixCard({ result, hasWishlist, hasPlanUma, renderCard
           </>
         )}
       </div>
+      )}
     </div>
   );
 }

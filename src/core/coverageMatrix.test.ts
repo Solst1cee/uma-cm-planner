@@ -357,11 +357,31 @@ describe('buildCoverageMatrix', () => {
     const whiteRow = res.rows.find((r) => r.skillId === '200033')!;
     const pChip = whiteRow.cells.parent.find((c) => c.kind === 'parent')!;
     const gpChip = whiteRow.cells.parent.find((c) => c.kind === 'gp')!;
-    expect(pChip.sourceName).toBe('Mayano Top Gun');
-    expect(gpChip.sourceName).toBe('Silence Suzuka');
+    // Parent-self chips are member-labelled (P1/P2); gp chips name the uma + side.
+    expect(pChip.sourceName).toBe('Parent 1 (P1)');
+    expect(pChip.label).toBe('P1');
+    expect(gpChip.sourceName).toBe('Silence Suzuka (P1)');
     // The guaranteed parent-unique chip carries it too.
     const greenRow = res.rows.find((r) => r.skillId === '900011')!;
-    expect(greenRow.cells.parent[0]!.sourceName).toBe('Mayano Top Gun');
+    expect(greenRow.cells.parent[0]!.sourceName).toBe('Parent 1 (P1)');
+  });
+
+  it('merges both parents supplying the same spark into one "P1+P2" chip', () => {
+    const p1 = parent('pa', '100101', { whiteSparks: [{ skillId: '200033', stars: 3 }] });
+    const p2 = parent('pb', '100201', { whiteSparks: [{ skillId: '200033', stars: 3 }] });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p1, isA: true }, { parent: p2, isA: false }] }));
+    const cells = res.rows.find((r) => r.skillId === '200033')!.cells.parent.filter((c) => c.kind === 'parent');
+    expect(cells).toHaveLength(1);
+    expect(cells[0]!.label).toBe('P1+P2');
+    expect(cells[0]!.sourceName).toBe('P1 + P2');
+  });
+
+  it('labels a draft Parent 2 as "Draft parent (P2)"', () => {
+    const p2 = parent('__rental_draft__', '', { whiteSparks: [{ skillId: '200033', stars: 3 }] });
+    const res = buildCoverageMatrix(baseInput({ activeParents: [{ parent: p2, isA: false }] }));
+    const chip = res.rows.find((r) => r.skillId === '200033')!.cells.parent.find((c) => c.kind === 'parent')!;
+    expect(chip.label).toBe('P2');
+    expect(chip.sourceName).toBe('Draft parent (P2)');
   });
 
   it('FIX B — grandparent white spark is still priced (pct > 0)', () => {

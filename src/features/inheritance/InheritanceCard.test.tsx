@@ -1,6 +1,6 @@
 // src/features/inheritance/InheritanceCard.test.tsx
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import type { CmPlan, Parent, SkillRecord, UmaRecord } from '@/core/types';
 import { InheritanceCard } from './InheritanceCard';
@@ -10,6 +10,9 @@ const ROSTER: Parent[] = [
   { id: 'b', umaId: '100601', blueSpark: { stat: 'sta', stars: 1 }, pinkSpark: { aptitude: 'mile', stars: 1 }, whiteSparks: [], source: 'mine' },
 ];
 const setPlan = vi.fn();
+// Persists regardless of the planner's auto-save toggle (CLAUDE.md M1 gotcha #3) —
+// InheritanceCard must route every mutation through both setPlan AND saveCurrentPlan.
+const saveCurrentPlan = vi.fn().mockResolvedValue(undefined);
 const plan = {
   id: 'p1', parents: {}, sparkGoals: { blue: { spd: 3 }, pink: [{ aptKey: { kind: 'distance', key: 'long' }, target: 'A' }] },
 } as unknown as CmPlan;
@@ -20,7 +23,7 @@ let mockUmas: UmaRecord[] = [];
 // Mutable so the availability gate test can inject skills with mixed server values.
 let mockSkills: SkillRecord[] = [];
 
-vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: activePlan, setPlan }) }));
+vi.mock('@/app/ActivePlanContext', () => ({ useActivePlan: () => ({ uma1Plan: activePlan, setPlan, saveCurrentPlan }) }));
 vi.mock('./useRoster', () => ({ useRoster: () => ({ roster: ROSTER, importedAt: '2026-06-26T10:00:00.000Z', importFromFile: vi.fn() }) }));
 vi.mock('@/features/parents/useUmas', () => ({
   useUmas: () => ({ umas: mockUmas, umaById: new Map() }),
@@ -79,6 +82,7 @@ import React from 'react';
 afterEach(() => {
   cleanup();
   setPlan.mockClear();
+  saveCurrentPlan.mockClear();
   gameIconSpy.mockClear();
   activePlan = plan;
   mockUmas = [];
@@ -99,19 +103,128 @@ describe('InheritanceCard', () => {
     expect(screen.getByText('Inheritance')).toBeInTheDocument();
   });
 
-  it('ranks candidates and persists a pick to plan.parents.a', () => {
+  it('ranks candidates and persists a pick to plan.parents.a via BOTH setPlan and saveCurrentPlan (the owned select() shares the same persistence gap)', async () => {
     render(<InheritanceCard />);
     expect(screen.getByText(/Updated 2026-06-26/)).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole('button', { name: /find candidates/i })[0]!);
     // top candidate is 'a' (spd 3 + long 3 = 6); click it
     fireEvent.click(screen.getByRole('button', { name: /Uma 101501/i }));
-    expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parents: { a: 'a' } }));
+    const expected = expect.objectContaining({ parents: { a: 'a' } });
+    expect(setPlan).toHaveBeenCalledWith(expected);
+    // editPlan queues the persist through a promise chain — flush it.
+    await waitFor(() => expect(saveCurrentPlan).toHaveBeenCalledTimes(1));
+    expect(saveCurrentPlan).toHaveBeenCalledWith(expected, { commit: 'if-current' });
   });
 
-  it('switches Parent 2 to a rental stub', () => {
+  it('switching Parent 2 to Draft persists parent2Mode + seeds a default rentalDraft via BOTH setPlan and saveCurrentPlan (independent of the autosave toggle)', async () => {
     render(<InheritanceCard />);
-    fireEvent.click(screen.getByRole('switch', { name: /rental/i }));
-    expect(screen.getByText(/coming in m1\.4b/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Draft' }));
+    const expected = expect.objectContaining({
+      parent2Mode: 'draft',
+      rentalDraft: { filters: [], forcedTier: 'double' },
+    });
+    expect(setPlan).toHaveBeenCalledWith(expected);
+    await waitFor(() => expect(saveCurrentPlan).toHaveBeenCalledTimes(1));
+    expect(saveCurrentPlan).toHaveBeenCalledWith(expected, { commit: 'if-current' });
+  });
+
+  it('renders the RentalDraftPanel + the assumed-affinity mark when parent2Mode is draft', () => {
+    activePlan = { ...plan, parent2Mode: 'draft', rentalDraft: { filters: [], forcedTier: 'double' } } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    expect(screen.getByText('Load from Target spark')).toBeInTheDocument();
+    // A draft never inflates the real numeric affinity — it's a separate "assumed" mark.
+    expect(screen.getByTitle(/assumed \(draft\)/i)).toBeInTheDocument();
+  });
+
+  it('switching Parent 2 to Rental shows the manual editor when nothing is recorded yet', () => {
+    activePlan = { ...plan, parent2Mode: 'rental' } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  });
+
+  it('saving a Rental parent persists rentalRecorded via BOTH setPlan and saveCurrentPlan', async () => {
+    mockUmas = [
+      { umaId: '100601', charaId: '1006', nameEn: 'Rental Uma', server: 'global', dataVersion: 'x' },
+    ] as UmaRecord[];
+    activePlan = { ...plan, parent2Mode: 'rental' } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    fireEvent.change(screen.getByLabelText('Parent uma'), { target: { value: '100601' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    const expected = expect.objectContaining({
+      rentalRecorded: expect.objectContaining({ umaId: '100601', source: 'friend_rental' }),
+    });
+    expect(setPlan).toHaveBeenCalledWith(expected);
+    await waitFor(() => expect(saveCurrentPlan).toHaveBeenCalledTimes(1));
+    expect(saveCurrentPlan).toHaveBeenCalledWith(expected, { commit: 'if-current' });
+  });
+
+  it('same-character guard (spec §6): the Rental editor uma options exclude Parent 1\'s character (any outfit)', () => {
+    // umaName is mocked to `Uma ${id}` (nameEn is ignored) — assert on the id-derived label.
+    mockUmas = [
+      { umaId: '101502', charaId: '1015', nameEn: 'Same Chara Alt Outfit', server: 'global', dataVersion: 'x' },
+      { umaId: '100601', charaId: '1006', nameEn: 'Different Chara', server: 'global', dataVersion: 'x' },
+    ] as UmaRecord[];
+    // Parent 1 = ROSTER 'a' (umaId '101501' → charaId 1015, same family as '101502').
+    activePlan = { ...plan, parents: { a: 'a' }, parent2Mode: 'rental' } as unknown as CmPlan;
+    render(<InheritanceCard />);
+    const options = within(screen.getByLabelText('Parent uma')).getAllByRole('option').map((o) => o.textContent);
+    expect(options).not.toContain('Uma 101502');
+    expect(options).toContain('Uma 100601');
+  });
+
+  it('mode switches Owned→Draft→Rental preserve parents.b, rentalDraft, and rentalRecorded untouched (only parent2Mode changes)', async () => {
+    const recorded: Parent = {
+      id: 'r1', umaId: '100601',
+      blueSpark: { stat: 'sta', stars: 2 }, pinkSpark: { aptitude: 'mile', stars: 2 },
+      whiteSparks: [], source: 'friend_rental',
+    };
+    const draft = { filters: [{ id: 'f1', kind: 'blue', stat: 'spd', legacyMin: 0, totalMin: 3 }], forcedTier: 'double' as const };
+    activePlan = {
+      ...plan,
+      parents: { b: 'b' },
+      parent2Mode: 'owned',
+      rentalDraft: draft,
+      rentalRecorded: recorded,
+    } as unknown as CmPlan;
+    const { rerender } = render(<InheritanceCard />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Draft' }));
+    const afterDraft = expect.objectContaining({
+      parents: { b: 'b' },
+      parent2Mode: 'draft',
+      rentalDraft: draft,
+      rentalRecorded: recorded,
+    });
+    expect(setPlan).toHaveBeenLastCalledWith(afterDraft);
+    await waitFor(() => expect(saveCurrentPlan).toHaveBeenCalledTimes(1));
+    expect(saveCurrentPlan).toHaveBeenLastCalledWith(afterDraft, { commit: 'if-current' });
+    activePlan = setPlan.mock.calls.at(-1)![0] as CmPlan;
+    rerender(<InheritanceCard />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rental' }));
+    const afterRental = expect.objectContaining({
+      parents: { b: 'b' },
+      parent2Mode: 'rental',
+      rentalDraft: draft,
+      rentalRecorded: recorded,
+    });
+    expect(setPlan).toHaveBeenLastCalledWith(afterRental);
+    await waitFor(() => expect(saveCurrentPlan).toHaveBeenCalledTimes(2));
+    expect(saveCurrentPlan).toHaveBeenLastCalledWith(afterRental, { commit: 'if-current' });
+  });
+
+  it('switching back to Owned persists parent2Mode: owned and (once applied) shows the roster picker UI again', () => {
+    activePlan = { ...plan, parent2Mode: 'draft', rentalDraft: { filters: [], forcedTier: 'double' } } as unknown as CmPlan;
+    const { rerender } = render(<InheritanceCard />);
+    expect(screen.getByText('Load from Target spark')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Owned' }));
+    expect(setPlan).toHaveBeenCalledWith(expect.objectContaining({ parent2Mode: 'owned' }));
+    // Simulate the persisted plan flowing back down through the (mocked) context.
+    activePlan = { ...activePlan, parent2Mode: 'owned' } as unknown as CmPlan;
+    rerender(<InheritanceCard />);
+    expect(screen.queryByText('Load from Target spark')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /find candidates/i }).length).toBeGreaterThan(0);
   });
 
   it('opens the picker modal on Change and persists the pick', () => {

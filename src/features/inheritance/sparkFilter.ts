@@ -4,15 +4,9 @@
  * 2 means "2 or higher"); 0 = no constraint. legacy = veteran's own; total =
  * summed across the lineage. blue/pink/white are symmetric.
  */
-import type { Stat } from '@/core/types';
 import type { SparkAgg } from './sparkAggregate';
-
-export type SparkFilter =
-  | { id: string; kind: 'blue'; stat: Stat; legacyMin: number; totalMin: number }
-  | { id: string; kind: 'pink'; aptitude: string; legacyMin: number; totalMin: number }
-  | { id: string; kind: 'white'; skillId: string; legacyMin: number; totalMin: number }
-  | { id: string; kind: 'green'; skillId: string; legacyMin: number; totalMin: number }
-  | { id: string; kind: 'anyBlue'; totalMin: number };
+export type { SparkFilter } from '@/core/sparkFilter';
+import type { SparkFilter } from '@/core/sparkFilter';
 
 export function clauseMatches(agg: SparkAgg, f: SparkFilter): boolean {
   switch (f.kind) {

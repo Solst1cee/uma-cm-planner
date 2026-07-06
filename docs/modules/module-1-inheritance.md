@@ -107,8 +107,9 @@ The center-column **"Inheritance"** card: owned **Parent 1 & 2** slots
 (`InheritanceCard`/`ParentCardView`), each showing the full lineage's sparks as
 colour-coded chips — blue (stat) · pink (aptitude) · **green (inherited-unique)** ·
 white (skill) — with **gold legacy / dark grandparent** stars. Selection persists to
-`CmPlan.parents.{a,b}`. Parent 2 has an Owned/Rental toggle (Rental → M1.4b stub);
-`Find candidates` is a heuristic pre-rank (`candidateScore`).
+`CmPlan.parents.{a,b}`. Parent 2 has an Owned/**Draft**/**Rental** 3-mode slot
+(Draft/Rental shipped in M1.4b, below); `Find candidates` is a heuristic
+pre-rank (`candidateScore`).
 
 **UmaExtractor importer** (`UploadDataButton`/`useRoster`/`umaExtractor`/`factorDecode`):
 "Upload data" parses a UmaExtractor `data.json` → `Parent[]` (factor decode → blue/
@@ -129,8 +130,9 @@ lineage spark chips. Affinity via `candidateAffinity` = lineage affinity + G1 wi
 bonus (`useAffinityIndex` loads `affinity.json`). Shared `LineageSparkChips` drives
 the card + tile chips.
 Spec/plan: 2026-06-26-m1-4-inheritance-card · 2026-06-26-m1-4-uma-picker-spark-filter.
-**Deferred (M1.4b):** Parent-2 rental builder + search-link; green-spark 9xxxxx +
-saddle→G1 `wonRaces` reconciliation (M1.7).
+**Was deferred here, now shipped:** Parent-2 rental builder + search-link — see
+*M1.4b* below. Green-spark 9xxxxx + saddle→G1 `wonRaces` reconciliation shipped
+with M1.7.
 
 **Wishlist glow + evaluation-rank badges (2026-06-27, on PR #14 icon assets):**
 - A white/green spark whose skill is on the active plan's **wishlist** now gets the
@@ -274,6 +276,83 @@ family-aware coverage (`○ ≡ ◎`, gold/`×` exact). Spec:
 `'pending'` coverage arm (unreachable once M1.7 shipped — the page always passes
 a real array) was removed from `buildTargetSpark`/`TargetSparkCard`. The dead
 `.inh-placeholder` CSS was removed in the PR #34–43 review-fix pass.
+
+## M1.4b "Draft"/"Rental" Parent-2 builder + resolver wiring (2026-07-06, `feat/m1-4b-rental-builder`)
+
+Closes the last M1.4 deferral: the Parent-2 slot is now a **3-mode segmented
+selector** (`Owned · Draft · Rental`, `parent2Mode` on the plan, default
+`'owned'` when absent — full back-compat) instead of the binary Rental toggle.
+
+- **Owned** — unchanged: your `data.json` roster parent.
+- **Draft** (`RentalDraft { filters: SparkFilter[]; forcedTier: 'double'|'single'|'triangle' }`,
+  `RentalDraftPanel.tsx`) — a **search spec, not a real parent**. Reuses the
+  M1.4 picker's "Star Tracks" filter cards via the shared `useSparkFilterState`
+  hook (extracted from `UmaPickerModal`, no behavior change there). A **◎/○/△
+  forced-tier** picker (`forcedTierScore` in `rentalDraft.ts`: △≈25 · ○≈100 ·
+  ◎≈175, a documented P3 estimate aligned to the mechanics-notes §3 bands)
+  feeds `draftToSyntheticParent(draft)` — a `Parent` with `umaId: ''`,
+  `affinityHint = forcedTierScore`, and the draft's blue/pink/green/white
+  clauses collapsed onto it (first green kept on a multi-green draft, a
+  documented limitation) — so it rides the existing coverage/spark-pricing
+  path as a **labelled hypothetical**, never as measured coverage. A **"Load
+  from Target spark"** button seeds blue+white clauses from M1.8's
+  `buildTargetSpark` residual (`seedFromTargetSpark`); green is left for
+  manual add. Three **rental-search deep-link** buttons (`src/core/
+  rentalSearch.ts`, pure + tested): `umaMoeUrl`/`pureDbUrl`/`chronoGenesisUrl`
+  encode blue/pink clauses (factorId space **confirmed** against uma.moe's
+  open-source frontend, provenance §6) and, on ChronoGenesis only, `anyBlue`
+  (`blue_count`, confirmed). **White/green clauses are dropped on all three
+  sites** — their factorId space is either an opaque live-fetched API table
+  (uma.moe/ChronoGenesis) or undocumented (pure-db) — surfaced per-site as a
+  "N filters not encodable" note, never silently discarded. The panel also
+  carries the P3 honesty caveat (a matching record ≠ a guaranteed borrowable
+  rental).
+- **Rental** (`RentalParentEditor.tsx`) — a manual editor producing a full
+  **veteran-shape `Parent`** (uma + blue/pink/green/white sparks + optional 2
+  grandparents + optional stats/rating/`wonRaces`), so once recorded it feeds
+  affinity + coverage exactly like an owned roster parent (`rentalRecorded` on
+  the plan, `source: 'friend_rental'`). **UmaExtractor cannot read a rental
+  you're only *considering*** — it scans your own trained-uma Veteran List
+  screen, not a friend's parent on the inheritance/friend-select screen (a
+  different, upstream-tool-limited screen) — so manual entry is the honest v1;
+  friend-list extraction stays a documented wishlist item, not built.
+
+**Resolver + wiring (Task 9, this PR):** `src/core/resolveParent2.ts`
+(`resolveParent2(plan, rosterById) → {kind:'owned'|'draft'|'rental'|'none', …}`)
+is the single place every Parent-2 consumer resolves the slot. `InheritanceCard`
+already routed its header affinity mark + card render through it (Task 8);
+this task wires **`InheritancePage`'s coverage `useMemo`** the same way — Parent
+2 (`pB`) now comes from `resolveParent2` (owned parent / rental parent /
+draft's synthetic), and `planLineageAffinity` (real lineage-affinity math) runs
+**only** when Parent 2 is `owned` or `rental`, never `draft` (a draft's
+synthetic parent has `umaId: ''` and must never reach `charaIdOf`). In draft
+mode `memberAffinity` stays undefined, so `spark.ts` prices the synthetic
+parent off its own `affinityHint` — the same fallback path a real Parent 2
+with no computed affinity already used. The page also passes M1.7's live
+`uncoveredSkillIds` into `InheritanceCard`'s `uncoveredWhiteIds` prop, so the
+Draft panel's "Load from Target spark" seeds from the *current* uncovered
+wishlist, not an empty default. Persistence (`parent2Mode`/`rentalDraft`/
+`rentalRecorded` round-trip + validation) landed with the data-model task; no
+Dexie version bump (all-additive-optional fields).
+
+**Deep-links LIVE-VERIFIED + all colours encodable (polish pass 2026-07-06).** All
+three builders now encode ALL four spark colours (blue/pink/green/white) +
+ChronoGenesis `anyBlue`, reverse-engineered byte-exact from ~24 real working URLs
+the maintainer captured (green `"10"+(nativeId−base,3d)+variant+"0"`, white
+`floor(skillId/10)*10`; per-site placement in `rentalSearch.ts` header + provenance
+§6). The earlier `lb`/`trainer_id`/`card_id`=uma-id and pure-db `count`/`searchType`
+guesses were **wrong and fixed** (they zeroed results). Manual browser smoke of the
+mode-switch + deep-link flow was done live with the maintainer.
+
+**Coverage-matrix chip labelling (polish pass 2026-07-06):** parent chips are now
+member-labelled **P1 / P2 / "Draft parent (P2)"** and merge into **P1+P2** when both
+parents supply a spark (was a generic "Parent", which made a draft-mode change read
+as "still using owned"); grandparent chips show their side (`P1·GP`/`P2·GP`). Deck /
+Support / Obtainable-vs-wishlist cards are collapsible. NOTE: the forced-tier ◎/○/△
+only moves WHITE inherit-% (green parent sparks are 100% guaranteed at career start).
+
+Spec/plan: [design](../superpowers/specs/2026-07-06-m1-4b-rental-builder-design.md) ·
+[plan](../superpowers/plans/2026-07-06-m1-4b-rental-builder.md).
 
 ## Next (Plans 3–5)
 
