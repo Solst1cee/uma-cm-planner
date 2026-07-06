@@ -335,14 +335,21 @@ wishlist, not an empty default. Persistence (`parent2Mode`/`rentalDraft`/
 `rentalRecorded` round-trip + validation) landed with the data-model task; no
 Dexie version bump (all-additive-optional fields).
 
-**Deferred (documented, not silent):** the exact white/green **factor-id**
-format per rental-search site (needs a live browser capture against each
-site's own filter UI — flagged in `rentalSearch.ts`'s header, not guessed);
-the pure-db payload's `count`/`searchType`/`gameServerCode`/`supportCardId`
-fields are best-effort/structurally-confirmed only, same flag. Manual smoke
-(switching modes end-to-end in a running browser, confirming the search links
-actually open filtered) was **not run by the implementing agent** — left for
-the human, see the task report.
+**Deep-links LIVE-VERIFIED + all colours encodable (polish pass 2026-07-06).** All
+three builders now encode ALL four spark colours (blue/pink/green/white) +
+ChronoGenesis `anyBlue`, reverse-engineered byte-exact from ~24 real working URLs
+the maintainer captured (green `"10"+(nativeId−base,3d)+variant+"0"`, white
+`floor(skillId/10)*10`; per-site placement in `rentalSearch.ts` header + provenance
+§6). The earlier `lb`/`trainer_id`/`card_id`=uma-id and pure-db `count`/`searchType`
+guesses were **wrong and fixed** (they zeroed results). Manual browser smoke of the
+mode-switch + deep-link flow was done live with the maintainer.
+
+**Coverage-matrix chip labelling (polish pass 2026-07-06):** parent chips are now
+member-labelled **P1 / P2 / "Draft parent (P2)"** and merge into **P1+P2** when both
+parents supply a spark (was a generic "Parent", which made a draft-mode change read
+as "still using owned"); grandparent chips show their side (`P1·GP`/`P2·GP`). Deck /
+Support / Obtainable-vs-wishlist cards are collapsible. NOTE: the forced-tier ◎/○/△
+only moves WHITE inherit-% (green parent sparks are 100% guaranteed at career start).
 
 Spec/plan: [design](../superpowers/specs/2026-07-06-m1-4b-rental-builder-design.md) ·
 [plan](../superpowers/plans/2026-07-06-m1-4b-rental-builder.md).

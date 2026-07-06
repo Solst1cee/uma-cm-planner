@@ -60,6 +60,7 @@ export function YourDeckCard({
   const [draftName, setDraftName] = useState(activeName);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dragIndex, setDragIndex] = useState(-1);
+  const [collapsed, setCollapsed] = useState(false);
   const comboRef = useRef<HTMLDivElement>(null);
   useDismissOnOutside(comboRef, menuOpen, () => setMenuOpen(false), { esc: true });
 
@@ -109,8 +110,18 @@ export function YourDeckCard({
 
   return (
     <div className="inh-deck">
-      <div className="inh-deck-head">Deck</div>
-      <div className="inh-deck-body">
+      <div
+        className="inh-deck-head cmp-collapse-head"
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed((c) => !c)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCollapsed((c) => !c); } }}
+      >
+        <span>Deck</span>
+        <span className="cmp-collapse-caret" data-open={!collapsed ? '' : undefined} />
+      </div>
+      <div className={`inh-deck-body${collapsed ? ' inh-collapsed' : ''}`}>
         <div className="inh-deck-tools">
           <div className="inh-deck-combo" ref={comboRef}>
             <input

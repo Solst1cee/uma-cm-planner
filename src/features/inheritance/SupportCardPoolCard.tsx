@@ -86,6 +86,7 @@ export function SupportCardPoolCard({
   const [view, setView] = useState<'icon' | 'plot'>('icon');
   const [sort, setSort] = useState<PoolSort>('matches');
   const [filters, setFilters] = useState<PoolFilters>(DEFAULT_FILTERS);
+  const [collapsed, setCollapsed] = useState(false);
 
   // Memoized: two full passes + a sort over ~540 pool items — without this it
   // re-ran on every keystroke and every unrelated parent re-render.
@@ -112,45 +113,21 @@ export function SupportCardPoolCard({
 
   return (
     <div className="inh-deck inh-pool">
-      {/* ── Head ── */}
-      <div className="inh-deck-head inh-pool-head">
+      {/* ── Head (click title/bar to collapse; controls stop propagation) ── */}
+      <div
+        className="inh-deck-head inh-pool-head cmp-collapse-head"
+        role="button"
+        tabIndex={0}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed((c) => !c)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCollapsed((c) => !c); } }}
+      >
         <span className="inh-pool-title">Support cards</span>
-        <div className="inh-pool-head-right">
-          {/* View toggle */}
-          <div className="inh-pool-toggle-group" role="group" aria-label="View">
-            {(['icon', 'plot'] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                className={`inh-pool-toggle-btn${view === v ? ' is-active' : ''}`}
-                onClick={() => setView(v)}
-                aria-pressed={view === v}
-              >
-                {v.charAt(0).toUpperCase() + v.slice(1)}
-              </button>
-            ))}
-          </div>
-          {/* Sort toggle — hidden in Plot view */}
-          {view !== 'plot' && (
-            <div className="inh-pool-toggle-group" role="group" aria-label="Sort">
-              {(['matches', 'effect'] as const).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className={`inh-pool-toggle-btn${sort === s ? ' is-active' : ''}`}
-                  onClick={() => setSort(s)}
-                  aria-pressed={sort === s}
-                >
-                  {s === 'matches' ? 'Matches' : 'Effect'}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <span className="cmp-collapse-caret" data-open={!collapsed ? '' : undefined} />
       </div>
 
       {/* ── Body ── */}
-      <div className="inh-deck-body inh-pool-body">
+      <div className={`inh-deck-body inh-pool-body${collapsed ? ' inh-collapsed' : ''}`}>
         {/* ── Filters ── */}
         <div className="inh-pool-filters">
           {/* Rarity */}
@@ -167,6 +144,37 @@ export function SupportCardPoolCard({
                   {r === 'all' ? 'All' : r}
                 </button>
               ))}
+            </div>
+            {/* View + Sort toggles — right side of the Rarity row */}
+            <div className="inh-pool-viewsort">
+              <div className="inh-pool-toggle-group" role="group" aria-label="View">
+                {(['icon', 'plot'] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    className={`inh-pool-toggle-btn${view === v ? ' is-active' : ''}`}
+                    onClick={() => setView(v)}
+                    aria-pressed={view === v}
+                  >
+                    {v.charAt(0).toUpperCase() + v.slice(1)}
+                  </button>
+                ))}
+              </div>
+              {view !== 'plot' && (
+                <div className="inh-pool-toggle-group" role="group" aria-label="Sort">
+                  {(['matches', 'effect'] as const).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`inh-pool-toggle-btn${sort === s ? ' is-active' : ''}`}
+                      onClick={() => setSort(s)}
+                      aria-pressed={sort === s}
+                    >
+                      {s === 'matches' ? 'Matches' : 'Effect'}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

@@ -698,6 +698,8 @@ main:has(.inh-page) {
   flex-direction: column;
   gap: 0.35rem;
 }
+/* View (Icon/Plot) + Sort (Matches/Effect) toggles — right side of the Rarity row. */
+.inh-pool-viewsort { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; }
 .inh-pool-filter-row {
   display: flex;
   align-items: center;
@@ -1361,6 +1363,11 @@ main:has(.inh-page) {
 
 /* Inheritance card (M1.4) */
 .inh-inheritance-card .cmp-plan-card-head { gap: 0.5rem; }
+/* Heads holding a 1.85rem icon button (Uma plan inventory, Inheritance upload)
+   would grow to ~3rem (border-box: 1.85 + 0.6·2 padding) — taller than the 2.6rem
+   text heads. Trim the block padding so every workbench card head is the same. */
+.inh-uma-card > .cmp-plan-card-head,
+.inh-inheritance-card > .cmp-plan-card-head { padding-block: 0.35rem; }
 /* The tools group owns the auto-margin (right-aligns Updated + Upload); the caret
    then sits flush to its right as the last item, so the bar stays one tidy row. */
 .inh-inherit-tools { margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem; flex: none; }
@@ -1375,7 +1382,10 @@ main:has(.inh-page) {
   font-size: 0.64rem;          /* smaller */
   color: var(--fg-muted);      /* lighter */
 }
-.inh-parent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+/* minmax(0,1fr) so a tall/wide Parent-2 body (e.g. the Draft filter cards) can't
+   force its column past 50% and squeeze Parent 1; align-items:start so Parent 1
+   keeps its natural height instead of stretching to match a tall draft. */
+.inh-parent-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; align-items: start; }
 @media (max-width: 760px) { .inh-parent-grid { grid-template-columns: 1fr; } }
 /* Card chrome (border / radius / bg / shadow) comes from .cmp-plan-card;
    .inh-parent just stacks head + content. overflow:visible lets the Find
@@ -1388,7 +1398,10 @@ main:has(.inh-page) {
 }
 /* Grey head bar (bg-2 + bottom border) from .cmp-plan-card-head; tighten the
    padding for these sub-cards and keep the actions inline on the bar. */
-.inh-parent-head.cmp-plan-card-head { gap: 0.4rem; padding: 0.35rem 0.5rem; min-height: 0; font-size: 0.9rem; }
+/* Consistent head height across all Parent-2 modes: owned mode carries the
+   Find/Change icon buttons (1.85rem) while Draft/Rental suppress them, so pin a
+   min-height + vertical centering so the mode bar doesn't visibly shrink. */
+.inh-parent-head.cmp-plan-card-head { gap: 0.4rem; padding: 0.35rem 0.5rem; min-height: 2.55rem; align-items: center; font-size: 0.9rem; }
 .inh-parent-title { font-weight: 700; }
 /* Find-candidates popover: anchored under the magnifier button, escapes the
    card (overflow:visible above), dismiss-on-outside via useDismissOnOutside. */
@@ -1402,7 +1415,9 @@ main:has(.inh-page) {
 .inh-parent-content { flex: 1; display: flex; flex-direction: column; gap: 0.45rem; padding: 0.5rem 0.55rem; }
 /* Empty state fills the (grid-stretched) card and centers both ways. */
 .inh-parent-empty { margin: auto; text-align: center; }
-.inh-parent-actions { margin-left: auto; display: inline-flex; gap: 0.3rem; }
+/* Reserve the icon-button height even when empty (Draft/Rental suppress the
+   Find/Change buttons) so the Parent-2 head is the same height in all 3 modes. */
+.inh-parent-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 1.85rem; }
 /* Clear button: red glyph; hover highlights red (overrides the icon-btn accent hover). */
 .inh-clear { color: var(--error); }
 .cmp-inventory-icon-btn.inh-clear:not(:disabled):hover { border-color: var(--error); color: var(--error); }
@@ -1427,6 +1442,11 @@ main:has(.inh-page) {
 .badge.spark-white .inh-white-chip-name { color: var(--fg-muted); }
 .badge.spark-white .inh-star-gp { color: var(--fg-muted); }
 .inh-rental-stub { padding: 0.3rem 0; }
+/* Collapsible card bodies (Deck / Support / Coverage) — hide the body, keep the
+   clickable head bar. Title+caret group on the left; head controls stay right. */
+.inh-collapsed { display: none; }
+.inh-cov-head-help { margin-left: auto; display: inline-flex; align-items: center; }
+.inh-cov-head-help + .cmp-collapse-caret { margin-left: 0.4rem; }
 .inh-upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .inh-upload { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; }
 /* Parent 2 source: 3-way segmented control (Owned/Draft/Rental, M1.4b). */
@@ -1842,26 +1862,75 @@ main:has(.inh-page) {
 .inh-cov-bonus-name { font-weight: 600; font-size: 0.78rem; }
 
 /* ── Rental Draft panel (M1.4b, Parent-2 "Draft" mode) ─────────────────── */
-.inh-rental-draft { display: flex; flex-direction: column; gap: 0.6rem; }
+.inh-rental-draft { display: flex; flex-direction: column; gap: 0.55rem; }
+/* Top row: forced-tier picker on the left, "Load from Target spark" pushed right. */
+.inh-rental-draft-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
 /* Forced-tier radiogroup (◎/○/△) — same pill-button look as the p2-mode
    segmented selector, scoped under .inh-forced-tier so it can't collide with
    any other radio-styled control on the page. */
 .inh-forced-tier { display: inline-flex; gap: 0.3rem; }
 .inh-forced-tier [role='radio'] {
-  cursor: pointer; font-size: 1rem; line-height: 1; width: 2rem; height: 2rem;
+  cursor: pointer; font-size: 0.9rem; line-height: 1; width: 1.7rem; height: 1.7rem;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--border); border-radius: 8px; background: var(--bg-1); color: var(--fg-muted);
 }
 .inh-forced-tier [role='radio'].is-on { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg-1)); }
 .inh-rental-seed {
-  align-self: flex-start; cursor: pointer; font-size: 0.78rem; font-weight: 700;
-  padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px dashed var(--border);
+  cursor: pointer; font-size: 0.74rem; font-weight: 700; white-space: nowrap;
+  padding: 0.3rem 0.6rem; border-radius: 999px; border: 1px dashed var(--border);
   color: var(--accent); background: var(--bg-1);
 }
+
+/* Compact the shared SparkFilterCards inside the narrow Parent-2 draft column —
+   they're sized for the roomy uma-picker modal. Scoped to .inh-rental-draft so
+   the picker's own filter is untouched. */
+.inh-rental-draft .spc-head { padding: 0.28rem 0.5rem; gap: 0.4rem; }
+.inh-rental-draft .spc-title { font-size: 0.6rem; padding-left: 0.25rem; letter-spacing: .06em; }
+.inh-rental-draft .spc-pips { gap: 0.18rem; }
+.inh-rental-draft .spc-pip { width: 11px; height: 5px; border-radius: 2px; }
+.inh-rental-draft .spc-body { padding: 0.45rem 0.55rem; gap: 0.45rem; }
+.inh-rental-draft .spc-rows { gap: 0.3rem; }
+.inh-rental-draft .spc-row { padding: 0.3rem 0.45rem; gap: 0.5rem; border-radius: 9px; }
+/* Green/white active rows are two-line (name over meters) — tighten the inter-line
+   gap + row padding so each is shorter and the rows sit closer together. */
+.inh-rental-draft .spc-row-green { padding: 0.22rem 0.4rem; }
+.inh-rental-draft .spc-green-body { gap: 0.12rem; }
+.inh-rental-draft .spc-green-head { gap: 0.4rem; }
+/* Match Parent 1's lineage-chip sizing: the ".badge" chips are 0.7rem with
+   0.7rem ★ glyphs, so the draft's row label + interactive star buttons track them
+   (the meter's default 17–20px stars are sized for the roomy picker modal). */
+.inh-rental-draft .spc-name { width: 2.8rem; font-size: 0.7rem; font-weight: 600; align-self: center; }
+.inh-rental-draft .spc-name-full { font-size: 0.7rem; font-weight: 600; }
+.inh-rental-draft .spc-meters { gap: 0.3rem; }
+.inh-rental-draft .spc-meter { gap: 0.4rem; }
+.inh-rental-draft .spc-green-meters { gap: 0.55rem; }
+.inh-rental-draft .spc-add-chip { font-size: 0.7rem; padding: 0.22rem 0.5rem; }
+.inh-rental-draft .spc-add { gap: 0.3rem; }
+/* Star buttons → Parent-1 size. Higher-specificity variants (.spm-row / .spc-row-green)
+   are matched explicitly so these win over the 20px/15px picker defaults. */
+.inh-rental-draft .spm-star { font-size: 0.8rem; }
+.inh-rental-draft .spm-row .spm-star { font-size: 0.85rem; margin-right: 1px; }
+.inh-rental-draft .spc-row-green .spm-star { font-size: 0.8rem; }
+.inh-rental-draft .spc-lbl { font-size: 0.5rem; width: 2.4rem; }
+/* Compact green/white search inputs → match the small wishlist skill-search bar
+   (a two-class selector out-specifies the global input[type=search] padding). */
+.inh-rental-draft .spc-green-input { padding: 0.28rem 0.5rem; font-size: 0.76rem; }
+.inh-rental-draft .spc-green-results button { font-size: 0.74rem; padding: 0.24rem 0.5rem; }
+.inh-rental-draft .spc-green-search { gap: 0.3rem; }
+/* Green (UNIQUE) owner-portrait slot → compact, matching greenIconSm (h32). */
+.inh-rental-draft .spc-green-ph { width: 28px; height: 32px; }
+.inh-rental-draft .spc-green-icon img { border-radius: 4px; }
+
+/* Deep-link generator — its own titled section under the spec editor. */
+.inh-rental-gen { border-top: 1px solid var(--border); padding-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.inh-rental-gen-title { font-size: 0.62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-muted); }
 .inh-rental-links { display: flex; flex-direction: column; gap: 0.3rem; }
 .inh-rental-link-row { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+/* Theme-matched links, not the browser's default blue/purple-underlined anchors. */
+.inh-rental-links a,
+.inh-rental-links a:visited { color: var(--accent); text-decoration: none; font-size: 0.78rem; font-weight: 700; }
+.inh-rental-links a:hover { color: var(--fg); text-decoration: none; }
 .inh-rental-dropped { font-style: italic; }
-.inh-rental-caveat { line-height: 1.4; }
 
 /* ── RentalParentEditor (M1.4b, real-rental manual entry) ──────────────── */
 .inh-rental-editor { display: flex; flex-direction: column; gap: 0.6rem; }

@@ -10,12 +10,20 @@ describe('forcedTierScore', () => {
 });
 
 describe('seedFromTargetSpark', () => {
-  it('seeds blue (totalMin=stars) and white (totalMin=1) clauses; pink/green stay manual', () => {
+  it('seeds blue (totalMin=stars) and white (totalMin=1) clauses; pink stays manual', () => {
     const out = seedFromTargetSpark({ blue: [{ stat: 'pow', stars: 6 }], white: [{ id: '200201' }] });
     expect(out).toEqual([
       { id: 'seed-blue-pow', kind: 'blue', stat: 'pow', legacyMin: 0, totalMin: 6 },
       { id: 'seed-white-200201', kind: 'white', skillId: '200201', legacyMin: 0, totalMin: 1 },
     ]);
+  });
+
+  it('seeds green (unique) ids as GREEN clauses, not white', () => {
+    const out = seedFromTargetSpark({ blue: [], white: [{ id: '200201' }], green: [{ id: '100011' }] });
+    expect(out).toContainEqual({ id: 'seed-green-100011', kind: 'green', skillId: '100011', legacyMin: 0, totalMin: 1 });
+    expect(out).toContainEqual({ id: 'seed-white-200201', kind: 'white', skillId: '200201', legacyMin: 0, totalMin: 1 });
+    // the unique id must NOT also appear as a white clause
+    expect(out.some((f) => f.kind === 'white' && f.skillId === '100011')).toBe(false);
   });
 });
 

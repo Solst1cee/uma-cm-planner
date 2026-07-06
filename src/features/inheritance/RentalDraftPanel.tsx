@@ -20,8 +20,9 @@ import { SparkFilterCards } from './SparkFilterCards';
 export interface RentalDraftPanelProps {
   draft: RentalDraft;
   onChange: (draft: RentalDraft) => void;
-  /** M1.8 Target spark residual — seeds "Load from Target spark". */
-  seed: { blue: Array<{ stat: Stat; stars: number }>; white: Array<{ id: string }> };
+  /** M1.8 Target spark residual — seeds "Load from Target spark". `green` =
+   *  inherited-unique / unique uncovered skills (UNIQUE card); `white` = the rest. */
+  seed: { blue: Array<{ stat: Stat; stars: number }>; white: Array<{ id: string }>; green?: Array<{ id: string }> };
   traineeCardId: string;
   partnerCardId?: string;
   skillName: (id: string) => string;
@@ -32,6 +33,11 @@ export interface RentalDraftPanelProps {
   greenIcon?: (skillId: string) => ReactNode;
   whiteIcon?: (skillId: string) => ReactNode;
 }
+
+/** SparkFilter kind → the spark-type word shown in a "not encoded" note. */
+const KIND_LABEL: Record<SparkFilter['kind'], string> = {
+  blue: 'stat', pink: 'aptitude', green: 'unique', white: 'skill', anyBlue: 'any-blue',
+};
 
 const TIERS: ForcedTier[] = ['double', 'single', 'triangle'];
 const TIER_SYMBOL: Record<ForcedTier, string> = { double: '◎', single: '○', triangle: '△' };
@@ -58,39 +64,42 @@ export function RentalDraftPanel(p: RentalDraftPanelProps) {
   const pdb = pureDbUrl(args);
   const chrono = chronoGenesisUrl(args);
 
-  const droppedNote = (n: number, site: string) =>
-    n > 0 ? (
-      <span className="muted small inh-rental-dropped">
-        {n} filter{n === 1 ? '' : 's'} not encodable on {site}
-      </span>
-    ) : null;
+  // Name the spark *types* a site can't encode (so the user sees what's covered vs
+  // dropped), rather than an opaque count.
+  const droppedNote = (dropped: SparkFilter[]) => {
+    if (dropped.length === 0) return null;
+    const kinds = [...new Set(dropped.map((f) => KIND_LABEL[f.kind]))];
+    return <span className="muted small inh-rental-dropped">{kinds.join(' · ')} not encoded</span>;
+  };
 
   return (
     <div className="inh-rental-draft">
-      <div className="inh-forced-tier" role="radiogroup" aria-label="Assumed affinity">
-        {TIERS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            role="radio"
-            aria-checked={p.draft.forcedTier === t}
-            aria-label={TIER_LABEL[t]}
-            title={TIER_LABEL[t]}
-            className={p.draft.forcedTier === t ? 'is-on' : undefined}
-            onClick={() => p.onChange({ ...p.draft, forcedTier: t })}
-          >
-            {TIER_SYMBOL[t]}
-          </button>
-        ))}
-      </div>
+      <div className="inh-rental-draft-top">
+        <div className="inh-forced-tier" role="radiogroup" aria-label="Assumed affinity">
+          {TIERS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              role="radio"
+              aria-checked={p.draft.forcedTier === t}
+              aria-label={TIER_LABEL[t]}
+              title={TIER_LABEL[t]}
+              className={p.draft.forcedTier === t ? 'is-on' : undefined}
+              onClick={() => p.onChange({ ...p.draft, forcedTier: t })}
+            >
+              {TIER_SYMBOL[t]}
+            </button>
+          ))}
+        </div>
 
-      <button
-        type="button"
-        className="inh-rental-seed"
-        onClick={() => p.onChange({ ...p.draft, filters: seedFromTargetSpark(p.seed) })}
-      >
-        Load from Target spark
-      </button>
+        <button
+          type="button"
+          className="inh-rental-seed"
+          onClick={() => p.onChange({ ...p.draft, filters: seedFromTargetSpark(p.seed) })}
+        >
+          Load from Target spark
+        </button>
+      </div>
 
       <SparkFilterCards
         value={sf.sparkValue}
@@ -106,25 +115,23 @@ export function RentalDraftPanel(p: RentalDraftPanelProps) {
         whiteIcon={p.whiteIcon}
       />
 
-      <div className="inh-rental-links">
-        <div className="inh-rental-link-row">
-          <a href={moe.url} target="_blank" rel="noreferrer noopener">Search uma.moe →</a>
-          {droppedNote(moe.dropped.length, 'uma.moe')}
+      <section className="inh-rental-gen">
+        <div className="inh-rental-gen-title">Link generator</div>
+        <div className="inh-rental-links">
+          <div className="inh-rental-link-row">
+            <a href={moe.url} target="_blank" rel="noreferrer noopener">Uma.moe</a>
+            {droppedNote(moe.dropped)}
+          </div>
+          <div className="inh-rental-link-row">
+            <a href={pdb.url} target="_blank" rel="noreferrer noopener">Pure-DB</a>
+            {droppedNote(pdb.dropped)}
+          </div>
+          <div className="inh-rental-link-row">
+            <a href={chrono.url} target="_blank" rel="noreferrer noopener">ChronoGenesis</a>
+            {droppedNote(chrono.dropped)}
+          </div>
         </div>
-        <div className="inh-rental-link-row">
-          <a href={pdb.url} target="_blank" rel="noreferrer noopener">pure-db →</a>
-          {droppedNote(pdb.dropped.length, 'pure-db')}
-        </div>
-        <div className="inh-rental-link-row">
-          <a href={chrono.url} target="_blank" rel="noreferrer noopener">ChronoGenesis →</a>
-          {droppedNote(chrono.dropped.length, 'ChronoGenesis')}
-        </div>
-      </div>
-
-      <p className="inh-rental-caveat muted small">
-        A matching record isn't a guaranteed borrowable rental — follow-then-borrow (3/day),
-        DB lag, private/slot-full profiles. This scores fit, not availability.
-      </p>
+      </section>
     </div>
   );
 }

@@ -108,7 +108,11 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
     return m;
   }, [umas, visible]);
   const uniqueSkillUmaId = (skillId: string): string => {
-    const n = Number(skillId);
+    // Inherited-unique ids are 9xxxxx (900xxx / 910xxx) — normalise to the native
+    // unique form (100xxx / 110xxx, leading 9→1) so the charaId formula resolves
+    // (else a seeded green spark shows no owner portrait).
+    const native = skillId.length === 6 && skillId.startsWith('9') ? `1${skillId.slice(1)}` : skillId;
+    const n = Number(native);
     const base = n >= 110000 ? n - 10000 : n;
     const charaId = Math.round((base - 90001) / 10);
     return charaToUma.get(String(charaId)) ?? `${charaId * 100 + 1}`;
@@ -149,6 +153,12 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
   // White sparks only grant the single-circle (○) grade — show ○, not a
   // recorded ◎ (matches the M1.7 coverage tables).
   const skillName = (id: string) => skillById.get(toSingleCircle(id, skillById))?.nameEn ?? id;
+  // A wishlist skill that inherits via a green (unique) spark, not a white one —
+  // routes it to the Draft's UNIQUE filter instead of SKILL when seeding.
+  const isUniqueRarity = (id: string) => {
+    const r = skillById.get(id)?.rarity;
+    return r === 'unique' || r === 'inherited_unique';
+  };
   const gpPortraitsFor = (p: Parent) => {
     const gps = (p.grandparents ?? []).filter((g): g is NonNullable<typeof g> => !!g);
     if (gps.length === 0) return undefined;
@@ -294,6 +304,10 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
 
   const greenIcon = (id: string) => <GameIcon kind="uma" id={uniqueSkillUmaId(id)} size={44} alt="" />;
   const whiteIcon = (id: string) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={34} alt="" />;
+  // Compact icons for the dense Draft panel (the picker modal keeps the larger set).
+  // Uma portrait at its native 230×256 ratio so it isn't letterboxed.
+  const greenIconSm = (id: string) => umaPortrait(uniqueSkillUmaId(id), 32);
+  const whiteIconSm = (id: string) => <GameIcon kind="skill" id={skillById.get(id)?.iconId ?? id} size={24} alt="" />;
 
   const parent2Card = () => {
     if (parent2Mode === 'owned') return card('b', 'Parent 2', p2ModeControl);
@@ -312,15 +326,20 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
                 onChange={(d) => editPlan({ ...uma1Plan, rentalDraft: d })}
                 seed={{
                   blue: blueSparkRows(uma1Plan).map((r) => ({ stat: r.stat, stars: r.stars })),
-                  white: (uncoveredWhiteIds ?? []).map((id) => ({ id })),
+                  // Split uncovered wishlist skills by rarity: inherited-unique /
+                  // unique → the UNIQUE (green) filter, whites/golds → the SKILL
+                  // (white) filter. Without this every uncovered skill seeded as
+                  // a white clause, so inherited-uniques wrongly landed in SKILL.
+                  white: (uncoveredWhiteIds ?? []).filter((id) => !isUniqueRarity(id)).map((id) => ({ id })),
+                  green: (uncoveredWhiteIds ?? []).filter((id) => isUniqueRarity(id)).map((id) => ({ id })),
                 }}
                 traineeCardId={uma1Plan.umaId}
                 partnerCardId={parentA?.umaId}
                 skillName={skillName}
                 greenOptions={uniqueSkillOptions}
                 whiteOptions={whiteSkillOptions}
-                greenIcon={greenIcon}
-                whiteIcon={whiteIcon}
+                greenIcon={greenIconSm}
+                whiteIcon={whiteIconSm}
               />
             ) : null
           }
@@ -412,14 +431,15 @@ export function InheritanceCard({ uncoveredWhiteIds }: InheritanceCardProps = {}
       >
         <span className="inh-inherit-title">
           Inheritance
-          {selectionAffinity != null && (
-            <AffinityMark score={selectionAffinity} size={18}
-              title={`Lineage compatibility — affinity ${selectionAffinity}`} />
-          )}
-          {draftAssumedScore != null && (
+          {/* One mark only: a Draft Parent 2 is a hypothetical, so in draft mode we
+              show its forced (assumed) tier instead of the partial real number. */}
+          {draftAssumedScore != null ? (
             <AffinityMark score={draftAssumedScore} size={18}
               title={`Assumed (draft) affinity ${draftAssumedScore}`} />
-          )}
+          ) : selectionAffinity != null ? (
+            <AffinityMark score={selectionAffinity} size={18}
+              title={`Lineage compatibility — affinity ${selectionAffinity}`} />
+          ) : null}
         </span>
         <span className="inh-inherit-tools" onClick={(e) => e.stopPropagation()}>
           {importedAt && (

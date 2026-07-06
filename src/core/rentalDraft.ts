@@ -9,13 +9,21 @@ export function forcedTierScore(t: ForcedTier): number {
   return t === 'double' ? 175 : t === 'single' ? 100 : 25;
 }
 
-/** Seed draft filters from M1.8 Target spark. Only blue + white carry structured
- *  keys (PinkSparkRow is label-only → pink is added manually; green too). */
+/** Seed draft filters from M1.8 Target spark. Blue carries a structured stat key;
+ *  the uncovered wishlist skills are pre-split by the caller into `green`
+ *  (inherited-unique / unique → the UNIQUE card) and `white` (whites/golds → the
+ *  SKILL card) — routing them by kind so a unique never seeds as a white filter.
+ *  Pink stays manual (PinkSparkRow is label-only). */
 export function seedFromTargetSpark(
-  seed: { blue: Array<{ stat: Stat; stars: number }>; white: Array<{ id: string }> },
+  seed: {
+    blue: Array<{ stat: Stat; stars: number }>;
+    white: Array<{ id: string }>;
+    green?: Array<{ id: string }>;
+  },
 ): SparkFilter[] {
   const out: SparkFilter[] = [];
   for (const b of seed.blue) out.push({ id: `seed-blue-${b.stat}`, kind: 'blue', stat: b.stat, legacyMin: 0, totalMin: b.stars });
+  for (const g of seed.green ?? []) out.push({ id: `seed-green-${g.id}`, kind: 'green', skillId: g.id, legacyMin: 0, totalMin: 1 });
   for (const w of seed.white) out.push({ id: `seed-white-${w.id}`, kind: 'white', skillId: w.id, legacyMin: 0, totalMin: 1 });
   return out;
 }

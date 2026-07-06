@@ -121,29 +121,71 @@ function clampStar(n: number): number {
   return Math.min(9, Math.max(1, Math.trunc(n) || 1));
 }
 
-/** uma.moe — `https://uma.moe/database?filters=<b64(json)>&trainer_id=…`.
- *  Encodes blue/pink (confirmed). Drops white/green (opaque server-side
- *  factor-id table, unconfirmed) and anyBlue (no aggregate field found). */
-export function umaMoeUrl({ filters, traineeCardId }: SearchArgs): { url: string; dropped: SparkFilter[] } {
-  const b: number[][] = [];
-  const p: number[][] = [];
+/** uma.moe / ChronoGenesis green (unique) factorId — LIVE-DERIVED (2026-07-06)
+ *  from working URLs: `Let's Pump Some Iron!` (100271) → 1027010, `Moving Past`
+ *  (100591) → 1059010. factorId = `10` + (nativeId−base, 3-digit) + variant + `0`.
+ *  Inherited-unique 9xxxxx normalizes to the native 1xxxxx form first. */
+function greenFactorId(skillId: string): number | undefined {
+  const native = skillId.length === 6 && skillId.startsWith('9') ? `1${skillId.slice(1)}` : skillId;
+  if (!/^1[01]0\d{3}$/.test(native)) return undefined; // native unique: 100xxx | 110xxx
+  const variant = native.startsWith('110') ? 2 : 1;
+  const middle = Number(native) - (variant === 2 ? 110001 : 100001);
+  if (middle < 0 || middle > 999) return undefined;
+  return Number(`10${String(middle).padStart(3, '0')}${variant}0`);
+}
+
+/** uma.moe / ChronoGenesis white (skill) factorId — LIVE-DERIVED: `Long Corners`
+ *  (201181/201182) → 201180, `Nimble Navigator` (200492) → 200490. factorId =
+ *  floor(skillId/10)*10 — drops the ◎/○ variant digit so both circles group. */
+function whiteFactorId(skillId: string): number | undefined {
+  const n = Number(skillId);
+  return Number.isInteger(n) && n > 0 ? Math.floor(n / 10) * 10 : undefined;
+}
+
+/** uma.moe — `https://uma.moe/database?filters=<b64(json)>`. Verified live against
+ *  the frontend bundle (spikes/repos/spike6/umamoe_database.js): the serializer
+ *  keys are `b/p/g/w` = TOTAL-across-lineage filters and `mb/mp/mg/mw` = the
+ *  veteran's OWN ("main"/legacy) filters, each `[factorId, min, max]`. So a
+ *  clause's legacyMin routes to the main key, its totalMin to the non-main key.
+ *  Encodes blue/pink/green(g/mg)/white(w/mw) — green/white factorIds live-derived
+ *  (see greenFactorId/whiteFactorId). Only anyBlue drops (no aggregate field).
+ *  No `lb` (that's selectedLimitBreak — over-filters)
+ *  and no `trainer_id` (that param is a TRAINER-ACCOUNT id, not a uma card id;
+ *  passing the uma id there returns nothing — the trainee is chosen on-site). */
+export function umaMoeUrl({ filters }: SearchArgs): { url: string; dropped: SparkFilter[] } {
+  const b: number[][] = [], p: number[][] = [], g: number[][] = [], w: number[][] = [];
+  const mb: number[][] = [], mp: number[][] = [], mg: number[][] = [], mw: number[][] = [];
   const dropped: SparkFilter[] = [];
 
+  // own (legacy) stars → main key; total-across-lineage stars → non-main key.
+  const route = (own: number[][], total: number[][], factorId: number, f: { legacyMin: number; totalMin: number }) => {
+    if (f.legacyMin > 0) own.push([factorId, clampStar(f.legacyMin), 9]);
+    if (f.totalMin > f.legacyMin) total.push([factorId, clampStar(f.totalMin), 9]);
+  };
+  const routeFid = (own: number[][], total: number[][], fid: number | undefined, f: SparkFilter & { legacyMin: number; totalMin: number }) => {
+    if (fid === undefined) dropped.push(f);
+    else route(own, total, fid, f);
+  };
+
   for (const f of filters) {
-    if (f.kind === 'blue') b.push([BLUE_FACTOR_ID[f.stat], clampStar(f.totalMin), 9]);
-    else if (f.kind === 'pink') {
-      const factorId = PINK_FACTOR_ID[f.aptitude];
-      if (factorId === undefined) dropped.push(f);
-      else p.push([factorId, clampStar(f.totalMin), 9]);
-    }
-    else dropped.push(f);
+    if (f.kind === 'blue') route(mb, b, BLUE_FACTOR_ID[f.stat], f);
+    else if (f.kind === 'pink') routeFid(mp, p, PINK_FACTOR_ID[f.aptitude], f);
+    else if (f.kind === 'green') routeFid(mg, g, greenFactorId(f.skillId), f);
+    else if (f.kind === 'white') routeFid(mw, w, whiteFactorId(f.skillId), f);
+    else dropped.push(f); // anyBlue — no aggregate field
   }
 
-  const payload: Record<string, unknown> = { lb: 4 };
+  const payload: Record<string, unknown> = {};
   if (b.length) payload.b = b;
   if (p.length) payload.p = p;
+  if (g.length) payload.g = g;
+  if (w.length) payload.w = w;
+  if (mb.length) payload.mb = mb;
+  if (mp.length) payload.mp = mp;
+  if (mg.length) payload.mg = mg;
+  if (mw.length) payload.mw = mw;
 
-  const url = `https://uma.moe/database?filters=${b64(payload)}&trainer_id=${encodeURIComponent(traineeCardId)}`;
+  const url = `https://uma.moe/database?filters=${b64(payload)}`;
   return { url, dropped };
 }
 
@@ -154,67 +196,111 @@ interface PureDbFactorEntry {
   enabled: boolean;
 }
 
-function pureDbEntry(groupId: number, totalMin: number): PureDbFactorEntry {
-  return { groupId, count: Math.min(3, Math.max(1, totalMin || 1)), searchType: 2, enabled: true };
-}
-
 /** pure-db — `https://uma.pure-db.com/{locale}/search?searchInfo=<b64(json)>`.
- *  Encodes blue/pink groupIds (structurally confirmed); the `count`/
- *  `searchType`/`gameServerCode`/`supportCardId` values are best-effort, see
- *  the module header — flagged for the human's live-browser check. Drops
- *  white/green (no key documented) and anyBlue (no aggregate field
- *  documented). */
-export function pureDbUrl({ filters, traineeCardId, partnerCardId }: SearchArgs): { url: string; dropped: SparkFilter[] } {
+ *  LIVE-VERIFIED (2026-07-06) against a real working URL: `blueFactors` groupId =
+ *  stat index (1-5), `redFactors` groupId = aptitude group (11/12/21-24/31-34),
+ *  `count` = the actual star count, `searchType` 0 = normal/total · 1 = legacy
+ *  (own). green → `greenFactors` (groupId = uma.moe greenFactorId / 10, e.g.
+ *  100271 → 102701); white → `commonSkillFactors` (groupId = floor(skillId/10),
+ *  e.g. 201182 → 20118) — both LIVE-VERIFIED. The site expects the full field set
+ *  below (`gameServerCode:'global'` lowercase). Only anyBlue drops. */
+export function pureDbUrl({ filters }: SearchArgs): { url: string; dropped: SparkFilter[] } {
   const blueFactors: PureDbFactorEntry[] = [];
   const redFactors: PureDbFactorEntry[] = [];
+  const greenFactors: PureDbFactorEntry[] = [];
+  const commonSkillFactors: PureDbFactorEntry[] = [];
   const dropped: SparkFilter[] = [];
 
+  // legacyMin → an own (searchType 1) factor; totalMin beyond it → a normal/total
+  // (searchType 0) factor. count is the star value as-is (a legacy spark that also
+  // counts to total emits both, e.g. mile 3 legacy → one searchType-1 entry).
+  const route = (arr: PureDbFactorEntry[], groupId: number, f: { legacyMin: number; totalMin: number }) => {
+    if (f.legacyMin > 0) arr.push({ groupId, count: f.legacyMin, searchType: 1, enabled: true });
+    if (f.totalMin > f.legacyMin) arr.push({ groupId, count: f.totalMin, searchType: 0, enabled: true });
+  };
+  const routeGid = (arr: PureDbFactorEntry[], gid: number | undefined, f: SparkFilter & { legacyMin: number; totalMin: number }) => {
+    if (gid === undefined) dropped.push(f);
+    else route(arr, gid, f);
+  };
+  const div10 = (n: number | undefined) => (n === undefined ? undefined : n / 10);
+
   for (const f of filters) {
-    if (f.kind === 'blue') blueFactors.push(pureDbEntry(BLUE_GROUP[f.stat], f.totalMin));
-    else if (f.kind === 'pink') {
-      const groupId = PINK_GROUP[f.aptitude];
-      if (groupId === undefined) dropped.push(f);
-      else redFactors.push(pureDbEntry(groupId, f.totalMin));
-    }
-    else dropped.push(f);
+    if (f.kind === 'blue') route(blueFactors, BLUE_GROUP[f.stat], f);
+    else if (f.kind === 'pink') routeGid(redFactors, PINK_GROUP[f.aptitude], f);
+    else if (f.kind === 'green') routeGid(greenFactors, div10(greenFactorId(f.skillId)), f);
+    else if (f.kind === 'white') routeGid(commonSkillFactors, div10(whiteFactorId(f.skillId)), f);
+    else dropped.push(f); // anyBlue
   }
 
-  const payload: Record<string, unknown> = {
-    gameServerCode: 'GLOBAL', // UNCONFIRMED exact enum string — see header
-    supportCardId: traineeCardId, // UNCONFIRMED semantics — see header
-    partnerCardIds: partnerCardId ? [partnerCardId] : [],
+  // Full payload shape from the verified working URL — pure-db expects every key.
+  const payload = {
+    gameServerCode: 'global',
+    partnerCardIds: [] as number[],
+    supportCardId: 0,
+    supportCardLimitBreak: 4,
+    excludeCardIds: [] as number[],
+    excludeCardSearchType: 0,
+    blueFactors,
+    redFactors,
+    greenFactors,
+    commonSkillFactors,
+    raceFactors: [] as PureDbFactorEntry[],
+    scenarioFactors: [] as PureDbFactorEntry[],
+    otherFactors: [] as PureDbFactorEntry[],
+    whiteFactorCountConditions: [] as unknown[],
+    winCount: 0,
+    g1WinCount: 0,
+    searchCount: 100,
+    excludeFullFollowerUser: true,
+    excludeArchivedChara: true,
   };
-  if (blueFactors.length) payload.blueFactors = blueFactors;
-  if (redFactors.length) payload.redFactors = redFactors;
 
   const url = `https://uma.pure-db.com/en-us/search?searchInfo=${b64(payload)}`;
   return { url, dropped };
 }
 
 /** ChronoGenesis — `https://chronogenesis.net/friend_search?query=<b64(inner
- *  querystring)>`. Encodes blue/pink into `leg_All`/`tot_All` (shared
- *  factorId space, confirmed) and anyBlue into `blue_count` (confirmed by
- *  the brief). Drops white/green (opaque factorId space, unconfirmed). */
-export function chronoGenesisUrl({ filters, traineeCardId }: SearchArgs): { url: string; dropped: SparkFilter[] } {
-  const inner = new URLSearchParams();
-  inner.set('card_id', traineeCardId);
+ *  querystring)>`. LIVE-VERIFIED (2026-07-06): value = `factorId*10 + stars`
+ *  (uma.moe factorId space); `leg_All` = own/legacy sparks, `tot_All` = total
+ *  sparks; a legacy spark is emitted ONLY under `leg_All` (not duplicated into
+ *  `tot_All`). White shares `leg_All`/`tot_All` (value = whiteFactorId*10+stars);
+ *  green uses separate `legacy_green`/`totgrn_All` (value = greenFactorId*10+stars).
+ *  `card_id` is left blank — the uma card id doesn't belong there (like uma.moe's
+ *  trainer_id); the trainee is chosen on-site. anyBlue → `blue_count`. */
+export function chronoGenesisUrl({ filters }: SearchArgs): { url: string; dropped: SparkFilter[] } {
+  const leg: string[] = [], tot: string[] = [];        // blue/pink/white → leg_All/tot_All
+  const legGrn: string[] = [], totGrn: string[] = [];  // green → legacy_green/totgrn_All
   const dropped: SparkFilter[] = [];
+  let blueCount: number | undefined;
 
-  const addBucket = (factorId: number, legacyMin: number, totalMin: number): void => {
-    if (legacyMin > 0) inner.append('leg_All', String(factorId * 10 + clampStar(legacyMin)));
-    if (totalMin > 0) inner.append('tot_All', String(factorId * 10 + clampStar(totalMin)));
+  // legacyMin → own bucket, totalMin (beyond legacy) → total bucket; value = factorId*10+stars.
+  const addTo = (own: string[], total: string[], factorId: number, legacyMin: number, totalMin: number): void => {
+    if (legacyMin > 0) own.push(String(factorId * 10 + clampStar(legacyMin)));
+    if (totalMin > legacyMin) total.push(String(factorId * 10 + clampStar(totalMin)));
+  };
+  const addFid = (own: string[], total: string[], fid: number | undefined, f: SparkFilter & { legacyMin: number; totalMin: number }) => {
+    if (fid === undefined) dropped.push(f);
+    else addTo(own, total, fid, f.legacyMin, f.totalMin);
   };
 
   for (const f of filters) {
-    if (f.kind === 'blue') addBucket(BLUE_FACTOR_ID[f.stat], f.legacyMin, f.totalMin);
-    else if (f.kind === 'pink') {
-      const factorId = PINK_FACTOR_ID[f.aptitude];
-      if (factorId === undefined) dropped.push(f);
-      else addBucket(factorId, f.legacyMin, f.totalMin);
-    }
-    else if (f.kind === 'anyBlue') inner.set('blue_count', String(f.totalMin));
+    if (f.kind === 'blue') addTo(leg, tot, BLUE_FACTOR_ID[f.stat], f.legacyMin, f.totalMin);
+    else if (f.kind === 'pink') addFid(leg, tot, PINK_FACTOR_ID[f.aptitude], f);
+    else if (f.kind === 'white') addFid(leg, tot, whiteFactorId(f.skillId), f);   // white shares leg_All/tot_All
+    else if (f.kind === 'green') addFid(legGrn, totGrn, greenFactorId(f.skillId), f); // green: legacy_green/totgrn_All
+    else if (f.kind === 'anyBlue') blueCount = f.totalMin;
     else dropped.push(f);
   }
+
+  // Multiple sparks in a bucket are COMMA-joined into ONE param (verified live:
+  // `tot_All=208,3206` for two total sparks), NOT repeated keys.
+  const inner = new URLSearchParams();
+  inner.set('card_id', '');
+  if (tot.length) inner.set('tot_All', tot.join(','));
+  if (leg.length) inner.set('leg_All', leg.join(','));
+  if (totGrn.length) inner.set('totgrn_All', totGrn.join(','));
+  if (legGrn.length) inner.set('legacy_green', legGrn.join(','));
+  if (blueCount !== undefined) inner.set('blue_count', String(blueCount));
 
   const url = `https://chronogenesis.net/friend_search?query=${encodeURIComponent(globalThis.btoa(inner.toString()))}`;
   return { url, dropped };

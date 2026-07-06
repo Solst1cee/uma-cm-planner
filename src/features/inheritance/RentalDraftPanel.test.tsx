@@ -70,16 +70,17 @@ describe('RentalDraftPanel', () => {
     expect(hrefs.some((h) => h.startsWith('https://chronogenesis.net'))).toBe(true);
   });
 
-  it('shows the P3 honesty caveat banner', () => {
+  it('has a titled "Link generator" section and no honesty caveat', () => {
     setup();
+    expect(screen.getByText(/Link generator/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/matching record isn't a guaranteed borrowable rental/i),
-    ).toBeInTheDocument();
+      screen.queryByText(/matching record isn't a guaranteed borrowable rental/i),
+    ).not.toBeInTheDocument();
   });
 
-  it('shows a per-site dropped-filter note for the green clause (unencodable on all three sites)', () => {
+  it('names the unencodable spark TYPE per site (green → "unique not encoded") on all three sites', () => {
     setup();
-    const notes = screen.getAllByText(/not encodable on/i);
+    const notes = screen.getAllByText(/unique not encoded/i);
     expect(notes.length).toBe(3);
   });
 });
