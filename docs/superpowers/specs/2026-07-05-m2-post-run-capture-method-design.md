@@ -255,3 +255,22 @@ captured run is importable at `/sp-optimizer` today.
   This is the real F1.5 feature; the standalone mapper is the spike proof.
 - **On-screen discount + SP hook:** revisit only if correct Global offsets can be found without the
   freeze; not required for a working flow.
+
+## Appendix E — Completing discount / hint / SP (evidence-first, 2026-07-05)
+
+Maintainer flagged base-cost-only + typed-SP as incomplete for M2 (correct — the module optimizes
+under an SP budget, so *discounted* cost and real SP change the optimal basket). Pursued via
+systematic-debugging, not another offset guess.
+
+**Root cause (freeze + missing fields, single source):** unknown Global IL2CPP field offsets.
+`skill_extract.py`'s discount/hint/cost offsets (48/60/…) and `BeginView`'s group-list offset (64)
+are JP-build values; wrong on Global → garbage list count → unbounded UI-thread loop → freeze. The
+working hooks succeed only because record offsets 16/20/24 coincidentally match.
+
+**Investigation step (no fix yet):** `spikes/m2-capture/introspect.py` reads the **real** Global
+field layout from IL2CPP type metadata — installs **no view hooks** (cannot freeze; metadata is
+static). Emits `introspect.json`: full field name→offset(+type) for the skill-learning classes
+(discount/hint/cost offsets), a Gallop-wide name search for the **available-SP** field, and
+cost/SP/hint-named **methods** (hooking a getter is safer than reading UI structs). From that real
+data we write correct, clamped readers — then discount + hint + SP join the capture and the importer
+is complete. Until then the working base-cost + typed-SP flow (Appendix D) stands.
