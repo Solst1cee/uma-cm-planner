@@ -306,3 +306,15 @@ the *correct* `_skillInfoList`) but skill_extract's `UpdateItem@200`/`SetAcquire
 `GameObject` as a `List` → garbage count → loop. The controller-list walk (offsets 64/16 + clamps) is
 safe. Lesson: read fields directly off an instance obtained from a definitely-firing method; don't
 chase per-property getters or reuse another class's method names.
+
+**v2 CONFIRMED COMPLETE on Sun's real run (2026-07-05).** Navigating post-game → purchasing (no
+freeze) captured **43 skills** with both ◎ and ○ tiers, **real hint discounts** (e.g. Summer Runner ◎
+110→71 at 35% / hint Lv4), and **`spBudget 2325`** (matched on-screen). `map_to_bundle.mjs` → 38
+candidates, validated by `parseCaptureBundle` with real discounted costs flowing through. **The Option-A
+importer is fully working end-to-end with SP + discounted cost + hint, no freeze.** Workflow:
+**navigate into the purchasing screen** (◎ names resolve via `MasterSkillData.Get` during screen
+construction; a later nudge doesn't re-resolve them — though names are cosmetic, the mapper keys
+everything off `skillId`). Two follow-ups (optimizer-side, not capture): (1) **◎/○ upgrade tiers** — the
+capture returns both as separate ids; the game buys ○ then upgrades to ◎, so the optimizer likely needs
+to treat them as an upgrade/mutual-exclusion pair (like gold↔white prereq) rather than two independent
+buys; (2) the F1.5 in-app adapter (reads `CmPlan` context) + a `'capture'` `source` enum value.
