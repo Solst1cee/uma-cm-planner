@@ -274,3 +274,21 @@ static). Emits `introspect.json`: full field name→offset(+type) for the skill-
 cost/SP/hint-named **methods** (hooking a getter is safer than reading UI structs). From that real
 data we write correct, clamped readers — then discount + hint + SP join the capture and the importer
 is complete. Until then the working base-cost + typed-SP flow (Appendix D) stands.
+
+**Discovered offsets (introspect.json, 2026-07-05) + `capture_full.py`:**
+
+| Value | Real Global source |
+|---|---|
+| Available SP | `Gallop.WorkSingleModeCharaData.get_SkillPoint()` (getter — field @704 is an `ObscuredInt`) |
+| Displayed cost | `PartsSingleModeSkillLearningListItem.Info.NeedSkillPoint` @24 |
+| Discount % | `…Info.DiscountRateForDisplay` @56 |
+| Hint level | `…Info.HintLv` @60 |
+
+`capture_full.py` hooks **only the small getters** (`get_SkillPoint`, `Info.get_NeedSkillPoint`) —
+never the list-iterating view constructors — so it cannot freeze. It emits `candidates_full.json`
+(`spBudget` + per-skill `{skillId,name,needPoint,discountRate,hintLv}`). `map_to_bundle.mjs`
+auto-detects the full capture and uses the **real on-screen costs + SP** (drops uniques + `needPoint≤0`
+owned/free), else falls back to dataset-cost + `--sp`. Verified end-to-end vs `parseCaptureBundle`
+(real discounted costs + gold prereqs + SP all flow). **The importer is now complete: SP, discounted
+cost, and hint level are all captured from the live Global client, no freeze.** Pending Sun's live run
+of `capture_full.py` to confirm the offsets read correct values on-screen.
