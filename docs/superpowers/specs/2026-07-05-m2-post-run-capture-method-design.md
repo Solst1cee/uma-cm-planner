@@ -292,3 +292,17 @@ owned/free), else falls back to dataset-cost + `--sp`. Verified end-to-end vs `p
 (real discounted costs + gold prereqs + SP all flow). **The importer is now complete: SP, discounted
 cost, and hint level are all captured from the live Global client, no freeze.** Pending Sun's live run
 of `capture_full.py` to confirm the offsets read correct values on-screen.
+
+**v1→v2 correction (Sun's first `capture_full.py` run):** v1's getter hooks (`get_SkillPoint`,
+`Info.get_NeedSkillPoint`) **never fired** — `get_NeedSkillPoint` belongs to the *other* Info class
+(`PartsSingleModeSkillListItem.Info`), not the learning one; and passive SP-getter reads didn't occur.
+But v1's field dump revealed the **real learning-`Info` layout** (`SkillId@16`, `IsAcquired@24`,
+`NeedPoint@44`, `CalcNeedPoint@48`=discounted, `OriginNeedPoint@52`=base, `Discount@56`, `HintLv@60`)
+and the controller's `RemainingPoint@88` (SP) + `_skillInfoList@64`. **v2** therefore hooks the
+controller's `UpdateSkillPoint()` (fires on load + every +/- nudge), reads SP from `RemainingPoint`,
+and walks `_skillInfoList@64 → SkillInfo._skillList@16 → Info`, reading fields **directly** — no
+per-property getter guessing. Also corrected: the earlier freeze was **not** `BeginView` (offset 64 is
+the *correct* `_skillInfoList`) but skill_extract's `UpdateItem@200`/`SetAcquire@192`, which read a
+`GameObject` as a `List` → garbage count → loop. The controller-list walk (offsets 64/16 + clamps) is
+safe. Lesson: read fields directly off an instance obtained from a definitely-firing method; don't
+chase per-property getters or reuse another class's method names.
