@@ -318,3 +318,19 @@ everything off `skillId`). Two follow-ups (optimizer-side, not capture): (1) **�
 capture returns both as separate ids; the game buys ○ then upgrades to ◎, so the optimizer likely needs
 to treat them as an upgrade/mutual-exclusion pair (like gold↔white prereq) rather than two independent
 buys; (2) the F1.5 in-app adapter (reads `CmPlan` context) + a `'capture'` `source` enum value.
+
+## Appendix F — Final stats + aptitudes capture (2026-07-05)
+
+Extends the capture to fill the `CaptureBundle` context (was defaulted). `introspect_chara.json` gave
+`Gallop.WorkSingleModeCharaData`: all stats + aptitudes are `ObscuredInt`, so read via getters (all
+present): `get_Speed/Stamina/Power/Guts/Wiz`, `get_ProperDistance{Short,Mile,Middle,Long}`,
+`get_ProperGround{Turf,Dirt}`, `get_ProperRunningStyle{Nige,Senko,Sashi,Oikomi}`, `get_RunningStyle`.
+`capture_full.py` hooks each getter (`onLeave` = deobfuscated value) and **groups readings by object
+instance**, picking the trainee = the instance with the fullest statline (avoids opponents/other charas).
+Ranks map `1->G .. 8->S`; running style `1/2/3/4 -> front/pace/late/end`. Because getters fire only when
+the game *displays* those values, the session must **visit the career-result/status screen** (stats) as
+well as the purchasing screen (skills/SP). `map_to_bundle.mjs` fills `stats`/`strategy`/`aptitudes.strategy`
+exactly; `aptitudes.distance/surface` from `--dist`/`--surface` else the uma's best grade (F1.5 will pick
+by course). Validated end-to-end vs `parseCaptureBundle`. **The importer now captures skills + discounted
+costs + SP + final stats + aptitudes — the full CaptureBundle context, no manual entry.** Pending Sun's
+live run of the extended `capture_full.py`.
