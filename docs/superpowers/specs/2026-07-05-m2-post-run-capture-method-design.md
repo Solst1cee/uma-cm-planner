@@ -412,3 +412,13 @@ its managed calls in `il2cpp_thread_attach`/`detach` (GC-safe), and caps probes.
 snapshot with a sane statline (`spd>=1`) so a bad read can't zero good data. SP still comes from the D
 controller's `RemainingPoint` (chara `get_SkillPoint` didn't read on C). Net flow unchanged: land on C
 → run → scan grabs stats/apt (once, then quiet) → C→D for skills+SP.
+
+## Appendix L — C→D stutter fix (2026-07-05)
+
+After the freeze fix, C→D worked but had a ~1s stutter. Cause: the `MasterSkillData.Get`
+name-resolution hook fired ~40+ times as D built its skill list, each doing an il2cpp `get_Name`
+call mid-transition. It wasn't needed — the mapper already fills names from the dataset by skillId.
+Fix: **removed the name hook entirely**; `capture_full.py` now annotates skill names/rarity from
+`public/data/skills.json` at save time (Python-side, no in-game calls). Also removed the last periodic
+`setInterval`. After the one-shot scan the tool makes **zero** calls into the game, so the C→D
+transition is untouched. Remaining hooks: only `UpdateSkillPoint` (raw field reads, cheap).
