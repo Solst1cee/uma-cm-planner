@@ -367,3 +367,19 @@ purchasable list + per-skill discount are materialized by the purchase view; off
 reconstructing via `MasterAvailableSkillSet.GetFromTalentLevel` + `GetTipsSkillPointDiscount` + the
 uma's skill-tips, which can diverge from what the game offers (P3). So L2 is the reliable floor above
 current; L1 is attempted on top with fallback.
+
+## Appendix I — Singleton NOT found; Layer 2 via cached-instance on-demand read (2026-07-05)
+
+`introspect_singleton.py` (reads every STATIC field of type `WorkSingleMode*`, validates by calling
+`get_Speed`) found **0** — the career object is not a global singleton (the 21 `Instance` statics are
+all infra: TMPro/Steam/Firebase/Cri/…). So "read from anywhere, no career" is impossible.
+
+Pivot: entering the career **always lands on post-run page C**, which displays stats → fires the chara
+getters. `capture_full.py` now **caches the trainee instance** (per-instance fire grouping) and **calls
+every getter on it on-demand** (`get_SkillPoint` + stats + aptitudes, 2s interval) → a full
+stats/SP/aptitude snapshot **from landing on C alone, no trip to D**. Python prefers this snapshot over
+the per-fire grouping; SP prefers the chara's `get_SkillPoint` over the D-controller `RemainingPoint`.
+Net: **Layer 2 achieved** — open career → C captures stats/SP/apt with zero clicks; D is only needed
+for skills (which you visit to buy anyway). On-demand uses the cached il2cpp pointer (guarded; career
+object is long-lived; per-fire grouping is the fallback). **Layer 1** (skills off-screen) remains the
+risky reconstruction spike, not yet attempted.
