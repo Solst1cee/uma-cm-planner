@@ -397,3 +397,18 @@ total; console prints the chosen snapshot for verification. Flow becomes: land o
 scan grabs stats/SP/apt -> C->D for skills. Skills still need D (Layer 1 off-screen reconstruction not
 attempted). Selection heuristic may need tuning if multiple chara instances (parents/rivals) are
 resident.
+
+## Appendix K — Heap-scan freeze fix (2026-07-05)
+
+First heap-scan run: the scan **correctly found the uma** (right stats printed) but (a) the game
+**froze before D** and (b) the saved file had **zero stats**. Root cause = two self-inflicted bugs:
+(1) the chara getters were BOTH Interceptor-hooked AND called by the scan → each scan call fired the
+hook → `send()` flood; and (2) an every-2s on-demand re-read kept calling il2cpp getters from Frida's
+thread — during the C→D scene transition that deadlocked the game, and the post-freeze re-read returned
+0s that **overwrote** the good scan snapshot. Fix: **call the chara getters exactly once, in the
+one-shot scan, then never again.** Removed the getter hooks and the 2s re-read; the scan now probes
+`get_Speed` first (one cheap call; skips ~all false positives) before reading the full statline, wraps
+its managed calls in `il2cpp_thread_attach`/`detach` (GC-safe), and caps probes. Python only accepts a
+snapshot with a sane statline (`spd>=1`) so a bad read can't zero good data. SP still comes from the D
+controller's `RemainingPoint` (chara `get_SkillPoint` didn't read on C). Net flow unchanged: land on C
+→ run → scan grabs stats/apt (once, then quiet) → C→D for skills+SP.
