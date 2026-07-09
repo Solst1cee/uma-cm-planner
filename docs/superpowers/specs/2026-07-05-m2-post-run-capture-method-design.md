@@ -211,3 +211,25 @@ match — the README notes they can shift on a game update). The from-scratch me
 
 Stats/aptitudes/strategy/course stay sourced from the active `CmPlan` (M4 already holds them), so F3
 is unnecessary for this flow. Workspace + run instructions: gitignored `spikes/m2-capture/README.md`.
+
+## Appendix C — Spike step 2 run findings + freeze fix (2026-07-05)
+
+Sun ran `skill_extract.py` on the live Global client (Mejiro Dober, 2325 SP). Result: **GO, with the
+cost/hint hooks isolated as unusable on Global.**
+
+- **Works:** the IL2CPP `MasterSkillData.Get` hook resolves the **correct purchasable-skill list**
+  (ids + names + rarity) on Global — proven by attaching while on the purchasing screen.
+- **Blocker:** the cost/discount/hint hooks (`BeginView`/`UpdateItem`/`SetAcquire`, fixed offsets
+  64/192/200) **freeze the game** on navigating into the purchasing screen — wrong Global offsets →
+  garbage List count → unbounded UI-thread loop. This is the README's "offsets shift on game update"
+  warning, realized.
+- **Resolution:** don't chase those offsets. `spikes/m2-capture/capture_candidates.py` installs only
+  the two safe hooks (`MasterSkillData.Get` + `MasterAvailableSkillSet.GetList…`), hard-clamps every
+  list read, and never installs the view-entry hooks → captures the candidate list without freezing.
+  **Costs = dataset `baseSpCost`** (F1's accepted fallback; on-screen discount deferred), **SP =
+  typed** by the user (read off-screen). This keeps Option A's core value (the real offered list) and
+  drops only the two nice-to-haves that carried the freeze risk.
+
+**Net:** Option A stands, de-risked. The mapper (`candidates.json` + typed SP + `CmPlan` context →
+`CaptureBundle`) is the remaining build; the on-screen-discount and SP-hook are optional later polish
+gated on finding correct Global offsets safely.
