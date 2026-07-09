@@ -348,3 +348,22 @@ all trained/veteran chara). Purchasable skills + discounts are materialized by t
 them off-screen means reconstructing the offered list + per-skill discount (fragile). Conclusion: M2 is used
 *at* the purchase screen anyway, so the pragmatic win is auto-write-on-screen-detect (no Ctrl+C), not
 eliminating the screen; full zero-nav parity is a separate skills-reconstruction spike.
+
+## Appendix H — Zero-nav capture: layered plan (2026-07-05)
+
+Maintainer wants layered friction reduction (each layer removes one navigation): **Layer 1** full
+zero-nav (read everything off any screen) -> **Layer 2** stats/SP/aptitudes off-screen, skills still
+need the purchase screen -> **Layer 3** current shipped (hook-based, needs screen visits). Current cost
+= 2 navigations (into purchase for skills+hints, back to post-run for stats/SP/apt).
+
+**Linchpin for L1 & L2:** reach the live `WorkSingleModeCharaData` from a **static singleton** (no
+hook), then call the getters directly (deobfuscates the ObscuredInts). `introspect_singleton.py` scans
+every class for STATIC fields of type `WorkSingleModeData`/`WorkSingleModeCharaData`, reads each static
+value at runtime, hops `WorkSingleModeData.<Character>@48` when needed, and **calls `get_Speed()` to
+prove** the chain returns a real stat (backup: manager `Instance` statics). Run during an active career.
+
+If validated: L2 is straightforward (call all getters). **L1 (skills) is the risky part** — the
+purchasable list + per-skill discount are materialized by the purchase view; off-screen means
+reconstructing via `MasterAvailableSkillSet.GetFromTalentLevel` + `GetTipsSkillPointDiscount` + the
+uma's skill-tips, which can diverge from what the game offers (P3). So L2 is the reliable floor above
+current; L1 is attempted on top with fallback.
