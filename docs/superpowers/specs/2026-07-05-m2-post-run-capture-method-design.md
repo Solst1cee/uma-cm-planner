@@ -233,3 +233,25 @@ cost/hint hooks isolated as unusable on Global.**
 **Net:** Option A stands, de-risked. The mapper (`candidates.json` + typed SP + `CmPlan` context →
 `CaptureBundle`) is the remaining build; the on-screen-discount and SP-hook are optional later polish
 gated on finding correct Global offsets safely.
+
+## Appendix D — Pipeline proven end-to-end (2026-07-05)
+
+`capture_candidates.py` output confirmed by Sun to **match the real run-4 purchasable list**, and the
+mapper `spikes/m2-capture/map_to_bundle.mjs` closes the loop:
+
+`candidates.json` + `--sp <budget>` → prices each skill from `public/data/skills.json` `baseSpCost`,
+drops uniques/inherited (`1xxxxx`/`9xxxxx`) + ids absent from the dataset, carries gold `prereqSkillId`
+→ emits a `CaptureBundle`. Verified against the **authoritative `parseCaptureBundle`** (not a
+hand-check): the Mejiro Dober run mapped to **30 valid candidates** (28 white / 2 gold, gold "Iron
+Will" 200441 carrying prereq 200442), `spBudget 2325`, and the app's validator **accepts it**. So a
+captured run is importable at `/sp-optimizer` today.
+
+**Option A end-to-end status: WORKING** (capture → map → import). Follow-ups, each optional:
+- **`source` enum:** the mapper emits `source:'ocr'` (closest existing value); add a `'capture'`/
+  `'memory'` member to `CaptureBundle.source` + `parseCaptureBundle` for honest provenance.
+- **In-app adapter (better than the standalone mapper):** an `/sp-optimizer` "Import raw capture"
+  path that maps `candidates.json` using the already-loaded dataset **and reads stats/apt/strategy/
+  course from the active `CmPlan`** — removing the mapper's context defaults + the SP-only manual step.
+  This is the real F1.5 feature; the standalone mapper is the spike proof.
+- **On-screen discount + SP hook:** revisit only if correct Global offsets can be found without the
+  freeze; not required for a working flow.
