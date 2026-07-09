@@ -383,3 +383,17 @@ Net: **Layer 2 achieved** — open career → C captures stats/SP/apt with zero 
 for skills (which you visit to buy anyway). On-demand uses the cached il2cpp pointer (guarded; career
 object is long-lived; per-fire grouping is the fallback). **Layer 1** (skills off-screen) remains the
 risky reconstruction spike, not yet attempted.
+
+## Appendix J — Heap scan: "start on C, then run" UX (2026-07-05)
+
+Maintainer's preferred UX = UmaExtractor's: land on the target screen, THEN run the tool (easier to
+instruct than "run before landing"). Problem: chara getters fire during B->C, so attaching while
+already on C caches nothing. Fix: `capture_full.py` now **heap-scans for the chara object directly**
+(~1.5s after attach). An il2cpp object's header[0] == its class ptr, so it scans rw memory for the
+`WorkSingleModeCharaData` class pointer and validates each candidate by calling the getters
+(ObscuredInt getters read inline value memory -> no wild-pointer deref -> safe to call on false
+positives; garbage filtered by stat range 1..3000). Trainee = candidate with SP pool + highest stat
+total; console prints the chosen snapshot for verification. Flow becomes: land on C -> run script ->
+scan grabs stats/SP/apt -> C->D for skills. Skills still need D (Layer 1 off-screen reconstruction not
+attempted). Selection heuristic may need tuning if multiple chara instances (parents/rivals) are
+resident.
