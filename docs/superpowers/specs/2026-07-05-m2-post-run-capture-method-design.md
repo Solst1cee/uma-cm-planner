@@ -1,0 +1,424 @@
+# M2 · Post-run capture method — spike + two-producer decision
+
+**Status:** Approved (design, 2026-07-05) · **Owner:** Sun
+**Origin:** Brainstorm (superpowers:brainstorming). Revisits the capture layer of
+[`2026-06-15-m2-f1-ocr-assist-design.md`](2026-06-15-m2-f1-ocr-assist-design.md) §5 (the "native companion")
+after evaluating packet-interception (CarrotJuicer) for the Global client.
+
+---
+
+## 1. Problem
+
+M2's SP optimizer needs a **`CaptureBundle`** from the post-run skill-purchase screen:
+available SP, the offered skills, and their on-screen costs (ideally also stats/aptitudes/
+strategy/course). The web app only *imports + validates* a `CaptureBundle`
+([capture-bundle-contract.md](../../capture-bundle-contract.md)); a **separate native companion**
+produces it. F1 left the companion's method undecided beyond "OCR, reference design in `spikes/ocr/`."
+This spec decides the method for the **Global (Steam, Windows) client**.
+
+## 2. Why not packet interception (CarrotJuicer)
+
+CarrotJuicer, Hakuraku, and UmaLauncher all target the **DMM (Japan) Windows client** —
+CarrotJuicer hooks the decryption function in that client's `libnative.dll`. Our target is
+**Global on Steam**, a different build with different binaries and encryption. No community port
+of CarrotJuicer-style interception to Global exists; doing it ourselves means reverse-engineering
+the Global client's netcode encryption from scratch — highest effort, highest ToS risk (DLL
+injection). **Rejected for Global.**
+
+## 3. The Global-compatible path already exists: memory reading
+
+UmaExtractor (xancia/UmaExtractor, fork of rockisch/umadump) — the roster importer Sun **already
+runs** for M1 — is a Frida/memory-scan tool that reads the running **Global** client's process
+memory and pulls out msgpack payloads (`trained_chara_array` on the Veteran List screen). That
+proves the technique on our exact client.
+
+The skill-purchase screen's data is the game's own `single_mode` API-response msgpack, resident in
+the client's memory while that screen renders. So a UmaExtractor-style memory scan **retargeted at
+the skill-screen response** is the Global analog of what CarrotJuicer does on JP — the same class of
+work already validated in this project, and the only automated path that can also capture the
+sim-context fields (stats/apt/strategy/course) OCR cannot read.
+
+## 4. Options considered
+
+| Option | Global-compatible? | Data quality | Effort | ToS/account risk | Status |
+|---|---|---|---|---|---|
+| **A. Memory reader** (extend UmaExtractor, retargeted to skill screen) | ✅ proven on our client | **Best** — exact ids + SP + costs + *stats/apt/course* | Medium (RE the skill-screen signature) | Memory-read only, no writes (== UmaExtractor) | Gated by §5 spike |
+| **B. OCR companion** (validated `spikes/ocr/` pipeline) | ✅ client-agnostic | Good — names (fuzzy) + costs + SP; **no** stats/apt/course | Medium (pipeline already validated) | Lowest — screenshots only | Committed (§6) |
+| C. Packet interception (CarrotJuicer-style) | ❌ needs full RE of Global netcode | Best | High | Highest — DLL injection | Rejected (§2) |
+| D. Manual entry / M4-wishlist seed | ✅ | User types/confirms | None | None | Shipped |
+
+## 5. Decision: spike-first on Option A, then a two-producer companion story
+
+**A and B coexist as two producers, chosen by the user's comfort level** — not A-primary-with-B-as-
+failure-only. Memory-read (A) for users who will run it (Sun); OCR (B) for users who won't touch
+memory reading; manual (D) as the zero-install baseline. All three emit the **same `CaptureBundle`**
+into the same web import (F1, unchanged). The spike below gates only whether **A is buildable**; **B
+is committed regardless** (§6).
+
+### 5.1 Spike — "Is the skill-screen data extractable from Global client memory?"
+
+Goal: a **go/no-go on Option A**. If go → produce the msgpack field-map + a stable memory anchor to
+build the companion. If no-go → B is the sole automated path, no time lost.
+
+Split by capability (Claude cannot attach to the live game; Sun runs the captures):
+
+1. **Desk research — schema (Claude, no game).** Pull the skill-learning / skill-tip `single_mode`
+   response schema from the JP ecosystem — Hakuraku decoders, CarrotJuicer sample dumps,
+   `umamusu-utils`/`umadump`. Output: exact msgpack field paths for `skill_id`, per-skill SP cost,
+   available SP, and the chara block (stats/apt/strategy/course). Global ≈ JP structurally (same API,
+   different server + encryption).
+2. **Capture — one memory snapshot (Sun runs, Claude scripts).** On the live Global client, on the
+   post-run skill-purchase screen, run a capture (extend the existing UmaExtractor/Frida attach, or a
+   minimal fridump-style snapshot). Save to gitignored `spikes/`, `viewer_id` scrubbed (UmaExtractor
+   hygiene).
+3. **Offline decode (Claude).** Scan the dump for the step-1 field names / msgpack markers; decode the
+   skill block; verify it contains ids + costs + SP; check whether stats/apt/course are co-resident;
+   assess anchor stability across sessions.
+4. **Decide against the gate (§5.2).**
+
+### 5.2 Go/no-go gate for Option A
+
+Option A is **go** iff **all** hold:
+- the offered skill list + per-skill SP costs + available SP are present and decodable in memory, **and**
+- there is a stable-enough signature/anchor to locate them automatically across sessions.
+
+Bonus (does not gate): if stats/apt/strategy/course are co-resident, the companion can populate the
+full sim-context and **F3 (context pre-fill) becomes unnecessary for this flow**.
+
+Otherwise → **no-go**; Option B is the sole automated producer.
+
+## 6. Committed fallback / alternative: Option B (OCR)
+
+Regardless of the spike outcome, **Option B ships as an alternative producer** for users who decline
+memory reading. Its reference design is the validated `spikes/ocr/` pipeline (F1 §6): OCR skill
+**names** → fuzzy-match (Sørensen–Dice bigrams) to the dataset keeping aptitude marks `○/◎/●`; take
+cost from dataset/screen; digit-OCR the available-SP pill. It cannot read stats/apt/strategy/course
+→ those fall to form defaults (or manual). If the §5 spike is no-go, B is the only automated path; if
+go, A and B coexist.
+
+## 7. Guardrails
+
+- **ToS posture:** memory-read only, **no writes** — identical to UmaExtractor, which Sun already runs.
+  Private use. DLL injection (C) is out. (Consistent with the project's cite-and-deep-link ToS
+  discipline; the capture companion is a separate project, not bundled into the local-first web app.)
+- **Sample hygiene:** all captured dumps live under gitignored `spikes/`, `viewer_id`/owner ids
+  scrubbed. Never committed.
+- **Reuse-first (P1):** extend UmaExtractor/umadump rather than build fresh; borrow the Hakuraku/
+  community msgpack schema rather than re-derive it.
+- **Public-release swap:** as with the other private-use import feeds, the public build must not
+  depend on any un-shippable capture tool; manual entry (D) is the always-available baseline.
+
+## 8. Out of scope
+
+- **Building the companion itself** — separate native project; this spec decides its *method* and
+  gates A via the spike. A "build the companion" spec follows a go result.
+- **Web-side import UX** — landed in F1 (`parseCaptureBundle`, import control, wishlist seed) and the
+  buyable-skills results table (M2 mockup fidelity) are separate tracks.
+- **Packet interception on Global** — rejected (§2).
+
+## 9. Data flow (unchanged from F1)
+
+`producer (memory-reader A ‖ OCR B ‖ manual D) → CaptureBundle JSON → [web] import →
+parseCaptureBundle (validate) → editable form (confirm-on-entry) → rankBaskets`.
+
+## 10. Next step
+
+Run the §5 spike (start with step 1 desk research — no game needed). The spike's decode result
+either opens a "build the memory-reader companion" spec (go) or promotes Option B to the sole
+automated producer (no-go). Either way, Option B is specced-committed.
+
+---
+
+## Appendix A — Spike step 1 findings: msgpack field map (2026-07-05)
+
+Desk research against the JP ecosystem (no game). Source: Hakuraku
+`src/data/TrainedCharaData.ts` (SSHZ-ORG/hakuraku) — it decodes the shared chara structure the
+game's msgpack uses everywhere (Veteran List + race + in-career), with raw master.mdb-aligned field
+names. **Confidence** = VERIFIED (seen in Hakuraku decoder) / EXPECTED (well-known career-mode
+field, to confirm against Sun's real dump in spike step 3).
+
+**Chara block — VERIFIED field names** (same block UmaExtractor already reads for the roster):
+
+| CaptureBundle field | msgpack path | Confidence |
+|---|---|---|
+| `stats.spd` | `speed` | VERIFIED |
+| `stats.sta` | `stamina` | VERIFIED |
+| `stats.pow` | `pow` (in-career) / `power` (trained_chara) — accept both | VERIFIED |
+| `stats.gut` | `guts` | VERIFIED |
+| `stats.wit` | `wiz` | VERIFIED |
+| `aptitudes.distance` | `proper_distance_{short,mile,middle,long}` (int rank 1–8 → S…G) | VERIFIED |
+| `aptitudes.surface` | `proper_ground_{turf,dirt}` | VERIFIED |
+| `strategy` + apt | `proper_running_style_{nige,senko,sashi,oikomi}` (1=nige/front … 4=oikomi/end) | VERIFIED |
+| `ownedSkills[]` | `skill_array[] → { skill_id, level }` | VERIFIED |
+
+**Skill-purchase-screen fields — EXPECTED, confirm in step 3** (Hakuraku is race-replay focused and
+does not decode the in-career acquisition screen, so these are from community knowledge, not the
+Hakuraku decoder):
+
+| CaptureBundle field | expected msgpack path | note |
+|---|---|---|
+| `spBudget` | `chara_info.skill_point` | the available-SP number the screen spends |
+| `candidates[]` | `chara_info.skill_tips_array[]` (skill/group id + level) | the learnable "tips" the screen offers |
+| `candidates[].screenSpCost` | **not in packet** | per-skill cost is looked up from master.mdb → **use our dataset `baseSpCost`** (F1's accepted fallback), not a packet field |
+| `courseId` | not reliably on this screen | **prefer the active `CmPlan.cmRef`**; packet is optional |
+
+**Implications for the method decision:**
+- The stats/aptitude/strategy fields are VERIFIED-decodable and co-resident in the chara block →
+  **if** `chara_info` (with `skill_tips_array` + `skill_point`) is resident on the skill screen,
+  Option A captures full sim-context and **F3 becomes unnecessary** for this flow (§5.2 bonus).
+- Per-skill SP cost is **never** a packet field on either method — it comes from our dataset. So
+  memory-read and OCR both rely on `baseSpCost`; this is not an A-vs-B differentiator.
+- The one true unknown left for the go/no-go gate: **is `skill_tips_array` + `skill_point` present
+  and anchorable in the Global client's memory while on the post-run acquisition screen?** That is
+  exactly what spike step 2 (Sun's capture) + step 3 (offline decode) answer.
+
+**Step 2 handoff — what Sun's capture needs to contain:** navigate to the post-run skill-acquisition
+screen, then dump. In step 3 we grep the dump for the byte patterns of `skill_tips_array`,
+`skill_point`, and `skill_array` (msgpack string keys) to locate the chara block and confirm the
+offered-skill ids + SP are decodable, plus test anchor stability across two dumps.
+
+## Appendix B — Spike outcome: existing tool already solves most of it (2026-07-05)
+
+Refreshing UmaExtractor (xancia/UmaExtractor `34248ef`) surfaced a **pre-existing skill-screen
+extractor** we hadn't accounted for: `py/skills/skill_extract.py`. It **replaces the raw-msgpack
+approach in §5.1/Appendix A with a cleaner technique** and answers the go/no-go gate before any
+memory dump:
+
+- **Technique upgrade — IL2CPP method hooking, not msgpack byte-scanning.** It Frida-`Interceptor`-
+  hooks the game's own C# methods (`Gallop.SingleModeSkillLearningViewController.BeginView`,
+  `MasterAvailableSkillSet.GetList…`, `PartsSingleModeSkillLearningListItem.UpdateItem`,
+  `MasterSkillData.Get` for names). Reading the game's decoded structures gives **more** than a packet
+  would: real **on-screen discounted cost** + **discount %** + **hint level** + acquired flags, plus
+  resolved names/rarity.
+- **Output** `skill_tree.json`: `acquired_skills[] {skillId,name,currentLevel}` +
+  `buyable_skills[] {skillId,name,baseCost,discountedCost,hintLevel,discountPercent,rarity}`.
+- **CaptureBundle coverage:** `candidates[]` (ids + `screenSpCost=discountedCost` + rarity + hint) and
+  `ownedSkills[]` are **fully covered, exactly** (matchTier `exact`, no OCR fuzzing). The per-skill
+  cost that "isn't in the packet" (Appendix A) **is** captured here because it's read from the UI
+  structure, discount included.
+
+**Revised gate result:** Option A is effectively **GO by reuse**, pending only Sun's confirmation
+run on the Global client (the tool is Global-compatible; IL2CPP class names/offsets just need to
+match — the README notes they can shift on a game update). The from-scratch memory-reader in §5.1 is
+**not needed**.
+
+**Remaining Option-A work (small):**
+1. Sun runs `skill_extract.py` on Global → confirm attach + capture (spike step 2, unchanged goal,
+   easier method). Share `skill_tree.json` + `--debug` `skill_extract.log`.
+2. **Add SP-budget capture** — the one true gap; `skill_extract.py` captures the tree, not the SP
+   wallet. Needs one more IL2CPP hook for available SP (`spBudget` is the optimizer's entire budget).
+3. **Mapper** `skill_tree.json` (+ SP + `CmPlan` context) → `CaptureBundle` → existing F1 import.
+
+Stats/aptitudes/strategy/course stay sourced from the active `CmPlan` (M4 already holds them), so F3
+is unnecessary for this flow. Workspace + run instructions: gitignored `spikes/m2-capture/README.md`.
+
+## Appendix C — Spike step 2 run findings + freeze fix (2026-07-05)
+
+Sun ran `skill_extract.py` on the live Global client (Mejiro Dober, 2325 SP). Result: **GO, with the
+cost/hint hooks isolated as unusable on Global.**
+
+- **Works:** the IL2CPP `MasterSkillData.Get` hook resolves the **correct purchasable-skill list**
+  (ids + names + rarity) on Global — proven by attaching while on the purchasing screen.
+- **Blocker:** the cost/discount/hint hooks (`BeginView`/`UpdateItem`/`SetAcquire`, fixed offsets
+  64/192/200) **freeze the game** on navigating into the purchasing screen — wrong Global offsets →
+  garbage List count → unbounded UI-thread loop. This is the README's "offsets shift on game update"
+  warning, realized.
+- **Resolution:** don't chase those offsets. `spikes/m2-capture/capture_candidates.py` installs only
+  the two safe hooks (`MasterSkillData.Get` + `MasterAvailableSkillSet.GetList…`), hard-clamps every
+  list read, and never installs the view-entry hooks → captures the candidate list without freezing.
+  **Costs = dataset `baseSpCost`** (F1's accepted fallback; on-screen discount deferred), **SP =
+  typed** by the user (read off-screen). This keeps Option A's core value (the real offered list) and
+  drops only the two nice-to-haves that carried the freeze risk.
+
+**Net:** Option A stands, de-risked. The mapper (`candidates.json` + typed SP + `CmPlan` context →
+`CaptureBundle`) is the remaining build; the on-screen-discount and SP-hook are optional later polish
+gated on finding correct Global offsets safely.
+
+## Appendix D — Pipeline proven end-to-end (2026-07-05)
+
+`capture_candidates.py` output confirmed by Sun to **match the real run-4 purchasable list**, and the
+mapper `spikes/m2-capture/map_to_bundle.mjs` closes the loop:
+
+`candidates.json` + `--sp <budget>` → prices each skill from `public/data/skills.json` `baseSpCost`,
+drops uniques/inherited (`1xxxxx`/`9xxxxx`) + ids absent from the dataset, carries gold `prereqSkillId`
+→ emits a `CaptureBundle`. Verified against the **authoritative `parseCaptureBundle`** (not a
+hand-check): the Mejiro Dober run mapped to **30 valid candidates** (28 white / 2 gold, gold "Iron
+Will" 200441 carrying prereq 200442), `spBudget 2325`, and the app's validator **accepts it**. So a
+captured run is importable at `/sp-optimizer` today.
+
+**Option A end-to-end status: WORKING** (capture → map → import). Follow-ups, each optional:
+- **`source` enum:** the mapper emits `source:'ocr'` (closest existing value); add a `'capture'`/
+  `'memory'` member to `CaptureBundle.source` + `parseCaptureBundle` for honest provenance.
+- **In-app adapter (better than the standalone mapper):** an `/sp-optimizer` "Import raw capture"
+  path that maps `candidates.json` using the already-loaded dataset **and reads stats/apt/strategy/
+  course from the active `CmPlan`** — removing the mapper's context defaults + the SP-only manual step.
+  This is the real F1.5 feature; the standalone mapper is the spike proof.
+- **On-screen discount + SP hook:** revisit only if correct Global offsets can be found without the
+  freeze; not required for a working flow.
+
+## Appendix E — Completing discount / hint / SP (evidence-first, 2026-07-05)
+
+Maintainer flagged base-cost-only + typed-SP as incomplete for M2 (correct — the module optimizes
+under an SP budget, so *discounted* cost and real SP change the optimal basket). Pursued via
+systematic-debugging, not another offset guess.
+
+**Root cause (freeze + missing fields, single source):** unknown Global IL2CPP field offsets.
+`skill_extract.py`'s discount/hint/cost offsets (48/60/…) and `BeginView`'s group-list offset (64)
+are JP-build values; wrong on Global → garbage list count → unbounded UI-thread loop → freeze. The
+working hooks succeed only because record offsets 16/20/24 coincidentally match.
+
+**Investigation step (no fix yet):** `spikes/m2-capture/introspect.py` reads the **real** Global
+field layout from IL2CPP type metadata — installs **no view hooks** (cannot freeze; metadata is
+static). Emits `introspect.json`: full field name→offset(+type) for the skill-learning classes
+(discount/hint/cost offsets), a Gallop-wide name search for the **available-SP** field, and
+cost/SP/hint-named **methods** (hooking a getter is safer than reading UI structs). From that real
+data we write correct, clamped readers — then discount + hint + SP join the capture and the importer
+is complete. Until then the working base-cost + typed-SP flow (Appendix D) stands.
+
+**Discovered offsets (introspect.json, 2026-07-05) + `capture_full.py`:**
+
+| Value | Real Global source |
+|---|---|
+| Available SP | `Gallop.WorkSingleModeCharaData.get_SkillPoint()` (getter — field @704 is an `ObscuredInt`) |
+| Displayed cost | `PartsSingleModeSkillLearningListItem.Info.NeedSkillPoint` @24 |
+| Discount % | `…Info.DiscountRateForDisplay` @56 |
+| Hint level | `…Info.HintLv` @60 |
+
+`capture_full.py` hooks **only the small getters** (`get_SkillPoint`, `Info.get_NeedSkillPoint`) —
+never the list-iterating view constructors — so it cannot freeze. It emits `candidates_full.json`
+(`spBudget` + per-skill `{skillId,name,needPoint,discountRate,hintLv}`). `map_to_bundle.mjs`
+auto-detects the full capture and uses the **real on-screen costs + SP** (drops uniques + `needPoint≤0`
+owned/free), else falls back to dataset-cost + `--sp`. Verified end-to-end vs `parseCaptureBundle`
+(real discounted costs + gold prereqs + SP all flow). **The importer is now complete: SP, discounted
+cost, and hint level are all captured from the live Global client, no freeze.** Pending Sun's live run
+of `capture_full.py` to confirm the offsets read correct values on-screen.
+
+**v1→v2 correction (Sun's first `capture_full.py` run):** v1's getter hooks (`get_SkillPoint`,
+`Info.get_NeedSkillPoint`) **never fired** — `get_NeedSkillPoint` belongs to the *other* Info class
+(`PartsSingleModeSkillListItem.Info`), not the learning one; and passive SP-getter reads didn't occur.
+But v1's field dump revealed the **real learning-`Info` layout** (`SkillId@16`, `IsAcquired@24`,
+`NeedPoint@44`, `CalcNeedPoint@48`=discounted, `OriginNeedPoint@52`=base, `Discount@56`, `HintLv@60`)
+and the controller's `RemainingPoint@88` (SP) + `_skillInfoList@64`. **v2** therefore hooks the
+controller's `UpdateSkillPoint()` (fires on load + every +/- nudge), reads SP from `RemainingPoint`,
+and walks `_skillInfoList@64 → SkillInfo._skillList@16 → Info`, reading fields **directly** — no
+per-property getter guessing. Also corrected: the earlier freeze was **not** `BeginView` (offset 64 is
+the *correct* `_skillInfoList`) but skill_extract's `UpdateItem@200`/`SetAcquire@192`, which read a
+`GameObject` as a `List` → garbage count → loop. The controller-list walk (offsets 64/16 + clamps) is
+safe. Lesson: read fields directly off an instance obtained from a definitely-firing method; don't
+chase per-property getters or reuse another class's method names.
+
+**v2 CONFIRMED COMPLETE on Sun's real run (2026-07-05).** Navigating post-game → purchasing (no
+freeze) captured **43 skills** with both ◎ and ○ tiers, **real hint discounts** (e.g. Summer Runner ◎
+110→71 at 35% / hint Lv4), and **`spBudget 2325`** (matched on-screen). `map_to_bundle.mjs` → 38
+candidates, validated by `parseCaptureBundle` with real discounted costs flowing through. **The Option-A
+importer is fully working end-to-end with SP + discounted cost + hint, no freeze.** Workflow:
+**navigate into the purchasing screen** (◎ names resolve via `MasterSkillData.Get` during screen
+construction; a later nudge doesn't re-resolve them — though names are cosmetic, the mapper keys
+everything off `skillId`). Two follow-ups (optimizer-side, not capture): (1) **◎/○ upgrade tiers** — the
+capture returns both as separate ids; the game buys ○ then upgrades to ◎, so the optimizer likely needs
+to treat them as an upgrade/mutual-exclusion pair (like gold↔white prereq) rather than two independent
+buys; (2) the F1.5 in-app adapter (reads `CmPlan` context) + a `'capture'` `source` enum value.
+
+## Appendix F — Final stats + aptitudes capture (2026-07-05)
+
+Extends the capture to fill the `CaptureBundle` context (was defaulted). `introspect_chara.json` gave
+`Gallop.WorkSingleModeCharaData`: all stats + aptitudes are `ObscuredInt`, so read via getters (all
+present): `get_Speed/Stamina/Power/Guts/Wiz`, `get_ProperDistance{Short,Mile,Middle,Long}`,
+`get_ProperGround{Turf,Dirt}`, `get_ProperRunningStyle{Nige,Senko,Sashi,Oikomi}`, `get_RunningStyle`.
+`capture_full.py` hooks each getter (`onLeave` = deobfuscated value) and **groups readings by object
+instance**, picking the trainee = the instance with the fullest statline (avoids opponents/other charas).
+Ranks map `1->G .. 8->S`; running style `1/2/3/4 -> front/pace/late/end`. Because getters fire only when
+the game *displays* those values, the session must **visit the career-result/status screen** (stats) as
+well as the purchasing screen (skills/SP). `map_to_bundle.mjs` fills `stats`/`strategy`/`aptitudes.strategy`
+exactly; `aptitudes.distance/surface` from `--dist`/`--surface` else the uma's best grade (F1.5 will pick
+by course). Validated end-to-end vs `parseCaptureBundle`. **The importer now captures skills + discounted
+costs + SP + final stats + aptitudes — the full CaptureBundle context, no manual entry.** Pending Sun's
+live run of the extended `capture_full.py`.
+
+## Appendix G — Naming, aptitude order, one-button question (2026-07-05)
+
+Post-feedback polish. **Naming:** raw capture file renamed `candidates_full.json` -> `career-capture.json`
+(it holds the whole career-end snapshot: stats/aptitudes/strategy/SP/skills); `candidates` stays only as
+the name of the `BuyableSkill[]` array *inside* the emitted CaptureBundle (M2 contract term). **Aptitude
+order:** emitted surface -> distance -> style (`style` = running-style grades). **One-button (no navigation,
+UmaExtractor-style)?** UmaExtractor reads a static msgpack blob directly (no hooks); our tool hooks getters
+that fire only on display -> hence the screen visit. Stats/aptitudes/SP could be read on-demand with the
+`WorkSingleModeCharaData` instance, but no clean singleton surfaced (accessors in introspect_chara.json are
+all trained/veteran chara). Purchasable skills + discounts are materialized by the purchase view -> reading
+them off-screen means reconstructing the offered list + per-skill discount (fragile). Conclusion: M2 is used
+*at* the purchase screen anyway, so the pragmatic win is auto-write-on-screen-detect (no Ctrl+C), not
+eliminating the screen; full zero-nav parity is a separate skills-reconstruction spike.
+
+## Appendix H — Zero-nav capture: layered plan (2026-07-05)
+
+Maintainer wants layered friction reduction (each layer removes one navigation): **Layer 1** full
+zero-nav (read everything off any screen) -> **Layer 2** stats/SP/aptitudes off-screen, skills still
+need the purchase screen -> **Layer 3** current shipped (hook-based, needs screen visits). Current cost
+= 2 navigations (into purchase for skills+hints, back to post-run for stats/SP/apt).
+
+**Linchpin for L1 & L2:** reach the live `WorkSingleModeCharaData` from a **static singleton** (no
+hook), then call the getters directly (deobfuscates the ObscuredInts). `introspect_singleton.py` scans
+every class for STATIC fields of type `WorkSingleModeData`/`WorkSingleModeCharaData`, reads each static
+value at runtime, hops `WorkSingleModeData.<Character>@48` when needed, and **calls `get_Speed()` to
+prove** the chain returns a real stat (backup: manager `Instance` statics). Run during an active career.
+
+If validated: L2 is straightforward (call all getters). **L1 (skills) is the risky part** — the
+purchasable list + per-skill discount are materialized by the purchase view; off-screen means
+reconstructing via `MasterAvailableSkillSet.GetFromTalentLevel` + `GetTipsSkillPointDiscount` + the
+uma's skill-tips, which can diverge from what the game offers (P3). So L2 is the reliable floor above
+current; L1 is attempted on top with fallback.
+
+## Appendix I — Singleton NOT found; Layer 2 via cached-instance on-demand read (2026-07-05)
+
+`introspect_singleton.py` (reads every STATIC field of type `WorkSingleMode*`, validates by calling
+`get_Speed`) found **0** — the career object is not a global singleton (the 21 `Instance` statics are
+all infra: TMPro/Steam/Firebase/Cri/…). So "read from anywhere, no career" is impossible.
+
+Pivot: entering the career **always lands on post-run page C**, which displays stats → fires the chara
+getters. `capture_full.py` now **caches the trainee instance** (per-instance fire grouping) and **calls
+every getter on it on-demand** (`get_SkillPoint` + stats + aptitudes, 2s interval) → a full
+stats/SP/aptitude snapshot **from landing on C alone, no trip to D**. Python prefers this snapshot over
+the per-fire grouping; SP prefers the chara's `get_SkillPoint` over the D-controller `RemainingPoint`.
+Net: **Layer 2 achieved** — open career → C captures stats/SP/apt with zero clicks; D is only needed
+for skills (which you visit to buy anyway). On-demand uses the cached il2cpp pointer (guarded; career
+object is long-lived; per-fire grouping is the fallback). **Layer 1** (skills off-screen) remains the
+risky reconstruction spike, not yet attempted.
+
+## Appendix J — Heap scan: "start on C, then run" UX (2026-07-05)
+
+Maintainer's preferred UX = UmaExtractor's: land on the target screen, THEN run the tool (easier to
+instruct than "run before landing"). Problem: chara getters fire during B->C, so attaching while
+already on C caches nothing. Fix: `capture_full.py` now **heap-scans for the chara object directly**
+(~1.5s after attach). An il2cpp object's header[0] == its class ptr, so it scans rw memory for the
+`WorkSingleModeCharaData` class pointer and validates each candidate by calling the getters
+(ObscuredInt getters read inline value memory -> no wild-pointer deref -> safe to call on false
+positives; garbage filtered by stat range 1..3000). Trainee = candidate with SP pool + highest stat
+total; console prints the chosen snapshot for verification. Flow becomes: land on C -> run script ->
+scan grabs stats/SP/apt -> C->D for skills. Skills still need D (Layer 1 off-screen reconstruction not
+attempted). Selection heuristic may need tuning if multiple chara instances (parents/rivals) are
+resident.
+
+## Appendix K — Heap-scan freeze fix (2026-07-05)
+
+First heap-scan run: the scan **correctly found the uma** (right stats printed) but (a) the game
+**froze before D** and (b) the saved file had **zero stats**. Root cause = two self-inflicted bugs:
+(1) the chara getters were BOTH Interceptor-hooked AND called by the scan → each scan call fired the
+hook → `send()` flood; and (2) an every-2s on-demand re-read kept calling il2cpp getters from Frida's
+thread — during the C→D scene transition that deadlocked the game, and the post-freeze re-read returned
+0s that **overwrote** the good scan snapshot. Fix: **call the chara getters exactly once, in the
+one-shot scan, then never again.** Removed the getter hooks and the 2s re-read; the scan now probes
+`get_Speed` first (one cheap call; skips ~all false positives) before reading the full statline, wraps
+its managed calls in `il2cpp_thread_attach`/`detach` (GC-safe), and caps probes. Python only accepts a
+snapshot with a sane statline (`spd>=1`) so a bad read can't zero good data. SP still comes from the D
+controller's `RemainingPoint` (chara `get_SkillPoint` didn't read on C). Net flow unchanged: land on C
+→ run → scan grabs stats/apt (once, then quiet) → C→D for skills+SP.
+
+## Appendix L — C→D stutter fix (2026-07-05)
+
+After the freeze fix, C→D worked but had a ~1s stutter. Cause: the `MasterSkillData.Get`
+name-resolution hook fired ~40+ times as D built its skill list, each doing an il2cpp `get_Name`
+call mid-transition. It wasn't needed — the mapper already fills names from the dataset by skillId.
+Fix: **removed the name hook entirely**; `capture_full.py` now annotates skill names/rarity from
+`public/data/skills.json` at save time (Python-side, no in-game calls). Also removed the last periodic
+`setInterval`. After the one-shot scan the tool makes **zero** calls into the game, so the C→D
+transition is untouched. Remaining hooks: only `UpdateSkillPoint` (raw field reads, cheap).
