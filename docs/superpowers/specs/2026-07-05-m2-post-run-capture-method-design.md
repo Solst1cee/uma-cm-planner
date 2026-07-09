@@ -334,3 +334,17 @@ exactly; `aptitudes.distance/surface` from `--dist`/`--surface` else the uma's b
 by course). Validated end-to-end vs `parseCaptureBundle`. **The importer now captures skills + discounted
 costs + SP + final stats + aptitudes — the full CaptureBundle context, no manual entry.** Pending Sun's
 live run of the extended `capture_full.py`.
+
+## Appendix G — Naming, aptitude order, one-button question (2026-07-05)
+
+Post-feedback polish. **Naming:** raw capture file renamed `candidates_full.json` -> `career-capture.json`
+(it holds the whole career-end snapshot: stats/aptitudes/strategy/SP/skills); `candidates` stays only as
+the name of the `BuyableSkill[]` array *inside* the emitted CaptureBundle (M2 contract term). **Aptitude
+order:** emitted surface -> distance -> style (`style` = running-style grades). **One-button (no navigation,
+UmaExtractor-style)?** UmaExtractor reads a static msgpack blob directly (no hooks); our tool hooks getters
+that fire only on display -> hence the screen visit. Stats/aptitudes/SP could be read on-demand with the
+`WorkSingleModeCharaData` instance, but no clean singleton surfaced (accessors in introspect_chara.json are
+all trained/veteran chara). Purchasable skills + discounts are materialized by the purchase view -> reading
+them off-screen means reconstructing the offered list + per-skill discount (fragile). Conclusion: M2 is used
+*at* the purchase screen anyway, so the pragmatic win is auto-write-on-screen-detect (no Ctrl+C), not
+eliminating the screen; full zero-nav parity is a separate skills-reconstruction spike.
