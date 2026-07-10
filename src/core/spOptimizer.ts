@@ -372,11 +372,16 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
  *   leak PR #29 fixed).
  * - `WishlistItem.skillVer` pins are dropped, and M2 sims (rankBaskets)
  *   attach NO `skillPatches` — including PIN-LAG rebalances (`globalVer >= 2`,
- *   confirmed live on Global while the engine pin lags). Until that's built,
- *   M2 ranks such skills with stale pre-rebalance values while M4 charts show
- *   patched ones. Pin-lag support needs no horizon plumbing (it's a pure data
- *   fact): `confirmedPatchMap` in rankBaskets.toSimBuild + `skillPatchesSig`
- *   in `simCacheKey` + a PatchedSimNote on M2 results.
+ *   confirmed live on Global while the engine data pin still lags them).
+ *   Note (2026-07-11): a confirmed version already IN-PIN (`globalDate <=
+ *   ENGINE_DATA_DATE`, `src/sim/enginePin.ts` — e.g. the 95-skill 2026-07-01
+ *   patch since the v0.27.0 data refresh) is computed natively by the engine,
+ *   so M2 is NOT stale for those; the gap below applies only to genuinely
+ *   pin-lagged versions (confirmed after the pin date, or pinned off-horizon).
+ *   Until pin-lag support is built, M2 ranks such skills with stale values
+ *   while M4 charts show patched ones. It needs no horizon plumbing (it's a
+ *   pure data fact): `confirmedPatchMap` in rankBaskets.toSimBuild +
+ *   `skillPatchesSig` in `simCacheKey` + a PatchedSimNote on M2 results.
  */
 export function wishlistToCandidates(
   wishlist: WishlistItem[],

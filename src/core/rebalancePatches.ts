@@ -95,6 +95,10 @@ export function activePatchNotes(ctx: PatchCtx): ActivePatchNote[] {
       skillId: rec.skillId,
       name: rec.nameEn,
       ver: v.ver,
+      // The `!isInPin` conjunct is UNREACHABLE in the current control flow (an
+      // in-pin version is `continue`d above and never produces a note) — it does
+      // no work today. Kept purely as defense against a future reordering of this
+      // loop, matching the task-7 spec's pinLag formula verbatim.
       pinLag: v.ver <= info.globalVer && !isInPin(v, ctx.engineDataDate),
       predicted: v.globalDatePredicted === true,
       ...(v.globalArrival !== undefined ? { arrival: v.globalArrival } : {}),

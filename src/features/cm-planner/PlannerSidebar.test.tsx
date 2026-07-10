@@ -733,6 +733,35 @@ describe('PlannerSidebar', () => {
     expect(within(select).getByRole('option', { name: /v1 — pre-patch values unavailable in sim/ })).toBeInTheDocument();
   });
 
+  it('Task 7: a pin OLDER than the in-pin floor gets an honest tooltip (sims use the engine built-in values)', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb2', priority: 1, source: 'targeted', skillVer: 1 }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for In-Pin Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    // v1 is older than the in-pin v2 — no patch is injected, sims run the engine's
+    // native values, so the tooltip must NOT claim "sims use v1 parameters".
+    expect(select).toHaveAttribute(
+      'title',
+      "Pinned v1 — pre-patch values unavailable in sim; sims use the engine's built-in values",
+    );
+  });
+
+  it('Task 7: a sim-effective pin keeps the honest "sims use vN parameters" tooltip', () => {
+    // reb1's v2 is predicted (not in-pin); pinning it injects a real patch, so the
+    // original tooltip wording is still true.
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted', skillVer: 2 }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    expect(select).toHaveAttribute('title', 'Pinned — sims use v2 parameters');
+  });
+
   it('shows no rebalance picker for a wishlist skill with no rebalance info', () => {
     renderSidebar(); // default plan wishlist: [{ skillId: 'a' (Escape Artist), ... }]
 

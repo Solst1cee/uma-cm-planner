@@ -13,10 +13,14 @@ function aptHash(build: SimBuild): string {
  *  `skillPatches` is intentionally NOT keyed: this cache serves only M2's rankBaskets,
  *  which never attaches patches. If a patched (M4/horizon) build is ever routed through
  *  makeDeltaCache, add skillPatchesSig to the key first or stale collisions will result.
- *  NOTE (2026-07-03 decision): M2 also knowingly skips PIN-LAG rebalances (confirmed
- *  live on Global, engine pin lagging) — see the exceptions block on
- *  `wishlistToCandidates` (src/core/spOptimizer.ts) for the full rationale and the
- *  shape of the eventual fix. Building that fix REQUIRES keying skillPatches here. */
+ *  NOTE (2026-07-03 decision; wording refreshed 2026-07-11): M2 also knowingly skips
+ *  PIN-LAG rebalances (confirmed live on Global while the engine data pin still lags
+ *  them). Versions already IN-PIN — `globalDate <= ENGINE_DATA_DATE`, e.g. the 95-skill
+ *  2026-07-01 patch since the v0.27.0 data refresh — are computed natively by the
+ *  engine, so M2 is NOT stale for those (see `isInPin` in src/core/rebalance.ts).
+ *  See the exceptions block on `wishlistToCandidates` (src/core/spOptimizer.ts) for the
+ *  full rationale and the shape of the eventual fix. Building that fix REQUIRES keying
+ *  skillPatches here. */
 export function simCacheKey(build: SimBuild, race: SimRaceParams, skillId: string, dataVersion: string): string {
   return [race.courseId, build.strategy, bucketStats(build), aptHash(build), skillId, dataVersion].join('|');
 }

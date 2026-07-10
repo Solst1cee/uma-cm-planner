@@ -954,6 +954,16 @@ export function PlannerSidebar({
                 const defaultVer = rebalance ? effectiveVersion(rebalance, cutoffISO, todayISO).ver : undefined;
                 const currentVer = item.skillVer ?? defaultVer;
                 const isPinned = item.skillVer !== undefined && item.skillVer !== defaultVer;
+                // Task 7: a pin OLDER than the in-pin floor injects no patch — sims run the
+                // engine's native (in-pin) values, so the tooltip must not claim otherwise.
+                const pinnedVersion =
+                  isPinned && rebalance !== undefined
+                    ? rebalance.versions.find((v) => v.ver === item.skillVer)
+                    : undefined;
+                const pinnedSimUnavailable =
+                  pinnedVersion !== undefined &&
+                  rebalance !== undefined &&
+                  versionSimUnavailable(pinnedVersion, rebalance, ENGINE_DATA_DATE);
                 return (
                   <div key={item.skillId} className="cmp-wishlist-line">
                     {summary ? (
@@ -1010,7 +1020,9 @@ export function PlannerSidebar({
                         value={currentVer}
                         title={
                           isPinned
-                            ? `Pinned — sims use v${item.skillVer} parameters`
+                            ? pinnedSimUnavailable
+                              ? `Pinned v${item.skillVer} — pre-patch values unavailable in sim; sims use the engine's built-in values`
+                              : `Pinned — sims use v${item.skillVer} parameters`
                             : undefined
                         }
                         onChange={(e) => {
