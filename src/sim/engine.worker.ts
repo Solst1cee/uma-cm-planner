@@ -1,32 +1,36 @@
-import { evalSkillDelta, runVacuumCompare, runPlannerCompare, runSkillTrace, skillImpact, runRaceCompare } from './run';
+// The real Worker entry point. Kicks off the wasm engine init immediately on
+// module load (Vite's `?url` import emits the wasm as a hashed asset — this
+// is the ONLY file that imports it, keeping every other chunk lazy/engine-free)
+// and awaits it at the head of the message handler, so requests arriving
+// before init completes are QUEUED (via promise chaining), never dropped.
+//
+// Deliberately no client-side ready-handshake: the protocol (`SimRequest` in,
+// `SimResponse` out) is unchanged from before this task. `handleSimRequest`
+// itself lives in `./worker-core` (not here) so node-environment tests can
+// import the pure dispatcher without pulling in this `?url` asset import,
+// which needs a real fetchable URL that only exists under a real Worker/browser
+// (or the Vite dev/build pipeline) — not plain node vitest.
+import wasmUrl from './vendor/pkg/uma_sim_wasm_bg.wasm?url';
+import { initEngineFromUrl } from './init';
+import { handleSimRequest } from './worker-core';
 import type { SimRequest, SimResponse } from './types';
 
-/** Pure request handler — unit-testable without a real Worker. */
-export function handleSimRequest(req: SimRequest): SimResponse {
-  try {
-    switch (req.kind) {
-      case 'skillDelta':
-        return { id: req.id, ok: true, kind: 'skillDelta', stats: evalSkillDelta(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'planner':
-        return { id: req.id, ok: true, kind: 'planner', stats: runPlannerCompare(req.build, req.race, req.candidateSkills, req.nsamples, req.seed) };
-      case 'vacuum':
-        return { id: req.id, ok: true, kind: 'vacuum', stats: runVacuumCompare(req.a, req.b, req.race, req.nsamples, req.seed, req.opts) };
-      case 'skillTrace':
-        return { id: req.id, ok: true, kind: 'skillTrace', trace: runSkillTrace(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'skillImpact':
-        return { id: req.id, ok: true, kind: 'skillImpact', impact: skillImpact(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'raceCompare':
-        return { id: req.id, ok: true, kind: 'raceCompare', result: runRaceCompare(req.uma1, req.uma2, req.race, req.nsamples, req.seed) };
-    }
-  } catch (e) {
-    return { id: req.id, ok: false, error: e instanceof Error ? e.message : String(e) };
-  }
-}
+const ready = initEngineFromUrl(wasmUrl);
 
-// Worker shell (ignored under the node test environment, which has no `self`).
 declare const self: { onmessage: ((e: { data: SimRequest }) => void) | null; postMessage: (m: SimResponse) => void } | undefined;
 if (typeof self !== 'undefined' && 'postMessage' in (self as object)) {
-  (self as NonNullable<typeof self>).onmessage = (e) => {
-    (self as NonNullable<typeof self>).postMessage(handleSimRequest(e.data));
+  const worker = self as NonNullable<typeof self>;
+  worker.onmessage = (e) => {
+    const req = e.data;
+    // Await init before dispatching; on init failure, reply with an honest
+    // error SimResponse instead of leaving the caller's promise hanging.
+    ready
+      .then(() => handleSimRequest(req))
+      .catch((err: unknown): SimResponse => ({
+        id: req.id,
+        ok: false,
+        error: `sim engine failed to initialize: ${err instanceof Error ? err.message : String(err)}`,
+      }))
+      .then((res) => worker.postMessage(res));
   };
 }

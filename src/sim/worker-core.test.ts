@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll } from 'vitest';
-import { handleSimRequest } from './engine.worker';
+import { handleSimRequest } from './worker-core';
 import { initEngineFromFs } from './init';
 import type { SimBuild } from './types';
 
