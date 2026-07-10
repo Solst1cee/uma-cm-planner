@@ -1630,6 +1630,55 @@ var require_shim = __commonJS({
 // __sim_wasm_entry.ts
 init_define_import_meta_env();
 
+// src/polyfills.ts
+init_define_import_meta_env();
+if (!Array.prototype.toSorted) {
+  Object.defineProperty(Array.prototype, "toSorted", {
+    value: function toSorted(compareFn) {
+      return [...this].sort(compareFn);
+    },
+    writable: true,
+    configurable: true
+  });
+}
+if (!Array.prototype.toReversed) {
+  Object.defineProperty(Array.prototype, "toReversed", {
+    value: function toReversed() {
+      return [...this].reverse();
+    },
+    writable: true,
+    configurable: true
+  });
+}
+if (!Array.prototype.at) {
+  Object.defineProperty(Array.prototype, "at", {
+    value: function at(index) {
+      const normalizedIndex = index >= 0 ? index : this.length + index;
+      if (normalizedIndex < 0 || normalizedIndex >= this.length) {
+        return void 0;
+      }
+      return this[normalizedIndex];
+    },
+    writable: true,
+    configurable: true
+  });
+}
+var cryptoRef = globalThis.crypto;
+if (cryptoRef && !cryptoRef.randomUUID) {
+  Object.defineProperty(cryptoRef, "randomUUID", {
+    value: function randomUUID() {
+      const bytes = new Uint8Array(16);
+      cryptoRef.getRandomValues(bytes);
+      bytes[6] = bytes[6] & 15 | 64;
+      bytes[8] = bytes[8] & 63 | 128;
+      const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0"));
+      return `${hex[0]}${hex[1]}${hex[2]}${hex[3]}-${hex[4]}${hex[5]}-${hex[6]}${hex[7]}-${hex[8]}${hex[9]}-${hex[10]}${hex[11]}${hex[12]}${hex[13]}${hex[14]}${hex[15]}`;
+    },
+    writable: true,
+    configurable: true
+  });
+}
+
 // ../../../.claude/worktrees/sim-wasm-replatform/src/sim/vendor/pkg/uma_sim_wasm.js
 init_define_import_meta_env();
 var WasmRaceSimulator = class {

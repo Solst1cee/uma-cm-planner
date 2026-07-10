@@ -2,7 +2,9 @@
 // shared idempotent core; `initEngineFromFs` (Node — tests, headless scripts)
 // and `initEngineFromUrl` (worker/browser) are the two real entry points, and
 // both funnel through `initEngine` so a second call anywhere returns the SAME
-// promise (never re-inits, never re-reads/re-fetches the wasm bytes).
+// promise (never re-inits, never re-reads/re-fetches the wasm bytes) — except
+// after a REJECTED attempt, which clears the memo at every layer so the next
+// call retries instead of the engine staying permanently dead.
 //
 // Like the rest of `src/sim`, this module statically imports the vendor
 // bundle (see `adapter.ts`'s precedent) — the lazy-engine discipline is
@@ -24,14 +26,20 @@ let ready: Promise<void> | null = null;
 /**
  * Initialize the wasm engine exactly once. `source`, when given, is a
  * precompiled `WebAssembly.Module` (skips wasm-bindgen's own fetch+compile).
- * Idempotent: every call after the first returns the SAME promise, regardless
- * of `source` — the engine only ever gets initialized once per realm.
+ * Idempotent on SUCCESS: every call after the first returns the SAME promise,
+ * regardless of `source` — the engine only ever gets initialized once per
+ * realm. A REJECTED init clears the memo, so the next call retries instead of
+ * replaying a permanently-rejected cached promise forever (the two entry
+ * points below follow the same pattern for their own memos).
  */
 export function initEngine(source?: WebAssembly.Module): Promise<void> {
   if (!ready) {
     ready = (async () => {
       await initWasm(source === undefined ? undefined : { module_or_path: source });
-    })();
+    })().catch((err: unknown) => {
+      ready = null;
+      throw err;
+    });
   }
   return ready;
 }
@@ -42,7 +50,8 @@ let fsReady: Promise<void> | null = null;
  * Node-only: read the committed wasm bytes from disk, compile, then init.
  * Memoized independently of `initEngine`'s own idempotency — a second call
  * returns the SAME promise instantly, without re-reading the file or
- * re-compiling the module (not just "the engine only inits once").
+ * re-compiling the module (not just "the engine only inits once"). A rejected
+ * attempt clears the memo so the next call retries from the read.
  */
 export function initEngineFromFs(): Promise<void> {
   if (typeof process === 'undefined') {
@@ -60,7 +69,10 @@ export function initEngineFromFs(): Promise<void> {
       const bytes = readFileSync(wasmPath);
       const compiled = await WebAssembly.compile(bytes);
       await initEngine(compiled);
-    })();
+    })().catch((err: unknown) => {
+      fsReady = null;
+      throw err;
+    });
   }
   return fsReady;
 }
@@ -71,9 +83,11 @@ let urlReady: Promise<void> | null = null;
  * Worker/browser: fetch + compile the wasm asset from a URL (e.g. Vite's
  * `?url` import of `vendor/pkg/uma_sim_wasm_bg.wasm`), then init. Memoized
  * the same way as `initEngineFromFs` — a second call (even with a different
- * `url`) returns the SAME promise instantly, no re-fetch. Prefers
- * `compileStreaming`; falls back to a plain fetch+buffer+compile if streaming
- * compilation isn't available or the response's Content-Type isn't
+ * `url`) returns the SAME promise instantly, no re-fetch. A rejected attempt
+ * (e.g. a transient network failure in the worker) clears the memo so the
+ * next call retries the fetch instead of the engine staying dead forever.
+ * Prefers `compileStreaming`; falls back to a plain fetch+buffer+compile if
+ * streaming compilation isn't available or the response's Content-Type isn't
  * `application/wasm` (mirrors the pkg glue's own internal fallback).
  */
 export function initEngineFromUrl(url: string): Promise<void> {
@@ -87,7 +101,10 @@ export function initEngineFromUrl(url: string): Promise<void> {
         compiled = await WebAssembly.compile(bytes);
       }
       await initEngine(compiled);
-    })();
+    })().catch((err: unknown) => {
+      urlReady = null;
+      throw err;
+    });
   }
   return urlReady;
 }

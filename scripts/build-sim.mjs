@@ -32,14 +32,22 @@ const OUT = path.join(ROOT, 'src/sim/vendor/umalator-wasm.bundle.mjs');
 const PKG_JS = path.join(ROOT, 'src/sim/vendor/pkg/uma_sim_wasm.js');
 
 const entrySource = [
+  // Language-level polyfills the bundled code relies on
+  // (Array.prototype.toSorted/toReversed/at + crypto.randomUUID — e.g.
+  // CourseService.getSimCourse calls toSorted). Kept from the old entry, same
+  // as upstream's own app entry; each shim is guarded, so it is a no-op on
+  // runtimes that already ship these natively (Node >= 20, current browsers).
+  "import '@/polyfills';",
+  '',
   // -- wasm-pack pkg glue (aliased below to the committed pkg build; bundled,
   // not external — its own `new URL('uma_sim_wasm_bg.wasm', import.meta.url)`
   // fallback fetch path is expected to stay unused, since src/sim/init.ts
   // always calls initWasm with an explicit precompiled module). --
   "export { default as initWasm, runCompare } from 'uma-sim-wasm-pkg';",
   '',
-  '// -- data bootstrap (mirrors the clone\'s src/test-setup.ts, minus the DOM',
-  '// storage polyfills that only matter for browser-only consumers) --',
+  "// -- data bootstrap (mirrors the clone's src/test-setup.ts data half; the",
+  '// test-setup file also installs Node DOM-storage shims, which nothing in',
+  '// this bundle reads, so those are omitted) --',
   "import skillsJson from '@/modules/data/json/skills.json';",
   "import gametoraSkillsJson from '@/modules/data/json/gametora/skills.json';",
   "import masterSupportCardsJson from '@/modules/data/json/support-cards.json';",
