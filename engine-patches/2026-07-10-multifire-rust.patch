@@ -1,0 +1,623 @@
+diff --git a/packages/uma-sim-primitives/src/runner/lifecycle.rs b/packages/uma-sim-primitives/src/runner/lifecycle.rs
+index 70fc243..389bed2 100644
+--- a/packages/uma-sim-primitives/src/runner/lifecycle.rs
++++ b/packages/uma-sim-primitives/src/runner/lifecycle.rs
+@@ -274,11 +274,13 @@ impl Runner {
+             used_targeted_skills: Vec::new(),
+             emitted_debuffs: Vec::new(),
+             pending_skills: Vec::new(),
++            skill_last_fire_time: Vec::new(),
+             pending_targeted_skills: Vec::new(),
+             pending_skill_removal: std::collections::HashSet::new(),
+             course_distance: course.distance,
+             horse_lane: course.horse_lane,
+             wit_checks_enabled: true,
++            cooldown_reactivation: true,
+             stamina_drain_overrides: HashMap::new(),
+             position_keep_state: PositionKeepState::None,
+             pos_keep_speed_coef: 1.0,
+diff --git a/packages/uma-sim-primitives/src/runner/mod.rs b/packages/uma-sim-primitives/src/runner/mod.rs
+index f41bc8e..d21f54c 100644
+--- a/packages/uma-sim-primitives/src/runner/mod.rs
++++ b/packages/uma-sim-primitives/src/runner/mod.rs
+@@ -434,6 +434,17 @@ pub struct Runner {
+     pub emitted_debuffs: Vec<crate::skills::model::EmittedDebuff>,
+     /// Pending self-skills awaiting their trigger.
+     pub pending_skills: Vec<PendingSkill>,
++    /// Per-skill-id time (in accumulated race seconds) of the last activation,
++    /// used by the distance-scaled cooldown gate for multi-fire skills. Reset
++    /// each round in `initialize_skill_tracking`. A `Vec` rather than a
++    /// `HashMap` on purpose: in the wasm build `HashMap::new()` draws from a
++    /// deterministic thread-local `RandomState` counter, so adding one more
++    /// per-runner map would shift every subsequently-seeded map's iteration
++    /// order (e.g. the per-frame field-order map) and silently perturb the
++    /// flag-OFF simulation. A `Vec` keeps the byte-identical OFF fallback (only
++    /// a handful of short-cooldown skills ever populate it, so the linear scan
++    /// is trivial).
++    pub skill_last_fire_time: Vec<(String, f64)>,
+     /// Pending targeted skills awaiting their trigger.
+     pub pending_targeted_skills: Vec<PendingTargetedSkill>,
+     /// Skill ids flagged for removal next activation pass.
+@@ -448,6 +459,10 @@ pub struct Runner {
+     // --- skill activation settings ---
+     /// Whether wit checks gate non-green/non-unique skill activation.
+     pub wit_checks_enabled: bool,
++    /// Whether short-cooldown corner/straight skills may re-activate within a
++    /// race (distance-scaled cooldown). Default ON; OFF reproduces upstream
++    /// single-fire exactly.
++    pub cooldown_reactivation: bool,
+     /// Per-base-skill stamina-drain (recovery) override modifiers.
+     pub stamina_drain_overrides: HashMap<String, f64>,
+ 
+diff --git a/packages/uma-sim-primitives/src/runner/physics.rs b/packages/uma-sim-primitives/src/runner/physics.rs
+index 22df7e8..de010bd 100644
+--- a/packages/uma-sim-primitives/src/runner/physics.rs
++++ b/packages/uma-sim-primitives/src/runner/physics.rs
+@@ -299,7 +299,22 @@ impl Runner {
+             strategy: self.strategy,
+         };
+         let conditions = std::mem::take(&mut self.conditions);
+-        for (name, condition) in &conditions {
++        // Determinism fix (multi-fire port, 2026-07-10): iterate the approximate
++        // conditions in a *stable* (name-sorted) order rather than raw `HashMap`
++        // order. Each `condition.update` below draws from `self.rng`, so the draw
++        // order between `blocked_side` and `overtake` decides which condition gets
++        // which random value. On `wasm32-unknown-unknown` the `HashMap`
++        // `RandomState` seed is derived deterministically but *from binary
++        // layout*, so any code change (this multi-fire patch included) reshuffles
++        // that order and silently perturbs the lateral-lane telemetry
++        // (`currentLane`) — every race-determining output is unaffected, but it
++        // breaks byte-for-byte reproducibility across rebuilds. Sorting makes the
++        // engine layout-independent so the flag-OFF path is byte-identical to a
++        // clean pin built with this same fix.
++        let mut names: Vec<&String> = conditions.keys().collect();
++        names.sort();
++        for name in names {
++            let condition = &conditions[name];
+             let current = self
+                 .condition_values
+                 .get(name)
+diff --git a/packages/uma-sim-primitives/src/runner/skills.rs b/packages/uma-sim-primitives/src/runner/skills.rs
+index 9ef96b4..b36646d 100644
+--- a/packages/uma-sim-primitives/src/runner/skills.rs
++++ b/packages/uma-sim-primitives/src/runner/skills.rs
+@@ -263,6 +263,7 @@ pub fn build_skill_data(params: &BuildSkillDataParams<'_>) -> Vec<SkillTrigger>
+                 sample_policy: parsed_op.sample_policy(),
+                 regions,
+                 effects,
++                cooldown_time: alt.cooldown_time.unwrap_or(5_000_000.0),
+                 extra_condition,
+                 target_strategy: derive_target_strategy(&alt.condition),
+             });
+@@ -290,6 +291,7 @@ pub fn build_skill_data(params: &BuildSkillDataParams<'_>) -> Vec<SkillTrigger>
+         sample_policy: ActivationSamplePolicy::Immediate,
+         regions: after_end,
+         effects,
++        cooldown_time: 5_000_000.0,
+         extra_condition: Some(DynamicCondition::new(|_| false)),
+         target_strategy: None,
+     }]
+@@ -347,6 +349,7 @@ impl Runner {
+         self.emitted_debuffs.clear();
+         self.pending_skill_removal.clear();
+         self.pending_skills.clear();
++        self.skill_last_fire_time.clear();
+         self.pending_targeted_skills.clear();
+ 
+         let eval_runner = self.skill_eval_runner();
+@@ -365,10 +368,46 @@ impl Runner {
+             });
+             for trigger in triggers {
+                 let base = trigger.skill_id.base().to_owned();
+-                let policy = match self.forced_positions.get(&base) {
+-                    Some(&pos) => ActivationSamplePolicy::Fixed(pos),
++                let forced = self.forced_positions.get(&base).copied();
++                let policy = match forced {
++                    Some(pos) => ActivationSamplePolicy::Fixed(pos),
+                     None => trigger.sample_policy,
+                 };
++
++                // Multi-fire: an eligible short-cooldown corner/straight skill
++                // (not forced) emits one pending trigger per candidate window;
++                // the cooldown gate in `process_skill_activations` then decides
++                // which of them actually fire. Ineligible skills and the flag-OFF
++                // path fall through to the single-sample branch below, byte-for-
++                // byte as upstream.
++                if self.cooldown_reactivation
++                    && forced.is_none()
++                    && policy.is_multi_fire_policy()
++                    && trigger.cooldown_time < 5_000_000.0
++                {
++                    let sets = policy.sample_multi(
++                        &trigger.regions,
++                        ctx.skill_samples,
++                        &mut *self.skill_rng,
++                    );
++                    if sets.is_empty() {
++                        continue;
++                    }
++                    let windows = &sets[ctx.round_iteration % sets.len()];
++                    for &window in windows {
++                        pending.push(PendingSkill {
++                            skill_id: trigger.skill_id.clone(),
++                            rarity: trigger.rarity,
++                            trigger: window,
++                            effects: trigger.effects.clone(),
++                            cooldown_time: trigger.cooldown_time,
++                            extra_condition: trigger.extra_condition.clone(),
++                            target_strategy: trigger.target_strategy,
++                        });
++                    }
++                    continue;
++                }
++
+                 let samples =
+                     policy.sample(&trigger.regions, ctx.skill_samples, &mut *self.skill_rng);
+                 if samples.is_empty() {
+@@ -380,6 +419,7 @@ impl Runner {
+                     rarity: trigger.rarity,
+                     trigger: trigger_region,
+                     effects: trigger.effects,
++                    cooldown_time: trigger.cooldown_time,
+                     extra_condition: trigger.extra_condition,
+                     target_strategy: trigger.target_strategy,
+                 });
+@@ -463,6 +503,28 @@ impl Runner {
+         self.process_skill_activations(&field, course_distance);
+     }
+ 
++    /// The accumulated race time this skill last fired, if it has fired this
++    /// round (linear scan over the tiny multi-fire bookkeeping vec).
++    fn last_fire_time(&self, skill_id: &str) -> Option<f64> {
++        self.skill_last_fire_time
++            .iter()
++            .find(|(id, _)| id == skill_id)
++            .map(|(_, t)| *t)
++    }
++
++    /// Record `skill_id`'s latest fire time (updating in place, else appending).
++    fn record_fire(&mut self, skill_id: &str, time: f64) {
++        if let Some(entry) = self
++            .skill_last_fire_time
++            .iter_mut()
++            .find(|(id, _)| id == skill_id)
++        {
++            entry.1 = time;
++        } else {
++            self.skill_last_fire_time.push((skill_id.to_owned(), time));
++        }
++    }
++
+     /// Process self-skill activations for this tick.
+     pub(crate) fn process_skill_activations(&mut self, field: &FieldView, course_distance: f64) {
+         self.cleanup_expired_self_skills();
+@@ -485,10 +547,35 @@ impl Runner {
+             }
+ 
+             if self.position >= trigger.start && self.pending_extra_passes(i, field) {
++                // Cooldown gate: suppress a re-fire that is still within the
++                // distance-scaled cooldown, measured against real accumulated
++                // race time. Consume the trigger without firing (and without
++                // spending a wit roll). Flag OFF short-circuits the whole gate,
++                // and with only one pending window per skill (the upstream path)
++                // there is never a prior fire to gate against — so this is inert
++                // for every non-multi-fire skill.
++                if self.cooldown_reactivation {
++                    if let Some(last) = self.last_fire_time(&skill_id) {
++                        let cooldown_time = self.pending_skills[i].cooldown_time;
++                        let effective_cooldown =
++                            (cooldown_time / 10000.0) * (course_distance / 1000.0);
++                        if self.accumulate_time.t - last < effective_cooldown {
++                            self.pending_skills.remove(i);
++                            continue;
++                        }
++                    }
++                }
++
+                 let skip = self.should_skip_wit_check_at(i);
+                 if skip || self.do_wit_check() {
+                     let skill = self.pending_skills[i].clone();
+                     self.activate_skill(&skill, course_distance);
++                    // Record the fire only when the gate is active. The flag-OFF
++                    // path touches none of the multi-fire bookkeeping, keeping it
++                    // byte-identical to upstream.
++                    if self.cooldown_reactivation {
++                        self.record_fire(&skill_id, self.accumulate_time.t);
++                    }
+                 }
+                 self.pending_skills.remove(i);
+             }
+@@ -916,6 +1003,7 @@ fn drain_expired_targeted(skills: &mut Vec<ActiveTargetedSkill>) -> Vec<f64> {
+ #[cfg(test)]
+ mod tests {
+     use super::*;
++    use crate::course::model::{Corner, CourseData};
+     use crate::runner::lifecycle::{CreateRunner, RunnerAptitudes};
+     use crate::runner::test_support::{test_course, test_race_params, test_whole_course};
+     use crate::shared_kernel::ids::{RunnerId, SkillId};
+@@ -1369,4 +1457,135 @@ mod tests {
+         assert!(r.target_speed_skills_active.is_empty());
+         assert!(r.modifiers.target_speed.total().abs() < 1e-9);
+     }
++
++    /// A 2-corner long course: corner regions `[400,500)` and `[1600,1700)`,
++    /// well separated in distance (and time) so an `all_corner_random` skill has
++    /// two candidate windows.
++    fn corner_course() -> CourseData {
++        let mut course = test_course();
++        course.corners = vec![
++            Corner {
++                start: 400.0,
++                length: 100.0,
++            },
++            Corner {
++                start: 1600.0,
++                length: 100.0,
++            },
++        ];
++        course
++    }
++
++    /// A Corner Adept ○-shaped skill (`200332`): `all_corner_random==1`,
++    /// TargetSpeed effect, short cooldown. `cooldown` is the raw (×10000)
++    /// cooldown value.
++    fn corner_skill(id: &str, cooldown: f64) -> Skill {
++        Skill {
++            skill_id: SkillId::new(id),
++            rarity: SkillRarity::Gold,
++            alternatives: vec![SkillAlternative {
++                base_duration: 24000.0,
++                cooldown_time: Some(cooldown),
++                condition: "all_corner_random==1".to_owned(),
++                precondition: Some(String::new()),
++                effects: vec![RawSkillEffect {
++                    modifier: 1500.0,
++                    target: SkillTarget::SelfTarget,
++                    effect_type: 27, // TargetSpeed
++                    value_usage: Some(1),
++                    value_level_usage: Some(1),
++                }],
++            }],
++        }
++    }
++
++    /// Prepare a runner carrying `skill` on the 2-corner course with the given
++    /// `cooldown_reactivation` flag, then drive it frame-by-frame at a steady
++    /// 20 m/s through the whole course (advancing real accumulated time so the
++    /// cooldown gate sees true elapsed seconds), returning the number of times
++    /// the skill activated.
++    fn drive_corner_skill(skill: Skill, cooldown_reactivation: bool) -> i64 {
++        let course = corner_course();
++        let catalog = build_catalog();
++        let parser = ConditionParser::new(&catalog);
++        let rp = test_race_params();
++        let wc = test_whole_course(&course);
++        let props = CreateRunner {
++            outfit_id: "100302".to_owned(),
++            name: "Test".to_owned(),
++            mood: Mood::Normal,
++            strategy: Strategy::PaceChaser,
++            popularity: 0,
++            aptitudes: RunnerAptitudes {
++                distance: Aptitude::A,
++                strategy: Aptitude::A,
++                surface: Aptitude::A,
++            },
++            stats: StatLine {
++                speed: 1000,
++                stamina: 1000,
++                power: 1000,
++                guts: 1000,
++                wit: 800,
++            },
++            skills: vec![skill],
++            forced_positions: HashMap::new(),
++            injected_debuffs: vec![],
++            forced_rushed_regions: vec![],
++            forced_dueling_regions: vec![],
++            forced_spot_struggle_regions: vec![],
++            forced_rank: vec![],
++        };
++        let mut r = Runner::create(
++            RunnerId(0),
++            &course,
++            GroundCondition::Firm,
++            props,
++            Box::new(NoopStaminaPolicy),
++            Box::new(Xoshiro256StarStar::from_u32_seed(1)),
++        );
++        // The flag must be set before `on_prepare` (multi-emit happens there).
++        r.cooldown_reactivation = cooldown_reactivation;
++        let ctx = PrepareContext {
++            course: &course,
++            base_speed: 19.6,
++            condition_resolution: ConditionResolution::Dynamic,
++            pos_keep_end_multiplier: 3.0,
++            race_params: &rp,
++            whole_course: &wc,
++            parser: &parser,
++            skill_samples: 4,
++            round_iteration: 0,
++        };
++        r.on_prepare(Box::new(Xoshiro256StarStar::from_u64_seed(7)), &ctx);
++        r.wit_checks_enabled = false;
++
++        let field = FieldView::at_gate();
++        let dt = 1.0 / 15.0;
++        let mut pos = 0.0;
++        let mut t = 0.0;
++        while pos < course.distance {
++            pos += 20.0 * dt;
++            t += dt;
++            r.position = pos;
++            r.accumulate_time.t = t;
++            r.process_skill_activations(&field, course.distance);
++        }
++        r.skills_activated_count
++    }
++
++    #[test]
++    fn cooldown_reactivation_multi_fires_corner_skill() {
++        // Flag OFF reproduces upstream single-fire exactly (one activation for
++        // the whole race, no matter how many corners).
++        let off = drive_corner_skill(corner_skill("200332", 2000.0), false);
++        assert_eq!(off, 1, "flag OFF must reproduce single-fire");
++
++        // Flag ON: the short-cooldown all_corner_random skill re-activates across
++        // the two corners (>= 2 activations). With cooldown 2000 the distance-
++        // scaled effective cooldown is ~0.48s, so every emitted candidate window
++        // fires — isolating the multi-emit behavior from the timing gate.
++        let on = drive_corner_skill(corner_skill("200332", 2000.0), true);
++        assert!(on >= 2, "flag ON must multi-fire across corners (got {on})");
++    }
+ }
+diff --git a/packages/uma-sim-primitives/src/skills/activation.rs b/packages/uma-sim-primitives/src/skills/activation.rs
+index 891ebca..b2d52e4 100644
+--- a/packages/uma-sim-primitives/src/skills/activation.rs
++++ b/packages/uma-sim-primitives/src/skills/activation.rs
+@@ -186,14 +186,15 @@ impl ActivationSamplePolicy {
+         out
+     }
+ 
+-    /// Place up to four triggers across the corners, returning the earliest
+-    /// (`AllCornerRandomPolicy::placeTriggers`). Returns [`Region::INVALID`] when
+-    /// no trigger could be placed.
+-    fn place_triggers(regions: &RegionList, rng: &mut dyn Prng) -> Region {
++    /// Place up to four ordered trigger positions across the corners
++    /// (`AllCornerRandomPolicy::placeTriggerPositions`). Each is a random point
++    /// in a random remaining corner, kept in course order. Returns an empty
++    /// vector when no trigger could be placed.
++    fn place_trigger_positions(regions: &RegionList, rng: &mut dyn Prng) -> Vec<f64> {
+         let mut candidates = regions.0.clone();
+         candidates.sort_by(|a, b| a.start.total_cmp(&b.start));
+ 
+-        let mut first_trigger: Option<f64> = None;
++        let mut positions = Vec::new();
+         let mut placed = 0;
+         while placed < 4 && !candidates.is_empty() {
+             let idx = rng.uniform(candidates.len() as u32) as usize;
+@@ -209,18 +210,84 @@ impl ActivationSamplePolicy {
+             // Everything before this corner is guaranteed earlier in distance.
+             candidates.drain(0..idx);
+ 
+-            if first_trigger.is_none() {
+-                first_trigger = Some(start);
+-            }
++            positions.push(start);
+             placed += 1;
+         }
++        positions
++    }
+ 
+-        match first_trigger {
+-            Some(start) => Region::new(start, start + 10.0),
++    /// Place up to four triggers across the corners, returning the earliest
++    /// (`AllCornerRandomPolicy::placeTriggers`). Returns [`Region::INVALID`] when
++    /// no trigger could be placed. Consumes RNG identically to
++    /// [`place_trigger_positions`](Self::place_trigger_positions) (it *is* that
++    /// full placement, keeping only the first), so the single-fire path is
++    /// byte-for-byte unchanged.
++    fn place_triggers(regions: &RegionList, rng: &mut dyn Prng) -> Region {
++        match Self::place_trigger_positions(regions, rng).first() {
++            Some(&start) => Region::new(start, start + 10.0),
+             None => Region::INVALID,
+         }
+     }
+ 
++    /// Whether this policy can surface *multiple* candidate trigger windows for
++    /// cooldown-based multi-fire (static course-geometry windows the vacuum sim
++    /// knows exactly). Only corner-random / straight-random qualify.
++    pub fn is_multi_fire_policy(&self) -> bool {
++        matches!(
++            self,
++            ActivationSamplePolicy::AllCornerRandom | ActivationSamplePolicy::StraightRandom
++        )
++    }
++
++    /// Sample, per draw, the **full set** of candidate trigger windows for a
++    /// multi-fire (short-cooldown corner/straight) skill — one `Vec<Region>` per
++    /// of `nsamples` draws. Only [`AllCornerRandom`](Self::AllCornerRandom) and
++    /// [`StraightRandom`](Self::StraightRandom) produce sets; every other policy
++    /// returns an empty outer vector (they are never multi-fire eligible). The
++    /// runner emits one pending trigger per window in the chosen set, and the
++    /// distance-scaled cooldown gate decides which actually fire.
++    pub fn sample_multi(
++        &self,
++        regions: &RegionList,
++        nsamples: usize,
++        rng: &mut dyn Prng,
++    ) -> Vec<Vec<Region>> {
++        match self {
++            ActivationSamplePolicy::AllCornerRandom => (0..nsamples)
++                .map(|_| {
++                    Self::place_trigger_positions(regions, rng)
++                        .into_iter()
++                        .map(|p| Region::new(p, p + 10.0))
++                        .collect()
++                })
++                .collect(),
++            ActivationSamplePolicy::StraightRandom => (0..nsamples)
++                .map(|_| Self::sample_straight_multi(regions, rng))
++                .collect(),
++            _ => Vec::new(),
++        }
++    }
++
++    /// Multi-window straight sampling: pick a random first straight, then place
++    /// one random trigger in it and in every straight after it (course order).
++    /// Mirrors `StraightRandomPolicy::sampleMulti`.
++    fn sample_straight_multi(regions: &RegionList, rng: &mut dyn Prng) -> Vec<Region> {
++        if regions.0.is_empty() {
++            return Vec::new();
++        }
++        let mut sorted = regions.0.clone();
++        sorted.sort_by(|a, b| a.start.total_cmp(&b.start));
++        let start_idx = rng.uniform(sorted.len() as u32) as usize;
++        sorted[start_idx..]
++            .iter()
++            .map(|region| {
++                let span = (region.len() - 10.0).max(0.0);
++                let pos = region.start + f64::from(rng.uniform(span as u32));
++                Region::new(pos, pos + 10.0)
++            })
++            .collect()
++    }
++
+     /// Shared distribution-random sampling (`DistributionRandomPolicy::sample`).
+     fn sample_distribution(
+         &self,
+diff --git a/packages/uma-sim-primitives/src/skills/model.rs b/packages/uma-sim-primitives/src/skills/model.rs
+index db7192d..178b224 100644
+--- a/packages/uma-sim-primitives/src/skills/model.rs
++++ b/packages/uma-sim-primitives/src/skills/model.rs
+@@ -149,6 +149,10 @@ pub struct SkillTrigger {
+     pub regions: RegionList,
+     /// Effects applied on activation.
+     pub effects: Vec<SkillEffect>,
++    /// Base cooldown between activations in raw (×10000) units. `5_000_000`
++    /// (≈ once-per-race) when the data carries no cooldown. Drives the
++    /// distance-scaled cooldown gate for multi-fire (short-cooldown) skills.
++    pub cooldown_time: f64,
+     /// Extra runtime gate evaluated each tick (`None` == always-true).
+     pub extra_condition: Option<DynamicCondition>,
+     /// For `EnemyStrategy`-targeted (and Kakari-strategy) external debuffs, the
+@@ -171,6 +175,10 @@ pub struct PendingSkill {
+     pub trigger: Region,
+     /// Effects applied on activation.
+     pub effects: Vec<SkillEffect>,
++    /// Base cooldown between activations in raw (×10000) units (see
++    /// [`SkillTrigger::cooldown_time`]). Read by the distance-scaled cooldown
++    /// gate in `process_skill_activations`.
++    pub cooldown_time: f64,
+     /// Extra runtime gate evaluated each tick (`None` == always-true).
+     pub extra_condition: Option<DynamicCondition>,
+     /// Derived target running style for `EnemyStrategy` external debuffs (see
+diff --git a/packages/uma-sim-race/src/race.rs b/packages/uma-sim-race/src/race.rs
+index c643e36..786fe6c 100644
+--- a/packages/uma-sim-race/src/race.rs
++++ b/packages/uma-sim-race/src/race.rs
+@@ -60,6 +60,10 @@ pub struct SimulationSettings {
+     pub dueling: bool,
+     /// Whether wit checks gate skill activation.
+     pub wit_checks: bool,
++    /// Whether short-cooldown corner/straight skills may re-activate within a
++    /// race (distance-scaled cooldown). Default ON; OFF reproduces upstream
++    /// single-fire exactly.
++    pub cooldown_reactivation: bool,
+     /// Position-keep mode (`2` enables virtual position keeping).
+     pub position_keep_mode: i32,
+     /// Number of activation samples drawn per skill trigger.
+@@ -79,6 +83,7 @@ impl Default for SimulationSettings {
+             spot_struggle: true,
+             dueling: true,
+             wit_checks: true,
++            cooldown_reactivation: true,
+             position_keep_mode: 2,
+             skill_samples: 1,
+             stamina_drain_overrides: HashMap::new(),
+@@ -265,6 +270,7 @@ impl Race {
+             };
+             runner.health_policy = policy;
+             runner.wit_checks_enabled = self.settings.wit_checks;
++            runner.cooldown_reactivation = self.settings.cooldown_reactivation;
+             runner.dueling_enabled = self.settings.dueling;
+             runner.spot_struggle_enabled = self.settings.spot_struggle;
+             runner.downhill_enabled = self.settings.downhill;
+diff --git a/packages/uma-sim-vacuum/src/race.rs b/packages/uma-sim-vacuum/src/race.rs
+index c00d80e..683c185 100644
+--- a/packages/uma-sim-vacuum/src/race.rs
++++ b/packages/uma-sim-vacuum/src/race.rs
+@@ -60,6 +60,10 @@ pub struct SimulationSettings {
+     pub dueling: bool,
+     /// Whether wit checks gate skill activation.
+     pub wit_checks: bool,
++    /// Whether short-cooldown corner/straight skills may re-activate within a
++    /// race (distance-scaled cooldown). Default ON; OFF reproduces upstream
++    /// single-fire exactly.
++    pub cooldown_reactivation: bool,
+     /// Position-keep mode (`2` enables virtual position keeping).
+     pub position_keep_mode: i32,
+     /// Number of activation samples drawn per skill trigger.
+@@ -79,6 +83,7 @@ impl Default for SimulationSettings {
+             spot_struggle: true,
+             dueling: true,
+             wit_checks: true,
++            cooldown_reactivation: true,
+             position_keep_mode: 2,
+             skill_samples: 1,
+             stamina_drain_overrides: HashMap::new(),
+@@ -252,6 +257,7 @@ impl Race {
+             };
+             runner.health_policy = policy;
+             runner.wit_checks_enabled = self.settings.wit_checks;
++            runner.cooldown_reactivation = self.settings.cooldown_reactivation;
+             runner.dueling_enabled = self.settings.dueling;
+             runner.spot_struggle_enabled = self.settings.spot_struggle;
+             runner.downhill_enabled = self.settings.downhill;
+diff --git a/packages/uma-sim-wasm/src/dto.rs b/packages/uma-sim-wasm/src/dto.rs
+index ab9a0e8..48fed50 100644
+--- a/packages/uma-sim-wasm/src/dto.rs
++++ b/packages/uma-sim-wasm/src/dto.rs
+@@ -686,6 +686,10 @@ pub struct WasmSettings {
+     /// Wit checks.
+     #[serde(default)]
+     pub wit_checks: Option<bool>,
++    /// Cooldown-based multi-fire for short-cooldown corner/straight skills
++    /// (default ON; `false` reproduces upstream single-fire exactly).
++    #[serde(default)]
++    pub cooldown_reactivation: Option<bool>,
+     /// Skill sample budget.
+     #[serde(default)]
+     pub skill_samples: Option<usize>,
+@@ -711,6 +715,7 @@ struct ResolvedSettings {
+     spot_struggle: bool,
+     dueling: bool,
+     wit_checks: bool,
++    cooldown_reactivation: bool,
+     position_keep_mode: i32,
+     skill_samples: usize,
+     stamina_drain_overrides: HashMap<String, f64>,
+@@ -727,6 +732,7 @@ impl WasmSettings {
+             spot_struggle: self.spot_struggle.unwrap_or(true),
+             dueling: self.dueling.unwrap_or(true),
+             wit_checks: self.wit_checks.unwrap_or(true),
++            cooldown_reactivation: self.cooldown_reactivation.unwrap_or(true),
+             position_keep_mode: self.position_keep_mode.unwrap_or(2),
+             skill_samples: self.skill_samples.map_or(1, |v| v.max(1)),
+             stamina_drain_overrides: self.stamina_drain_overrides.unwrap_or_default(),
+@@ -744,6 +750,7 @@ impl WasmSettings {
+             spot_struggle: r.spot_struggle,
+             dueling: r.dueling,
+             wit_checks: r.wit_checks,
++            cooldown_reactivation: r.cooldown_reactivation,
+             position_keep_mode: r.position_keep_mode,
+             skill_samples: r.skill_samples,
+             stamina_drain_overrides: r.stamina_drain_overrides,
+@@ -761,6 +768,7 @@ impl WasmSettings {
+             spot_struggle: r.spot_struggle,
+             dueling: r.dueling,
+             wit_checks: r.wit_checks,
++            cooldown_reactivation: r.cooldown_reactivation,
+             position_keep_mode: r.position_keep_mode,
+             skill_samples: r.skill_samples,
+             stamina_drain_overrides: r.stamina_drain_overrides,

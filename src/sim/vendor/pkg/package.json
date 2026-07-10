@@ -1,0 +1,21 @@
+{
+  "name": "uma-sim-wasm",
+  "type": "module",
+  "description": "WebAssembly adapter for the uma-sim race simulation engines (contested + vacuum).",
+  "version": "0.1.0",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jalbarrang/umalator-global"
+  },
+  "files": [
+    "uma_sim_wasm_bg.wasm",
+    "uma_sim_wasm.js",
+    "uma_sim_wasm.d.ts"
+  ],
+  "main": "uma_sim_wasm.js",
+  "types": "uma_sim_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
