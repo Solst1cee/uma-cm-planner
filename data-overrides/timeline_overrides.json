@@ -11,7 +11,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/612/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm11-pisces-cup",
@@ -23,7 +23,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/642/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm12-aries-cup",
@@ -35,7 +35,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/700/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm13-taurus-cup",
@@ -47,7 +47,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/771/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm14-gemini-cup",
@@ -59,7 +59,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/790/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm15-cancer-cup",
@@ -71,7 +71,7 @@
       "status": "confirmed",
       "source": { "kind": "official_news", "url": "https://umamusume.com/news/829/" },
       "server": "global",
-      "dataVersion": "global-76214c82"
+      "dataVersion": "global-484539f5"
     },
     {
       "id": "cm16-leo-cup",
@@ -82,7 +82,7 @@
               "conditions": { "ground": "firm", "weather": "sunny", "season": "summer" } },
       "tier": "prediction", "status": "unconfirmed",
       "source": { "kind": "umaguide", "url": "https://uma.guide/cm-schedule/" },
-      "server": "global", "dataVersion": "global-76214c82"
+      "server": "global", "dataVersion": "global-484539f5"
     }
   ]
 }

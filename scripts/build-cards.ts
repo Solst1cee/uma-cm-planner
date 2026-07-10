@@ -264,9 +264,20 @@ export function assertTachyonsParity(
         );
       }
     }
-    for (const entry of recordPool) {
-      if (!tachyonsHints.has(Number(entry.skillId))) {
-        problems.push(`card ${record.cardId}: hint-pool skill ${entry.skillId} not in Tachyons hints_table`);
+    // The reverse (under-reporting) check only makes sense once Tachyons-lab
+    // has SOME pool data for this card — a card can be present in the dataset
+    // (so it isn't caught by the `record === undefined` skip above) with its
+    // hints_table not yet scraped at all (empty array), same "newer than the
+    // Tachyons snapshot" pin-lag case buildCards() already falls back to
+    // hintLevels=1 for (see the comment there). An empty hints_table on an
+    // otherwise-present card is that gap, not a real emitted-vs-source
+    // disagreement, so skip the reverse check rather than false-positive on
+    // every pool skill.
+    if (tachyonsHints.size > 0) {
+      for (const entry of recordPool) {
+        if (!tachyonsHints.has(Number(entry.skillId))) {
+          problems.push(`card ${record.cardId}: hint-pool skill ${entry.skillId} not in Tachyons hints_table`);
+        }
       }
     }
 

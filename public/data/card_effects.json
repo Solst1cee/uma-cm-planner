@@ -64886,5 +64886,278 @@
         50
       ]
     }
+  ],
+  "30304": [
+    {
+      "type": 1,
+      "nameEn": "Friendship Bonus",
+      "descEn": "Increases the effectiveness of Friendship Training",
+      "symbol": "percent",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        40
+      ]
+    },
+    {
+      "type": 2,
+      "nameEn": "Mood Effect",
+      "descEn": "Amplifies the effect of mood when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        20,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        15
+      ]
+    },
+    {
+      "type": 12,
+      "nameEn": "Initial Guts",
+      "descEn": "Increases initial Guts when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        30
+      ]
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        25,
+        25,
+        25,
+        25,
+        35
+      ]
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        5,
+        5,
+        5,
+        5,
+        10
+      ]
+    },
+    {
+      "type": 16,
+      "nameEn": "Fan Bonus",
+      "descEn": "Increases fan gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        20
+      ]
+    },
+    {
+      "type": 17,
+      "nameEn": "Hint Levels",
+      "descEn": "Increases the level of hints gained through events",
+      "symbol": "level",
+      "valuesByLb": [
+        2,
+        2,
+        2,
+        2,
+        4
+      ]
+    },
+    {
+      "type": 18,
+      "nameEn": "Hint Frequency",
+      "descEn": "Increases the frequency at which hint events occur",
+      "symbol": "percent",
+      "valuesByLb": [
+        60,
+        60,
+        60,
+        60,
+        100
+      ]
+    },
+    {
+      "type": 19,
+      "nameEn": "Specialty Priority",
+      "descEn": "Increases the frequency at which the character participates in their preferred training type",
+      "symbol": "none",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        60,
+        120
+      ]
+    },
+    {
+      "type": 30,
+      "nameEn": "Skill Point Bonus",
+      "descEn": "Increases skill point gain when training together",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "type": 32,
+      "symbol": "none",
+      "valuesByLb": [
+        30,
+        30,
+        30,
+        30,
+        60
+      ]
+    }
+  ],
+  "30305": [
+    {
+      "type": 8,
+      "nameEn": "Training Effectiveness",
+      "descEn": "Increases the effectiveness of training performed together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        10,
+        20
+      ]
+    },
+    {
+      "type": 14,
+      "nameEn": "Initial Friendship Gauge",
+      "descEn": "Increases initial Friendship Gauge when beginning a Career playthrough",
+      "symbol": "none",
+      "valuesByLb": [
+        1,
+        1,
+        1,
+        15,
+        30
+      ]
+    },
+    {
+      "type": 15,
+      "nameEn": "Race Bonus",
+      "descEn": "Increases stat gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        1,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "type": 16,
+      "nameEn": "Fan Bonus",
+      "descEn": "Increases fan gain from races",
+      "symbol": "percent",
+      "valuesByLb": [
+        1,
+        10,
+        15,
+        15,
+        15
+      ]
+    },
+    {
+      "type": 25,
+      "nameEn": "Event Recovery",
+      "descEn": "Increases Energy recovery from this Support Card's events",
+      "symbol": "percent",
+      "valuesByLb": [
+        40,
+        40,
+        40,
+        40,
+        60
+      ]
+    },
+    {
+      "type": 26,
+      "nameEn": "Event Effectiveness",
+      "descEn": "Increases stat gain from this Support Card's events",
+      "symbol": "percent",
+      "valuesByLb": [
+        20,
+        20,
+        20,
+        20,
+        30
+      ]
+    },
+    {
+      "type": 27,
+      "nameEn": "Failure Protection",
+      "descEn": "Decreases the probability of failure when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        10,
+        10,
+        10,
+        15,
+        15
+      ]
+    },
+    {
+      "type": 28,
+      "nameEn": "Energy Cost Reduction",
+      "descEn": "Decreases Energy consumed when training together",
+      "symbol": "percent",
+      "valuesByLb": [
+        15,
+        15,
+        15,
+        15,
+        30
+      ]
+    },
+    {
+      "type": 32,
+      "symbol": "none",
+      "valuesByLb": [
+        30,
+        30,
+        30,
+        40,
+        40
+      ]
+    }
   ]
 }

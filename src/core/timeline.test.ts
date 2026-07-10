@@ -50,7 +50,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 10, courseId: '10611', trackSummary: 'Tokyo dirt 1600m (mile)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/612/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
       {
         id: 'cm11-pisces-cup', type: 'cm', title: 'Pisces Cup',
@@ -58,7 +58,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 11, courseId: '10914', trackSummary: 'Hanshin turf 3200m (long)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/642/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
       {
         id: 'cm12-aries-cup', type: 'cm', title: 'Aries Cup',
@@ -66,7 +66,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 12, courseId: '10504', trackSummary: 'Nakayama turf 2000m (medium)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/700/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
       {
         id: 'cm13-taurus-cup', type: 'cm', title: 'Taurus Cup',
@@ -74,7 +74,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 13, courseId: '10606', trackSummary: 'Tokyo turf 2400m (medium)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/771/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
       {
         id: 'cm14-gemini-cup', type: 'cm', title: 'Gemini Cup',
@@ -82,7 +82,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 14, courseId: '10602', trackSummary: 'Tokyo turf 1600m (mile)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/790/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
       {
         id: 'cm15-cancer-cup', type: 'cm', title: 'Cancer Cup',
@@ -90,7 +90,7 @@ describe('projectCmSchedule', () => {
         cm: { cmNumber: 15, courseId: '10906', trackSummary: 'Hanshin turf 2200m (inner, right · good/summer/cloudy)' },
         tier: 'official', status: 'confirmed',
         source: { kind: 'official_news', url: 'https://umamusume.com/news/829/' },
-        server: 'global', dataVersion: 'global-76214c82',
+        server: 'global', dataVersion: 'global-484539f5',
       },
     ];
     const rows = projectCmSchedule(cm10to15);

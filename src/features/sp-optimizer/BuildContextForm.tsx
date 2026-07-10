@@ -20,7 +20,7 @@ export interface BuildContextFormProps {
 }
 
 export function BuildContextForm({
-  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-76214c82', now,
+  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-484539f5', now,
 }: BuildContextFormProps) {
   const { skillById } = useGameData();
   const [spBudget, setSpBudget] = useState(initialSpBudget ?? 1000);

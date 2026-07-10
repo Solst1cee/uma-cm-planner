@@ -49,8 +49,13 @@ export const ICON_SUBCATEGORIES: string[][] = [
   ['20061', '20062', '20066'], ['20064'],
   // FOV skills
   ['20091', '20092'],
-  // URA scenario
-  ['20161'],
+  // URA scenario (20161 is also reused by the "Racing Spirit: <stat>" white
+  // skills 210091/210101/210111/210131 added at the v0.27.0 pin — same icon
+  // in the game data, so no new row needed for those)
+  ['20161', '20162'],
+  // "Racing Spirit: Guts" / "Racing Spirit: Mood" (210121/210141, v0.27.0 pin) —
+  // same family, but the game assigns them their own distinct icons
+  ['20171'], ['20181'],
   // Aoharu scenario
   ['20101', '20102'], ['20111', '20112'], ['20121', '20122'], ['20131', '20132'],
   // Trackblazer scenario
