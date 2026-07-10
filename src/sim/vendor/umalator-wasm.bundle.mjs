@@ -9458,7 +9458,10 @@ function compareSettingsToWasm(settings) {
     dueling: settings.dueling,
     witChecks: settings.witChecks,
     positionKeepMode: settings.positionKeepMode,
-    staminaDrainOverrides: settings.staminaDrainOverrides ?? {}
+    staminaDrainOverrides: settings.staminaDrainOverrides ?? {},
+    // Local multi-fire patch (2026-07-10): thread the flag; leaving it undefined
+    // lets the wasm DTO default it ON (`unwrap_or(true)`).
+    cooldownReactivation: settings.cooldownReactivation
   };
 }
 

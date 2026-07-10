@@ -149,11 +149,25 @@ function activatedInRoundsB(rounds: CompareRounds, skillIds: string[]): boolean 
 export function evalSkillDelta(
   build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
 ): BashinStats {
+  return evalSkillDeltaWithSettings(build, race, skillId, nsamples, seed);
+}
+
+/** TEST-ONLY seam (fidelity re-baseline, Task 6): `evalSkillDelta` with an explicit
+ *  engine-settings override — e.g. `{ cooldownReactivation: false }` to pin the
+ *  upstream-identical single-fire path for the flag-OFF fidelity anchor. NOT part of
+ *  the public sim API: production callers (worker, M2 optimizer) use `evalSkillDelta`,
+ *  which runs engine defaults (multi-fire ON). Kept here rather than exposing
+ *  `vacuumRounds` itself so the golden exercises the entire real entry path. */
+export function evalSkillDeltaWithSettings(
+  build: SimBuild, race: SimRaceParams, skillId: string, nsamples: number, seed = 0,
+  settings?: Partial<Omit<SimulationSettings, 'mode'>>,
+): BashinStats {
   if (nsamples < 1) return { ...EMPTY };
   if (!isSimulatable(skillId)) return { ...EMPTY };
   const base = simulatableBase(build);
   const { rounds, result } = vacuumRounds(
     base, { ...base, skills: [...base.skills, skillId] }, race, nsamples, seed,
+    settings ? { settings } : undefined,
   );
   return bashinStatsFrom(result, activatedInRoundsB(rounds, [skillId]));
 }

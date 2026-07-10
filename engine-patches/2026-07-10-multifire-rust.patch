@@ -50,26 +50,31 @@ index f41bc8e..d21f54c 100644
      pub stamina_drain_overrides: HashMap<String, f64>,
  
 diff --git a/packages/uma-sim-primitives/src/runner/physics.rs b/packages/uma-sim-primitives/src/runner/physics.rs
-index 22df7e8..de010bd 100644
+index 22df7e8..332674c 100644
 --- a/packages/uma-sim-primitives/src/runner/physics.rs
 +++ b/packages/uma-sim-primitives/src/runner/physics.rs
-@@ -299,7 +299,22 @@ impl Runner {
+@@ -299,7 +299,27 @@ impl Runner {
              strategy: self.strategy,
          };
          let conditions = std::mem::take(&mut self.conditions);
 -        for (name, condition) in &conditions {
-+        // Determinism fix (multi-fire port, 2026-07-10): iterate the approximate
++        // Determinism fix (multi-fire port, 2026-07-10; scope corrected in the
++        // 2026-07-10 Task-6 fidelity re-baseline): iterate the approximate
 +        // conditions in a *stable* (name-sorted) order rather than raw `HashMap`
 +        // order. Each `condition.update` below draws from `self.rng`, so the draw
 +        // order between `blocked_side` and `overtake` decides which condition gets
 +        // which random value. On `wasm32-unknown-unknown` the `HashMap`
 +        // `RandomState` seed is derived deterministically but *from binary
-+        // layout*, so any code change (this multi-fire patch included) reshuffles
-+        // that order and silently perturbs the lateral-lane telemetry
-+        // (`currentLane`) — every race-determining output is unaffected, but it
-+        // breaks byte-for-byte reproducibility across rebuilds. Sorting makes the
-+        // engine layout-independent so the flag-OFF path is byte-identical to a
-+        // clean pin built with this same fix.
++        // layout*, so ANY code change (this multi-fire patch included) reshuffles
++        // that order — i.e. the pristine pin has no canonical value here to be
++        // faithful to. Sorting makes the engine layout-independent: byte-stable
++        // across all our rebuilds. Scope of the behavioral effect (verified):
++        // for skills that do NOT read these approximate conditions, only the
++        // cosmetic `currentLane` telemetry changes; for `blocked_side`/`overtake`-
++        // gated skills the sorted draw order also picks a different (equally
++        // valid, expectation-equivalent) seeded realization of position/velocity/
++        // hp/bashin — converging with sample count, within sampling noise.
++        // See docs/mechanics-notes.md, "WASM re-platform parity (2026-07)".
 +        let mut names: Vec<&String> = conditions.keys().collect();
 +        names.sort();
 +        for name in names {
@@ -621,3 +626,45 @@ index ab9a0e8..48fed50 100644
              position_keep_mode: r.position_keep_mode,
              skill_samples: r.skill_samples,
              stamina_drain_overrides: r.stamina_drain_overrides,
+diff --git a/src/lib/uma-domain/race/types.ts b/src/lib/uma-domain/race/types.ts
+index d9d1e3d..df30727 100644
+--- a/src/lib/uma-domain/race/types.ts
++++ b/src/lib/uma-domain/race/types.ts
+@@ -14,6 +14,8 @@ export type SimulationSettings = {
+   witChecks: boolean;
+   positionKeepMode: number;
+   staminaDrainOverrides?: Record<string, number>;
++  /** Cooldown-aware multi-fire re-activation (local patch, 2026-07-10). Engine default ON. */
++  cooldownReactivation?: boolean;
+ };
+ 
+ export type DuelingRates = {
+diff --git a/src/lib/uma-sim-wasm/adapter-params.ts b/src/lib/uma-sim-wasm/adapter-params.ts
+index 7658bdb..dfc1b73 100644
+--- a/src/lib/uma-sim-wasm/adapter-params.ts
++++ b/src/lib/uma-sim-wasm/adapter-params.ts
+@@ -142,7 +142,10 @@ export function compareSettingsToWasm(settings: SimulationSettings): WasmSetting
+     dueling: settings.dueling,
+     witChecks: settings.witChecks,
+     positionKeepMode: settings.positionKeepMode,
+-    staminaDrainOverrides: settings.staminaDrainOverrides ?? {}
++    staminaDrainOverrides: settings.staminaDrainOverrides ?? {},
++    // Local multi-fire patch (2026-07-10): thread the flag; leaving it undefined
++    // lets the wasm DTO default it ON (`unwrap_or(true)`).
++    cooldownReactivation: settings.cooldownReactivation
+   };
+ }
+ 
+diff --git a/src/lib/uma-sim-wasm/types.ts b/src/lib/uma-sim-wasm/types.ts
+index 3d4240a..c789e66 100644
+--- a/src/lib/uma-sim-wasm/types.ts
++++ b/src/lib/uma-sim-wasm/types.ts
+@@ -105,6 +105,8 @@ export type WasmSettings = {
+   sectionModifier?: boolean;
+   positionKeepMode?: number;
+   staminaDrainOverrides?: Record<string, number>;
++  /** Cooldown-aware multi-fire re-activation (local patch, 2026-07-10). Engine default ON. */
++  cooldownReactivation?: boolean;
+ };
+ 
+ export type WasmDuelingRates = {

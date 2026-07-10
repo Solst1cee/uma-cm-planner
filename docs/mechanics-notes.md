@@ -131,3 +131,104 @@ Semantics: per individual spark, per lineage member, independent rolls each even
   stamina margin) — the adapter currently exposes only BashinStats, so v1 shows a
   distribution descriptor (Δ-lengths + spread), not a phase profile.
 
+
+## 12. WASM re-platform parity (2026-07)
+
+Fidelity re-baseline for the sim-engine re-platform (vendored TS bundle → upstream
+umalator-global **v0.27.0 Rust/WASM**, pin `484539f5` + `engine-patches/2026-07-10-multifire-rust.patch`).
+All values below are real observed outputs (P3), recorded 2026-07-10 from the committed
+pkg (`src/sim/vendor/pkg/uma_sim_wasm_bg.wasm` sha256 `4fa2e875…`) and a pristine-pin pkg
+built from the clean `484539f5` checkout.
+
+### 12.1 Determinism-sort scope (adjudicated 2026-07-10 — supersedes the Task-1 "cosmetic-only" claim)
+
+The multi-fire patch carries a determinism fix in `runner/physics.rs::tick_conditions`
+(iterate the approximate-condition map name-sorted, not in `HashMap` order). Verified scope:
+
+- **Skills NOT gated on approximate conditions** (everything except the
+  `blocked_side`/`overtake` family): flag-OFF output is **byte-identical to the pristine
+  pin** across full position/velocity/hp/order/activation telemetry (verified on a
+  no-skill control race and every non-approximate fixture in §12.2–12.3). `201202`
+  (white, `is_overtake`-gated) also happened to be byte-identical at the tested seeds —
+  a perturbed draw order only changes output when the swapped values differ at a
+  fire-decision moment.
+- **Skills gated on `blocked_side`/`overtake`:** the sort can pick a **different — equally
+  valid, expectation-equivalent — seeded realization**. Evidence (`201262`, white,
+  `blocked_side_continuetime`, Hanshin 3200 `10914`, flag OFF, seed 999):
+
+  | build | physics sha (position/velocity/hp) | バ身 mean (n=60) |
+  |---|---|---|
+  | pristine pin | `f4aa63…` | −0.365754 |
+  | pin + sort ONLY | `0ac228…` | −0.386127 |
+  | full patch (committed) | `0ac228…` | −0.386127 |
+
+  3-build isolation: the sort alone causes the change; the flag-OFF multi-fire code is
+  physics-inert. Convergence (pristine vs sorted, same fixture): |Δmean| = 0.0204 (n=60)
+  → 0.0054 (n=500) → 0.0077 (n=1000), both sides → ~0 — expectation-preserving, within
+  sampling noise (independent-runner noise floor ≈ ±0.2 バ身 per-seed at n=500).
+- **Why the sort is kept:** on `wasm32-unknown-unknown` the `HashMap` iteration order is
+  seeded from **binary layout**, so ANY engine change (multi-fire included) reshuffles the
+  approximate-condition RNG draw order — the pristine pin has **no canonical value** here
+  to be faithful to, and without the sort our own rebuilds would not reproduce each other.
+  With it, output is byte-stable across all our builds. The affected conditions are
+  themselves RNG heuristics; a different draw assignment is an equally valid realization.
+
+### 12.2 Fidelity goldens (`src/sim/fidelity.test.ts`)
+
+All use `200332` (Corner Adept ○, `all_corner_random` — NON-approximate, so byte-identical
+to the pristine pin). Warm-up call in `beforeAll` absorbs the fresh-instance first-call
+quirk; values verified stable across repeat same-instance calls AND fresh processes.
+
+- **Test A (flag-OFF anchor):** `evalSkillDeltaWithSettings(smokeBuild, 10101, '200332', 50, 12345, {cooldownReactivation:false})`
+  → mean **0.3730486665111239**. (The old TS-bundle anchor 0.2202 used
+  `ignoreStaminaConsumption:true`; the new pipeline always runs stamina ON, so the values
+  are not comparable — this is a new baseline, not a drift.)
+- **Test A2 (settings-thread pin):** same, `stayerBuild` on `10914` → mean
+  **1.0918337778601457**; flag ON on that course differs (1.15228…), so the golden
+  regression-tests the flag threading itself (on `10101` ON == OFF, so Test A alone can't).
+- **Test B (multi-fire oracle, flag ON default):** `skillImpact` 200 samples seed 12345 —
+  Hanshin 3200 `10914`: **33/200** samples with ≥2 distinct fire starts; Kyoto mile
+  `10602`: fires in **200/200** samples but **0** doubles.
+- **Test C:** flag-ON mean on `10101` ≥ 0 (sanity).
+
+### 12.3 Upstream parity spot-check (programmatic, 2026-07-10)
+
+Upstream side = the clone's own compare pipeline (upstream adapters +
+`reduceCompareRoundsPublic`, re-exported verbatim in our wrapper bundle) driving the
+**pristine pin pkg**; our side = `evalSkillDelta`/`runVacuumCompare` (`src/sim/run.ts`)
+on the **committed patched pkg**. Identical course/conditions/samples/seeds
+(ground 1 / weather 1 / season 3 / time 2 / grade 100, mood +2, A/A/A, Pace Chaser).
+
+| fixture | inputs | upstream (pristine) mean / median | ours (patched) mean / median | Δ |
+|---|---|---|---|---|
+| P1 smoke `evalSkillDelta` | smoke build (1150/800/1000/500/850), +`200332`, `10101`, n=500, seed 12345, flag OFF | 0.2315623831045815 / 0.26031216976907673 | 0.2315623831045815 / 0.26031216976907673 | **0 (byte-equal)** |
+| P2 stamina-poor 3200 | sta450 vs sta900, `10914`, n=500, seed 999 (survival/full-spurt rates also byte-equal) | 15.43360786276682 / 15.76955279028698 | 15.43360786276682 / 15.76955279028698 | **0 (byte-equal)** |
+| P3 skill-heavy 2200 | bare vs +5 skills (`200012`,`200052`,`200462`,`200472`,`202092`\*), `10906`, n=500, seed 4242 | 3.285352969525132 / 2.9465090955192865 | 3.285352969525132 / 2.9465090955192865 | **0 (byte-equal)** |
+
+\* `202092` is `blocked_side`-gated (approximate) — byte-equality for such skills is
+seed/fixture-dependent (§12.1's `201262` case differs); this fixture happened to agree
+exactly. Max observed parity delta across all fixtures: **0.0**.
+
+**Open item (maintainer):** a manual spot-check against upstream's *deployed* umalator
+site remains open — the programmatic check above proves engine+pipeline parity, not that
+the deployed site runs the same pin/data.
+
+### 12.4 Adapter findings recorded during the re-baseline
+
+- **Skill ordering (deck array order):** DOES change seeded per-round outputs (different
+  RNG consumption order → different realization) but NOT expected values (reordered
+  2-skill and 3-skill decks: means within noise, e.g. 6.589 vs 6.631). uma1/uma2 have
+  **independent RNG streams** (identical decks on both runners still produce different
+  per-round traces; bare-vs-bare バ身 → 0 over samples). Decision: `toWasmRunner` keeps
+  the build's order **unsorted** (old-adapter precedent) — upstream's group-sort exists
+  for cross-runner display alignment its head-to-head UI needs, which our vacuum
+  compares don't have.
+- **Empty-condition alternatives are real:** exactly **2** of 1719 skills.json ids resolve
+  (`resolveSkillInput`) with an alternative whose `condition === ''` — `1000011`/`1000012`
+  "Carnival Bonus". Validates `applySkillPatch`'s condIdx pairing rule (empty-condition
+  alternatives consume no `@`-part).
+- **Settings-thread fix (found by Test A2):** upstream's TS `compareSettingsToWasm`
+  (v0.27.0, pre-dating our Rust flag) silently dropped `cooldownReactivation`, so no
+  app-side settings override could ever reach the engine (default ON always). Fixed in
+  the clone TS (now part of `engine-patches/2026-07-10-multifire-rust.patch`, 12 files)
+  + wrapper bundle rebuilt. The wasm binary is unchanged (`4fa2e875…`).
