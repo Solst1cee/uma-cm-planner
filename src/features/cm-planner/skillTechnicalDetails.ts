@@ -94,7 +94,7 @@ function rawToSummary(raw: RawSkill): SkillSummary {
 
 async function loadSkillCollection(): Promise<Record<string, RawSkill>> {
   if (skillCollectionPromise === null) {
-    skillCollectionPromise = import('@/sim/vendor/umalator.bundle.mjs').then((m) => {
+    skillCollectionPromise = import('@/sim/vendor/umalator-wasm.bundle.mjs').then((m) => {
       const service = m.skillsService as unknown as RuntimeSkillsService;
       return service.skillCollection ?? {};
     });

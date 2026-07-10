@@ -1,4 +1,4 @@
-import { coursesService } from './vendor/umalator.bundle.mjs';
+import { coursesService } from './vendor/umalator-wasm.bundle.mjs';
 import { distanceClass } from '@/core/simBuild';
 
 /**

@@ -136,8 +136,9 @@ export function applySkillPatch(input: WasmSkillInput, patch: SkillPatch | undef
 }
 
 /** Resolve our string courseId to the WASM bundle's course geometry. Throws if unknown —
- *  same contract as `adapter.ts`'s `resolveCourse`, but against the v0.27.0 course catalog
- *  (a separately baked dataset from the old bundle's, so this can't reuse `resolveCourse`). */
+ *  same contract as `courseData.ts`'s `resolveCourse` (both now hit the same v0.27.0
+ *  `coursesService`). Kept as a small local helper so the worker path doesn't import the
+ *  main-thread `courseData` module. */
 function resolveWasmCourse(courseId: string): WasmCourseGeometry {
   const numeric = Number(courseId);
   const course = wasmCoursesService.getSimCourse(numeric);

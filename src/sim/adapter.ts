@@ -1,6 +1,16 @@
-import { coursesService } from '@/sim/vendor/umalator.bundle.mjs';
-import type { IRunnerState, CourseData, RaceDef, SkillComparisonResult, PlannerCompareResult } from '@/sim/vendor/umalator.bundle.mjs';
-import type { SimBuild, Strategy, SimRaceParams, BashinStats } from './types';
+// Pure, engine-free build→engine mapping helpers shared by the v0.27.0 WASM
+// adapter (`wasmAdapter.ts`). Deliberately carries NO runtime import of the
+// vendored engine bundle (the type-only imports below are erased at build) so it
+// stays a tiny chunk — `courseData.ts`/`courseCatalog.ts` (lazily imported by UI)
+// and `wasmAdapter.ts` (the worker) all reach it without dragging in the engine.
+//
+// The old TS-engine-only exports (`toRunnerState`/`resolveCourse`/`bashinStatsFrom`)
+// were removed when the v0.14.2 bundle was deleted: the WASM path builds runners via
+// `wasmAdapter.toWasmRunner`, resolves courses via `courseData`/`wasmAdapter`, and
+// projects stats inside `run.ts` (its own local `bashinStatsFrom` over the WASM
+// compare rounds).
+import type { IRunnerState, RaceDef } from '@/sim/vendor/umalator-wasm.bundle.mjs';
+import type { Strategy, SimRaceParams } from './types';
 
 export const STRATEGY_LABEL: Record<Strategy, IRunnerState['strategy']> = {
   front: 'Front Runner',
@@ -9,28 +19,6 @@ export const STRATEGY_LABEL: Record<Strategy, IRunnerState['strategy']> = {
   end: 'End Closer',
 };
 
-/** Map OUR build to the engine's IRunnerState. Note: our 'wit' -> engine 'wisdom'. */
-export function toRunnerState(build: SimBuild): IRunnerState {
-  return {
-    outfitId: build.umaId,
-    speed: build.stats.spd,
-    stamina: build.stats.sta,
-    power: build.stats.pow,
-    guts: build.stats.gut,
-    wisdom: build.stats.wit,
-    strategy: STRATEGY_LABEL[build.strategy],
-    distanceAptitude: build.aptitudes.distance,
-    surfaceAptitude: build.aptitudes.surface,
-    strategyAptitude: build.aptitudes.strategy,
-    mood: build.mood ?? 2,
-    skills: [...build.skills],
-    ...(build.skillLevels ? { skillLevels: { ...build.skillLevels } } : {}),
-    ...(build.skillPatches && Object.keys(build.skillPatches).length > 0
-      ? { skillPatches: { ...build.skillPatches } }
-      : {}),
-  };
-}
-
 export function toRaceDef(race: SimRaceParams): RaceDef {
   return {
     ground: race.ground ?? 1,
@@ -38,30 +26,5 @@ export function toRaceDef(race: SimRaceParams): RaceDef {
     season: race.season ?? 3,
     time: race.time ?? 2,
     grade: race.grade ?? 100,
-  };
-}
-
-/** Resolve our string courseId to the engine's CourseData. Throws if unknown. */
-export function resolveCourse(courseId: string): CourseData {
-  const numeric = Number(courseId);
-  const course = coursesService.getSimCourse(numeric);
-  if (!course || typeof course.distance !== 'number') {
-    throw new Error(`Unknown course: ${courseId}`);
-  }
-  return course;
-}
-
-/** Project an engine skill/planner result onto our honest BashinStats. The engine sets
- *  `skillActivations` to `{ [trackedSkillId]: … }` when the skill procced at least once,
- *  or `{}` when it never did — so a non-empty map means "activated". */
-export function bashinStatsFrom(r: SkillComparisonResult | PlannerCompareResult): BashinStats {
-  return {
-    mean: r.mean,
-    median: r.median,
-    min: r.min,
-    max: r.max,
-    nsamples: r.results.length,
-    results: r.results,
-    activated: Object.keys(r.skillActivations ?? {}).length > 0,
   };
 }

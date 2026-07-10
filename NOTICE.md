@@ -22,7 +22,11 @@ The image files under `public/data/icons/` (a curated, Global-only WebP subset o
 
 ## Vendored simulation engine
 
-`src/sim/vendor/umalator.bundle.mjs` is built from **jalbarrang/umalator-global**
-v0.14.2 (commit `c1fa2107`), licensed **GPL-3.0-only**. It is bundled (not modified)
-from the pinned source in `spikes/repos/umalator-global` via `scripts/build-sim.mjs`.
-Corresponding source is the pinned commit; rebuild with `pnpm sim:build`.
+`src/sim/vendor/pkg/` (the wasm-pack `--target web` build of the `uma-sim-wasm`
+crate) and the `src/sim/vendor/umalator-wasm.bundle.mjs` wrapper that bundles its
+glue with the app-domain services are built from **jalbarrang/umalator-global**
+v0.27.0 (commit `484539f5`), licensed **GPL-3.0-only**, plus this repo's
+`engine-patches/2026-07-10-multifire-rust.patch`. They are built (not otherwise
+modified) from the pinned source in `spikes/repos/umalator-global` via
+`scripts/build-wasm.mjs` + `scripts/build-sim.mjs`. Corresponding source is the
+pinned commit + that patch; rebuild with `pnpm sim:build`.

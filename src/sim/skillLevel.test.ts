@@ -5,9 +5,10 @@ import { initEngineFromFs } from './init';
 import type { SimBuild, SimRaceParams } from './types';
 
 // `evalSkillDelta` now runs the v0.27.0 WASM engine (Task 4) → needs init. The
-// skillLevels transform is verified purely in adapter.test.ts (Task 3); this end-to-end
-// directional check survives the engine swap. (This file is superseded by adapter.test.ts
-// and slated for deletion in Task 9.)
+// skillLevels transform is verified purely in adapter.test.ts (Task 3); this KEPT
+// end-to-end directional check exercises the transform THROUGH the live engine (a
+// layer adapter.test.ts's pure-transform tests don't cover), and it never touched the
+// old bundle so it survived the Task-9 deletion unchanged.
 beforeAll(async () => { await initEngineFromFs(); });
 
 // Shooting Star (Special Week unique) on a course where it fires (phase>=2, mid-pack).

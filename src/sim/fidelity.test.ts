@@ -11,7 +11,6 @@
 // this file (200332, all_corner_random) is NON-approximate, so these goldens are
 // byte-identical to the pristine pin AND byte-stable across our own rebuilds.
 import { describe, it, expect, beforeAll } from 'vitest';
-import { runSkillComparison, coursesService } from '@/sim/vendor/umalator.bundle.mjs';
 import { evalSkillDelta, evalSkillDeltaWithSettings, skillImpact } from './run';
 import { initEngineFromFs } from './init';
 import type { SimBuild } from './types';
@@ -98,31 +97,5 @@ describe('wasm engine fidelity (v0.27.0 + multifire patch)', () => {
   it('Test C: Corner Adept gives a non-negative mean on a cornered course (sanity)', () => {
     const stats = evalSkillDelta(smokeBuild, { courseId: '10101' }, '200332', 50, 12345);
     expect(stats.mean).toBeGreaterThanOrEqual(0);
-  });
-});
-
-// OLD-ENGINE anchor (pre-re-platform, TS bundle). Kept until Task 9 deletes the
-// old bundle — it is the remaining tripwire that the still-vendored old bundle is
-// intact for its remaining consumers. Delete together with the bundle.
-const OLD_BUNDLE_EXPECTED_MEAN = 0.2202; // Recorded from bundle smoke on the cooldownReactivation:false (upstream-identical) path: mean=0.2202 (seed 12345, 50 samples)
-
-describe('vendored OLD bundle fidelity (Task 9 removes this with the bundle)', () => {
-  it('reproduces the upstream adversarial-smoke mean for the same seed', () => {
-    // Recreate the smoke exactly: 50 samples, seed 12345, ignoreStaminaConsumption true.
-    const course = coursesService.getSimCourse(10101);
-    const runner = {
-      outfitId: '', speed: 1150, stamina: 800, power: 1000, guts: 500, wisdom: 850,
-      strategy: 'Pace Chaser' as const, distanceAptitude: 'A', surfaceAptitude: 'A', strategyAptitude: 'A', mood: 2 as const, skills: [] as string[],
-    };
-    const r = runSkillComparison({
-      trackedSkillId: '200332', nsamples: 50, course,
-      racedef: { ground: 1, weather: 1, season: 3, time: 2, grade: 100 },
-      runnerA: runner, runnerB: { ...runner, skills: ['200332'] },
-      // OFF path: the old engine's canonical upstream-parity anchor rides the
-      // byte-identical single-fire path (200332 is an eligible multi-fire skill).
-      options: { seed: 12345, ignoreStaminaConsumption: true, cooldownReactivation: false },
-    });
-    expect(r.results).toHaveLength(50);
-    expect(Number(r.mean.toFixed(4))).toBe(Number(OLD_BUNDLE_EXPECTED_MEAN.toFixed(4)));
   });
 });
