@@ -83,8 +83,11 @@ export function applySkillLevel(input: WasmSkillInput, level: number): WasmSkill
 
 /** Apply a rebalance-version parameter override to a resolved skill (availability #4b).
  *  Reference: engine-patches/2026-07-03-skill-patches.patch (`buildSkillData`/`buildSkillEffects`).
- *  - `conditions`: '@'-split; part i replaces alternatives[i]'s condition for non-empty parts
- *    only (an empty/missing part leaves that alternative's condition unchanged).
+ *  - `conditions`: '@'-split; parts pair with alternatives in ORIGINAL-non-empty-condition
+ *    order — the reference's `condIdx` only advances past alternatives whose original
+ *    condition is non-empty (`if (condition === '') continue`), so an empty-condition
+ *    alternative consumes no part. A non-empty part replaces; an empty/missing part leaves
+ *    that alternative's condition unchanged.
  *  - `modifier`: human units * 10000, replaces EVERY effect's modifier on EVERY alternative
  *    (curators leave this unset for multi-effect skills).
  *  - `duration`: seconds * 10000 -> `baseDuration`, on every alternative.
@@ -106,10 +109,18 @@ export function applySkillPatch(input: WasmSkillInput, patch: SkillPatch | undef
     return input;
   }
   const conditionParts = patch.conditions !== undefined ? patch.conditions.split('@') : undefined;
+  // Old-engine condIdx semantics: the parts index advances only over alternatives whose
+  // ORIGINAL condition is non-empty (empty-condition alternatives are skipped in the
+  // reference's trigger loop and never consume a part).
+  let condIdx = -1;
   return {
     ...input,
-    alternatives: input.alternatives.map((alt, i) => {
-      const conditionOverride = conditionParts?.[i];
+    alternatives: input.alternatives.map((alt) => {
+      let conditionOverride: string | undefined;
+      if (conditionParts !== undefined && alt.condition !== '') {
+        condIdx += 1;
+        conditionOverride = conditionParts[condIdx];
+      }
       return {
         ...alt,
         condition: conditionOverride ? conditionOverride : alt.condition,
@@ -153,10 +164,15 @@ export function toWasmRunner(
   const wasmRunner = sundayRunnerToWasm(createRunner, name);
   const skills = (wasmRunner.skills ?? []).map((skill) => {
     let resolved = skill;
-    const level = build.skillLevels?.[resolved.skillId];
-    if (level !== undefined) resolved = applySkillLevel(resolved, level);
+    // Order is load-bearing: PATCH first, then LEVEL. The reference engine patch composes
+    // them in buildSkillEffects — the patch modifier replaces the base value and the level
+    // coef ALWAYS scales on top (`modifier = (baseModifier * coef) / 10000`). Applying the
+    // level first and the patch second would let patch.modifier overwrite (discard) the
+    // level scaling, which is a behavior change vs the old engine.
     const patch = build.skillPatches?.[resolved.skillId];
     if (patch !== undefined) resolved = applySkillPatch(resolved, patch);
+    const level = build.skillLevels?.[resolved.skillId];
+    if (level !== undefined) resolved = applySkillLevel(resolved, level);
     return resolved;
   });
   return { ...wasmRunner, skills };

@@ -213,6 +213,42 @@ describe('applySkillPatch', () => {
     expect(r2.alternatives[0]!.condition).toBe('distance_rate<=50'); // empty part -> unchanged
     expect(r2.alternatives[1]!.condition).toBe('phase==3');
   });
+
+  it('conditions pairing SKIPS empty-original-condition alternatives (old-engine condIdx semantics)', () => {
+    // The reference patch's buildSkillData does `if (condition === '') continue; condIdx += 1;`
+    // — the '@'-parts index advances only over alternatives whose ORIGINAL condition is
+    // non-empty, so an empty-condition alternative in the middle must not consume a part.
+    const gapFixture: WasmSkillInput = {
+      skillId: 'FIXTURE-GAP',
+      rarity: 1,
+      alternatives: [
+        { baseDuration: 30000, condition: 'phase==1', effects: [{ modifier: 100, target: 1, type: 1 }] },
+        { baseDuration: 30000, condition: '', effects: [{ modifier: 200, target: 1, type: 1 }] },
+        { baseDuration: 30000, condition: 'phase==2', effects: [{ modifier: 300, target: 1, type: 1 }] },
+      ],
+    };
+    const r = applySkillPatch(gapFixture, { conditions: 'corner==1@straight==1' });
+    expect(r.alternatives[0]!.condition).toBe('corner==1');  // part 0 -> 1st non-empty alt
+    expect(r.alternatives[1]!.condition).toBe('');           // skipped, consumes no part
+    expect(r.alternatives[2]!.condition).toBe('straight==1'); // part 1 -> 2nd non-empty alt
+  });
+});
+
+describe('level + patch composition (same skill id)', () => {
+  // The reference patch COMPOSES them: buildSkillEffects computes
+  //   baseModifier = patch?.modifier !== undefined ? patch.modifier * 10000 : effect.modifier
+  // and then ALWAYS scales by the level coef: modifier = (baseModifier * coef) / 10000.
+  // So the patched modifier replaces the base and the level coef applies ON TOP —
+  // equivalent to applySkillLevel(applySkillPatch(input, patch), level).
+  it('patch modifier replaces the base, then the level coef scales the replaced value', () => {
+    // type 27 @ Lv6: coef 11300; patch modifier 0.7 -> base 7000 -> 7000 * 11300 / 10000 = 7910
+    const composed = applySkillLevel(applySkillPatch(levelFixture, { modifier: 0.7 }), 6);
+    expect(composed.alternatives[0]!.effects[0]!.modifier).toBe(7910);
+    // type 1 @ Lv6: coef 10500 -> 7000 * 10500 / 10000 = 7350
+    expect(composed.alternatives[0]!.effects[1]!.modifier).toBe(7350);
+    // unknown type 999: coef falls back to 10000 -> patched value unscaled
+    expect(composed.alternatives[1]!.effects[0]!.modifier).toBe(7000);
+  });
 });
 
 describe('toWasmRunner', () => {
@@ -269,6 +305,25 @@ describe('toWasmRunner', () => {
     );
     expect(r.skills?.find((s) => s.skillId === '200332')).toEqual(raw200332);
     expect(r.skills?.find((s) => s.skillId === '100011')).toEqual(applySkillPatch(raw100011!, patch));
+  });
+
+  it('composes level + patch on the same id: patch first, then level scaling (old-engine order)', () => {
+    const patch: SkillPatch = { modifier: 0.7 };
+    const raw100011 = resolveSkillInput('100011');
+    expect(raw100011).not.toBeNull();
+    const r = toWasmRunner(
+      { ...wasmBuild, skills: ['100011'], skillLevels: { '100011': 6 }, skillPatches: { '100011': patch } },
+      'uma1',
+    );
+    // Must match the reference-patch composition (patch replaces base, coef scales on top),
+    // NOT applySkillPatch(applySkillLevel(...)) which would discard the level scaling.
+    expect(r.skills?.find((s) => s.skillId === '100011'))
+      .toEqual(applySkillLevel(applySkillPatch(raw100011!, patch), 6));
+    // And the composed value genuinely differs from the level-discarding order (Shooting
+    // Star's effects are types 22/31 — coef 11000 at Lv6, so the scaling is observable:
+    // patch-then-level = 7700, level-then-patch would collapse to 7000).
+    expect(applySkillLevel(applySkillPatch(raw100011!, patch), 6))
+      .not.toEqual(applySkillPatch(applySkillLevel(raw100011!, 6), patch));
   });
 
   it('threads extras.injectedDebuffs through toCreateRunner', () => {
