@@ -8,8 +8,9 @@ import {
 } from '@/core/simBuild';
 import { pinkAptitudeRequirement } from '@/core/aptitudeInheritance';
 import { generatePlanName } from '@/core/planName';
-import { arrivalLabel, effectiveVersion } from '@/core/rebalance';
+import { arrivalLabel, effectiveVersion, versionSimUnavailable } from '@/core/rebalance';
 import { withSkillPatches } from '@/core/rebalancePatches';
+import { ENGINE_DATA_DATE } from '@/sim/enginePin';
 import type { TraceContext } from './useSkillTrace';
 import { useSkillPatches } from './useSkillPatches';
 import type { AptKey, CmPlan, Grade, Mood, RebalanceInfo, Role, SkillRecord, SkillVersion, Stat, Strategy, UmaRecord } from '@/core/types';
@@ -100,12 +101,15 @@ function statGrowthLabel(value: number | undefined): string {
 }
 
 /** Wishlist rebalance-version picker option label: `v{ver}` + Global/predicted/announced
- *  suffix, plus " — default" for the version the horizon would pick unpinned. */
+ *  suffix, plus " — default" for the version the horizon would pick unpinned, plus a
+ *  Task 7 marker when a newer version is already baked into the engine's data pin and
+ *  this older version's own values can no longer be reproduced in sim. */
 function versionOptionLabel(v: SkillVersion, info: RebalanceInfo, defaultVer: number): string {
   let label = `v${v.ver}`;
   if (v.ver === info.globalVer) label += ' (Global)';
   else if (v.globalArrival) label += ` ${arrivalLabel(v)}`;
   if (v.ver === defaultVer) label += ' — default';
+  if (versionSimUnavailable(v, info, ENGINE_DATA_DATE)) label += ' — pre-patch values unavailable in sim';
   return label;
 }
 

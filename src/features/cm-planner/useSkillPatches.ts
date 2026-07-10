@@ -6,6 +6,7 @@ import type { SkillPatch } from '@/core/rebalance';
 import { activePatchNotes, skillPatchMap, wishlistPins, type ActivePatchNote } from '@/core/rebalancePatches';
 import { useGameData } from '@/features/data/gameData';
 import { useAvailability } from '@/app/useAvailability';
+import { ENGINE_DATA_DATE } from '@/sim/enginePin';
 
 export function useSkillPatches(plan?: CmPlan | null): Record<string, SkillPatch> | undefined {
   const { skillById } = useGameData();
@@ -13,7 +14,7 @@ export function useSkillPatches(plan?: CmPlan | null): Record<string, SkillPatch
   const wishlist = plan?.wishlist;
   return useMemo(() => {
     const pins = wishlist ? wishlistPins(wishlist, skillById) : undefined;
-    return skillPatchMap({ skillById, cutoffISO, todayISO, ...(pins ? { pins } : {}) });
+    return skillPatchMap({ skillById, cutoffISO, todayISO, engineDataDate: ENGINE_DATA_DATE, ...(pins ? { pins } : {}) });
   }, [skillById, cutoffISO, todayISO, wishlist]);
 }
 
@@ -29,7 +30,13 @@ export function usePatchNotes(
   const wishlist = plan?.wishlist;
   return useMemo(() => {
     const pins = wishlist ? wishlistPins(wishlist, skillById) : undefined;
-    return activePatchNotes({ skillById, cutoffISO, todayISO, ...(pins ? { pins } : {}) }).filter((n) =>
+    return activePatchNotes({
+      skillById,
+      cutoffISO,
+      todayISO,
+      engineDataDate: ENGINE_DATA_DATE,
+      ...(pins ? { pins } : {}),
+    }).filter((n) =>
       relevantIds.has(n.skillId),
     );
   }, [skillById, cutoffISO, todayISO, wishlist, relevantIds]);

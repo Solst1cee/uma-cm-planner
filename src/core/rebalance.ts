@@ -53,3 +53,32 @@ export function versionPatch(v: SkillVersion): SkillPatch | undefined {
   if (v.cooldown !== undefined) patch.cooldown = v.cooldown;
   return Object.keys(patch).length > 0 ? patch : undefined;
 }
+
+/** Task 7 — is this version's parameters already baked natively into the current
+ *  engine data pin (`src/sim/enginePin.ts` `ENGINE_DATA_DATE`)? An in-pin version
+ *  must never be re-injected as a `skillPatches` override (the engine already
+ *  computes it) and must never surface a "confirmed patch, engine pin pending"
+ *  note — that note is only honest for versions the frozen engine data still
+ *  lags. Predicted arrivals never count as in-pin — same strict "announced
+ *  only" rule as `liveAt`: a foresight projection elapsing the pin date is
+ *  still a guess, not a confirmed baked-in value. */
+export function isInPin(v: SkillVersion, engineDataDate: string): boolean {
+  return v.globalDate !== undefined && v.globalDatePredicted !== true && v.globalDate <= engineDataDate;
+}
+
+/** True when a *pinned* version's own parameters can no longer be reproduced in
+ *  sim: some other version of this skill is in-pin (baked natively into the
+ *  engine) and is NEWER than `v`, so there is no override path back down to
+ *  `v`'s (older, unpatched) values — the engine will silently keep running its
+ *  native in-pin behavior regardless of the pin. The picker should label such a
+ *  selection "pre-patch values unavailable in sim" rather than implying the pin
+ *  changes anything. */
+export function versionSimUnavailable(v: SkillVersion, info: RebalanceInfo, engineDataDate: string): boolean {
+  let pinnedFloor: number | undefined;
+  for (const other of info.versions) {
+    if (isInPin(other, engineDataDate) && (pinnedFloor === undefined || other.ver > pinnedFloor)) {
+      pinnedFloor = other.ver;
+    }
+  }
+  return pinnedFloor !== undefined && v.ver < pinnedFloor;
+}

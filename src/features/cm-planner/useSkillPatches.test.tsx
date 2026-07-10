@@ -3,14 +3,26 @@ import { renderHook } from '@testing-library/react';
 import type { CmPlan, RebalanceInfo, SkillRecord } from '@/core/types';
 import { usePatchNotes, useSkillPatches } from './useSkillPatches';
 
-// v2 announced + elapsed (live at Current), carries a modifier — same shape as
-// rebalancePatches.test.ts's CONFIRMED fixture.
+// v2 announced + elapsed, dated AFTER the real ENGINE_DATA_DATE ('2026-07-09') so it
+// still pin-lags the engine's data pin — this hook threads the real constant (not a
+// test-controlled one), so the fixture date must post-date it to exercise pin-lag.
+// A version dated on/before the pin is in-pin (Task 7 gate) and correctly emits nothing
+// — see the dedicated 'ENGINE_DATA_DATE in-pin gate' describe block below.
 const CONFIRMED: RebalanceInfo = {
   globalVer: 2,
   jpVer: 2,
   versions: [
     { ver: 1 },
-    { ver: 2, jpDate: '2025-01-01', globalDate: '2026-06-01', globalArrival: '2026-06-01', modifier: 0.5, sourceUrl: 'https://x' },
+    { ver: 2, jpDate: '2025-06-01', globalDate: '2026-08-01', globalArrival: '2026-08-01', modifier: 0.5, sourceUrl: 'https://x' },
+  ],
+};
+// The real 2026-07-01 Global patch shape — on/before ENGINE_DATA_DATE, so in-pin.
+const IN_PIN: RebalanceInfo = {
+  globalVer: 2,
+  jpVer: 2,
+  versions: [
+    { ver: 1 },
+    { ver: 2, jpDate: '2025-01-01', globalDate: '2026-07-01', globalArrival: '2026-07-01', modifier: 0.6, sourceUrl: 'https://x' },
   ],
 };
 
@@ -22,7 +34,7 @@ function rec(skillId: string, rebalance?: RebalanceInfo): SkillRecord {
   } as SkillRecord;
 }
 
-const skillById = new Map([['300', rec('300', CONFIRMED)]]);
+const skillById = new Map([['300', rec('300', CONFIRMED)], ['700', rec('700', IN_PIN)]]);
 
 vi.mock('@/features/data/gameData', () => ({
   useGameData: () => ({ skillById }),
@@ -54,6 +66,13 @@ describe('useSkillPatches', () => {
     const { result } = renderHook(() => useSkillPatches(plan));
     expect(result.current).toBeUndefined();
   });
+
+  it('Task 7: an in-pin version (on/before ENGINE_DATA_DATE) is gated out — no patch entry', () => {
+    // skill 700 (IN_PIN) is confirmed 2026-07-01, which is on/before the real
+    // ENGINE_DATA_DATE ('2026-07-09') — the engine already computes it natively.
+    const { result } = renderHook(() => useSkillPatches(null));
+    expect(result.current).not.toHaveProperty('700');
+  });
 });
 
 describe('usePatchNotes', () => {
@@ -74,6 +93,11 @@ describe('usePatchNotes', () => {
       wishlist: [{ skillId: '300', priority: 1, source: 'targeted', skillVer: 1 }],
     } as unknown as CmPlan;
     const { result } = renderHook(() => usePatchNotes(plan, new Set(['300'])));
+    expect(result.current).toEqual([]);
+  });
+
+  it('Task 7: an in-pin version emits no note (no "confirmed patch, engine pin pending" chip)', () => {
+    const { result } = renderHook(() => usePatchNotes(null, new Set(['700'])));
     expect(result.current).toEqual([]);
   });
 });
