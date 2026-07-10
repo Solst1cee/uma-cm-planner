@@ -16,6 +16,7 @@
     "data:build": "tsx scripts/build-all.ts",
     "specs:html": "node scripts/render-specs.mjs",
     "sim:build": "node scripts/build-sim.mjs",
+    "sim:build:wasm": "node scripts/build-wasm.mjs",
     "timeline:import": "tsx scripts/import-official-news.ts && tsx scripts/import-uma-guide.ts",
     "timeline:rebuild": "tsx scripts/rebuild-timeline.ts"
   },
