@@ -1,8 +1,15 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { runSkillComparison, coursesService } from '@/sim/vendor/umalator.bundle.mjs';
 import { evalSkillDelta } from './run';
+import { initEngineFromFs } from './init';
 import type { SimBuild } from './types';
+
+// `evalSkillDelta` now runs the v0.27.0 WASM engine (Task 4) → needs init. The
+// upstream-parity golden (test 1) uses the OLD bundle directly and is unaffected.
+// NOTE: the WASM fidelity re-baseline (new goldens + parity record) is Task 6; this
+// file keeps only the engine-agnostic sanity here until then.
+beforeAll(async () => { await initEngineFromFs(); });
 
 // Exact inputs from the engine's own scripts/adversarial-smoke.ts.
 const smokeBuild: SimBuild = {

@@ -1,7 +1,14 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { evalSkillDelta } from './run';
+import { initEngineFromFs } from './init';
 import type { SimBuild, SimRaceParams } from './types';
+
+// `evalSkillDelta` now runs the v0.27.0 WASM engine (Task 4) → needs init. The
+// skillPatches transform is verified purely in adapter.test.ts (Task 3); these end-to-end
+// directional checks survive the engine swap. (This file is superseded by adapter.test.ts
+// and slated for deletion in Task 9.)
+beforeAll(async () => { await initEngineFromFs(); });
 
 // Shooting Star (Special Week unique) — proven to fire on 10906 (see skillLevel.test.ts).
 // Its speed effect is type 27 with base modifier 0.35 (skill-level-coef provenance header).

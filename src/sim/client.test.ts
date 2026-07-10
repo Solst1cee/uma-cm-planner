@@ -1,8 +1,14 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { SimClient } from './client';
 import { handleSimRequest } from './engine.worker';
+import { initEngineFromFs } from './init';
 import type { SimRequest, SimResponse } from './types';
+
+// The FakeWorker routes posts through the real SYNC `handleSimRequest` → run.ts wasm
+// entries, so the engine must be initialized first (the real worker inits at startup —
+// Task 5; node tests init here).
+beforeAll(async () => { await initEngineFromFs(); });
 
 /** Minimal fake Worker: routes posts through the real pure handler, async. */
 class FakeWorker {

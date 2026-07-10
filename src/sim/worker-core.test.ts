@@ -1,7 +1,12 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { handleSimRequest } from './engine.worker';
+import { initEngineFromFs } from './init';
 import type { SimBuild } from './types';
+
+// `handleSimRequest` calls the SYNC wasm entries in run.ts; the engine must be
+// initialized first (the real worker inits at startup — Task 5; node tests init here).
+beforeAll(async () => { await initEngineFromFs(); });
 
 const build: SimBuild = {
   umaId: '', stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },

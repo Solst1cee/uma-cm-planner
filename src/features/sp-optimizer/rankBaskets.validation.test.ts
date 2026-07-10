@@ -4,11 +4,16 @@
  * exact-branch invariants. Single-skill Δ-L vs VFalator is a MANUAL check
  * (see docs/mechanics-notes.md §11).
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
 
 import type { CaptureBundle } from '@/core/spOptimizer';
 import { rankBaskets } from '@/features/sp-optimizer/rankBaskets';
+import { initEngineFromFs } from '@/sim/init';
 import bundle from '@/core/__fixtures__/m2/basic-screen.json';
+
+// rankBaskets runs the REAL engine on the MAIN thread (evalSkillDelta/runPlannerCompare
+// via @/sim) — the v0.27.0 WASM engine (Task 4) needs a one-time init first.
+beforeAll(async () => { await initEngineFromFs(); });
 
 describe('rankBaskets validation (real engine, fixed seed)', () => {
   it('is deterministic across runs with the same seed', () => {
