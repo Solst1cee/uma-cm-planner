@@ -33,4 +33,15 @@ describe('BuyableSkillsTable', () => {
     await userEvent.click(screen.getByRole('button', { name: /lock 200332/i }));
     expect(onTogglePin).toHaveBeenCalledWith('200332');
   });
+  it('does not strike base cost when screenSpCost exceeds base (no discount)', () => {
+    // Second fixture row (200012): screenSpCost 130 exceeds its base cost from fixture data.
+    // The struck-base span should not render for this row.
+    render(<BuyableSkillsTable result={result} rows={rows} selectedIdx={0} pins={new Set()} onTogglePin={() => {}} onEditCost={() => {}} onSetHint={() => {}} />);
+    // The first row (200332) has base 240 and screenSpCost 144, so its base SHOULD strike.
+    expect(screen.getByText('240')).toBeInTheDocument();
+    // The second row (200012) has screenSpCost 130 which exceeds its base; no strike should render.
+    // Query for the struck base "90" in the entire document; it should not exist for row 200012.
+    const strikeSpans = screen.queryAllByText('90');
+    expect(strikeSpans.length).toBe(0);
+  });
 });

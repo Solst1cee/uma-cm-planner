@@ -51,7 +51,7 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
           // by the orchestrator today, so fall back to the game-data base cost;
           // never strike a 0 (uniques carry baseSpCost 0).
           const base = r.baseSpCost ?? skill?.baseSpCost;
-          const discounted = base !== undefined && base > 0 && base !== r.screenSpCost;
+          const discounted = base !== undefined && base > r.screenSpCost;
           return (
             <tr key={r.skillId} className={`sp-row is-${state}`}>
               <td>
