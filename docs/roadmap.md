@@ -29,8 +29,12 @@ This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / Uma
 
 ## Sidelists (parallel, non-blocking)
 
-### S1 — Engine update `v0.14.2 → v0.18.0` + data refresh
-Our pin is ~7 releases behind upstream `jalbarrang/umalator-global` (incl. the 2026-06-10 Global patch data and a "non-full spurts" engine fix). Tracked as its own checklist, gated behind a `fidelity.test.ts` re-baseline. **Full todo: [engine-update-todo.md](engine-update-todo.md).** Not a blocker for any fidelity phase; do it whenever convenient, but before relying on post-2026-06-05 skill/course data.
+### S1 — Engine re-platform TS bundle → Rust/WASM (v0.27.0) ✅ DONE (2026-07-10)
+**Superseded the old "bump v0.14.2 → v0.18.0" plan** — upstream re-platformed off TypeScript to a Rust core compiled to WebAssembly, so the right move was to re-platform onto the wasm pkg (v0.27.0, pin `484539f5`), not a TS pin bump. Done across an 11-task SDD plan: wasm build pipeline, multi-fire Rust port + determinism sort + upstream settings-thread fix (`engine-patches/2026-07-10-multifire-rust.patch`), wasm adapter, worker loader, fidelity re-baseline, one-pin data+engine bump, old-bundle deletion. **One pin now covers engine + data**; `ENGINE_DATA_DATE` gates rebalance pin-lag (July-1 95-skill patch is in-pin, no chips). 1536 tests. **P3 cutover:** every simulated number shifts (13 releases of upstream physics + fresh data) — expected and desirable, not a regression. Spec: [design](superpowers/specs/2026-07-10-sim-engine-wasm-replatform-design.md) · [plan](superpowers/plans/2026-07-10-sim-engine-wasm-replatform.md); fidelity + determinism-sort adjudication in [mechanics-notes §12](mechanics-notes.md). `docs/engine-update-todo.md` was **deleted** (premise void).
+
+**Unlocked follow-ups** (spec §10 — the Rust engine natively exposes what the old TS bundle couldn't): (1) `runContestedCompare` real-opponent fields → the deferred **near-lane skills** (Slipstream) + a dedicated **full race-sim page**; (2) **`forcedPositions`/`forcedRank` UI** (VFalator-style "force at meter" — now natively honored, the old spike's blocker is gone); (3) surface **position-keep / Power Conservation / rushed / dueling** telemetry in charts + overlays; (4) `runRaceSim` event-log-driven overlay upgrades.
+
+**Open maintainer items** (from the merge — see the PR body): interactive full-app smoke; deployed-site parity eyeball (mechanics-notes §12.3); the no-chip visual check on "The Duty of Dignity Calls".
 
 ### S2 — Public-release data swap *(only if/when sharing publicly)*
 Swap private-feed defaults → `ManualStatTargets` / curated JSON before any public deploy (per the scraping-exception posture). Parked until a public release is an actual goal.
@@ -143,7 +147,7 @@ One shared, themeable (light default + dark) token system + `ds-*` component cla
 
 | Phase | Status | Notes |
 |---|---|---|
-| S1 Engine update | ⬜ not started | v0.14.2 → v0.18.0; see engine-update-todo.md |
+| S1 Engine re-platform | ✅ done (2026-07-10) | TS bundle → Rust/WASM v0.27.0 (pin `484539f5`); one pin engine+data; 1536 tests; P3 number cutover expected. Unlocked follow-ups: near-lane/full-race-sim, force-activation UI, position-keep/Power-Conservation telemetry. `engine-update-todo.md` deleted |
 | S2 Public data swap | ⬜ parked | only when public release is a goal |
 | S3 M4 polish + mechanics | ⬜ not started | projectedL refresh, accel label/plate readability, hint-button polish, rushed/struggle/dueling stamina review, provenance |
 | A1 inline effect-chips | ⬜ future | deferred from P2; opportunistic |

@@ -10,6 +10,13 @@ procedures below when the trigger applies. All commands run from the repo root.
 **Trigger:** a new `jalbarrang/umalator-global` tag appears, or the upstream
 skills/cards dataset has updated content you want to pull.
 
+**Since the 2026-07-10 Rust/WASM re-platform, ONE pin covers both the compiled
+engine and the borrowed game data.** A pin bump now rebuilds `public/data/`
+**and** the wasm engine together (there is no longer a "data-only" bump — the
+old "sim engine is pinned separately" carve-out is gone). If you only want the
+newer *data* and not the newer engine physics, that's a deliberate split you
+have to engineer by hand; the default is: bump everything to one pin.
+
 **Step 1 — update the pin.**
 
 In `scripts/fetch-borrowed.ts`, update `UPSTREAM_COMMIT` to the full 40-char
@@ -22,18 +29,38 @@ export const UPSTREAM_COMMIT = '<new-full-sha>';
 ```
 
 Update `TACHYONS_COMMIT` in the same file if jechto/Tachyons-lab has a newer
-commit touching `front/src/app/data/data.json`.
+commit touching `front/src/app/data/data.json`. (At the re-platform pin both
+`UPSTREAM_COMMIT` and `TACHYONS_COMMIT` are `484539f5…`.)
 
-**Step 2 — fetch + build.**
+**Step 1b — bump the engine-data date.**
+
+In `src/sim/enginePin.ts`, update `ENGINE_DATA_DATE` to the new pin's baked
+master.mdb date (the date of the game-data version the engine compiled against —
+e.g. game data `10006860` → `'2026-07-09'`). This gates the rebalance-patch
+pin-lag system (`src/core/rebalance.ts` `isInPin`): a confirmed rebalance dated
+on/before this date is treated as already-computed-by-the-engine (no
+`skillPatches` injection, no "engine pin pending" chip). Get it wrong low and
+in-pin patches double-apply; wrong high and real pin-lag patches stop applying.
+
+**Step 2 — fetch + build data, then rebuild the engine.**
 
 ```sh
 pnpm data:fetch
 pnpm data:build
+pnpm sim:build      # rebuild the wasm engine at the new pin (see prereqs below)
 ```
 
 `pnpm data:fetch` downloads the pinned upstream files into `scripts/borrowed/`
 (gitignored; skipped for `localOnly` files — see below). `pnpm data:build`
 normalises, merges all `data-overrides/` files, and emits `public/data/`.
+`pnpm sim:build` recompiles the Rust engine to wasm + rebuilds the wrapper
+bundle (`src/sim/vendor/pkg/` + `umalator-wasm.bundle.mjs`) — this needs the
+Rust toolchain and the engine patch re-applied to the fresh clone; see
+`src/sim/vendor/README.md` for the toolchain prereqs and the exact
+checkout-`484539f5`-then-`git apply engine-patches/2026-07-10-multifire-rust.patch`
+flow. **A pin bump can move simulated numbers** — that is expected (new upstream
+physics + fresh data), not a regression; re-baseline `src/sim/fidelity.test.ts`
+deliberately (see mechanics-notes §12) and record the deltas.
 
 **Step 3 — reconcile `card_additions.json` on a duplicate-id failure.**
 
@@ -89,10 +116,21 @@ emitted valid JSON consumed by the app.
   `pnpm data:fetch`. They live in the committed `scripts/borrowed/` copy and
   are stable game data (affinity groups). `--from-spikes` recopies them from
   the local mdb clone if you ever need to refresh them.
-- **The sim engine is pinned separately.** `src/sim/` is a vendored bundle
-  rebuilt with `pnpm sim:build` from `spikes/repos/umalator-global/` only when
-  the engine *logic* changes. A data-only pin bump does **not** require
-  `pnpm sim:build`.
+- **The engine and the data now share ONE pin** (the 2026-07-10 re-platform).
+  `src/sim/vendor/` is the compiled wasm engine + wrapper bundle, rebuilt with
+  `pnpm sim:build`. A pin bump rebuilds both (Step 2). Only skip `pnpm sim:build`
+  if you are *deliberately* keeping the engine physics frozen while pulling
+  newer data — an unusual, hand-engineered split, not the default.
+- **Collision-resolution reality (learned at the re-platform pin, Task 8):** the
+  first full data build against a much newer pin surfaced two pre-existing
+  build-script bugs that a modest bump would have hidden. If `pnpm data:build`
+  fails on the new pin, check these before assuming your override is wrong:
+  (a) `scripts/merge-overrides` `DIRECT_OVERRIDE_FILES` — 4 override files were
+  missing from that list (so their edits silently didn't merge); (b)
+  `assertTachyonsParity` had an empty-hint-pool false-positive (the reverse
+  parity check is intact — the assertion just tripped on a legitimately empty
+  pool). Both are fixed on `main`; a future bump that touches those code paths
+  should re-verify them rather than re-introducing the same shapes.
 
 ---
 
@@ -153,7 +191,7 @@ patched. For a new CM, insert a full entry:
     "url": "https://umamusume.com/news/<id>/"  // real permalink from the news post
   },
   "server": "global",
-  "dataVersion": "global-76214c82"             // current DATA_VERSION
+  "dataVersion": "global-484539f5"             // current DATA_VERSION
 }
 ```
 
@@ -209,7 +247,7 @@ Append a full `SkillRecord` to the `records` array:
   // OR, if only JP date is known:
   // "releaseDate": "<predictGlobalDateDefault(jpISO) result>",
   // "releaseDatePredicted": true,   // flag: this is a pace-derived estimate (P3)
-  "dataVersion": "global-76214c82"  // current DATA_VERSION
+  "dataVersion": "global-484539f5"  // current DATA_VERSION
 }
 ```
 

@@ -1,7 +1,8 @@
 /** The vendored engine's baked-in game-data date (master.mdb pin).
  *
  *  Bump this on every engine-data refresh (`pnpm sim:build` against a newer
- *  master.mdb pin) — see docs/engine-update-todo.md / docs/provenance.md.
+ *  master.mdb pin) — see docs/data-refresh-runbook.md §1 (Step 1b) /
+ *  docs/provenance.md §1.
  *
  *  Consumed by `src/core/rebalance.ts` (`isInPin`) to gate the rebalance-patch
  *  system (`src/core/rebalancePatches.ts`): a confirmed skill-rebalance version
