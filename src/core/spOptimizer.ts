@@ -278,6 +278,38 @@ export function shortlistByProxy(
   return out;
 }
 
+// --- greedy-by-ratio heuristic ---
+
+/**
+ * The prereq-closed basket a naive greedy-by-(L/SP) buyer takes under `budget`:
+ * pinned forced first, then optional candidates in descending lPerSp, each pulled
+ * in with its prereq closure only if the whole closure still fits. Pure and total.
+ * Used ONLY for the "vs greedy" banner comparison — never to rank (the sim ranks).
+ */
+export function greedyByRatioBasket(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+  lPerSpById: Record<string, number>,
+): string[] {
+  const chosen = new Set(prereqClosure(pinned, candidates));
+  let spent = basketSpCost([...chosen], candidates);
+  const optional = candidates
+    .filter((c) => !chosen.has(c.skillId))
+    .sort((x, y) => (lPerSpById[y.skillId] ?? 0) - (lPerSpById[x.skillId] ?? 0));
+  for (const c of optional) {
+    if (chosen.has(c.skillId)) continue;
+    const closure = prereqClosure([c.skillId], candidates);
+    const add = closure.filter((id) => !chosen.has(id));
+    const addCost = basketSpCost(add, candidates);
+    if (spent + addCost <= budget) {
+      add.forEach((id) => chosen.add(id));
+      spent += addCost;
+    }
+  }
+  return [...chosen];
+}
+
 // --- CaptureBundle import validation (F1) ---
 
 function fail(msg: string): never { throw new Error(`Invalid CaptureBundle: ${msg}`); }

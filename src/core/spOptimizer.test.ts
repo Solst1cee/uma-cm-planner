@@ -10,6 +10,7 @@ import {
   basketSpCost,
   chooseBasketsToScore,
   enumerateFeasibleBaskets,
+  greedyByRatioBasket,
   parseCaptureBundle,
   prereqClosure,
   selectTopDiverse,
@@ -299,5 +300,30 @@ describe('wishlistToCandidates', () => {
     const byId = new Map([...SKILL_BY_ID, [jpSkill.skillId, jpSkill]]);
     const out = wishlistToCandidates([wl('900001'), wl('200332')], byId);
     expect(out.map((c) => c.skillId)).toEqual(['200332']);
+  });
+});
+
+// --- greedyByRatioBasket ---
+describe('greedyByRatioBasket', () => {
+  const cands: BuyableSkill[] = [
+    { skillId: 'a', rarity: 'white', screenSpCost: 100 },
+    { skillId: 'b', rarity: 'white', screenSpCost: 100 },
+    { skillId: 'c', rarity: 'white', screenSpCost: 100 },
+  ];
+  it('takes highest L/SP first until the budget is exhausted', () => {
+    const got = greedyByRatioBasket(cands, 200, [], { a: 1, b: 5, c: 3 });
+    expect(got.sort()).toEqual(['b', 'c']); // b(5) then c(3), a(1) skipped — budget 200
+  });
+  it('forces pinned in even at poor ratio, then greedily fills the rest', () => {
+    const got = greedyByRatioBasket(cands, 200, ['a'], { a: 1, b: 5, c: 3 });
+    expect(got.sort()).toEqual(['a', 'b']); // a pinned (100) + b best remaining (100)
+  });
+  it('pulls a gold prereq in with the gold (closed set)', () => {
+    const g: BuyableSkill[] = [
+      { skillId: 'w', rarity: 'white', screenSpCost: 100 },
+      { skillId: 'g', rarity: 'gold', screenSpCost: 100, prereqSkillId: 'w' },
+    ];
+    const got = greedyByRatioBasket(g, 200, [], { g: 9, w: 0.1 });
+    expect(got.sort()).toEqual(['g', 'w']);
   });
 });
