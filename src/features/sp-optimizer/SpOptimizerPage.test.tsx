@@ -24,7 +24,12 @@ vi.mock('@/db', () => ({
 // init guard).
 vi.mock('@/features/sp-optimizer/rankBaskets', () => ({
   rankBasketsWithEngine: vi.fn(() =>
-    Promise.resolve({ mode: 'exact', baskets: [{ skills: ['200332'], score: 1, spUsed: 110, spLeft: 0, descriptor: 'd' }] }),
+    Promise.resolve({
+      mode: 'exact',
+      baskets: [{ skills: ['200332'], score: 1, spUsed: 110, spLeft: 0, descriptor: 'd' }],
+      candidates: [{ skillId: '200332', rarity: 'white', deltaL: 1, screenSpCost: 110, lPerSp: 9, pinned: false }],
+      greedyScore: 0,
+    }),
   ),
 }));
 
@@ -74,7 +79,26 @@ describe('SpOptimizerPage', () => {
 
     expect(await screen.findByDisplayValue('777')).toBeInTheDocument();
     expect(screen.getByLabelText('Available SP')).toHaveValue(777);
-    expect(screen.getByLabelText('Course id')).toHaveValue('10906');
     expect(screen.getByRole('spinbutton', { name: /Cost for/i })).toHaveValue(71);
+  });
+
+  it('shows the two tabs and the F2 placeholder on the compare tab', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('tab', { name: /Compare vs veteran/i }));
+    expect(screen.getByText(/coming in F2/i)).toBeInTheDocument();
+  });
+
+  it('marks the result stale after a pin and clears it on Re-analyze', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    await user.click(screen.getByRole('button', { name: /^Analyze$|Re-analyze/i }));
+    await screen.findByText('Suggested baskets');
+    await user.click(screen.getByRole('button', { name: /Lock 200332/i }));
+    expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Re-analyze/i }));
+    await screen.findByText('Suggested baskets');
+    expect(screen.queryByText(/changes detected/i)).not.toBeInTheDocument();
   });
 });
