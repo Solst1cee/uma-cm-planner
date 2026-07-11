@@ -15,6 +15,8 @@ afterEach(cleanup);
 
 const RESULT: RankResult = {
   mode: 'exact',
+  candidates: [],
+  greedyScore: 0,
   baskets: [
     { skills: ['200332'], score: 2.4, spUsed: 120, spLeft: 380, descriptor: '+2.4 lengths · tight spread' },
     { skills: ['200331'], score: 1.1, spUsed: 160, spLeft: 340, descriptor: '+1.1 lengths · moderate spread' },
