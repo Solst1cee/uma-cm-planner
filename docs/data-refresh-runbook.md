@@ -29,8 +29,10 @@ export const UPSTREAM_COMMIT = '<new-full-sha>';
 ```
 
 Update `TACHYONS_COMMIT` in the same file if jechto/Tachyons-lab has a newer
-commit touching `front/src/app/data/data.json`. (At the re-platform pin both
-`UPSTREAM_COMMIT` and `TACHYONS_COMMIT` are `484539f5…`.)
+commit touching `front/src/app/data/data.json`. (It is a separate repo with its
+own pin — at the 2026-07-10 re-platform refresh it was bumped to its 2026-07-01
+commit `1e8692a3…`; only `UPSTREAM_COMMIT` is the unified app+engine pin
+`484539f5…`.)
 
 **Step 1b — bump the engine-data date.**
 

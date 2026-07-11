@@ -8,7 +8,7 @@ This project borrows algorithms and (in later phases) vendors simulation-engine 
 
 - **uma-skill-tools** & **uma-tools** — Copyright (C) 2022 pecan (alpha123), GPL-3.0-or-later. https://github.com/alpha123/uma-skill-tools
 - **VFalator / umalator fork line** — contributors incl. Transparent Dino, jechtoff2dudes, Kachi. https://github.com/kachi-dev/uma-tools
-- **umalator-global ("Torena Sim")** — jalbarrang, GPL-3.0-only. https://github.com/jalbarrang/umalator-global — source of the data-pipeline approach, SP cost algorithm, and (Phase 4) the vendored simulation engine, pinned at v0.14.2 (`c1fa2107`).
+- **umalator-global ("Torena Sim")** — jalbarrang, GPL-3.0-only. https://github.com/jalbarrang/umalator-global — source of the data-pipeline approach, SP cost algorithm, and the vendored simulation engine: originally vendored at v0.14.2 (`c1fa2107`), re-platformed to the Rust/WASM engine at v0.27.0 (`484539f5`) 2026-07 (see "Vendored simulation engine" below).
 
 Mechanics numbers are community research — sources cited per-value in [docs/mechanics-notes.md](docs/mechanics-notes.md), notably Ice's Affinity & Inspirations sheet (@BourBon_Polaris's empirical data) and CrazyFellow's guides.
 
