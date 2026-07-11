@@ -140,7 +140,8 @@ export function SpOptimizerPage() {
       {result && (
         <section className="panel" aria-labelledby="sp-results-h">
           <h2 id="sp-results-h">Suggested baskets</h2>
-          <BuildCards result={result} />
+          {/* Task 9 wires these */}
+          <BuildCards result={result} selectedIdx={0} onSelect={() => {}} onCompare={() => {}} />
           <div className="sp-save">
             <label>
               Save as
