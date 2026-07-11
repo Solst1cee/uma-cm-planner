@@ -21,6 +21,9 @@ beforeAll(async () => {
   );
 });
 
+// Canonical skill-id names used below (shared with fidelity.test.ts):
+// 200332 = Corner Adept ○ (trigger all_corner_random),
+// 200331 = Professor of Curvature (all_corner_random, short cooldown — multi-fire).
 const build: SimBuild = {
   umaId: '',
   stats: { spd: 1150, sta: 800, pow: 1000, gut: 500, wit: 850 },

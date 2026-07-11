@@ -15,12 +15,15 @@ export interface BuildContextFormProps {
   initialCourseId?: string;
   initialSource?: CaptureBundle['source'];
   dataVersion?: string;
+  /** True while an analysis is running (the engine may be initializing on the
+   *  first click); disables the Analyze button and shows a pending label. */
+  pending?: boolean;
   /** Clock injected so the component stays testable/deterministic. */
   now?: () => string;
 }
 
 export function BuildContextForm({
-  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-484539f5', now,
+  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-484539f5', pending = false, now,
 }: BuildContextFormProps) {
   const { skillById } = useGameData();
   const [spBudget, setSpBudget] = useState(initialSpBudget ?? 1000);
@@ -119,8 +122,8 @@ export function BuildContextForm({
         })}
       </ul>
 
-      <button type="button" className="sp-analyze" onClick={analyze} disabled={candidates.length === 0}>
-        Analyze
+      <button type="button" className="sp-analyze" onClick={analyze} disabled={candidates.length === 0 || pending}>
+        {pending ? 'Analyzing…' : 'Analyze'}
       </button>
     </div>
   );

@@ -2,16 +2,6 @@ import { evalSkillDelta, runVacuumCompare, runPlannerCompare, runSkillTrace, ski
 import type { SimRequest, SimResponse } from './types';
 
 /**
- * Pure request handler — unit-testable without a real Worker. Runs the SYNC
- * wasm entries in `run.ts`, so callers must ensure the engine is already
- * initialized (the real worker inits at startup, see `engine.worker.ts`; node
- * tests do `beforeAll(initEngineFromFs)`).
- *
- * Deliberately free of any `?url`/`?worker` asset import — the worker entry
- * (`engine.worker.ts`) is the ONLY module that pulls in the wasm asset URL,
- * so this file stays importable from plain node-environment tests.
- */
-/**
  * Wrap an init factory into a retrying "ready gate". While the current
  * attempt is pending or has FULFILLED, every call returns that same promise
  * (one init, shared by all queued messages). After a REJECTED attempt the
@@ -54,6 +44,16 @@ export function dispatchWhenReady(ensureReady: () => Promise<void>, req: SimRequ
   );
 }
 
+/**
+ * Pure request handler — unit-testable without a real Worker. Runs the SYNC
+ * wasm entries in `run.ts`, so callers must ensure the engine is already
+ * initialized (the real worker inits at startup, see `engine.worker.ts`; node
+ * tests do `beforeAll(initEngineFromFs)`).
+ *
+ * Deliberately free of any `?url`/`?worker` asset import — the worker entry
+ * (`engine.worker.ts`) is the ONLY module that pulls in the wasm asset URL,
+ * so this file stays importable from plain node-environment tests.
+ */
 export function handleSimRequest(req: SimRequest): SimResponse {
   try {
     switch (req.kind) {

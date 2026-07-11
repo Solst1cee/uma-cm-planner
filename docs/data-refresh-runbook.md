@@ -118,6 +118,13 @@ emitted valid JSON consumed by the app.
   `pnpm data:fetch`. They live in the committed `scripts/borrowed/` copy and
   are stable game data (affinity groups). `--from-spikes` recopies them from
   the local mdb clone if you ever need to refresh them.
+- **`scripts/borrowed/.gitignore` is regenerated as `*` on every fetch** (the
+  fetch step rewrites it to ignore the whole re-fetchable borrowed dir).
+  Files already tracked in git stay tracked (git ignores `.gitignore` for
+  already-tracked paths), so a normal refresh needs no action. But **adding or
+  re-adding a `localOnly` file to git requires `git add -f`** (e.g.
+  `git add -f scripts/borrowed/relation.json`) — a plain `git add` is silently
+  ignored by the `*` rule.
 - **The engine and the data now share ONE pin** (the 2026-07-10 re-platform).
   `src/sim/vendor/` is the compiled wasm engine + wrapper bundle, rebuilt with
   `pnpm sim:build`. A pin bump rebuilds both (Step 2). Only skip `pnpm sim:build`

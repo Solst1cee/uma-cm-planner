@@ -42,9 +42,10 @@ import type { SimBuild, SimRaceParams } from './types';
 import { STRATEGY_LABEL, toRaceDef } from './adapter';
 import { coef } from './skillLevelCoef';
 
-/** Map OUR build to the WASM bundle's IRunnerState (same label/letter/wit->wisdom
- *  convention as `adapter.ts`'s `toRunnerState` — upstream's `toCreateRunner` still
- *  consumes 'Pace Chaser'-style labels and letter aptitudes directly). */
+/** Map OUR build to the WASM bundle's IRunnerState. Strategy is emitted as a
+ *  'Pace Chaser'-style label (via STRATEGY_LABEL) and aptitudes as letter grades,
+ *  because upstream's `toCreateRunner` still consumes those forms directly; our
+ *  'wit' maps to the engine's 'wisdom'. */
 function toWasmRunnerState(build: SimBuild): WasmIRunnerState {
   return {
     outfitId: build.umaId,

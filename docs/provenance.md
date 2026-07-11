@@ -20,8 +20,9 @@ All findings below: **Phase 0 spikes, retrieved/verified 2026-06-12** unless dat
 - **Lineage:** alpha123/uma-skill-tools (pecan, 2022) → VFalator fork → jalbarrang. Engine heavily rewritten: lives in `src/lib/sunday-tools/` ("sunday-tools", renamed from uma-skill-tools); `Race`/`Runner` classes replace the old `RaceSolver`/`RaceSolverBuilder`.
 - **Why this one (vs alternatives):** alpha123 upstream uses JP-server data/mechanics and the older architecture; kachi-dev/uma-tools fork is older RaceSolver architecture with Preact UI, checked-in bundles, and (in our clone) a dangling `EnhancedHpPolicy` import. umalator-global has the modern Global data pipeline and proven headless usage in-repo (`scripts/run-skill-compare.ts` runs under Bun with no DOM; 4 web workers run it off-main-thread).
 
-### Entry points for our use case
-| Path (in upstream) | Use |
+### HISTORY — entry points on the old TS-bundle engine (v0.14.2, superseded 2026-07-10)
+These upstream TypeScript paths describe the **pre-wasm** engine and **no longer exist in the v0.27.0 Rust/WASM tree** (the physics is now the `uma-sim-wasm` Rust crate; the app talks to the wrapper bundle's `runCompare` + adapters/reducers via `src/sim/run.ts` → `src/sim/wasmAdapter.ts`, not these files). Retained for lineage/context only.
+| Path (in upstream, v0.14.2) | Use (historical) |
 |---|---|
 | `src/modules/simulation/simulators/skill-compare.ts` | **Primary:** `runSkillComparison` / `runSampling` — per-skill bashin deltas via Monte Carlo (two single-runner `Race` instances, identical per-sample seeds, bashin = positionDiff/2.5) |
 | `src/modules/simulation/simulators/vacuum-compare.ts` | `runComparison` — two-build compare (umalator classic mode) |
@@ -186,7 +187,7 @@ The **availability epic** (PRs #25–#34, 2026-07-01→03) reverses the earlier 
 - **Skill rebalances** (`#4`, PRs #31–#34; `src/core/rebalance.ts` pure): a skill's activation conditions/effect values change over time (JP first, Global ~a foresight-gap later, or already live while our frozen engine pin lags).
   - **AUTO feed** (`scripts/lib/rebalances.ts` `detectCandidates`): a **build-time GameTora JP-vs-Global condition diff** (`condition_groups` vs `loc.en.condition_groups`) surfaces **88** `uncuratedCandidate` "Δ?" badges — a review queue, never sim-eligible until curated.
   - **HAND feed** — `data-overrides/rebalances.json` (P5, curated version-sets). The **2026-07-01 Global patch (95 skills)** was datamined via the **masterdb patch-diff technique** (diffing upstream `jalbarrang/umalator-global` git-history extracts across the patch; patch `resource_version` 10006800). Each version ≥2 that changes a value cites its `sourceUrl` (the umalator-global commit, e.g. `github.com/jalbarrang/umalator-global/commit/0a79f4b7…`). Build-time guards (P5, fail-loud) reject `modifier` on multi-effect skills + malformed `conditions` (`scripts/lib/rebalances.ts`).
-  - **Engine application** — `skillPatches` threaded into the vendored engine (`engine-patches/2026-07-03-skill-patches.patch`; apply then `pnpm sim:build`). Identity backstop: absent/empty/unrelated patches ⇒ byte-identical, fidelity 0.2202 unchanged.
+  - **Engine application** — `skillPatches` are applied **app-side** as a per-runner transform on the resolved skill inputs in `src/sim/wasmAdapter.ts` (`applySkillPatch`, before the level scaling), threaded to the wasm engine via `IRunnerState.skillPatches` — *not* an engine-source patch (the old `engine-patches/2026-07-03-skill-patches.patch` was superseded by this adapter path in the 2026-07-10 wasm re-platform; the only remaining engine patch is `engine-patches/2026-07-10-multifire-rust.patch`). Identity backstop: absent/empty/unrelated patches ⇒ byte-identical (verified in `src/sim/skillPatches.test.ts`).
 
 ---
 

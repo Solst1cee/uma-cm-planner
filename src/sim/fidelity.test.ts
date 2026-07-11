@@ -15,6 +15,10 @@ import { evalSkillDelta, evalSkillDeltaWithSettings, skillImpact } from './run';
 import { initEngineFromFs } from './init';
 import type { SimBuild } from './types';
 
+// Canonical skill-id names (shared with run.test.ts; kept here so the ids below
+// read without a data lookup): 200332 = Corner Adept ○ (trigger all_corner_random),
+// 200331 = Professor of Curvature (all_corner_random, short cooldown — multi-fire).
+//
 // Exact inputs from the old engine's scripts/adversarial-smoke.ts (kept identical
 // across the re-platform so the anchors stay comparable release-over-release).
 const smokeBuild: SimBuild = {
