@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      exclude: ['@/sim/vendor/umalator.bundle.mjs'],
+      exclude: ['@/sim/vendor/umalator-wasm.bundle.mjs'],
     },
     test: {
       environment: 'jsdom',

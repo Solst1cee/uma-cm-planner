@@ -17,8 +17,15 @@ vi.mock('@/db', () => ({
   deleteCapture: vi.fn(async () => undefined),
 }));
 
+// The page runs the ASYNC main-thread seam (rankBasketsWithEngine), which in
+// production awaits the wasm engine init before ranking. jsdom has no wasm, so
+// mock the seam to resolve immediately — no engine touched (keeps the jsdom
+// test green without real wasm; see rankBaskets.init.test.ts for the real-seam
+// init guard).
 vi.mock('@/features/sp-optimizer/rankBaskets', () => ({
-  rankBaskets: vi.fn(() => ({ mode: 'exact', baskets: [{ skills: ['200332'], score: 1, spUsed: 110, spLeft: 0, descriptor: 'd' }] })),
+  rankBasketsWithEngine: vi.fn(() =>
+    Promise.resolve({ mode: 'exact', baskets: [{ skills: ['200332'], score: 1, spUsed: 110, spLeft: 0, descriptor: 'd' }] }),
+  ),
 }));
 
 vi.mock('@/app/ActivePlanContext', () => ({
@@ -37,6 +44,8 @@ describe('SpOptimizerPage', () => {
 
     await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
-    expect(screen.getByText('Suggested baskets')).toBeInTheDocument();
+    // analyze() is async now (awaits the main-thread engine-init seam), so the
+    // results render on a later tick — findBy waits for it.
+    expect(await screen.findByText('Suggested baskets')).toBeInTheDocument();
   });
 });

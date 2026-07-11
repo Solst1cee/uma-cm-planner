@@ -143,3 +143,21 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
     })),
   };
 }
+
+/**
+ * The main-thread production entry: ensure the wasm engine is initialized, then
+ * run the SYNC orchestrator. This is the single seam every main-thread M2
+ * consumer goes through, so none can reach the uninitialized sync engine — the
+ * bug the guard test (`rankBaskets.init.test.ts`) pins. Only the REAL_DEPS path
+ * needs init: when a caller injects `opts.deps` (deterministic tests / jsdom),
+ * the real engine is never touched, so init is skipped entirely. The wasm asset
+ * URL lives behind the `@/sim/ensureMainThread` dynamic import so it stays out
+ * of eager chunks (chunk discipline: only the lazy M2 chunk pulls it).
+ */
+export async function rankBasketsWithEngine(bundle: CaptureBundle, opts: RankOpts = {}): Promise<RankResult> {
+  if (!opts.deps) {
+    const { ensureMainThreadEngine } = await import('@/sim/ensureMainThread');
+    await ensureMainThreadEngine();
+  }
+  return rankBaskets(bundle, opts);
+}

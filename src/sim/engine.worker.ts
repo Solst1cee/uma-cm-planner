@@ -1,32 +1,38 @@
-import { evalSkillDelta, runVacuumCompare, runPlannerCompare, runSkillTrace, skillImpact, runRaceCompare } from './run';
+// The real Worker entry point. Kicks off the wasm engine init immediately on
+// module load (Vite's `?url` import emits the wasm as a hashed asset — this
+// is the ONLY file that imports it, keeping every other chunk lazy/engine-free)
+// and awaits readiness at the head of the message handler, so requests
+// arriving before init completes are QUEUED (via promise chaining), never
+// dropped. Readiness goes through `createReadyGate` rather than a one-shot
+// module-level promise: after a REJECTED init attempt (transient network blip
+// fetching the wasm), the next message re-invokes `initEngineFromUrl` — whose
+// own memo also clears on reject, so the retry genuinely re-fetches — instead
+// of every future message chaining onto a permanently-rejected promise.
+//
+// Deliberately no client-side ready-handshake: the protocol (`SimRequest` in,
+// `SimResponse` out) is unchanged from before this task. All per-message
+// logic (`handleSimRequest`, `dispatchWhenReady`, `createReadyGate`) lives in
+// `./worker-core` so node-environment tests can exercise it without pulling
+// in this `?url` asset import, which needs a real fetchable URL that only
+// exists under a real Worker/browser (or the Vite dev/build pipeline) — not
+// plain node vitest.
+import wasmUrl from './vendor/pkg/uma_sim_wasm_bg.wasm?url';
+import { initEngineFromUrl } from './init';
+import { createReadyGate, dispatchWhenReady } from './worker-core';
 import type { SimRequest, SimResponse } from './types';
 
-/** Pure request handler — unit-testable without a real Worker. */
-export function handleSimRequest(req: SimRequest): SimResponse {
-  try {
-    switch (req.kind) {
-      case 'skillDelta':
-        return { id: req.id, ok: true, kind: 'skillDelta', stats: evalSkillDelta(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'planner':
-        return { id: req.id, ok: true, kind: 'planner', stats: runPlannerCompare(req.build, req.race, req.candidateSkills, req.nsamples, req.seed) };
-      case 'vacuum':
-        return { id: req.id, ok: true, kind: 'vacuum', stats: runVacuumCompare(req.a, req.b, req.race, req.nsamples, req.seed, req.opts) };
-      case 'skillTrace':
-        return { id: req.id, ok: true, kind: 'skillTrace', trace: runSkillTrace(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'skillImpact':
-        return { id: req.id, ok: true, kind: 'skillImpact', impact: skillImpact(req.build, req.race, req.skillId, req.nsamples, req.seed) };
-      case 'raceCompare':
-        return { id: req.id, ok: true, kind: 'raceCompare', result: runRaceCompare(req.uma1, req.uma2, req.race, req.nsamples, req.seed) };
-    }
-  } catch (e) {
-    return { id: req.id, ok: false, error: e instanceof Error ? e.message : String(e) };
-  }
-}
+const ensureReady = createReadyGate(() => initEngineFromUrl(wasmUrl));
 
-// Worker shell (ignored under the node test environment, which has no `self`).
 declare const self: { onmessage: ((e: { data: SimRequest }) => void) | null; postMessage: (m: SimResponse) => void } | undefined;
 if (typeof self !== 'undefined' && 'postMessage' in (self as object)) {
-  (self as NonNullable<typeof self>).onmessage = (e) => {
-    (self as NonNullable<typeof self>).postMessage(handleSimRequest(e.data));
+  const worker = self as NonNullable<typeof self>;
+  // Warm-start init eagerly at worker startup. A failure here is NOT fatal —
+  // swallow it (avoids an unhandled-rejection event); each message re-checks
+  // readiness via `ensureReady()`, which retries after a rejected attempt.
+  void ensureReady().catch(() => {});
+  worker.onmessage = (e) => {
+    // On init failure the pending request resolves to an honest {ok:false}
+    // error SimResponse (dispatchWhenReady) instead of hanging the caller.
+    void dispatchWhenReady(ensureReady, e.data).then((res) => worker.postMessage(res));
   };
 }

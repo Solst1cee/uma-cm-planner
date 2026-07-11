@@ -5,7 +5,7 @@ import { type BuyableSkill, type CaptureBundle, parseCaptureBundle, wishlistToCa
 import { useGameData } from '@/features/data/gameData';
 import { BuildCards } from '@/features/sp-optimizer/BuildCards';
 import { BuildContextForm } from '@/features/sp-optimizer/BuildContextForm';
-import { type RankResult, rankBaskets } from '@/features/sp-optimizer/rankBaskets';
+import { type RankResult, rankBasketsWithEngine } from '@/features/sp-optimizer/rankBaskets';
 import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 import './sp-optimizer.css';
 
@@ -22,6 +22,7 @@ export function SpOptimizerPage() {
   const [label, setLabel] = useState('');
   const [seed, setSeed] = useState<Seed | null>(null);
   const [seedKey, setSeedKey] = useState(0);
+  const [analyzing, setAnalyzing] = useState(false);
 
   function applySeed(next: Seed) {
     setSeed(next);
@@ -46,14 +47,20 @@ export function SpOptimizerPage() {
     applySeed({ candidates: wishlistToCandidates(plan.wishlist, skillById), source: 'manual' });
   }
 
-  function analyze(b: CaptureBundle) {
+  // Async because the main-thread wasm engine must be initialized before the
+  // sim runs (rankBasketsWithEngine awaits that init on the first Analyze).
+  async function analyze(b: CaptureBundle) {
     setBundle(b);
+    setAnalyzing(true);
     try {
-      setResult(rankBaskets(b));
+      const ranked = await rankBasketsWithEngine(b);
+      setResult(ranked);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setResult(null);
+    } finally {
+      setAnalyzing(false);
     }
   }
 
@@ -102,6 +109,7 @@ export function SpOptimizerPage() {
         <BuildContextForm
           key={seedKey}
           onAnalyze={analyze}
+          pending={analyzing}
           initialCandidates={seed?.candidates}
           initialSpBudget={seed?.sp}
           initialCourseId={seed?.courseId}
@@ -135,7 +143,7 @@ export function SpOptimizerPage() {
           <ul className="sp-saved">
             {captures.items.map((c) => (
               <li key={c.id}>
-                <button type="button" className="sp-load" onClick={() => analyze(c.bundle)}>{c.label}</button>
+                <button type="button" className="sp-load" onClick={() => void analyze(c.bundle)}>{c.label}</button>
                 <button type="button" aria-label={`Delete ${c.label}`} onClick={() => captures.remove(c.id)}>✕</button>
               </li>
             ))}

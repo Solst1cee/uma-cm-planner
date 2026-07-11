@@ -15,7 +15,7 @@ const perLevel = [0, 1, 2, 3, 4].map((lb) => ({ limitBreak: lb, hintFrequency: 1
 const valid = {
   cardId: '40001', nameEn: 'Preview SSR', charName: 'Someone', rarity: 'SSR', type: 'speed',
   perLevel, skills: [{ skillId: '200001', sourceType: 'hint_pool', hintLevels: 1 }], hintPoolSize: 1,
-  server: 'jp', dataVersion: 'global-76214c82', releaseDate: '2026-07-30', releaseDatePredicted: true,
+  server: 'jp', dataVersion: 'global-484539f5', releaseDate: '2026-07-30', releaseDatePredicted: true,
 };
 
 describe('loadUpcomingCards', () => {

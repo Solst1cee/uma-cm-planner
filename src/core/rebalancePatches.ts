@@ -4,7 +4,7 @@
  *  All date logic lives in resolveVersion/effectiveVersion (4a) — this module
  *  only walks the catalog and shapes the result. */
 import type { SkillRecord, WishlistItem } from './types';
-import { effectiveVersion, resolveVersion, versionPatch, type SkillPatch } from './rebalance';
+import { effectiveVersion, isInPin, resolveVersion, versionPatch, type SkillPatch } from './rebalance';
 import type { SimBuild } from '@/sim/types';
 import { wishlistSkillId } from '@/features/skill-planner/skillFamilies';
 
@@ -12,6 +12,11 @@ export interface PatchCtx {
   skillById: ReadonlyMap<string, SkillRecord>;
   cutoffISO: string;
   todayISO: string;
+  /** Vendored engine data pin date (`src/sim/enginePin.ts` `ENGINE_DATA_DATE`).
+   *  Versions confirmed live on/before this date are in-pin — already baked into
+   *  the engine natively — and are gated out of both the patch map and the notes
+   *  below (Task 7). Every call site threads `ENGINE_DATA_DATE` here directly. */
+  engineDataDate: string;
   /** Per-plan pins: resolved engine skill id -> pinned version (spec H). */
   pins?: ReadonlyMap<string, number>;
 }
@@ -40,6 +45,7 @@ export function skillPatchMap(ctx: PatchCtx): Record<string, SkillPatch> | undef
     const info = rec.rebalance;
     if (!info) continue;
     const v = resolveVersion(info, ctx.pins?.get(rec.skillId), ctx.cutoffISO, ctx.todayISO);
+    if (isInPin(v, ctx.engineDataDate)) continue; // engine already computes this version natively
     const patch = versionPatch(v);
     if (patch) entries.push([rec.skillId, patch]);
   }
@@ -82,13 +88,18 @@ export function activePatchNotes(ctx: PatchCtx): ActivePatchNote[] {
     if (!info) continue;
     const pin = ctx.pins?.get(rec.skillId);
     const v = resolveVersion(info, pin, ctx.cutoffISO, ctx.todayISO);
+    if (isInPin(v, ctx.engineDataDate)) continue; // in-pin: no patch, no note (the engine already IS this version)
     if (!versionPatch(v)) continue;
     const def = effectiveVersion(info, ctx.cutoffISO, ctx.todayISO);
     notes.push({
       skillId: rec.skillId,
       name: rec.nameEn,
       ver: v.ver,
-      pinLag: v.ver <= info.globalVer,
+      // The `!isInPin` conjunct is UNREACHABLE in the current control flow (an
+      // in-pin version is `continue`d above and never produces a note) — it does
+      // no work today. Kept purely as defense against a future reordering of this
+      // loop, matching the task-7 spec's pinLag formula verbatim.
+      pinLag: v.ver <= info.globalVer && !isInPin(v, ctx.engineDataDate),
       predicted: v.globalDatePredicted === true,
       ...(v.globalArrival !== undefined ? { arrival: v.globalArrival } : {}),
       pinned: pin !== undefined && v.ver !== def.ver,

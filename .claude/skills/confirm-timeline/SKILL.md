@@ -43,8 +43,8 @@ Search `data-overrides/timeline_overrides.json` for the event (by `cmNumber` or 
   `dates.start` = banner open (+ `end` if announced), then also do Step 3.
 - **Game patch date** → insert `type: "patch"` with `patch: { version?, summary? }`.
   Skill **rebalance data changes are out of scope** here — that's a separate
-  handpicked system (see `docs/engine-update-todo.md`); this skill only records the
-  patch *date* on the timeline.
+  system (see `docs/data-refresh-runbook.md` §4 + `scripts/rebalance-datamine/`);
+  this skill only records the patch *date* on the timeline.
 
 ## Step 3 — Banners: confirm the record's release date
 

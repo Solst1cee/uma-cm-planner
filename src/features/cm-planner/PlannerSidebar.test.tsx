@@ -52,6 +52,16 @@ const h = vi.hoisted(() => {
         { ver: 2, jpDate: '2025-11-20', globalArrival: '2026-08-10', globalDatePredicted: true },
       ],
     }),
+    // Task 7: v2 is confirmed on/before the real ENGINE_DATA_DATE ('2026-07-09') — in-pin.
+    // Pinning back to v1 can't be reproduced in sim (no override path to older values).
+    skill('reb2', 'In-Pin Rebalanced Skill', 'white', '20011', 'phase>=2', 100, undefined, undefined, {
+      globalVer: 2,
+      jpVer: 2,
+      versions: [
+        { ver: 1 },
+        { ver: 2, jpDate: '2025-06-01', globalDate: '2026-07-01', globalArrival: '2026-07-01', modifier: 0.6 },
+      ],
+    }),
     { ...skill('jpw1', 'JP Upcoming White', 'white', '20011', 'phase>=1', 120), server: 'jp', releaseDate: '2026-09-01', releaseDatePredicted: true },
   ];
   const umas = [
@@ -707,6 +717,49 @@ describe('PlannerSidebar', () => {
 
     const next = onChange.mock.lastCall![0] as CmPlan;
     expect(next.wishlist[0]).not.toHaveProperty('skillVer');
+  });
+
+  it('Task 7: marks an older-than-in-pin version "unavailable in sim" in the picker option', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb2', priority: 1, source: 'targeted' }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for In-Pin Rebalanced Skill') as HTMLSelectElement;
+    // v2 is in-pin (confirmed 2026-07-01, on/before ENGINE_DATA_DATE) and is the default.
+    expect(select).toHaveValue('2');
+    expect(within(select).getByRole('option', { name: /v2 \(Global\) — default/ })).toBeInTheDocument();
+    // v1 can no longer be reproduced in sim now that v2 is baked into the engine natively.
+    expect(within(select).getByRole('option', { name: /v1 — pre-patch values unavailable in sim/ })).toBeInTheDocument();
+  });
+
+  it('Task 7: a pin OLDER than the in-pin floor gets an honest tooltip (sims use the engine built-in values)', () => {
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb2', priority: 1, source: 'targeted', skillVer: 1 }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for In-Pin Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    // v1 is older than the in-pin v2 — no patch is injected, sims run the engine's
+    // native values, so the tooltip must NOT claim "sims use v1 parameters".
+    expect(select).toHaveAttribute(
+      'title',
+      "Pinned v1 — pre-patch values unavailable in sim; sims use the engine's built-in values",
+    );
+  });
+
+  it('Task 7: a sim-effective pin keeps the honest "sims use vN parameters" tooltip', () => {
+    // reb1's v2 is predicted (not in-pin); pinning it injects a real patch, so the
+    // original tooltip wording is still true.
+    renderSidebar({
+      ...(h.plan as CmPlan),
+      wishlist: [{ skillId: 'reb1', priority: 1, source: 'targeted', skillVer: 2 }],
+    });
+
+    const select = screen.getByLabelText('Rebalance version for Rebalanced Skill');
+    expect(select).toHaveClass('is-pinned');
+    expect(select).toHaveAttribute('title', 'Pinned — sims use v2 parameters');
   });
 
   it('shows no rebalance picker for a wishlist skill with no rebalance info', () => {

@@ -20,27 +20,25 @@ const umas = readData<UmaRecord[]>('umas.json');
 const timeline = readData<{ dataVersion: string; entries: TimelineEntry[] }>('timeline.json');
 
 describe('public/data/skills.json', () => {
-  it('contains 587 Global skills + 1132 JP-ahead skills (total 1719), all on the pinned dataVersion', () => {
-    expect(skills).toHaveLength(1719);
+  it('contains 660 Global skills + 1062 JP-ahead skills (total 1722), all on the pinned dataVersion', () => {
+    expect(skills).toHaveLength(1722);
     const global = skills.filter((s) => s.server === 'global');
     const jp = skills.filter((s) => s.server === 'jp');
-    expect(global).toHaveLength(587);
-    expect(jp).toHaveLength(1132);
+    expect(global).toHaveLength(660);
+    expect(jp).toHaveLength(1062);
     expect(jp.every((s) => s.releaseDate !== undefined)).toBe(true); // every JP skill is dated
-    expect(skills.every((s) => s.dataVersion === 'global-76214c82')).toBe(true);
+    expect(skills.every((s) => s.dataVersion === 'global-484539f5')).toBe(true);
   });
 
-  it('emits JP inherited-unique twins nested under gametora gene_version (170 of the 962 JP uniques)', () => {
+  it('emits JP inherited-unique twins nested under gametora gene_version (164 of the 898 JP uniques)', () => {
     // gametora nests each inherited unique under its parent unique's
     // gene_version; buildJpSkills emits those as inherited_unique records
     // (id starts with '9', mirroring the Global 9xxxxx convention, though
     // some gametora gene ids run longer than 6 digits) dated like their
-    // parent (175 carry gene_version, 5 collide within gametora's own data —
-    // two evolution-stage uniques sharing one gene id — and are deduped to a
-    // single record, netting 170).
+    // parent (v0.27.0 pin: netting 164 after gene_version-id dedup).
     const jp = skills.filter((s) => s.server === 'jp');
     const inherited = jp.filter((s) => s.rarity === 'inherited_unique');
-    expect(inherited).toHaveLength(170);
+    expect(inherited).toHaveLength(164);
     expect(inherited.every((s) => /^9\d+$/.test(s.skillId))).toBe(true);
     expect(inherited.every((s) => s.baseSpCost === 0)).toBe(true);
     expect(inherited.every((s) => s.releaseDate !== undefined)).toBe(true);
@@ -72,7 +70,7 @@ describe('public/data/skills.json', () => {
     // the gene_version test above) are covered separately since they're not
     // constrained to the 6-digit 9xxxxx block.
     const inherited = skills.filter((s) => s.server === 'global' && s.rarity === 'inherited_unique');
-    expect(inherited).toHaveLength(87);
+    expect(inherited).toHaveLength(91);
     expect(inherited.every((s) => /^9\d{5}$/.test(s.skillId))).toBe(true);
     const uniques = skills.filter((s) => s.rarity === 'unique');
     expect(uniques.length).toBeGreaterThan(0);
@@ -93,16 +91,17 @@ describe('public/data/skills.json', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('bakes rebalance annotations: 95 curated (2026-07-01 patch) + 25 uncurated auto-candidates', () => {
+  it('bakes rebalance annotations: 95 curated (2026-07-01 patch) + 31 uncurated auto-candidates', () => {
     // Availability #4: data-overrides/rebalances.json carries the 95-skill
     // 2026-07-01 Global patch (game data 10006800) as hand-curated ver-2 history.
     // Remaining records still come from the AUTO JP-vs-Global condition-diff feed
-    // (detectCandidates) not covered by a curated entry.
+    // (detectCandidates) not covered by a curated entry — the v0.27.0 pin's newer
+    // JP data surfaces 6 more auto-detected candidates (25 → 31).
     const annotated = skills.filter((s) => s.rebalance !== undefined);
     const uncurated = annotated.filter((s) => s.rebalance?.uncuratedCandidate === true);
     const curated = annotated.filter((s) => s.rebalance && s.rebalance.versions.length > 1);
     expect(curated).toHaveLength(95);
-    expect(uncurated).toHaveLength(25);
+    expect(uncurated).toHaveLength(31);
     expect(annotated).toHaveLength(uncurated.length + curated.length);
     for (const s of uncurated) {
       expect(s.rebalance?.candidateConditions?.jp).not.toBe(s.rebalance?.candidateConditions?.global);
@@ -111,16 +110,16 @@ describe('public/data/skills.json', () => {
 });
 
 describe('public/data/support_cards.json', () => {
-  it('contains 222 Global cards + JP-ahead cards (total 539), Global cards all server=global', () => {
+  it('contains 229 Global cards + JP-ahead cards (total 541), Global cards all server=global', () => {
     const globalCards = cards.filter((c) => c.server === 'global');
     const jpCards = cards.filter((c) => c.server === 'jp');
-    expect(globalCards).toHaveLength(222);
+    expect(globalCards).toHaveLength(229);
     expect(jpCards.length).toBeGreaterThan(0);
-    expect(cards).toHaveLength(539);
-    // The v0.16.1 pin (76214c82) now emits 30102/30103/30104, so the former
+    expect(cards).toHaveLength(541);
+    // The v0.27.0 pin (484539f5) now emits 30102/30103/30104, so the former
     // card_additions.json entries were retired — every Global card carries the pin
     // dataVersion and none carries the old master.mdb addition stamp.
-    expect(cards.filter((c) => c.server === 'global' && c.dataVersion === 'global-76214c82')).toHaveLength(222);
+    expect(cards.filter((c) => c.server === 'global' && c.dataVersion === 'global-484539f5')).toHaveLength(229);
     expect(cards.filter((c) => c.dataVersion === 'global-mdb-10006400')).toHaveLength(0);
   });
 
@@ -280,14 +279,14 @@ describe('public/data/spark_rates.json', () => {
 });
 
 describe('public/data/umas.json', () => {
-  it('contains 87 Global outfits + JP-ahead umas (total 257); Global all server=global on the pinned dataVersion', () => {
+  it('contains 94 Global outfits + JP-ahead umas (total 258); Global all server=global on the pinned dataVersion', () => {
     const globalUmas = umas.filter((u) => u.server === 'global');
     const jpUmas = umas.filter((u) => u.server === 'jp');
-    expect(globalUmas).toHaveLength(87); // umalator umas.json @ 76214c82 (v0.16.1)
+    expect(globalUmas).toHaveLength(94); // umalator umas.json @ 484539f5 (v0.27.0)
     expect(jpUmas.length).toBeGreaterThan(0);
-    expect(umas).toHaveLength(257);
-    expect(new Set(globalUmas.map((u) => u.charaId)).size).toBe(60);
-    expect(globalUmas.every((u) => u.dataVersion === 'global-76214c82')).toBe(true);
+    expect(umas).toHaveLength(258);
+    expect(new Set(globalUmas.map((u) => u.charaId)).size).toBe(64);
+    expect(globalUmas.every((u) => u.dataVersion === 'global-484539f5')).toBe(true);
   });
 
   it('Special Week 100101 carries the official EN name + epithet', () => {
@@ -332,8 +331,8 @@ describe('public/data/umas.json', () => {
     expect(jpUmas.every((u) => u.server === 'jp')).toBe(true);
     expect(jpUmas.every((u) => typeof u.releaseDate === 'string')).toBe(true);
     expect(jpUmas.every((u) => u.releaseDatePredicted === true)).toBe(true);
-    // spot-check a known JP-only outfit (Special Week's third outfit, not in the Global master set)
-    const sample = umas.find((u) => u.umaId === '100103');
+    // spot-check a known JP-only outfit (Silence Suzuka's second outfit, not in the Global master set)
+    const sample = umas.find((u) => u.umaId === '100202');
     expect(sample?.server).toBe('jp');
     expect(sample?.releaseDatePredicted).toBe(true);
   });
@@ -353,7 +352,7 @@ describe('public/data/cm_presets.json', () => {
     // Derivation rule (build-cm-presets.ts): date >= 2025-06-26 (Global
     // launch, provenance §3.1) → 'global'; earlier → 'jp'. Review fix for
     // "cm_presets.json mixes JP CM definitions".
-    expect(presets.every((p) => p.dataVersion === 'global-76214c82')).toBe(true);
+    expect(presets.every((p) => p.dataVersion === 'global-484539f5')).toBe(true);
     const global = presets.filter((p) => p.server === 'global');
     const jp = presets.filter((p) => p.server === 'jp');
     expect(global).toHaveLength(5);

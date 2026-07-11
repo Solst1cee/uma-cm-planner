@@ -15,19 +15,20 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { BORROWED_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR } from './lib/io';
 
-/** v0.16.1 — see docs/provenance.md §1. */
-export const UPSTREAM_COMMIT = '76214c821a2573a532657c90cb406f3f5fe65f3e';
+/** v0.27.0 — see docs/provenance.md §1. */
+export const UPSTREAM_COMMIT = '484539f5c67e7aea8ef3715443d66602d871902d';
 /** Data version stamped on every generated record = `global-<first 8 of UPSTREAM_COMMIT>`. */
 export const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`;
 const RAW_BASE = `https://raw.githubusercontent.com/jalbarrang/umalator-global/${UPSTREAM_COMMIT}/`;
 
 /**
  * jechto/Tachyons-lab pin — latest commit touching front/src/app/data/data.json
- * as of 2026-06-19 (still the newest such commit; data dated 2026-06-09; sha256
- * verified identical to the Phase-0 local copy spikes/tachyons-data.json). See
- * docs/provenance.md §4.1.
+ * as of 2026-07-11 ("Added last months cards", authored 2026-07-01; supersedes
+ * the prior 2ce0c8fe pin dated 2026-06-09, which lagged the umalator-global
+ * v0.27.0 card set enough to fail assertTachyonsParity on cards 30058-30061).
+ * See docs/provenance.md §4.1.
  */
-export const TACHYONS_COMMIT = '2ce0c8fe4af685d2a3cf5d5fd8f80fe60c6115de';
+export const TACHYONS_COMMIT = '1e8692a35e7dd3956eca772e3ed57deabd067f17';
 const TACHYONS_RAW_BASE = `https://raw.githubusercontent.com/jechto/Tachyons-lab/${TACHYONS_COMMIT}/`;
 
 export interface BorrowedFile {

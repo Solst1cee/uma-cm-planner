@@ -1,7 +1,16 @@
 // @vitest-environment node
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { evalSkillDelta } from './run';
+import { initEngineFromFs } from './init';
 import type { SimBuild, SimRaceParams } from './types';
+
+// `evalSkillDelta` now runs the v0.27.0 WASM engine (Task 4) → needs init. The
+// skillPatches transform is verified purely in adapter.test.ts (Task 3); these KEPT
+// end-to-end directional checks exercise it THROUGH the live engine — including the
+// cooldown multi-fire gate flip cases (a "cooldown added to a no-cooldown skill newly
+// enables re-fire" curation hazard) that the pure-transform tests can't reach. They never
+// touched the old bundle, so they survived the Task-9 deletion unchanged.
+beforeAll(async () => { await initEngineFromFs(); });
 
 // Shooting Star (Special Week unique) — proven to fire on 10906 (see skillLevel.test.ts).
 // Its speed effect is type 27 with base modifier 0.35 (skill-level-coef provenance header).

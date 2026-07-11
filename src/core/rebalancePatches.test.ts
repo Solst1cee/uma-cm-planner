@@ -8,11 +8,18 @@ import {
   mergeCompareNotes,
 } from './rebalancePatches';
 import type { ActivePatchNote } from './rebalancePatches';
+import { versionSimUnavailable } from './rebalance';
 import type { RebalanceInfo, SkillRecord, WishlistItem } from './types';
 import type { SimBuild } from '@/sim/types';
 
 const TODAY = '2026-07-03';
 const CM_CUTOFF = '2026-10-01';
+// Every pre-existing (pre-Task-7) test below is exercising pin-lag/predicted/pin
+// selection logic unrelated to the ENGINE_DATA_DATE gate itself, so it threads an
+// engine pin date that predates every fixture's globalDate — nothing is in-pin,
+// preserving the exact prior behavior. The dedicated "ENGINE_DATA_DATE in-pin gate"
+// describe block below tests the gate itself against a realistic pin date.
+const EARLY_PIN = '2026-01-01';
 
 function rec(skillId: string, rebalance?: RebalanceInfo): SkillRecord {
   return {
@@ -51,36 +58,36 @@ function byId(...recs: SkillRecord[]): Map<string, SkillRecord> {
 describe('skillPatchMap', () => {
   it('returns undefined when nothing patches', () => {
     const skillById = byId(rec('100'), rec('200', CANDIDATE));
-    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY })).toBeUndefined();
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN })).toBeUndefined();
   });
 
   it('pin-lag: a confirmed globalVer >= 2 patches even at Current', () => {
     const skillById = byId(rec('300', CONFIRMED));
-    const map = skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY });
+    const map = skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN });
     expect(map).toEqual({ '300': { modifier: 0.5 } });
   });
 
   it('predicted versions do not patch at Current but do at a CM cutoff past arrival', () => {
     const skillById = byId(rec('400', PREDICTED));
-    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY })).toBeUndefined();
-    expect(skillPatchMap({ skillById, cutoffISO: CM_CUTOFF, todayISO: TODAY }))
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN })).toBeUndefined();
+    expect(skillPatchMap({ skillById, cutoffISO: CM_CUTOFF, todayISO: TODAY, engineDataDate: EARLY_PIN }))
       .toEqual({ '400': { conditions: 'corner==2' } });
   });
 
   it('a pin overrides the horizon default, even off-horizon', () => {
     const skillById = byId(rec('400', PREDICTED));
     const pins = new Map([['400', 2]]);
-    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, pins }))
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN, pins }))
       .toEqual({ '400': { conditions: 'corner==2' } });
     // pin back to baseline suppresses the pin-lag patch
     const skillById2 = byId(rec('300', CONFIRMED));
-    expect(skillPatchMap({ skillById: skillById2, cutoffISO: TODAY, todayISO: TODAY, pins: new Map([['300', 1]]) }))
+    expect(skillPatchMap({ skillById: skillById2, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN, pins: new Map([['300', 1]]) }))
       .toBeUndefined();
   });
 
   it('emits sorted keys so JSON.stringify is a stable signature', () => {
     const skillById = byId(rec('900', CONFIRMED), rec('100', CONFIRMED));
-    const map = skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY })!;
+    const map = skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: EARLY_PIN })!;
     expect(Object.keys(map)).toEqual(['100', '900']);
   });
 });
@@ -119,13 +126,71 @@ describe('withSkillPatches / skillPatchesSig', () => {
 describe('activePatchNotes', () => {
   it('labels pin-lag, predicted arrival, and pinned selections', () => {
     const skillById = byId(rec('300', CONFIRMED), rec('400', PREDICTED), rec('200', CANDIDATE));
-    const atCm = activePatchNotes({ skillById, cutoffISO: CM_CUTOFF, todayISO: TODAY });
+    const atCm = activePatchNotes({ skillById, cutoffISO: CM_CUTOFF, todayISO: TODAY, engineDataDate: EARLY_PIN });
     expect(atCm).toEqual([
       { skillId: '300', name: 'Skill 300', ver: 2, pinLag: true, predicted: false, arrival: '2026-06-01', pinned: false },
       { skillId: '400', name: 'Skill 400', ver: 2, pinLag: false, predicted: true, arrival: '2026-08-15', pinned: false },
     ]);
-    const pinnedNotes = activePatchNotes({ skillById: byId(rec('400', PREDICTED)), cutoffISO: TODAY, todayISO: TODAY, pins: new Map([['400', 2]]) });
+    const pinnedNotes = activePatchNotes({
+      skillById: byId(rec('400', PREDICTED)),
+      cutoffISO: TODAY,
+      todayISO: TODAY,
+      engineDataDate: EARLY_PIN,
+      pins: new Map([['400', 2]]),
+    });
     expect(pinnedNotes[0]!.pinned).toBe(true);
+  });
+});
+
+describe('ENGINE_DATA_DATE in-pin gate (Task 7)', () => {
+  // Matches src/sim/enginePin.ts ENGINE_DATA_DATE at time of writing — a realistic
+  // pin date, distinct from EARLY_PIN, to exercise the in-pin/pin-lag boundary itself.
+  const PIN = '2026-07-09';
+
+  // The real 2026-07-01 Global patch shape: confirmed, elapsed, ON/BEFORE the pin.
+  const JULY1: RebalanceInfo = {
+    globalVer: 2, jpVer: 2,
+    versions: [
+      { ver: 1 },
+      { ver: 2, jpDate: '2025-06-01', globalDate: '2026-07-01', globalArrival: '2026-07-01', modifier: 0.6, sourceUrl: 'https://x' },
+    ],
+  };
+  // A hypothetical future confirmed patch, dated AFTER the pin — still pin-lag.
+  const AUG1: RebalanceInfo = {
+    globalVer: 2, jpVer: 2,
+    versions: [
+      { ver: 1 },
+      { ver: 2, jpDate: '2025-06-01', globalDate: '2026-08-01', globalArrival: '2026-08-01', modifier: 0.7, sourceUrl: 'https://x' },
+    ],
+  };
+
+  it('a July-1-style confirmed version on/before the engine pin is in-pin: no patch, no note', () => {
+    const skillById = byId(rec('700', JULY1));
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN })).toBeUndefined();
+    expect(activePatchNotes({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN })).toEqual([]);
+  });
+
+  it('a confirmed version dated after the engine pin still pin-lags: patches and notes', () => {
+    const skillById = byId(rec('800', AUG1));
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN }))
+      .toEqual({ '800': { modifier: 0.7 } });
+    expect(activePatchNotes({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN })).toEqual([
+      { skillId: '800', name: 'Skill 800', ver: 2, pinLag: true, predicted: false, arrival: '2026-08-01', pinned: false },
+    ]);
+  });
+
+  it('pinning to the in-pin version itself emits no patch', () => {
+    const skillById = byId(rec('700', JULY1));
+    const pins = new Map([['700', 2]]);
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN, pins })).toBeUndefined();
+  });
+
+  it('pinning to an OLDER version than the in-pin one emits no patch, and the picker helper marks it unavailable', () => {
+    const skillById = byId(rec('700', JULY1));
+    const pins = new Map([['700', 1]]);
+    expect(skillPatchMap({ skillById, cutoffISO: TODAY, todayISO: TODAY, engineDataDate: PIN, pins })).toBeUndefined();
+    expect(versionSimUnavailable(JULY1.versions[0]!, JULY1, PIN)).toBe(true); // v1, older than the in-pin v2
+    expect(versionSimUnavailable(JULY1.versions[1]!, JULY1, PIN)).toBe(false); // v2 is the in-pin version itself
   });
 });
 
