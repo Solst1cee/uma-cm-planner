@@ -85,7 +85,7 @@ Wiring notes: these take a `SkillRecord` + `SparkRates` (the discount schedule),
 
 ### 5.1 Shell — `SpOptimizerPage.tsx` (rework)
 - Two-tab shell (`activeTab: 'optimize' | 'compare'`), blue-underline text tabs.
-- **Build & SP card** (`BuildSpCard.tsx`, new): source segmented control `[📷 Import][Manual][Carry from M4]`; uma chip (+ career-rank badge *if present in bundle, else omit*); aptitude chip; stat chip; editable SP-available field; **Load uma plan ▾** row that prefills matching wishlist skills as locked + match-summary chips ("N matched", "M not yet buyable").
+- **Build & SP card** (`BuildSpCard.tsx`, new): source segmented control `[📷 Import][Manual][Carry from M4]`; uma chip (name + strategy — **no career-rank badge**; rank isn't in the capture); aptitude chip; stat chip; editable SP-available field; **Load uma plan ▾** row that prefills matching wishlist skills as locked + match-summary chips ("N matched", "M not yet buyable").
 - P3 caveat banner (reuse existing).
 - Tab 1 body = §5.2–5.4. Tab 2 body = a `ComparePlaceholder` ("Simulation lab — coming in F2") so the cards' buttons resolve.
 - Working state: `pins: Set<skillId>`, `costEdits: Map<skillId, number>`, `hintEdits: Map<skillId, HintLevel>`, `fastLearner: boolean`, `selectedBasket: 0|1|2`, `stale: boolean`, `result: RankResult | null`. Re-analyze merges edits → bundle → `rankBaskets`, clears `stale`.
@@ -105,14 +105,14 @@ Columns `Lock | Skill | Type | Δ L | SP cost | L/SP (×1k) | Hint Lv`. Rows fro
 - Footer note (locked-always-kept / L-per-SP explainer).
 
 ### 5.4 Basket cards — `BuildCards.tsx` (rework)
-Three **selectable** cards (card #1 selected by default; selection drives the table's buy/cut tint + budget line + banner). Each: title = best-effort **profile tag** (§7) or "Basket #k"; mode badge (EXACT/ESTIMATE); **mean +L**; **consistency spread** ("tight/moderate/wide"); skill list (locked shown, "+N more"); SP used/left; "**Compare vs veteran →**" button → `setActiveTab('compare')`. **No "% win vs field".** Each card *is* a `SimBuild` — the clean seam for F2 (§9).
+Three **selectable** cards (card #1 selected by default; selection drives the table's buy/cut tint + budget line + banner). Each: title = **generic "Basket #k"** (ranked by simulated combined L; no named profile tag — honest floor, §7); mode badge (EXACT/ESTIMATE); **mean +L**; **consistency spread** ("tight/moderate/wide"); skill list (locked shown, "+N more"); SP used/left; "**Compare vs veteran →**" button → `setActiveTab('compare')`. **No "% win vs field", no named profile.** Each card *is* a `SimBuild` — the clean seam for F2 (§9).
 
 ## 6. Styling
 Theme-aware **semantic tokens** + reuse the `cmp-*`/`ds-*` card grammar — **not** the handoff's raw hexes (app is light-default now; handoff §"Design Tokens" maps each hex to `--bg-*`/`--fg*`/`--accent`/tier tokens). New scoped classes in `sp-optimizer.css`. Category-chip hues map to existing effect-tone tokens. Verify light + dark.
 
 ## 7. Honest numbers (P3)
 - **No fabricated win-vs-field%.** Vacuum sim = solo; a field win-rate needs opponents (F2). Cards show mean L + spread only.
-- **Profile tags are best-effort or generic.** Derive only from telemetry we have (where the skill ΔL lands; stamina/HP margin from the trace). If telemetry can't support a distinct label, show "Basket #k" — never invent "final-corner burst" (spec §9 risk). This may land as generic tags initially; richer profiles arrive with F2's telemetry.
+- **Profile tags are generic ("Basket #k").** Named profiles ("final-corner burst") need phase telemetry we don't expose — never invent them (spec §9 risk). Cards rank by simulated combined L; richer named profiles arrive with F2's telemetry, not this branch.
 - **effectiveSpCost is a model**, validated against captured datapoints; Fast Learner inference is partial (F1). Flag when a capture's cost can't be reproduced.
 - Result banner labels **EXACT** (every feasible residual simmed) vs **ESTIMATE** (shortlisted), from `RankResult.mode`.
 
