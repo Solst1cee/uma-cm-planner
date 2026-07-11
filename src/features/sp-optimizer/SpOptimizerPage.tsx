@@ -13,7 +13,7 @@ import { BuildSpCard } from '@/features/sp-optimizer/BuildSpCard';
 import { BuyableSkillsTable } from '@/features/sp-optimizer/BuyableSkillsTable';
 import { ComparePlaceholder } from '@/features/sp-optimizer/ComparePlaceholder';
 import { ResultBanner } from '@/features/sp-optimizer/ResultBanner';
-import { type RankResult, rankBasketsWithEngine } from '@/features/sp-optimizer/rankBaskets';
+import { type CandidateRow, type RankResult, rankBasketsWithEngine } from '@/features/sp-optimizer/rankBaskets';
 import { applyWorkingState, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
 import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 import './sp-optimizer.css';
@@ -108,10 +108,27 @@ export function SpOptimizerPage() {
 
   if (status === 'loading') return <p className="muted">Loading…</p>;
 
-  const rows = result?.candidates ?? (workingBundle?.context.candidates.map((c) => ({
-    skillId: c.skillId, rarity: c.rarity, deltaL: 0, screenSpCost: c.screenSpCost,
-    lPerSp: 0, hintLevel: c.hintLevel, prereqSkillId: c.prereqSkillId, pinned: edits.pins.has(c.skillId),
-  })) ?? []);
+  // Editable fields (cost, hint, pin) come from the LIVE workingBundle so a
+  // controlled input never fights a stale analyzed snapshot; analysis-derived
+  // fields (deltaL, lPerSp, baseSpCost) merge in from `result` by skillId when
+  // present. Without a bundle at all, there's nothing to show.
+  const analyzedById = new Map((result?.candidates ?? []).map((c) => [c.skillId, c]));
+  const rows: CandidateRow[] = workingBundle
+    ? workingBundle.context.candidates.map((c) => {
+        const a = analyzedById.get(c.skillId);
+        return {
+          skillId: c.skillId,
+          rarity: c.rarity,
+          deltaL: a?.deltaL ?? 0,
+          screenSpCost: c.screenSpCost,
+          baseSpCost: a?.baseSpCost,
+          lPerSp: a?.lPerSp ?? 0,
+          hintLevel: c.hintLevel,
+          prereqSkillId: c.prereqSkillId,
+          pinned: edits.pins.has(c.skillId),
+        };
+      })
+    : [];
 
   return (
     <div className="sp-page">

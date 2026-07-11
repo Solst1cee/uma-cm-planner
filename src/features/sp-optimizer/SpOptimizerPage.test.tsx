@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
@@ -106,6 +106,22 @@ describe('SpOptimizerPage', () => {
     await user.click(screen.getByRole('button', { name: /Re-analyze/i }));
     await screen.findByText('Suggested baskets');
     expect(screen.queryByText(/changes detected/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps the cost input live after analysis (not frozen to the analyzed snapshot)', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    await screen.findByText('Suggested baskets');
+
+    const costInput = screen.getByRole('spinbutton', { name: /Cost for 200332/i });
+    expect(costInput).toHaveValue(110);
+
+    fireEvent.change(costInput, { target: { value: '999' } });
+
+    expect(screen.getByRole('spinbutton', { name: /Cost for 200332/i })).toHaveValue(999);
+    expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
   });
 
   it('shows fixture-data alert when status is fixture', () => {

@@ -79,7 +79,7 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
                   className="sp-cost-input"
                   aria-label={`Cost for ${r.skillId}`}
                   value={r.screenSpCost}
-                  onChange={(e) => onEditCost(r.skillId, Number(e.target.value))}
+                  onChange={(e) => { if (e.target.value !== '') onEditCost(r.skillId, Number(e.target.value)); }}
                 />
               </td>
               <td className={`sp-ratio ${analyzed && r.lPerSp < 3 ? 'is-weak' : 'is-strong'}`}>
