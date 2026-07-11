@@ -49,6 +49,7 @@ export function SpOptimizerPage() {
     setSelectedIdx(0);
     setStale(false);
     setImportError(null);
+    setError(null);
   }
 
   async function importFile(file: File) {

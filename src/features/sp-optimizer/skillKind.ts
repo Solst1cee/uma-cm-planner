@@ -75,7 +75,7 @@ export function useSkillKinds(skillIds: string[]): Map<string, SkillKind> {
         if (detail) m.set(id, skillKind(detail, detail.summary.conditions));
       }
       setKinds(m);
-    });
+    }).catch(() => { if (live) setKinds(new Map()); });
     return () => {
       live = false;
     };
