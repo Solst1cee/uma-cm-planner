@@ -6,11 +6,16 @@
 emits a valid bundle can feed M2. `parseCaptureBundle` (`src/core/spOptimizer.ts`)
 is the **authoritative validator** — it rejects malformed input with a descriptive error.
 
+The import control also accepts the standalone extractor's lossless
+`career-capture.json`. `parseCareerCapture` (`src/core/careerCapture.ts`) maps
+that raw snapshot inside the web app using the current skill dataset and the
+active M4 plan's course. The companion does not filter or normalize its output.
+
 ## Shape
 ```jsonc
 {
   "schemaVersion": 1,
-  "source": "ocr",            // "manual" | "ocr" | "video"
+  "source": "ocr",            // "manual" | "ocr" | "video" | "memory"
   "capturedAt": "<ISO 8601>",
   "server": "global",         // "global" | "jp"
   "dataVersion": "<dataset version matched against>",

@@ -220,6 +220,25 @@ describe('parseCaptureBundle', () => {
     expect(b.context.candidates[0]!.matchTier).toBe('exact');
   });
 
+  it('accepts source "memory" and carries optional aptitudesAll (memory-capture companion)', () => {
+    const withAll = JSON.parse(JSON.stringify(valid));
+    withAll.source = 'memory';
+    withAll.context.aptitudesAll = {
+      surface: { turf: 'A', dirt: 'G' },
+      distance: { short: 'E', mile: 'S', middle: 'A', long: 'E' },
+      style: { front: 'C', pace: 'A', late: 'A', end: 'G' },
+    };
+    const b = parseCaptureBundle(withAll);
+    expect(b.source).toBe('memory');
+    expect(b.context.aptitudesAll).toEqual(withAll.context.aptitudesAll);
+  });
+
+  it('rejects a malformed aptitudesAll grade', () => {
+    const bad = JSON.parse(JSON.stringify(valid));
+    bad.context.aptitudesAll = { distance: { mile: 'Z' } };
+    expect(() => parseCaptureBundle(bad)).toThrow(/aptitudesAll\.distance\.mile/);
+  });
+
   it('rejects a wrong schemaVersion', () => {
     expect(() => parseCaptureBundle({ ...valid, schemaVersion: 2 })).toThrow(/schemaVersion/);
   });

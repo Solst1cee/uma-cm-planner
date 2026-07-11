@@ -23,6 +23,16 @@ export interface BuyableSkill {
   matchTier?: 'exact' | 'fuzzy' | 'manual';
 }
 
+/** The complete captured aptitude grade maps (un-reduced) — every category value → grade.
+ *  Emitted by the memory-capture companion so nothing is filtered out; the reduced
+ *  `BuildContext.aptitudes` is derived from these for today's optimizer, and a future
+ *  per-course importer can pick the exact aptitude for the plan's race. */
+export interface AptitudeGradeMaps {
+  surface?: Record<string, Grade>;
+  distance?: Record<string, Grade>;
+  style?: Record<string, Grade>;
+}
+
 /** The post-run build context — the serialized `CaptureBundle.context`. */
 export interface BuildContext {
   umaId: string;
@@ -39,12 +49,14 @@ export interface BuildContext {
   candidates: BuyableSkill[];
   /** Must-buy skill ids forced into every basket. */
   pinned: string[];
+  /** Optional: the full captured aptitude grade maps, un-reduced (memory-capture companion). */
+  aptitudesAll?: AptitudeGradeMaps;
 }
 
 /** The serializable import↔analysis artifact (spec §3). */
 export interface CaptureBundle {
   schemaVersion: 1;
-  source: 'manual' | 'ocr' | 'video';
+  source: 'manual' | 'ocr' | 'video' | 'memory';
   /** ISO timestamp; supplied by the caller (core stays clock-free). */
   capturedAt: string;
   server: Server;
@@ -292,7 +304,22 @@ function asEnum<T extends string>(v: unknown, allowed: readonly T[], name: strin
   return s as T;
 }
 
-const SOURCES = ['manual', 'ocr', 'video'] as const;
+function asGradeMap(v: unknown, name: string): Record<string, Grade> {
+  const o = asObject(v, name);
+  const out: Record<string, Grade> = {};
+  for (const k of Object.keys(o)) out[k] = asEnum(o[k], GRADES, `${name}.${k}`);
+  return out;
+}
+function asAptitudesAll(v: unknown, name: string): AptitudeGradeMaps {
+  const o = asObject(v, name);
+  const out: AptitudeGradeMaps = {};
+  if (o['surface'] !== undefined) out.surface = asGradeMap(o['surface'], `${name}.surface`);
+  if (o['distance'] !== undefined) out.distance = asGradeMap(o['distance'], `${name}.distance`);
+  if (o['style'] !== undefined) out.style = asGradeMap(o['style'], `${name}.style`);
+  return out;
+}
+
+const SOURCES = ['manual', 'ocr', 'video', 'memory'] as const;
 const STAT_KEYS: Stat[] = ['spd', 'sta', 'pow', 'gut', 'wit'];
 const RARITIES = ['white', 'gold', 'unique', 'inherited_unique'] as const;
 const STRATEGIES = ['front', 'pace', 'late', 'end'] as const;
@@ -341,6 +368,9 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
     pinned: asArray(ctx['pinned'], 'context.pinned').map((s, i) => asString(s, `context.pinned[${i}]`)),
     candidates,
   };
+  // Optional: the full un-reduced aptitude grade maps (memory-capture companion emits these
+  // so nothing is filtered out). Ignored by the current optimizer; kept for a per-course importer.
+  if (ctx['aptitudesAll'] !== undefined) context.aptitudesAll = asAptitudesAll(ctx['aptitudesAll'], 'context.aptitudesAll');
 
   const bundle: CaptureBundle = {
     schemaVersion: 1,

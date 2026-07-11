@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
 import { useActivePlan } from '@/app/ActivePlanContext';
-import { type BuyableSkill, type CaptureBundle, parseCaptureBundle, wishlistToCandidates } from '@/core/spOptimizer';
+import { parseCareerCapture } from '@/core/careerCapture';
+import { type BuildContext, type BuyableSkill, type CaptureBundle, parseCaptureBundle, wishlistToCandidates } from '@/core/spOptimizer';
 import { useGameData } from '@/features/data/gameData';
 import { BuildCards } from '@/features/sp-optimizer/BuildCards';
 import { BuildContextForm } from '@/features/sp-optimizer/BuildContextForm';
@@ -9,7 +10,14 @@ import { type RankResult, rankBasketsWithEngine } from '@/features/sp-optimizer/
 import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 import './sp-optimizer.css';
 
-interface Seed { candidates: BuyableSkill[]; sp?: number; courseId?: string; source: CaptureBundle['source']; }
+interface Seed {
+  candidates?: BuyableSkill[];
+  context?: BuildContext;
+  sp?: number;
+  courseId?: string;
+  source: CaptureBundle['source'];
+  dataVersion?: string;
+}
 
 export function SpOptimizerPage() {
   const { status, skillById } = useGameData();
@@ -35,8 +43,17 @@ export function SpOptimizerPage() {
       const text = await file.text();
       let data: unknown;
       try { data = JSON.parse(text); } catch { throw new Error('Not valid JSON'); }
-      const parsed = parseCaptureBundle(data);
-      applySeed({ candidates: parsed.context.candidates, sp: parsed.context.spBudget, courseId: parsed.context.courseId, source: parsed.source });
+      const isRawCareer = typeof data === 'object' && data !== null && Array.isArray((data as { skills?: unknown }).skills);
+      const dataVersion = skillById.values().next().value?.dataVersion ?? 'unknown';
+      const parsed = isRawCareer
+        ? parseCareerCapture(data, {
+            skillById,
+            courseId: plan?.cmRef.courseId ?? '10906',
+            umaId: plan?.umaId ?? '',
+            dataVersion,
+          })
+        : parseCaptureBundle(data);
+      applySeed({ context: parsed.context, source: parsed.source, dataVersion: parsed.dataVersion });
     } catch (err) {
       setImportError(err instanceof Error ? err.message : String(err));
     }
@@ -114,6 +131,8 @@ export function SpOptimizerPage() {
           initialSpBudget={seed?.sp}
           initialCourseId={seed?.courseId}
           initialSource={seed?.source}
+          initialContext={seed?.context}
+          dataVersion={seed?.dataVersion}
         />
         {error && <p className="error" role="alert">Could not analyze: {error}</p>}
       </section>
