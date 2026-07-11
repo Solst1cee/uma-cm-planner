@@ -30,7 +30,11 @@ vi.mock('@/features/sp-optimizer/rankBaskets', () => ({
 
 vi.mock('@/app/ActivePlanContext', () => ({
   useActivePlan: () => ({
-    plan: { wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }] },
+    plan: {
+      umaId: '100101',
+      cmRef: { courseId: '10906' },
+      wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }],
+    },
     setPlan: vi.fn(), flushPendingSave: vi.fn(), loadError: null,
   }),
 }));
@@ -47,5 +51,30 @@ describe('SpOptimizerPage', () => {
     // analyze() is async now (awaits the main-thread engine-init seam), so the
     // results render on a later tick — findBy waits for it.
     expect(await screen.findByText('Suggested baskets')).toBeInTheDocument();
+  });
+
+  it('imports a raw career capture and preserves its SP and discounted cost', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    const raw = {
+      capturedAt: '2026-07-10T12:00:00', spBudget: 777,
+      stats: { spd: 1000, sta: 800, pow: 700, gut: 400, wit: 900 },
+      aptitudes: {
+        surface: { turf: 'A', dirt: 'G' }, distance: { short: 'G', mile: 'A', middle: 'S', long: 'B' },
+        style: { front: 'G', pace: 'A', late: 'S', end: 'B' },
+      },
+      strategy: 'late',
+      skills: [{ skillId: 200012, isAcquired: 0, needPoint: 71, hintLv: 4 }],
+    };
+    const json = JSON.stringify(raw);
+    const file = new File([json], 'career-capture.json', { type: 'application/json' });
+    Object.defineProperty(file, 'text', { value: vi.fn(async () => json) });
+
+    await user.upload(screen.getByLabelText(/Import capture/i), file);
+
+    expect(await screen.findByDisplayValue('777')).toBeInTheDocument();
+    expect(screen.getByLabelText('Available SP')).toHaveValue(777);
+    expect(screen.getByLabelText('Course id')).toHaveValue('10906');
+    expect(screen.getByRole('spinbutton', { name: /Cost for/i })).toHaveValue(71);
   });
 });

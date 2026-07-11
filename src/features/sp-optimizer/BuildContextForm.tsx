@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { BuyableSkill, CaptureBundle } from '@/core/spOptimizer';
+import type { BuildContext, BuyableSkill, CaptureBundle } from '@/core/spOptimizer';
 import type { Stat } from '@/core/types';
 import type { Grade } from '@/sim/types';
 import { GameIcon } from '@/features/data/GameIcon';
@@ -14,6 +14,7 @@ export interface BuildContextFormProps {
   initialSpBudget?: number;
   initialCourseId?: string;
   initialSource?: CaptureBundle['source'];
+  initialContext?: BuildContext;
   dataVersion?: string;
   /** True while an analysis is running (the engine may be initializing on the
    *  first click); disables the Analyze button and shows a pending label. */
@@ -23,12 +24,13 @@ export interface BuildContextFormProps {
 }
 
 export function BuildContextForm({
-  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, dataVersion = 'global-484539f5', pending = false, now,
+  onAnalyze, initialCandidates, initialSpBudget, initialCourseId, initialSource, initialContext,
+  dataVersion = 'global-484539f5', pending = false, now,
 }: BuildContextFormProps) {
   const { skillById } = useGameData();
-  const [spBudget, setSpBudget] = useState(initialSpBudget ?? 1000);
-  const [courseId, setCourseId] = useState(initialCourseId ?? '10101');
-  const [candidates, setCandidates] = useState<BuyableSkill[]>(initialCandidates ?? []);
+  const [spBudget, setSpBudget] = useState(initialSpBudget ?? initialContext?.spBudget ?? 1000);
+  const [courseId, setCourseId] = useState(initialCourseId ?? initialContext?.courseId ?? '10101');
+  const [candidates, setCandidates] = useState<BuyableSkill[]>(initialCandidates ?? initialContext?.candidates ?? []);
   const [draftId, setDraftId] = useState('');
   const [draftCost, setDraftCost] = useState('');
   const [source] = useState<CaptureBundle['source']>(
@@ -60,14 +62,15 @@ export function BuildContextForm({
       dataVersion,
       seed: 12345,
       context: {
-        umaId: '',
-        stats: { ...DEFAULT_STATS },
-        aptitudes: { distance: 'A' as Grade, surface: 'A' as Grade, strategy: 'A' as Grade },
-        strategy: 'pace',
+        umaId: initialContext?.umaId ?? '',
+        stats: initialContext?.stats ?? { ...DEFAULT_STATS },
+        aptitudes: initialContext?.aptitudes
+          ?? { distance: 'A' as Grade, surface: 'A' as Grade, strategy: 'A' as Grade },
+        strategy: initialContext?.strategy ?? 'pace',
         courseId,
         spBudget,
-        ownedSkills: [],
-        pinned: [],
+        ownedSkills: initialContext?.ownedSkills ?? [],
+        pinned: initialContext?.pinned ?? [],
         candidates,
       },
     };

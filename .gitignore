@@ -31,6 +31,9 @@ eng.traineddata
 .claude/*
 !.claude/skills/
 
+# Codex CLI local state (worktrees etc.)
+.codex/
+
 # Local Windows dev-server launcher (reads gitignored .env.local)
 dev.bat
 
