@@ -26,3 +26,177 @@
 .sp-tier-badge { font-size: 0.7rem; padding: 0 0.3rem; border-radius: 0.25rem; background: var(--chip, #eee); }
 .sp-tier-badge[data-tier='fuzzy'] { background: var(--warn-bg); }
 .sp-tier-badge[data-tier='exact'] { background: var(--ok-bg, #d4edda); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Task 10: Tab-1 rebuild — page shell, build/SP card, result banner,
+   buyable-skills table, suggested-basket cards. Semantic tokens only;
+   color-mix(...) is used for tints so both themes read correctly.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Page shell + tabs ─────────────────────────────────────────────────── */
+.sp-page { display: flex; flex-direction: column; gap: 0.9rem; padding: 1rem 1.4rem; max-width: 82rem; }
+
+.sp-tabs { display: inline-flex; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+.sp-tabs [role='tab'] {
+  background: none; border: 0; border-radius: 0;
+  padding: 0.5rem 0.9rem; font-weight: 600; font-size: 0.9rem;
+  color: var(--fg-muted); border-bottom: 2px solid transparent; cursor: pointer;
+}
+.sp-tabs [role='tab'].on { color: var(--accent); border-bottom-color: var(--accent); }
+.sp-tabs [role='tab']:hover:not(.on) { color: var(--fg); }
+
+.sp-analyze-row { display: flex; align-items: center; gap: 0.75rem; }
+.sp-analyze { background: var(--accent); color: var(--bg-0); border-color: var(--accent); font-weight: 600; }
+.sp-analyze:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 85%, var(--fg) 15%); }
+.sp-stale {
+  color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-border);
+  border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.8rem; font-weight: 600;
+}
+
+.sp-f2 {
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px);
+  background: var(--bg-1); padding: 1.4rem; text-align: center; display: grid; gap: 0.4rem; justify-items: center;
+}
+.sp-f2 h3 { margin: 0; color: var(--fg); }
+
+/* ── Build & SP card ──────────────────────────────────────────────────── */
+.sp-buildcard {
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px);
+  background: var(--bg-1); padding: 0.85rem 1rem; display: grid; gap: 0.6rem;
+}
+.sp-buildcard-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.sp-loadplan { padding-top: 0.5rem; border-top: 1px solid var(--border); }
+
+.sp-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.sp-seg button {
+  appearance: none; background: transparent; border: 0; border-right: 1px solid var(--border);
+  border-radius: 0; padding: 0.35rem 0.7rem; font-size: 0.82rem; color: var(--fg-muted); cursor: pointer;
+}
+.sp-seg button:last-child { border-right: 0; }
+.sp-seg button.on { background: var(--accent); color: var(--bg-0); font-weight: 600; }
+
+.sp-chip {
+  display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px;
+  padding: 0.2rem 0.6rem; font-size: 0.78rem; color: var(--fg-muted);
+}
+
+.sp-available { display: grid; gap: 0.15rem; margin-left: auto; }
+.sp-buildcard .sp-available input {
+  width: 7rem; text-align: right; font-variant-numeric: tabular-nums;
+}
+
+.sp-match { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+
+/* ── Result banner ────────────────────────────────────────────────────── */
+.sp-banner {
+  display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 1.25rem; align-items: center;
+  background: color-mix(in srgb, var(--live) 12%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, var(--live) 35%, var(--border));
+  border-radius: var(--ds-card-radius, 12px); padding: 0.8rem 1.1rem;
+}
+.sp-banner-head { display: grid; gap: 0.2rem; }
+.sp-banner-label { font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-muted); font-weight: 600; }
+.sp-banner-big { font-size: 1.1rem; font-weight: 700; color: var(--fg); }
+.sp-banner-bar { display: grid; gap: 0.25rem; }
+.sp-bar { width: 100%; height: 8px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.sp-bar i { display: block; height: 100%; background: var(--live); border-radius: 999px; transition: width 160ms ease; }
+.sp-banner-sp { text-align: right; }
+.sp-banner-used { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--fg); }
+.sp-Lval { color: var(--live); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ── Buyable skills table ─────────────────────────────────────────────── */
+.sp-table {
+  width: 100%; border-collapse: collapse; font-size: 0.86rem; background: var(--bg-1);
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px); overflow: hidden;
+}
+.sp-table thead th {
+  text-align: left; color: var(--fg-muted); font-weight: 600; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.03em; padding: 0.5rem 0.6rem;
+  background: var(--bg-2); border-bottom: 1px solid var(--border);
+}
+.sp-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.sp-table tbody tr:last-child td { border-bottom: 0; }
+
+.sp-row.is-lock { background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.sp-row.is-buy { background: color-mix(in srgb, var(--live) 9%, transparent); }
+.sp-row.is-avail { opacity: 0.55; }
+
+.sp-lock {
+  width: 1.9rem; height: 1.9rem; padding: 0; display: grid; place-items: center;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
+}
+.sp-lock.is-lock { background: color-mix(in srgb, var(--warn) 22%, var(--bg-1)); border-color: var(--warn-border); }
+.sp-lock.is-buy { background: color-mix(in srgb, var(--live) 20%, var(--bg-1)); border-color: color-mix(in srgb, var(--live) 45%, var(--border)); color: var(--live); }
+.sp-lock.is-avail { color: var(--fg-muted); }
+
+.sp-skill { display: flex; align-items: center; gap: 0.4rem; min-width: 10rem; }
+.sk-gold { color: var(--gold); font-weight: 600; }
+.sk-white { color: var(--fg); }
+.sp-bundle {
+  font-size: 0.72rem; color: var(--fg-muted); background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.05rem 0.4rem; white-space: nowrap;
+}
+
+/* Type chip: base + 10 effect-tone variants, reusing the design-system
+   --ef-* tokens where a matching family exists (speed/accel/heal/debuff),
+   and generic theme-aware tokens (warn/violet/tier-scenario/muted) for the
+   tones that have no dedicated --ef-* family. */
+.sp-kind {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.01em;
+  padding: 0.12rem 0.45rem; border-radius: 999px; border: 1px solid; white-space: nowrap;
+}
+.sp-kind.is-target-speed, .sp-kind.is-current-speed { color: var(--ef-spd-fg); border-color: var(--ef-spd-border); background: var(--ef-spd-bg); }
+.sp-kind.is-acceleration { color: var(--ef-acc-fg); border-color: var(--ef-acc-border); background: var(--ef-acc-bg); }
+.sp-kind.is-recovery { color: var(--ef-heal-fg); border-color: var(--ef-heal-border); background: var(--ef-heal-bg); }
+.sp-kind.is-stat { color: var(--ef-rec-fg); border-color: var(--ef-rec-border); background: var(--ef-rec-bg); }
+.sp-kind.is-debuff { color: var(--ef-dbf-fg); border-color: var(--ef-dbf-border); background: var(--ef-dbf-bg); }
+.sp-kind.is-start { color: var(--warn-fg); border-color: var(--warn-border); background: var(--warn-bg); }
+.sp-kind.is-movement {
+  color: var(--violet); border-color: color-mix(in srgb, var(--violet) 45%, var(--border));
+  background: color-mix(in srgb, var(--violet) 12%, var(--bg-1));
+}
+.sp-kind.is-duration {
+  color: var(--tier-scenario, #14b8a6); border-color: color-mix(in srgb, var(--tier-scenario, #14b8a6) 45%, var(--border));
+  background: color-mix(in srgb, var(--tier-scenario, #14b8a6) 12%, var(--bg-1));
+}
+.sp-kind.is-special { color: var(--fg-muted); border-color: var(--border); background: var(--bg-2); }
+
+.sp-cost { white-space: nowrap; }
+.sp-cost .was { color: var(--fg-muted); text-decoration: line-through; margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
+.sp-cost input.sp-cost-input { width: 4.5rem; padding: 0.3rem 0.4rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+.sp-ratio { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sp-ratio.is-strong { color: var(--live); }
+.sp-ratio.is-weak { color: var(--warn-fg); }
+
+.sp-hint { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.sp-hint button {
+  appearance: none; background: transparent; border: 0; border-right: 1px solid var(--border);
+  border-radius: 0; padding: 0.2rem 0.45rem; font-size: 0.76rem; color: var(--fg-muted); cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.sp-hint button:last-child { border-right: 0; }
+.sp-hint button.on { background: var(--accent); color: var(--bg-0); font-weight: 700; }
+
+/* ── Suggested basket cards ───────────────────────────────────────────── */
+.sp-cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.75rem; }
+.sp-card.is-selected {
+  border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-1));
+}
+.sp-card-head {
+  width: 100%; display: flex; justify-content: space-between; align-items: baseline;
+  background: none; border: 0; padding: 0; font: inherit; cursor: pointer; color: inherit;
+}
+.sp-card-title { font-weight: 700; }
+.sp-card-mode {
+  font-size: 0.66rem; letter-spacing: 0.03em; color: var(--fg-muted); background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.05rem 0.4rem;
+}
+.sp-card-L { font-size: 1.05rem; margin: 0.2rem 0; }
+.sp-compare-btn {
+  width: 100%; margin-top: 0.15rem; background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--accent); font-weight: 600;
+}
+.sp-compare-btn:hover { background: color-mix(in srgb, var(--accent) 10%, var(--bg-2)); }
