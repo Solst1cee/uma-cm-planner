@@ -34,7 +34,7 @@ This roadmap was set after a competitive analysis (2026-06-24) of hakuraku / Uma
 
 **Unlocked follow-ups** (spec §10 — the Rust engine natively exposes what the old TS bundle couldn't): (1) `runContestedCompare` real-opponent fields → the deferred **near-lane skills** (Slipstream) + a dedicated **full race-sim page**; (2) **`forcedPositions`/`forcedRank` UI** (VFalator-style "force at meter" — now natively honored, the old spike's blocker is gone); (3) surface **position-keep / Power Conservation / rushed / dueling** telemetry in charts + overlays; (4) `runRaceSim` event-log-driven overlay upgrades.
 
-**Open maintainer items** (from the merge — see the PR body): interactive full-app smoke; deployed-site parity eyeball (mechanics-notes §12.3); the no-chip visual check on "The Duty of Dignity Calls".
+**Open maintainer items** (from the merge — see [PR #51](https://github.com/Solst1cee/uma-cm-planner/pull/51)): interactive full-app smoke (start with M2's first Analyze click + the Stamina tab); deployed-site parity eyeball (mechanics-notes §12.3); the no-chip visual check on "The Duty of Dignity Calls"; cold-clone `pnpm sim:build` reproduction run (flow documented in `src/sim/vendor/README.md`, not yet executed end-to-end).
 
 ### S2 — Public-release data swap *(only if/when sharing publicly)*
 Swap private-feed defaults → `ManualStatTargets` / curated JSON before any public deploy (per the scraping-exception posture). Parked until a public release is an actual goal.
