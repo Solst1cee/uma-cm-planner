@@ -1,5 +1,5 @@
 import type { BuyableSkill, CaptureBundle } from '@/core/spOptimizer';
-import { type HintLevel, purchaseSpCost } from '@/core/cost';
+import { effectiveSpCost, type HintLevel } from '@/core/cost';
 import type { SkillRecord, SparkRates } from '@/core/types';
 import type { RankResult } from '@/features/sp-optimizer/rankBaskets';
 
@@ -26,7 +26,11 @@ export function applyWorkingState(
       screenSpCost = costEdit;
     } else if (hintEdit !== undefined) {
       const skill = skillById.get(c.skillId);
-      if (skill) screenSpCost = purchaseSpCost(skill, skillById, hintEdit, rates, { fastLearner: edits.fastLearner });
+      // Single-skill effectiveSpCost — NOT purchaseSpCost, which bundles a
+      // gold's white prereq. M2 has a separate candidate row per on-screen
+      // skill (the white gets its own row + its own cost), so bundling here
+      // would double-count the white's cost when both are edited.
+      if (skill) screenSpCost = effectiveSpCost(skill, hintEdit, rates, { fastLearner: edits.fastLearner });
     }
     return { ...c, screenSpCost, ...(hintEdit !== undefined ? { hintLevel: hintEdit } : {}) };
   });
