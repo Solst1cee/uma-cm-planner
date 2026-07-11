@@ -119,6 +119,10 @@ export function SpOptimizerPage() {
         Estimation, not a verdict (P3). The sim can't see positional chaos or opponent procs — treat a basket as a strong prior, then test in room matches.
       </p>
 
+      {status === 'fixture' && (
+        <p className="error" role="alert">Running on placeholder data — results are illustrative.</p>
+      )}
+
       <div className="sp-imports">
         <label className="sp-import">
           Import capture (.json)

@@ -1,14 +1,16 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
 
+const mockGameDataStatus = vi.hoisted(() => ({ status: 'ready' as 'ready' | 'fixture' | 'loading' }));
+
 vi.mock('@/features/data/gameData', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/features/data/gameData')>();
   const { fixtureGameData } = await import('@/features/testing/fixtureGameData');
-  return { ...actual, useGameData: () => ({ ...fixtureGameData(), status: 'ready' as const }) };
+  return { ...actual, useGameData: () => ({ ...fixtureGameData(), status: mockGameDataStatus.status }) };
 });
 
 vi.mock('@/db', () => ({
@@ -43,6 +45,10 @@ vi.mock('@/app/ActivePlanContext', () => ({
     setPlan: vi.fn(), flushPendingSave: vi.fn(), loadError: null,
   }),
 }));
+
+beforeEach(() => {
+  mockGameDataStatus.status = 'ready' as const;
+});
 
 afterEach(cleanup);
 
@@ -100,5 +106,11 @@ describe('SpOptimizerPage', () => {
     await user.click(screen.getByRole('button', { name: /Re-analyze/i }));
     await screen.findByText('Suggested baskets');
     expect(screen.queryByText(/changes detected/i)).not.toBeInTheDocument();
+  });
+
+  it('shows fixture-data alert when status is fixture', () => {
+    mockGameDataStatus.status = 'fixture' as const;
+    render(<SpOptimizerPage />);
+    expect(screen.getByText(/placeholder data.*illustrative/i)).toHaveAttribute('role', 'alert');
   });
 });
