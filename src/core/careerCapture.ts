@@ -62,10 +62,15 @@ export function parseCareerCapture(data: unknown, options: CareerCaptureImportOp
 
   const ownedSkills: string[] = [];
   const candidates: BuyableSkill[] = [];
+  const seenIds = new Set<string>();
   for (const [index, value] of root['skills'].entries()) {
     const row = object(value, `skills[${index}]`);
     const skillId = String(row['skillId'] ?? '');
     if (!skillId) fail(`skills[${index}].skillId is required`);
+    // A real screen can't list one skill twice; tolerate malformed input
+    // first-wins (duplicate candidate rows break React keys downstream).
+    if (seenIds.has(skillId)) continue;
+    seenIds.add(skillId);
     const acquired = row['isAcquired'] === 1 || row['isAcquired'] === true;
     if (acquired) ownedSkills.push(skillId);
 

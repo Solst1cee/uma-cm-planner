@@ -77,9 +77,9 @@ describe('BuildSpCard', () => {
     expect(screen.getByText(/3 matched/)).toBeInTheDocument();
     expect(screen.getByText(/1 not yet buyable/)).toBeInTheDocument();
   });
-  it('does not render match-summary chips when null', () => {
-    render(<BuildSpCard {...makeProps()} />);
-    expect(screen.queryByText(/🔒/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/matched/)).not.toBeInTheDocument();
+  it('does not render match-summary chips when null (helper text may still mention 🔒)', () => {
+    const { container } = render(<BuildSpCard {...makeProps()} />);
+    expect(container.querySelector('.sp-match')).toBeNull();
+    expect(screen.queryByText(/\d+ matched/)).not.toBeInTheDocument();
   });
 });

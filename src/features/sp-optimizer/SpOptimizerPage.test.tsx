@@ -47,7 +47,10 @@ const savedPlan = {
   umaId: '100101', strategy: 'late',
   statProfile: { stats: { spd: 900, sta: 800, pow: 700, gut: 300, wit: 500 }, mood: 0 },
   cmRef: { courseId: '10906' },
-  wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }],
+  wishlist: [
+    { skillId: '200332', priority: 1, source: 'targeted' }, // on the carried screen → locks
+    { skillId: '200012', priority: 1, source: 'targeted' }, // not on screen → not yet buyable
+  ],
 };
 
 vi.mock('@/app/ActivePlanContext', () => ({
@@ -168,19 +171,25 @@ describe('SpOptimizerPage', () => {
     expect(analyzedBundle.context.pinned).not.toContain('200332');
   });
 
-  it('Load uma plan pops the inventory and picking a plan seeds from ITS wishlist and stats', async () => {
+  it('Load uma plan is disabled until a build exists, then a pick prefills locks WITHOUT touching the capture', async () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);
-    expect(screen.queryByText('pick plan-saved')).not.toBeInTheDocument();
+    const loadBtn = screen.getByRole('button', { name: /choose…/i });
+    expect(loadBtn).toBeDisabled(); // no build yet — nothing to prefill into
 
-    await user.click(screen.getByRole('button', { name: /Load uma plan/i }));
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
+    await user.click(loadBtn);
     await user.click(screen.getByText('pick plan-saved'));
 
-    // Seeded from the saved plan, not the active one: its wishlist skill is a
-    // candidate row and its target stats fill the chip line.
-    expect(screen.getByRole('spinbutton', { name: /Cost for 200012/i })).toBeInTheDocument();
-    expect(screen.getByText(/SPD 900/)).toBeInTheDocument();
-    // Popover closed after the pick.
+    // Capture interface untouched: the carried build's stats + SP stay.
+    expect(screen.getByText(/SPD 1100/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Available SP')).toHaveValue(1200);
+    // The matching wishlist skill is now locked; the off-screen one is reported.
+    expect(screen.getByRole('button', { name: /Lock 200332/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/1 matched/)).toBeInTheDocument();
+    expect(screen.getByText(/1 not yet buyable/)).toBeInTheDocument();
+    // Button shows the loaded plan's name; popover closed.
+    expect(screen.getByRole('button', { name: /Saved plan/i })).toBeInTheDocument();
     expect(screen.queryByText('pick plan-saved')).not.toBeInTheDocument();
   });
 

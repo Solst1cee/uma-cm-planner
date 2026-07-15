@@ -64,7 +64,7 @@
   background: var(--bg-1); padding: 0.85rem 1rem; display: grid; gap: 0.6rem;
 }
 .sp-buildcard-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-.sp-loadplan { padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.sp-loadplan { padding-top: 0.5rem; border-top: 1px dashed var(--border); }
 
 .sp-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .sp-seg button {
@@ -87,9 +87,17 @@
 
 .sp-match { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
 
-/* "Load uma plan" popover — M1.2 anchor pattern (inh-inventory-popover). */
+/* "Load uma plan" section row (mockup: dashed separator, label + chooser +
+   helper + match chips) with the M1.2 anchor-popover pattern. */
+.sp-loadplan-label { font-size: 0.82rem; font-weight: 600; color: var(--fg-muted); }
 .sp-loadplan-anchor { position: relative; display: inline-flex; }
-.sp-loadplan-btn { font-size: 0.82rem; }
+.sp-loadplan-btn {
+  font-size: 0.82rem; font-weight: 600; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+.sp-chip-lock { color: var(--warn-fg); background: var(--warn-bg); border-color: var(--warn-border); }
+.sp-chip-dash { border-style: dashed; background: var(--bg-1); }
 .sp-loadplan-pop {
   position: absolute;
   top: calc(100% + 0.3rem);

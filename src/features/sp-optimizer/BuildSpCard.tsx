@@ -35,7 +35,14 @@ export function BuildSpCard(props: BuildSpCardProps) {
           <button type="button" className={source === 'manual' ? 'on' : ''} aria-pressed={source === 'manual'} disabled title="Manual entry lands in F1.5">
             Manual
           </button>
-          <button type="button" className={source === 'ocr' ? 'on' : ''} aria-pressed={source === 'ocr'} onClick={onCarryFromM4} disabled={carryDisabled}>
+          <button
+            type="button"
+            className={source === 'ocr' ? 'on' : ''}
+            aria-pressed={source === 'ocr'}
+            onClick={onCarryFromM4}
+            disabled={carryDisabled}
+            title="No capture handy? Build a hypothetical from the planner: the active plan's wishlist becomes the buyable list, its target stats fill the build."
+          >
             Carry from M4
           </button>
         </span>
@@ -64,12 +71,14 @@ export function BuildSpCard(props: BuildSpCardProps) {
         </label>
       </div>
       <div className="sp-buildcard-row sp-loadplan">
+        <span className="sp-loadplan-label">Load uma plan</span>
         {loadPlan}
+        <span className="muted small">prefills matching skills as 🔒 locked in the table below</span>
         {matchSummary && (
           <span className="sp-match">
-            {matchSummary.locked.map((id) => <span key={id} className="sp-chip">🔒 {id}</span>)}
+            {matchSummary.locked.map((name) => <span key={name} className="sp-chip sp-chip-lock">🔒 {name}</span>)}
             <span className="sp-chip">{matchSummary.matched} matched</span>
-            {matchSummary.notBuyable > 0 && <span className="sp-chip">{matchSummary.notBuyable} not yet buyable</span>}
+            {matchSummary.notBuyable > 0 && <span className="sp-chip sp-chip-dash">{matchSummary.notBuyable} not yet buyable</span>}
           </span>
         )}
       </div>

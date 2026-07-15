@@ -12,12 +12,12 @@ import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { useDismissOnOutside } from '@/features/cm-planner/useDismissOnOutside';
 import { useGameData } from '@/features/data/gameData';
 import { BuildCards } from '@/features/sp-optimizer/BuildCards';
-import { BuildSpCard } from '@/features/sp-optimizer/BuildSpCard';
+import { BuildSpCard, type MatchSummary } from '@/features/sp-optimizer/BuildSpCard';
 import { BuyableSkillsTable } from '@/features/sp-optimizer/BuyableSkillsTable';
 import { ComparePlaceholder } from '@/features/sp-optimizer/ComparePlaceholder';
 import { ResultBanner } from '@/features/sp-optimizer/ResultBanner';
 import { type CandidateRow, type RankResult, rankBasketsWithEngine } from '@/features/sp-optimizer/rankBaskets';
-import { applyWorkingState, cycleLockState, mergedCandidates, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
+import { applyWorkingState, cycleLockState, mergedCandidates, planMatch, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
 import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 // PlanInventoryCard's cmp-* styles live in cm-planner.css, which only the `/`
 // chunk pulls in — a cold /sp-optimizer load (deep link / refresh) would render
@@ -43,7 +43,8 @@ export function SpOptimizerPage() {
   const [importError, setImportError] = useState<string | null>(null);
   const [label, setLabel] = useState('');
   const [invOpen, setInvOpen] = useState(false);
-  const [seededPlanId, setSeededPlanId] = useState<string | null>(null);
+  const [loadedPlan, setLoadedPlan] = useState<{ id: string; name: string } | null>(null);
+  const [matchSummary, setMatchSummary] = useState<MatchSummary | null>(null);
   const invRef = useRef<HTMLSpanElement>(null);
   useDismissOnOutside(invRef, invOpen, () => setInvOpen(false), { esc: true });
 
@@ -61,7 +62,8 @@ export function SpOptimizerPage() {
     setStale(false);
     setImportError(null);
     setError(null);
-    setSeededPlanId(null); // seedFromPlan re-stamps it after seeding
+    setLoadedPlan(null);
+    setMatchSummary(null);
   }
 
   async function importFile(file: File) {
@@ -91,11 +93,26 @@ export function SpOptimizerPage() {
       courseId: p.cmRef.courseId ?? '10906', spBudget: 1200, ownedSkills: [], pinned: [], candidates,
     };
     seedBundle({ schemaVersion: 1, source: 'ocr', capturedAt: '', server: 'global', dataVersion: 'unknown', context });
-    setSeededPlanId(p.id);
   }
 
   function copyWishlist() {
     if (plan) seedFromPlan(plan);
+  }
+
+  /** Handoff "Load uma plan": prefill the picked plan's wishlist as 🔒 locks on
+   *  the CURRENT capture's table — the imported build itself is untouched. */
+  function overlayPlan(picked: CmPlan) {
+    if (!bundle) return;
+    const m = planMatch(picked.wishlist, bundle.context.candidates, skillById);
+    setEdits((e) => {
+      const pins = new Set(e.pins);
+      const excluded = new Set(e.excluded);
+      for (const id of m.lockedIds) { pins.add(id); excluded.delete(id); }
+      return { ...e, pins, excluded };
+    });
+    setMatchSummary({ locked: m.lockedNames, matched: m.matched, notBuyable: m.notBuyable });
+    setLoadedPlan({ id: picked.id, name: picked.name });
+    markStale();
   }
 
   async function reAnalyze() {
@@ -170,17 +187,18 @@ export function SpOptimizerPage() {
         onSpChange={setSp}
         loadPlan={
           /* Shared planner inventory as a dismiss-on-outside popover (M1.2
-             pattern); picking a row seeds the optimizer from THAT plan — it
-             never switches the app-wide active plan. */
+             pattern); picking a row prefills locks on the current build — it
+             never replaces the capture or switches the app-wide active plan. */
           <span className="sp-loadplan-anchor" ref={invRef}>
             <button
               type="button"
               className="sp-loadplan-btn"
               aria-expanded={invOpen}
-              disabled={!plan}
+              disabled={!plan || !bundle}
+              title={bundle ? 'Lock a plan’s wishlist skills in the table below' : 'Import or seed a build first'}
               onClick={() => setInvOpen((v) => !v)}
             >
-              📋 Load uma plan
+              📋 {loadedPlan?.name ?? 'choose…'} ▾
             </button>
             {invOpen && plan && (
               <div className="sp-loadplan-pop">
@@ -189,7 +207,7 @@ export function SpOptimizerPage() {
                   autoApplyTrack={false}
                   plans={savedPlans}
                   focused="uma1"
-                  uma1PlanId={seededPlanId ?? undefined}
+                  uma1PlanId={loadedPlan?.id}
                   hideSlotBadges
                   hideSettings
                   onAutoApplyTrackChange={() => {}}
@@ -198,7 +216,7 @@ export function SpOptimizerPage() {
                   onImportPlans={importSavedPlans}
                   onLoadPlanIntoSlot={(id) => {
                     const picked = savedPlans.find((p) => p.id === id);
-                    if (picked) seedFromPlan(picked);
+                    if (picked) overlayPlan(picked);
                     setInvOpen(false);
                   }}
                 />
@@ -206,7 +224,7 @@ export function SpOptimizerPage() {
             )}
           </span>
         }
-        matchSummary={null}
+        matchSummary={matchSummary}
       />
       {importError && <p className="error" role="alert">Import failed: {importError}</p>}
 

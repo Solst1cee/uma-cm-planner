@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyWorkingState, basketBuyCut, cycleLockState, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
+import { applyWorkingState, basketBuyCut, cycleLockState, planMatch, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
 import type { CaptureBundle } from '@/core/spOptimizer';
 import type { SkillRecord, SparkRates } from '@/core/types';
 
@@ -85,6 +85,24 @@ describe('cycleLockState', () => {
     cycleLockState(e0, 'a');
     expect(e0.pins.size).toBe(0);
     expect(e0.excluded.size).toBe(0);
+  });
+});
+
+describe('planMatch', () => {
+  const wishlist = [
+    { skillId: 'a', priority: 1 as const, source: 'targeted' as const },
+    { skillId: 'zzz', priority: 1 as const, source: 'targeted' as const },
+  ];
+  it('splits a plan wishlist into locked (buyable on screen) vs not-yet-buyable', () => {
+    const m = planMatch(wishlist, base.context.candidates, skillById);
+    expect(m.lockedIds).toEqual(['a']);
+    expect(m.lockedNames).toEqual(['a']); // fixture nameEn === id
+    expect(m.matched).toBe(1);
+    expect(m.notBuyable).toBe(1);
+  });
+  it('falls back to the raw id when the skill record is unknown', () => {
+    const m = planMatch([{ skillId: 'b', priority: 1, source: 'targeted' }], base.context.candidates, new Map());
+    expect(m.lockedNames).toEqual(['b']);
   });
 });
 

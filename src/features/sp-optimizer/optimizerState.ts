@@ -1,7 +1,33 @@
 import type { BuyableSkill, CaptureBundle } from '@/core/spOptimizer';
 import { effectiveSpCost, type HintLevel } from '@/core/cost';
-import type { SkillRecord, SparkRates } from '@/core/types';
+import type { SkillRecord, SparkRates, WishlistItem } from '@/core/types';
 import type { RankResult } from '@/features/sp-optimizer/rankBaskets';
+
+export interface PlanMatch {
+  /** Wishlist skills present on the buyable screen — auto-lock these. */
+  lockedIds: string[];
+  lockedNames: string[];
+  matched: number;
+  /** Wishlist skills NOT on the buyable screen this run. */
+  notBuyable: number;
+}
+
+/** Handoff "Load uma plan" semantic: the plan's wishlist prefills 🔒 locks on
+ *  the CURRENT capture's buyable table — it never replaces the capture. Pure. */
+export function planMatch(
+  wishlist: readonly WishlistItem[],
+  candidates: readonly BuyableSkill[],
+  skillById: ReadonlyMap<string, SkillRecord>,
+): PlanMatch {
+  const onScreen = new Set(candidates.map((c) => c.skillId));
+  const lockedIds = wishlist.map((w) => w.skillId).filter((id) => onScreen.has(id));
+  return {
+    lockedIds,
+    lockedNames: lockedIds.map((id) => skillById.get(id)?.nameEn ?? id),
+    matched: lockedIds.length,
+    notBuyable: wishlist.length - lockedIds.length,
+  };
+}
 
 export interface WorkingEdits {
   pins: Set<string>;
