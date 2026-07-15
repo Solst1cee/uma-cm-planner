@@ -17,8 +17,7 @@
 .sp-saved li { display: flex; gap: 0.5rem; align-items: center; }
 .sp-load { flex: 1; text-align: left; }
 
-.sp-imports { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; margin-bottom: 0.5rem; }
-.sp-import { display: inline-grid; gap: 0.2rem; }
+.sp-file-hidden { display: none; }
 .sp-candidate-row { display: flex; align-items: center; gap: 0.4rem; }
 .sp-candidate-name { flex: 1; }
 .sp-candidate-cost { width: 5rem; }
@@ -88,6 +87,20 @@
 
 .sp-match { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
 
+/* "Load uma plan" popover — M1.2 anchor pattern (inh-inventory-popover). */
+.sp-loadplan-anchor { position: relative; display: inline-flex; }
+.sp-loadplan-btn { font-size: 0.82rem; }
+.sp-loadplan-pop {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  z-index: 40;
+  width: min(360px, 86vw);
+  max-height: 70vh;
+  overflow: auto;
+}
+.sp-loadplan-pop .cmp-plan-inventory { width: auto; min-width: 0; }
+
 /* ── Result banner ────────────────────────────────────────────────────── */
 .sp-banner {
   display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 1.25rem; align-items: center;
@@ -121,6 +134,7 @@
 .sp-row.is-lock { background: color-mix(in srgb, var(--warn) 12%, transparent); }
 .sp-row.is-buy { background: color-mix(in srgb, var(--live) 9%, transparent); }
 .sp-row.is-avail { opacity: 0.55; }
+.sp-row.is-excluded { opacity: 0.4; }
 
 .sp-lock {
   width: 1.9rem; height: 1.9rem; padding: 0; display: grid; place-items: center;
@@ -129,8 +143,15 @@
 .sp-lock.is-lock { background: color-mix(in srgb, var(--warn) 22%, var(--bg-1)); border-color: var(--warn-border); }
 .sp-lock.is-buy { background: color-mix(in srgb, var(--live) 20%, var(--bg-1)); border-color: color-mix(in srgb, var(--live) 45%, var(--border)); color: var(--live); }
 .sp-lock.is-avail { color: var(--fg-muted); }
+.sp-lock.is-excluded {
+  color: var(--danger, #c0392b);
+  border-color: color-mix(in srgb, var(--danger, #c0392b) 45%, var(--border));
+  background: color-mix(in srgb, var(--danger, #c0392b) 12%, var(--bg-1));
+}
 
-.sp-skill { display: flex; align-items: center; gap: 0.4rem; min-width: 10rem; }
+/* Inline-flex on an inner wrapper, NOT the <td> — display:flex on a td stops
+   it behaving as a table-cell, so the Skill cell rendered shorter than its row. */
+.sp-skill { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 10rem; }
 .sk-gold { color: var(--gold); font-weight: 600; }
 .sk-white { color: var(--fg); }
 .sp-bundle {

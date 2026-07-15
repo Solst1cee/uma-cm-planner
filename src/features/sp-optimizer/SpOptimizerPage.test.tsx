@@ -35,15 +35,37 @@ vi.mock('@/features/sp-optimizer/rankBaskets', () => ({
   ),
 }));
 
+const activePlan = {
+  id: 'plan-active', name: 'Active plan', planNumber: 1,
+  umaId: '100101', strategy: 'pace',
+  statProfile: { stats: { spd: 1100, sta: 700, pow: 900, gut: 400, wit: 650 }, mood: 2 },
+  cmRef: { courseId: '10906' },
+  wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }],
+};
+const savedPlan = {
+  id: 'plan-saved', name: 'Saved plan', planNumber: 2,
+  umaId: '100101', strategy: 'late',
+  statProfile: { stats: { spd: 900, sta: 800, pow: 700, gut: 300, wit: 500 }, mood: 0 },
+  cmRef: { courseId: '10906' },
+  wishlist: [{ skillId: '200012', priority: 1, source: 'targeted' }],
+};
+
 vi.mock('@/app/ActivePlanContext', () => ({
   useActivePlan: () => ({
-    plan: {
-      umaId: '100101',
-      cmRef: { courseId: '10906' },
-      wishlist: [{ skillId: '200332', priority: 1, source: 'targeted' }],
-    },
+    plan: activePlan,
+    savedPlans: [activePlan, savedPlan],
+    deleteSavedPlan: vi.fn(), deleteAllSavedPlans: vi.fn(), importSavedPlans: vi.fn(),
     setPlan: vi.fn(), flushPendingSave: vi.fn(), loadError: null,
   }),
+}));
+
+// The shared inventory card pulls the lazy course catalog (engine chunk) on
+// mount — stub it to a single pick button; the M2 test only cares about the
+// popover wiring + the seed-from-picked-plan handler.
+vi.mock('@/features/cm-planner/PlanInventoryCard', () => ({
+  PlanInventoryCard: (props: { onLoadPlanIntoSlot: (id: string, slot: 'uma1' | 'uma2') => void }) => (
+    <button type="button" onClick={() => props.onLoadPlanIntoSlot('plan-saved', 'uma1')}>pick plan-saved</button>
+  ),
 }));
 
 beforeEach(() => {
@@ -57,7 +79,7 @@ describe('SpOptimizerPage', () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);
 
-    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
     // analyze() is async now (awaits the main-thread engine-init seam), so the
     // results render on a later tick — findBy waits for it.
@@ -98,7 +120,7 @@ describe('SpOptimizerPage', () => {
   it('marks the result stale after a pin and clears it on Re-analyze', async () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);
-    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
     await user.click(screen.getByRole('button', { name: /^Analyze$|Re-analyze/i }));
     await screen.findByText('Suggested baskets');
     await user.click(screen.getByRole('button', { name: /Lock 200332/i }));
@@ -111,7 +133,7 @@ describe('SpOptimizerPage', () => {
   it('keeps the cost input live after analysis (not frozen to the analyzed snapshot)', async () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);
-    await user.click(screen.getByRole('button', { name: /Copy from M4 wishlist/i }));
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
     await screen.findByText('Suggested baskets');
 
@@ -122,6 +144,51 @@ describe('SpOptimizerPage', () => {
 
     expect(screen.getByRole('spinbutton', { name: /Cost for 200332/i })).toHaveValue(999);
     expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
+  });
+
+  it('cycling the lock cell twice excludes the skill from re-analysis but keeps its row', async () => {
+    const { rankBasketsWithEngine } = await import('@/features/sp-optimizer/rankBaskets');
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    await screen.findByText('Suggested baskets');
+
+    const lockBtn = screen.getByRole('button', { name: /Lock 200332/i });
+    await user.click(lockBtn); // → pinned
+    await user.click(lockBtn); // → excluded
+    expect(lockBtn).toHaveTextContent('✕');
+    expect(lockBtn.closest('tr')).toHaveClass('is-excluded');
+    expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Re-analyze/i }));
+    const lastCall = vi.mocked(rankBasketsWithEngine).mock.calls.at(-1)!;
+    const analyzedBundle = lastCall[0] as { context: { candidates: { skillId: string }[]; pinned: string[] } };
+    expect(analyzedBundle.context.candidates.map((c) => c.skillId)).not.toContain('200332');
+    expect(analyzedBundle.context.pinned).not.toContain('200332');
+  });
+
+  it('Load uma plan pops the inventory and picking a plan seeds from ITS wishlist and stats', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    expect(screen.queryByText('pick plan-saved')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Load uma plan/i }));
+    await user.click(screen.getByText('pick plan-saved'));
+
+    // Seeded from the saved plan, not the active one: its wishlist skill is a
+    // candidate row and its target stats fill the chip line.
+    expect(screen.getByRole('spinbutton', { name: /Cost for 200012/i })).toBeInTheDocument();
+    expect(screen.getByText(/SPD 900/)).toBeInTheDocument();
+    // Popover closed after the pick.
+    expect(screen.queryByText('pick plan-saved')).not.toBeInTheDocument();
+  });
+
+  it('Carry from M4 seeds from the active plan\'s target stats (not hardcoded defaults)', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
+    expect(screen.getByText(/SPD 1100/)).toBeInTheDocument();
   });
 
   it('shows fixture-data alert when status is fixture', () => {

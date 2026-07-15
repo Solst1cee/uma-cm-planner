@@ -1,40 +1,56 @@
+import { useRef, type ReactNode } from 'react';
+
 import type { BuildContext, CaptureBundle } from '@/core/spOptimizer';
 import { useGameData } from '@/features/data/gameData';
 
-export interface PlanOption { id: string; label: string }
 export interface MatchSummary { locked: string[]; matched: number; notBuyable: number }
 
 export interface BuildSpCardProps {
   context: BuildContext | null;
   source: CaptureBundle['source'];
-  onSourceChange: (s: 'memory' | 'manual' | 'ocr') => void;
+  /** Import segment: the chosen capture .json file. */
+  onImportFile: (file: File) => void;
+  /** Carry-from-M4 segment: seed from the active planner wishlist. */
+  onCarryFromM4: () => void;
+  carryDisabled?: boolean;
   onSpChange: (n: number) => void;
-  onLoadPlan: (planId: string) => void;
-  plans: PlanOption[];
+  /** Page-built "Load uma plan" control (provider-free card pattern). */
+  loadPlan?: ReactNode;
   matchSummary: MatchSummary | null;
 }
 
-const SOURCES: { key: 'memory' | 'manual' | 'ocr'; label: string }[] = [
-  { key: 'memory', label: '📷 Import' },
-  { key: 'manual', label: 'Manual' },
-  { key: 'ocr', label: 'Carry from M4' },
-];
-
 export function BuildSpCard(props: BuildSpCardProps) {
-  const { context, source, onSourceChange, onSpChange, onLoadPlan, plans, matchSummary } = props;
+  const { context, source, onImportFile, onCarryFromM4, carryDisabled, onSpChange, loadPlan, matchSummary } = props;
   const { umaById } = useGameData();
+  const fileRef = useRef<HTMLInputElement>(null);
   const uma = context ? umaById?.get(context.umaId) : undefined; // umaById is optional on GameData
   const s = context?.stats;
   return (
     <div className="sp-buildcard">
       <div className="sp-buildcard-row">
         <span className="sp-seg" role="group" aria-label="Input source">
-          {SOURCES.map((o) => (
-            <button key={o.key} type="button" className={source === o.key ? 'on' : ''} aria-pressed={source === o.key} onClick={() => onSourceChange(o.key)}>
-              {o.label}
-            </button>
-          ))}
+          <button type="button" className={source === 'memory' ? 'on' : ''} aria-pressed={source === 'memory'} onClick={() => fileRef.current?.click()}>
+            📷 Import
+          </button>
+          <button type="button" className={source === 'manual' ? 'on' : ''} aria-pressed={source === 'manual'} disabled title="Manual entry lands in F1.5">
+            Manual
+          </button>
+          <button type="button" className={source === 'ocr' ? 'on' : ''} aria-pressed={source === 'ocr'} onClick={onCarryFromM4} disabled={carryDisabled}>
+            Carry from M4
+          </button>
         </span>
+        <input
+          ref={fileRef}
+          type="file"
+          className="sp-file-hidden"
+          accept="application/json,.json"
+          aria-label="Import capture (.json)"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onImportFile(f);
+            e.target.value = ''; // allow re-importing the same file
+          }}
+        />
         {context && (
           <>
             <span className="sp-chip">🐎 {uma?.nameEn ?? context.umaId} · {context.strategy}</span>
@@ -48,13 +64,7 @@ export function BuildSpCard(props: BuildSpCardProps) {
         </label>
       </div>
       <div className="sp-buildcard-row sp-loadplan">
-        <label>
-          <span className="muted small">Load uma plan</span>
-          <select aria-label="Load uma plan" value="" onChange={(e) => e.target.value && onLoadPlan(e.target.value)}>
-            <option value="">📋 choose…</option>
-            {plans.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
-        </label>
+        {loadPlan}
         {matchSummary && (
           <span className="sp-match">
             {matchSummary.locked.map((id) => <span key={id} className="sp-chip">🔒 {id}</span>)}

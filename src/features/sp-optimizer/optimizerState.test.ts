@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyWorkingState, basketBuyCut, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
+import { applyWorkingState, basketBuyCut, cycleLockState, type WorkingEdits } from '@/features/sp-optimizer/optimizerState';
 import type { CaptureBundle } from '@/core/spOptimizer';
 import type { SkillRecord, SparkRates } from '@/core/types';
 
@@ -25,16 +25,16 @@ const base: CaptureBundle = {
 
 describe('applyWorkingState', () => {
   it('sets pinned from the pins set', () => {
-    const edits: WorkingEdits = { pins: new Set(['a']), costEdits: new Map(), hintEdits: new Map(), fastLearner: false };
+    const edits: WorkingEdits = { pins: new Set(['a']), excluded: new Set(), costEdits: new Map(), hintEdits: new Map(), fastLearner: false };
     expect(applyWorkingState(base, edits, skillById, rates).context.pinned).toEqual(['a']);
   });
   it('reprices from a hint edit (200 @ Lv1 → 180)', () => {
-    const edits: WorkingEdits = { pins: new Set(), costEdits: new Map(), hintEdits: new Map([['a', 1]]), fastLearner: false };
+    const edits: WorkingEdits = { pins: new Set(), excluded: new Set(), costEdits: new Map(), hintEdits: new Map([['a', 1]]), fastLearner: false };
     const out = applyWorkingState(base, edits, skillById, rates);
     expect(out.context.candidates.find((c) => c.skillId === 'a')!.screenSpCost).toBe(180);
   });
   it('a cost edit overrides the hint reprice', () => {
-    const edits: WorkingEdits = { pins: new Set(), costEdits: new Map([['a', 42]]), hintEdits: new Map([['a', 3]]), fastLearner: false };
+    const edits: WorkingEdits = { pins: new Set(), excluded: new Set(), costEdits: new Map([['a', 42]]), hintEdits: new Map([['a', 3]]), fastLearner: false };
     const out = applyWorkingState(base, edits, skillById, rates);
     expect(out.context.candidates.find((c) => c.skillId === 'a')!.screenSpCost).toBe(42);
   });
@@ -49,11 +49,42 @@ describe('applyWorkingState', () => {
         ],
       },
     };
-    const edits: WorkingEdits = { pins: new Set(), costEdits: new Map(), hintEdits: new Map([['g', 1]]), fastLearner: false };
+    const edits: WorkingEdits = { pins: new Set(), excluded: new Set(), costEdits: new Map(), hintEdits: new Map([['g', 1]]), fastLearner: false };
     const out = applyWorkingState(withGold, edits, skillById, rates);
     // Single-skill effectiveSpCost(200, Lv1) = ceil(200*0.9) = 180 — NOT 270
     // (ceil((200+100)*0.9)), which would double-count the white's own row.
     expect(out.context.candidates.find((c) => c.skillId === 'g')!.screenSpCost).toBe(180);
+  });
+});
+
+describe('applyWorkingState — excluded skills', () => {
+  it('drops excluded candidates from the analysis bundle (and never pins them)', () => {
+    const edits: WorkingEdits = { pins: new Set(['a', 'b']), excluded: new Set(['b']), costEdits: new Map(), hintEdits: new Map(), fastLearner: false };
+    const out = applyWorkingState(base, edits, skillById, rates);
+    expect(out.context.candidates.map((c) => c.skillId)).toEqual(['a']);
+    expect(out.context.pinned).toEqual(['a']);
+  });
+});
+
+describe('cycleLockState', () => {
+  const edits = (): WorkingEdits => ({ pins: new Set(), excluded: new Set(), costEdits: new Map(), hintEdits: new Map(), fastLearner: false });
+  it('cycles blank → pinned → excluded → blank', () => {
+    const e0 = edits();
+    const e1 = cycleLockState(e0, 'a');
+    expect(e1.pins.has('a')).toBe(true);
+    expect(e1.excluded.has('a')).toBe(false);
+    const e2 = cycleLockState(e1, 'a');
+    expect(e2.pins.has('a')).toBe(false);
+    expect(e2.excluded.has('a')).toBe(true);
+    const e3 = cycleLockState(e2, 'a');
+    expect(e3.pins.has('a')).toBe(false);
+    expect(e3.excluded.has('a')).toBe(false);
+  });
+  it('is pure — does not mutate the input edits', () => {
+    const e0 = edits();
+    cycleLockState(e0, 'a');
+    expect(e0.pins.size).toBe(0);
+    expect(e0.excluded.size).toBe(0);
   });
 });
 

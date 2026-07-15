@@ -5,20 +5,37 @@ import type { RankResult } from '@/features/sp-optimizer/rankBaskets';
 
 export interface WorkingEdits {
   pins: Set<string>;
+  /** Skills cycled to ✕: kept visible (dimmed) in the table, dropped from analysis. */
+  excluded: Set<string>;
   costEdits: Map<string, number>;
   hintEdits: Map<string, HintLevel>;
   fastLearner: boolean;
 }
 
-/** Merge working edits into a fresh bundle: pins → context.pinned; per-candidate
- *  screenSpCost = cost edit ?? hint-repriced ?? captured. Pure (new objects). */
-export function applyWorkingState(
+/** Lock-cell cycle: blank → pinned (must buy) → excluded (never buy) → blank. Pure. */
+export function cycleLockState(edits: WorkingEdits, skillId: string): WorkingEdits {
+  const pins = new Set(edits.pins);
+  const excluded = new Set(edits.excluded);
+  if (pins.has(skillId)) {
+    pins.delete(skillId);
+    excluded.add(skillId);
+  } else if (excluded.has(skillId)) {
+    excluded.delete(skillId);
+  } else {
+    pins.add(skillId);
+  }
+  return { ...edits, pins, excluded };
+}
+
+/** All candidates with cost/hint edits applied — including excluded ones (for
+ *  display). Pure (new objects). */
+export function mergedCandidates(
   bundle: CaptureBundle,
   edits: WorkingEdits,
   skillById: ReadonlyMap<string, SkillRecord>,
   rates: SparkRates,
-): CaptureBundle {
-  const candidates: BuyableSkill[] = bundle.context.candidates.map((c) => {
+): BuyableSkill[] {
+  return bundle.context.candidates.map((c) => {
     const costEdit = edits.costEdits.get(c.skillId);
     const hintEdit = edits.hintEdits.get(c.skillId);
     let screenSpCost = c.screenSpCost;
@@ -34,9 +51,23 @@ export function applyWorkingState(
     }
     return { ...c, screenSpCost, ...(hintEdit !== undefined ? { hintLevel: hintEdit } : {}) };
   });
+}
+
+/** Merge working edits into a fresh analysis bundle: pins → context.pinned;
+ *  per-candidate screenSpCost = cost edit ?? hint-repriced ?? captured;
+ *  excluded skills dropped entirely (from candidates AND pins). Pure. */
+export function applyWorkingState(
+  bundle: CaptureBundle,
+  edits: WorkingEdits,
+  skillById: ReadonlyMap<string, SkillRecord>,
+  rates: SparkRates,
+): CaptureBundle {
+  const candidates = mergedCandidates(bundle, edits, skillById, rates)
+    .filter((c) => !edits.excluded.has(c.skillId));
+  const pinned = [...edits.pins].filter((id) => !edits.excluded.has(id));
   return {
     ...bundle,
-    context: { ...bundle.context, candidates, pinned: [...edits.pins] },
+    context: { ...bundle.context, candidates, pinned },
   };
 }
 
