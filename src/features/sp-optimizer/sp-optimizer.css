@@ -201,10 +201,19 @@
   width: 3rem; display: inline-block; text-align: right;
 }
 /* Working hint ≠ imported capture → this cost is a projection, not screen
-   truth: red accent on the cost and the Lv readout. */
+   truth: red accent on the cost, Lv readout, and stepper buttons (no extra
+   bolding — weights match unedited rows). */
 .sp-cost.is-edited .sp-cost-value,
-.sp-cost.is-edited .sp-hintstep-lv { color: var(--danger, #c0392b); font-weight: 700; }
+.sp-cost.is-edited .sp-hintstep-lv { color: var(--danger, #c0392b); }
 .sp-cost.is-edited .sp-hintstep { border-color: color-mix(in srgb, var(--danger, #c0392b) 45%, var(--border)); }
+.sp-cost.is-edited .sp-hintstep button {
+  color: var(--danger, #c0392b);
+  background: color-mix(in srgb, var(--danger, #c0392b) 10%, var(--bg-2));
+}
+.sp-cost.is-edited .sp-hintstep button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger, #c0392b) 22%, var(--bg-2));
+}
+.sp-cost.is-edited .sp-hintstep button:disabled { color: var(--fg-muted); }
 
 /* − Lv N + hint stepper (the only way to change a cost — it derives from hint). */
 .sp-hintstep {
