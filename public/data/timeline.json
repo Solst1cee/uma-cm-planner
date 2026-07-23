@@ -2289,7 +2289,9 @@
       "type": "cm",
       "title": "Leo Cup",
       "dates": {
-        "finals": "2026-07-30"
+        "start": "2026-07-12",
+        "finals": "2026-07-15",
+        "end": "2026-07-21"
       },
       "cm": {
         "cmNumber": 16,
@@ -2301,14 +2303,14 @@
           "season": "summer"
         }
       },
-      "tier": "prediction",
-      "status": "unconfirmed",
+      "tier": "official",
+      "status": "confirmed",
       "source": {
-        "kind": "umaguide",
-        "url": "https://uma.guide/cm-schedule/"
+        "kind": "manual",
+        "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/541155"
       },
       "server": "global",
-      "dataVersion": "global-484539f5"
+      "dataVersion": "global-271be4dc"
     },
     {
       "id": "cm17-virgo-cup",
