@@ -80,9 +80,18 @@
   padding: 0.2rem 0.6rem; font-size: 0.78rem; color: var(--fg-muted);
 }
 
-.sp-available { display: grid; gap: 0.15rem; margin-left: auto; }
+.sp-fastlearner { display: inline-flex; align-items: center; gap: 0.35rem; margin-left: auto; cursor: pointer; }
+.sp-fastlearner input { accent-color: var(--accent); }
+
+.sp-available { display: grid; gap: 0.15rem; }
 .sp-buildcard .sp-available input {
   width: 7rem; text-align: right; font-variant-numeric: tabular-nums;
+  appearance: textfield; -moz-appearance: textfield;
+}
+.sp-buildcard .sp-available input::-webkit-outer-spin-button,
+.sp-buildcard .sp-available input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .sp-match { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
@@ -139,23 +148,20 @@
 .sp-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .sp-table tbody tr:last-child td { border-bottom: 0; }
 
-.sp-row.is-lock { background: color-mix(in srgb, var(--warn) 12%, transparent); }
+/* Row states: baseline (is-avail) renders NORMAL — no dimming; a 🔒 lock is a
+   light-blue tint; ✕ excluded is the greyed-out state (out of the analysis). */
+.sp-row.is-lock { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .sp-row.is-buy { background: color-mix(in srgb, var(--live) 9%, transparent); }
-.sp-row.is-avail { opacity: 0.55; }
-.sp-row.is-excluded { opacity: 0.4; }
+.sp-row.is-excluded { opacity: 0.4; filter: grayscale(0.7); }
 
 .sp-lock {
   width: 1.9rem; height: 1.9rem; padding: 0; display: grid; place-items: center;
   background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
 }
-.sp-lock.is-lock { background: color-mix(in srgb, var(--warn) 22%, var(--bg-1)); border-color: var(--warn-border); }
+.sp-lock.is-lock { background: color-mix(in srgb, var(--accent) 18%, var(--bg-1)); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .sp-lock.is-buy { background: color-mix(in srgb, var(--live) 20%, var(--bg-1)); border-color: color-mix(in srgb, var(--live) 45%, var(--border)); color: var(--live); }
 .sp-lock.is-avail { color: var(--fg-muted); }
-.sp-lock.is-excluded {
-  color: var(--danger, #c0392b);
-  border-color: color-mix(in srgb, var(--danger, #c0392b) 45%, var(--border));
-  background: color-mix(in srgb, var(--danger, #c0392b) 12%, var(--bg-1));
-}
+.sp-lock.is-excluded { color: var(--fg-muted); background: var(--bg-2); border-color: var(--border); }
 
 /* Inline-flex on an inner wrapper, NOT the <td> — display:flex on a td stops
    it behaving as a table-cell, so the Skill cell rendered shorter than its row. */
@@ -193,7 +199,24 @@
 
 .sp-cost { white-space: nowrap; }
 .sp-cost .was { color: var(--fg-muted); text-decoration: line-through; margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
-.sp-cost input.sp-cost-input { width: 4.5rem; padding: 0.3rem 0.4rem; text-align: right; font-variant-numeric: tabular-nums; }
+.sp-cost-value { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 2.6rem; display: inline-block; }
+
+/* − Lv N + hint stepper (the only way to change a cost — it derives from hint). */
+.sp-hintstep {
+  display: inline-flex; align-items: center; margin-left: 0.5rem;
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+}
+.sp-hintstep button {
+  appearance: none; background: var(--bg-2); border: 0; border-radius: 0;
+  width: 1.5rem; padding: 0.15rem 0; font-size: 0.85rem; line-height: 1;
+  color: var(--fg); cursor: pointer;
+}
+.sp-hintstep button:disabled { color: var(--fg-muted); opacity: 0.5; cursor: default; }
+.sp-hintstep button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 15%, var(--bg-2)); }
+.sp-hintstep-lv {
+  padding: 0 0.45rem; font-size: 0.76rem; font-variant-numeric: tabular-nums;
+  color: var(--fg-muted); border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
 
 .sp-ratio { font-variant-numeric: tabular-nums; font-weight: 600; }
 .sp-ratio.is-strong { color: var(--live); }

@@ -23,7 +23,7 @@ const result: RankResult = { mode: 'exact', greedyScore: 0, candidates: rows, ba
 function makeProps(overrides: Partial<BuyableSkillsTableProps> = {}): BuyableSkillsTableProps {
   return {
     result, rows, selectedIdx: 0, pins: new Set(), excluded: new Set(),
-    onCycleLock: () => {}, onEditCost: () => {}, onSetHint: () => {},
+    onCycleLock: () => {}, onSetHint: () => {},
     ...overrides,
   };
 }
@@ -51,6 +51,20 @@ describe('BuyableSkillsTable', () => {
     // Query for the struck base "90" in the entire document; it should not exist for row 200012.
     const strikeSpans = screen.queryAllByText('90');
     expect(strikeSpans.length).toBe(0);
+  });
+  it('cost is read-only text with a − Lv N + stepper; stepping fires onSetHint ±1', async () => {
+    const onSetHint = vi.fn();
+    render(<BuyableSkillsTable {...makeProps({ onSetHint })} />);
+    // No editable cost input anywhere — cost derives from the hint level.
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    expect(screen.getByText('144')).toBeInTheDocument();
+    // Row 200332 is at hint 3 → up gives 4, down gives 2.
+    await userEvent.click(screen.getByRole('button', { name: 'Hint up for 200332' }));
+    expect(onSetHint).toHaveBeenLastCalledWith('200332', 4);
+    await userEvent.click(screen.getByRole('button', { name: 'Hint down for 200332' }));
+    expect(onSetHint).toHaveBeenLastCalledWith('200332', 2);
+    // Row 200012 has no hint (0) → down is disabled.
+    expect(screen.getByRole('button', { name: 'Hint down for 200012' })).toBeDisabled();
   });
   it('renders a negative ΔL without a leading + (−0.06, not +-0.06)', () => {
     const negRows = [{ ...rows[1]!, deltaL: -0.06 }];

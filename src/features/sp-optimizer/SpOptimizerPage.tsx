@@ -25,7 +25,7 @@ import { useCaptures } from '@/features/sp-optimizer/useCaptures';
 import '@/features/cm-planner/cm-planner.css';
 import './sp-optimizer.css';
 
-const EMPTY_EDITS = (): WorkingEdits => ({ pins: new Set(), excluded: new Set(), costEdits: new Map(), hintEdits: new Map(), fastLearner: false });
+const EMPTY_EDITS = (): WorkingEdits => ({ pins: new Set(), excluded: new Set(), hintEdits: new Map(), fastLearner: false });
 
 export function SpOptimizerPage() {
   const { status, skillById, sparkRates } = useGameData();
@@ -50,7 +50,7 @@ export function SpOptimizerPage() {
 
   // The working bundle = the captured bundle with pins/cost/hint edits applied.
   const workingBundle = useMemo(
-    () => (bundle ? applyWorkingState(bundle, edits, skillById, sparkRates) : null),
+    () => (bundle ? applyWorkingState(bundle, edits, sparkRates) : null),
     [bundle, edits, skillById, sparkRates],
   );
 
@@ -132,9 +132,9 @@ export function SpOptimizerPage() {
   }
 
   const markStale = () => { if (result) setStale(true); };
-  const cycleLock = (id: string) => { setEdits((e) => cycleLockState(e, id)); markStale(); };
-  const editCost = (id: string, cost: number) => { setEdits((e) => ({ ...e, costEdits: new Map(e.costEdits).set(id, cost) })); markStale(); };
+  const cycleLock = (id: string) => { setEdits((e) => cycleLockState(e, id, bundle?.context.candidates ?? [])); markStale(); };
   const setHint = (id: string, lvl: HintLevel) => { setEdits((e) => ({ ...e, hintEdits: new Map(e.hintEdits).set(id, lvl) })); markStale(); };
+  const setFastLearner = (v: boolean) => { setEdits((e) => ({ ...e, fastLearner: v })); markStale(); };
   const setSp = (n: number) => { setBundle((b) => b ? { ...b, context: { ...b.context, spBudget: n } } : b); markStale(); };
 
   function saveCurrent() {
@@ -152,7 +152,7 @@ export function SpOptimizerPage() {
   // in the table even though analysis drops them. Without a bundle, nothing to show.
   const analyzedById = new Map((result?.candidates ?? []).map((c) => [c.skillId, c]));
   const rows: CandidateRow[] = bundle
-    ? mergedCandidates(bundle, edits, skillById, sparkRates).map((c) => {
+    ? mergedCandidates(bundle, edits, sparkRates).map((c) => {
         const a = analyzedById.get(c.skillId);
         return {
           skillId: c.skillId,
@@ -185,6 +185,8 @@ export function SpOptimizerPage() {
         onCarryFromM4={copyWishlist}
         carryDisabled={!plan || plan.wishlist.length === 0}
         onSpChange={setSp}
+        fastLearner={edits.fastLearner}
+        onFastLearnerChange={setFastLearner}
         loadPlan={
           /* Shared planner inventory as a dismiss-on-outside popover (M1.2
              pattern); picking a row prefills locks on the current build — it
@@ -255,7 +257,6 @@ export function SpOptimizerPage() {
               pins={edits.pins}
               excluded={edits.excluded}
               onCycleLock={cycleLock}
-              onEditCost={editCost}
               onSetHint={setHint}
             />
           )}

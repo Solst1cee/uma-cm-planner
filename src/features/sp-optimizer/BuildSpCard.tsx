@@ -14,13 +14,15 @@ export interface BuildSpCardProps {
   onCarryFromM4: () => void;
   carryDisabled?: boolean;
   onSpChange: (n: number) => void;
+  fastLearner: boolean;
+  onFastLearnerChange: (v: boolean) => void;
   /** Page-built "Load uma plan" control (provider-free card pattern). */
   loadPlan?: ReactNode;
   matchSummary: MatchSummary | null;
 }
 
 export function BuildSpCard(props: BuildSpCardProps) {
-  const { context, source, onImportFile, onCarryFromM4, carryDisabled, onSpChange, loadPlan, matchSummary } = props;
+  const { context, source, onImportFile, onCarryFromM4, carryDisabled, onSpChange, fastLearner, onFastLearnerChange, loadPlan, matchSummary } = props;
   const { umaById } = useGameData();
   const fileRef = useRef<HTMLInputElement>(null);
   const uma = context ? umaById?.get(context.umaId) : undefined; // umaById is optional on GameData
@@ -65,6 +67,18 @@ export function BuildSpCard(props: BuildSpCardProps) {
             {s && <span className="sp-chip">SPD {s.spd} · STA {s.sta} · PWR {s.pow} · GUT {s.gut} · WIT {s.wit}</span>}
           </>
         )}
+        <label
+          className="sp-fastlearner"
+          title="Fast Learner (切れ者): −10% skill cost, stacks additively with hint discounts. Reprices every row from its base cost — leave off for an imported capture whose screen costs already include it."
+        >
+          <input
+            type="checkbox"
+            aria-label="Fast Learner"
+            checked={fastLearner}
+            onChange={(e) => onFastLearnerChange(e.target.checked)}
+          />
+          <span className="muted small">Fast Learner −10%</span>
+        </label>
         <label className="sp-available">
           <span className="muted small">Available SP</span>
           <input type="number" aria-label="Available SP" value={context?.spBudget ?? 0} onChange={(e) => onSpChange(Number(e.target.value))} />

@@ -22,6 +22,7 @@ function makeProps(overrides: Partial<BuildSpCardProps> = {}): BuildSpCardProps 
   return {
     context: ctx, source: 'memory',
     onImportFile: () => {}, onCarryFromM4: () => {}, onSpChange: () => {},
+    fastLearner: false, onFastLearnerChange: () => {},
     matchSummary: null,
     ...overrides,
   };
@@ -55,6 +56,12 @@ describe('BuildSpCard', () => {
     unmount();
     render(<BuildSpCard {...makeProps({ onCarryFromM4, carryDisabled: true })} />);
     expect(screen.getByRole('button', { name: /Carry from M4/i })).toBeDisabled();
+  });
+  it('Fast Learner toggle reports changes', async () => {
+    const onFastLearnerChange = vi.fn();
+    render(<BuildSpCard {...makeProps({ onFastLearnerChange })} />);
+    await userEvent.click(screen.getByLabelText('Fast Learner'));
+    expect(onFastLearnerChange).toHaveBeenCalledWith(true);
   });
   it('renders with context={null} without crashing', () => {
     render(<BuildSpCard {...makeProps({ context: null })} />);

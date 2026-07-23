@@ -1,5 +1,5 @@
-import type { BuyableSkill, CaptureBundle } from '@/core/spOptimizer';
-import { effectiveSpCost, type HintLevel } from '@/core/cost';
+import { prereqClosure, type BuyableSkill, type CaptureBundle } from '@/core/spOptimizer';
+import type { HintLevel } from '@/core/cost';
 import type { SkillRecord, SparkRates, WishlistItem } from '@/core/types';
 import type { RankResult } from '@/features/sp-optimizer/rankBaskets';
 
@@ -31,64 +31,100 @@ export function planMatch(
 
 export interface WorkingEdits {
   pins: Set<string>;
-  /** Skills cycled to ✕: kept visible (dimmed) in the table, dropped from analysis. */
+  /** Skills cycled to ✕: kept visible (greyed) in the table, dropped from analysis. */
   excluded: Set<string>;
-  costEdits: Map<string, number>;
   hintEdits: Map<string, HintLevel>;
   fastLearner: boolean;
 }
 
-/** Lock-cell cycle: blank → pinned (must buy) → excluded (never buy) → blank. Pure. */
-export function cycleLockState(edits: WorkingEdits, skillId: string): WorkingEdits {
+/** Candidates whose purchase chain (transitive prereqs) passes through `skillId`. */
+function dependentsOf(skillId: string, candidates: readonly BuyableSkill[]): string[] {
+  return candidates
+    .filter((c) => c.skillId !== skillId && prereqClosure([c.skillId], [...candidates]).includes(skillId))
+    .map((c) => c.skillId);
+}
+
+/** Lock-cell cycle: blank → pinned (must buy) → excluded (never buy) → blank.
+ *  Chain-aware: pinning a ◎/gold locks its whole purchase chain (the game
+ *  sells them as upgrades on the base skill); excluding a base also excludes
+ *  everything that needs it. Pure. */
+export function cycleLockState(
+  edits: WorkingEdits,
+  skillId: string,
+  candidates: readonly BuyableSkill[],
+): WorkingEdits {
   const pins = new Set(edits.pins);
   const excluded = new Set(edits.excluded);
   if (pins.has(skillId)) {
-    pins.delete(skillId);
-    excluded.add(skillId);
+    for (const id of [skillId, ...dependentsOf(skillId, candidates)]) {
+      pins.delete(id);
+      excluded.add(id);
+    }
   } else if (excluded.has(skillId)) {
     excluded.delete(skillId);
   } else {
-    pins.add(skillId);
+    for (const id of prereqClosure([skillId], [...candidates])) {
+      pins.add(id);
+      excluded.delete(id);
+    }
   }
   return { ...edits, pins, excluded };
 }
 
-/** All candidates with cost/hint edits applied — including excluded ones (for
- *  display). Pure (new objects). */
+/** Reprice a candidate at a new hint level (+ optional Fast Learner) from its
+ *  SCREEN-IMPLIED base — screenSpCost ÷ its captured hint discount — never the
+ *  datasheet base. The captured screen cost is ground truth (gold on-screen
+ *  costs don't match stored baseSpCost; mechanics-notes §10 item 8), and with
+ *  cost no longer hand-editable this is the only way a captured number
+ *  survives round-tripping the stepper. At the captured hint with FL off the
+ *  screen cost is returned verbatim. Pure. */
+export function repricedCost(
+  candidate: BuyableSkill,
+  hint: HintLevel,
+  fastLearner: boolean,
+  rates: SparkRates,
+): number {
+  const capturedHint = (candidate.hintLevel ?? 0) as HintLevel;
+  if (hint === capturedHint && !fastLearner) return candidate.screenSpCost;
+  const pct = (h: HintLevel): number => (h === 0 ? 0 : rates.hintDiscountCumulativePct[h - 1] ?? 0);
+  const impliedBase = (candidate.screenSpCost * 100) / (100 - pct(capturedHint));
+  // FL stacks additively with the hint discount (verified; core cost.ts).
+  const discountPct = pct(hint) + (fastLearner ? 10 : 0);
+  // Epsilon guards float noise from the base division bumping the ceil.
+  return Math.ceil((impliedBase * (100 - discountPct)) / 100 - 1e-9);
+}
+
+/** All candidates with hint/Fast-Learner repricing applied — including
+ *  excluded ones (for display). A row is repriced when its hint level was
+ *  stepped OR Fast Learner is toggled on; an untouched row keeps the captured
+ *  screen cost (the screen already reflects the uma's real discounts). Pure
+ *  (new objects). */
 export function mergedCandidates(
   bundle: CaptureBundle,
   edits: WorkingEdits,
-  skillById: ReadonlyMap<string, SkillRecord>,
   rates: SparkRates,
 ): BuyableSkill[] {
   return bundle.context.candidates.map((c) => {
-    const costEdit = edits.costEdits.get(c.skillId);
     const hintEdit = edits.hintEdits.get(c.skillId);
     let screenSpCost = c.screenSpCost;
-    if (costEdit !== undefined) {
-      screenSpCost = costEdit;
-    } else if (hintEdit !== undefined) {
-      const skill = skillById.get(c.skillId);
-      // Single-skill effectiveSpCost — NOT purchaseSpCost, which bundles a
-      // gold's white prereq. M2 has a separate candidate row per on-screen
-      // skill (the white gets its own row + its own cost), so bundling here
-      // would double-count the white's cost when both are edited.
-      if (skill) screenSpCost = effectiveSpCost(skill, hintEdit, rates, { fastLearner: edits.fastLearner });
+    if (hintEdit !== undefined || edits.fastLearner) {
+      // Single-row repricing — never purchaseSpCost bundling; M2 has a
+      // separate candidate row per on-screen skill.
+      screenSpCost = repricedCost(c, (hintEdit ?? c.hintLevel ?? 0) as HintLevel, edits.fastLearner, rates);
     }
     return { ...c, screenSpCost, ...(hintEdit !== undefined ? { hintLevel: hintEdit } : {}) };
   });
 }
 
 /** Merge working edits into a fresh analysis bundle: pins → context.pinned;
- *  per-candidate screenSpCost = cost edit ?? hint-repriced ?? captured;
+ *  per-candidate screenSpCost = hint/Fast-Learner repriced ?? captured;
  *  excluded skills dropped entirely (from candidates AND pins). Pure. */
 export function applyWorkingState(
   bundle: CaptureBundle,
   edits: WorkingEdits,
-  skillById: ReadonlyMap<string, SkillRecord>,
   rates: SparkRates,
 ): CaptureBundle {
-  const candidates = mergedCandidates(bundle, edits, skillById, rates)
+  const candidates = mergedCandidates(bundle, edits, rates)
     .filter((c) => !edits.excluded.has(c.skillId));
   const pinned = [...edits.pins].filter((id) => !edits.excluded.has(id));
   return {

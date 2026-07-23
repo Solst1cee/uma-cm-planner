@@ -1,5 +1,5 @@
 import type { HintLevel } from '@/core/coverage';
-import type { CaptureBundle, BuyableSkill } from '@/core/spOptimizer';
+import { purchasePrereqId, type CaptureBundle, type BuyableSkill } from '@/core/spOptimizer';
 import type { Grade, SkillRecord, Stat, Strategy } from '@/core/types';
 
 const GRADES: Grade[] = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'S'];
@@ -84,7 +84,10 @@ export function parseCareerCapture(data: unknown, options: CareerCaptureImportOp
       screenSpCost: cost,
       matchTier: 'exact',
     };
-    if (record.prereqSkillId) candidate.prereqSkillId = record.prereqSkillId;
+    // Explicit gold→white link, plus the inferred ◎→○ upgrade chain — the
+    // real screen lists both rows, so the closure link is all that's needed.
+    const prereq = purchasePrereqId(record, options.skillById);
+    if (prereq !== undefined) candidate.prereqSkillId = prereq;
     const hint = row['hintLv'];
     if (typeof hint === 'number' && Number.isInteger(hint) && hint >= 0 && hint <= 5) {
       candidate.hintLevel = hint as HintLevel;

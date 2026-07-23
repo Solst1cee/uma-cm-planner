@@ -1,8 +1,8 @@
 /**
- * Module 2 workbench table (Task 6): one row per buyable skill — lock cell /
- * skill+icon / type chip / ΔL / editable SP cost / L-per-SP / hint segmented
- * control. Fully controlled (no internal state); a later task mounts it into
- * SpOptimizerPage alongside the result banner.
+ * Module 2 workbench table: one row per buyable skill — lock cell (blank →
+ * 🔒 locked → ✕ excluded) / skill+icon / type chip / SP cost with its
+ * − Lv N + hint stepper (cost is read-only: it derives from the hint level) /
+ * ΔL / L-per-SP. Fully controlled (no internal state).
  */
 import type { HintLevel } from '@/core/cost';
 import { useGameData } from '@/features/data/gameData';
@@ -19,15 +19,13 @@ export interface BuyableSkillsTableProps {
   excluded: Set<string>;
   /** Lock cell cycle: blank → 🔒 pinned → ✕ excluded → blank. */
   onCycleLock: (id: string) => void;
-  onEditCost: (id: string, cost: number) => void;
   onSetHint: (id: string, lvl: HintLevel) => void;
 }
 
-const HINTS: HintLevel[] = [0, 1, 2, 3, 4, 5];
 const LOCK_GLYPH = { lock: '🔒', excluded: '✕', buy: '✓', avail: '' } as const;
 
 export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
-  const { result, rows, selectedIdx, pins, excluded, onCycleLock, onEditCost, onSetHint } = props;
+  const { result, rows, selectedIdx, pins, excluded, onCycleLock, onSetHint } = props;
   const { skillById } = useGameData();
   const kinds = useSkillKinds(rows.map((r) => r.skillId));
   const { buy } = result ? basketBuyCut(result, selectedIdx) : { buy: new Set<string>() };
@@ -39,8 +37,8 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
     <table className="sp-table">
       <thead>
         <tr>
-          <th>Lock</th><th>Skill</th><th>Type</th><th>Δ L</th><th>SP cost</th>
-          <th>L / SP <span className="muted">(×1k)</span></th><th>Hint Lv</th>
+          <th>Lock</th><th>Skill</th><th>Type</th><th>SP cost · hint</th>
+          <th>Δ L</th><th>L / SP <span className="muted">(×1k)</span></th>
         </tr>
       </thead>
       <tbody>
@@ -52,9 +50,8 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
           const state = pinned ? 'lock' : isExcluded ? 'excluded' : inBuy ? 'buy' : 'avail';
           const showNumbers = analyzed && !isExcluded;
           const kind = kinds.get(r.skillId);
-          // Controller resolution 1: CandidateRow.baseSpCost is never populated
-          // by the orchestrator today, so fall back to the game-data base cost;
-          // never strike a 0 (uniques carry baseSpCost 0).
+          const hint = (r.hintLevel ?? 0) as HintLevel;
+          // Never strike a 0 (uniques carry baseSpCost 0).
           const base = r.baseSpCost ?? skill?.baseSpCost;
           const discounted = base !== undefined && base > r.screenSpCost;
           return (
@@ -75,38 +72,36 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
                 <span className="sp-skill">
                   {skill && <GameIcon kind="skill" id={skill.iconId} size={18} alt="" />}
                   <span className={r.rarity === 'gold' ? 'sk-gold' : 'sk-white'}>{skill?.nameEn ?? r.skillId}</span>
-                  {r.prereqSkillId && <span className="sp-bundle">+ white base</span>}
+                  {r.prereqSkillId && <span className="sp-bundle">+ base</span>}
                 </span>
               </td>
               <td>{kind ? <span className={`sp-kind is-${kind.tone}`}>{kind.label}</span> : null}</td>
-              <td className="sp-Lval">{showNumbers ? `${r.deltaL < 0 ? '' : '+'}${r.deltaL.toFixed(2)}` : '—'}</td>
               <td className="sp-cost">
                 {discounted && <span className="was">{base}</span>}
-                <input
-                  type="number"
-                  className="sp-cost-input"
-                  aria-label={`Cost for ${r.skillId}`}
-                  value={r.screenSpCost}
-                  onChange={(e) => { if (e.target.value !== '') onEditCost(r.skillId, Number(e.target.value)); }}
-                />
+                <span className="sp-cost-value">{r.screenSpCost}</span>
+                <span className="sp-hintstep" role="group" aria-label={`Hint level for ${r.skillId}`}>
+                  <button
+                    type="button"
+                    aria-label={`Hint down for ${r.skillId}`}
+                    disabled={hint <= 0}
+                    onClick={() => onSetHint(r.skillId, (hint - 1) as HintLevel)}
+                  >
+                    −
+                  </button>
+                  <span className="sp-hintstep-lv">Lv {hint}</span>
+                  <button
+                    type="button"
+                    aria-label={`Hint up for ${r.skillId}`}
+                    disabled={hint >= 5}
+                    onClick={() => onSetHint(r.skillId, (hint + 1) as HintLevel)}
+                  >
+                    +
+                  </button>
+                </span>
               </td>
+              <td className="sp-Lval">{showNumbers ? `${r.deltaL < 0 ? '' : '+'}${r.deltaL.toFixed(2)}` : '—'}</td>
               <td className={`sp-ratio ${showNumbers && r.lPerSp < 3 ? 'is-weak' : 'is-strong'}`}>
                 {showNumbers ? r.lPerSp.toFixed(1) : '—'}
-              </td>
-              <td>
-                <span className="sp-hint" role="group" aria-label={`Hint level for ${r.skillId}`}>
-                  {HINTS.map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      className={r.hintLevel === h ? 'on' : ''}
-                      aria-pressed={r.hintLevel === h}
-                      onClick={() => onSetHint(r.skillId, h)}
-                    >
-                      {h}
-                    </button>
-                  ))}
-                </span>
               </td>
             </tr>
           );

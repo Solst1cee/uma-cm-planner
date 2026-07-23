@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { SpOptimizerPage } from '@/features/sp-optimizer/SpOptimizerPage';
@@ -110,7 +110,9 @@ describe('SpOptimizerPage', () => {
 
     expect(await screen.findByDisplayValue('777')).toBeInTheDocument();
     expect(screen.getByLabelText('Available SP')).toHaveValue(777);
-    expect(screen.getByRole('spinbutton', { name: /Cost for/i })).toHaveValue(71);
+    // Cost is read-only text now; the captured hint level shows on the stepper.
+    expect(screen.getByText('71')).toBeInTheDocument();
+    expect(screen.getByText('Lv 4')).toBeInTheDocument();
   });
 
   it('shows the two tabs and the F2 placeholder on the compare tab', async () => {
@@ -133,19 +135,35 @@ describe('SpOptimizerPage', () => {
     expect(screen.queryByText(/changes detected/i)).not.toBeInTheDocument();
   });
 
-  it('keeps the cost input live after analysis (not frozen to the analyzed snapshot)', async () => {
+  it('keeps the hint stepper live after analysis — stepping reprices the cost and marks stale', async () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);
     await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
     await screen.findByText('Suggested baskets');
 
-    const costInput = screen.getByRole('spinbutton', { name: /Cost for 200332/i });
-    expect(costInput).toHaveValue(110);
+    // Carried 200332 starts at base 110, hint 0 (banner also shows 110 — scope to the cell).
+    const costCell = () => screen.getByRole('button', { name: 'Hint up for 200332' }).closest('td')!;
+    expect(costCell().querySelector('.sp-cost-value')).toHaveTextContent('110');
+    await user.click(screen.getByRole('button', { name: 'Hint up for 200332' }));
 
-    fireEvent.change(costInput, { target: { value: '999' } });
+    // Lv1 = −10% → ceil(110 × 0.9) = 99, live before Re-analyze.
+    expect(costCell().querySelector('.sp-cost-value')).toHaveTextContent('99');
+    expect(screen.getByText('Lv 1')).toBeInTheDocument();
+    expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
+  });
 
-    expect(screen.getByRole('spinbutton', { name: /Cost for 200332/i })).toHaveValue(999);
+  it('Fast Learner toggle reprices rows from base and marks stale', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    await screen.findByText('Suggested baskets');
+
+    await user.click(screen.getByLabelText('Fast Learner'));
+    // 110 base @ hint 0 with FL −10% → 99.
+    const cell = screen.getByRole('button', { name: 'Hint up for 200332' }).closest('td')!;
+    expect(cell.querySelector('.sp-cost-value')).toHaveTextContent('99');
     expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
   });
 
