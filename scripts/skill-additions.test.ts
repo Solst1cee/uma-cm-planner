@@ -14,7 +14,7 @@ function tmpFile(contents: object): string {
 const valid = {
   skillId: '999001', nameEn: 'Preview Skill', nameJp: 'プレビュー', baseSpCost: 200,
   rarity: 'gold', iconId: '00001', conditions: 'distance_type==2',
-  server: 'jp', dataVersion: 'global-484539f5',
+  server: 'jp', dataVersion: 'global-271be4dc',
   releaseDate: '2026-07-30', releaseDatePredicted: true,
 };
 

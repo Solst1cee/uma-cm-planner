@@ -1,6 +1,6 @@
 # Handoff — dirt-track pin bump (v0.27.0 `484539f5` → v0.37.0 `271be4dc`)
 
-**Date:** 2026-07-23 · **Status:** investigated, NOT executed · **Trigger:** the in-game
+**Date:** 2026-07-23 · **Status:** EXECUTED same day (option A, same branch) — outcome in mechanics-notes §12.5; kept for the investigation record · **Trigger:** the in-game
 Global update of **2026-07-14** added three new racecourses — **Kawasaki, Funabashi,
 Morioka** — plus **17 graded dirt races (4 new dirt G1s**: Kawasaki Kinen, Zen-Nippon
 Junior Yushun, Kashiwa Kinen, Mile Championship Nambu Hai**)** and several new

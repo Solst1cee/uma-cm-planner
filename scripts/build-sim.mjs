@@ -2,7 +2,7 @@
 // external) + the upstream TS adapters/reducers/data-services `src/sim` needs
 // on top of it, into one self-contained ESM bundle.
 //
-// Source: spikes/repos/umalator-global @ v0.27.0 (484539f5c67e7aea8ef3715443d66602d871902d),
+// Source: spikes/repos/umalator-global @ v0.37.0 (271be4dcc590a58a35baa12e343a6e9ed6b7ebb9),
 // GPL-3.0-only, branch `local-wasm-baseline` (carries our
 // engine-patches/2026-07-10-multifire-rust.patch, applied as clone-local
 // commits — see that patch file to re-apply on a fresh clone checkout).

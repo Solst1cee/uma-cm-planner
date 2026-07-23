@@ -65,22 +65,24 @@ function findComparedRunner(
   return runner;
 }
 
-/** Split a WASM compare batch into aligned A/B primary-runner rounds (runnerId 0 = A,
- *  1 = B). Mirrors upstream's `splitContestedCompareRounds`. */
-function collectRounds(data: WasmCompareData): CompareRounds {
-  const roundsA: CollectedRunnerRoundData[] = [];
-  const roundsB: CollectedRunnerRoundData[] = [];
-  data.rounds.forEach((round, i) => {
-    roundsA.push(wasmCompareRoundDataToCollected(findComparedRunner(round.runners, 0, i)));
-    roundsB.push(wasmCompareRoundDataToCollected(findComparedRunner(round.runners, 1, i)));
-  });
-  return { roundsA, roundsB };
+/** Collect the primary runner (runnerId 0) of every round of a single-runner
+ *  vacuum batch. Since v0.37.0, `runCompare` telemetry covers only the primary
+ *  runner — extra runners are *field context* racing alongside it (they change
+ *  its race!), not independent vacuums. The A/B comparison is therefore two
+ *  separate single-runner batches sharing a master seed (upstream's own
+ *  baseline/tracked pattern in `wasm-skill-compare.ts`), stitched back into the
+ *  aligned `CompareRounds` shape the reducer consumes. */
+function collectPrimaryRounds(data: WasmCompareData): CollectedRunnerRoundData[] {
+  return data.rounds.map((round, i) =>
+    wasmCompareRoundDataToCollected(findComparedRunner(round.runners, 0, i)));
 }
 
-/** The single vacuum compare-family primitive shared by every entry: build the two
- *  runners (uma1=a, uma2=b) + course/params/settings, run the SYNC wasm batch, and
- *  return both the raw per-round A/B telemetry and the reduced compare result.
- *  Stamina is always ON (`healthSystem: true`) as it was on the old engine
+/** The single vacuum compare-family primitive shared by every entry: run runner A
+ *  and runner B as TWO single-runner wasm batches over the SAME master seed (the
+ *  v0.37.0 vacuum contract — see `collectPrimaryRounds`; passing both runners in
+ *  one call would race them in a shared field and break the vacuum guarantee),
+ *  align the per-round telemetry, and reduce. Stamina is always ON
+ *  (`healthSystem: true`) as it was on the old engine
  *  (`ignoreStaminaConsumption: false`). Multi-fire (`cooldownReactivation`) defaults
  *  ON in the wasm settings — no override here. `settings` overrides (downhill /
  *  staminaDrainOverrides) and per-runner injected debuffs thread through unchanged. */
@@ -94,16 +96,18 @@ function vacuumRounds(
 ): { rounds: CompareRounds; result: CompareResult } {
   const { course, parameters } = toWasmRace(race);
   const settings = compareSettingsToWasm(createCompareSettings({ healthSystem: true, ...opts?.settings }));
-  const data = runCompare({
+  const runOne = (
+    build: SimBuild, name: string, debuffs?: Array<{ skillId: string; position: number }>,
+  ): WasmCompareData => runCompare({
     course, parameters, settings,
-    runners: [
-      toWasmRunner(a, 'uma1', opts?.aDebuffs && opts.aDebuffs.length ? { injectedDebuffs: opts.aDebuffs } : undefined),
-      toWasmRunner(b, 'uma2', opts?.bDebuffs && opts.bDebuffs.length ? { injectedDebuffs: opts.bDebuffs } : undefined),
-    ],
+    runners: [toWasmRunner(build, name, debuffs && debuffs.length ? { injectedDebuffs: debuffs } : undefined)],
     nsamples,
     masterSeed: seed,
   });
-  const rounds = collectRounds(data);
+  const rounds: CompareRounds = {
+    roundsA: collectPrimaryRounds(runOne(a, 'uma1', opts?.aDebuffs)),
+    roundsB: collectPrimaryRounds(runOne(b, 'uma2', opts?.bDebuffs)),
+  };
   const result = reduceCompareRoundsPublic(rounds, nsamples);
   return { rounds, result };
 }
