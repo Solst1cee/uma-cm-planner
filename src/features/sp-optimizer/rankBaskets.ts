@@ -55,6 +55,9 @@ export interface CandidateRow {
   baseSpCost?: number;
   lPerSp: number;
   hintLevel?: HintLevel;
+  /** True when the working hint level differs from the imported capture's —
+   *  the shown cost is a projection, not the captured screen truth (red accent). */
+  hintEdited?: boolean;
   prereqSkillId?: string;
   pinned: boolean;
 }

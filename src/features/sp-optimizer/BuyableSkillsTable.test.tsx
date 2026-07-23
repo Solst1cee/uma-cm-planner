@@ -33,24 +33,25 @@ describe('BuyableSkillsTable', () => {
     render(<BuyableSkillsTable {...makeProps()} />);
     expect(screen.getByText('+1.42')).toBeInTheDocument();
     expect(screen.getByText('9.9')).toBeInTheDocument();
-    expect(screen.getByText(/240/)).toBeInTheDocument(); // struck base
+  });
+  it('shows only the effective cost — no struck base, no + base badge', () => {
+    const { container } = render(<BuyableSkillsTable {...makeProps()} />);
+    expect(screen.queryByText('240')).not.toBeInTheDocument(); // base never shown
+    expect(screen.queryByText(/\+ base/)).not.toBeInTheDocument();
+    expect(container.querySelector('.was')).toBeNull();
+  });
+  it('marks a hint-edited row with the red projection accent on its cost cell', () => {
+    const editedRows = [{ ...rows[0]!, hintEdited: true }, rows[1]!];
+    const { container } = render(<BuyableSkillsTable {...makeProps({ rows: editedRows, result: null })} />);
+    const cells = container.querySelectorAll('td.sp-cost');
+    expect(cells[0]).toHaveClass('is-edited');
+    expect(cells[1]).not.toHaveClass('is-edited');
   });
   it('fires onCycleLock when a lock cell is clicked', async () => {
     const onCycleLock = vi.fn();
     render(<BuyableSkillsTable {...makeProps({ onCycleLock })} />);
     await userEvent.click(screen.getByRole('button', { name: /lock 200332/i }));
     expect(onCycleLock).toHaveBeenCalledWith('200332');
-  });
-  it('does not strike base cost when screenSpCost exceeds base (no discount)', () => {
-    // Second fixture row (200012): screenSpCost 130 exceeds its base cost from fixture data.
-    // The struck-base span should not render for this row.
-    render(<BuyableSkillsTable {...makeProps()} />);
-    // The first row (200332) has base 240 and screenSpCost 144, so its base SHOULD strike.
-    expect(screen.getByText('240')).toBeInTheDocument();
-    // The second row (200012) has screenSpCost 130 which exceeds its base; no strike should render.
-    // Query for the struck base "90" in the entire document; it should not exist for row 200012.
-    const strikeSpans = screen.queryAllByText('90');
-    expect(strikeSpans.length).toBe(0);
   });
   it('cost is read-only text with a − Lv N + stepper; stepping fires onSetHint ±1', async () => {
     const onSetHint = vi.fn();

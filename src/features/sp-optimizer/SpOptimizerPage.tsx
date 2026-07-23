@@ -152,8 +152,12 @@ export function SpOptimizerPage() {
   // in the table even though analysis drops them. Without a bundle, nothing to show.
   const analyzedById = new Map((result?.candidates ?? []).map((c) => [c.skillId, c]));
   const rows: CandidateRow[] = bundle
-    ? mergedCandidates(bundle, edits, sparkRates).map((c) => {
+    ? mergedCandidates(bundle, edits, sparkRates).map((c, i) => {
         const a = analyzedById.get(c.skillId);
+        // mergedCandidates is 1:1 in-order with the raw candidates, so index i
+        // is the captured row — a working hint that differs from it means the
+        // shown cost is a projection, not the captured screen truth.
+        const captured = bundle.context.candidates[i];
         return {
           skillId: c.skillId,
           rarity: c.rarity,
@@ -162,6 +166,7 @@ export function SpOptimizerPage() {
           baseSpCost: a?.baseSpCost,
           lPerSp: a?.lPerSp ?? 0,
           hintLevel: c.hintLevel,
+          hintEdited: (c.hintLevel ?? 0) !== (captured?.hintLevel ?? 0),
           prereqSkillId: c.prereqSkillId,
           pinned: edits.pins.has(c.skillId),
         };

@@ -168,10 +168,6 @@
 .sp-skill { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 10rem; }
 .sk-gold { color: var(--gold); font-weight: 600; }
 .sk-white { color: var(--fg); }
-.sp-bundle {
-  font-size: 0.72rem; color: var(--fg-muted); background: var(--bg-2); border: 1px solid var(--border);
-  border-radius: 999px; padding: 0.05rem 0.4rem; white-space: nowrap;
-}
 
 /* Type chip: base + 10 effect-tone variants, reusing the design-system
    --ef-* tokens where a matching family exists (speed/accel/heal/debuff),
@@ -197,9 +193,18 @@
 }
 .sp-kind.is-special { color: var(--fg-muted); border-color: var(--border); background: var(--bg-2); }
 
+/* Cost + stepper align identically on every row: fixed-width right-aligned
+   cost, stepper always starting at the same x. */
 .sp-cost { white-space: nowrap; }
-.sp-cost .was { color: var(--fg-muted); text-decoration: line-through; margin-right: 0.35rem; font-variant-numeric: tabular-nums; }
-.sp-cost-value { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 2.6rem; display: inline-block; }
+.sp-cost-value {
+  font-variant-numeric: tabular-nums; font-weight: 600;
+  width: 3rem; display: inline-block; text-align: right;
+}
+/* Working hint ≠ imported capture → this cost is a projection, not screen
+   truth: red accent on the cost and the Lv readout. */
+.sp-cost.is-edited .sp-cost-value,
+.sp-cost.is-edited .sp-hintstep-lv { color: var(--danger, #c0392b); font-weight: 700; }
+.sp-cost.is-edited .sp-hintstep { border-color: color-mix(in srgb, var(--danger, #c0392b) 45%, var(--border)); }
 
 /* − Lv N + hint stepper (the only way to change a cost — it derives from hint). */
 .sp-hintstep {

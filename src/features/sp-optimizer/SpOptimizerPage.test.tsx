@@ -153,6 +153,21 @@ describe('SpOptimizerPage', () => {
     expect(screen.getByText(/changes detected/i)).toBeInTheDocument();
   });
 
+  it('red projection accent appears when the hint diverges from the capture and clears when stepped back', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    await user.click(screen.getByRole('button', { name: /Carry from M4/i }));
+
+    const costCell = () => screen.getByRole('button', { name: 'Hint up for 200332' }).closest('td')!;
+    expect(costCell()).not.toHaveClass('is-edited');
+
+    await user.click(screen.getByRole('button', { name: 'Hint up for 200332' }));
+    expect(costCell()).toHaveClass('is-edited');
+
+    await user.click(screen.getByRole('button', { name: 'Hint down for 200332' }));
+    expect(costCell()).not.toHaveClass('is-edited'); // back at the captured level
+  });
+
   it('Fast Learner toggle reprices rows from base and marks stale', async () => {
     const user = userEvent.setup();
     render(<SpOptimizerPage />);

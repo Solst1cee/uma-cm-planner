@@ -51,9 +51,6 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
           const showNumbers = analyzed && !isExcluded;
           const kind = kinds.get(r.skillId);
           const hint = (r.hintLevel ?? 0) as HintLevel;
-          // Never strike a 0 (uniques carry baseSpCost 0).
-          const base = r.baseSpCost ?? skill?.baseSpCost;
-          const discounted = base !== undefined && base > r.screenSpCost;
           return (
             <tr key={r.skillId} className={`sp-row is-${state}`}>
               <td>
@@ -72,12 +69,10 @@ export function BuyableSkillsTable(props: BuyableSkillsTableProps) {
                 <span className="sp-skill">
                   {skill && <GameIcon kind="skill" id={skill.iconId} size={18} alt="" />}
                   <span className={r.rarity === 'gold' ? 'sk-gold' : 'sk-white'}>{skill?.nameEn ?? r.skillId}</span>
-                  {r.prereqSkillId && <span className="sp-bundle">+ base</span>}
                 </span>
               </td>
               <td>{kind ? <span className={`sp-kind is-${kind.tone}`}>{kind.label}</span> : null}</td>
-              <td className="sp-cost">
-                {discounted && <span className="was">{base}</span>}
+              <td className={`sp-cost${r.hintEdited ? ' is-edited' : ''}`}>
                 <span className="sp-cost-value">{r.screenSpCost}</span>
                 <span className="sp-hintstep" role="group" aria-label={`Hint level for ${r.skillId}`}>
                   <button
