@@ -13,7 +13,7 @@ const CTX: CaptureBundle['context'] = {
 };
 const BUNDLE: CaptureBundle = {
   schemaVersion: 1, source: 'manual', capturedAt: '2026-06-15T00:00:00.000Z',
-  server: 'global', dataVersion: 'global-484539f5', context: CTX,
+  server: 'global', dataVersion: 'global-271be4dc', context: CTX,
 };
 
 beforeEach(async () => { await db.delete(); await db.open(); });

@@ -77,12 +77,23 @@
       "id": "cm16-leo-cup",
       "type": "cm",
       "title": "Leo Cup",
-      "dates": { "finals": "2026-07-30" },
+      "dates": { "start": "2026-07-12", "finals": "2026-07-15", "end": "2026-07-21" },
       "cm": { "cmNumber": 16, "courseId": "10501", "trackSummary": "Nakayama turf 1200m (sprint)",
               "conditions": { "ground": "firm", "weather": "sunny", "season": "summer" } },
-      "tier": "prediction", "status": "unconfirmed",
-      "source": { "kind": "umaguide", "url": "https://uma.guide/cm-schedule/" },
-      "server": "global", "dataVersion": "global-484539f5"
+      "tier": "official", "status": "confirmed",
+      "source": { "kind": "manual", "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/541155" },
+      "server": "global", "dataVersion": "global-271be4dc"
+    },
+    {
+      "id": "cm17-virgo-cup",
+      "type": "cm",
+      "title": "Virgo Cup",
+      "dates": { "start": "2026-08-08", "finals": "2026-08-12", "end": "2026-08-18" },
+      "cm": { "cmNumber": 17, "courseId": "11103", "trackSummary": "Oi dirt 2000m (medium, right · good/fall/sunny)",
+              "conditions": { "ground": "good", "weather": "sunny", "season": "fall" } },
+      "tier": "official", "status": "confirmed",
+      "source": { "kind": "manual", "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/610685" },
+      "server": "global", "dataVersion": "global-271be4dc"
     }
   ]
 }

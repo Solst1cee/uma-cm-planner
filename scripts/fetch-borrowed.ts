@@ -16,7 +16,7 @@ import { dirname, join } from 'node:path';
 import { BORROWED_DIR, REPO_ROOT, SPIKES_UPSTREAM_DIR } from './lib/io';
 
 /** v0.27.0 — see docs/provenance.md §1. */
-export const UPSTREAM_COMMIT = '484539f5c67e7aea8ef3715443d66602d871902d';
+export const UPSTREAM_COMMIT = '271be4dcc590a58a35baa12e343a6e9ed6b7ebb9';
 /** Data version stamped on every generated record = `global-<first 8 of UPSTREAM_COMMIT>`. */
 export const DATA_VERSION = `global-${UPSTREAM_COMMIT.slice(0, 8)}`;
 const RAW_BASE = `https://raw.githubusercontent.com/jalbarrang/umalator-global/${UPSTREAM_COMMIT}/`;

@@ -200,7 +200,7 @@ patched. For a new CM, insert a full entry:
     "url": "https://umamusume.com/news/<id>/"  // real permalink from the news post
   },
   "server": "global",
-  "dataVersion": "global-484539f5"             // current DATA_VERSION
+  "dataVersion": "global-271be4dc"             // current DATA_VERSION
 }
 ```
 
@@ -256,7 +256,7 @@ Append a full `SkillRecord` to the `records` array:
   // OR, if only JP date is known:
   // "releaseDate": "<predictGlobalDateDefault(jpISO) result>",
   // "releaseDatePredicted": true,   // flag: this is a pace-derived estimate (P3)
-  "dataVersion": "global-484539f5"  // current DATA_VERSION
+  "dataVersion": "global-271be4dc"  // current DATA_VERSION
 }
 ```
 

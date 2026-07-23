@@ -49,16 +49,21 @@ beforeAll(async () => {
 
 // Test A goldens — flag-OFF (upstream-identical single-fire) anchors, threaded via
 // the documented test-only `evalSkillDeltaWithSettings` seam.
-// Recorded from wasm pkg (v0.27.0 + multifire patch, flag OFF) — re-record only deliberately, citing cause
-const EXPECTED_MEAN = 0.3730486665111239; // 200332 on 10101, 50 samples, seed 12345
+// Recorded from wasm pkg (v0.37.0 + multifire patch, flag OFF) — re-record only deliberately, citing cause.
+// Re-baselined 2026-07-23 at the v0.27.0 → v0.37.0 pin bump (was 0.3730486665111239):
+// upstream pacing fixes (target-speed cap / force-in / solo-FR threshold), the
+// 108-course geometry refresh, and skill value scaling all move sim numbers —
+// deliberate P3 cutover, deltas recorded in docs/mechanics-notes.md §12.
+const EXPECTED_MEAN = 0.25424664089619; // 200332 on 10101, 50 samples, seed 12345
 // On 10101 the cooldown gate never re-opens (flag ON == OFF there), so the anchor
 // above cannot detect a broken settings thread. This second golden pins a course
-// where OFF genuinely differs from ON (10914: the ON mean is 1.15228…), making the
-// seam's flag-threading itself regression-tested.
-// Recorded from wasm pkg (v0.27.0 + multifire patch, flag OFF) — re-record only deliberately, citing cause
-const EXPECTED_MEAN_LONG_OFF = 1.0918337778601457; // 200332 on 10914, 50 samples, seed 12345
+// where OFF genuinely differs from ON (10914), making the seam's flag-threading
+// itself regression-tested.
+// Recorded from wasm pkg (v0.37.0 + multifire patch, flag OFF) — re-record only
+// deliberately, citing cause. Re-baselined 2026-07-23 (was 1.0918337778601457, see above).
+const EXPECTED_MEAN_LONG_OFF = 0.3041163326954338; // 200332 on 10914, 50 samples, seed 12345
 
-describe('wasm engine fidelity (v0.27.0 + multifire patch)', () => {
+describe('wasm engine fidelity (v0.37.0 + multifire patch)', () => {
   it('Test A: flag-OFF anchor reproduces the recorded mean (200332 on 10101, seed 12345)', () => {
     const stats = evalSkillDeltaWithSettings(
       smokeBuild, { courseId: '10101' }, '200332', 50, 12345,

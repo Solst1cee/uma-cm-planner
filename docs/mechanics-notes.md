@@ -138,7 +138,9 @@ Fidelity re-baseline for the sim-engine re-platform (vendored TS bundle → upst
 umalator-global **v0.27.0 Rust/WASM**, pin `484539f5` + `engine-patches/2026-07-10-multifire-rust.patch`).
 All values below are real observed outputs (P3), recorded 2026-07-10 from the committed
 pkg (`src/sim/vendor/pkg/uma_sim_wasm_bg.wasm` sha256 `4fa2e875…`) and a pristine-pin pkg
-built from the clean `484539f5` checkout.
+built from the clean `484539f5` checkout. **§12.1–12.4 document the v0.27.0 event as
+history; the pin has since moved to v0.37.0 `271be4dc` (2026-07-23) — current goldens,
+patch file, and the vacuum-contract change are in §12.5.**
 
 ### 12.1 Determinism-sort scope (adjudicated 2026-07-10 — supersedes the Task-1 "cosmetic-only" claim)
 
@@ -232,3 +234,38 @@ the deployed site runs the same pin/data.
   app-side settings override could ever reach the engine (default ON always). Fixed in
   the clone TS (now part of `engine-patches/2026-07-10-multifire-rust.patch`, 12 files)
   + wrapper bundle rebuilt. The wasm binary is unchanged (`4fa2e875…`).
+
+### 12.5 v0.27.0 → v0.37.0 pin bump re-baseline (2026-07-23)
+
+The unified pin moved `484539f5` (v0.27.0) → `271be4dc` (v0.37.0), pulling 41 upstream
+commits: the **2026-07-14 Global dirt update's data** (game data `10006900`/`10006910`;
+`ENGINE_DATA_DATE` now `'2026-07-17'`), **119 courses / 15 tracks** (Kawasaki `113xx`,
+Funabashi `114xx`, Morioka `115xx`, Longchamp `11203`; all 108 pre-existing geometries
+refreshed to current revisions), and real physics changes — upstream `af626e2e` "align
+race pacing with canonical mechanics" (30 m/s target-speed cap, early-race **force-in**
+modifier, solo-Front-Runner 12.5 m Speed-Up threshold, canon ×10 position-keep window)
+plus runtime skill value scaling (usages 8/9/14, Aoharu 3–7). Multifire patch re-ported
+as `engine-patches/2026-07-23-multifire-rust.patch` (12 files; the §12.1
+**determinism sort is DROPPED — upstream v0.32.1 ships the identical name-sorted
+iteration natively**, so §12.1's "no canonical value" concern is resolved upstream);
+re-porting notes: rebased over the forced-activation rework (forced entries bypass the
+cooldown gate; multi-fire sampling requires an unforced skill), `SkillEffect` →
+`SkillEffectSpec`. All 275 upstream Rust tests pass with the patch applied.
+
+**Vacuum contract change (v0.37.0):** `runCompare` telemetry now covers only the
+primary runner — extra runners are *field context* racing alongside it. `src/sim/run.ts`
+`vacuumRounds` therefore runs A and B as **two single-runner batches sharing a master
+seed** (upstream's own baseline/tracked pattern) and stitches the aligned rounds; the
+reducer and all public entry shapes are unchanged.
+
+Fidelity goldens re-recorded (new pkg sha256 `194bd138…`), same fixtures/seeds as §12.2:
+
+| golden | v0.27.0 | v0.37.0 |
+|---|---|---|
+| Test A mean (`200332` on `10101`, flag OFF, n=50, seed 12345) | 0.3730486665111239 | **0.25424664089619** |
+| Test A2 mean (`stayerBuild` on `10914`, flag OFF) | 1.0918337778601457 | **0.3041163326954338** |
+
+Both shifts are the expected P3 cutover (pacing fixes + geometry refresh + value
+scaling), not regressions; Test B (multi-fire oracle: doubles on `10914`, none on
+`10602`) and the flag-ON discriminator still pass unchanged in kind. The §12.3
+deployed-site parity eyeball remains open and now targets the new pin.

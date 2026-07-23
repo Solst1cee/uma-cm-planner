@@ -15,4 +15,4 @@
  *  free) imports this file directly; keep it free of any import that would drag
  *  the ~5MB engine/WASM bundle along with it (see CLAUDE.md "Keep the engine
  *  lazy"). */
-export const ENGINE_DATA_DATE = '2026-07-09'; // game data 10006860 (v0.27.0 pin)
+export const ENGINE_DATA_DATE = '2026-07-17'; // game data 10006910 (v0.37.0 pin)

@@ -1,7 +1,7 @@
 // Builds the `uma-sim-wasm` crate (upstream umalator-global v0.27.0, Rust/WASM
 // re-platform) into a wasm-pack `--target web` bundle vendored at
 // src/sim/vendor/pkg/.
-// Source: spikes/repos/umalator-global @ 484539f (v0.27.0 pin), GPL-3.0-only,
+// Source: spikes/repos/umalator-global @ 271be4d (v0.37.0 pin), GPL-3.0-only,
 // checked out on local branch `local-wasm-baseline`.
 // Ported from the upstream clone's scripts/build-wasm.ts (bun) to plain Node.
 //

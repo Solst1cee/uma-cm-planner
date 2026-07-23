@@ -148,6 +148,7 @@ One shared, themeable (light default + dark) token system + `ds-*` component cla
 | Phase | Status | Notes |
 |---|---|---|
 | S1 Engine re-platform | ✅ done (2026-07-10) | TS bundle → Rust/WASM v0.27.0 (pin `484539f5`); one pin engine+data; 1536 tests; P3 number cutover expected. Unlocked follow-ups: near-lane/full-race-sim, force-activation UI, position-keep/Power-Conservation telemetry. `engine-update-todo.md` deleted |
+| S1b Pin bump v0.27→v0.37 (dirt tracks) | ✅ done (2026-07-23) | one pin `271be4dc`: 119 courses / 15 tracks (Kawasaki/Funabashi/Morioka + Longchamp), dirt skills (1743 skills), upstream pacing fixes + value scaling; multifire patch re-ported (`engine-patches/2026-07-23-multifire-rust.patch`, determinism sort absorbed upstream), vacuum compare re-paired for the v0.37 single-primary contract, fidelity re-baselined (mechanics-notes §12.5). 1543 tests. [handoff](superpowers/plans/2026-07-23-dirt-tracks-pin-bump-handoff.md) |
 | S2 Public data swap | ⬜ parked | only when public release is a goal |
 | S3 M4 polish + mechanics | ⬜ not started | projectedL refresh, accel label/plate readability, hint-button polish, rushed/struggle/dueling stamina review, provenance |
 | A1 inline effect-chips | ⬜ future | deferred from P2; opportunistic |
