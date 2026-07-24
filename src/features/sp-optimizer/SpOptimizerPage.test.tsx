@@ -233,6 +233,17 @@ describe('SpOptimizerPage', () => {
     expect(screen.getByText(/SPD 1100/)).toBeInTheDocument();
   });
 
+  it('"How this simulation works" help popup opens from the caveat line', async () => {
+    const user = userEvent.setup();
+    render(<SpOptimizerPage />);
+    expect(screen.queryByRole('dialog', { name: /How this simulation works/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /How this simulation works/i }));
+    const pop = screen.getByRole('dialog', { name: /How this simulation works/i });
+    expect(pop).toHaveTextContent(/200 solo races/);
+    expect(pop).toHaveTextContent(/No opponents in the sim/);
+    expect(pop).toHaveTextContent(/Noise floor/);
+  });
+
   it('shows fixture-data alert when status is fixture', () => {
     mockGameDataStatus.status = 'fixture' as const;
     render(<SpOptimizerPage />);

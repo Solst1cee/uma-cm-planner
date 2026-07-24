@@ -8,6 +8,7 @@ import {
   parseCaptureBundle, wishlistToCandidates,
 } from '@/core/spOptimizer';
 import type { CmPlan } from '@/core/types';
+import { HeaderHelp } from '@/features/cm-planner/HeaderHelp';
 import { PlanInventoryCard } from '@/features/cm-planner/PlanInventoryCard';
 import { useDismissOnOutside } from '@/features/cm-planner/useDismissOnOutside';
 import { useGameData } from '@/features/data/gameData';
@@ -176,7 +177,14 @@ export function SpOptimizerPage() {
   return (
     <div className="sp-page">
       <p className="sp-caveat small" role="note">
-        Estimation, not a verdict (P3). The sim can't see positional chaos or opponent procs — treat a basket as a strong prior, then test in room matches.
+        Estimation, not a verdict (P3). The sim can't see positional chaos or opponent procs — treat a basket as a strong prior, then test in room matches.{' '}
+        <HeaderHelp label="How this simulation works">
+          <p><b>Δ L</b> — each skill is simulated in <b>200 solo races</b> on the CM course: your build with the skill vs. without it (owned skills as the base). Δ L is the average バ身 gained; baskets are then re-simulated as full builds.</p>
+          <p><b>No opponents in the sim.</b> Debuffs and position-dependent skills (pace-chaser targets, surrounded, order conditions…) can't show their real value here — they read as ≈ 0. Their true worth needs a contested race, which this tool doesn't simulate yet.</p>
+          <p><b>Noise floor.</b> Δ L is the difference of two 200-race averages, so values within about ±0.1 of zero are random wobble, not a real penalty — a small negative on a debuff or Wit passive means "no measurable effect", and it will shift between Re-analyzes.</p>
+          <p><b>Costs.</b> An untouched row shows the exact captured screen cost. Stepping the hint (or Fast Learner) reprices from that screen cost's implied base; <span style={{ color: 'var(--danger, #c0392b)' }}>red</span> marks a projection that no longer matches your capture.</p>
+          <p><b>Lock cycle.</b> Blank → 🔒 forced into every basket (a ◎/gold locks its base skill too) → ✕ removed from the analysis (anything needing it follows) → blank.</p>
+        </HeaderHelp>
       </p>
 
       {status === 'fixture' && (
