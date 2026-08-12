@@ -66,6 +66,28 @@ Three SVG layer/primitive components were copied verbatim and then adapted:
 - `CourseService.phaseStart` and the `CourseData` type replaced by local shims in the same directory.
 - `// @ts-nocheck` applied to the three vendored files that trip `noUncheckedIndexedAccess` (our tsconfig is stricter than upstream's).
 
+### 1.3 ⚠️ Upstream renamed + history rewritten — the borrowed-data mirror (2026-08-12)
+
+**The upstream data feed no longer exists.** On **2026-08-09** `jalbarrang/umalator-global` was **renamed to `jalbarrang/torena-sim`** (verified same repo id `1109433097`) and **force-rewritten to 4 commits**. HEAD is now a pure Rust workspace — `honse-sim` + `honse-sim-wasm`, 93 blobs, published to npm as **`honse-sim@0.1.0`** (2026-08-08). Every game-data JSON was deleted from HEAD: no `src/modules/data/json/`, no `src/store/race/cm-presets.json`, no `db/extract/`. There are **no tags, no releases, and no forks**, and the repo's push-events show only the two rewrite pushes — so the pre-rewrite history is **not enumerable through the GitHub API**. Any upstream data refresh between v0.37.0 (2026-07-21) and the rewrite is unrecoverable.
+
+Consequences for this repo:
+
+- **`UPSTREAM_COMMIT = 271be4dc…` now survives only as unreachable history.** `raw.githubusercontent.com` still served every pinned path when checked (2026-08-12, HTTP 200, and a full `pnpm data:fetch` succeeded) — but GitHub garbage-collects unreachable objects on its own schedule. When that happens the primary fetch dies and `public/data/` becomes unreproducible.
+- **`Jechto/Tachyons-lab` is unaffected** — still live (pushed 2026-08-03, pinned blob 200). `TACHYONS_COMMIT` needs no contingency.
+- **Engine physics is not urgent.** `honse-sim` is a re-architecture (contested/vacuum split) that would need the multifire patch re-ported; v0.37.0 is a fine place to sit. The npm package is the successor path when we do move.
+
+**Mitigation — private mirror `Solst1cee/uma-cm-planner-borrowed`** (captured 2026-08-12). A byte-exact snapshot of the whole `scripts/borrowed/` tree at `UPSTREAM_COMMIT` + `TACHYONS_COMMIT`: 14 files, 7 124 792 bytes, per-file sha256 in its `MANIFEST.json`, `.gitattributes` `* -text` so no EOL normalisation can corrupt the digests.
+
+- **Private on purpose.** `gametora/*.json` (5 files, ~3.1 MB) are GameTora-derived datasets, which plan §7 says we never republish, and this repo is public. Private mirroring preserves reproducibility without publishing them. **Do not make that repo public.**
+- **Wired as an automatic per-file fallback** in `scripts/fetch-borrowed.ts` (`MIRROR_REPO` / `readFromMirror`): the pinned upstream URL is tried first; on any failure (HTTP or transport) the file is restored from the mirror via the authenticated **`gh` CLI** — no token to manage, but `gh auth login` is required. The mirror also now seeds a **missing `localOnly` file**, which previously could only come from `--from-spikes`.
+- **Verified end-to-end** by forcing `UPSTREAM_COMMIT` to an all-zero SHA: all 10 umalator files restored from the mirror, Tachyons still fetched live, and the restored tree was **byte-identical** to the primary-fetched tree across all 14 files. The git-tracked `relation.json` restored from the mirror produced **no git diff** — an independent check that the snapshot is faithful.
+- **CI is unaffected** — `.github/workflows/ci.yml` runs only typecheck/test/build against the committed `public/data/`; it never runs `data:fetch`, so it never needs mirror credentials.
+- **Refresh rule:** the mirror is pinned, not tracked. Re-capture it (and its `MANIFEST.json`) in the same change that moves `UPSTREAM_COMMIT` or `TACHYONS_COMMIT`.
+
+**Forward options for genuinely fresh Global data** (the mirror preserves the *current* pin; it cannot produce newer content): (a) self-extract `master.mdb` — the headless decryption is already reverse-engineered (sqlite3mc + XOR, `umaextract.py`; §5); (b) another maintained Global mirror — `Martin-Milbradt/umalator` and `Andrew123Shi/Umalator` were both evaluated 2026-08-12 and neither is drop-in (different shapes, their own extraction scripts).
+
+⚠️ **Stale-cache trap (hit 2026-08-12).** A worktree's `scripts/borrowed/` can be stale relative to `UPSTREAM_COMMIT` — `main`'s copy was from Jun 19 while the pin was v0.37.0, because the pin bump was done in a separate worktree. `pnpm data:build` reads the cache without validating it against the pin, so building without fetching first silently regenerates `public/data/` from **old-pin inputs stamped with the new `dataVersion`**. Always `pnpm data:fetch` before `pnpm data:build`.
+
 ---
 
 ## 2. Licensing
