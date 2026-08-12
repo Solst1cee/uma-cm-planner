@@ -1,0 +1,31 @@
+{
+  "_target": "support_cards",
+  "_comment": "Announced Global release dates for JP-ahead support-card records (P5). Added 2026-08-12; same rationale as uma_release_overrides.json (provenance §1.3 — the upstream cutover feed is gone, so a pin bump can no longer flip these). Records stay server:'jp'; this file only dates them. Source: uma.guide August 2026 release schedule (https://uma.guide/guides/release-schedule-august26), cross-checked against Game8. Dates are banner-open dates. DELIBERATELY OMITTED (P3 — do not add without a source): (a) the [Tracen Academy] R companions 10079 Daiichi Ruby / 10080 K.S. Miracle, which our data projects on the same day and which conventionally ship with their character, but which neither source names — an unsourced date would be fabricated precision; (b) Tanino Gimlet 30145 [Welcome to Umayuru] + 10084, which both sources hedge as 'expected August 31' for the Umayuru campaign rather than announcing. Reruns (Smart Falcon, Silence Suzuka, Fine Motion, Maruzensky) need nothing — already server:'global'.",
+  "records": {
+    "20051": {
+      "_comment": "K.S. Miracle SR guts [The 3rd Miracle] — banner Aug 12-21, named as 'K.S. Miracle (Guts, SR)'. Note her UMA (109301) is still far out; a support card preceding its character is normal.",
+      "releaseDate": "2026-08-12",
+      "releaseDatePredicted": false
+    },
+    "30114": {
+      "_comment": "Daiichi Ruby SSR power [Ah, Such Majesty] — banner Aug 12-21, named as 'Daiichi Ruby (Power, SSR)'.",
+      "releaseDate": "2026-08-12",
+      "releaseDatePredicted": false
+    },
+    "30115": {
+      "_comment": "Mejiro Palmer SSR stamina [Moonlit Devil ♪] — Halloween banner Aug 18-30.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "30116": {
+      "_comment": "Daitaku Helios SSR speed [Sunlit Angel ♪] — Halloween banner Aug 18-30.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "30117": {
+      "_comment": "Shinko Windy SSR guts [Onwards, Demon Queen Lackeys!] — free reward from the 'Days Flying By' story event, Aug 18-30. Not a banner card, but a dated Global grant all the same.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    }
+  }
+}

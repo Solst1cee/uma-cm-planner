@@ -1,0 +1,101 @@
+{
+  "_target": "skills",
+  "_comment": "Announced Global release dates for the JP-ahead skills gated by the umas dated in uma_release_overrides.json (P5). Added 2026-08-12. WHY A SEPARATE FILE IS REQUIRED: build-all.ts derives JP skill dates (resolveJpSkillDate, min-over-sources) from the GENERATED card/uma records, and that happens BEFORE the override loop runs — so dating an uma does NOT propagate to the skills it grants. Each skill below is dated to its granting uma's announced date. Scope was established by sweeping every server:'jp' skill carrying each uma's projected date, not by guessing at ids: that sweep is what surfaced the EVOLUTION-STAGE uniques (ids prefixed with the uma id, e.g. 102901111), which a name-based search alone would have missed. Every jp skill on those three dates is accounted for by these four umas — no unrelated record shares them. The base uniques (1xxxxx) and their inherited-unique twins (9xxxxx) were confirmed by name against uma.guide's skill listings; the uma-id-prefixed evolutions are self-identifying. NOTE: the five support cards in card_release_overrides.json need no companion entries here — all 15 skills on 30114, and every skill on the other four, already resolve to server:'global'.",
+  "records": {
+    "100291": {
+      "_comment": "Yukino Bijin [Darl'n Snowflake] unique — 'Snow Bright, Snow Flight'.",
+      "releaseDate": "2026-08-05",
+      "releaseDatePredicted": false
+    },
+    "100871": {
+      "_comment": "Aston Machan [Flare] unique — 'Silent Letter'.",
+      "releaseDate": "2026-08-25",
+      "releaseDatePredicted": false
+    },
+    "101902111": {
+      "_comment": "Agnes Digital [Fanatic♡Jiangshi] evolved unique — 'Run Like the Fic's Due Tomorrow!'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "101902121": {
+      "_comment": "Agnes Digital [Fanatic♡Jiangshi] evolved unique — 'Now I'm Hyped!!'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "101902211": {
+      "_comment": "Agnes Digital [Fanatic♡Jiangshi] evolved unique — 'Back for More Moe!'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "102901111": {
+      "_comment": "Yukino Bijin [Darl'n Snowflake] evolved unique — 'Like They Do in the City!'.",
+      "releaseDate": "2026-08-05",
+      "releaseDatePredicted": false
+    },
+    "102901211": {
+      "_comment": "Yukino Bijin [Darl'n Snowflake] evolved unique — 'Snow Gals Know Howta Sled!'.",
+      "releaseDate": "2026-08-05",
+      "releaseDatePredicted": false
+    },
+    "102901221": {
+      "_comment": "Yukino Bijin [Darl'n Snowflake] evolved unique — 'Steadfast Determination'.",
+      "releaseDate": "2026-08-05",
+      "releaseDatePredicted": false
+    },
+    "105802111": {
+      "_comment": "Meisho Doto [Dot-o'-Lantern] evolved unique — 'For My Rival!'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "105802121": {
+      "_comment": "Meisho Doto [Dot-o'-Lantern] evolved unique — 'Fervent Determination'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "105802211": {
+      "_comment": "Meisho Doto [Dot-o'-Lantern] evolved unique — 'Soul Guide'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "108701111": {
+      "_comment": "Aston Machan [Flare] evolved unique — 'Raise the Pitch'.",
+      "releaseDate": "2026-08-25",
+      "releaseDatePredicted": false
+    },
+    "108701211": {
+      "_comment": "Aston Machan [Flare] evolved unique — 'Leave a Footprint in Your Memory'.",
+      "releaseDate": "2026-08-25",
+      "releaseDatePredicted": false
+    },
+    "110191": {
+      "_comment": "Agnes Digital [Fanatic♡Jiangshi] unique — 'THE MOE AAAA Thanks for My Life'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "110581": {
+      "_comment": "Meisho Doto [Dot-o'-Lantern] unique — 'Spooky, Scary, Happy'.",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "900291": {
+      "_comment": "Inherited-unique twin of 100291 (Yukino Bijin) — inheritable as soon as she exists, so same date.",
+      "releaseDate": "2026-08-05",
+      "releaseDatePredicted": false
+    },
+    "900871": {
+      "_comment": "Inherited-unique twin of 100871 (Aston Machan).",
+      "releaseDate": "2026-08-25",
+      "releaseDatePredicted": false
+    },
+    "910191": {
+      "_comment": "Inherited-unique twin of 110191 (Agnes Digital Halloween).",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    },
+    "910581": {
+      "_comment": "Inherited-unique twin of 110581 (Meisho Doto Halloween).",
+      "releaseDate": "2026-08-18",
+      "releaseDatePredicted": false
+    }
+  }
+}

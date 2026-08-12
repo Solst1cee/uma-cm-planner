@@ -782,9 +782,9 @@
     "iconId": "20013",
     "conditions": "distance_diff_top<=5&remain_distance<=300&order_rate<=40",
     "server": "jp",
-    "releaseDate": "2026-08-07",
+    "releaseDate": "2026-08-05",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "100301",
@@ -1619,9 +1619,9 @@
     "iconId": "20013",
     "conditions": "remain_distance<=400&order<=2&overtake_target_time>=1",
     "server": "jp",
-    "releaseDate": "2026-08-29",
+    "releaseDate": "2026-08-25",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "100881",
@@ -2498,9 +2498,9 @@
     "iconId": "20013",
     "conditions": "near_count>=3&phase==1&corner!=0&order_rate>=40",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "110201",
@@ -3050,9 +3050,9 @@
     "iconId": "20013",
     "conditions": "is_last_straight_onetime==1&order_rate<=40",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "110591",
@@ -17888,9 +17888,9 @@
     "iconId": "20013",
     "conditions": "distance_diff_top<=5&remain_distance<=300&order_rate<=40",
     "server": "jp",
-    "releaseDate": "2026-08-07",
+    "releaseDate": "2026-08-05",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "900301",
@@ -18616,9 +18616,9 @@
     "iconId": "20013",
     "conditions": "remain_distance<=400&order<=2&overtake_target_time>=1",
     "server": "jp",
-    "releaseDate": "2026-08-29",
+    "releaseDate": "2026-08-25",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "900881",
@@ -19443,9 +19443,9 @@
     "iconId": "20013",
     "conditions": "near_count>=3&phase==1&corner!=0&order_rate>=40",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "910201",
@@ -19981,9 +19981,9 @@
     "iconId": "20013",
     "conditions": "is_last_straight_onetime==1&order_rate<=40",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "910591",
@@ -21398,9 +21398,9 @@
     "iconId": "20016",
     "conditions": "phase==1&change_order_onetime<0",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "101902121",
@@ -21411,9 +21411,9 @@
     "iconId": "20016",
     "conditions": "ground_type==2&phase==1&change_order_onetime<0",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "101902211",
@@ -21424,9 +21424,9 @@
     "iconId": "20016",
     "conditions": "ground_type==2&phase_random==1&order_rate>=50",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "102102111",
@@ -21671,9 +21671,9 @@
     "iconId": "20046",
     "conditions": "infront_near_lane_time>=1&is_lastspurt==1&hp_per>=1",
     "server": "jp",
-    "releaseDate": "2026-08-07",
+    "releaseDate": "2026-08-05",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "102901211",
@@ -21684,9 +21684,9 @@
     "iconId": "20046",
     "conditions": "running_style==2&down_slope_random==1",
     "server": "jp",
-    "releaseDate": "2026-08-07",
+    "releaseDate": "2026-08-05",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "102901221",
@@ -21697,9 +21697,9 @@
     "iconId": "20046",
     "conditions": "running_style==2&down_slope_random==1@is_activate_other_skill_detail==1&remain_distance<=300",
     "server": "jp",
-    "releaseDate": "2026-08-07",
+    "releaseDate": "2026-08-05",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "102902111",
@@ -22828,9 +22828,9 @@
     "iconId": "20046",
     "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "105802121",
@@ -22841,9 +22841,9 @@
     "iconId": "20046",
     "conditions": "running_style==2&phase_firsthalf_random==2&order_rate<=50@is_activate_other_skill_detail==1&is_last_straight==1",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "105802211",
@@ -22854,9 +22854,9 @@
     "iconId": "20026",
     "conditions": "phase==1&corner!=0",
     "server": "jp",
-    "releaseDate": "2026-08-20",
+    "releaseDate": "2026-08-18",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "106003111",
@@ -24037,9 +24037,9 @@
     "iconId": "20046",
     "conditions": "running_style==1&always==1",
     "server": "jp",
-    "releaseDate": "2026-08-29",
+    "releaseDate": "2026-08-25",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "108701211",
@@ -24050,9 +24050,9 @@
     "iconId": "20016",
     "conditions": "distance_type==1&phase_laterhalf_random==1&order_rate<=50",
     "server": "jp",
-    "releaseDate": "2026-08-29",
+    "releaseDate": "2026-08-25",
     "dataVersion": "global-271be4dc",
-    "releaseDatePredicted": true
+    "releaseDatePredicted": false
   },
   {
     "skillId": "108702111",
