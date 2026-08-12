@@ -1,8 +1,8 @@
 {
-  "pace": 1.3153153153153154,
-  "gapDays": 1427,
+  "pace": 1.3,
+  "gapDays": 1418,
   "windowSteps": 5,
-  "anchorJp": "2022-09-15",
-  "anchorGlobal": "2026-08-12",
+  "anchorJp": "2022-10-14",
+  "anchorGlobal": "2026-09-01",
   "dataVersion": "global-271be4dc"
 }

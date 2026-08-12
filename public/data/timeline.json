@@ -2341,21 +2341,29 @@
       "dataVersion": "global-271be4dc"
     },
     {
-      "id": "cm18-libra-cup-predicted",
+      "id": "cm18-libra-cup",
       "type": "cm",
       "title": "Libra Cup",
       "dates": {
-        "finals": "2026-09-03"
+        "start": "2026-08-28",
+        "finals": "2026-09-01",
+        "end": "2026-09-07"
       },
       "cm": {
         "cmNumber": 18,
-        "trackSummary": "Hanshin turf 1600m (mile)"
+        "courseId": "10903",
+        "trackSummary": "Hanshin turf 1600m (mile, outer, right · firm/fall/cloudy)",
+        "conditions": {
+          "ground": "firm",
+          "weather": "cloudy",
+          "season": "fall"
+        }
       },
-      "tier": "prediction",
-      "status": "unconfirmed",
+      "tier": "official",
+      "status": "confirmed",
       "source": {
-        "kind": "umaguide",
-        "url": "https://uma.guide/cm-schedule/"
+        "kind": "manual",
+        "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613634"
       },
       "server": "global",
       "dataVersion": "global-271be4dc"
@@ -2365,7 +2373,7 @@
       "type": "cm",
       "title": "Scorpio Cup",
       "dates": {
-        "finals": "2026-10-12"
+        "finals": "2026-10-01"
       },
       "cm": {
         "cmNumber": 19,
@@ -2385,11 +2393,31 @@
       "type": "cm",
       "title": "Sagittarius Cup",
       "dates": {
-        "finals": "2026-11-12"
+        "finals": "2026-11-01"
       },
       "cm": {
         "cmNumber": 20,
         "trackSummary": "Nakayama turf 2500m (long)"
+      },
+      "tier": "prediction",
+      "status": "unconfirmed",
+      "source": {
+        "kind": "umaguide",
+        "url": "https://uma.guide/cm-schedule/"
+      },
+      "server": "global",
+      "dataVersion": "global-271be4dc"
+    },
+    {
+      "id": "cm21-capricorn-cup-predicted",
+      "type": "cm",
+      "title": "Capricorn Cup",
+      "dates": {
+        "finals": "2026-12-01"
+      },
+      "cm": {
+        "cmNumber": 21,
+        "trackSummary": "Chukyo turf 1200m (sprint)"
       },
       "tier": "prediction",
       "status": "unconfirmed",
