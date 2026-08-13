@@ -6,11 +6,31 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { CmPreset, SkillRecord, SparkRates, SupportCardRecord, TimelineEntry, UmaRecord } from '@/core/types';
-import { PUBLIC_DATA_DIR } from './lib/io';
+import { OVERRIDES_DIR, PUBLIC_DATA_DIR } from './lib/io';
 
 function readData<T>(name: string): T {
   return JSON.parse(readFileSync(join(PUBLIC_DATA_DIR, name), 'utf8')) as T;
 }
+
+/**
+ * Ids hand-confirmed by a `*_release_overrides.json` file — a JP-ahead record
+ * whose Global date was ANNOUNCED rather than foresight-projected (P3).
+ *
+ * These exist because the upstream cutover feed that used to flip a record to
+ * `server:'global'` is gone (provenance §1.3), so an announced date on a
+ * still-`jp` record is now the only way to mark real Global availability.
+ * Derived from the override files rather than hardcoded, so the invariant below
+ * cannot drift as more records are confirmed.
+ */
+function confirmedReleaseIds(fileName: string): Set<string> {
+  const parsed = JSON.parse(readFileSync(join(OVERRIDES_DIR, fileName), 'utf8')) as {
+    records: Record<string, { releaseDatePredicted?: boolean }>;
+  };
+  return new Set(Object.keys(parsed.records));
+}
+
+const CONFIRMED_CARD_IDS = confirmedReleaseIds('card_release_overrides.json');
+const CONFIRMED_UMA_IDS = confirmedReleaseIds('uma_release_overrides.json');
 
 const skills = readData<SkillRecord[]>('skills.json');
 const cards = readData<SupportCardRecord[]>('support_cards.json');
@@ -208,12 +228,22 @@ describe('public/data/support_cards.json', () => {
     }
   });
 
-  it('gates JP-ahead cards: server-tagged, dated, predicted', () => {
-    // JP-ahead cards are server-tagged, dated, and honestly flagged as predicted (P3).
+  it('gates JP-ahead cards: server-tagged, dated, predicted unless release-confirmed', () => {
+    // JP-ahead cards are server-tagged, dated, and honestly flagged as predicted
+    // (P3) — EXCEPT the ids hand-confirmed in card_release_overrides.json.
     const jpCards = cards.filter((c) => c.server === 'jp');
     expect(jpCards.every((c) => c.server === 'jp')).toBe(true);
     expect(jpCards.every((c) => typeof c.releaseDate === 'string')).toBe(true);
-    expect(jpCards.every((c) => c.releaseDatePredicted === true)).toBe(true);
+    expect(
+      jpCards.every((c) => c.releaseDatePredicted === true || CONFIRMED_CARD_IDS.has(c.cardId)),
+    ).toBe(true);
+    // ...and every confirmed id must actually have taken effect, so the override
+    // file can never silently no-op (the failure mode a bare exemption invites).
+    for (const id of CONFIRMED_CARD_IDS) {
+      const rec = cards.find((c) => c.cardId === id);
+      expect(rec, `card_release_overrides.json id ${id}`).toBeDefined();
+      expect(rec?.releaseDatePredicted, `card ${id} predicted flag`).toBe(false);
+    }
     // spot-check a known JP-only card (early R "Tracen Academy", not in the Global master set)
     const sample = cards.find((c) => c.cardId === '10079');
     expect(sample?.server).toBe('jp');
@@ -326,11 +356,18 @@ describe('public/data/umas.json', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('gates JP-ahead umas: server-tagged, dated, predicted', () => {
+  it('gates JP-ahead umas: server-tagged, dated, predicted unless release-confirmed', () => {
     const jpUmas = umas.filter((u) => u.server === 'jp');
     expect(jpUmas.every((u) => u.server === 'jp')).toBe(true);
     expect(jpUmas.every((u) => typeof u.releaseDate === 'string')).toBe(true);
-    expect(jpUmas.every((u) => u.releaseDatePredicted === true)).toBe(true);
+    expect(
+      jpUmas.every((u) => u.releaseDatePredicted === true || CONFIRMED_UMA_IDS.has(u.umaId)),
+    ).toBe(true);
+    for (const id of CONFIRMED_UMA_IDS) {
+      const rec = umas.find((u) => u.umaId === id);
+      expect(rec, `uma_release_overrides.json id ${id}`).toBeDefined();
+      expect(rec?.releaseDatePredicted, `uma ${id} predicted flag`).toBe(false);
+    }
     // spot-check a known JP-only outfit (Silence Suzuka's second outfit, not in the Global master set)
     const sample = umas.find((u) => u.umaId === '100202');
     expect(sample?.server).toBe('jp');

@@ -94,6 +94,17 @@
       "tier": "official", "status": "confirmed",
       "source": { "kind": "manual", "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/610685" },
       "server": "global", "dataVersion": "global-271be4dc"
+    },
+    {
+      "id": "cm18-libra-cup",
+      "type": "cm",
+      "title": "Libra Cup",
+      "dates": { "start": "2026-08-28", "finals": "2026-09-01", "end": "2026-09-07" },
+      "cm": { "cmNumber": 18, "courseId": "10903", "trackSummary": "Hanshin turf 1600m (mile, outer, right · firm/fall/cloudy)",
+              "conditions": { "ground": "firm", "weather": "cloudy", "season": "fall" } },
+      "tier": "official", "status": "confirmed",
+      "source": { "kind": "manual", "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613634" },
+      "server": "global", "dataVersion": "global-271be4dc"
     }
   ]
 }
