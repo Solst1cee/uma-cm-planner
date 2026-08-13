@@ -10,8 +10,10 @@ import {
   basketSpCost,
   chooseBasketsToScore,
   enumerateFeasibleBaskets,
+  greedyByRatioBasket,
   parseCaptureBundle,
   prereqClosure,
+  purchasePrereqId,
   selectTopDiverse,
   shortlistByProxy,
   skillSetDistance,
@@ -20,7 +22,7 @@ import {
   type ScoredBasket,
 } from '@/core/spOptimizer';
 import { FIXTURE_SKILLS } from '@/core/fixtures';
-import type { WishlistItem } from '@/core/types';
+import type { SkillRecord, WishlistItem } from '@/core/types';
 
 // --- test helpers ---
 function buy(skillId: string, screenSpCost: number, prereqSkillId?: string): BuyableSkill {
@@ -279,6 +281,42 @@ describe('parseCaptureBundle', () => {
 const SKILL_BY_ID = new Map(FIXTURE_SKILLS.map((s) => [s.skillId, s]));
 const wl = (skillId: string): WishlistItem => ({ skillId, priority: 1, source: 'targeted' });
 
+// Synthetic ◎/○ family — the real data records NO prereqSkillId on ◎ whites;
+// the ○ link must be inferred from the variant family (game upgrade chain).
+const circleO: SkillRecord = {
+  skillId: 'w1', iconId: '1', nameEn: 'Testville Racecourse ○', nameJp: '',
+  baseSpCost: 90, rarity: 'white', variantSkillIds: ['w2', 'wx'],
+  conditions: '', server: 'global', dataVersion: 'fixture',
+};
+const circleW: SkillRecord = {
+  skillId: 'w2', iconId: '1', nameEn: 'Testville Racecourse ◎', nameJp: '',
+  baseSpCost: 110, rarity: 'white', variantSkillIds: ['w1', 'wx'],
+  conditions: '', server: 'global', dataVersion: 'fixture',
+};
+const CIRCLE_BY_ID = new Map<string, SkillRecord>([
+  ...SKILL_BY_ID_ENTRIES(), ['w1', circleO], ['w2', circleW],
+]);
+function SKILL_BY_ID_ENTRIES(): [string, SkillRecord][] {
+  return FIXTURE_SKILLS.map((s) => [s.skillId, s]);
+}
+
+describe('purchasePrereqId', () => {
+  it('returns the explicit data prereq for gold skills', () => {
+    expect(purchasePrereqId(SKILL_BY_ID.get('200331')!, SKILL_BY_ID)).toBe('200332');
+  });
+  it('infers the ○ variant for a ◎ white with no data prereq', () => {
+    expect(purchasePrereqId(circleW, CIRCLE_BY_ID)).toBe('w1');
+  });
+  it('ignores cross-server variants (a JP ○ never satisfies a Global ◎)', () => {
+    const jpO = { ...circleO, server: 'jp' as const };
+    const byId = new Map<string, SkillRecord>([['w1', jpO], ['w2', circleW]]);
+    expect(purchasePrereqId(circleW, byId)).toBeUndefined();
+  });
+  it('returns undefined for a plain ○ white', () => {
+    expect(purchasePrereqId(circleO, CIRCLE_BY_ID)).toBeUndefined();
+  });
+});
+
 describe('wishlistToCandidates', () => {
   it('maps wishlist skills to BuyableSkills with dataset rarity/base cost/prereq', () => {
     expect(wishlistToCandidates([wl('200332'), wl('200331')], SKILL_BY_ID)).toEqual([
@@ -292,6 +330,19 @@ describe('wishlistToCandidates', () => {
     expect(out.map((c) => c.skillId)).toEqual(['200332']);
   });
 
+  it('emits the missing base row when a chain head is wishlisted alone (gold → its white)', () => {
+    const out = wishlistToCandidates([wl('200331')], SKILL_BY_ID);
+    expect(out.map((c) => c.skillId)).toEqual(['200331', '200332']);
+    expect(out[0]!.prereqSkillId).toBe('200332');
+    expect(out[1]!.screenSpCost).toBe(110); // the white's own base cost
+  });
+
+  it('emits the ○ row for a wishlisted ◎ via the inferred upgrade chain', () => {
+    const out = wishlistToCandidates([wl('w2')], CIRCLE_BY_ID);
+    expect(out.map((c) => c.skillId)).toEqual(['w2', 'w1']);
+    expect(out[0]!.prereqSkillId).toBe('w1');
+  });
+
   it('skips server:jp skills — upcoming preview content is not buyable on Global (P4)', () => {
     const base = SKILL_BY_ID.get('200332');
     if (!base) throw new Error('fixture skill 200332 missing');
@@ -299,5 +350,30 @@ describe('wishlistToCandidates', () => {
     const byId = new Map([...SKILL_BY_ID, [jpSkill.skillId, jpSkill]]);
     const out = wishlistToCandidates([wl('900001'), wl('200332')], byId);
     expect(out.map((c) => c.skillId)).toEqual(['200332']);
+  });
+});
+
+// --- greedyByRatioBasket ---
+describe('greedyByRatioBasket', () => {
+  const cands: BuyableSkill[] = [
+    { skillId: 'a', rarity: 'white', screenSpCost: 100 },
+    { skillId: 'b', rarity: 'white', screenSpCost: 100 },
+    { skillId: 'c', rarity: 'white', screenSpCost: 100 },
+  ];
+  it('takes highest L/SP first until the budget is exhausted', () => {
+    const got = greedyByRatioBasket(cands, 200, [], { a: 1, b: 5, c: 3 });
+    expect(got.sort()).toEqual(['b', 'c']); // b(5) then c(3), a(1) skipped — budget 200
+  });
+  it('forces pinned in even at poor ratio, then greedily fills the rest', () => {
+    const got = greedyByRatioBasket(cands, 200, ['a'], { a: 1, b: 5, c: 3 });
+    expect(got.sort()).toEqual(['a', 'b']); // a pinned (100) + b best remaining (100)
+  });
+  it('pulls a gold prereq in with the gold (closed set)', () => {
+    const g: BuyableSkill[] = [
+      { skillId: 'w', rarity: 'white', screenSpCost: 100 },
+      { skillId: 'g', rarity: 'gold', screenSpCost: 100, prereqSkillId: 'w' },
+    ];
+    const got = greedyByRatioBasket(g, 200, [], { g: 9, w: 0.1 });
+    expect(got.sort()).toEqual(['g', 'w']);
   });
 });

@@ -5,14 +5,17 @@
  * tests. M2 keeps its OWN per-(owned-skill-set, course) cache — the shared
  * makeDeltaCache is unsafe across differing loadouts.
  */
+import type { HintLevel } from '@/core/coverage';
 import {
   type BuildContext,
   type CaptureBundle,
   type ScoredBasket,
   basketSpCost,
   chooseBasketsToScore,
+  greedyByRatioBasket,
   selectTopDiverse,
 } from '@/core/spOptimizer';
+import type { SkillRarity } from '@/core/types';
 import {
   type BashinStats,
   type SimBuild,
@@ -42,9 +45,29 @@ export interface RankedBasket extends ScoredBasket {
   descriptor: string;
 }
 
+/** One candidate skill's row for the UI table: single-skill ΔL (measured vs the
+ *  owned-only base, so it's pin-independent) + the L/SP ratio it implies. */
+export interface CandidateRow {
+  skillId: string;
+  rarity: SkillRarity;
+  deltaL: number;
+  screenSpCost: number;
+  baseSpCost?: number;
+  lPerSp: number;
+  hintLevel?: HintLevel;
+  /** True when the working hint level differs from the imported capture's —
+   *  the shown cost is a projection, not the captured screen truth (red accent). */
+  hintEdited?: boolean;
+  prereqSkillId?: string;
+  pinned: boolean;
+}
+
 export interface RankResult {
   mode: 'exact' | 'shortlist';
   baskets: RankedBasket[];
+  candidates: CandidateRow[];
+  /** Mean L of the greedy-by-ratio basket (the "vs greedy" banner comparison); 0 if none. */
+  greedyScore: number;
 }
 
 /** Build a SimBuild from a BuildContext + the basket's skill set. */
@@ -82,6 +105,7 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
 
   const lockedSkills = [...new Set([...ctx.ownedSkills, ...ctx.pinned])];
   const lockedBuild = toSimBuild(ctx, lockedSkills);
+  const ownedBuild = toSimBuild(ctx, ctx.ownedSkills);
 
   const cache = new Map<string, BashinStats>();
   const cached = (key: string, compute: () => BashinStats): BashinStats => {
@@ -91,19 +115,33 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
     cache.set(key, v);
     return v;
   };
-  const baseKey = `${ctx.courseId}|${lockedSkills.slice().sort().join(',')}`;
+  const lockedKey = `${ctx.courseId}|${lockedSkills.slice().sort().join(',')}`;
+  const ownedKey = `${ctx.courseId}|owned:${ctx.ownedSkills.slice().sort().join(',')}`;
 
-  // Per-candidate single-skill Δ-L: feeds the shortlist branch's proxy and
-  // (later) the UI L/SP table. On the exact branch it's computed but unused for
-  // ranking — acceptable for v1 (bounded to a handful of candidates).
+  // Single-skill ΔL vs the OWNED base for every candidate (pin-independent, so the
+  // table's ΔL/L-SP columns don't shift when you pin — only basket sims depend on pins).
   const deltaLById: Record<string, number> = {};
+  const lPerSpById: Record<string, number> = {};
   for (const c of ctx.candidates) {
-    if (lockedSkills.includes(c.skillId)) continue;
-    const stats = cached(`${baseKey}|d:${c.skillId}`, () =>
-      deps.skillDelta(lockedBuild, race, c.skillId, n, seed),
+    const stats = cached(`${ownedKey}|d:${c.skillId}`, () =>
+      deps.skillDelta(ownedBuild, race, c.skillId, n, seed),
     );
-    deltaLById[c.skillId] = stats.nsamples === 0 ? 0 : stats.mean;
+    const dl = stats.nsamples === 0 ? 0 : stats.mean;
+    deltaLById[c.skillId] = dl;
+    lPerSpById[c.skillId] = c.screenSpCost > 0 ? (dl / c.screenSpCost) * 1000 : 0;
   }
+
+  const pinnedSet = new Set(ctx.pinned);
+  const candidateRows: CandidateRow[] = ctx.candidates.map((c) => ({
+    skillId: c.skillId,
+    rarity: c.rarity,
+    deltaL: deltaLById[c.skillId] ?? 0,
+    screenSpCost: c.screenSpCost,
+    ...(c.hintLevel !== undefined ? { hintLevel: c.hintLevel } : {}),
+    ...(c.prereqSkillId !== undefined ? { prereqSkillId: c.prereqSkillId } : {}),
+    lPerSp: lPerSpById[c.skillId] ?? 0,
+    pinned: pinnedSet.has(c.skillId),
+  }));
 
   const choice = chooseBasketsToScore(ctx, deltaLById, {
     exactThreshold: opts.exactThreshold ?? 256,
@@ -111,13 +149,17 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
     minDistance: 2,
   });
 
-  const scored: (ScoredBasket & { descriptor: string })[] = choice.baskets.map((skills) => {
+  const scoreBasket = (skills: string[]): BashinStats => {
     // The sim adds only the non-locked skills on top of the locked base (owned +
     // pinned are already in lockedBuild).
     const additions = skills.filter((id) => !lockedSkills.includes(id));
-    const stats = cached(`${baseKey}|p:${additions.slice().sort().join(',')}`, () =>
+    return cached(`${lockedKey}|p:${additions.slice().sort().join(',')}`, () =>
       deps.planner(lockedBuild, race, additions, n, seed),
     );
+  };
+
+  const scored: (ScoredBasket & { descriptor: string })[] = choice.baskets.map((skills) => {
+    const stats = scoreBasket(skills);
     // SP is spent on every PURCHASED skill in the basket — pinned must-buys cost
     // money; only already-owned skills are free, and those are never candidates
     // (so basketSpCost scores them 0). Use the full basket skills, not additions.
@@ -133,10 +175,18 @@ export function rankBaskets(bundle: CaptureBundle, opts: RankOpts = {}): RankRes
     };
   });
 
+  // "vs greedy" banner comparison (spec §4): the naive greedy-by-(L/SP) basket,
+  // scored the same way as the sim-ranked baskets — never used to rank them.
+  const greedy = greedyByRatioBasket(ctx.candidates, ctx.spBudget, ctx.pinned, lPerSpById);
+  const greedyStats = greedy.length ? scoreBasket(greedy) : undefined;
+  const greedyScore = greedyStats && greedyStats.nsamples > 0 ? greedyStats.mean : 0;
+
   const top = selectTopDiverse(scored, { k: 3, bandBashin: 3, minDistance: 2 });
   const byKey = new Map(scored.map((s) => [s.skills.slice().sort().join(','), s.descriptor]));
   return {
     mode: choice.mode,
+    candidates: candidateRows,
+    greedyScore,
     baskets: top.map((b) => ({
       ...b,
       descriptor: byKey.get(b.skills.slice().sort().join(',')) ?? '',

@@ -60,6 +60,14 @@ describe('parseCareerCapture', () => {
     expect(bundle.context.aptitudesAll).toEqual(raw.aptitudes);
   });
 
+  it('dedupes a duplicated skill row first-wins (dup candidates break React keys downstream)', () => {
+    const withDup = { ...raw, skills: [...raw.skills, { skillId: 200011, isAcquired: 0, needPoint: 50, hintLv: 0 }] };
+    const bundle = parseCareerCapture(withDup, { skillById, courseId: '10906' });
+    const ids = bundle.context.candidates.map((c) => c.skillId);
+    expect(ids).toEqual([...new Set(ids)]);
+    expect(bundle.context.candidates.find((c) => c.skillId === '200011')!.screenSpCost).toBe(99); // first wins
+  });
+
   it('rejects malformed raw data', () => {
     expect(() => parseCareerCapture({ ...raw, stats: null }, { skillById, courseId: '10906' }))
       .toThrow(/stats must be an object/);

@@ -71,3 +71,50 @@ describe('rankBaskets', () => {
     }
   });
 });
+
+// `bundle` (the default fixture import above) is a full real-data capture; the
+// candidate-row tests below need a small hand-built one, so this helper is
+// named distinctly to avoid shadowing that import.
+function candidateBundle(over: Partial<CaptureBundle['context']> = {}): CaptureBundle {
+  return {
+    schemaVersion: 1, source: 'manual', capturedAt: 'x', server: 'global', dataVersion: 'v', seed: 1,
+    context: {
+      umaId: 'u', stats: { spd: 1000, sta: 800, pow: 700, gut: 400, wit: 900 },
+      aptitudes: { distance: 'A', surface: 'A', strategy: 'A' }, strategy: 'pace',
+      courseId: '10906', spBudget: 300, ownedSkills: [], pinned: [],
+      candidates: [
+        { skillId: 'a', rarity: 'white', screenSpCost: 100, hintLevel: 0 },
+        { skillId: 'b', rarity: 'white', screenSpCost: 100 },
+      ],
+      ...over,
+    },
+  };
+}
+// Deterministic fake sim: ΔL = 1 for 'a', 2 for 'b'; basket score = sum of member ΔL.
+const candidateDeps: SimDeps = {
+  skillDelta: (_b, _r, id) => {
+    const mean = id === 'a' ? 1 : 2;
+    return { mean, min: 0, max: 0, median: 0, nsamples: 5, results: [mean] };
+  },
+  planner: (_b, _r, skills) => {
+    const mean = skills.reduce((s, id) => s + (id === 'a' ? 1 : 2), 0);
+    return { mean, min: 0, max: 0, median: 0, nsamples: 5, results: [mean] };
+  },
+};
+
+describe('rankBaskets candidate rows', () => {
+  it('returns one CandidateRow per candidate with deltaL + lPerSp + pinned', () => {
+    const r = rankBaskets(candidateBundle({ pinned: ['a'] }), { deps: candidateDeps });
+    expect(r.candidates.map((c) => c.skillId).sort()).toEqual(['a', 'b']);
+    const a = r.candidates.find((c) => c.skillId === 'a')!;
+    expect(a.deltaL).toBe(1);              // measured vs owned base even though pinned
+    expect(a.lPerSp).toBeCloseTo(10);      // 1 / 100 * 1000
+    expect(a.pinned).toBe(true);
+    expect(r.candidates.find((c) => c.skillId === 'b')!.pinned).toBe(false);
+  });
+  it('reports a greedyScore', () => {
+    const r = rankBaskets(candidateBundle(), { deps: candidateDeps });
+    expect(typeof r.greedyScore).toBe('number');
+    expect(r.greedyScore).toBeGreaterThan(0);
+  });
+});

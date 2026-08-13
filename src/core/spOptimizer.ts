@@ -278,6 +278,38 @@ export function shortlistByProxy(
   return out;
 }
 
+// --- greedy-by-ratio heuristic ---
+
+/**
+ * The prereq-closed basket a naive greedy-by-(L/SP) buyer takes under `budget`:
+ * pinned forced first, then optional candidates in descending lPerSp, each pulled
+ * in with its prereq closure only if the whole closure still fits. Pure and total.
+ * Used ONLY for the "vs greedy" banner comparison — never to rank (the sim ranks).
+ */
+export function greedyByRatioBasket(
+  candidates: BuyableSkill[],
+  budget: number,
+  pinned: string[],
+  lPerSpById: Record<string, number>,
+): string[] {
+  const chosen = new Set(prereqClosure(pinned, candidates));
+  let spent = basketSpCost([...chosen], candidates);
+  const optional = candidates
+    .filter((c) => !chosen.has(c.skillId))
+    .sort((x, y) => (lPerSpById[y.skillId] ?? 0) - (lPerSpById[x.skillId] ?? 0));
+  for (const c of optional) {
+    if (chosen.has(c.skillId)) continue;
+    const closure = prereqClosure([c.skillId], candidates);
+    const add = closure.filter((id) => !chosen.has(id));
+    const addCost = basketSpCost(add, candidates);
+    if (spent + addCost <= budget) {
+      add.forEach((id) => chosen.add(id));
+      spent += addCost;
+    }
+  }
+  return [...chosen];
+}
+
 // --- CaptureBundle import validation (F1) ---
 
 function fail(msg: string): never { throw new Error(`Invalid CaptureBundle: ${msg}`); }
@@ -413,25 +445,63 @@ export function parseCaptureBundle(data: unknown): CaptureBundle {
  *   pure data fact): `confirmedPatchMap` in rankBaskets.toSimBuild +
  *   `skillPatchesSig` in `simCacheKey` + a PatchedSimNote on M2 results.
  */
+/** The skill that must be BOUGHT first, if any: the explicit gold→white
+ *  prereq from the data, else the ◎→○ upgrade inferred from the variant
+ *  family — the game sells a ◎ white as an upgrade on the purchased ○,
+ *  exactly like gold on white, but the baked data only records the gold
+ *  link. Same-server variants only (cross-server variantSkillIds exist —
+ *  see the availability-epic gotcha). */
+export function purchasePrereqId(
+  record: SkillRecord,
+  skillById: ReadonlyMap<string, SkillRecord>,
+): string | undefined {
+  if (record.prereqSkillId !== undefined) return record.prereqSkillId;
+  if (!record.nameEn.endsWith('◎')) return undefined;
+  const circleName = `${record.nameEn.slice(0, -1)}○`;
+  for (const vid of record.variantSkillIds ?? []) {
+    const v = skillById.get(vid);
+    if (v && v.server === record.server && v.nameEn === circleName) return v.skillId;
+  }
+  return undefined;
+}
+
 export function wishlistToCandidates(
   wishlist: WishlistItem[],
   skillById: ReadonlyMap<string, SkillRecord>,
 ): BuyableSkill[] {
   const out: BuyableSkill[] = [];
   const seen = new Set<string>();
-  for (const item of wishlist) {
-    if (seen.has(item.skillId)) continue;
-    const skill = skillById.get(item.skillId);
-    if (!skill || skill.server !== 'global') continue;
-    seen.add(item.skillId);
+  const toCandidate = (skill: SkillRecord): BuyableSkill => {
     const bs: BuyableSkill = {
       skillId: skill.skillId,
       rarity: skill.rarity,
       screenSpCost: skill.baseSpCost,
       matchTier: 'manual',
     };
-    if (skill.prereqSkillId !== undefined) bs.prereqSkillId = skill.prereqSkillId;
-    out.push(bs);
+    const prereq = purchasePrereqId(skill, skillById);
+    if (prereq !== undefined) bs.prereqSkillId = prereq;
+    return bs;
+  };
+  for (const item of wishlist) {
+    if (seen.has(item.skillId)) continue;
+    const skill = skillById.get(item.skillId);
+    if (!skill || skill.server !== 'global') continue;
+    seen.add(item.skillId);
+    out.push(toCandidate(skill));
+  }
+  // A hypothetical build starts from scratch, so a wishlisted chain head
+  // (gold, ◎) needs its unlisted base rows on the buy screen too — emit them
+  // (transitively) or the basket would price the head without its base.
+  const worklist = out.map((c) => c.prereqSkillId).filter((id): id is string => id !== undefined);
+  while (worklist.length) {
+    const id = worklist.pop()!;
+    if (seen.has(id)) continue;
+    const skill = skillById.get(id);
+    if (!skill || skill.server !== 'global') continue;
+    seen.add(id);
+    const c = toCandidate(skill);
+    out.push(c);
+    if (c.prereqSkillId !== undefined) worklist.push(c.prereqSkillId);
   }
   return out;
 }

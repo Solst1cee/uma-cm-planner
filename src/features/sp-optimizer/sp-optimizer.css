@@ -17,8 +17,7 @@
 .sp-saved li { display: flex; gap: 0.5rem; align-items: center; }
 .sp-load { flex: 1; text-align: left; }
 
-.sp-imports { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; margin-bottom: 0.5rem; }
-.sp-import { display: inline-grid; gap: 0.2rem; }
+.sp-file-hidden { display: none; }
 .sp-candidate-row { display: flex; align-items: center; gap: 0.4rem; }
 .sp-candidate-name { flex: 1; }
 .sp-candidate-cost { width: 5rem; }
@@ -26,3 +25,244 @@
 .sp-tier-badge { font-size: 0.7rem; padding: 0 0.3rem; border-radius: 0.25rem; background: var(--chip, #eee); }
 .sp-tier-badge[data-tier='fuzzy'] { background: var(--warn-bg); }
 .sp-tier-badge[data-tier='exact'] { background: var(--ok-bg, #d4edda); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Task 10: Tab-1 rebuild — page shell, build/SP card, result banner,
+   buyable-skills table, suggested-basket cards. Semantic tokens only;
+   color-mix(...) is used for tints so both themes read correctly.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Page shell + tabs ─────────────────────────────────────────────────── */
+.sp-page { display: flex; flex-direction: column; gap: 0.9rem; padding: 1rem 1.4rem; max-width: 82rem; }
+
+.sp-tabs { display: inline-flex; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+.sp-tabs [role='tab'] {
+  background: none; border: 0; border-radius: 0;
+  padding: 0.5rem 0.9rem; font-weight: 600; font-size: 0.9rem;
+  color: var(--fg-muted); border-bottom: 2px solid transparent; cursor: pointer;
+}
+.sp-tabs [role='tab'].on { color: var(--accent); border-bottom-color: var(--accent); }
+.sp-tabs [role='tab']:hover:not(.on) { color: var(--fg); }
+
+.sp-analyze-row { display: flex; align-items: center; gap: 0.75rem; }
+.sp-analyze { background: var(--accent); color: var(--bg-0); border-color: var(--accent); font-weight: 600; }
+.sp-analyze:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 85%, var(--fg) 15%); }
+.sp-stale {
+  color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-border);
+  border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.8rem; font-weight: 600;
+}
+
+.sp-f2 {
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px);
+  background: var(--bg-1); padding: 1.4rem; text-align: center; display: grid; gap: 0.4rem; justify-items: center;
+}
+.sp-f2 h3 { margin: 0; color: var(--fg); }
+
+/* ── Build & SP card ──────────────────────────────────────────────────── */
+.sp-buildcard {
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px);
+  background: var(--bg-1); padding: 0.85rem 1rem; display: grid; gap: 0.6rem;
+}
+.sp-buildcard-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.sp-loadplan { padding-top: 0.5rem; border-top: 1px dashed var(--border); }
+
+.sp-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.sp-seg button {
+  appearance: none; background: transparent; border: 0; border-right: 1px solid var(--border);
+  border-radius: 0; padding: 0.35rem 0.7rem; font-size: 0.82rem; color: var(--fg-muted); cursor: pointer;
+}
+.sp-seg button:last-child { border-right: 0; }
+.sp-seg button.on { background: var(--accent); color: var(--bg-0); font-weight: 600; }
+
+.sp-chip {
+  display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px;
+  padding: 0.2rem 0.6rem; font-size: 0.78rem; color: var(--fg-muted);
+}
+
+.sp-fastlearner { display: inline-flex; align-items: center; gap: 0.35rem; margin-left: auto; cursor: pointer; }
+.sp-fastlearner input { accent-color: var(--accent); }
+
+.sp-available { display: grid; gap: 0.15rem; }
+.sp-buildcard .sp-available input {
+  width: 7rem; text-align: right; font-variant-numeric: tabular-nums;
+  appearance: textfield; -moz-appearance: textfield;
+}
+.sp-buildcard .sp-available input::-webkit-outer-spin-button,
+.sp-buildcard .sp-available input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sp-match { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+
+/* "Load uma plan" section row (mockup: dashed separator, label + chooser +
+   helper + match chips) with the M1.2 anchor-popover pattern. */
+.sp-loadplan-label { font-size: 0.82rem; font-weight: 600; color: var(--fg-muted); }
+.sp-loadplan-anchor { position: relative; display: inline-flex; }
+.sp-loadplan-btn {
+  font-size: 0.82rem; font-weight: 600; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+.sp-chip-lock { color: var(--warn-fg); background: var(--warn-bg); border-color: var(--warn-border); }
+.sp-chip-dash { border-style: dashed; background: var(--bg-1); }
+.sp-loadplan-pop {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  z-index: 40;
+  width: min(360px, 86vw);
+  max-height: 70vh;
+  overflow: auto;
+}
+.sp-loadplan-pop .cmp-plan-inventory { width: auto; min-width: 0; }
+
+/* ── Result banner ────────────────────────────────────────────────────── */
+.sp-banner {
+  display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 1.25rem; align-items: center;
+  background: color-mix(in srgb, var(--live) 12%, var(--bg-1));
+  border: 1px solid color-mix(in srgb, var(--live) 35%, var(--border));
+  border-radius: var(--ds-card-radius, 12px); padding: 0.8rem 1.1rem;
+}
+.sp-banner-head { display: grid; gap: 0.2rem; }
+.sp-banner-label { font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-muted); font-weight: 600; }
+.sp-banner-big { font-size: 1.1rem; font-weight: 700; color: var(--fg); }
+.sp-banner-bar { display: grid; gap: 0.25rem; }
+.sp-bar { width: 100%; height: 8px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.sp-bar i { display: block; height: 100%; background: var(--live); border-radius: 999px; transition: width 160ms ease; }
+.sp-banner-sp { text-align: right; }
+.sp-banner-used { font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--fg); }
+.sp-Lval { color: var(--live); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ── Buyable skills table ─────────────────────────────────────────────── */
+.sp-table {
+  width: 100%; border-collapse: collapse; font-size: 0.86rem; background: var(--bg-1);
+  border: 1px solid var(--border); border-radius: var(--ds-card-radius, 12px); overflow: hidden;
+}
+.sp-table thead th {
+  text-align: left; color: var(--fg-muted); font-weight: 600; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.03em; padding: 0.5rem 0.6rem;
+  background: var(--bg-2); border-bottom: 1px solid var(--border);
+}
+.sp-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.sp-table tbody tr:last-child td { border-bottom: 0; }
+
+/* Row states: baseline (is-avail) renders NORMAL — no dimming; a 🔒 lock is a
+   light-blue tint; ✕ excluded is the greyed-out state (out of the analysis). */
+.sp-row.is-lock { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.sp-row.is-buy { background: color-mix(in srgb, var(--live) 9%, transparent); }
+.sp-row.is-excluded { opacity: 0.4; filter: grayscale(0.7); }
+
+.sp-lock {
+  width: 1.9rem; height: 1.9rem; padding: 0; display: grid; place-items: center;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
+}
+.sp-lock.is-lock { background: color-mix(in srgb, var(--accent) 18%, var(--bg-1)); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.sp-lock.is-buy { background: color-mix(in srgb, var(--live) 20%, var(--bg-1)); border-color: color-mix(in srgb, var(--live) 45%, var(--border)); color: var(--live); }
+.sp-lock.is-avail { color: var(--fg-muted); }
+.sp-lock.is-excluded { color: var(--fg-muted); background: var(--bg-2); border-color: var(--border); }
+
+/* Inline-flex on an inner wrapper, NOT the <td> — display:flex on a td stops
+   it behaving as a table-cell, so the Skill cell rendered shorter than its row. */
+.sp-skill { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 10rem; }
+.sk-gold { color: var(--gold); font-weight: 600; }
+.sk-white { color: var(--fg); }
+
+/* Type chip: base + 10 effect-tone variants, reusing the design-system
+   --ef-* tokens where a matching family exists (speed/accel/heal/debuff),
+   and generic theme-aware tokens (warn/violet/tier-scenario/muted) for the
+   tones that have no dedicated --ef-* family. */
+.sp-kind {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.01em;
+  padding: 0.12rem 0.45rem; border-radius: 999px; border: 1px solid; white-space: nowrap;
+}
+.sp-kind.is-target-speed, .sp-kind.is-current-speed { color: var(--ef-spd-fg); border-color: var(--ef-spd-border); background: var(--ef-spd-bg); }
+.sp-kind.is-acceleration { color: var(--ef-acc-fg); border-color: var(--ef-acc-border); background: var(--ef-acc-bg); }
+.sp-kind.is-recovery { color: var(--ef-heal-fg); border-color: var(--ef-heal-border); background: var(--ef-heal-bg); }
+.sp-kind.is-stat { color: var(--ef-rec-fg); border-color: var(--ef-rec-border); background: var(--ef-rec-bg); }
+.sp-kind.is-debuff { color: var(--ef-dbf-fg); border-color: var(--ef-dbf-border); background: var(--ef-dbf-bg); }
+.sp-kind.is-start { color: var(--warn-fg); border-color: var(--warn-border); background: var(--warn-bg); }
+.sp-kind.is-movement {
+  color: var(--violet); border-color: color-mix(in srgb, var(--violet) 45%, var(--border));
+  background: color-mix(in srgb, var(--violet) 12%, var(--bg-1));
+}
+.sp-kind.is-duration {
+  color: var(--tier-scenario, #14b8a6); border-color: color-mix(in srgb, var(--tier-scenario, #14b8a6) 45%, var(--border));
+  background: color-mix(in srgb, var(--tier-scenario, #14b8a6) 12%, var(--bg-1));
+}
+.sp-kind.is-special { color: var(--fg-muted); border-color: var(--border); background: var(--bg-2); }
+
+/* Cost + stepper align identically on every row: fixed-width right-aligned
+   cost, stepper always starting at the same x. */
+.sp-cost { white-space: nowrap; }
+.sp-cost-value {
+  font-variant-numeric: tabular-nums; font-weight: 600;
+  width: 3rem; display: inline-block; text-align: right;
+}
+/* Working hint ≠ imported capture → this cost is a projection, not screen
+   truth: red accent on the cost, Lv readout, and stepper buttons (no extra
+   bolding — weights match unedited rows). */
+.sp-cost.is-edited .sp-cost-value,
+.sp-cost.is-edited .sp-hintstep-lv { color: var(--danger, #c0392b); }
+.sp-cost.is-edited .sp-hintstep { border-color: color-mix(in srgb, var(--danger, #c0392b) 45%, var(--border)); }
+.sp-cost.is-edited .sp-hintstep button {
+  color: var(--danger, #c0392b);
+  background: color-mix(in srgb, var(--danger, #c0392b) 10%, var(--bg-2));
+}
+.sp-cost.is-edited .sp-hintstep button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger, #c0392b) 22%, var(--bg-2));
+}
+.sp-cost.is-edited .sp-hintstep button:disabled { color: var(--fg-muted); }
+
+/* − Lv N + hint stepper (the only way to change a cost — it derives from hint). */
+.sp-hintstep {
+  display: inline-flex; align-items: center; margin-left: 0.5rem;
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+}
+.sp-hintstep button {
+  appearance: none; background: var(--bg-2); border: 0; border-radius: 0;
+  width: 1.5rem; padding: 0.15rem 0; font-size: 0.85rem; line-height: 1;
+  color: var(--fg); cursor: pointer;
+}
+.sp-hintstep button:disabled { color: var(--fg-muted); opacity: 0.5; cursor: default; }
+.sp-hintstep button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 15%, var(--bg-2)); }
+.sp-hintstep-lv {
+  padding: 0 0.45rem; font-size: 0.76rem; font-variant-numeric: tabular-nums;
+  color: var(--fg-muted); border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+
+.sp-ratio { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sp-ratio.is-strong { color: var(--live); }
+.sp-ratio.is-weak { color: var(--warn-fg); }
+
+.sp-hint { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.sp-hint button {
+  appearance: none; background: transparent; border: 0; border-right: 1px solid var(--border);
+  border-radius: 0; padding: 0.2rem 0.45rem; font-size: 0.76rem; color: var(--fg-muted); cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.sp-hint button:last-child { border-right: 0; }
+.sp-hint button.on { background: var(--accent); color: var(--bg-0); font-weight: 700; }
+
+/* ── Suggested basket cards ───────────────────────────────────────────── */
+.sp-cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.75rem; }
+.sp-card.is-selected {
+  border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg-1));
+}
+.sp-card-head {
+  width: 100%; display: flex; justify-content: space-between; align-items: baseline;
+  background: none; border: 0; padding: 0; font: inherit; cursor: pointer; color: inherit;
+}
+.sp-card-title { font-weight: 700; }
+.sp-card-mode {
+  font-size: 0.66rem; letter-spacing: 0.03em; color: var(--fg-muted); background: var(--bg-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.05rem 0.4rem;
+}
+.sp-card-L { font-size: 1.05rem; margin: 0.2rem 0; }
+.sp-compare-btn {
+  width: 100%; margin-top: 0.15rem; background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--accent); font-weight: 600;
+}
+.sp-compare-btn:hover { background: color-mix(in srgb, var(--accent) 10%, var(--bg-2)); }
