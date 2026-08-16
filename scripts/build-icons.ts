@@ -88,25 +88,130 @@ const ICON_SWAP_RETRIES = 5;
 /** Cards that exist in the dump ONLY as uppercase `Support_card_s_…` (provenance §2). */
 const UPPERCASE_SUPPORT_CARD_IDS: ReadonlySet<string> = new Set(['30024', '30061']);
 
-/** Global card_data ids whose trained icon asset id differs from the UmaRecord umaId. */
-const UMA_TRAINED_ICON_ID_OVERRIDES: Readonly<Record<string, string>> = {
+/**
+ * umaIds whose trained icon asset id differs from the umaId itself. The asset id
+ * is a per-character OUTFIT CATALOGUE id, not derivable from the umaId — without
+ * an entry here the resolver silently falls back to the base `chr_icon_<charaId>`
+ * school-uniform portrait, so an alt outfit ships the wrong art.
+ *
+ * DERIVATION (re-run this when the dump or umas.json gains outfits): per charaId,
+ * take the umaIds with no `trained_chr_icon_<charaId>_<umaId>_02.png` and the
+ * trained asset ids that match no umaId; when both sets are size 1 the mapping is
+ * forced by elimination. When a character has two of each, elimination is
+ * AMBIGUOUS and the ids must be paired by LOOKING at the art — id ordering is NOT
+ * a valid tiebreak (`100402`→`100430` but `100403`→`100410`). The four charas that
+ * needed the visual pass: 1010 Taiki Shuttle, 1041 Sakura Bakushin O, 1048 Tosen
+ * Jordan, plus the single-spare 1025 Manhattan Cafe / 1077 Narita Top Road (where
+ * the `…02` outfit takes the art and the `…03` one has none, matching how
+ * `102202`/`102203` was already resolved).
+ *
+ * Known to have NO trained art in the dump (base-portrait fallback is correct):
+ * 102203 Fine Motion, 102503 Manhattan Cafe, 107703 Narita Top Road,
+ * 111602 Gentildonna, 113401 Curren Bouquetd'or.
+ */
+export const UMA_TRAINED_ICON_ID_OVERRIDES: Readonly<Record<string, string>> = {
+  '100103': '100130',
+  '100202': '100230',
+  '100303': '100343',
   '100402': '100430',
+  '100403': '100410',
   '100502': '100520',
+  '100503': '100550',
+  '100603': '100646',
+  '100703': '100730',
+  '100802': '100846',
+  '100902': '100946',
+  '101002': '101023',
+  '101003': '101013',
+  '101103': '101116',
+  '101202': '101226',
+  '101303': '101330',
   '101402': '101416',
   '101502': '101510',
   '101702': '101743',
   '101802': '101826',
+  '101902': '101940',
   '102002': '102020',
+  '102102': '102143',
   '102202': '102226',
+  '102303': '102346',
   '102402': '102426',
+  '102403': '102440',
+  '102502': '102513',
   '102602': '102613',
+  '102702': '102713',
+  '102802': '102840',
+  '102902': '102913',
+  '103003': '103040',
+  '103103': '103113',
+  '103203': '103230',
+  '103302': '103346',
+  '103402': '103443',
+  '103503': '103516',
+  '103602': '103640',
   '103702': '103713',
+  '103703': '103730',
   '103802': '103826',
+  '103902': '103943',
+  '104003': '104043',
+  '104102': '104150',
+  '104103': '104120',
+  '104202': '104240',
+  '104402': '104426',
   '104502': '104540',
+  '104503': '104550',
+  '104603': '104650',
+  '104702': '104723',
+  '104802': '104823',
+  '104803': '104840',
+  '104902': '104946',
+  '105003': '105016',
+  '105102': '105126',
   '105202': '105210',
+  '105302': '105323',
+  '105502': '105540',
   '105602': '105623',
+  '105702': '105710',
+  '105802': '105840',
+  '105902': '105923',
   '106002': '106050',
+  '106003': '106010',
   '106102': '106150',
+  '106103': '106126',
+  '106202': '106250',
+  '106302': '106310',
+  '106402': '106446',
+  '106502': '106520',
+  '106703': '106710',
+  '106803': '106810',
+  '106902': '106920',
+  '107102': '107120',
+  '107202': '107250',
+  '107402': '107446',
+  '107602': '107610',
+  '107702': '107746',
+  '107802': '107813',
+  '108202': '108220',
+  '108302': '108340',
+  '108402': '108420',
+  '108502': '108520',
+  '108602': '108626',
+  '108702': '108713',
+  '108802': '108830',
+  '108902': '108930',
+  '109102': '109130',
+  '109302': '109323',
+  '109402': '109450',
+  '109802': '109850',
+  '109902': '109930',
+  '110202': '110213',
+  '110402': '110410',
+  '110502': '110523',
+  '110602': '110623',
+  '110702': '110720',
+  '111002': '111026',
+  '111902': '111946',
+  '112402': '112410',
 };
 
 export interface IconManifest {
@@ -196,6 +301,50 @@ export function umaSourceFile(
   return { source: `chara/chr_icon_${charaId}.png`, fallback: true };
 }
 
+/** Edge length of the greyscale sample used to compare two portraits. */
+const PORTRAIT_SAMPLE_EDGE = 16;
+
+/**
+ * Mean absolute per-pixel difference of two equal-length greyscale samples (0 =
+ * identical, 255 = inverted). Deliberately crude: it only has to separate "this
+ * is literally the same artwork" from "this is a different outfit".
+ */
+export function portraitDistance(a: readonly number[], b: readonly number[]): number {
+  if (a.length !== b.length) {
+    throw new Error(`portraitDistance: sample length mismatch (${a.length} vs ${b.length}).`);
+  }
+  let total = 0;
+  for (let i = 0; i < a.length; i++) total += Math.abs((a[i] ?? 0) - (b[i] ?? 0));
+  return Math.round(total / a.length);
+}
+
+/**
+ * Distance below which a game-native portrait is judged to BE the base chr_icon.
+ * Measured against the real dump: the two known-bad game-native files (Taiki
+ * Shuttle 101002, Mejiro Dober 105902 — whose client extraction hit the same
+ * missing-asset-id fallback this module has) score 0 and 2, while all 17
+ * originally-correct ones score 24-45. 8 sits in the middle of that gap.
+ */
+export const BASE_PORTRAIT_MAX_DISTANCE = 8;
+
+/**
+ * Should the vendored game-native portrait win over the uma-tools dump?
+ *
+ * Normally yes — it is the same artwork at correct proportions (provenance §2.1).
+ * The exception is a game-native file that is itself just the base chr_icon while
+ * the dump holds the uma's REAL trained outfit art: preferring it there would
+ * silently shadow `UMA_TRAINED_ICON_ID_OVERRIDES` and ship the school-uniform
+ * portrait. Correct art beats correct proportions.
+ */
+export function preferGameNativePortrait(opts: {
+  gameIconExists: boolean;
+  dumpHasTrainedArt: boolean;
+  gameIconMatchesBase: boolean;
+}): boolean {
+  if (!opts.gameIconExists) return false;
+  return !(opts.dumpHasTrainedArt && opts.gameIconMatchesBase);
+}
+
 // ---------------------------------------------------------------------------
 // Build (impure: reads the dump, converts via sharp, writes WebP + manifest)
 // ---------------------------------------------------------------------------
@@ -243,6 +392,17 @@ async function sliceRankIcons(outDir: string): Promise<string[]> {
       .toFile(join(outDir, `${rankIconFilename(label)}.webp`));
   }
   return rankLabelsOrdered();
+}
+
+/** Greyscale PORTRAIT_SAMPLE_EDGE² sample of one image, for `portraitDistance`. */
+async function portraitSample(sourceAbs: string): Promise<number[]> {
+  const raw = await sharp(sourceAbs)
+    .flatten({ background: '#ffffff' })
+    .resize(PORTRAIT_SAMPLE_EDGE, PORTRAIT_SAMPLE_EDGE, { fit: 'fill' })
+    .greyscale()
+    .raw()
+    .toBuffer();
+  return [...raw];
 }
 
 /** Remove + recreate an output kind dir so a rebuild can't leave stale icons behind. */
@@ -328,12 +488,24 @@ export async function buildIcons(opts: { dataVersion: string }): Promise<void> {
     }
     // Prefer the correctly-proportioned game-native portrait when vendored;
     // otherwise use the uma-tools dump (which stretches the icon — provenance §2.1).
+    // A game-native file that is itself only the base chr_icon does NOT win over
+    // real trained art in the dump (see `preferGameNativePortrait`).
     const gameIcon = join(UMA_ICON_GAME_DIR, `${umaId}.png`);
+    const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
+    const gameIconExists = existsSync(gameIcon);
+    const dumpHasTrainedArt = !fallback && existsSync(srcAbs(source));
+    const basePortrait = srcAbs(`chara/chr_icon_${charaId}.png`);
+    const gameIconMatchesBase =
+      gameIconExists &&
+      dumpHasTrainedArt &&
+      existsSync(basePortrait) &&
+      portraitDistance(await portraitSample(gameIcon), await portraitSample(basePortrait)) <=
+        BASE_PORTRAIT_MAX_DISTANCE;
+
     let src: string;
-    if (existsSync(gameIcon)) {
+    if (preferGameNativePortrait({ gameIconExists, dumpHasTrainedArt, gameIconMatchesBase })) {
       src = gameIcon;
     } else {
-      const { source, fallback } = umaSourceFile(umaId, charaId, trainedExists);
       src = srcAbs(source);
       if (!existsSync(src)) {
         if (serverByUmaId.get(umaId) === 'global') {
